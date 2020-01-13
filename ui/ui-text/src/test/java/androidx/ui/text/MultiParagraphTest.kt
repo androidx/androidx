@@ -16,7 +16,7 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.px
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test

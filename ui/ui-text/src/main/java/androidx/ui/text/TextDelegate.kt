@@ -19,16 +19,10 @@ package androidx.ui.text
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.TextUnit
 import androidx.ui.core.constrain
-import androidx.ui.core.ipx
-import androidx.ui.core.sp
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -39,6 +33,12 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.ipx
+import androidx.ui.unit.sp
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

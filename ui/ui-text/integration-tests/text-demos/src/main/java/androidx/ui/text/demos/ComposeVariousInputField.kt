@@ -20,24 +20,24 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
-import androidx.ui.input.OffsetMap
-import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
-import androidx.ui.input.TransformedText
-import androidx.ui.input.VisualTransformation
-import androidx.ui.core.ipx
 import androidx.ui.core.tag
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.OffsetMap
+import androidx.ui.input.PasswordVisualTransformation
+import androidx.ui.input.TransformedText
+import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.Column
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Container
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle
 import androidx.ui.text.toUpperCase
+import androidx.ui.unit.ipx
 
 /**
  * The offset translator used for credit card input field.

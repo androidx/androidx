@@ -18,13 +18,13 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.Dp
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
+import androidx.ui.unit.Dp
 import java.util.Stack
 
 /**

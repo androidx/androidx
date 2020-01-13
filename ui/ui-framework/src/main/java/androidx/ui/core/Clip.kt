@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.ui.engine.geometry.Shape
+import androidx.ui.graphics.Shape
 
 /**
  * Clips the children with the provided shape.

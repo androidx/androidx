@@ -18,25 +18,25 @@ package androidx.ui.layout.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.ui.core.Dp
-import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.Row
-import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Wrap
-import androidx.ui.graphics.Color
-import androidx.ui.text.TextStyle
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.core.Text
 import androidx.ui.core.setContent
-import androidx.ui.core.sp
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
+import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
+import androidx.ui.text.TextStyle
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 
 class LayoutActivity : Activity() {
 

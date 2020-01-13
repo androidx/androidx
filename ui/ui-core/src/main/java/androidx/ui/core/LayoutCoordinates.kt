@@ -16,6 +16,10 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
+
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
  */

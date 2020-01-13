@@ -16,7 +16,7 @@
 
 package androidx.ui.test.util
 
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.PxPosition
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage

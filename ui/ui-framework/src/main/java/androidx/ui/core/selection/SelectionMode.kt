@@ -16,8 +16,8 @@
 
 package androidx.ui.core.selection
 
-import androidx.ui.core.PxBounds
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.PxBounds
+import androidx.ui.unit.PxPosition
 
 /**
  * The enum class allows user to decide the selection mode.

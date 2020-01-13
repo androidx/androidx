@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.input.CommitTextEditOp
@@ -38,6 +38,13 @@ import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextDecoration
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
+import androidx.ui.unit.round
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor

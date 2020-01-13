@@ -18,18 +18,18 @@ package androidx.ui.layout.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxSize
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
-import androidx.ui.core.round
-import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Spacer
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Spacer
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.round
+import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith

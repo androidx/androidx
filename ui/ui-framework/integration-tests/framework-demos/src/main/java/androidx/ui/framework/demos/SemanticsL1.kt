@@ -17,11 +17,11 @@
 package androidx.ui.framework.demos
 
 import androidx.ui.layout.Row
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.PxPosition
 import androidx.ui.core.Text
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.px
+import androidx.ui.unit.px
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.material.Button

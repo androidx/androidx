@@ -19,11 +19,11 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.TextField
-import androidx.ui.core.sp
-import androidx.ui.layout.Column
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.KeyboardType
+import androidx.ui.layout.Column
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.sp
 
 @Composable
 fun InputFieldTrickyUseCase() {

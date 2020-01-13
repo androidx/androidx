@@ -17,7 +17,7 @@
 package androidx.ui.text.style
 
 import androidx.compose.Immutable
-import androidx.ui.lerp
+import androidx.ui.util.lerp
 
 /**
  * Define a geometric transformation on text.

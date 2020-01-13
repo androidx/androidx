@@ -18,10 +18,10 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.FlowColumn
 import androidx.ui.layout.FlowRow
+import androidx.ui.unit.dp
 
 val sizes = listOf(
     50.dp, 50.dp, 50.dp, 30.dp, 40.dp, 110.dp, 100.dp, 40.dp, 30.dp,

@@ -30,6 +30,10 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

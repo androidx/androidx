@@ -17,19 +17,19 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Composable
-import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
 import androidx.compose.remember
+import androidx.ui.core.Constraints
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.dp
-import androidx.ui.core.ipx
 import androidx.ui.core.withTight
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 
 internal val HANDLE_WIDTH = 25.dp
 internal val HANDLE_HEIGHT = 25.dp

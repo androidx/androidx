@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Direction
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.PxPosition
 
 // TODO(b/146133703): Likely rename to PanGestureDetector as per b/146133703
 /**

@@ -18,23 +18,22 @@
 
 package androidx.ui.framework.demos
 
+import androidx.compose.Composable
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.coerceIn
-import androidx.ui.core.ipx
-import androidx.ui.core.toRect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.compose.Composable
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.ParentData
 import androidx.ui.core.tag
 import androidx.ui.graphics.Brush
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
+import androidx.ui.unit.Dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.toRect
 
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {

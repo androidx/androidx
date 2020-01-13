@@ -18,9 +18,9 @@ package androidx.ui.core.selection
 
 import androidx.compose.Immutable
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.PxPosition
 import androidx.ui.text.TextRange
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.PxPosition
 
 /**
  * Information about the current Selection.

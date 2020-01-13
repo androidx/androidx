@@ -19,10 +19,10 @@ package androidx.ui.text
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Density
-import androidx.ui.core.PxPosition
-import androidx.ui.core.px
-import androidx.ui.core.sp
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.TextType

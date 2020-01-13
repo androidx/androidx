@@ -17,7 +17,7 @@
 package androidx.ui.painting
 
 import androidx.test.filters.SmallTest
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image

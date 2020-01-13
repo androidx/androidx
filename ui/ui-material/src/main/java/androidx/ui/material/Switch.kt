@@ -18,17 +18,12 @@ package androidx.ui.material
 
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
-import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
-import androidx.ui.core.PxSize
 import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.ValueHolder
-import androidx.ui.core.dp
-import androidx.ui.core.px
-import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.selection.Toggleable
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -38,6 +33,11 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
+import androidx.ui.unit.withDensity
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options

@@ -22,13 +22,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.PxPosition
-import androidx.ui.core.TextUnit
-import androidx.ui.core.px
-import androidx.ui.core.sp
-import androidx.ui.core.withDensity
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
@@ -38,6 +32,12 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
+import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test

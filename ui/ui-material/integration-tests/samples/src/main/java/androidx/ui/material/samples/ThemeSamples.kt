@@ -19,7 +19,6 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.sp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
@@ -32,6 +31,7 @@ import androidx.ui.material.lightColorPalette
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
+import androidx.ui.unit.sp
 
 @Sampled
 @Composable

@@ -16,17 +16,17 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.ipx
-import androidx.ui.core.milliseconds
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.milliseconds
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify

@@ -20,19 +20,12 @@ import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
-import androidx.ui.core.Px
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.min
-import androidx.ui.core.px
-import androidx.ui.core.toRect
-import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.DragDirection
@@ -42,9 +35,16 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Stack
-import androidx.ui.lerp
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.surface.Surface
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.Px
+import androidx.ui.unit.dp
+import androidx.ui.unit.min
+import androidx.ui.unit.px
+import androidx.ui.unit.toRect
+import androidx.ui.unit.withDensity
+import androidx.ui.util.lerp
 
 /**
  * Possible states of the drawer

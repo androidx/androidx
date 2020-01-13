@@ -19,12 +19,12 @@ package androidx.ui.framework.demos.gestures
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
-import androidx.ui.core.px
-import androidx.ui.core.setContent
-import androidx.ui.graphics.Color
-import androidx.ui.core.dp
 import androidx.ui.core.Direction
 import androidx.ui.core.gesture.TouchSlopExceededGestureDetector
+import androidx.ui.core.setContent
+import androidx.ui.graphics.Color
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
 /**
  * Simple demo that shows off TouchSlopExceededGestureDetector.

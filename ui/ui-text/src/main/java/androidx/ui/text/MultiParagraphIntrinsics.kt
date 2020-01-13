@@ -16,9 +16,9 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.Density
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.unit.Density
 
 /**
  * Calculates and provides the intrinsic width and height of text that contains [ParagraphStyle].

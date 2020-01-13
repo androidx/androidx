@@ -20,11 +20,11 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Span
 import androidx.ui.core.Text
-import androidx.ui.core.sp
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.withStyle
+import androidx.ui.unit.sp
 
 @Sampled
 @Composable

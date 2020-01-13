@@ -17,7 +17,7 @@
 package androidx.ui.core.semantics
 
 import androidx.ui.core.ifDebug
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
 

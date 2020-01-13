@@ -24,21 +24,21 @@ import androidx.animation.InterruptionHandling
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
-import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
-import androidx.ui.core.PxPosition
-import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.ui.animation.Transition
+import androidx.ui.core.Draw
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.dp
+import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.core.withDensity
+import androidx.ui.geometry.Offset
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.withDensity
 
 class StateBasedRippleAnimation : Activity() {
 

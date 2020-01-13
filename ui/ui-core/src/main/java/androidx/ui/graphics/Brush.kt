@@ -16,8 +16,8 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.core.Px
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
+import androidx.ui.unit.Px
 
 interface Brush {
     fun applyTo(p: Paint)

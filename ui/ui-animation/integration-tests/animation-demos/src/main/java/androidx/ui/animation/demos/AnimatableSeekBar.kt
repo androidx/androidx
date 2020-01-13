@@ -29,22 +29,22 @@ import androidx.ui.animation.Transition
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Draw
-import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.core.sp
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
-import androidx.ui.graphics.Paint
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
 
 class AnimatableSeekBar : Activity() {
 

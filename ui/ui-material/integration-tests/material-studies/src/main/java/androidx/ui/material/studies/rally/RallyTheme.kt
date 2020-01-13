@@ -17,8 +17,6 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.ui.core.em
-import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
@@ -26,6 +24,8 @@ import androidx.ui.material.lightColorPalette
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
+import androidx.ui.unit.em
+import androidx.ui.unit.sp
 
 val rallyGreen = Color(0xFF1EB980)
 val rallyDarkGreen = Color(0xFF045D56)

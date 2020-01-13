@@ -25,21 +25,21 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
-import androidx.ui.core.dp
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.RRect
-import androidx.ui.engine.geometry.Radius
-import androidx.ui.engine.geometry.shrink
-import androidx.ui.engine.geometry.withRadius
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.RRect
+import androidx.ui.geometry.Radius
+import androidx.ui.geometry.shrink
+import androidx.ui.geometry.withRadius
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
-import androidx.ui.material.ripple.Ripple
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
+import androidx.ui.layout.Container
+import androidx.ui.layout.Padding
+import androidx.ui.material.ripple.Ripple
+import androidx.ui.unit.dp
 
 /**
  * A component that represents two states (checked / unchecked).

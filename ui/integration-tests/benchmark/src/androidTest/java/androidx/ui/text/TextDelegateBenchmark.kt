@@ -20,11 +20,11 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
-import androidx.ui.core.IntPx
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.ipx
-import androidx.ui.core.sp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.sp
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Image
 import androidx.ui.integration.test.RandomTextGenerator

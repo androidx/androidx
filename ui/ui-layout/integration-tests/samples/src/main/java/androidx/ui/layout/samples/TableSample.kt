@@ -18,8 +18,6 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Dp
-import androidx.ui.core.dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -27,6 +25,8 @@ import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable

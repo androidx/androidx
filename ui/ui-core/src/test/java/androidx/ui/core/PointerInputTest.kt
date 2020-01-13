@@ -17,6 +17,10 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.Assert.assertThat

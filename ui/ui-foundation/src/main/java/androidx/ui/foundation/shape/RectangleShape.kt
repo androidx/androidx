@@ -16,11 +16,11 @@
 
 package androidx.ui.foundation.shape
 
-import androidx.ui.core.Density
-import androidx.ui.core.PxSize
-import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.Shape
+import androidx.ui.graphics.Outline
+import androidx.ui.graphics.Shape
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.toRect
 
 /**
  * A shape describing the rectangle.

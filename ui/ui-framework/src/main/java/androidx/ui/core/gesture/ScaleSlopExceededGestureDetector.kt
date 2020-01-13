@@ -21,11 +21,11 @@ import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.Px
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.changedToUpIgnoreConsumed
-import androidx.ui.core.withDensity
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
+import androidx.ui.unit.withDensity
 import kotlin.math.absoluteValue
 
 // TODO(b/143877464): Implement a "can scale in / can scale out" check so that scale slop is only

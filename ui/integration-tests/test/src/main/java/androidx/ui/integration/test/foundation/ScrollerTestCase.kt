@@ -19,19 +19,19 @@ package androidx.ui.integration.test.foundation
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Draw
-import androidx.ui.core.dp
-import androidx.ui.core.px
-import androidx.ui.core.toRect
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.Column
+import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.test.ComposeTestCase
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 
 /**
  * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.

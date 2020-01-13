@@ -16,10 +16,7 @@
 
 package androidx.ui.integration.test
 
-import androidx.ui.core.em
-import androidx.ui.core.px
-import androidx.ui.core.sp
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.AnnotatedString
@@ -31,6 +28,9 @@ import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
+import androidx.ui.unit.em
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
 import kotlin.math.ceil
 import kotlin.random.Random
 

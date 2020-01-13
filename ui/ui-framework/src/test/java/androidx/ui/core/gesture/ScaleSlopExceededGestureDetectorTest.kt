@@ -16,13 +16,13 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.Duration
-import androidx.ui.core.milliseconds
-import androidx.ui.core.px
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
+import androidx.ui.unit.Duration
+import androidx.ui.unit.milliseconds
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

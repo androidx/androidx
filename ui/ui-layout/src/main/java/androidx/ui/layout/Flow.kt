@@ -19,14 +19,14 @@ package androidx.ui.layout
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.Placeable
-import androidx.ui.core.dp
-import androidx.ui.core.isFinite
-import androidx.ui.core.max
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.isFinite
+import androidx.ui.unit.max
 
 /**
  * A composable that places its children in a horizontal flow. Unlike [Row], if the

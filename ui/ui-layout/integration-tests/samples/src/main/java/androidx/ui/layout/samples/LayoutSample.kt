@@ -17,16 +17,16 @@
 package androidx.ui.layout.samples
 
 import androidx.compose.Composable
-import androidx.ui.core.Dp
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.core.ipx
-import androidx.ui.core.max
-import androidx.ui.core.min
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
+import androidx.ui.unit.Dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.max
+import androidx.ui.unit.min
 
 /**
  * A rectangle layout that tries to size itself to specified width and height, subject to

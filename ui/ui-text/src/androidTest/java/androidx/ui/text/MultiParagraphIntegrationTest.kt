@@ -19,13 +19,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.core.Density
-import androidx.ui.core.PxPosition
-import androidx.ui.core.TextUnit
-import androidx.ui.core.px
-import androidx.ui.core.sp
-import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
@@ -34,6 +28,12 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
+import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test

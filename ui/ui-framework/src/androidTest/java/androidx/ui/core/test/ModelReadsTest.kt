@@ -21,8 +21,8 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.ipx
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

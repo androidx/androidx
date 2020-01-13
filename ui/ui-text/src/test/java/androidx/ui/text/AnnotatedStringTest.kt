@@ -16,10 +16,10 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.text.AnnotatedString.Item
 import androidx.ui.text.style.TextAlign
+import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

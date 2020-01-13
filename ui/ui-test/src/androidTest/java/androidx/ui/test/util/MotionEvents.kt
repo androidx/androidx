@@ -18,10 +18,10 @@ package androidx.ui.test.util
 
 import android.content.ContextWrapper
 import android.view.MotionEvent
-import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.test.android.CollectedProviders
+import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 

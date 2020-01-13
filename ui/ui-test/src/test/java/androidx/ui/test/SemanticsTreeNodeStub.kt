@@ -18,7 +18,7 @@ package androidx.ui.test
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 
 class SemanticsTreeNodeStub(override val data: SemanticsConfiguration) : SemanticsTreeNode {
     override val parent: SemanticsTreeNode?

@@ -21,23 +21,23 @@ import android.os.Bundle
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
+import androidx.compose.Composable
+import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.toRect
+import androidx.ui.core.setContent
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.text.TextStyle
-import androidx.compose.Composable
-import androidx.compose.state
-import androidx.ui.core.setContent
-import androidx.ui.core.sp
-import androidx.ui.layout.Arrangement
+import androidx.ui.unit.dp
+import androidx.ui.unit.sp
+import androidx.ui.unit.toRect
 
 class RepeatedRotationActivity : Activity() {
 

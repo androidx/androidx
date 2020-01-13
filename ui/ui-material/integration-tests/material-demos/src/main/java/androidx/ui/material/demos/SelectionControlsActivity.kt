@@ -18,7 +18,6 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
@@ -28,6 +27,7 @@ import androidx.ui.material.samples.DefaultRadioGroupSample
 import androidx.ui.material.samples.RadioButtonSample
 import androidx.ui.material.samples.SwitchSample
 import androidx.ui.material.samples.TriStateCheckboxSample
+import androidx.ui.unit.dp
 
 class SelectionControlsActivity : MaterialDemoActivity() {
 

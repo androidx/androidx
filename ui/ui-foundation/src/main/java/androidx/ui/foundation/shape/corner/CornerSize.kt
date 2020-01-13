@@ -18,13 +18,13 @@ package androidx.ui.foundation.shape.corner
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.ui.core.Density
-import androidx.ui.core.Dp
-import androidx.ui.core.Px
-import androidx.ui.core.PxSize
-import androidx.ui.core.minDimension
-import androidx.ui.core.px
-import androidx.ui.core.withDensity
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.minDimension
+import androidx.ui.unit.px
+import androidx.ui.unit.withDensity
 
 /**
  * Defines size of a corner in [Px]. For example for rounded shape it can be a corner radius.

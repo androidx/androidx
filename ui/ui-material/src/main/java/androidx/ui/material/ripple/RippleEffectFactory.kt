@@ -16,10 +16,10 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.core.Density
-import androidx.ui.core.Dp
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.PxPosition
 
 /**
  * An encapsulation of an [RippleEffect] constructor used by [Ripple] and [RippleTheme].

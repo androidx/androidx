@@ -24,12 +24,12 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.core.Draw
-import androidx.ui.core.dp
-import androidx.ui.core.minDimension
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
+import androidx.ui.unit.dp
+import androidx.ui.unit.minDimension
 
 private const val DividerLengthInDegrees = 1.8f
 private val AngleOffset = FloatPropKey()

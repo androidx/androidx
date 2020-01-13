@@ -20,9 +20,9 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.dp
-import androidx.ui.core.withDensity
 import androidx.ui.graphics.Color
+import androidx.ui.unit.dp
+import androidx.ui.unit.withDensity
 
 @Sampled
 @Composable

@@ -21,27 +21,26 @@ import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
+import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.PxPosition
-import androidx.ui.core.coerceIn
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
+import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.ipx
-import androidx.ui.core.px
+import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.core.gesture.LongPressGestureDetector
-import androidx.ui.core.Draw
-import androidx.ui.core.dp
-import androidx.ui.core.gesture.DoubleTapGestureDetector
-import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.round
-import androidx.ui.core.toRect
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
+import androidx.ui.unit.round
+import androidx.ui.unit.toRect
 
 /**
  * Demonstration for how multiple DragGestureDetectors interact.

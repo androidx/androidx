@@ -18,7 +18,7 @@ package androidx.ui.integration.test.framework
 
 import androidx.compose.Composable
 import androidx.ui.core.TestTag
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap

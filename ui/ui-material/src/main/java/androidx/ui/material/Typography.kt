@@ -17,10 +17,10 @@
 package androidx.ui.material
 
 import androidx.compose.Ambient
-import androidx.ui.core.sp
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
+import androidx.ui.unit.sp
 
 /**
  * Data class holding typography definitions as defined by the [Material typography specification](https://material.io/design/typography/the-type-system.html#type-scale).

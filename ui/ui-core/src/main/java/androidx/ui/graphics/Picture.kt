@@ -1,6 +1,6 @@
 package androidx.ui.graphics
 
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 
 /**
  * An object representing a sequence of recorded graphical operations.

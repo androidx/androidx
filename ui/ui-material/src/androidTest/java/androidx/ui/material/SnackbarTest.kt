@@ -18,22 +18,22 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.FirstBaseline
-import androidx.ui.core.IntPx
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.core.globalPosition
-import androidx.ui.core.round
-import androidx.ui.core.withDensity
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.round
+import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

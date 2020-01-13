@@ -22,12 +22,8 @@ import androidx.compose.MutableState
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
-import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.px
-import androidx.ui.core.sp
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
@@ -42,6 +38,10 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
+import androidx.ui.unit.sp
 
 private val colors = listOf(
     Color(0xFFffd7d7.toInt()),

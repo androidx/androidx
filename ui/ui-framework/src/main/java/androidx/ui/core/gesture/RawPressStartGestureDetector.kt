@@ -16,16 +16,16 @@
 
 package androidx.ui.core.gesture
 
+import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
-import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.PxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 
 /**
  * Reacts if the first pointer input change it sees is an unconsumed down change, and if it reacts,

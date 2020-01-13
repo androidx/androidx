@@ -41,11 +41,11 @@ import androidx.text.style.LineHeightSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
-import androidx.ui.core.Density
-import androidx.ui.core.TextUnit
-import androidx.ui.core.TextUnitType
-import androidx.ui.core.sp
-import androidx.ui.core.withDensity
+import androidx.ui.unit.Density
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.TextUnitType
+import androidx.ui.unit.sp
+import androidx.ui.unit.withDensity
 import androidx.ui.graphics.toArgb
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Locale

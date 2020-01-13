@@ -39,6 +39,10 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.text.toAnnotatedString
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.ipx
+import androidx.ui.unit.max
+import androidx.ui.unit.min
 
 private const val DefaultSoftWrap: Boolean = true
 private const val DefaultMaxLines = Int.MAX_VALUE

@@ -19,8 +19,6 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.core.ComposeView
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.px
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
@@ -29,6 +27,8 @@ import androidx.ui.layout.Padding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
 @Composable
 fun RippleDemo() {

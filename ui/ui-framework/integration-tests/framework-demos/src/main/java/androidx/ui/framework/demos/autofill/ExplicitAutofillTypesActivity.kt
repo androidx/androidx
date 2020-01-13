@@ -26,12 +26,10 @@ import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillType
 import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
-import androidx.ui.core.TextField
-import androidx.ui.core.Text
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxPosition
-import androidx.ui.core.dp
+import androidx.ui.core.Text
+import androidx.ui.core.TextField
 import androidx.ui.core.setContent
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -39,6 +37,8 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
 import androidx.ui.material.MaterialTheme
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
 
 class ExplicitAutofillTypesActivity : Activity() {
 

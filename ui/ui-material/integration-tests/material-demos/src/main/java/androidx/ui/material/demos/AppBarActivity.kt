@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -43,6 +42,7 @@ import androidx.ui.material.samples.SimpleBottomAppBarFancyAnimatingCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarNoFab
 import androidx.ui.material.samples.SimpleTopAppBarNavIcon
 import androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
+import androidx.ui.unit.dp
 
 class AppBarActivity : MaterialDemoActivity() {
 

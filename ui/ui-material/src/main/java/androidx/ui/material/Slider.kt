@@ -26,20 +26,15 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
-import androidx.ui.core.PxSize
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.dp
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.px
-import androidx.ui.core.toRect
-import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.animation.AnimatedValueHolder
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -48,14 +43,19 @@ import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Padding
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Padding
 import androidx.ui.layout.Spacer
-import androidx.ui.lerp
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
+import androidx.ui.unit.toRect
+import androidx.ui.unit.withDensity
+import androidx.ui.util.lerp
 import kotlin.math.abs
 
 /**
@@ -102,7 +102,13 @@ class SliderPosition(
         startPx = min
         endPx = max
         holder.setBounds(min, max)
-        anchorsPx = tickFractions.map { lerp(startPx, endPx, it) }
+        anchorsPx = tickFractions.map {
+            lerp(
+                startPx,
+                endPx,
+                it
+            )
+        }
         holder.animatedFloat.snapTo(newValue)
     }
 

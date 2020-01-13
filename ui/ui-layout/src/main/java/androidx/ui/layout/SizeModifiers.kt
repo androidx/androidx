@@ -18,17 +18,16 @@ package androidx.ui.layout
 
 import androidx.compose.Stable
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityScope
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
-import androidx.ui.core.coerceIn
 import androidx.ui.core.enforce
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.isFinite
 import androidx.ui.core.withTight
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.isFinite
 
 private data class SizeModifier(private val modifierConstraints: DpConstraints) : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints) =

@@ -19,7 +19,7 @@ package androidx.ui.text.platform
 import android.graphics.Paint
 import android.text.TextPaint
 import androidx.text.LayoutIntrinsics
-import androidx.ui.core.Density
+import androidx.ui.unit.Density
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.SpanStyle

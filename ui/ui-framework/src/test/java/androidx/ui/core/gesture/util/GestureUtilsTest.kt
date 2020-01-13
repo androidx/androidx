@@ -16,11 +16,11 @@
 
 package androidx.ui.core.gesture.util
 
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.ipx
-import androidx.ui.core.milliseconds
 import androidx.ui.testutils.down
 import androidx.ui.testutils.up
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

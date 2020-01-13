@@ -16,6 +16,12 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
+import androidx.ui.unit.toPx
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
@@ -31,7 +37,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import kotlin.IllegalArgumentException
 
 @SmallTest
 @RunWith(JUnit4::class)

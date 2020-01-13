@@ -18,15 +18,11 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Dp
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.max
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
-import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
@@ -38,6 +34,10 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.withStyle
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
+import androidx.ui.unit.max
+import androidx.ui.unit.sp
 
 val commonStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF9e9e9e), lineHeight = 22.sp)
 val header = TextStyle(fontSize = 22.sp, color = Color(0xFF707070), lineHeight = 36.sp)

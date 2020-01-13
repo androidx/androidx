@@ -16,7 +16,7 @@
 
 package androidx.ui.input
 
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 
 /**
  * The input session token.

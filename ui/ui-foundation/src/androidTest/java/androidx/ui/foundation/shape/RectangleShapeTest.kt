@@ -17,12 +17,12 @@
 package androidx.ui.foundation.shape
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Density
-import androidx.ui.core.PxSize
-import androidx.ui.core.px
-import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.Shape
+import androidx.ui.graphics.Outline
+import androidx.ui.graphics.Shape
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

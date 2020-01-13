@@ -20,14 +20,14 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.dp
-import androidx.ui.core.px
-import androidx.ui.graphics.Color
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.gesture.RawScaleGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.core.gesture.RawScaleObserver
+import androidx.ui.core.setContent
+import androidx.ui.graphics.Color
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
 /**
  * Demo app created to study some complex interactions of multiple DragGestureDetectors.

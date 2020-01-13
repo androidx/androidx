@@ -16,12 +16,12 @@
 
 package androidx.ui.painting
 
-import androidx.ui.core.lerp
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
+import androidx.ui.unit.lerp
+import androidx.ui.unit.px
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test

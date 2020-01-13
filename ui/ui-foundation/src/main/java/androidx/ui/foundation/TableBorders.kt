@@ -17,14 +17,14 @@
 package androidx.ui.foundation
 
 import androidx.compose.remember
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.shape.border.Border
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableChildren
-import androidx.ui.graphics.Paint
+import androidx.ui.unit.Dp
 
 /**
  * Adds border drawing for a [Table] layout, when placed inside the [TableChildren] block.

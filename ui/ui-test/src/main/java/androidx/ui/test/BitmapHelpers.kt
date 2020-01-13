@@ -19,17 +19,17 @@ package androidx.ui.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.ui.core.Density
-import androidx.ui.core.IntPxPosition
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.PxSize
-import androidx.ui.core.ipx
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Shape
-import androidx.ui.engine.geometry.addOutline
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.Shape
+import androidx.ui.graphics.addOutline
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 

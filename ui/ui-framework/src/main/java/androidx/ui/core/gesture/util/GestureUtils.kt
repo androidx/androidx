@@ -16,8 +16,8 @@
 
 package androidx.ui.core.gesture.util
 
-import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputChange
+import androidx.ui.unit.IntPxSize
 
 /**
  * Utility method that determines if any pointers are currently in [bounds].

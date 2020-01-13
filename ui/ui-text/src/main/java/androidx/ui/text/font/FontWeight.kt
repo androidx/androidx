@@ -16,7 +16,7 @@
 package androidx.ui.text.font
 
 import androidx.compose.Immutable
-import androidx.ui.lerp
+import androidx.ui.util.lerp
 
 /**
  * The thickness of the glyphs, in a range of [1, 1000].
@@ -111,7 +111,8 @@ import androidx.ui.lerp
  * an `AnimationController`.
  */
 fun lerp(start: FontWeight, stop: FontWeight, fraction: Float): FontWeight {
-    val index = lerp(start.index, stop.index, fraction).coerceIn(0, FontWeight.values.size - 1)
+    val index = lerp(start.index, stop.index, fraction)
+        .coerceIn(0, FontWeight.values.size - 1)
 
     return FontWeight.values[index]
 }

@@ -15,10 +15,12 @@
  */
 package androidx.ui.core
 
-import androidx.ui.graphics.Canvas
 import androidx.compose.Composable
 import androidx.compose.ambient
+import androidx.ui.graphics.Canvas
 import androidx.ui.tooling.InspectionMode
+import androidx.ui.unit.DensityScope
+import androidx.ui.unit.PxSize
 
 /**
  * Use Draw to get a [Canvas] to paint into the parent.

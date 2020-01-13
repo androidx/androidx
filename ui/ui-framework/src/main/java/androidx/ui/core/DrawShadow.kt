@@ -17,7 +17,8 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.ui.engine.geometry.Shape
+import androidx.ui.graphics.Shape
+import androidx.ui.unit.Dp
 
 /**
  * Draws the shadow. The [elevation] defines the visual dept of the physical object.

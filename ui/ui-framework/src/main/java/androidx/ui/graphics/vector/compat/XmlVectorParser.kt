@@ -20,7 +20,7 @@ import android.content.res.Resources
 import android.util.AttributeSet
 import androidx.core.content.res.ComplexColorCompat
 import androidx.core.content.res.TypedArrayUtils
-import androidx.ui.core.dp
+import androidx.ui.unit.dp
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shader

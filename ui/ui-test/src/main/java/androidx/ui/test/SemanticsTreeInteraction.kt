@@ -22,7 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 import androidx.ui.test.android.AndroidSemanticsTreeInteraction
 
 /**

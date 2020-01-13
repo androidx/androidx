@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import androidx.ui.unit.DensityScope
 
 /**
  * A [ParentDataModifier] which tags the target with the given [tag]. The provided tag

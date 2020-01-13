@@ -24,11 +24,11 @@ import androidx.compose.joinedKeyRight
 import androidx.compose.keySourceInfoOf
 import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
-import androidx.ui.core.PxBounds
-import androidx.ui.core.max
-import androidx.ui.core.min
-import androidx.ui.core.px
-import androidx.ui.core.toPx
+import androidx.ui.unit.PxBounds
+import androidx.ui.unit.max
+import androidx.ui.unit.min
+import androidx.ui.unit.px
+import androidx.ui.unit.toPx
 
 /**
  * A group in the slot table. Represents either a call or an emitted node.

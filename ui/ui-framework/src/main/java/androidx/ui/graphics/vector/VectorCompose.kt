@@ -18,17 +18,11 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.compose.compositionReference
-import androidx.compose.remember
 import androidx.compose.onPreCommit
+import androidx.compose.remember
 import androidx.ui.core.Alignment
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
-import androidx.ui.core.IntPx
-import androidx.ui.core.IntPxSize
-import androidx.ui.core.Px
-import androidx.ui.core.PxSize
 import androidx.ui.core.ambientDensity
-import androidx.ui.core.withDensity
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -36,6 +30,12 @@ import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.withSave
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.withDensity
 import kotlin.math.ceil
 
 /**

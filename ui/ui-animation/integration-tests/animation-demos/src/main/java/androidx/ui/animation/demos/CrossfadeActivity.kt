@@ -24,11 +24,8 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Draw
-import androidx.ui.core.PxSize
-import androidx.ui.core.dp
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.core.toRect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -37,6 +34,9 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.toRect
 import kotlin.random.Random
 
 class CrossfadeActivity : Activity() {

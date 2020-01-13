@@ -17,7 +17,7 @@ package androidx.ui.core
 
 import android.view.MotionEvent
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.geometry.Rect
 
 /**
  * Represent a node in the semantics tree together with information about its parent and children.

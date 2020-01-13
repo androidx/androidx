@@ -36,6 +36,7 @@ import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.PxPosition
 
 /**
  * A user interface element for entering and modifying text.

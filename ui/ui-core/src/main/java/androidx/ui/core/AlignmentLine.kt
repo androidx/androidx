@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.IntPx
+
 /**
  * Defines a layout line that can be used by layout models to align and position layout children.
  * When a [Layout] or [ComplexLayout] provides a value for a particular [AlignmentLine], this can

@@ -18,25 +18,25 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.Dp
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.Shape
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.LayoutWidth
-import androidx.ui.graphics.Image
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
 
 /**
  * A floating action button (FAB) is a [Button] to represents the primary action of a screen.

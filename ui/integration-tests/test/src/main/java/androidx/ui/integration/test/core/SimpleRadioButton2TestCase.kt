@@ -17,23 +17,23 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
-import androidx.ui.core.Density
-import androidx.ui.core.Dp
-import androidx.ui.core.Px
-import androidx.ui.core.PxSize
-import androidx.ui.core.dp
-import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Outline
-import androidx.ui.engine.geometry.Shape
-import androidx.ui.engine.geometry.shift
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.shift
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.Shape
 import androidx.ui.layout.Container
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.withDensity
 
 class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable

@@ -16,19 +16,19 @@
 
 package androidx.ui.foundation
 
-import androidx.ui.core.Density
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.PxSize
 import androidx.ui.core.draw
-import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Shape
-import androidx.ui.engine.geometry.drawOutline
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
+import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
+import androidx.ui.graphics.drawOutline
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.toRect
 
 private fun background(paint: Paint) = draw { canvas, size ->
     canvas.drawRect(size.toRect(), paint)
