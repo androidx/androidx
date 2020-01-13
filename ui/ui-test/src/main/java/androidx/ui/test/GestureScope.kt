@@ -21,6 +21,7 @@ import androidx.ui.core.Duration
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.inMilliseconds
 import androidx.ui.core.milliseconds
 import androidx.ui.core.px
@@ -92,6 +93,31 @@ fun GestureScope.sendClick(position: PxPosition) {
 fun GestureScope.sendClick() {
     val bounds = getGlobalBounds()
     sendClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
+}
+
+/**
+ * Performs a long click gesture on the given [position] on the associated component. There will
+ * be [LongPressTimeout] + 100 milliseconds time between the down and the up event. The
+ * [position] is in the component's local coordinate system.
+ *
+ * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param position The position of the long click, in the component's local coordinate system
+ */
+fun GestureScope.sendLongClick(position: PxPosition) {
+    // Keep down for 100ms more than needed, to allow the long press logic to trigger
+    sendSwipe(position, position, LongPressTimeout + 100.milliseconds)
+}
+
+/**
+ * Performs a long click gesture on the middle of the associated component. There will
+ * be [LongPressTimeout] + 100 milliseconds time between the down and the up event.
+ *
+ * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ */
+fun GestureScope.sendLongClick() {
+    val bounds = getGlobalBounds()
+    sendLongClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
 }
 
 /**
