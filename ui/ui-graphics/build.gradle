@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ dependencies {
 
     api "androidx.annotation:annotation:1.1.0"
     api project(":ui:ui-unit")
-    api project(":ui:ui-graphics")
     implementation project(":ui:ui-util")
 
     implementation project(":compose:compose-runtime")
@@ -50,12 +49,12 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX UI Core"
+    name = "AndroidX UI Graphics"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
-    inceptionYear = "2019"
-    description = "AndroidX UI classes used by all other UI modules."
+    inceptionYear = "2020"
+    description = "AndroidX UI graphics components."
 }
 
 tasks.withType(KotlinCompile).configureEach {

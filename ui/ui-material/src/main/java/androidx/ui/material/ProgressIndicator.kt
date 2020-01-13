@@ -42,7 +42,7 @@ import androidx.ui.layout.Wrap
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.withDensity
-import androidx.ui.vectormath64.degrees
+import androidx.ui.graphics.vectormath.degrees
 import kotlin.math.abs
 import kotlin.math.max
 
