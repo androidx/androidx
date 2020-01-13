@@ -19,10 +19,8 @@ package androidx.slice.builders.impl;
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_ERROR;
 import static android.app.slice.Slice.HINT_KEYWORDS;
-import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LAST_UPDATED;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
-import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
@@ -40,9 +38,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
-import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
@@ -497,18 +493,8 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         /**
          */
         private void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
-            ArrayList<String> hints = new ArrayList<>();
-            if (imageMode != ICON_IMAGE) {
-                hints.add(HINT_NO_TINT);
-            }
-            if (imageMode == LARGE_IMAGE) {
-                hints.add(HINT_LARGE);
-            }
-            if (isLoading) {
-                hints.add(HINT_PARTIAL);
-            }
             Slice.Builder sb = new Slice.Builder(getBuilder())
-                    .addIcon(icon, null /* subType */, hints);
+                    .addIcon(icon, null, parseImageMode(imageMode, isLoading));
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
             }
@@ -565,18 +551,8 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         /**
          */
         private void addEndItem(IconCompat icon, int imageMode, boolean isLoading) {
-            ArrayList<String> hints = new ArrayList<>();
-            if (imageMode != ICON_IMAGE) {
-                hints.add(HINT_NO_TINT);
-            }
-            if (imageMode == LARGE_IMAGE) {
-                hints.add(HINT_LARGE);
-            }
-            if (isLoading) {
-                hints.add(HINT_PARTIAL);
-            }
             Slice.Builder sb = new Slice.Builder(getBuilder())
-                    .addIcon(icon, null /* subType */, hints);
+                    .addIcon(icon, null, parseImageMode(imageMode, isLoading));
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
             }
