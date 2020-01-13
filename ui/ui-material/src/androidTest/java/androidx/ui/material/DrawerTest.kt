@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import android.os.SystemClock.sleep
 import androidx.compose.Model
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnPositioned
@@ -24,14 +25,16 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.layout.Container
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
+import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.globalBounds
+import androidx.ui.test.sendClick
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.px
 import androidx.ui.unit.round
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -155,7 +158,6 @@ class DrawerTest {
     }
 
     @Test
-    @Ignore("(malkov/mount): unignore this when b/136678145 is fixed")
     fun modalDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
@@ -179,8 +181,8 @@ class DrawerTest {
             }
         }
 
-        findByTag("Drawer")
-            .doClick()
+        // Click in the middle of the drawer (which is the middle of the body)
+        findByTag("Drawer").doGesture { sendClick() }
 
         composeTestRule.runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
@@ -188,9 +190,14 @@ class DrawerTest {
 
             drawerState.state = DrawerState.Opened
         }
+        sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
 
-        findByTag("Drawer")
-            .doClick()
+        // Click on the left-center pixel of the drawer
+        findByTag("Drawer").doGesture {
+            val left = 1
+            val centerY = globalBounds.height / 2
+            sendClick(PxPosition(left.px, centerY.px))
+        }
 
         composeTestRule.runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(1)
@@ -199,7 +206,6 @@ class DrawerTest {
     }
 
     @Test
-    @Ignore("(malkov/mount): unignore this when b/136678145 is fixed")
     fun bottomDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
@@ -223,25 +229,28 @@ class DrawerTest {
             }
         }
 
-        findByTag("Drawer")
-            .doClick()
+        // Click in the middle of the drawer (which is the middle of the body)
+        findByTag("Drawer").doGesture { sendClick() }
 
         composeTestRule.runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
         }
 
-        // TODO (malkov/pavlis) : uncomment this when custom onClick location will be implemented
-//        composeTestRule.runOnUiThread {
-//            drawerState.state = DrawerState.Opened
-//        }
-//        Thread.sleep(100L)
-//
-//        findByTag("Drawer")
-//            .doClick()
-//
-//
-//        Truth.assertThat(drawerClicks).isEqualTo(1)
-//        Truth.assertThat(bodyClicks).isEqualTo(1)
+        composeTestRule.runOnUiThread {
+            drawerState.state = DrawerState.Opened
+        }
+        sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
+
+        // Click on the bottom-center pixel of the drawer
+        findByTag("Drawer").doGesture {
+            val bounds = globalBounds
+            val centerX = bounds.width / 2
+            val bottom = bounds.height - 1
+            sendClick(PxPosition(centerX.px, bottom.px))
+        }
+
+        assertThat(drawerClicks).isEqualTo(1)
+        assertThat(bodyClicks).isEqualTo(1)
     }
 }
