@@ -18,7 +18,6 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
@@ -60,6 +59,9 @@ class WithConstraintsTest {
     val rule = ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
+    @get:Rule
+    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 
@@ -394,7 +396,6 @@ class WithConstraintsTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun updateModelInMeasuringAndReadItInCompositionWorksInsideWithConstraints() {
         val latch = CountDownLatch(1)
@@ -476,6 +477,83 @@ class WithConstraintsTest {
         takeScreenShot(100).apply {
             assertRect(color = Color.Red)
         }
+    }
+
+    @Test
+    fun withConstraintsSiblingWhichIsChangingTheModelInsideMeasureBlock() {
+        // WithConstraints is calling FrameManager.nextFrame() after composition
+        // so this code was causing an issue as the model value change is triggering
+        // remeasuring while our parent is measuring right now and this child was
+        // already measured
+        val drawlatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            activity.setContent {
+                val state = state { false }
+                var lastLayoutValue: Boolean = false
+                Layout(children = {
+                    Draw { _, _ ->
+                        // this verifies the layout was remeasured before being drawn
+                        assertTrue(lastLayoutValue)
+                        drawlatch.countDown()
+                    }
+                }) { _, _ ->
+                    lastLayoutValue = state.value
+                    // this registers the value read
+                    if (!state.value) {
+                        // change the value right inside the measure block
+                        // it will cause one more remeasure pass as we also read this value
+                        state.value = true
+                    }
+                    layout(100.ipx, 100.ipx) {}
+                }
+                WithConstraints {}
+            }
+        }
+        assertTrue(drawlatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun allTheStepsCalledExactlyOnce() {
+        val outerComposeLatch = CountDownLatch(1)
+        val outerMeasureLatch = CountDownLatch(1)
+        val outerLayoutLatch = CountDownLatch(1)
+        val innerComposeLatch = CountDownLatch(1)
+        val innerMeasureLatch = CountDownLatch(1)
+        val innerLayoutLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            activity.setContent {
+                assertEquals(1, outerComposeLatch.count)
+                outerComposeLatch.countDown()
+                Layout(children = {
+                    WithConstraints {
+                        assertEquals(1, innerComposeLatch.count)
+                        innerComposeLatch.countDown()
+                        Layout(children = {}) { _, _ ->
+                            assertEquals(1, innerMeasureLatch.count)
+                            innerMeasureLatch.countDown()
+                            layout(100.ipx, 100.ipx) {
+                                assertEquals(1, innerLayoutLatch.count)
+                                innerLayoutLatch.countDown()
+                            }
+                        }
+                    }
+                }) { measurables, constraints ->
+                    assertEquals(1, outerMeasureLatch.count)
+                    outerMeasureLatch.countDown()
+                    layout(100.ipx, 100.ipx) {
+                        assertEquals(1, outerLayoutLatch.count)
+                        outerLayoutLatch.countDown()
+                        measurables.forEach { it.measure(constraints).place(0.ipx, 0.ipx) }
+                    }
+                }
+            }
+        }
+        assertTrue(outerComposeLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(outerMeasureLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(outerLayoutLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(innerComposeLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(innerMeasureLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(innerLayoutLatch.await(1, TimeUnit.SECONDS))
     }
 
     private fun takeScreenShot(size: Int): Bitmap {

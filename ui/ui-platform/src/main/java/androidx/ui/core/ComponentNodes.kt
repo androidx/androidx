@@ -913,7 +913,10 @@ class LayoutNode : ComponentNode(), Measurable {
      * the measurement has been complete ([place] has been called).
      */
     var needsRemeasure = false
-        internal set
+        internal set(value) {
+            require(!isMeasuring)
+            field = value
+        }
 
     /**
      * `true` when the layout has been measured or dirtied because the layout
@@ -966,7 +969,8 @@ class LayoutNode : ComponentNode(), Measurable {
      * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
      * is not called multiple times within a measure pass.
      */
-    private var measureIteration = 0L
+    internal var measureIteration = 0L
+        private set
 
     /**
      * Identifies when [layoutChildren] needs to be recalculated or if it can use
@@ -1382,6 +1386,7 @@ class LayoutNode : ComponentNode(), Measurable {
             return layoutNodeWrapper // we're already measured to this size, don't do anything
         }
 
+        needsRemeasure = false
         isMeasuring = true
         dirtyAlignmentLines = true
         layoutChildren.forEach { child ->
@@ -1392,7 +1397,6 @@ class LayoutNode : ComponentNode(), Measurable {
             layoutNodeWrapper.measure(constraints)
         }
         isMeasuring = false
-        needsRemeasure = false
         needsRelayout = true
         return layoutNodeWrapper
     }
