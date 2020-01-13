@@ -349,7 +349,7 @@ package androidx.ui.material.internal {
 package androidx.ui.material.ripple {
 
   public final class DefaultRippleEffectFactory implements androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -363,11 +363,11 @@ package androidx.ui.material.ripple {
   }
 
   public interface RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
   }
 
   public final class RippleKt {
-    method public static void Ripple(boolean bounded, androidx.ui.unit.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Ripple(boolean bounded, androidx.ui.unit.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, androidx.animation.AnimationClockObservable clock = ambient(AnimationClockAmbient), kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RippleTheme {

@@ -16,6 +16,7 @@
 
 package androidx.ui.material.ripple
 
+import androidx.animation.AnimationClockObservable
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.core.LayoutCoordinates
@@ -38,6 +39,7 @@ interface RippleEffectFactory {
      * @param density The [Density] object to convert the dimensions.
      * @param radius Effects grow up to this size.
      * @param clipped If true the effect should be clipped by the target layout bounds.
+     * @param clock The animation clock observable that will drive this ripple effect
      * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
      * @param onAnimationFinished Call when the effect animation has been finished.
      */
@@ -47,6 +49,7 @@ interface RippleEffectFactory {
         density: Density,
         radius: Dp?,
         clipped: Boolean,
+        clock: AnimationClockObservable,
         requestRedraw: (() -> Unit),
         onAnimationFinished: ((RippleEffect) -> Unit)
     ): RippleEffect
