@@ -20,6 +20,7 @@ import androidx.sqlite.inspection.test.MessageFactory.createGetSchemaCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -36,7 +37,7 @@ class GetSchemaTest {
     val testEnvironment = SqliteInspectorTestEnvironment()
 
     @get:Rule
-    val temporaryFolder = TemporaryFolder()
+    val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
     @Test
     fun test_get_schema_complex_tables() {
