@@ -22,10 +22,11 @@ import androidx.ui.core.dp
 import androidx.ui.framework.test.R
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
-import androidx.ui.graphics.vector.PathCommand
+import androidx.ui.graphics.vector.PathNode
 import androidx.ui.graphics.vector.VectorPath
 import androidx.ui.res.loadVectorResource
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -53,21 +54,61 @@ class XmlVectorParserTest {
         assertEquals(Color(0xFFFF0000), (node.fill as SolidColor).value)
 
         val path = node.pathData
+        assertEquals(5, path.size)
+
+        val moveTo = path[0].assertType<PathNode.MoveTo>()
+        assertEquals(20.0f, moveTo.x)
+        assertEquals(10.0f, moveTo.y)
+
+        val relativeLineTo1 = path[1].assertType<PathNode.RelativeLineTo>()
+        assertEquals(10.0f, relativeLineTo1.x)
+        assertEquals(0.0f, relativeLineTo1.y)
+
+        val relativeLineTo2 = path[2].assertType<PathNode.RelativeLineTo>()
+        assertEquals(0.0f, relativeLineTo2.x)
+        assertEquals(10.0f, relativeLineTo2.y)
+
+        val relativeLineTo3 = path[3].assertType<PathNode.RelativeLineTo>()
+        assertEquals(-10.0f, relativeLineTo3.x)
+        assertEquals(0.0f, relativeLineTo3.y)
+
+        path[4].assertType<PathNode.Close>()
+    }
+
+    @Test
+    fun testImplicitLineTo() {
+        val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
+        val asset = loadVectorResource(
+            null,
+            res,
+            R.drawable.test_compose_vector2
+        )
+
+        val node = asset.root.iterator().next() as VectorPath
+        val path = node.pathData
+
         assertEquals(3, path.size)
-        assertEquals(PathCommand.MoveTo, path[0].command)
-        assertEquals(20.0f, path[0].args[0])
-        assertEquals(10.0f, path[0].args[1])
 
-        assertEquals(PathCommand.RelativeLineTo, path[1].command)
-        assertEquals(6, path[1].args.size)
-        assertEquals(10.0f, path[1].args[0])
-        assertEquals(0.0f, path[1].args[1])
-        assertEquals(0.0f, path[1].args[2])
-        assertEquals(10.0f, path[1].args[3])
-        assertEquals(-10.0f, path[1].args[4])
-        assertEquals(0.0f, path[1].args[5])
+        val moveTo = path[0].assertType<PathNode.MoveTo>()
+        assertEquals(20.0f, moveTo.x)
+        assertEquals(10.0f, moveTo.y)
 
-        assertEquals(PathCommand.RelativeClose, path[2].command)
-        assertEquals(0, path[2].args.size)
+        val lineTo = path[1].assertType<PathNode.LineTo>()
+        assertEquals(10.0f, lineTo.x)
+        assertEquals(0.0f, lineTo.y)
+
+        path[2].assertType<PathNode.Close>()
+    }
+
+    /**
+     * Asserts that [this] is the expected type [T], and then returns [this] cast to [T].
+     */
+    private inline fun <reified T : PathNode> PathNode.assertType(): T {
+        assertTrue(
+            "Expected type ${T::class.java.simpleName} but was actually " +
+                    this::class.java.simpleName,
+            this is T
+        )
+        return this as T
     }
 }
