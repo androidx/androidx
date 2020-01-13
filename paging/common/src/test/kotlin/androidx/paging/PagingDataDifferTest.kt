@@ -88,9 +88,9 @@ private class SimpleDiffer : PagingDataDiffer<Int>() {
     override suspend fun performDiff(
         previousList: NullPaddedList<Int>,
         newList: NullPaddedList<Int>,
-        newLoadStates: Map<LoadType, LoadState>
-    ) {
-    }
+        newLoadStates: Map<LoadType, LoadState>,
+        lastAccessedIndex: Int
+    ): Int? = null
 }
 
 private val dummyReceiver = object : UiReceiver {

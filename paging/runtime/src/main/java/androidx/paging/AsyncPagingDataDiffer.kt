@@ -77,20 +77,34 @@ open class AsyncPagingDataDiffer<T : Any>(
         override suspend fun performDiff(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
-            newLoadStates: Map<LoadType, LoadState>
-        ) {
-            withContext(mainDispatcher) {
+            newLoadStates: Map<LoadType, LoadState>,
+            lastAccessedIndex: Int
+        ): Int? {
+            return withContext(mainDispatcher) {
                 when {
-                    previousList.size == 0 -> // fast path for no items -> some items
+                    previousList.size == 0 -> {
+                        // fast path for no items -> some items
                         callback.onInserted(0, newList.size)
-                    newList.size == 0 -> // fast path for some items -> no items
+                        return@withContext null
+                    }
+                    newList.size == 0 -> {
+                        // fast path for some items -> no items
                         callback.onRemoved(0, previousList.size)
+                        return@withContext null
+                    }
                     else -> { // full diff
                         val diffResult = withContext(workerDispatcher) {
                             previousList.computeDiff(newList, diffCallback)
                         }
+
                         previousList.dispatchDiff(updateCallback, newList, diffResult)
                         newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+
+                        return@withContext previousList.transformAnchorIndex(
+                            diffResult = diffResult,
+                            newList = newList,
+                            oldPosition = lastAccessedIndex
+                        )
                     }
                 }
             }

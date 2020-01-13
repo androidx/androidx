@@ -298,7 +298,7 @@ package androidx.paging {
     method public final suspend Object! collectFrom(androidx.paging.PagingData<T> pagingData, androidx.paging.PresenterCallback callback, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final operator T? get(int index);
     method public final int getSize();
-    method public abstract suspend Object! performDiff(androidx.paging.NullPaddedList<T> previousList, androidx.paging.NullPaddedList<T> newList, java.util.Map<androidx.paging.LoadType,? extends androidx.paging.LoadState> newLoadStates, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public abstract suspend Object? performDiff(androidx.paging.NullPaddedList<T> previousList, androidx.paging.NullPaddedList<T> newList, java.util.Map<androidx.paging.LoadType,? extends androidx.paging.LoadState> newLoadStates, int lastAccessedIndex, kotlin.coroutines.Continuation<? super java.lang.Integer> p);
     method public final void refresh();
     method public final void retry();
     property public final int size;
