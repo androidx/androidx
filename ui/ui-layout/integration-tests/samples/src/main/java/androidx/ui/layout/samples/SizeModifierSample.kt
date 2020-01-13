@@ -18,10 +18,13 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.dp
+import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Align
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
@@ -55,6 +58,37 @@ fun SimpleHeightModifier() {
     Center {
         Container(modifier = LayoutHeight(100.dp) + LayoutAspectRatio(1f)) {
             DrawShape(shape = RectangleShape, color = Color.Blue)
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleFillWidthModifier() {
+    Container(modifier = LayoutWidth.Fill) {
+        DrawShape(RectangleShape, Color.Red)
+        ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleFillHeightModifier() {
+    Align(alignment = Alignment.TopLeft) {
+        Container(modifier = LayoutHeight.Fill) {
+            DrawShape(RectangleShape, Color.Red)
+            ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleFillModifier() {
+    Align(alignment = Alignment.TopLeft) {
+        Container(modifier = LayoutSize.Fill) {
+            DrawShape(RectangleShape, Color.Red)
+            ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
         }
     }
 }
