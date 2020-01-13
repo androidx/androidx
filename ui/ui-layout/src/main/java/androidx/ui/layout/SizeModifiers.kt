@@ -71,6 +71,9 @@ private data class SizeModifier(private val modifierConstraints: DpConstraints) 
  * See [Min], [Max], [Constrain] and [Fill] to modify the width of a layout element within a
  * range rather than to an exact size. See [LayoutHeight] to modify height, or [LayoutSize]
  * to modify both width and height at once.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleWidthModifier
  */
 @Stable
 data class LayoutWidth(val width: Dp)
@@ -135,6 +138,9 @@ data class LayoutWidth(val width: Dp)
      * This modifies the incoming [Constraints] provided by a layout element's parent.
      * If the incoming constraints do not allow the modified size, the incoming constraints from
      * the parent will restrict the final size.
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleFillWidthModifier
      */
     @Stable
     object Fill : LayoutModifier {
@@ -159,6 +165,9 @@ data class LayoutWidth(val width: Dp)
  * See [Min], [Max], [Constrain] and [Fill] to modify the height of a layout element within a
  * range rather than to an exact size. See [LayoutWidth] to modify width, or [LayoutSize]
  * to modify both width and height at once.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleHeightModifier
  */
 @Stable
 data class LayoutHeight(val height: Dp)
@@ -225,6 +234,9 @@ data class LayoutHeight(val height: Dp)
      * This modifies the incoming [Constraints] provided by a layout element's parent.
      * If the incoming constraints do not allow the modified size, the incoming constraints from
      * the parent will restrict the final size.
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleFillHeightModifier
      */
     @Stable
     object Fill : LayoutModifier {
@@ -249,6 +261,9 @@ data class LayoutHeight(val height: Dp)
  * See [Min], [Max], [Constrain] and [Fill] to modify the height of a layout element within a
  * range rather than to an exact size. See [LayoutWidth] to modify width, or [LayoutSize]
  * to modify both width and height at once.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleSizeModifier
  */
 @Stable
 data class LayoutSize(val width: Dp, val height: Dp)
@@ -362,6 +377,9 @@ data class LayoutSize(val width: Dp, val height: Dp)
      * This modifies the incoming [Constraints] provided by a layout element's parent.
      * If the incoming constraints do not allow the modified size, the incoming constraints from
      * the parent will restrict the final size.
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleFillModifier
      */
     @Stable
     object Fill : LayoutModifier {
