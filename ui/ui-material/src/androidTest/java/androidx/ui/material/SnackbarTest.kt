@@ -34,7 +34,7 @@ import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,13 +62,13 @@ class SnackbarTest {
         findByText("Message")
             .assertIsVisible()
 
-        Truth.assertThat(clicked).isFalse()
+        assertThat(clicked).isFalse()
 
         findByText("UNDO")
             .assertIsVisible()
             .doClick()
 
-        Truth.assertThat(clicked).isTrue()
+        assertThat(clicked).isTrue()
     }
 
     @Test
@@ -88,14 +88,14 @@ class SnackbarTest {
         sizes
             .assertHeightEqualsTo(48.dp)
             .assertWidthEqualsTo(300.dp)
-        Truth.assertThat(textCoords).isNotNull()
+        assertThat(textCoords).isNotNull()
         textCoords?.let {
             withDensity(composeTestRule.density) {
                 val alignmentLines = it.providedAlignmentLines
-                Truth.assertThat(alignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                Truth.assertThat(alignmentLines.get(FirstBaseline))
+                assertThat(alignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(alignmentLines.get(FirstBaseline))
                     .isEqualTo(alignmentLines.get(LastBaseline))
-                Truth.assertThat(it.position.y.round() + alignmentLines.getValue(FirstBaseline))
+                assertThat(it.position.y.round() + alignmentLines.getValue(FirstBaseline))
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -132,10 +132,10 @@ class SnackbarTest {
         sizes
             .assertHeightEqualsTo(48.dp)
             .assertWidthEqualsTo(300.dp)
-        Truth.assertThat(textCoords).isNotNull()
-        Truth.assertThat(buttonCoords).isNotNull()
-        Truth.assertThat(buttonTextCoords).isNotNull()
-        Truth.assertThat(snackCoords).isNotNull()
+        assertThat(textCoords).isNotNull()
+        assertThat(buttonCoords).isNotNull()
+        assertThat(buttonTextCoords).isNotNull()
+        assertThat(snackCoords).isNotNull()
         val localTextCoords = textCoords
         val localButtonCoords = buttonCoords
         val localButtonTextCoords = buttonTextCoords
@@ -151,13 +151,13 @@ class SnackbarTest {
                 val buttonAlignmentLines = localButtonTextCoords.providedAlignmentLines
                 val buttonTextPos =
                     localSnackCoords.childToLocal(localButtonTextCoords, PxPosition.Origin)
-                Truth.assertThat(textAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                Truth.assertThat(buttonAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                Truth.assertThat(
+                assertThat(textAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(buttonAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(
                     localTextCoords.globalPosition.y.round() +
                             textAlignmentLines.getValue(FirstBaseline)
                 ).isEqualTo(30.dp.toIntPx())
-                Truth.assertThat(
+                assertThat(
                     buttonTextPos.y.round() + buttonAlignmentLines.getValue(FirstBaseline)
                 ).isEqualTo(30.dp.toIntPx())
             }
@@ -181,16 +181,16 @@ class SnackbarTest {
         sizes
             .assertHeightEqualsTo(68.dp)
             .assertWidthEqualsTo(300.dp)
-        Truth.assertThat(textCoords).isNotNull()
+        assertThat(textCoords).isNotNull()
         textCoords?.let {
             withDensity(composeTestRule.density) {
                 val alignmentLines = it.providedAlignmentLines
 
-                Truth.assertThat(alignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                Truth.assertThat(alignmentLines.get(LastBaseline)).isNotEqualTo(IntPx.Zero)
-                Truth.assertThat(alignmentLines.get(FirstBaseline))
+                assertThat(alignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(alignmentLines.get(LastBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(alignmentLines.get(FirstBaseline))
                     .isNotEqualTo(alignmentLines.get(LastBaseline))
-                Truth.assertThat(it.position.y.round() + alignmentLines.getValue(FirstBaseline))
+                assertThat(it.position.y.round() + alignmentLines.getValue(FirstBaseline))
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -222,9 +222,9 @@ class SnackbarTest {
         sizes
             .assertHeightEqualsTo(68.dp)
             .assertWidthEqualsTo(300.dp)
-        Truth.assertThat(textCoords).isNotNull()
-        Truth.assertThat(buttonCoords).isNotNull()
-        Truth.assertThat(snackCoords).isNotNull()
+        assertThat(textCoords).isNotNull()
+        assertThat(buttonCoords).isNotNull()
+        assertThat(snackCoords).isNotNull()
         val localTextCoords = textCoords
         val localButtonCoords = buttonCoords
         val localSnackCoords = snackCoords
@@ -237,16 +237,16 @@ class SnackbarTest {
                 val buttonCenter =
                     buttonPositionInSnack.y + localButtonCoords.size.height / 2
 
-                Truth.assertThat(textAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                Truth.assertThat(textAlignmentLines.get(LastBaseline)).isNotEqualTo(IntPx.Zero)
-                Truth.assertThat(textAlignmentLines.get(FirstBaseline))
+                assertThat(textAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(textAlignmentLines.get(LastBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(textAlignmentLines.get(FirstBaseline))
                     .isNotEqualTo(textAlignmentLines.get(LastBaseline))
-                Truth.assertThat(
+                assertThat(
                     localTextCoords.globalPosition.y.round() +
                             textAlignmentLines.getValue(FirstBaseline)
                 ).isEqualTo(30.dp.toIntPx())
 
-                Truth.assertThat(buttonCenter).isEqualTo(localSnackCoords.size.height / 2)
+                assertThat(buttonCenter).isEqualTo(localSnackCoords.size.height / 2)
             }
         }
     }
@@ -275,9 +275,9 @@ class SnackbarTest {
                 )
             }
         }
-        Truth.assertThat(textCoords).isNotNull()
-        Truth.assertThat(buttonCoords).isNotNull()
-        Truth.assertThat(snackCoords).isNotNull()
+        assertThat(textCoords).isNotNull()
+        assertThat(buttonCoords).isNotNull()
+        assertThat(snackCoords).isNotNull()
         val localTextCoords = textCoords
         val localButtonCoords = buttonCoords
         val localSnackCoords = snackCoords
@@ -290,21 +290,21 @@ class SnackbarTest {
                 val textPositionInSnack =
                     localSnackCoords.childToLocal(localTextCoords, PxPosition.Origin)
 
-                Truth.assertThat(
+                assertThat(
                     textPositionInSnack.y.round() + textAlignmentLines.getValue(FirstBaseline)
                 ).isEqualTo(30.dp.toIntPx())
 
-                Truth.assertThat(
+                assertThat(
                     buttonPositionInSnack.y.round() - textPositionInSnack.y.round() -
                             textAlignmentLines.getValue(LastBaseline)
                 ).isEqualTo(18.dp.toIntPx())
 
-                Truth.assertThat(
+                assertThat(
                     localSnackCoords.size.height.round() - buttonPositionInSnack.y.round() -
                             localButtonCoords.size.height.round()
                 ).isEqualTo(8.dp.toIntPx())
 
-                Truth.assertThat(
+                assertThat(
                     localSnackCoords.size.width.round() - buttonPositionInSnack.x.round() -
                             localButtonCoords.size.width.round()
                 ).isEqualTo(8.dp.toIntPx())
