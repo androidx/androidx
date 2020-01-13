@@ -300,6 +300,71 @@ class PagerTest {
     }
 
     @Test
+    fun prependAndDrop() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+            val fetcherState = collectFetcherState(pageFetcher)
+
+            advanceUntilIdle()
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(-1, 0))
+            advanceUntilIdle()
+
+            val expected: List<PageEvent<Int>> = listOf(
+                StateUpdate(REFRESH, Loading),
+                StateUpdate(REFRESH, Idle),
+                createRefresh(range = 50..51),
+                StateUpdate(START, Loading),
+                StateUpdate(START, Idle),
+                createPrepend(pageOffset = -1, range = 49..49),
+                StateUpdate(START, Loading),
+                Drop(END, 1, 50),
+                StateUpdate(START, Idle),
+                createPrepend(pageOffset = -2, range = 48..48)
+            )
+
+            assertEvents(expected, fetcherState.pageEventLists[0])
+            fetcherState.job.cancel()
+        }
+    }
+
+    @Test
+    fun prependAndDropWithCancellation() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+            val fetcherState = collectFetcherState(pageFetcher)
+
+            advanceUntilIdle()
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(-1, 0))
+            // Start hint processing until load starts, but hasn't finished.
+            advanceTimeBy(500)
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
+            advanceUntilIdle()
+
+            val expected: List<PageEvent<Int>> = listOf(
+                StateUpdate(REFRESH, Loading),
+                StateUpdate(REFRESH, Idle),
+                createRefresh(range = 50..51),
+                StateUpdate(START, Loading),
+                StateUpdate(START, Idle),
+                createPrepend(pageOffset = -1, range = 49..49),
+                StateUpdate(START, Loading),
+                StateUpdate(END, Loading),
+                StateUpdate(END, Idle),
+                Drop(END, 1, 50),
+                StateUpdate(START, Idle),
+                createPrepend(pageOffset = -2, range = 48..48)
+            )
+
+            assertEvents(expected, fetcherState.pageEventLists[0])
+            fetcherState.job.cancel()
+        }
+    }
+
+    @Test
     fun prependMultiplePages() = testScope.runBlockingTest {
         val config = PagingConfig(
             pageSize = 1,
@@ -419,6 +484,7 @@ class PagerTest {
             fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
             advanceUntilIdle()
             fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(1, 0))
+            // Start hint processing until load starts, but hasn't finished.
             advanceTimeBy(500)
             fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
             advanceUntilIdle()
