@@ -32,7 +32,6 @@ import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.toPx
-import androidx.ui.core.withDensity
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.graphics.Image
 import androidx.ui.layout.Container
@@ -206,7 +205,7 @@ class ListItemTest {
                 )
             }
         }
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx().toPx())
             assertThat(textPosition.value!!.y).isEqualTo(
                 ((listItemHeight.toIntPx() - textSize.value!!.height.round()) / 2).toPx()
@@ -240,7 +239,7 @@ class ListItemTest {
                 )
             }
         }
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             assertThat(iconPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx().toPx())
             assertThat(iconPosition.value!!.y).isEqualTo(
                 ((listItemHeight.toIntPx() - iconSize.value!!.height.round()) / 2).toPx()
@@ -296,7 +295,7 @@ class ListItemTest {
                 )
             }
         }
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx().toPx())
             assertThat(textBaseline.value!!).isEqualTo(expectedTextBaseline.toIntPx().toPx())
             assertThat(secondaryTextPosition.value!!.x).isEqualTo(
@@ -356,7 +355,7 @@ class ListItemTest {
                 )
             }
         }
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toPx() + iconSize.value!!.width +
                         expectedContentLeftPadding.toIntPx().toPx()
@@ -423,7 +422,7 @@ class ListItemTest {
                 )
             }
         }
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toPx() + iconSize.value!!.width +
                         expectedContentLeftPadding.toIntPx().toPx()
@@ -498,7 +497,7 @@ class ListItemTest {
                 )
             }
         }
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toPx() + iconSize.value!!.width +
                         expectedContentLeftPadding.toIntPx().toPx()
@@ -592,7 +591,7 @@ class ListItemTest {
                 )
             }
         }
-        withDensity(composeTestRule.density) {
+        composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
                 expectedLeftPadding.toIntPx().toPx() + iconSize.value!!.width +
                         expectedContentLeftPadding.toIntPx().toPx()

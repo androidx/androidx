@@ -24,14 +24,13 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
 import androidx.ui.core.round
-import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
 import androidx.ui.layout.Container
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +60,9 @@ class DrawerTest {
                 }
             }) {}
         }
-        Truth.assertThat(position!!.x.value).isEqualTo(0f)
+        composeTestRule.runOnIdleCompose {
+            assertThat(position!!.x.value).isEqualTo(0f)
+        }
     }
 
     @Test
@@ -77,7 +78,9 @@ class DrawerTest {
             }) {}
         }
         val width = composeTestRule.displayMetrics.widthPixels
-        Truth.assertThat(position!!.x.round().value).isEqualTo(-width)
+        composeTestRule.runOnIdleCompose {
+            assertThat(position!!.x.round().value).isEqualTo(-width)
+        }
     }
 
     @Test
@@ -94,8 +97,8 @@ class DrawerTest {
         }
 
         val width = composeTestRule.displayMetrics.widthPixels
-        withDensity(composeTestRule.density) {
-            Truth.assertThat(size!!.width.round().value)
+        composeTestRule.runOnIdleComposeWithDensity {
+            assertThat(size!!.width.round().value)
                 .isEqualTo(width - 56.dp.toPx().round().value)
         }
     }
@@ -112,11 +115,14 @@ class DrawerTest {
                 }
             }) {}
         }
+
         val width = composeTestRule.displayMetrics.widthPixels
         val height = composeTestRule.displayMetrics.heightPixels
         // temporary calculation of landscape screen
         val expectedHeight = if (width > height) height else (height / 2f).roundToInt()
-        Truth.assertThat(position!!.y.round().value).isEqualTo(expectedHeight)
+        composeTestRule.runOnIdleCompose {
+            assertThat(position!!.y.round().value).isEqualTo(expectedHeight)
+        }
     }
 
     @Test
@@ -132,7 +138,9 @@ class DrawerTest {
             }) {}
         }
         val height = composeTestRule.displayMetrics.heightPixels
-        Truth.assertThat(position!!.y.round().value).isEqualTo(height)
+        composeTestRule.runOnIdleCompose {
+            assertThat(position!!.y.round().value).isEqualTo(height)
+        }
     }
 
     @Test
@@ -175,11 +183,9 @@ class DrawerTest {
             .doClick()
 
         composeTestRule.runOnIdleCompose {
-            Truth.assertThat(drawerClicks).isEqualTo(0)
-            Truth.assertThat(bodyClicks).isEqualTo(1)
-        }
+            assertThat(drawerClicks).isEqualTo(0)
+            assertThat(bodyClicks).isEqualTo(1)
 
-        composeTestRule.runOnUiThread {
             drawerState.state = DrawerState.Opened
         }
 
@@ -187,8 +193,8 @@ class DrawerTest {
             .doClick()
 
         composeTestRule.runOnIdleCompose {
-            Truth.assertThat(drawerClicks).isEqualTo(1)
-            Truth.assertThat(bodyClicks).isEqualTo(1)
+            assertThat(drawerClicks).isEqualTo(1)
+            assertThat(bodyClicks).isEqualTo(1)
         }
     }
 
@@ -220,8 +226,10 @@ class DrawerTest {
         findByTag("Drawer")
             .doClick()
 
-        Truth.assertThat(drawerClicks).isEqualTo(0)
-        Truth.assertThat(bodyClicks).isEqualTo(1)
+        composeTestRule.runOnIdleCompose {
+            assertThat(drawerClicks).isEqualTo(0)
+            assertThat(bodyClicks).isEqualTo(1)
+        }
 
         // TODO (malkov/pavlis) : uncomment this when custom onClick location will be implemented
 //        composeTestRule.runOnUiThread {

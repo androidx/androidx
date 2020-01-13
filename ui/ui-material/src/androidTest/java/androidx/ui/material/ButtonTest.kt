@@ -45,14 +45,10 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -67,7 +63,6 @@ class ButtonTest {
 
     @Test
     fun buttonTest_defaultSemantics() {
-
         composeTestRule.setMaterialContent {
             Center {
                 TestTag(tag = "myButton") {
@@ -82,7 +77,6 @@ class ButtonTest {
 
     @Test
     fun buttonTest_disabledSemantics() {
-
         composeTestRule.setMaterialContent {
             Center {
                 TestTag(tag = "myButton") {
@@ -117,8 +111,7 @@ class ButtonTest {
             .doClick()
 
         composeTestRule.runOnIdleCompose {
-            assertThat(counter)
-                .isEqualTo(1)
+            assertThat(counter).isEqualTo(1)
         }
     }
 
@@ -285,18 +278,14 @@ class ButtonTest {
     private fun assertLeftPaddingIs(padding: Dp, style: @Composable() () -> ButtonStyle) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
-        val parentLatch = CountDownLatch(1)
-        val childLatch = CountDownLatch(1)
         composeTestRule.setMaterialContent {
             Wrap {
                 Button(onClick = {}, style = style()) {
                     OnPositioned {
                         parentCoordinates = it
-                        parentLatch.countDown()
                     }
                     OnChildPositioned(onPositioned = {
                         childCoordinates = it
-                        childLatch.countDown()
                     }) {
                         Text("Test button")
                     }
@@ -304,10 +293,13 @@ class ButtonTest {
             }
         }
 
-        assertTrue(parentLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(childLatch.await(1, TimeUnit.SECONDS))
-        val topLeft = childCoordinates!!.localToGlobal(PxPosition.Origin).x -
-                parentCoordinates!!.localToGlobal(PxPosition.Origin).x
-        assertEquals(topLeft, withDensity(composeTestRule.density) { padding.toIntPx().toPx() })
+        composeTestRule.runOnIdleCompose {
+            val topLeft = childCoordinates!!.localToGlobal(PxPosition.Origin).x -
+                    parentCoordinates!!.localToGlobal(PxPosition.Origin).x
+            val currentPadding = withDensity(composeTestRule.density) {
+                padding.toIntPx().toPx()
+            }
+            assertThat(currentPadding).isEqualTo(topLeft)
+        }
     }
 }
