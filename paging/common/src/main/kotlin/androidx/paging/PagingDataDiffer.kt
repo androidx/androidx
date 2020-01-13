@@ -35,11 +35,20 @@ abstract class PagingDataDiffer<T : Any>(
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
 
+    @Volatile
+    private var lastAccessedIndex: Int = 0
+
+    /**
+     * @return Transformed result of [lastAccessedIndex] as an index of [newList] using the diff
+     * result between [previousList] and [newList]. Null if [newList] or [previousList] lists are
+     * empty, where it does not make sense to transform [lastAccessedIndex].
+     */
     abstract suspend fun performDiff(
         previousList: NullPaddedList<T>,
         newList: NullPaddedList<T>,
-        newLoadStates: Map<LoadType, LoadState>
-    )
+        newLoadStates: Map<LoadType, LoadState>,
+        lastAccessedIndex: Int
+    ): Int?
 
     @UseExperimental(ExperimentalCoroutinesApi::class)
     suspend fun collectFrom(pagingData: PagingData<T>, callback: PresenterCallback) {
@@ -55,13 +64,26 @@ abstract class PagingDataDiffer<T : Any>(
                         val event = pair.second
                         if (event is PageEvent.Insert && event.loadType == LoadType.REFRESH) {
                             val newPresenter = PagePresenter(event)
-                            performDiff(
+                            val transformedLastAccessedIndex = performDiff(
                                 previousList = presenter,
                                 newList = newPresenter,
-                                newLoadStates = event.loadStates
+                                newLoadStates = event.loadStates,
+                                lastAccessedIndex = lastAccessedIndex
                             )
                             presenter = newPresenter
                             receiver = pair.first.receiver
+
+                            // Transform the last loadAround index from the old list to the new list
+                            // by passing it through the DiffResult, and pass it forward as a
+                            // ViewportHint within the new list to the next generation of Pager.
+                            // This ensures prefetch distance for the last ViewportHint from the old
+                            // list is respected in the new list, even if invalidation interrupts
+                            // the prepend / append load that would have fulfilled it in the old
+                            // list.
+                            transformedLastAccessedIndex?.let { newIndex ->
+                                lastAccessedIndex = newIndex
+                                receiver?.addHint(presenter.loadAround(newIndex))
+                            }
                         } else {
                             presenter.processEvent(event, callback)
                         }
@@ -73,6 +95,7 @@ abstract class PagingDataDiffer<T : Any>(
     }
 
     operator fun get(index: Int): T? {
+        lastAccessedIndex = index
         receiver?.addHint(presenter.loadAround(index))
         return presenter.get(index)
     }
