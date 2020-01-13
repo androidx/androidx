@@ -18,7 +18,7 @@ package androidx.ui.graphics.vector {
     method public void insertAt(int index, androidx.ui.graphics.vector.VNode instance);
     method public void move(int from, int to, int count);
     method public void remove(int index, int count);
-    method public void setClipPathData(java.util.List<androidx.ui.graphics.vector.PathNode> value);
+    method public void setClipPathData(java.util.List<? extends androidx.ui.graphics.vector.PathNode> value);
     method public void setPivotX(float value);
     method public void setPivotY(float value);
     method public void setRotation(float value);
@@ -53,7 +53,7 @@ package androidx.ui.graphics.vector {
     method public float getStrokeLineWidth();
     method public void setFill(androidx.ui.graphics.Brush? value);
     method public void setFillAlpha(float value);
-    method public void setPathData(java.util.List<androidx.ui.graphics.vector.PathNode> value);
+    method public void setPathData(java.util.List<? extends androidx.ui.graphics.vector.PathNode> value);
     method public void setStroke(androidx.ui.graphics.Brush? value);
     method public void setStrokeAlpha(float value);
     method public void setStrokeLineCap(androidx.ui.graphics.StrokeCap value);
