@@ -22,6 +22,7 @@ import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesComman
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesResponse
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -45,7 +46,7 @@ class TrackDatabasesTest {
     val testEnvironment = SqliteInspectorTestEnvironment()
 
     @get:Rule
-    val temporaryFolder = TemporaryFolder()
+    val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
     @Test
     fun test_track_databases() = runBlocking {
