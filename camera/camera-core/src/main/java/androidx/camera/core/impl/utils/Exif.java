@@ -148,9 +148,14 @@ public final class Exif {
                 getDescription());
     }
 
-    private int getOrientation() {
+    public int getOrientation() {
         return mExifInterface.getAttributeInt(
                 ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+    }
+
+    /** Sets the orientation for the exif. */
+    public void setOrientation(int orientation) {
+        mExifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
     }
 
     /** Returns the width of the photo in pixels. */

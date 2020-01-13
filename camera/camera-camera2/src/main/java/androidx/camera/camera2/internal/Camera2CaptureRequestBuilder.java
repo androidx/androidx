@@ -122,6 +122,13 @@ class Camera2CaptureRequestBuilder {
         applyImplementationOptionToCaptureBuilder(builder,
                 captureConfig.getImplementationOptions());
 
+        if (captureConfig.getImplementationOptions().containsOption(
+                CaptureConfig.OPTION_ROTATION)) {
+            builder.set(CaptureRequest.JPEG_ORIENTATION,
+                    captureConfig.getImplementationOptions().retrieveOption(
+                            CaptureConfig.OPTION_ROTATION));
+        }
+
         for (Surface surface : surfaceList) {
             builder.addTarget(surface);
         }
