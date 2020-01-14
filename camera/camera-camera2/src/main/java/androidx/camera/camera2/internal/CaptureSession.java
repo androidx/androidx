@@ -959,10 +959,14 @@ final class CaptureSession {
                                 "onConfiguredFailed() should not be possible in state: " + mState);
                     case OPENING:
                     case CLOSED:
-                        mState = State.CLOSED;
-                        mCameraCaptureSession = session;
+                        // For CaptureSession onConfigureFailed in framework, it will not allow
+                        // any close function or callback work. Hence, change state to RELEASED.
+                        // Check b/147402661 for detail.
+                        mState = State.RELEASED;
+                        mCameraCaptureSession = null;
                         break;
                     case RELEASING:
+                        // TODO(b/147402661): Refactor this part after detail checking.
                         mState = State.RELEASING;
                         session.close();
                 }
