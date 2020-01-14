@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.filters.SmallTest
+import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
@@ -85,7 +86,7 @@ class LivePagedListTest {
             }
         }
 
-        private val pagingSource = LegacyPagingSource(dataSource)
+        private val pagingSource = LegacyPagingSource(dataSource, Dispatchers.Main)
 
         private val pagingSourceFactory = { pagingSource }
 

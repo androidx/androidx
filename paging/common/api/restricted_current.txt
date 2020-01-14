@@ -21,7 +21,8 @@ package androidx.paging {
 
   public abstract static class DataSource.Factory<Key, Value> {
     ctor public DataSource.Factory();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> asPagingSourceFactory();
+    method public final kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> asPagingSourceFactory(kotlinx.coroutines.CoroutineDispatcher fetchDispatcher = Dispatchers.IO);
+    method public final kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> asPagingSourceFactory();
     method public abstract androidx.paging.DataSource<Key,Value> create();
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
@@ -72,7 +73,7 @@ package androidx.paging {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class LegacyPagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
-    ctor public LegacyPagingSource(internal androidx.paging.DataSource<Key,Value> dataSource);
+    ctor public LegacyPagingSource(internal androidx.paging.DataSource<Key,Value> dataSource, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher);
     method public suspend Object load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
   }
 

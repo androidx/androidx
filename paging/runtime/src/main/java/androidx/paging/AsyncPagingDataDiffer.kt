@@ -157,7 +157,7 @@ open class AsyncPagingDataDiffer<T : Any>(
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
      * reflect current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
      *
-     * @param listener [LoadStateListener] to receive updates.
+     * @param listener to receive [LoadState] updates.
      *
      * @see removeLoadStateListener
      */

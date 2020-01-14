@@ -29,6 +29,7 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
     fetchScheduler: Scheduler?,
     notifyScheduler: Scheduler?
 ): RxPagedListBuilder<Key, Value> {
+    @Suppress("DEPRECATION")
     val builder = RxPagedListBuilder(dataSourceFactory, config)
         .setInitialLoadKey(initialLoadKey)
         .setBoundaryCallback(boundaryCallback)

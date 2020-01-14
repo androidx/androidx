@@ -256,7 +256,8 @@ abstract class PagedList<T : Any> internal constructor(
      * @param Value Type of items held and loaded by the [PagedList].
      */
     class Builder<Key : Any, Value : Any> {
-        private val pagingSource: PagingSource<Key, Value>
+        private val pagingSource: PagingSource<Key, Value>?
+        private var dataSource: DataSource<Key, Value>?
         private val initialPage: PagingSource.LoadResult.Page<Key, Value>?
         private val config: Config
         private var coroutineScope: CoroutineScope = GlobalScope
@@ -273,7 +274,8 @@ abstract class PagedList<T : Any> internal constructor(
          */
         @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
         constructor(dataSource: DataSource<Key, Value>, config: Config) {
-            this.pagingSource = LegacyPagingSource(dataSource)
+            this.pagingSource = null
+            this.dataSource = dataSource
             this.initialPage = null
             this.config = config
         }
@@ -295,7 +297,7 @@ abstract class PagedList<T : Any> internal constructor(
         @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
         constructor(dataSource: DataSource<Key, Value>, pageSize: Int) : this(
             dataSource = dataSource,
-            config = PagedList.Config.Builder().setPageSize(pageSize).build()
+            config = Config(pageSize)
         )
 
         /**
@@ -313,6 +315,7 @@ abstract class PagedList<T : Any> internal constructor(
             config: Config
         ) {
             this.pagingSource = pagingSource
+            this.dataSource = null
             this.initialPage = initialPage
             this.config = config
         }
@@ -342,7 +345,7 @@ abstract class PagedList<T : Any> internal constructor(
         ) : this(
             pagingSource = pagingSource,
             initialPage = initialPage,
-            config = Builder().setPageSize(pageSize).build()
+            config = Config(pageSize)
         )
 
         /**
@@ -474,12 +477,19 @@ abstract class PagedList<T : Any> internal constructor(
          * @return The newly constructed [PagedList]
          */
         fun build(): PagedList<Value> {
+            val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
+            val pagingSource = pagingSource ?: dataSource?.let { LegacyPagingSource(it) }
+
+            check(pagingSource != null) {
+                "PagedList cannot be built without a PagingSource or DataSource"
+            }
+
             return create(
                 pagingSource,
                 initialPage,
                 coroutineScope,
                 notifyDispatcher ?: Dispatchers.Main.immediate,
-                fetchDispatcher ?: Dispatchers.IO,
+                fetchDispatcher,
                 boundaryCallback,
                 config,
                 initialKey
