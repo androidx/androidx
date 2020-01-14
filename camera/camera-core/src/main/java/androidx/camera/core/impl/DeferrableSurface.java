@@ -21,23 +21,26 @@ import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.core.util.Preconditions;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A reference to a {@link Surface} whose creation can be deferred to a later time.
+ * A class for creating and tracking use of a {@link Surface} in an asynchronous manner.
  *
- * <p>A {@link OnSurfaceDetachedListener} can also be set to be notified of surface detach event. It
- * can be used to safely close the surface.
+ * <p>Once the deferrable surface has been closed via {@link #close()} and is no longer in
+ * use ({@link #decrementUseCount() has been called equal to the number of times to
+ * {@link #incrementUseCount()}, then the surface is considered terminated.
  *
+ * <p>Resources managed by this class can be safely cleaned up upon completion of the {
+ *
+ * @link ListenableFuture} returned by {@link #getTerminationFuture()}.
  */
 public abstract class DeferrableSurface {
     /**
@@ -49,12 +52,6 @@ public abstract class DeferrableSurface {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class SurfaceClosedException extends Exception {
         DeferrableSurface mDeferrableSurface;
-
-        public SurfaceClosedException(@NonNull String s, @NonNull Throwable e,
-                @NonNull DeferrableSurface surface) {
-            super(s, e);
-            mDeferrableSurface = surface;
-        }
 
         public SurfaceClosedException(@NonNull String s, @NonNull DeferrableSurface surface) {
             super(s);
@@ -75,26 +72,61 @@ public abstract class DeferrableSurface {
     private static final boolean DEBUG = false;
     protected static final String TAG = "DeferrableSurface";
 
-    // Debug only, used to track total count of attached surfaces.
-    private static AtomicInteger sSurfaceCount = new AtomicInteger(0);
-
-    // The count of attachment.
-    @GuardedBy("mLock")
-    private int mAttachedCount = 0;
-
-    private volatile boolean mClosed = false;
-
-    // Listener to be called when surface is detached totally.
-    @Nullable
-    @GuardedBy("mLock")
-    private OnSurfaceDetachedListener mOnSurfaceDetachedListener = null;
-
-    @Nullable
-    @GuardedBy("mLock")
-    private Executor mListenerExecutor = null;
+    // Debug only, used to track total count of surfaces in use.
+    private static AtomicInteger sUsedCount = new AtomicInteger(0);
+    // Debug only, used to track total count of surfaces, including those not in use. Will be
+    // decremented once surface is cleaned.
+    private static AtomicInteger sTotalCount = new AtomicInteger(0);
 
     // Lock used for accessing states.
     private final Object mLock = new Object();
+
+    // The use count.
+    @GuardedBy("mLock")
+    private int mUseCount = 0;
+
+    @GuardedBy("mLock")
+    private boolean mClosed = false;
+
+    @GuardedBy("mLock")
+    private CallbackToFutureAdapter.Completer<Void> mTerminationCompleter;
+    private final ListenableFuture<Void> mTerminationFuture;
+
+    /**
+     * Creates a new DeferrableSurface which has no use count.
+     */
+    public DeferrableSurface() {
+        mTerminationFuture = CallbackToFutureAdapter.getFuture(completer -> {
+            synchronized (mLock) {
+                mTerminationCompleter = completer;
+            }
+            return "DeferrableSurface-termination(" + DeferrableSurface.this + ")";
+        });
+
+        if (DEBUG) {
+            printGlobalDebugCounts("Surface created", sTotalCount.incrementAndGet(),
+                    sUsedCount.get());
+
+            String creationStackTrace = Log.getStackTraceString(new Exception());
+            mTerminationFuture.addListener(() -> {
+                try {
+                    mTerminationFuture.get();
+                    printGlobalDebugCounts("Surface terminated", sTotalCount.decrementAndGet(),
+                            sUsedCount.get());
+                } catch (Exception e) {
+                    Log.e(TAG, "Unexpected surface termination for " + DeferrableSurface.this
+                            + "\nStack Trace:\n" + creationStackTrace);
+                    throw new IllegalArgumentException("DeferrableSurface terminated with "
+                            + "unexpected exception.", e);
+                }
+            }, CameraXExecutors.directExecutor());
+        }
+    }
+
+    private void printGlobalDebugCounts(@NonNull String prefix, int totalCount, int useCount) {
+        Log.d(TAG, prefix + "[total_surfaces=" + totalCount + ", used_surfaces=" + useCount
+                + "](" + this + "}");
+    }
 
     /**
      * Returns a {@link Surface} that is wrapped in a {@link ListenableFuture}.
@@ -120,17 +152,44 @@ public abstract class DeferrableSurface {
     @NonNull
     protected abstract ListenableFuture<Surface> provideSurface();
 
-    /** Notifies this surface is attached */
-    public void notifySurfaceAttached() {
+    /**
+     * Returns a future which completes when the deferrable surface is terminated.
+     *
+     * <p>A deferrable surface is considered terminated once it has been closed by
+     * {@link #close()} and it is marked as no longer in use via {@link #decrementUseCount()}.
+     *
+     * <p>Once a deferrable surface has been terminated, it is safe to release all resources
+     * which may have been created for the surface.
+     *
+     * @return A future signalling the deferrable surface has terminated. Cancellation of this
+     * future is a no-op.
+     */
+    @NonNull
+    public ListenableFuture<Void> getTerminationFuture() {
+        return Futures.nonCancellationPropagating(mTerminationFuture);
+    }
+
+    /**
+     * Increments the use count of the surface.
+     *
+     * <p>If the surface has been closed and was not previously in use, this will fail and throw a
+     * {@link SurfaceClosedException} and the use count will not be incremented.
+     *
+     * @throws SurfaceClosedException if the surface has been closed.
+     */
+    public void incrementUseCount() throws SurfaceClosedException {
         synchronized (mLock) {
-            mAttachedCount++;
+            if (mUseCount == 0 && mClosed) {
+                throw new SurfaceClosedException("Cannot begin use on a closed surface.", this);
+            }
+            mUseCount++;
 
             if (DEBUG) {
-                if (mAttachedCount == 1) {
-                    Log.d(TAG, "Surface attached, count = " + sSurfaceCount.incrementAndGet() + " "
-                            + this);
+                if (mUseCount == 1) {
+                    printGlobalDebugCounts("New surface in use", sTotalCount.get(),
+                            sUsedCount.incrementAndGet());
                 }
-                Log.d(TAG, "attach count+1, attachedCount=" + mAttachedCount + " " + this);
+                Log.d(TAG, "use count+1, useCount=" + mUseCount + " " + this);
             }
         }
     }
@@ -138,103 +197,84 @@ public abstract class DeferrableSurface {
     /**
      * Close the surface.
      *
-     * <p>After closing, {@link #getSurface()} will return a {@link SurfaceClosedException}.
+     * <p>After closing, {@link #getSurface()} and {@link #incrementUseCount()} will return a
+     * {@link SurfaceClosedException}.
+     *
+     * <p>If the surface is not being used, then this will also complete the future returned by
+     * {@link #getTerminationFuture()}. If the surface is in use, then the future not be completed
+     * until {@link #decrementUseCount()} has bee called the appropriate number of times.
+     *
+     * <p>This method is idempotent. Subsequent calls after the first invocation will have no
+     * effect.
      */
     public final void close() {
+        // If this gets set, then the surface will terminate
+        CallbackToFutureAdapter.Completer<Void> terminationCompleter = null;
         synchronized (mLock) {
-            mClosed = true;
-        }
-    }
+            if (!mClosed) {
+                mClosed = true;
 
-    /**
-     * Notifies this surface is detached. OnSurfaceDetachedListener will be called if it is detached
-     * totally
-     */
-    public void notifySurfaceDetached() {
-        OnSurfaceDetachedListener listener = null;
-        Executor listenerExecutor = null;
+                if (mUseCount == 0) {
+                    terminationCompleter = mTerminationCompleter;
+                    mTerminationCompleter = null;
+                }
 
-        synchronized (mLock) {
-            if (mAttachedCount == 0) {
-                throw new IllegalStateException("Detaching occurs more times than attaching");
-            }
-
-            mAttachedCount--;
-            if (mAttachedCount == 0) {
-                listener = mOnSurfaceDetachedListener;
-                listenerExecutor = mListenerExecutor;
-            }
-
-            if (DEBUG) {
-                Log.d(TAG, "attach count-1,  attachedCount=" + mAttachedCount + " " + this);
-
-                if (mAttachedCount == 0) {
-                    Log.d(TAG, "Surface detached, count = " + sSurfaceCount.decrementAndGet() + " "
-                            + this);
+                if (DEBUG) {
+                    Log.d(TAG,
+                            "surface closed,  useCount=" + mUseCount + " closed=true " + this);
                 }
             }
         }
 
-        if (listener != null && listenerExecutor != null) {
-            callOnSurfaceDetachedListener(listener, listenerExecutor);
+        if (terminationCompleter != null) {
+            terminationCompleter.set(null);
         }
     }
 
     /**
-     * Sets the listener to be called when surface is detached totally.
+     * Decrements the use count.
      *
-     * <p>If the surface is currently not attached, the listener will be called immediately. When
-     * clearing resource like ImageReader, to close it safely you can call this method and close the
-     * resources in the listener. This can ensure the surface is closed after it is no longer held
-     * in camera.
+     * <p>If this causes the use count to go to zero and the surface has been closed, this will
+     * complete the future returned by {@link #getTerminationFuture()}.
      */
-    public void setOnSurfaceDetachedListener(@NonNull Executor executor,
-            @NonNull OnSurfaceDetachedListener listener) {
-        Preconditions.checkNotNull(executor);
-        Preconditions.checkNotNull(listener);
-        boolean shouldCallListenerNow = false;
+    public void decrementUseCount() {
+        // If this gets set, then the surface will terminate
+        CallbackToFutureAdapter.Completer<Void> terminationCompleter = null;
         synchronized (mLock) {
-            mOnSurfaceDetachedListener = listener;
-            mListenerExecutor = executor;
-            // Calls the listener immediately if the surface is not attached right now.
-            if (mAttachedCount == 0) {
-                shouldCallListenerNow = true;
+            if (mUseCount == 0) {
+                throw new IllegalStateException("Decrementing use count occurs more times than "
+                        + "incrementing");
+            }
+
+            mUseCount--;
+            if (mUseCount == 0 && mClosed) {
+                terminationCompleter = mTerminationCompleter;
+                mTerminationCompleter = null;
+            }
+
+            if (DEBUG) {
+                Log.d(TAG, "use count-1,  useCount=" + mUseCount + " closed=" + mClosed
+                        + " " + this);
+
+                if (mUseCount == 0) {
+                    if (DEBUG) {
+                        printGlobalDebugCounts("Surface no longer in use",
+                                sTotalCount.get(), sUsedCount.decrementAndGet());
+                    }
+                }
             }
         }
 
-        if (shouldCallListenerNow) {
-            callOnSurfaceDetachedListener(listener, executor);
+        if (terminationCompleter != null) {
+            terminationCompleter.set(null);
         }
-    }
-
-    private static void callOnSurfaceDetachedListener(
-            @NonNull final OnSurfaceDetachedListener listener, @NonNull Executor executor) {
-        Preconditions.checkNotNull(executor);
-        Preconditions.checkNotNull(listener);
-
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                listener.onSurfaceDetached();
-            }
-        });
     }
 
     /** @hide */
     @RestrictTo(Scope.TESTS)
-    public int getAttachedCount() {
+    public int getUseCount() {
         synchronized (mLock) {
-            return mAttachedCount;
+            return mUseCount;
         }
-    }
-
-    /**
-     * The listener to be called when surface is detached totally.
-     */
-    public interface OnSurfaceDetachedListener {
-        /**
-         * Called when surface is totally detached.
-         */
-        void onSurfaceDetached();
     }
 }

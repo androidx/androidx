@@ -108,4 +108,69 @@ public final class DeferrableSurfaces {
                     return "surfaceList";
                 });
     }
+
+    /**
+     * Attempts to increment the usage count of all surfaces in the given surface list.
+     *
+     * <p>If any usage count fails to increment (due to the surface already being closed), then
+     * none of the surfaces in the list will have their usage count incremented.
+     *
+     * @param surfaceList The list of surfaces whose usage count should be incremented.
+     * @return {@code true} if all usage counts were successfully incremented, {@code false}
+     * otherwise.
+     */
+    public static boolean tryIncrementAll(@NonNull List<DeferrableSurface> surfaceList) {
+        try {
+            incrementAll(surfaceList);
+        } catch (DeferrableSurface.SurfaceClosedException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Attempts to increment the usage count of all surfaces in the given surface list.
+     *
+     * <p>If any usage count fails to increment (due to the surface already being closed), then
+     * none of the surfaces in the list will have their usage count incremented and an exception
+     * will be thrown.
+     *
+     * @param surfaceList The list of surfaces whose usage count should be incremented.
+     * @throws DeferrableSurface.SurfaceClosedException Containing the surface that failed to
+     *                                                  increment.
+     */
+    public static void incrementAll(@NonNull List<DeferrableSurface> surfaceList)
+            throws DeferrableSurface.SurfaceClosedException {
+        if (!surfaceList.isEmpty()) {
+            int i = 0;
+            try {
+                do {
+                    surfaceList.get(i).incrementUseCount();
+
+                    // Successfully incremented.
+                    i++;
+                } while (i < surfaceList.size());
+            } catch (DeferrableSurface.SurfaceClosedException e) {
+                // Didn't successfully increment all usages, decrement those which were incremented.
+                for (i = i - 1; i >= 0; --i) {
+                    surfaceList.get(i).decrementUseCount();
+                }
+
+                // Rethrow the exception containing the surface that failed.
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Decrements the usage counts of every surface in the provided list.
+     *
+     * @param surfaceList The list of surfaces whose usage count should be decremented.
+     */
+    public static void decrementAll(@NonNull List<DeferrableSurface> surfaceList) {
+        for (DeferrableSurface surface : surfaceList) {
+            surface.decrementUseCount();
+        }
+    }
 }

@@ -67,6 +67,7 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -147,8 +148,6 @@ public final class ImageAnalysis extends UseCase {
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
 
     @Nullable
-    private ImageReaderProxy mImageReader;
-    @Nullable
     private DeferrableSurface mDeferrableSurface;
 
     private final Object mAnalysisLock = new Object();
@@ -180,14 +179,14 @@ public final class ImageAnalysis extends UseCase {
             @NonNull ImageAnalysisConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
 
-        Executor backgroundExecutor = config.getBackgroundExecutor(
-                CameraXExecutors.highPriorityExecutor());
+        Executor backgroundExecutor = Preconditions.checkNotNull(config.getBackgroundExecutor(
+                CameraXExecutors.highPriorityExecutor()));
 
         int imageQueueDepth =
                 config.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER
                         ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
 
-        mImageReader =
+        ImageReaderProxy imageReaderProxy =
                 ImageReaderProxys.createIsolatedReader(
                         resolution.getWidth(),
                         resolution.getHeight(),
@@ -197,12 +196,17 @@ public final class ImageAnalysis extends UseCase {
         tryUpdateRelativeRotation(cameraId);
 
         mImageAnalysisAbstractAnalyzer.open();
-        mImageReader.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
+        imageReaderProxy.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
                 backgroundExecutor);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
-        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+        }
+        mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface());
+        mDeferrableSurface.getTerminationFuture().addListener(imageReaderProxy::close,
+                CameraXExecutors.mainThreadExecutor());
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 
@@ -232,25 +236,14 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void clearPipeline() {
         Threads.checkMainThread();
         mImageAnalysisAbstractAnalyzer.close();
 
-        final DeferrableSurface deferrableSurface = mDeferrableSurface;
-        mDeferrableSurface = null;
-        final ImageReaderProxy imageReaderProxy = mImageReader;
-        mImageReader = null;
-        if (deferrableSurface != null) {
-            deferrableSurface.setOnSurfaceDetachedListener(
-                    CameraXExecutors.mainThreadExecutor(),
-                    new DeferrableSurface.OnSurfaceDetachedListener() {
-                        @Override
-                        public void onSurfaceDetached() {
-                            if (imageReaderProxy != null) {
-                                imageReaderProxy.close();
-                            }
-                        }
-                    });
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+            mDeferrableSurface = null;
         }
     }
 
@@ -408,10 +401,6 @@ public final class ImageAnalysis extends UseCase {
         if (resolution == null) {
             throw new IllegalArgumentException(
                     "Suggested resolution map missing resolution for camera " + cameraId);
-        }
-
-        if (mImageReader != null) {
-            mImageReader.close();
         }
 
         SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config, resolution);

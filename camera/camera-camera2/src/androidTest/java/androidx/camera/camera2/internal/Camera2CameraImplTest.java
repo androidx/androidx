@@ -278,7 +278,7 @@ public final class Camera2CameraImplTest {
         UseCase useCase1 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
 
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
 
         unblockHandler();
@@ -297,7 +297,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
 
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
@@ -312,7 +312,7 @@ public final class Camera2CameraImplTest {
 
         UseCase useCase1 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
         unblockHandler();
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
 
@@ -329,7 +329,7 @@ public final class Camera2CameraImplTest {
         waitForCameraClose(mCamera2CameraImpl);
 
         // Surface is only attached once.
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
     }
@@ -343,8 +343,8 @@ public final class Camera2CameraImplTest {
         UseCase useCase2 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase2));
 
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-        assertThat(getUseCaseSurface(useCase2).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase2).getUseCount()).isEqualTo(1);
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isFalse();
 
@@ -382,7 +382,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.close();
         waitForCameraClose(mCamera2CameraImpl);
 
-        assertThat(getUseCaseSurface(useCase).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase).getUseCount()).isEqualTo(1);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase));
     }
@@ -398,7 +398,7 @@ public final class Camera2CameraImplTest {
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
 
         // It should not be detached so the attached count should still be 0
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
     }
 
     @Test
@@ -407,7 +407,7 @@ public final class Camera2CameraImplTest {
 
         UseCase useCase1 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
 
@@ -415,7 +415,7 @@ public final class Camera2CameraImplTest {
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
 
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
     }
 
     @Test
@@ -446,8 +446,8 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.close();
         waitForCameraClose(mCamera2CameraImpl);
 
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
-        assertThat(getUseCaseSurface(useCase2).getAttachedCount()).isEqualTo(1);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
+        assertThat(getUseCaseSurface(useCase2).getUseCount()).isEqualTo(1);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
     }
@@ -474,7 +474,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.close();
         waitForCameraClose(mCamera2CameraImpl);
 
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
+        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
     }
@@ -502,9 +502,9 @@ public final class Camera2CameraImplTest {
         assertThat(surface1).isNotEqualTo(surface2);
 
         // Old surface was removed from Camera
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        assertThat(surface1.getUseCount()).isEqualTo(0);
         // New surface is still in Camera
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+        assertThat(surface2.getUseCount()).isEqualTo(1);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
     }
@@ -532,9 +532,9 @@ public final class Camera2CameraImplTest {
         assertThat(surface1).isNotEqualTo(surface2);
 
         // Old surface was removed from Camera
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        assertThat(surface1.getUseCount()).isEqualTo(0);
         // New surface is still in Camera
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+        assertThat(surface2.getUseCount()).isEqualTo(1);
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
     }
 
@@ -561,9 +561,9 @@ public final class Camera2CameraImplTest {
         assertThat(surface1).isNotEqualTo(surface2);
 
         // Old surface was removed from Camera
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        assertThat(surface1.getUseCount()).isEqualTo(0);
         // New surface is still in Camera
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+        assertThat(surface2.getUseCount()).isEqualTo(1);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
     }
@@ -593,8 +593,8 @@ public final class Camera2CameraImplTest {
         assertThat(surface1).isNotEqualTo(surface2);
 
         // No attachment because useCase1 is offline.
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
-        assertThat(surface2.getAttachedCount()).isEqualTo(0);
+        assertThat(surface1.getUseCount()).isEqualTo(0);
+        assertThat(surface2.getUseCount()).isEqualTo(0);
 
         // make useCase1 online
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
@@ -604,8 +604,8 @@ public final class Camera2CameraImplTest {
         releaseFuture.get();
 
         // only surface2 is attached.
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+        assertThat(surface1.getUseCount()).isEqualTo(0);
+        assertThat(surface2.getUseCount()).isEqualTo(1);
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
     }

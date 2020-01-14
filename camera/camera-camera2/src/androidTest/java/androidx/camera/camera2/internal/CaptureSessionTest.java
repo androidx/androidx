@@ -447,8 +447,9 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void surfaceOnDetachedListenerIsCalledWhenSessionIsClose()
+    public void surfaceTerminationFutureIsCalledWhenSessionIsClose()
             throws InterruptedException, ExecutionException {
+        mTestParameters0.setCloseSurfaceOnSessionClose(true);
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
@@ -456,23 +457,13 @@ public final class CaptureSessionTest {
 
         assertTrue(mTestParameters0.waitForData());
 
-        DeferrableSurface.OnSurfaceDetachedListener listener =
-                Mockito.mock(DeferrableSurface.OnSurfaceDetachedListener.class);
-        Executor executor = new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        };
-        mTestParameters0.mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
+        Runnable runnable = mock(Runnable.class);
+        mTestParameters0.mDeferrableSurface.getTerminationFuture().addListener(runnable,
+                CameraXExecutors.directExecutor());
 
-        ListenableFuture<Void> releaseFuture = captureSession.release(
-                /*abortInFlightCaptures=*/false);
+        captureSession.release(/*abortInFlightCaptures=*/false);
 
-        // Wait for release
-        assertFutureCompletes(releaseFuture, 5, TimeUnit.SECONDS);
-
-        Mockito.verify(listener, times(1)).onSurfaceDetached();
+        Mockito.verify(runnable, timeout(3000).times(1)).run();
     }
 
     @Test
