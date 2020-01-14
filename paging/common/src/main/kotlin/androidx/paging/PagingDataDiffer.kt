@@ -21,7 +21,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -58,10 +57,8 @@ abstract class PagingDataDiffer<T : Any>(
 
         try {
             pagingData.flow
-                .map { event -> Pair(pagingData, event) }
-                .collect { pair ->
+                .collect { event ->
                     withContext(mainDispatcher) {
-                        val event = pair.second
                         if (event is PageEvent.Insert && event.loadType == LoadType.REFRESH) {
                             val newPresenter = PagePresenter(event)
                             val transformedLastAccessedIndex = performDiff(
@@ -71,7 +68,7 @@ abstract class PagingDataDiffer<T : Any>(
                                 lastAccessedIndex = lastAccessedIndex
                             )
                             presenter = newPresenter
-                            receiver = pair.first.receiver
+                            receiver = pagingData.receiver
 
                             // Transform the last loadAround index from the old list to the new list
                             // by passing it through the DiffResult, and pass it forward as a
