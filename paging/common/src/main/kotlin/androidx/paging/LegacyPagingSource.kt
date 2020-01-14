@@ -21,6 +21,8 @@ import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.DataSource.Params
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 /**
  * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
@@ -29,7 +31,8 @@ import androidx.paging.DataSource.Params
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class LegacyPagingSource<Key : Any, Value : Any>(
-    internal val dataSource: DataSource<Key, Value>
+    internal val dataSource: DataSource<Key, Value>,
+    private val fetchDispatcher: CoroutineDispatcher = DirectDispatcher
 ) : PagingSource<Key, Value>() {
     init {
         dataSource.addInvalidatedCallback { invalidate() }
@@ -44,7 +47,9 @@ class LegacyPagingSource<Key : Any, Value : Any>(
             params.pageSize
         )
 
-        return dataSource.load(dataSourceParams).toLoadResult()
+        return withContext(fetchDispatcher) {
+            dataSource.load(dataSourceParams).toLoadResult<Key>()
+        }
     }
 
     override fun invalidate() {

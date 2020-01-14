@@ -17,12 +17,13 @@
 package androidx.paging
 
 import androidx.annotation.AnyThread
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -228,13 +229,10 @@ internal constructor(internal val type: KeyType) {
             function: (List<Value>) -> List<ToValue>
         ): Factory<Key, ToValue> = mapByPage(Function { function(it) })
 
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun asPagingSourceFactory(): () -> PagingSource<Key, Value> = {
-            LegacyPagingSource(create())
-        }
+        @JvmOverloads
+        fun asPagingSourceFactory(
+            fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
+        ): () -> PagingSource<Key, Value> = { LegacyPagingSource(create(), fetchDispatcher) }
     }
 
     /**
