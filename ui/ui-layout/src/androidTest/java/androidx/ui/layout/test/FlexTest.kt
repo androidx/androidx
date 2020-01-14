@@ -37,9 +37,11 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
@@ -343,6 +345,178 @@ class FlexTest : LayoutTest() {
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
         assertEquals(PxPosition(0.px, childrenHeight.toPx()), childPosition[1])
+    }
+
+    @Test
+    fun testRow_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = withDensity(density) {
+        val expectedRowWidth = 11.px
+        val leftPadding = 1.px
+        var rowWidth = 0.px
+        val width = Array(2) { 0.px }
+        val x = Array(2) { 0.px }
+        val latch = CountDownLatch(2)
+        show {
+            Row(
+                LayoutAlign.TopLeft + LayoutPadding(left = leftPadding.toDp()) +
+                        LayoutWidth.Max(expectedRowWidth.toDp())
+            ) {
+                OnPositioned { coordinates -> rowWidth = coordinates.size.width }
+                Container(LayoutFlexible(1f)) {
+                    OnPositioned { coordinates ->
+                        width[0] = coordinates.size.width
+                        x[0] = coordinates.globalPosition.x
+                        latch.countDown()
+                    }
+                }
+                Container(LayoutFlexible(1f)) {
+                    OnPositioned { coordinates ->
+                        width[1] = coordinates.size.width
+                        x[1] = coordinates.globalPosition.x
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        Assert.assertEquals(expectedRowWidth, rowWidth)
+        Assert.assertEquals(leftPadding, x[0])
+        Assert.assertEquals(leftPadding + width[0], x[1])
+        Assert.assertEquals(rowWidth, width[0] + width[1])
+    }
+
+    @Test
+    fun testRow_isNotLargerThanItsChildren_becauseOfRoundings() = withDensity(density) {
+        val expectedRowWidth = 8.px
+        val leftPadding = 1.px
+        var rowWidth = 0.px
+        val width = Array(3) { 0.px }
+        val x = Array(3) { 0.px }
+        val latch = CountDownLatch(3)
+        show {
+            Row(
+                LayoutAlign.TopLeft + LayoutPadding(left = leftPadding.toDp()) +
+                        LayoutWidth.Max(expectedRowWidth.toDp())
+            ) {
+                OnPositioned { coordinates -> rowWidth = coordinates.size.width }
+                Container(LayoutFlexible(2f)) {
+                    OnPositioned { coordinates ->
+                        width[0] = coordinates.size.width
+                        x[0] = coordinates.globalPosition.x
+                        latch.countDown()
+                    }
+                }
+                Container(LayoutFlexible(2f)) {
+                    OnPositioned { coordinates ->
+                        width[1] = coordinates.size.width
+                        x[1] = coordinates.globalPosition.x
+                        latch.countDown()
+                    }
+                }
+                Container(LayoutFlexible(3f)) {
+                    OnPositioned { coordinates ->
+                        width[2] = coordinates.size.width
+                        x[2] = coordinates.globalPosition.x
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        Assert.assertEquals(expectedRowWidth, rowWidth)
+        Assert.assertEquals(leftPadding, x[0])
+        Assert.assertEquals(leftPadding + width[0], x[1])
+        Assert.assertEquals(leftPadding + width[0] + width[1], x[2])
+        Assert.assertEquals(rowWidth, width[0] + width[1] + width[2])
+    }
+
+    @Test
+    fun testColumn_isNotLargetThanItsChildren_becauseOfRoundings() = withDensity(density) {
+        val expectedColumnHeight = 8.px
+        val topPadding = 1.px
+        var columnHeight = 0.px
+        val height = Array(3) { 0.px }
+        val y = Array(3) { 0.px }
+        val latch = CountDownLatch(3)
+        show {
+            Column(
+                LayoutAlign.TopLeft + LayoutPadding(top = topPadding.toDp()) +
+                        LayoutHeight.Max(expectedColumnHeight.toDp())
+            ) {
+                OnPositioned { coordinates -> columnHeight = coordinates.size.height }
+                Container(LayoutFlexible(1f)) {
+                    OnPositioned { coordinates ->
+                        height[0] = coordinates.size.height
+                        y[0] = coordinates.globalPosition.y
+                        latch.countDown()
+                    }
+                }
+                Container(LayoutFlexible(1f)) {
+                    OnPositioned { coordinates ->
+                        height[1] = coordinates.size.height
+                        y[1] = coordinates.globalPosition.y
+                        latch.countDown()
+                    }
+                }
+                Container(LayoutFlexible(1f)) {
+                    OnPositioned { coordinates ->
+                        height[2] = coordinates.size.height
+                        y[2] = coordinates.globalPosition.y
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        Assert.assertEquals(expectedColumnHeight, columnHeight)
+        Assert.assertEquals(topPadding, y[0])
+        Assert.assertEquals(topPadding + height[0], y[1])
+        Assert.assertEquals(topPadding + height[0] + height[1], y[2])
+        Assert.assertEquals(columnHeight, height[0] + height[1] + height[2])
+    }
+
+    @Test
+    fun testColumn_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = withDensity(density) {
+        val expectedColumnHeight = 11.px
+        val topPadding = 1.px
+        var columnHeight = 0.px
+        val height = Array(2) { 0.px }
+        val y = Array(2) { 0.px }
+        val latch = CountDownLatch(2)
+        show {
+            Column(
+                LayoutAlign.TopLeft + LayoutPadding(top = topPadding.toDp()) +
+                        LayoutHeight.Max(expectedColumnHeight.toDp())
+            ) {
+                OnPositioned { coordinates -> columnHeight = coordinates.size.height }
+                Container(LayoutFlexible(1f)) {
+                    OnPositioned { coordinates ->
+                        height[0] = coordinates.size.height
+                        y[0] = coordinates.globalPosition.y
+                        latch.countDown()
+                    }
+                }
+                Container(LayoutFlexible(1f)) {
+                    OnPositioned { coordinates ->
+                        height[1] = coordinates.size.height
+                        y[1] = coordinates.globalPosition.y
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        Assert.assertEquals(expectedColumnHeight, columnHeight)
+        Assert.assertEquals(topPadding, y[0])
+        Assert.assertEquals(topPadding + height[0], y[1])
+        Assert.assertEquals(columnHeight, height[0] + height[1])
     }
 
     // endregion
