@@ -20,6 +20,7 @@
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"
         android:label="@string/activity_sample_code"
+        android:allowBackup="false"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
 
