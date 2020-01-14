@@ -29,6 +29,7 @@ import org.junit.AssumptionViolatedException;
 public final class CoreAppTestUtil {
 
     private static final int DISMISS_LOCK_SCREEN_CODE = 82;
+    private static final int MAX_TIMEOUT_MS = 3000;
 
     private CoreAppTestUtil() {
     }
@@ -67,7 +68,9 @@ public final class CoreAppTestUtil {
         UiDevice device = UiDevice.getInstance(instrumentation);
         // In case the lock screen on top, the action to dismiss it.
         device.pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
+
         device.pressHome();
+        device.waitForIdle(MAX_TIMEOUT_MS);
 
         // Close system dialogs first to avoid interrupt.
         instrumentation.getTargetContext().sendBroadcast(
