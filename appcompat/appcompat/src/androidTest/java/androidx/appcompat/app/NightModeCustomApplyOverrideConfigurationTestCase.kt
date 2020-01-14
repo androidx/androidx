@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package androidx.appcompat.app
 
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.app.NightModeCustomConfigurationActivity.CUSTOM_FONT_SCALE
-import androidx.appcompat.app.NightModeCustomConfigurationActivity.CUSTOM_LOCALE
+import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_FONT_SCALE
+import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_LOCALE
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
@@ -30,13 +30,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@LargeTest
+/**
+ * This is one approach to customizing Activity configuration that's used in google3.
+ *
+ * The ContextThemeWrapper.applyOverrideConfiguration method only exists on API level 17 and up.
+ */
 @SdkSuppress(minSdkVersion = 17)
+@LargeTest
 @RunWith(Parameterized::class)
-class NightModeCustomConfigurationContextTestCase(private val setMode: NightSetMode) {
+class NightModeCustomApplyOverrideConfigurationTestCase(private val setMode: NightSetMode) {
 
     @get:Rule
-    val activityRule = NightModeActivityTestRule(NightModeCustomConfigurationActivity::class.java)
+    val activityRule = NightModeActivityTestRule(
+        NightModeCustomApplyOverrideConfigurationActivity::class.java
+    )
 
     @Test
     @Suppress("DEPRECATION")

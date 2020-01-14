@@ -138,21 +138,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private static final int[] sWindowBackgroundStyleable = {android.R.attr.windowBackground};
 
     /**
-     * AppCompat selectively uses an override configuration for DayNight functionality.
-     * Unfortunately the framework has a few issues around Resources instances,
-     * resulting in the root Resources instance (i.e. Application) being modified when it
-     * shouldn't be. We can work around it by always calling using an override configuration
-     * where available, to force a local resources instance being used.
+     * Flag indicating whether we can return a different context from attachBaseContext().
+     * Unfortunately, doing so breaks Robolectric tests, so we skip night mode application there.
      */
-    private static final boolean sAlwaysOverrideConfiguration = true;
+    private static final boolean sCanReturnDifferentContext =
+            !"robolectric".equals(Build.FINGERPRINT);
 
     /**
-     * Flag whether we can use createConfigurationContext() from attachBaseContext(). The API is
-     * only available on API 17+. Unfortunately the way we use the API also breaks Robolectric
-     * tests, so we skip usage there too.
+     * Flag indicating whether ContextThemeWrapper.applyOverrideConfiguration() is available.
      */
-    private static final boolean sCanUseConfigurationContext =
-            Build.VERSION.SDK_INT >= 17 && !"robolectric".equals(Build.FINGERPRINT);
+    private static final boolean sCanApplyOverrideConfiguration = Build.VERSION.SDK_INT >= 17;
 
     private static boolean sInstalledExceptionHandler;
 
@@ -344,71 +339,145 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     public Context attachBaseContext2(@NonNull final Context baseContext) {
         mBaseContextAttached = true;
 
-        if (sCanUseConfigurationContext) {
-            final Configuration appConfig = baseContext.getApplicationContext()
-                    .getResources().getConfiguration();
-            final Configuration baseConfig = baseContext.getResources().getConfiguration();
-            final Configuration configOverlay;
-            if (!appConfig.equals(baseConfig)) {
-                configOverlay = generateConfigDelta(appConfig, baseConfig);
-                if (DEBUG) {
-                    Log.d(TAG,
-                            "Application config (" + appConfig + ") does not match base config ("
-                                    + baseConfig + "), using overlay: " + configOverlay);
-                }
-            } else {
-                configOverlay = null;
-                if (DEBUG) {
-                    Log.d(TAG, "Application config matches base context config,"
-                            + " skipping overlay");
-                }
+        // This is a tricky method. Here are some things to avoid:
+        // 1. Don't modify the configuration of the Application context. All changes should remain
+        //    local to the Activity to avoid conflicting with other Activities and internal logic.
+        // 2. Don't use createConfigurationContext() with Robolectric because Robolectric relies on
+        //    method overrides.
+        // 3. Don't use createConfigurationContext() unless you're able to retain the base context's
+        //    theme stack. Not the last theme applied -- the entire stack of applied themes.
+
+        final int modeToApply = mapNightMode(baseContext, calculateNightMode());
+
+        // If the base context is a ContextThemeWrapper (thus not an Application context)
+        // and nobody's touched its Resources yet, we can shortcut and directly apply our
+        // override configuration.
+        if (sCanApplyOverrideConfiguration
+                && baseContext instanceof android.view.ContextThemeWrapper) {
+            final Configuration config = createOverrideConfigurationForDayNight(
+                    baseContext, modeToApply, null);
+            if (DEBUG) {
+                Log.d(TAG, String.format("Attempting to apply config to base context: %s",
+                        config.toString()));
             }
 
-            @ApplyableNightMode final int modeToApply = mapNightMode(baseContext,
-                    calculateNightMode());
-            final Configuration config = createOverrideConfigurationForDayNight(
-                    baseContext, modeToApply, configOverlay);
-
-            final int currentNightMode = baseContext.getResources().getConfiguration().uiMode
-                    & Configuration.UI_MODE_NIGHT_MASK;
-            final int newNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
-            if (sAlwaysOverrideConfiguration || currentNightMode != newNightMode) {
+            try {
+                ContextThemeWrapperCompatApi17Impl.applyOverrideConfiguration(
+                        (android.view.ContextThemeWrapper) baseContext, config);
+                return baseContext;
+            } catch (IllegalStateException e) {
                 if (DEBUG) {
-                    Log.d(TAG, String.format("Applying night mode using "
-                            + "createConfigurationContext(). Config: %s", config.toString()));
+                    Log.d(TAG, "Failed to apply configuration to base context", e);
                 }
-
-                // Wrap the base context to ensure any method overrides or themes are left intact.
-                // Since ThemeOverlay.AppCompat theme is empty, we'll get the base context's theme.
-                ContextThemeWrapper wrappedContext = new ContextThemeWrapper(baseContext,
-                        R.style.ThemeOverlay_AppCompat);
-                wrappedContext.applyOverrideConfiguration(config);
-
-                // Check whether the base context has an explicit theme or is able to obtain one
-                // from its outer context. If it throws an NPE, we don't need to worry about
-                // rebasing under the new configuration.
-                boolean needsThemeRebase;
-                try {
-                    needsThemeRebase = baseContext.getTheme() != null;
-                } catch (NullPointerException e) {
-                    needsThemeRebase = false;
-                }
-
-                if (needsThemeRebase) {
-                    // Attempt to rebase the old theme within the new configuration. This will only
-                    // work on SDK 21 and up, but it's unlikely that we're keeping the base theme
-                    // anyway so maybe nobody will notice. Note that calling getTheme() will clone
-                    // the base context's theme into the wrapped context's theme.
-                    ResourcesCompat.ThemeCompat.rebase(wrappedContext.getTheme());
-                }
-
-                return super.attachBaseContext2(wrappedContext);
             }
         }
 
-        // Otherwise just return the original base context
-        return super.attachBaseContext2(baseContext);
+        // Again, but using the AppCompat version of ContextThemeWrapper.
+        if (baseContext instanceof ContextThemeWrapper) {
+            final Configuration config = createOverrideConfigurationForDayNight(
+                    baseContext, modeToApply, null);
+            if (DEBUG) {
+                Log.d(TAG, String.format("Attempting to apply config to base context: %s",
+                        config.toString()));
+            }
+
+            try {
+                ((ContextThemeWrapper) baseContext).applyOverrideConfiguration(config);
+                return baseContext;
+            } catch (IllegalStateException e) {
+                if (DEBUG) {
+                    Log.d(TAG, "Failed to apply configuration to base context", e);
+                }
+            }
+        }
+
+        // We can't apply the configuration directly to the existing base context, so we need to
+        // wrap it. We can't create a new configuration context since the app may rely on method
+        // overrides or a specific theme -- neither of which are preserved when creating a
+        // configuration context. Instead, we'll make a best-effort at wrapping the context and
+        // rebasing the original theme.
+        if (!sCanReturnDifferentContext) {
+            return super.attachBaseContext2(baseContext);
+        }
+
+        // We can't trust the application resources returned from the base context, since they
+        // may have been altered by the caller, so instead we'll obtain them directly from the
+        // Package Manager.
+        final Configuration appConfig;
+        try {
+            appConfig = baseContext.getPackageManager().getResourcesForApplication(
+                    baseContext.getApplicationInfo()).getConfiguration();
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException("Application failed to obtain resources from itself", e);
+        }
+
+        // The caller may have directly modified the base configuration, so we'll defensively
+        // re-structure their changes as a configuration overlay and merge them with our own
+        // night mode changes. Diffing against the application configuration reveals any changes.
+        final Configuration baseConfig = baseContext.getResources().getConfiguration();
+        final Configuration configOverlay;
+        if (!appConfig.equals(baseConfig)) {
+            configOverlay = generateConfigDelta(appConfig, baseConfig);
+            if (DEBUG) {
+                Log.d(TAG,
+                        "Application config (" + appConfig + ") does not match base config ("
+                                + baseConfig + "), using base overlay: " + configOverlay);
+            }
+        } else {
+            configOverlay = null;
+            if (DEBUG) {
+                Log.d(TAG, "Application config (" + appConfig + ") matches base context "
+                        + "config, using empty base overlay");
+            }
+        }
+
+        final Configuration config = createOverrideConfigurationForDayNight(
+                baseContext, modeToApply, configOverlay);
+        if (DEBUG) {
+            Log.d(TAG, String.format("Applying night mode using ContextThemeWrapper and "
+                    + "applyOverrideConfiguration(). Config: %s", config.toString()));
+        }
+
+        // Next, we'll wrap the base context to ensure any method overrides or themes are left
+        // intact. Since ThemeOverlay.AppCompat theme is empty, we'll get the base context's theme.
+        final ContextThemeWrapper wrappedContext = new ContextThemeWrapper(baseContext,
+                R.style.ThemeOverlay_AppCompat);
+        wrappedContext.applyOverrideConfiguration(config);
+
+        // Check whether the base context has an explicit theme or is able to obtain one
+        // from its outer context. If it throws an NPE because we're at an invalid point in app
+        // initialization, we don't need to worry about rebasing under the new configuration.
+        boolean needsThemeRebase;
+        try {
+            needsThemeRebase = baseContext.getTheme() != null;
+        } catch (NullPointerException e) {
+            needsThemeRebase = false;
+        }
+
+        if (needsThemeRebase) {
+            // Attempt to rebase the old theme within the new configuration. This will only
+            // work on SDK 23 and up, but it's unlikely that we're keeping the base theme
+            // anyway so maybe nobody will notice. Note that calling getTheme() will clone
+            // the base context's theme into the wrapped context's theme.
+            ResourcesCompat.ThemeCompat.rebase(wrappedContext.getTheme());
+        }
+
+        return super.attachBaseContext2(wrappedContext);
+    }
+
+    /**
+     * Helper for accessing new APIs on {@link android.view.ContextThemeWrapper}.
+     */
+    @RequiresApi(17)
+    private static class ContextThemeWrapperCompatApi17Impl {
+        private ContextThemeWrapperCompatApi17Impl() {
+            // This class is non-instantiable.
+        }
+
+        static void applyOverrideConfiguration(android.view.ContextThemeWrapper context,
+                Configuration overrideConfiguration) {
+            context.applyOverrideConfiguration(overrideConfiguration);
+        }
     }
 
     @Override
@@ -2371,7 +2440,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 && allowRecreation
                 && !activityHandlingUiMode
                 && mBaseContextAttached
-                && (sCanUseConfigurationContext || mCreated)
+                && (sCanReturnDifferentContext || mCreated)
                 && mHost instanceof Activity) {
             // If we're an attached Activity, we can recreate to apply if we can use the
             // attachBaseContext() + createConfigurationContext() code path.

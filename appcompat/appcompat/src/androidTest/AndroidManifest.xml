@@ -15,184 +15,190 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.v7.appcompat.test">
+    package="android.support.v7.appcompat.test">
 
     <application
-            android:supportsRtl="true"
-            android:theme="@style/Theme.AppCompat">
-        <activity
-                android:name="androidx.appcompat.app.AppCompatActivity"/>
-
-        <activity android:name="androidx.appcompat.app.AppCompatMenuItemShortcutsTestActivity"/>
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat">
 
         <activity
-                android:name="androidx.appcompat.app.AppCompatMenuItemIconTintingTestActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar"/>
+            android:name="androidx.appcompat.app.AppCompatActivity"/>
 
         <activity
-                android:name="androidx.appcompat.app.WindowDecorAppCompatActivity"/>
+            android:name="androidx.appcompat.app.AppCompatMenuItemShortcutsTestActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AppCompatMenuItemIconTintingTestActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+            android:name="androidx.appcompat.app.WindowDecorAppCompatActivity"/>
 
         <activity
             android:name="androidx.appcompat.app.WindowDecorBeforeOnCreateAppCompatActivity"/>
 
         <activity
-                android:name="androidx.appcompat.app.ToolbarAppCompatActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar"/>
+            android:name="androidx.appcompat.app.ToolbarAppCompatActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <activity
-                android:name="androidx.appcompat.app.DrawerLayoutActivity"
-                android:label="@string/drawer_layout_activity"
-                android:theme="@style/Theme.SampleDrawerLayout"/>
+            android:name="androidx.appcompat.app.DrawerLayoutActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
-                android:name="androidx.appcompat.app.DrawerInteractionActivity"
-                android:label="@string/drawer_layout_activity"
-                android:theme="@style/Theme.SampleDrawerLayout"/>
+            android:name="androidx.appcompat.app.DrawerInteractionActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
-                android:name="androidx.appcompat.app.DrawerLayoutDoubleActivity"
-                android:label="@string/drawer_layout_activity"
-                android:theme="@style/Theme.SampleDrawerLayout"/>
+            android:name="androidx.appcompat.app.DrawerLayoutDoubleActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
-                android:name="androidx.appcompat.app.DrawerDynamicLayoutActivity"
-                android:label="@string/drawer_layout_activity"
-                android:theme="@style/Theme.SampleDrawerLayout"/>
+            android:name="androidx.appcompat.app.DrawerDynamicLayoutActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
-                android:name="androidx.appcompat.app.AlertDialogTestActivity"
-                android:label="@string/alert_dialog_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.app.AlertDialogTestActivity"
+            android:label="@string/alert_dialog_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity android:name="androidx.appcompat.view.SupportMenuInflaterTestActivity"/>
 
         <activity
-                android:name="androidx.appcompat.widget.PopupTestActivity"
-                android:label="@string/popup_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.PopupTestActivity"
+            android:label="@string/popup_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatSpinnerActivity"
-                android:label="@string/app_compat_spinner_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatSpinnerActivity"
+            android:label="@string/app_compat_spinner_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
-                android:label="@string/app_compat_text_view_activity"
-                android:theme="@style/Theme.TextColors"/>
+            android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
+            android:label="@string/app_compat_text_view_activity"
+            android:theme="@style/Theme.TextColors"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatTextViewAutoSizeActivity"
-                android:label="@string/app_compat_text_view_auto_size_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatTextViewAutoSizeActivity"
+            android:label="@string/app_compat_text_view_auto_size_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatEditTextActivity"
-                android:label="@string/app_compat_edit_text_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatEditTextActivity"
+            android:label="@string/app_compat_edit_text_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatButtonAutoSizeActivity"
-                android:label="@string/app_compat_button_auto_size_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatButtonAutoSizeActivity"
+            android:label="@string/app_compat_button_auto_size_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatImageButtonActivity"
-                android:label="@string/app_compat_image_button_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatImageButtonActivity"
+            android:label="@string/app_compat_image_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatImageViewActivity"
-                android:label="@string/app_compat_image_view_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatImageViewActivity"
+            android:label="@string/app_compat_image_view_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatButtonActivity"
-                android:label="@string/app_compat_button_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatButtonActivity"
+            android:label="@string/app_compat_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatRadioButtonActivity"
-                android:label="@string/app_compat_radio_button_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatRadioButtonActivity"
+            android:label="@string/app_compat_radio_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
-                android:label="@string/app_compat_checkbox_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
+            android:label="@string/app_compat_checkbox_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.AppCompatToggleButtonActivity"
-                android:label="@string/app_compat_toggle_button_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.AppCompatToggleButtonActivity"
+            android:label="@string/app_compat_toggle_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.SwitchCompatActivity"
-                android:label="@string/switch_compat_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.SwitchCompatActivity"
+            android:label="@string/switch_compat_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.widget.SearchViewTestActivity"
-                android:label="@string/search_view_activity"
-                android:theme="@style/Theme.AppCompat.Light"/>
+            android:name="androidx.appcompat.widget.SearchViewTestActivity"
+            android:label="@string/search_view_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-                android:name="androidx.appcompat.app.LayoutInflaterFactoryTestActivity"/>
+            android:name="androidx.appcompat.app.LayoutInflaterFactoryTestActivity"/>
 
         <activity
-                android:name="androidx.appcompat.app.FragmentContentIdActivity"/>
+            android:name="androidx.appcompat.app.FragmentContentIdActivity"/>
 
         <activity
-                android:name="androidx.appcompat.app.NightModeActivity"
-                android:theme="@style/Theme.AppCompat.DayNight"/>
+            android:name="androidx.appcompat.app.NightModeActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-                android:name="androidx.appcompat.app.NightModePreventOverrideConfigActivity"
-                android:theme="@style/Theme.AppCompat.DayNight"/>
+            android:name="androidx.appcompat.app.NightModePreventOverrideConfigActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-                android:name="androidx.appcompat.app.NightModeLateOnCreateActivity"
-                android:theme="@style/Theme.AppCompat.DayNight"/>
+            android:name="androidx.appcompat.app.NightModeLateOnCreateActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-                android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivity"
-                android:theme="@style/Theme.AppCompat.DayNight"
-                android:configChanges="uiMode"/>
+            android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:configChanges="uiMode"/>
 
         <activity
-                android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"
-                android:theme="@style/Theme.AppCompat.DayNight"
-                android:configChanges="orientation|screenSize"/>
+            android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:configChanges="orientation|screenSize"/>
 
         <activity
-                android:name="androidx.appcompat.app.NightModeCustomConfigurationActivity"
-                android:theme="@style/Theme.AppCompat.DayNight"/>
+            android:name="androidx.appcompat.app.NightModeCustomAttachBaseContextActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-                android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
+            android:name="androidx.appcompat.app.NightModeCustomApplyOverrideConfigurationActivity"
+            android:theme="@style/Theme.AppCompat.DayNight" />
 
         <activity
-                android:name="androidx.appcompat.app.AppCompatInflaterDefaultActivity"/>
+            android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
 
         <activity
-                android:name="androidx.appcompat.app.AppCompatInflaterBadClassNameActivity"
-                android:theme="@style/Theme.CustomInflaterBadClassName"/>
+            android:name="androidx.appcompat.app.AppCompatInflaterDefaultActivity"/>
 
         <activity
-                android:name="androidx.appcompat.app.AppCompatInflaterNullActivity"
-                android:theme="@style/Theme.CustomInflaterNull"/>
+            android:name="androidx.appcompat.app.AppCompatInflaterBadClassNameActivity"
+            android:theme="@style/Theme.CustomInflaterBadClassName"/>
 
         <activity
-                android:name="androidx.appcompat.app.AppCompatInflaterCustomActivity"
-                android:theme="@style/Theme.CustomInflater"/>
+            android:name="androidx.appcompat.app.AppCompatInflaterNullActivity"
+            android:theme="@style/Theme.CustomInflaterNull"/>
 
         <activity
-                android:name="androidx.appcompat.widget.ToolbarTestActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar"/>
+            android:name="androidx.appcompat.app.AppCompatInflaterCustomActivity"
+            android:theme="@style/Theme.CustomInflater"/>
 
         <activity
-                android:name="androidx.appcompat.app.EmptyOptionsPanelActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:name="androidx.appcompat.widget.ToolbarTestActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+            android:name="androidx.appcompat.app.EmptyOptionsPanelActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
 
     </application>
 
