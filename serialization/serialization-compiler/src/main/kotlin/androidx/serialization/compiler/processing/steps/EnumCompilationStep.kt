@@ -16,18 +16,15 @@
 
 package androidx.serialization.compiler.processing.steps
 
-import androidx.serialization.Action
 import androidx.serialization.EnumValue
-import androidx.serialization.Field
 import androidx.serialization.Reserved
-import androidx.serialization.Reserved.IdRange
 import androidx.serialization.compiler.processing.asTypeElement
 import androidx.serialization.compiler.processing.asVariableElement
 import androidx.serialization.compiler.processing.error
 import androidx.serialization.compiler.processing.get
-import androidx.serialization.compiler.processing.getAnnotationArray
 import androidx.serialization.compiler.processing.getAnnotationMirror
 import androidx.serialization.compiler.processing.isPrivate
+import androidx.serialization.compiler.processing.processReserved
 import androidx.serialization.compiler.schema.Enum
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
@@ -36,21 +33,12 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ElementKind.ENUM_CONSTANT
 import javax.lang.model.element.TypeElement
 import kotlin.reflect.KClass
-import androidx.serialization.schema.Reserved as SchemaReserved
 
-/**
- * Processes and validates schema annotations.
- *
- * The discovered schema can be further processed by later steps or used for code generation or
- * schema tracking.
- */
-internal class SchemaCompilationStep(
-    private val processingEnv: ProcessingEnvironment
-) : AbstractStep(Action::class, Field::class, EnumValue::class, Reserved::class) {
-    // TODO: Replace with callbacks or similar
-    /** Enums discovered in the lifetime of this step. */
-    internal val enums = mutableSetOf<Enum>()
-
+/** Processing step that parses and validates enums, and generates enum coders. */
+internal class EnumCompilationStep(
+    private val processingEnv: ProcessingEnvironment,
+    private val onEnum: ((Enum) -> Unit)? = null
+) : AbstractStep(EnumValue::class, Reserved::class) {
     private val messager: Messager = processingEnv.messager
 
     override fun process(elementsByAnnotation: Map<KClass<out Annotation>, Set<Element>>) {
@@ -89,7 +77,7 @@ internal class SchemaCompilationStep(
      *
      * This method operates by validating that the enum class is not private, then walking its
      * enum constants. It validates that all constants have an [EnumValue] annotation, and then
-     * reads [EnumValue.id] and constructs an [Enum] that it adds to [enums]. It fills
+     * reads [EnumValue.id] and constructs an [Enum] and dispatches it to [onEnum]. It fills
      * [Enum.reserved] using [processReserved].
      */
     private fun processEnumType(typeElement: TypeElement) {
@@ -124,36 +112,6 @@ internal class SchemaCompilationStep(
             }
         }
 
-        if (!hasError) enums += Enum(typeElement, values, processReserved(typeElement))
-    }
-
-    /**
-     * Extract the data from a [Reserved] annotation on [element].
-     *
-     * If no [Reserved] annotation is present, this returns an empty reserved data class. If it
-     * encounters an [IdRange] with its `from` greater than its `to`, it reverses them before
-     * converting them to an [IntRange], reserving the same range of IDs as if they had been
-     * correctly placed.
-     */
-    private fun processReserved(element: Element): SchemaReserved {
-        val annotation = element.getAnnotationMirror(Reserved::class)
-
-        return if (annotation != null) {
-            SchemaReserved(
-                ids = annotation[Reserved::ids].toSet(),
-                names = annotation[Reserved::names].toSet(),
-                idRanges = annotation.getAnnotationArray(Reserved::idRanges).map { idRange ->
-                    val from = idRange[IdRange::from]
-                    val to = idRange[IdRange::to]
-
-                    when {
-                        from <= to -> from..to
-                        else -> to..from
-                    }
-                }.toSet()
-            )
-        } else {
-            SchemaReserved.empty()
-        }
+        if (!hasError) onEnum?.invoke(Enum(typeElement, values, processReserved(typeElement)))
     }
 }
