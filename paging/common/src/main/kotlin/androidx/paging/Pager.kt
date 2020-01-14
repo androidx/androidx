@@ -263,23 +263,12 @@ internal class Pager<Key : Any, Value : Any>(
             }
         }
 
-        // Keeping track of the previous Insert event separately allows for LoadState merging.
-        var lastInsertedPage: LoadResult.Page<Key, Value>? = null
         // Keep track of whether the LoadState should be updated to Idle or Done when this load
         // loop terminates due to fulfilling prefetchDistance.
         var updateLoadStateToDone = false
         loop@ while (loadKey != null) {
-            // Send all pageEvents except the last one for this loop, since the last
-            // insert event can only be sent after LoadState has been updated.
-            lastInsertedPage?.let { previousResult ->
-                val pageEvent = stateLock.withLock {
-                    with(state) { previousResult.toPageEvent(loadType, config.enablePlaceholders) }
-                }
-                pageEventCh.send(pageEvent)
-            }
-            lastInsertedPage = null // Reset lastInsertedPage in case of error or cancellation.
-
-            when (val result: LoadResult<Key, Value> = pagingSource.load(loadType, loadKey)) {
+            val result: LoadResult<Key, Value> = pagingSource.load(loadType, loadKey)
+            when (result) {
                 is LoadResult.Page<Key, Value> -> {
                     val insertApplied = stateLock.withLock {
                         state.insert(generationalHint.generationId, loadType, result)
@@ -291,9 +280,6 @@ internal class Pager<Key : Any, Value : Any>(
                     // Send Done instead of Idle if no more data to load in current direction.
                     if (loadType == START && result.prevKey == null) updateLoadStateToDone = true
                     else if (loadType == END && result.nextKey == null) updateLoadStateToDone = true
-
-                    // Set the Page to be sent to pageEventCh.
-                    lastInsertedPage = result
                 }
                 is LoadResult.Error -> {
                     stateLock.withLock {
@@ -331,20 +317,16 @@ internal class Pager<Key : Any, Value : Any>(
                             )
                         }
                 }
-            }
-        }
 
-        stateLock.withLock {
-            // Only update load state with success if we didn't error out.
-            if (state.failedHintsByLoadType[loadType] == null) {
-                state.updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
-            }
+                // Update load state to success if this is the final load result for this
+                // load hint, and only if we didn't error out.
+                if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
+                    state.updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
+                }
 
-            // Send the last page event from previous successful insert, now that LoadState has
-            // been updated.
-            lastInsertedPage?.let { previousResult ->
+                // Send page event for successful insert, now that PagerState has been updated.
                 val pageEvent = with(state) {
-                    previousResult.toPageEvent(loadType, config.enablePlaceholders)
+                    result.toPageEvent(loadType, config.enablePlaceholders)
                 }
                 pageEventCh.send(pageEvent)
             }
