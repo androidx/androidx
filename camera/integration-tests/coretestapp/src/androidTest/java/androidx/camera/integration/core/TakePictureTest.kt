@@ -78,7 +78,9 @@ class TakePictureTest {
     @After
     fun tearDown() {
         // Unregister idlingResource, no need to synchronize with it anymore.
-        IdlingRegistry.getInstance().unregister(mActivityRule.activity.imageSavedIdlingResource)
+        if (mActivityRule.activity != null) {
+            IdlingRegistry.getInstance().unregister(mActivityRule.activity.imageSavedIdlingResource)
+        }
         pressBackAndReturnHome()
         mActivityRule.finishActivity()
     }
