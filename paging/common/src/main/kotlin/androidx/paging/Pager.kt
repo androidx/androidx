@@ -29,13 +29,13 @@ import androidx.paging.PagingSource.LoadResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -70,7 +70,8 @@ internal class Pager<Key : Any, Value : Any>(
     private val stateLock = Mutex()
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
-    val pageEventFlow: Flow<PageEvent<Value>> = channelFlow {
+    private val pageEventChannelFlowJob = Job()
+    val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "cannot collect twice from pager"
         }
@@ -86,7 +87,8 @@ internal class Pager<Key : Any, Value : Any>(
             retryChannel.consumeAsFlow()
                 .collect {
                     // Handle refresh failure. Re-attempt doInitialLoad if the last attempt failed,
-                    val refreshFailure = stateLock.withLock { state.failedHintsByLoadType[REFRESH] }
+                    val refreshFailure =
+                        stateLock.withLock { state.failedHintsByLoadType[REFRESH] }
                     refreshFailure?.let {
                         stateLock.withLock { state.failedHintsByLoadType.remove(REFRESH) }
                         doInitialLoad(state)
@@ -123,6 +125,10 @@ internal class Pager<Key : Any, Value : Any>(
 
     fun retry() {
         retryChannel.offer(Unit)
+    }
+
+    fun close() {
+        pageEventChannelFlowJob.cancel()
     }
 
     suspend fun refreshKeyInfo(): RefreshInfo<Key, Value>? {
