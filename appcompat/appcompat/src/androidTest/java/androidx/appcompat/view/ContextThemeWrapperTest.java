@@ -26,11 +26,11 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
-import android.os.Build;
 
 import androidx.appcompat.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -127,24 +127,40 @@ public class ContextThemeWrapperTest {
         }).test());
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
-    public void testApplyOverrideConfiguration() {
-        // Configuration.densityApi is only available on API 17 and above
-        if (Build.VERSION.SDK_INT >= 17) {
-            final int realDensity = mContext.getResources().getConfiguration().densityDpi;
-            final int expectedDensity = realDensity + 1;
+    public void testApplyOverrideDensityConfiguration() {
+        // Configuration.densityDpi is only available on API 17 and above
+        final int realDensity = mContext.getResources().getConfiguration().densityDpi;
+        final int expectedDensity = realDensity + 1;
 
-            ContextThemeWrapper contextThemeWrapper = new ContextThemeWrapper(
-                    mContext, SYSTEM_DEFAULT_THEME);
+        ContextThemeWrapper contextThemeWrapper = new ContextThemeWrapper(
+                mContext, SYSTEM_DEFAULT_THEME);
 
-            Configuration overrideConfig = new Configuration();
-            overrideConfig.densityDpi = expectedDensity;
-            contextThemeWrapper.applyOverrideConfiguration(overrideConfig);
+        Configuration overrideConfig = new Configuration();
+        overrideConfig.densityDpi = expectedDensity;
+        contextThemeWrapper.applyOverrideConfiguration(overrideConfig);
 
-            Configuration actualConfiguration =
-                    contextThemeWrapper.getResources().getConfiguration();
-            assertEquals(expectedDensity, actualConfiguration.densityDpi);
-        }
+        Configuration actualConfiguration =
+                contextThemeWrapper.getResources().getConfiguration();
+        assertEquals(expectedDensity, actualConfiguration.densityDpi);
+    }
+
+    @Test
+    public void testApplyOverrideFontScaleConfiguration() {
+        final float realFontScale = mContext.getResources().getConfiguration().fontScale;
+        final float expectedFontScale = realFontScale + 1;
+
+        ContextThemeWrapper contextThemeWrapper = new ContextThemeWrapper(
+                mContext, SYSTEM_DEFAULT_THEME);
+
+        Configuration overrideConfig = new Configuration();
+        overrideConfig.fontScale = expectedFontScale;
+        contextThemeWrapper.applyOverrideConfiguration(overrideConfig);
+
+        Configuration actualConfiguration =
+                contextThemeWrapper.getResources().getConfiguration();
+        assertEquals(expectedFontScale, actualConfiguration.fontScale, 0.01f);
     }
 
     private void verifyIdenticalTextAppearanceStyle(TypedArray ta) {
