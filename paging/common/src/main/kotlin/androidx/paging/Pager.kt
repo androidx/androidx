@@ -150,7 +150,7 @@ internal class Pager<Key : Any, Value : Any>(
                         if (state.loadStates[START] == Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[START] == null) {
-                            state.updateLoadState(START, Idle)
+                            state.loadStates[START] = Idle
                         }
                     }
 
@@ -180,7 +180,7 @@ internal class Pager<Key : Any, Value : Any>(
                         if (state.loadStates[END] == Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[END] == null) {
-                            state.updateLoadState(END, Idle)
+                            state.loadStates[END] = Idle
                         }
                     }
 
@@ -210,7 +210,7 @@ internal class Pager<Key : Any, Value : Any>(
     )
 
     private suspend fun doInitialLoad(state: PagerState<Key, Value>) {
-        stateLock.withLock { state.updateLoadState(REFRESH, Loading) }
+        stateLock.withLock { state.setLoading(REFRESH) }
 
         val result = pagingSource.load(REFRESH, initialKey)
         stateLock.withLock {
@@ -218,9 +218,10 @@ internal class Pager<Key : Any, Value : Any>(
                 is LoadResult.Page<Key, Value> -> {
                     val insertApplied = state.insert(0, REFRESH, result)
 
-                    state.updateLoadState(REFRESH, Idle)
-                    if (result.prevKey == null) state.updateLoadState(START, Done)
-                    if (result.nextKey == null) state.updateLoadState(END, Done)
+                    // Update loadStates which are sent along with this load's Insert PageEvent.
+                    state.loadStates[REFRESH] = Idle
+                    if (result.prevKey == null) state.loadStates[START] = Done
+                    if (result.nextKey == null) state.loadStates[END] = Done
 
                     // Send insert event after load state updates, so that Done / Idle is
                     // correctly reflected in the insert event. Note that we only send the event
@@ -232,7 +233,7 @@ internal class Pager<Key : Any, Value : Any>(
                         }
                     }
                 }
-                is LoadResult.Error -> state.updateLoadState(
+                is LoadResult.Error -> state.setError(
                     REFRESH, Error(result.throwable), ViewportHint.DUMMY_VALUE
                 )
             }
@@ -256,9 +257,7 @@ internal class Pager<Key : Any, Value : Any>(
                         indexInPage,
                         pageIndex,
                         hintOffset
-                    )?.also {
-                        updateLoadState(loadType, Loading)
-                    }
+                    )?.also { setLoading(loadType) }
                 }
             }
         }
@@ -283,11 +282,7 @@ internal class Pager<Key : Any, Value : Any>(
                 }
                 is LoadResult.Error -> {
                     stateLock.withLock {
-                        state.updateLoadState(
-                            loadType,
-                            Error(result.throwable),
-                            generationalHint.hint
-                        )
+                        state.setError(loadType, Error(result.throwable), generationalHint.hint)
                     }
                     return
                 }
@@ -300,7 +295,6 @@ internal class Pager<Key : Any, Value : Any>(
                 }
 
                 state.dropInfo(dropType)?.let { info ->
-                    state.updateLoadState(dropType, Idle)
                     state.drop(dropType, info.pageCount, info.placeholdersRemaining)
                     pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
                 }
@@ -321,7 +315,7 @@ internal class Pager<Key : Any, Value : Any>(
                 // Update load state to success if this is the final load result for this
                 // load hint, and only if we didn't error out.
                 if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
-                    state.updateLoadState(loadType, if (updateLoadStateToDone) Done else Idle)
+                    state.loadStates[loadType] = if (updateLoadStateToDone) Done else Idle
                 }
 
                 // Send page event for successful insert, now that PagerState has been updated.
@@ -333,24 +327,25 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
-    private suspend fun PagerState<Key, Value>.updateLoadState(
-        loadType: LoadType,
-        loadState: LoadState,
-        hint: ViewportHint? = null
-    ) {
-        require(loadState is Error || hint == null) {
-            "Failed hint supplied for a loadState other than Error, which will be ignored."
+    private suspend fun PagerState<Key, Value>.setLoading(loadType: LoadType) {
+        if (loadStates[loadType] != Loading) {
+            loadStates[loadType] = Loading
+            pageEventCh.send(PageEvent.LoadStateUpdate(loadType, Loading))
         }
+    }
 
-        if (loadStates[loadType] != loadState) {
+    private suspend fun PagerState<Key, Value>.setError(
+        loadType: LoadType,
+        loadState: Error,
+        hint: ViewportHint
+    ) {
+        if (loadStates[loadType] !is Error) {
             loadStates[loadType] = loadState
-            pageEventCh.send(PageEvent.StateUpdate(loadType, loadState))
+            pageEventCh.send(PageEvent.LoadStateUpdate(loadType, loadState))
         }
 
         // Save the hint for retry on incoming retry signal, typically sent from user interaction.
-        if (loadState is Error && hint != null) {
-            failedHintsByLoadType[loadType] = hint
-        }
+        failedHintsByLoadType[loadType] = hint
     }
 
     /**

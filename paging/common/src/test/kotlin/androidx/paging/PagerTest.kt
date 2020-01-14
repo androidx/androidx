@@ -27,7 +27,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
-import androidx.paging.PageEvent.StateUpdate
+import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import androidx.paging.TestPagingSource.Companion.items
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -111,11 +111,9 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(1..2),
-            StateUpdate(START, Loading),
-            StateUpdate(START, Done),
+            LoadStateUpdate(START, Loading),
             createPrepend(pageOffset = -1, range = 0..0, startState = Done)
         )
 
@@ -135,16 +133,12 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(1..2),
-            StateUpdate(START, Loading),
-            StateUpdate(START, Done),
+            LoadStateUpdate(START, Loading),
             createPrepend(pageOffset = -1, range = 0..0, startState = Done),
-            StateUpdate(END, Loading),
-            StateUpdate(START, Idle),
+            LoadStateUpdate(END, Loading),
             Drop(START, 1, 1),
-            StateUpdate(END, Idle),
             createAppend(pageOffset = 1, range = 3..3, startState = Idle, endState = Idle)
         )
 
@@ -162,11 +156,9 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 97..98),
-            StateUpdate(END, Loading),
-            StateUpdate(END, Done),
+            LoadStateUpdate(END, Loading),
             createAppend(pageOffset = 1, range = 99..99, endState = Done)
         )
 
@@ -186,16 +178,12 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 97..98),
-            StateUpdate(END, Loading),
-            StateUpdate(END, Done),
+            LoadStateUpdate(END, Loading),
             createAppend(pageOffset = 1, range = 99..99, startState = Idle, endState = Done),
-            StateUpdate(START, Loading),
-            StateUpdate(END, Idle),
+            LoadStateUpdate(START, Loading),
             Drop(END, 1, 1),
-            StateUpdate(START, Idle),
             createPrepend(pageOffset = -1, range = 96..96, startState = Idle, endState = Idle)
         )
 
@@ -211,9 +199,7 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
-            StateUpdate(START, Done),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 0..1, startState = Done, endState = Idle)
         )
 
@@ -229,9 +215,7 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
-            StateUpdate(END, Done),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 98..99, startState = Idle, endState = Done)
         )
 
@@ -247,8 +231,7 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51)
         )
 
@@ -265,11 +248,9 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51),
-            StateUpdate(START, Loading),
-            StateUpdate(START, Idle),
+            LoadStateUpdate(START, Loading),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -287,11 +268,9 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51),
-            StateUpdate(START, Loading),
-            StateUpdate(START, Idle),
+            LoadStateUpdate(START, Loading),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -312,15 +291,12 @@ class PagerTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..51),
-                StateUpdate(START, Loading),
-                StateUpdate(START, Idle),
+                LoadStateUpdate(START, Loading),
                 createPrepend(pageOffset = -1, range = 49..49),
-                StateUpdate(START, Loading),
+                LoadStateUpdate(START, Loading),
                 Drop(END, 1, 50),
-                StateUpdate(START, Idle),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
 
@@ -345,17 +321,13 @@ class PagerTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..51),
-                StateUpdate(START, Loading),
-                StateUpdate(START, Idle),
+                LoadStateUpdate(START, Loading),
                 createPrepend(pageOffset = -1, range = 49..49),
-                StateUpdate(START, Loading),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Idle),
+                LoadStateUpdate(START, Loading),
+                LoadStateUpdate(END, Loading),
                 Drop(END, 1, 50),
-                StateUpdate(START, Idle),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
 
@@ -381,12 +353,10 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(50..52),
-            StateUpdate(START, Loading),
+            LoadStateUpdate(START, Loading),
             createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
-            StateUpdate(START, Idle),
             createPrepend(-2, 48..48)
         )
 
@@ -404,11 +374,9 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(50..51),
-            StateUpdate(END, Loading),
-            StateUpdate(END, Idle),
+            LoadStateUpdate(END, Loading),
             createAppend(1, 52..52)
         )
 
@@ -433,12 +401,10 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(50..52),
-            StateUpdate(END, Loading),
+            LoadStateUpdate(END, Loading),
             createAppend(1, 53..53, startState = Idle, endState = Loading),
-            StateUpdate(END, Idle),
             createAppend(2, 54..54)
         )
 
@@ -458,15 +424,12 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51),
-            StateUpdate(END, Loading),
-            StateUpdate(END, Idle),
+            LoadStateUpdate(END, Loading),
             createAppend(pageOffset = 1, range = 52..52),
-            StateUpdate(END, Loading),
+            LoadStateUpdate(END, Loading),
             Drop(START, 1, 52),
-            StateUpdate(END, Idle),
             createAppend(pageOffset = 2, range = 53..53)
         )
 
@@ -490,17 +453,13 @@ class PagerTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..51),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Idle),
+                LoadStateUpdate(END, Loading),
                 createAppend(pageOffset = 1, range = 52..52),
-                StateUpdate(END, Loading),
-                StateUpdate(START, Loading),
-                StateUpdate(START, Idle),
+                LoadStateUpdate(END, Loading),
+                LoadStateUpdate(START, Loading),
                 Drop(START, 1, 52),
-                StateUpdate(END, Idle),
                 createAppend(pageOffset = 2, range = 53..53, startState = Idle, endState = Idle)
             )
 
@@ -518,13 +477,11 @@ class PagerTest {
 
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51)
             ),
             listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51)
             )
         )
@@ -549,16 +506,13 @@ class PagerTest {
 
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Idle),
+                LoadStateUpdate(END, Loading),
                 createAppend(1, 52..52)
             ),
             listOf(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(51..52)
             )
         )
@@ -582,13 +536,11 @@ class PagerTest {
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Error(LOAD_ERROR)),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Idle),
+                LoadStateUpdate(END, Loading),
+                LoadStateUpdate(END, Error(LOAD_ERROR)),
+                LoadStateUpdate(END, Loading),
                 createAppend(1, 52..52)
             )
 
@@ -614,11 +566,9 @@ class PagerTest {
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Idle),
+                LoadStateUpdate(END, Loading),
                 createAppend(1, 52..52)
             )
 
@@ -643,13 +593,11 @@ class PagerTest {
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Error(LOAD_ERROR)),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Idle),
+                LoadStateUpdate(END, Loading),
+                LoadStateUpdate(END, Error(LOAD_ERROR)),
+                LoadStateUpdate(END, Loading),
                 createAppend(1, 52..52)
             )
 
@@ -677,21 +625,18 @@ class PagerTest {
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51),
-                StateUpdate(END, Loading),
-                StateUpdate(END, Error(LOAD_ERROR)),
-                StateUpdate(START, Loading),
-                StateUpdate(START, Error(LOAD_ERROR)),
-                StateUpdate(START, Loading),
-                StateUpdate(END, Loading),
-                StateUpdate(START, Idle),
+                LoadStateUpdate(END, Loading),
+                LoadStateUpdate(END, Error(LOAD_ERROR)),
+                LoadStateUpdate(START, Loading),
+                LoadStateUpdate(START, Error(LOAD_ERROR)),
+                LoadStateUpdate(START, Loading),
+                LoadStateUpdate(END, Loading),
                 createPrepend(
                     pageOffset = -1, range = 49..49, startState = Idle, endState = Loading
                 ),
                 Drop(START, 1, 50),
-                StateUpdate(END, Idle),
                 createAppend(1, 52..52)
             )
 
@@ -720,10 +665,9 @@ class PagerTest {
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Error(LOAD_ERROR)),
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
+                LoadStateUpdate(REFRESH, Error(LOAD_ERROR)),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51)
             )
 
@@ -747,13 +691,11 @@ class PagerTest {
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
 
             val expected = listOf<PageEvent<Int>>(
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Error(LOAD_ERROR)),
-                StateUpdate(REFRESH, Loading),
-                StateUpdate(REFRESH, Idle),
+                LoadStateUpdate(REFRESH, Loading),
+                LoadStateUpdate(REFRESH, Error(LOAD_ERROR)),
+                LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51),
-                StateUpdate(START, Loading),
-                StateUpdate(START, Idle),
+                LoadStateUpdate(START, Loading),
                 createPrepend(pageOffset = -1, range = 49..49)
             )
 
@@ -784,8 +726,7 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) }
         )
 
@@ -810,11 +751,9 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
-            StateUpdate(START, Loading),
-            StateUpdate(START, Idle),
+            LoadStateUpdate(START, Loading),
             createPrepend(-1, 49..49).let { Start(it.pages, 0, it.loadStates) }
         )
 
@@ -839,11 +778,9 @@ class PagerTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            StateUpdate(REFRESH, Loading),
-            StateUpdate(REFRESH, Idle),
+            LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
-            StateUpdate(END, Loading),
-            StateUpdate(END, Idle),
+            LoadStateUpdate(END, Loading),
             createAppend(1, 52..52).let { End(it.pages, 0, it.loadStates) }
         )
 

@@ -188,22 +188,19 @@ internal sealed class PageEvent<T : Any> {
                 // no empty pages encountered
                 this
             } else {
-                Drop(
-                    loadType,
-                    newCount,
-                    placeholdersRemaining
-                )
+                Drop(loadType, newCount, placeholdersRemaining)
             }
         }
     }
 
-    data class StateUpdate<T : Any>(
+    data class LoadStateUpdate<T : Any>(
         val loadType: LoadType,
         val loadState: LoadState
     ) : PageEvent<T>() {
         init {
-            require(loadType != REFRESH || loadState != LoadState.Done) {
-                "Refresh state may not be Done"
+            require(loadState == LoadState.Loading || loadState is LoadState.Error) {
+                "LoadStateUpdates can only be used for Loading or Error. To update loadState to " +
+                        "Idle or Done, use Insert / Drop events."
             }
         }
     }
