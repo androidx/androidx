@@ -27,7 +27,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -105,7 +104,6 @@ public class PreviewViewTest {
                 R.layout.preview_view_texture_view_mode, null, false);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(TextureView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
     }
 
@@ -117,7 +115,6 @@ public class PreviewViewTest {
         previewView.setImplementationMode(TEXTURE_VIEW);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(TextureView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
     }
 
@@ -131,7 +128,6 @@ public class PreviewViewTest {
         previewView.setImplementationMode(SURFACE_VIEW);
         previewView.setImplementationMode(TEXTURE_VIEW);
 
-        assertThat(getImplementationView()).isInstanceOf(TextureView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
     }
 
