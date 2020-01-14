@@ -25,6 +25,7 @@ import static org.junit.Assume.assumeTrue;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
@@ -37,6 +38,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -96,8 +98,9 @@ public class CameraDisconnectTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     public void testDisconnect_launchCamera2App() {
-        // TODO(b/141656413): Remove after the issue fixed.
+        // Specific compatibility check for the test.
         CoreAppTestUtil.assumeCanTestCameraDisconnect();
 
         waitFor(mCameraXTestActivity.mPreviewReady);
