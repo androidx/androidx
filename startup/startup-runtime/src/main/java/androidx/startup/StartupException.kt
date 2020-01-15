@@ -16,33 +16,8 @@
 
 package androidx.startup
 
-import android.util.Log
-
 /**
- * Controls all logging in [androidx.startup].
+ * Is thrown when there is a problem during application startup.
  */
-internal object StartupLogger {
-
-    /**
-     * The log tag.
-     */
-    private const val TAG = "StartupLogger"
-
-    private const val DEBUG = false
-
-    inline fun i(crossinline block: () -> String) {
-        @Suppress("ConstantConditionIf")
-        if (DEBUG) {
-            Log.i(TAG, block())
-        }
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun e(message: String, throwable: Throwable? = null) {
-        if (throwable == null) {
-            Log.e(TAG, message)
-        } else {
-            Log.e(TAG, message, throwable)
-        }
-    }
-}
+internal class StartupException(override val message: String?, override val cause: Throwable?) :
+    Throwable(message, cause)

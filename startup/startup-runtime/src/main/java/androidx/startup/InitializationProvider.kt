@@ -44,7 +44,6 @@ class InitializationProvider : ContentProvider() {
     }
 
     override fun onCreate(): Boolean {
-        val components = mutableListOf<Class<*>>()
         val context = requireNotNull(context)
         val metadata = context.packageManager.getApplicationInfo(
             context.packageName,
@@ -53,12 +52,19 @@ class InitializationProvider : ContentProvider() {
 
         val startup = context.getString(R.string.androidx_startup)
         if (metadata.size() > 0) {
+            val components = mutableListOf<Class<*>>()
             metadata.keySet().forEach { key ->
                 val value = metadata.getString(key, null)
                 if (startup == value) {
-                    val clazz = Class.forName(key)
-                    StartupLogger.i { "Discovered ($clazz)" }
-                    components.add(clazz)
+                    try {
+                        val clazz = Class.forName(key)
+                        StartupLogger.i { "Discovered ($clazz)" }
+                        components.add(clazz)
+                    } catch (throwable: Throwable) {
+                        val message = "Cannot find ComponentInitializer ($key)"
+                        StartupLogger.e(message, throwable)
+                        throw StartupException(message, throwable)
+                    }
                 }
             }
             AppInitializer.initialize(context, components)
