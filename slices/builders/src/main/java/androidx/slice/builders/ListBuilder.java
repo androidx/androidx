@@ -687,6 +687,10 @@ public class ListBuilder extends TemplateSliceBuilder {
         private IconCompat mTitleIcon;
         private int mTitleImageMode;
         private boolean mTitleItemLoading;
+        private boolean mHasDefaultToggle;
+        private List<Object> mEndItems = new ArrayList<>();
+        private List<Integer> mEndTypes = new ArrayList<>();
+        private List<Boolean> mEndLoads = new ArrayList<>();
 
         /**
          * Builder to construct a input range row.
@@ -713,6 +717,41 @@ public class ListBuilder extends TemplateSliceBuilder {
         public InputRangeBuilder setTitleItem(@NonNull IconCompat icon,
                 @ImageMode int imageMode) {
             return setTitleItem(icon, imageMode, false /* isLoading */);
+        }
+
+        /**
+         * Adds an action to the end items of the input range builder. Only one non-custom toggle
+         * can be added. If a non-custom toggle has already been added, this will throw
+         * {@link IllegalStateException}.
+         */
+        @NonNull
+        public InputRangeBuilder addEndItem(@NonNull SliceAction action) {
+            return addEndItem(action, false /* isLoading */);
+        }
+
+        /**
+         * Adds an action to the end items of the input range builder. Only one non-custom toggle
+         * can be added. If a non-custom toggle has already been added, this will throw
+         * {@link IllegalStateException}.
+         * <p>
+         * Use this method to specify content that will appear in the template once it's been
+         * loaded.
+         * </p>
+         * @param isLoading indicates whether the app is doing work to load the added content in the
+         *                  background or not.
+         */
+        @NonNull
+        public InputRangeBuilder addEndItem(@NonNull SliceAction action, boolean isLoading) {
+            if (mHasDefaultToggle) {
+                throw new IllegalStateException("Only one non-custom toggle can be added "
+                        + "in a single row. If you would like to include multiple toggles "
+                        + "in a row, set a custom icon for each toggle.");
+            }
+            mEndItems.add(action);
+            mEndTypes.add(TYPE_ACTION);
+            mEndLoads.add(isLoading);
+            mHasDefaultToggle = action.getImpl().isDefaultToggle();
+            return this;
         }
 
         /**
@@ -873,6 +912,36 @@ public class ListBuilder extends TemplateSliceBuilder {
         @RestrictTo(LIBRARY)
         public IconCompat getTitleIcon() {
             return mTitleIcon;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_ACTION = 2;
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Object> getEndItems() {
+            return mEndItems;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Integer> getEndTypes() {
+            return mEndTypes;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Boolean> getEndLoads() {
+            return mEndLoads;
         }
 
         /**
@@ -1698,6 +1767,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getSubtitle() {
             return mSubtitle;
         }
@@ -1714,6 +1784,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getSummary() {
             return mSummary;
         }
@@ -1730,6 +1801,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public SliceAction getPrimaryAction() {
             return mPrimaryAction;
         }
