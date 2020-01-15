@@ -22,7 +22,9 @@
       ~ Important: disable debuggable for accurate performance results
       ~ requestLegacyExternalStorage to enable legacy JSON reporting when targeting Q
       -->
+    <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
     <application
+        android:process="androidx.ui.benchmark"
         android:requestLegacyExternalStorage="true"
         android:debuggable="false"
         tools:replace="android:debuggable">
