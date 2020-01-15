@@ -59,6 +59,12 @@ class GestureScope internal constructor(
  */
 private const val edgeFuzzFactor = 0.083f
 
+/**
+ * The time between the last event of the first click and the first event of the second click in
+ * a double click gesture. 145 milliseconds: both median and average of empirical data (33 samples)
+ */
+private val doubleClickDelay = 145.milliseconds
+
 private fun GestureScope.getGlobalBounds(): Rect {
     return requireNotNull(semanticsTreeNode.globalRect) {
         "Semantic Node has no child layout to resolve coordinates on"
@@ -118,6 +124,34 @@ fun GestureScope.sendLongClick(position: PxPosition) {
 fun GestureScope.sendLongClick() {
     val bounds = getGlobalBounds()
     sendLongClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
+}
+
+/**
+ * Performs a double click gesture on the given [position] on the associated component. The
+ * [position] is in the component's local coordinate system.
+ *
+ * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param position The position of the double click, in the component's local coordinate system
+ */
+fun GestureScope.sendDoubleClick(position: PxPosition) {
+    val globalPosition = toGlobalPosition(position)
+    semanticsTreeInteraction.sendInput {
+        it.sendClick(globalPosition)
+        it.delay(doubleClickDelay)
+        it.sendClick(globalPosition)
+    }
+}
+
+/**
+ * Performs a double click gesture on the associated component. The clicks are done in the middle
+ * of the component's bounds.
+ *
+ * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ */
+fun GestureScope.sendDoubleClick() {
+    val bounds = getGlobalBounds()
+    sendDoubleClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
 }
 
 /**
