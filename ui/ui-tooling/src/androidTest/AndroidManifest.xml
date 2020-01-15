@@ -14,14 +14,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.ui.tooling" xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.ui.tooling.test">
 
+    <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
     <application
+        android:process="androidx.ui.tooling"
         android:debuggable="false"
         tools:ignore="HardcodedDebugMode"
-        tools:replace="android:debuggable"
-        >
+        tools:replace="android:debuggable">
         <activity android:name="androidx.ui.tooling.ComposeViewAdapterTest$Companion$TestActivity"
             android:theme="@style/TestTheme"/>
         <activity android:name="androidx.ui.tooling.TestActivity"

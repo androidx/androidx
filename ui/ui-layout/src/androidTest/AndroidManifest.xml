@@ -15,13 +15,15 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.ui.layout">
+    package="androidx.ui.layout.test">
 
     <!--
       ~ Important: disable debuggable for accurate performance results
       ~ requestLegacyExternalStorage to enable legacy JSON reporting when targeting Q
       -->
+    <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
     <application
+        android:process="androidx.ui.layout"
         android:requestLegacyExternalStorage="true"
         android:debuggable="false"
         tools:ignore="HardcodedDebugMode"

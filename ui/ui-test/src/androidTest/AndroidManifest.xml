@@ -14,12 +14,13 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest package="androidx.ui.test" xmlns:android="http://schemas.android.com/apk/res/android">
-     <application>
-         <activity android:name="android.app.Activity"
-             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
-         <activity android:name="androidx.ui.test.CustomActivity"
-             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.test.test">
+    <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
+    <application android:process="androidx.ui.test">
+        <activity android:name="android.app.Activity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
+        <activity android:name="androidx.ui.test.CustomActivity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
     </application>
 </manifest>
-
