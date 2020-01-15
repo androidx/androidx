@@ -40,6 +40,7 @@ import androidx.ui.unit.max
 import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
+import kotlin.math.sign
 
 /**
  * Collects information about the children of a [FlexColumn] or [FlexColumn]
@@ -757,15 +758,27 @@ private fun FlexLayout(
             constraints.mainAxisMin
         }
 
+        val flexSliceSpace = if (totalFlex > 0) {
+            (targetSpace.toPx() - inflexibleSpace) / totalFlex
+        } else {
+            0.px
+        }
+
+        var remainder = targetSpace - inflexibleSpace - measurables.sumBy {
+            (flexSliceSpace * it.flex).round().value
+        }.ipx
+
         var flexibleSpace = IntPx.Zero
 
         for (i in 0 until measurables.size) {
             val child = measurables[i]
             val flex = child.flex
             if (flex > 0f) {
+                val remainderUnit = remainder.value.sign.ipx
+                remainder -= remainderUnit
                 val childMainAxisSize = max(
                     IntPx.Zero,
-                    (targetSpace - inflexibleSpace) * child.flex / totalFlex
+                    (flexSliceSpace * child.flex).round() + remainderUnit
                 )
                 val placeable = child.measure(
                     OrientationIndependentConstraints(
