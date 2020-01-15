@@ -35,9 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="start|center_vertical"
-            android:orientation="horizontal"
-            android:paddingEnd="12dp"
-            android:paddingRight="12dp"/>
+            android:orientation="horizontal"/>
 
         <LinearLayout
             android:id="@android:id/content"
@@ -52,10 +50,13 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceListItem"
                 android:ellipsize="end"
-                android:maxLines="1"/>
+                android:maxLines="1"
+                android:paddingStart="12dp"
+                android:paddingLeft="12dp"/>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/subcontent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -65,7 +66,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:ellipsize="end"
-                    android:maxLines="1" />
+                    android:maxLines="1"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginLeft="12dp"/>
 
                 <TextView
                     android:id="@+id/last_updated"

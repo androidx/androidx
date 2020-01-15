@@ -231,7 +231,8 @@ public class SliceStyle {
             return maxHeight;
         }
 
-        if (row.getRange() != null) {
+        // If no StartItem, keep to use original layout.
+        if (row.getRange() != null && row.getStartItem() == null) {
             // Range element always has set height and then the height of the text
             // area on the row will vary depending on if 1 or 2 lines of text.
             int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithRangeHeight
