@@ -814,6 +814,8 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createRichInputRange(Uri sliceUri) {
         IconCompat thumbIcon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
         IconCompat titleIcon = IconCompat.createWithResource(getContext(), R.drawable.ic_car);
+        IconCompat checkBoxIcon = IconCompat.createWithResource(getContext(),
+                R.drawable.toggle_check);
         SliceAction primaryAction = SliceAction.create(
                 getBroadcastIntent(ACTION_TOAST, "open rich star rating"), thumbIcon, ICON_IMAGE,
                 "Rate");
@@ -823,6 +825,9 @@ public class SampleSliceProvider extends SliceProvider {
                         .setTitle("Rich InputRangeBuilder demo"))
                 .addInputRange(new InputRangeBuilder()
                         .setTitleItem(titleIcon, ListBuilder.ICON_IMAGE)
+                        .addEndItem(SliceAction.createToggle(
+                                getBroadcastIntent(ACTION_TOAST, "click checkbox"), checkBoxIcon,
+                                "checkbox", false))
                         .setTitle("Rich star rating")
                         .setMin(5)
                         .setThumb(thumbIcon)

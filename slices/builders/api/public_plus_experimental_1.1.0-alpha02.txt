@@ -66,6 +66,8 @@ package androidx.slice.builders {
 
   public static class ListBuilder.InputRangeBuilder {
     ctor public ListBuilder.InputRangeBuilder();
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder addEndItem(androidx.slice.builders.SliceAction);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder addEndItem(androidx.slice.builders.SliceAction, boolean);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setContentDescription(CharSequence);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setInputAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setInputAction(androidx.remotecallback.RemoteCallback);

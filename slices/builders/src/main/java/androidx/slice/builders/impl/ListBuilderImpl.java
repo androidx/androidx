@@ -373,6 +373,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         private PendingIntent mAction;
         private IconCompat mThumb;
         private Slice mStartItem;
+        private ArrayList<Slice> mEndItems = new ArrayList<>();
 
         InputRangeBuilderImpl(Slice.Builder sb, InputRangeBuilder builder) {
             super(sb, null);
@@ -391,6 +392,14 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 setTitleItem(builder.getTitleIcon(), builder.getTitleImageMode(),
                         builder.isTitleItemLoading());
             }
+            List<Object> endItems = builder.getEndItems();
+            List<Integer> endTypes = builder.getEndTypes();
+            List<Boolean> endLoads = builder.getEndLoads();
+            for (int i = 0; i < endItems.size(); i++) {
+                if (endTypes.get(i) == InputRangeBuilder.TYPE_ACTION) {
+                    addEndItem((SliceAction) endItems.get(i), endLoads.get(i));
+                }
+            }
         }
 
         void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
@@ -400,6 +409,14 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 sb.addHints(HINT_PARTIAL);
             }
             mStartItem = sb.addHints(HINT_TITLE).build();
+        }
+
+        private void addEndItem(@NonNull SliceAction action, boolean isLoading) {
+            Slice.Builder sb = new Slice.Builder(getBuilder());
+            if (isLoading) {
+                sb.addHints(HINT_PARTIAL);
+            }
+            mEndItems.add(action.buildSlice(sb));
         }
 
         @Override
@@ -415,6 +432,9 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
             builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);
             if (mStartItem != null) {
                 builder.addSubSlice(mStartItem);
+            }
+            for (int i = 0; i < mEndItems.size(); i++) {
+                builder.addSubSlice(mEndItems.get(i));
             }
         }
     }
