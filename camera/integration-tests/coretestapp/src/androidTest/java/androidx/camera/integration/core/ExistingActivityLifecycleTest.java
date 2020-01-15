@@ -96,9 +96,10 @@ public final class ExistingActivityLifecycleTest {
     @After
     public void tearDown() {
         // When test failed, really unregister the idling resource and don't impact next test.
-        IdlingRegistry.getInstance().unregister(
-                mActivityRule.getActivity().getViewIdlingResource());
-
+        if (mActivityRule.getActivity() != null) {
+            IdlingRegistry.getInstance().unregister(
+                    mActivityRule.getActivity().getViewIdlingResource());
+        }
         mActivityRule.finishActivity();
         pressHomeButton();
     }
