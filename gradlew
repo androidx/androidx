@@ -215,13 +215,22 @@ if [ "$TMPDIR" != "" ]; then
   TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
 fi
 
-if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$XMX_ARG" "$@"; then
-  exit 0
-else
-  # Print AndroidX-specific help message if build fails
-  # Have to do this build-failure detection in gradlew rather than in build.gradle
-  # so that this message still prints even if buildSrc itself fails
-  echo
-  echo See also development/diagnose-build-failure for help with build failures in this project.
-  exit 1
+function runGradle() {
+  if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$XMX_ARG" "$@"; then
+    return 0
+  else
+    # Print AndroidX-specific help message if build fails
+    # Have to do this build-failure detection in gradlew rather than in build.gradle
+    # so that this message still prints even if buildSrc itself fails
+    echo
+    echo See also development/diagnose-build-failure for help with build failures in this project.
+    exit 1
+  fi
+}
+
+runGradle "$@"
+# Check whether we were given the "-PverifyUpToDate" argument
+if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
+  # Re-run Gradle, and verify that the tasks are up-to-date
+  runGradle "$@" -PdisallowExecution
 fi
