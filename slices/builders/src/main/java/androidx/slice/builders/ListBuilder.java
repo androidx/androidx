@@ -684,6 +684,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         private SliceAction mPrimaryAction;
         private CharSequence mContentDescription;
         private int mLayoutDirection = -1;
+        private IconCompat mTitleIcon;
+        private int mTitleImageMode;
+        private boolean mTitleItemLoading;
 
         /**
          * Builder to construct a input range row.
@@ -693,6 +696,48 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#addInputRange(InputRangeBuilder)
          */
         public InputRangeBuilder() {
+        }
+
+        /**
+         * Sets the title item to be the provided icon. There can only be one title item, this
+         * will replace any other title items that may have been set.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        @NonNull
+        public InputRangeBuilder setTitleItem(@NonNull IconCompat icon,
+                @ImageMode int imageMode) {
+            return setTitleItem(icon, imageMode, false /* isLoading */);
+        }
+
+        /**
+         * Sets the title item to be the provided icon. There can only be one title item, this
+         * will replace any other title items that may have been set.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         * @param isLoading whether this content is being loaded in the background.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        @NonNull
+        public InputRangeBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode,
+                boolean isLoading) {
+            mTitleIcon = icon;
+            mTitleImageMode = imageMode;
+            mTitleItemLoading = isLoading;
+            return this;
         }
 
         /**
@@ -804,6 +849,30 @@ public class ListBuilder extends TemplateSliceBuilder {
         public InputRangeBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
             return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isTitleItemLoading() {
+            return mTitleItemLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getTitleImageMode() {
+            return mTitleImageMode;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public IconCompat getTitleIcon() {
+            return mTitleIcon;
         }
 
         /**
@@ -1669,6 +1738,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getContentDescription() {
             return mContentDescription;
         }
