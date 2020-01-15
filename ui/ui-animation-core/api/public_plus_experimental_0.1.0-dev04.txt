@@ -2,9 +2,10 @@
 package androidx.animation {
 
   public final class AnimatedFloat extends androidx.animation.BaseAnimatedValue<java.lang.Float,androidx.animation.AnimationVector1D> {
-    ctor public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder);
-    ctor public AnimatedFloat(float initVal);
-    method public void doAnimationFrame$lintWithKotlin(long time);
+    ctor public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder, androidx.animation.AnimationClockObservable clock);
+    ctor public AnimatedFloat(float initVal, androidx.animation.AnimationClockObservable clock);
+    ctor @Deprecated public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder);
+    method public void doAnimationFrame$lintWithKotlin(long timeMillis);
     method public float getVelocity();
     method public void setBounds(float min = Float.NEGATIVE_INFINITY, float max = Float.POSITIVE_INFINITY);
     method public void snapTo(float targetValue);
@@ -12,7 +13,7 @@ package androidx.animation {
   }
 
   public final class AnimatedValue<T, V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<T,V> {
-    ctor public AnimatedValue(androidx.animation.ValueHolder<T> valueHolder, androidx.animation.TwoWayConverter<T,V> typeConverter);
+    ctor public AnimatedValue(androidx.animation.ValueHolder<T> valueHolder, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock);
     method public V getVelocity();
     property public final V velocity;
   }
@@ -23,8 +24,8 @@ package androidx.animation {
   }
 
   public final class AnimatedVectorValue<V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<V,V> {
-    ctor public AnimatedVectorValue(androidx.animation.ValueHolder<V> valueHolder);
-    ctor public AnimatedVectorValue(V initVal);
+    ctor public AnimatedVectorValue(androidx.animation.ValueHolder<V> valueHolder, androidx.animation.AnimationClockObservable clock);
+    ctor public AnimatedVectorValue(V initVal, androidx.animation.AnimationClockObservable clock);
   }
 
   public abstract class AnimationBuilder<T> {
