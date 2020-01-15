@@ -36,3 +36,4 @@ jacoco.exec
 
 # Layout Inspector creates it.
 captures/
+__pycache__
