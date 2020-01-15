@@ -389,6 +389,15 @@ public abstract class FragmentManager {
             return getHost().instantiate(getHost().getContext(), className, null);
         }
     };
+    private SpecialEffectsControllerFactory mSpecialEffectsControllerFactory = null;
+    private SpecialEffectsControllerFactory mDefaultSpecialEffectsControllerFactory =
+            new SpecialEffectsControllerFactory() {
+                @NonNull
+                @Override
+                public SpecialEffectsController createController(@NonNull ViewGroup container) {
+                    return new DefaultSpecialEffectsController(container);
+                }
+            };
 
     private boolean mNeedMenuInvalidate;
     private boolean mStateSaved;
@@ -2807,6 +2816,39 @@ public abstract class FragmentManager {
             return mParent.mFragmentManager.getFragmentFactory();
         }
         return mHostFragmentFactory;
+    }
+
+    /**
+     * Set a {@link SpecialEffectsControllerFactory} for this FragmentManager that will be used
+     * to create new SpecialEffectsController instances from this point onward.
+     *
+     * @param specialEffectsControllerFactory the factory to use to create new
+     *                                        SpecialEffectsController instances.
+     */
+    void setSpecialEffectsControllerFactory(
+            @NonNull SpecialEffectsControllerFactory specialEffectsControllerFactory) {
+        mSpecialEffectsControllerFactory = specialEffectsControllerFactory;
+    }
+
+    /**
+     * Gets the current {@link SpecialEffectsControllerFactory} used to instantiate new
+     * SpecialEffectsController instances.
+     *
+     * @return the current SpecialEffectsControllerFactory
+     */
+    @NonNull
+    SpecialEffectsControllerFactory getSpecialEffectsControllerFactory() {
+        if (mSpecialEffectsControllerFactory != null) {
+            return mSpecialEffectsControllerFactory;
+        }
+        if (mParent != null) {
+            // This can't call setSpecialEffectsControllerFactory since we need to
+            // compute this each time getSpecialEffectsControllerFactory() is called
+            // so that if the parent's SpecialEffectsControllerFactory changes, we
+            // pick the change up here.
+            return mParent.mFragmentManager.getSpecialEffectsControllerFactory();
+        }
+        return mDefaultSpecialEffectsControllerFactory;
     }
 
     @NonNull
