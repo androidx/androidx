@@ -78,17 +78,17 @@ fun HeaderFooterLayout(
         )
     }) { measurables, constraints ->
         val headerPlaceable = measurables.first { it.tag == "header" }.measure(
-            Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
+            Constraints.fixed(constraints.maxWidth, 100.ipx)
         )
         val footerPadding = 50.ipx
         val footerPlaceable = measurables.first { it.tag == "footer" }.measure(
-            Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx)
+            Constraints.fixed(constraints.maxWidth - footerPadding * 2, 100.ipx)
         )
         val itemHeight =
             (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
                     measurables.filter { it.tag == "content" }.size
         val contentPlaceables = measurables.filter { it.tag == "content" }.map { measurable ->
-            measurable.measure(Constraints.tightConstraints(constraints.maxWidth, itemHeight))
+            measurable.measure(Constraints.fixed(constraints.maxWidth, itemHeight))
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {

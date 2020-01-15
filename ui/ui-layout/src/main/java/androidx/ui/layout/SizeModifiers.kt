@@ -23,7 +23,6 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.enforce
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.withTight
 import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -145,7 +144,7 @@ data class LayoutWidth(val width: Dp)
     object Fill : LayoutModifier {
         override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints =
             if (constraints.hasBoundedWidth) {
-                constraints.withTight(width = constraints.maxWidth)
+                constraints.copy(minWidth = constraints.maxWidth, maxWidth = constraints.maxWidth)
             } else {
                 constraints
             }
@@ -241,7 +240,10 @@ data class LayoutHeight(val height: Dp)
     object Fill : LayoutModifier {
         override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints =
             if (constraints.hasBoundedHeight) {
-                constraints.withTight(height = constraints.maxHeight)
+                constraints.copy(
+                    minHeight = constraints.maxHeight,
+                    maxHeight = constraints.maxHeight
+                )
             } else {
                 constraints
             }
@@ -384,11 +386,16 @@ data class LayoutSize(val width: Dp, val height: Dp)
     object Fill : LayoutModifier {
         override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints =
             when {
-                constraints.hasBoundedWidth && constraints.hasBoundedHeight -> constraints
-                    .withTight(width = constraints.maxWidth, height = constraints.maxHeight)
-                constraints.hasBoundedWidth -> constraints.withTight(width = constraints.maxWidth)
-                constraints.hasBoundedHeight -> constraints.withTight(
-                    height = constraints.maxHeight)
+                constraints.hasBoundedWidth && constraints.hasBoundedHeight -> constraints.copy(
+                    minWidth = constraints.maxWidth,
+                    minHeight = constraints.maxHeight
+                )
+                constraints.hasBoundedWidth -> constraints.copy(
+                    minWidth = constraints.maxWidth
+                )
+                constraints.hasBoundedHeight -> constraints.copy(
+                    minHeight = constraints.maxHeight
+                )
                 else -> constraints
             }
     }

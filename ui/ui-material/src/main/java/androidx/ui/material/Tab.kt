@@ -26,6 +26,7 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
@@ -38,7 +39,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.tag
-import androidx.ui.core.withTight
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
@@ -281,13 +281,13 @@ private fun ScrollableTabRow(
                 // The divider is measured with its own height, and width equal to the total width
                 // of the tab row, and then placed on top of the tabs.
                 measurables.firstOrNull { it.tag == DividerTag }
-                    ?.measure(constraints.withTight(width = layoutWidth))
+                    ?.measure(constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth))
                     ?.run { place(IntPx.Zero, layoutHeight - height) }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
                 // row, and then placed on top of the divider.
                 measurables.firstOrNull { it.tag == IndicatorTag }
-                    ?.measure(constraints.withTight(width = layoutWidth, height = layoutHeight))
+                    ?.measure(Constraints.fixed(layoutWidth, layoutHeight))
                     ?.place(IntPx.Zero, IntPx.Zero)
             }
         }

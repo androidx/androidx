@@ -29,10 +29,8 @@ import androidx.ui.core.enforce
 import androidx.ui.core.gesture.LongPressDragGestureDetector
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
-import androidx.ui.core.hasTightHeight
-import androidx.ui.core.hasTightWidth
-import androidx.ui.core.looseMin
-import androidx.ui.core.withTight
+import androidx.ui.core.hasFixedHeight
+import androidx.ui.core.hasFixedWidth
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
@@ -187,12 +185,17 @@ internal fun SimpleContainer(
 ) {
     Layout(children) { measurables, incomingConstraints ->
         val containerConstraints = Constraints()
-            .withTight(width?.toIntPx(), height?.toIntPx())
+            .copy(
+                width?.toIntPx() ?: 0.ipx,
+                width?.toIntPx() ?: IntPx.Infinity,
+                height?.toIntPx() ?: 0.ipx,
+                height?.toIntPx() ?: IntPx.Infinity
+            )
             .enforce(incomingConstraints)
-        val childConstraints = containerConstraints.looseMin()
+        val childConstraints = containerConstraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
         var placeable: Placeable? = null
         val containerWidth = if (
-            containerConstraints.hasTightWidth &&
+            containerConstraints.hasFixedWidth &&
             containerConstraints.maxWidth.isFinite()
         ) {
             containerConstraints.maxWidth
@@ -201,7 +204,7 @@ internal fun SimpleContainer(
             max((placeable?.width ?: 0.ipx), containerConstraints.minWidth)
         }
         val containerHeight = if (
-            containerConstraints.hasTightHeight &&
+            containerConstraints.hasFixedHeight &&
             containerConstraints.maxHeight.isFinite()
         ) {
             containerConstraints.maxHeight

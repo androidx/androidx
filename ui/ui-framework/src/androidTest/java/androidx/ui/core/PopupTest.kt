@@ -29,6 +29,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
@@ -557,7 +558,7 @@ private fun TestAlign(children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.looseMin())
+        val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
 
         // The layout is as large as possible for bounded constraints,
         // or wrap content otherwise.

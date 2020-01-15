@@ -123,7 +123,7 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
 @Composable
 private fun ChangingConstraintsLayout(size: State<IntPx>, children: @Composable() () -> Unit) {
     Layout(children) { measurables, _ ->
-        val constraints = Constraints.tightConstraints(size.value, size.value)
+        val constraints = Constraints.fixed(size.value, size.value)
         measurables.first().measure(constraints).place(0.ipx, 0.ipx)
         layout(100.ipx, 100.ipx) {}
     }
