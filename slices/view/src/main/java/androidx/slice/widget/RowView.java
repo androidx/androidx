@@ -578,7 +578,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     private void addSubtitle(boolean hasTitle) {
-        if (mRowContent == null) {
+        if (mRowContent == null || (mRowContent.getRange() != null && mStartItem != null)) {
             return;
         }
         final SliceItem subtitleItem = getMode() == MODE_SMALL

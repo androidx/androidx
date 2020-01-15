@@ -372,6 +372,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     public static class InputRangeBuilderImpl extends RangeBuilderImpl {
         private PendingIntent mAction;
         private IconCompat mThumb;
+        private Slice mStartItem;
 
         InputRangeBuilderImpl(Slice.Builder sb, InputRangeBuilder builder) {
             super(sb, null);
@@ -386,6 +387,19 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
             mLayoutDir = builder.getLayoutDirection();
             mAction = builder.getInputAction();
             mThumb = builder.getThumb();
+            if (builder.getTitleIcon() != null) {
+                setTitleItem(builder.getTitleIcon(), builder.getTitleImageMode(),
+                        builder.isTitleItemLoading());
+            }
+        }
+
+        void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
+            Slice.Builder sb = new Slice.Builder(getBuilder())
+                    .addIcon(icon, null, parseImageMode(imageMode, isLoading));
+            if (isLoading) {
+                sb.addHints(HINT_PARTIAL);
+            }
+            mStartItem = sb.addHints(HINT_TITLE).build();
         }
 
         @Override
@@ -399,6 +413,9 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 sb.addIcon(mThumb, null);
             }
             builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);
+            if (mStartItem != null) {
+                builder.addSubSlice(mStartItem);
+            }
         }
     }
 

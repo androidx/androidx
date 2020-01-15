@@ -101,6 +101,7 @@ public class SampleSliceProvider extends SliceProvider {
             "loadlist",
             "loadgrid",
             "inputrange",
+            "richinputrange",
             "range",
             "subscription",
             "singleitems",
@@ -188,6 +189,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createLoadingGridSlice(sliceUri);
             case "/inputrange":
                 return createStarRatingInputRange(sliceUri);
+            case "/richinputrange":
+                return createRichInputRange(sliceUri);
             case "/range":
                 return createDownloadProgressRange(sliceUri);
             case "/subscription":
@@ -800,6 +803,29 @@ public class SampleSliceProvider extends SliceProvider {
                         .setSubtitle(subtitle)
                         .setMin(5)
                         .setThumb(icon)
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
+                        .setMax(100)
+                        .setValue(sStarRating)
+                        .setPrimaryAction(primaryAction)
+                        .setContentDescription("Slider for star ratings"))
+                .build();
+    }
+
+    private Slice createRichInputRange(Uri sliceUri) {
+        IconCompat thumbIcon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        IconCompat titleIcon = IconCompat.createWithResource(getContext(), R.drawable.ic_car);
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open rich star rating"), thumbIcon, ICON_IMAGE,
+                "Rate");
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xff4285f4)
+                .setHeader(new HeaderBuilder()
+                        .setTitle("Rich InputRangeBuilder demo"))
+                .addInputRange(new InputRangeBuilder()
+                        .setTitleItem(titleIcon, ListBuilder.ICON_IMAGE)
+                        .setTitle("Rich star rating")
+                        .setMin(5)
+                        .setThumb(thumbIcon)
                         .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
                         .setMax(100)
                         .setValue(sStarRating)
