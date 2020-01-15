@@ -18,13 +18,16 @@ package androidx.ui.animation
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimatedValue
+import androidx.animation.AnimationClockObservable
 import androidx.animation.TwoWayConverter
 import androidx.compose.Model
 import androidx.animation.ValueHolder
 import androidx.animation.AnimationVector
 import androidx.animation.AnimationVector4D
 import androidx.compose.Composable
+import androidx.compose.ambient
 import androidx.compose.remember
+import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.graphics.Color
 
 /**
@@ -39,8 +42,9 @@ import androidx.ui.graphics.Color
 @Composable
 fun <T, V : AnimationVector> animatedValue(
     initVal: T,
-    converter: TwoWayConverter<T, V>
-): AnimatedValue<T, V> = remember { AnimatedValue(AnimValueHolder(initVal), converter) }
+    converter: TwoWayConverter<T, V>,
+    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+): AnimatedValue<T, V> = remember { AnimatedValue(AnimValueHolder(initVal), converter, clock) }
 
 /**
  * The animatedValue effect creates an [AnimatedFloat] and positionally memoizes it. When the
@@ -50,8 +54,11 @@ fun <T, V : AnimationVector> animatedValue(
  * @param initVal Initial value to set [AnimatedFloat] to.
  */
 @Composable
-fun animatedFloat(initVal: Float): AnimatedFloat =
-    remember { AnimatedFloat(AnimValueHolder(initVal)) }
+fun animatedFloat(
+    initVal: Float,
+    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+): AnimatedFloat =
+    remember { AnimatedFloat(AnimValueHolder(initVal), clock) }
 
 /**
  * The animatedValue effect creates an [AnimatedValue] of [Color] and positionally memoizes it. When
@@ -61,10 +68,19 @@ fun animatedFloat(initVal: Float): AnimatedFloat =
  * @param initVal Initial value to set [AnimatedValue] to.
  */
 @Composable
-fun animatedColor(initVal: Color): AnimatedValue<Color, AnimationVector4D> =
-    remember { AnimatedValue(AnimValueHolder(initVal), ColorToVectorConverter(initVal.colorSpace)) }
+fun animatedColor(
+    initVal: Color,
+    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+): AnimatedValue<Color, AnimationVector4D> =
+    remember {
+        AnimatedValue(
+            valueHolder = AnimValueHolder(initVal),
+            typeConverter = ColorToVectorConverter(initVal.colorSpace),
+            clock = clock
+        )
+    }
 
 @Model
-private class AnimValueHolder<T> (
+private class AnimValueHolder<T>(
     override var value: T
 ) : ValueHolder<T>
