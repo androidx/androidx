@@ -96,6 +96,10 @@ public abstract class ImageCaptureExtender {
      * applied on any of the cameras specified with the given {@link CameraSelector}, it will be
      * no-ops.
      *
+     * <p>Enabling extensions on {@link ImageCapture} may limit the number of cameras which can
+     * be selected when the {@link ImageCapture} is used as a parameter to bindToLifecycle.
+     * BindToLifecycle will throw an exception if no cameras are found that support the extension.
+     *
      * <p>Image capture extension has dependence on preview extension. A
      * PREVIEW_EXTENSION_REQUIRED error will be thrown if corresponding preview extension is not
      * enabled together.
