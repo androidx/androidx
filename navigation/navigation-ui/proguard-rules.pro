@@ -13,6 +13,6 @@
 # limitations under the License.
 
 # setProgress is called via an ObjectAnimator in AbstractAppBarOnDestinationChangedListener
--keepclassmembers class android.support.v7.graphics.drawable.DrawerArrowDrawable {
+-keepclassmembers class androidx.appcompat.graphics.drawable.DrawerArrowDrawable {
     void setProgress(float);
 }
