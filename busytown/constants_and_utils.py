@@ -20,7 +20,7 @@ import os
 SKIPPED_ARG_SUFFIXES = ["python", ".py", "build"]
 HELP_SYNTAX_LIST = ["help", "?", "man", "-h"]
 
-DO_ANDROIDX, DO_COMPOSE, DO_BOTH, DO_DRY_RUN, DO_VERIFY_RERUN = "doAndroidx", "doCompose", "doBoth", "doDryRun", "doVerifyRerun"
+DO_ANDROIDX, DO_COMPOSE, DO_BOTH, DO_DRY_RUN = "doAndroidx", "doCompose", "doBoth", "doDryRun"
 BUILD_COMMANDS = [DO_ANDROIDX, DO_COMPOSE, DO_BOTH]
 DEFAULT = "DEFAULT"
 
@@ -49,12 +49,10 @@ def remove_suffix(string, suffix):
     if string.endswith(suffix): return string[:-len(suffix)]
     else: return string
 
-def run_command(commandText, dry_run=False, verify_rerun=False):
+def run_command(commandText, dry_run=False):
     if not dry_run:
         print('Running "' + commandText + '"')
         result = os.system(commandText)
         assert(os.WEXITSTATUS(result)) == 0 # stop if the command failed
     else:
         print('Not running "' + commandText + '"')
-    if verify_rerun:
-        run_command(commandText + " -PdisallowExecution", dry_run)
