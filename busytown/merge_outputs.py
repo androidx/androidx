@@ -22,7 +22,7 @@ def usage():
     Merges certain results of the gradle build.
     This script recognizes the following arguments in any order:
         mergeBuildInfo   (merge the buildInfo files (used by jetpad) produced by the most recent (compose and androidx) builds)
-        mergeCoverageExecution    (merge the coverage execution data (recorded by jacoco) produced by the most recent builds)
+        mergeExecutionData        (merge the coverage execution data (recorded by jacoco) produced by the most recent builds)
         mergeSourceJars           (merge the source jars (used by jacoco/coverage ui) produced by the most recent builds)
             (these args are case sensitive)
 
