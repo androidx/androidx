@@ -365,6 +365,9 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected boolean isCurrentlyBoundCamera(@NonNull String cameraId) {
+        if (getBoundCamera() == null) {
+            return false;
+        }
         return Objects.equals(cameraId, getBoundCameraId());
     }
 
