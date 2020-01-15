@@ -168,7 +168,7 @@ fun FlexColumn(
 }
 
 /**
- * A FlexScope provides a scope for Inflexible/Flexible functions.
+ * Base class for scopes of [Row] and [Column], containing scoped modifiers.
  */
 @LayoutScopeMarker
 sealed class FlexScope {
@@ -192,24 +192,6 @@ sealed class FlexScope {
         } else {
             FlexModifier(FlexChildProperties(flex, FlexFit.Loose))
         }
-    }
-
-    /**
-     * A layout modifier within a [Column] or [Row] that makes the target component inflexible.
-     * All [LayoutInflexible] children will be measured before the [LayoutFlexible] ones. They will
-     * be measured in the order they appear, without min constraints and with max constraints in
-     * the main direction of the layout (maxHeight for Column and maxWidth for Row) such that
-     * the sum of the space occupied by inflexible children will not exceed the incoming constraint
-     * of the [Column] or [Row]: for example the first child of a [Column] will be measured with
-     * maxHeight = column's maxHeight; the second child will be measured with maxHeight = column's
-     * maxHeight - first child's height, and so on.
-     */
-    val LayoutInflexible: ParentDataModifier = InflexibleModifier
-
-    internal companion object {
-        val InflexibleModifier: ParentDataModifier = FlexModifier(
-            FlexChildProperties(0f, FlexFit.Loose)
-        )
     }
 
     /**
