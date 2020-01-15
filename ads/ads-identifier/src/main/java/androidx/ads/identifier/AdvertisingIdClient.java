@@ -31,9 +31,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -156,7 +153,7 @@ public class AdvertisingIdClient {
                         "Advertising ID Provider does not returns an Advertising ID.");
             }
             return AdvertisingIdInfo.builder()
-                    .setId(normalizeId(id))
+                    .setId(id)
                     .setProviderPackageName(connectionClient.getPackageName())
                     .setLimitAdTrackingEnabled(service.isLimitAdTrackingEnabled())
                     .build();
@@ -165,30 +162,6 @@ public class AdvertisingIdClient {
         } catch (RuntimeException e) {
             throw new AdvertisingIdNotAvailableException(
                     "Advertising ID Provider throws a exception.", e);
-        }
-    }
-
-    /**
-     * Checks the Advertising ID format, if it's not in UUID format, normalizes the Advertising
-     * ID to UUID format.
-     *
-     * @return Advertising ID, in lower case format using locale {@code Locale.US};
-     */
-    @VisibleForTesting
-    static String normalizeId(String id) {
-        String lowerCaseId = id.toLowerCase(Locale.US);
-        if (isUuidFormat(lowerCaseId)) {
-            return lowerCaseId;
-        }
-        return UUID.nameUUIDFromBytes(id.getBytes(Charset.forName("UTF-8"))).toString();
-    }
-
-    /* Validate the input is lowercase and is a valid UUID. */
-    private static boolean isUuidFormat(String id) {
-        try {
-            return id.equals(UUID.fromString(id).toString());
-        } catch (IllegalArgumentException iae) {
-            return false;
         }
     }
 
