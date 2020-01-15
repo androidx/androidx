@@ -29,8 +29,8 @@ import org.junit.Test
 import javax.lang.model.SourceVersion
 import javax.tools.JavaFileObject
 
-/** Unit tests for [SchemaCompilationStep]. */
-class SchemaCompilationStepTest {
+/** Unit tests for [EnumCompilationStep]. */
+class EnumCompilationStepTest {
     private val enumValueCorrespondence = Correspondence.from({
             actual: Enum.Value?, expected: Pair<Int, String>? ->
         actual?.id == expected?.first && actual?.name == expected?.second
@@ -53,27 +53,6 @@ class SchemaCompilationStepTest {
             .comparingElementsUsing(enumValueCorrespondence)
             .containsExactly(0 to "DEFAULT", 1 to "ONE")
         assertThat(enum.reserved).isSameInstanceAs(Reserved.empty())
-    }
-
-    @Test
-    fun testReserved() {
-        val reserved = compileEnum(JavaFileObjects.forSourceString("TestReserved", """
-            import androidx.serialization.EnumValue;
-            import androidx.serialization.Reserved;
-            
-            @Reserved(ids = {1, 2}, names = {"FOO", "BAR"}, idRanges = {
-                @Reserved.IdRange(from = 3, to = 4),
-                @Reserved.IdRange(from = 6, to = 5)
-            })
-            public enum TestReserved {
-                @EnumValue(EnumValue.DEFAULT)
-                DEFAULT
-            }
-        """.trimIndent())).reserved
-
-        assertThat(reserved.ids).containsExactly(1, 2)
-        assertThat(reserved.names).containsExactly("FOO", "BAR")
-        assertThat(reserved.idRanges).containsExactly(3..4, 5..6)
     }
 
     @Test
@@ -136,19 +115,18 @@ class SchemaCompilationStepTest {
         assertThat(javac().withProcessors(processor).compile(source))
             .succeededWithoutWarnings()
 
-        val enums = processor.schemaCompilationStep.enums
+        val enums = processor.enums
         assertThat(enums).hasSize(1)
 
         return enums.single()
     }
 
     private class SchemaCompilationProcessor : BasicAnnotationProcessor() {
-        lateinit var schemaCompilationStep: SchemaCompilationStep
+        val enums = mutableSetOf<Enum>()
 
-        override fun initSteps(): Iterable<ProcessingStep> {
-            schemaCompilationStep = SchemaCompilationStep(processingEnv)
-            return listOf(schemaCompilationStep)
-        }
+        override fun initSteps(): List<ProcessingStep> = listOf(
+            EnumCompilationStep(processingEnv) { enums += it }
+        )
 
         override fun getSupportedSourceVersion(): SourceVersion {
             return SourceVersion.latest()

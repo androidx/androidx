@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.serialization
+package androidx.serialization.compiler
 
-import androidx.serialization.compiler.processing.steps.SchemaCompilationStep
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
+import com.google.common.collect.ImmutableList
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
 import javax.annotation.processing.Processor
 import javax.lang.model.SourceVersion
 
 /**
- * Annotation processor for serialization code generation and schema tracking.
+ * Generates the common runtime components needed to support message serializers.
  */
 @AutoService(Processor::class)
 @IncrementalAnnotationProcessor(AGGREGATING)
-class SerializationProcessor : BasicAnnotationProcessor() {
-    override fun initSteps(): Iterable<ProcessingStep> {
-        return listOf(SchemaCompilationStep(processingEnv))
-    }
+class RuntimeProcessor : BasicAnnotationProcessor() {
+    override fun initSteps(): List<ProcessingStep> = ImmutableList.of()
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 }
