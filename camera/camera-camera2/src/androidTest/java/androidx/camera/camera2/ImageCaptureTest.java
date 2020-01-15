@@ -72,6 +72,7 @@ import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
@@ -100,7 +101,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -189,7 +189,7 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void capturedImageHasCorrectSize() {
+    public void capturedImageHasCorrectSize() throws ExecutionException, InterruptedException {
         ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
 
@@ -199,7 +199,7 @@ public final class ImageCaptureTest {
                     mLifecycleOwner.startAndResume();
                 });
 
-        AtomicReference<ImageProperties> imageProperties = new AtomicReference<>(null);
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
@@ -224,7 +224,8 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void canSupportGuaranteedSize() throws CameraInfoUnavailableException {
+    public void canSupportGuaranteedSize()
+            throws CameraInfoUnavailableException, ExecutionException, InterruptedException {
         // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
@@ -251,7 +252,7 @@ public final class ImageCaptureTest {
                         mLifecycleOwner.startAndResume();
                     });
 
-            AtomicReference<ImageProperties> imageProperties = new AtomicReference<>(null);
+            ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
             OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
             useCase.takePicture(mMainExecutor, callback);
             // Wait for the signal that the image has been captured.
@@ -544,7 +545,8 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void takePicture_withBufferFormatRaw10() throws CameraAccessException {
+    public void takePicture_withBufferFormatRaw10()
+            throws CameraAccessException, ExecutionException, InterruptedException {
         CameraCharacteristics cameraCharacteristics =
                 CameraUtil.getCameraManager().getCameraCharacteristics(mCameraId);
         StreamConfigurationMap map =
@@ -564,7 +566,7 @@ public final class ImageCaptureTest {
                     mLifecycleOwner.startAndResume();
                 });
 
-        AtomicReference<ImageProperties> imageProperties = new AtomicReference<>();
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
@@ -753,7 +755,7 @@ public final class ImageCaptureTest {
     }
 
     private OnImageCapturedCallback createMockOnImageCapturedCallback(
-            @Nullable AtomicReference<ImageProperties> resultProperties) {
+            @Nullable ResolvableFuture<ImageProperties> resultProperties) {
         OnImageCapturedCallback callback = mock(OnImageCapturedCallback.class);
         doAnswer(
                 i -> {
