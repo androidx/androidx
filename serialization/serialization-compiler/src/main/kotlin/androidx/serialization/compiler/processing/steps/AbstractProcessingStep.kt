@@ -24,7 +24,7 @@ import javax.lang.model.element.Element
 import kotlin.reflect.KClass
 
 /** Wrapper for [ProcessingStep] for more idiomatic Kotlin. */
-internal abstract class AbstractStep(
+internal abstract class AbstractProcessingStep(
     vararg annotations: KClass<out Annotation>
 ) : ProcessingStep {
     private val javaAnnotations = ImmutableSet

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler.processing
+package androidx.serialization.compiler.codegen.java
 
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.Element
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
+import androidx.serialization.schema.TypeName
+import com.squareup.javapoet.ClassName
 
-/** Get the element represented by this type using [MoreTypes.asElement]. */
-internal fun TypeMirror.asElement(): Element {
-    return MoreTypes.asElement(this)
-}
-
-/** Convenience wrapper for [asElement] that casts to type element. */
-internal fun TypeMirror.asTypeElement(): TypeElement {
-    return asElement().asTypeElement()
+/** Convert a type name to a JavaPoet class name */
+internal fun TypeName.toClassName(): ClassName {
+    return when (names.size) {
+        1 -> ClassName.get(packageName.orEmpty(), names.single())
+        else -> ClassName.get(
+            packageName.orEmpty(),
+            names.first(),
+            *names.drop(1).toTypedArray()
+        )
+    }
 }
