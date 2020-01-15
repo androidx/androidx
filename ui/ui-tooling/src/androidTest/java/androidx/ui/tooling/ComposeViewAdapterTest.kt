@@ -58,6 +58,14 @@ class ComposeViewAdapterTest {
 
         activityTestRule.runOnUiThread {
             assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
+            val viewInfos = composeViewAdapter
+                .viewInfos
+                .flatMap { it.allChildren() + it }
+                .filter { it.fileName == "SimpleComposablePreview.kt" }
+                .toList()
+            assertTrue(viewInfos.isNotEmpty())
+            // Verify that valid line numbers are being recorded
+            assertTrue(viewInfos.map { it.lineNumber }.all { it > 0 })
         }
     }
 
