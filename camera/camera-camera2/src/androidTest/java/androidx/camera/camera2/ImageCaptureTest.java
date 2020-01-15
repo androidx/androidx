@@ -72,6 +72,7 @@ import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -97,8 +98,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -118,12 +118,12 @@ public final class ImageCaptureTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
-    private ExecutorService mListenerExecutor;
     private ImageCapture.Builder mDefaultBuilder;
     private FakeRepeatingUseCase mRepeatingUseCase;
     private FakeUseCaseConfig mFakeUseCaseConfig;
     private String mCameraId;
     private FakeLifecycleOwner mLifecycleOwner;
+    private Executor mMainExecutor;
 
     private ImageCaptureConfig createNonRotatedConfiguration()
             throws CameraInfoUnavailableException {
@@ -158,7 +158,7 @@ public final class ImageCaptureTest {
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
-        mListenerExecutor = Executors.newSingleThreadExecutor();
+
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraFactory cameraFactory = Preconditions.checkNotNull(
@@ -176,16 +176,14 @@ public final class ImageCaptureTest {
         mFakeUseCaseConfig = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig, BACK_SELECTOR);
         mLifecycleOwner = new FakeLifecycleOwner();
+
+        mMainExecutor = ContextCompat.getMainExecutor(context);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         if (CameraX.isInitialized()) {
             mInstrumentation.runOnMainSync(() -> CameraX.unbindAll());
-        }
-
-        if (mListenerExecutor != null) {
-            mListenerExecutor.shutdown();
         }
         CameraX.shutdown().get();
     }
@@ -203,7 +201,7 @@ public final class ImageCaptureTest {
 
         AtomicReference<ImageProperties> imageProperties = new AtomicReference<>(null);
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
-        useCase.takePicture(mListenerExecutor, callback);
+        useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
         verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
 
@@ -255,7 +253,7 @@ public final class ImageCaptureTest {
 
             AtomicReference<ImageProperties> imageProperties = new AtomicReference<>(null);
             OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
-            useCase.takePicture(mListenerExecutor, callback);
+            useCase.takePicture(mMainExecutor, callback);
             // Wait for the signal that the image has been captured.
             verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
 
@@ -284,11 +282,11 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
-            useCase.takePicture(mListenerExecutor, callback);
+            useCase.takePicture(mMainExecutor, callback);
         }
 
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(15000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
@@ -306,10 +304,10 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
-            useCase.takePicture(mListenerExecutor, callback);
+            useCase.takePicture(mMainExecutor, callback);
         }
 
-        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(20000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
@@ -324,7 +322,7 @@ public final class ImageCaptureTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, mListenerExecutor, callback);
+        useCase.takePicture(saveLocation, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
@@ -346,7 +344,7 @@ public final class ImageCaptureTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, mListenerExecutor, callback);
+        useCase.takePicture(saveLocation, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
@@ -358,7 +356,7 @@ public final class ImageCaptureTest {
         saveLocationRotated90.deleteOnExit();
         OnImageSavedCallback callbackRotated90 = mock(OnImageSavedCallback.class);
         useCase.setTargetRotation(Surface.ROTATION_90);
-        useCase.takePicture(saveLocationRotated90, mListenerExecutor, callbackRotated90);
+        useCase.takePicture(saveLocationRotated90, mMainExecutor, callbackRotated90);
 
         // Wait for the signal that the image has been saved.
         verify(callbackRotated90, timeout(3000)).onImageSaved(eq(saveLocationRotated90));
@@ -406,7 +404,7 @@ public final class ImageCaptureTest {
         Metadata metadata = new Metadata();
         metadata.setReversedHorizontal(true);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
+        useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
@@ -434,7 +432,7 @@ public final class ImageCaptureTest {
         Metadata metadata = new Metadata();
         metadata.setReversedVertical(true);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
+        useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
@@ -459,7 +457,7 @@ public final class ImageCaptureTest {
         Metadata metadata = new Metadata();
         metadata.setLocation(location);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, metadata, mListenerExecutor, callback);
+        useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
@@ -484,11 +482,11 @@ public final class ImageCaptureTest {
             File saveLocation = File.createTempFile("test" + i, ".jpg");
             saveLocation.deleteOnExit();
 
-            useCase.takePicture(saveLocation, mListenerExecutor, callback);
+            useCase.takePicture(saveLocation, mMainExecutor, callback);
         }
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(10000).times(numImages)).onImageSaved(any(File.class));
+        verify(callback, timeout(15000).times(numImages)).onImageSaved(any(File.class));
     }
 
     @Test
@@ -503,7 +501,7 @@ public final class ImageCaptureTest {
         // Note the invalid path
         File saveLocation = new File("/not/a/real/path.jpg");
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, mListenerExecutor, callback);
+        useCase.takePicture(saveLocation, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
         verify(callback, timeout(3000))
@@ -525,7 +523,7 @@ public final class ImageCaptureTest {
                 });
 
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
-        useCase.takePicture(mListenerExecutor, callback);
+        useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
         verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
 
@@ -568,7 +566,7 @@ public final class ImageCaptureTest {
 
         AtomicReference<ImageProperties> imageProperties = new AtomicReference<>();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
-        useCase.takePicture(mListenerExecutor, callback);
+        useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
         verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
 
@@ -609,7 +607,7 @@ public final class ImageCaptureTest {
         });
 
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
-        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
 
         verify(callback, timeout(3000)).onError(any(Integer.class),
                 anyString(), any(IllegalArgumentException.class));
@@ -648,8 +646,8 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
 
         // Take 2 photos.
-        imageCapture.takePicture(mListenerExecutor, callback);
-        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
 
         // It should get onError() callback twice.
         verify(callback, timeout(3000).times(2)).onError(any(Integer.class), anyString(),
@@ -671,7 +669,7 @@ public final class ImageCaptureTest {
         CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
 
-        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
 
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestOnCaptureCancelled();
@@ -700,7 +698,7 @@ public final class ImageCaptureTest {
             captureSubmittedLatch.countDown();
         });
 
-        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
 
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestsOnCaptureFailed();
@@ -722,9 +720,9 @@ public final class ImageCaptureTest {
 
         CountingCallback callback = new CountingCallback(3, 500);
 
-        imageCapture.takePicture(mListenerExecutor, callback);
-        imageCapture.takePicture(mListenerExecutor, callback);
-        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
 
         mInstrumentation.runOnMainSync(() -> imageCapture.onStateOffline(mCameraId));
 
@@ -740,7 +738,7 @@ public final class ImageCaptureTest {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
 
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
-        imageCapture.takePicture(mListenerExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
 
         ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(callback, timeout(500)).onError(errorCaptor.capture(), any(String.class),
