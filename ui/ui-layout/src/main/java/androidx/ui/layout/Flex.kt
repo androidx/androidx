@@ -224,7 +224,7 @@ sealed class FlexScope {
  * A ColumnScope provides a scope for the children of a [Column].
  */
 @Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
-class ColumnScope internal constructor() : FlexScope() {
+class ColumnScope private constructor() : FlexScope() {
     /**
      * A layout modifier within a [Column] that positions its target component horizontally
      * such that its start edge is aligned to the start edge of the [Column].
@@ -263,6 +263,8 @@ class ColumnScope internal constructor() : FlexScope() {
         SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     internal companion object {
+        internal val Instance = ColumnScope()
+
         val StartGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Start)
         val CenterGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Center)
         val EndGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.End)
@@ -273,7 +275,7 @@ class ColumnScope internal constructor() : FlexScope() {
  * A RowScope provides a scope for the children of a [Row].
  */
 @Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
-class RowScope internal constructor() : FlexScope() {
+class RowScope private constructor() : FlexScope() {
     /**
      * A layout modifier within a [Row] that positions its target component vertically
      * such that its top edge is aligned to the top edge of the [Row].
@@ -311,6 +313,8 @@ class RowScope internal constructor() : FlexScope() {
     ): ParentDataModifier = SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     internal companion object {
+        internal val Instance = RowScope()
+
         val TopGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Start)
         val CenterGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Center)
         val BottomGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.End)
@@ -343,7 +347,7 @@ fun Row(
         arrangement = arrangement,
         crossAxisAlignment = CrossAxisAlignment.Start,
         crossAxisSize = SizeMode.Wrap,
-        children = { RowScope().children() }
+        children = { RowScope.Instance.children() }
     )
 }
 
@@ -373,7 +377,7 @@ fun Column(
         arrangement = arrangement,
         crossAxisAlignment = CrossAxisAlignment.Start,
         crossAxisSize = SizeMode.Wrap,
-        children = { ColumnScope().children() }
+        children = { ColumnScope.Instance.children() }
     )
 }
 
