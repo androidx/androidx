@@ -117,6 +117,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     private LinearLayout mRootView;
     private LinearLayout mStartContainer;
     private LinearLayout mContent;
+    private LinearLayout mSubContent;
     private TextView mPrimaryText;
     private TextView mSecondaryText;
     private TextView mLastUpdatedText;
@@ -187,6 +188,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
         mStartContainer = (LinearLayout) findViewById(R.id.icon_frame);
         mContent = (LinearLayout) findViewById(android.R.id.content);
+        mSubContent = (LinearLayout) findViewById(R.id.subcontent);
         mPrimaryText = (TextView) findViewById(android.R.id.title);
         mSecondaryText = (TextView) findViewById(android.R.id.summary);
         mLastUpdatedText = (TextView) findViewById(R.id.last_updated);
@@ -271,7 +273,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      */
     private int getRowContentHeight() {
         int rowHeight = mRowContent.getHeight(mSliceStyle, mViewPolicy);
-        if (mRangeBar != null) {
+        if (mRangeBar != null && mStartItem == null) {
             rowHeight -= mSliceStyle.getRowRangeHeight();
         }
         if (mSelectionSpinner != null) {
@@ -338,7 +340,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         } else {
             mRootView.setVisibility(View.GONE);
         }
-        if (mRangeBar != null) {
+        if (mRangeBar != null && mStartItem == null) {
             // If we're on a platform where SeekBar can't be stretched vertically, find out the
             // exact size it would like to be so we can honor that in onLayout.
             if (sCanSpecifyLargerRangeBarHeight) {
@@ -369,7 +371,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         int leftPadding = getPaddingLeft();
         mRootView.layout(leftPadding, mInsetTop, mRootView.getMeasuredWidth() + leftPadding,
                 getRowContentHeight() + mInsetTop);
-        if (mRangeBar != null) {
+        if (mRangeBar != null && mStartItem == null) {
             // If we're on a platform where SeekBar can't be stretched vertically, then
             // mMeasuredRangeHeight can (and probably will) be smaller than the ideal height, so we
             // need to add some padding to make mRangeBar look like it's the larger size.
@@ -688,9 +690,11 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
 
         final boolean isSeekBar = FORMAT_ACTION.equals(mRangeItem.getFormat());
-        final ProgressBar progressBar = isSeekBar
-                ? new SeekBar(getContext())
-                : new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
+        final boolean renderInNewLine = mStartItem == null;
+        final ProgressBar progressBar = isSeekBar ? (renderInNewLine ? new SeekBar(getContext()) :
+                (SeekBar) LayoutInflater.from(getContext()).inflate(R.layout.abc_slice_seekbar_view,
+                        this, false)) :
+                new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
         Drawable progressDrawable = DrawableCompat.wrap(progressBar.getProgressDrawable());
         if (mTintColor != -1 && progressDrawable != null) {
             DrawableCompat.setTint(progressDrawable, mTintColor);
@@ -701,7 +705,12 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         progressBar.setMax(mRangeMaxValue - mRangeMinValue);
         progressBar.setProgress(mRangeValue);
         progressBar.setVisibility(View.VISIBLE);
-        addView(progressBar);
+        if (mStartItem == null) {
+            addView(progressBar);
+        } else {
+            mSubContent.setVisibility(GONE);
+            mContent.addView(progressBar, 1);
+        }
         mRangeBar = progressBar;
         if (isSeekBar) {
             SliceItem thumb = mRowContent.getInputRangeThumb();
@@ -850,7 +859,13 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             if (isIcon && color != -1) {
                 iv.setColorFilter(color);
             }
-            container.addView(iv);
+            // Because of sliding, the title icon is added many times.
+            if (mIsRangeSliding) {
+                container.removeAllViews();
+                container.addView(iv);
+            } else {
+                container.addView(iv);
+            }
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
             lp.width = useIntrinsicSize ? Math.round(d.getIntrinsicWidth() / density) : mImageSize;
             lp.height = useIntrinsicSize ? Math.round(d.getIntrinsicHeight() / density) :
@@ -1037,7 +1052,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mToggles.clear();
         mActions.clear();
         mRowAction = null;
-        mStartItem = null;
         mBottomDivider.setVisibility(GONE);
         mActionDivider.setVisibility(GONE);
         if (mSeeMoreView != null) {
@@ -1053,9 +1067,15 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mLastSentRangeUpdate = 0;
         mHandler = null;
         if (mRangeBar != null) {
-            removeView(mRangeBar);
+            if (mStartItem == null) {
+                removeView(mRangeBar);
+            } else {
+                mContent.removeView(mRangeBar);
+            }
             mRangeBar = null;
         }
+        mSubContent.setVisibility(VISIBLE);
+        mStartItem = null;
         mActionSpinner.setVisibility(GONE);
         if (mSelectionSpinner != null) {
             removeView(mSelectionSpinner);

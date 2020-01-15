@@ -30,4 +30,10 @@
         <item name="gridTitleSize">12sp</item>
         <item name="gridSubtitleSize">12sp</item>
     </style>
+
+    <style name="Widget.AppCompat.SeekBar.Inline" parent="Widget.AppCompat.SeekBar">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingLeft">12dp</item>
+    </style>
 </resources>
