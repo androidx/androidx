@@ -174,11 +174,13 @@ fun FlexColumn(
 @LayoutScopeMarker
 sealed class FlexScope {
     /**
-     * A layout modifier within a [Column] or [Row] that makes the target component flexible.
-     * It will be assigned a space according to its flex weight relative to the flexible siblings.
+     * A layout modifier within a [Column] or [Row] that makes the target component flexible in
+     * the main direction of the parent (vertically in [Column] and horizontally in [Row]).
+     * It will be assigned a space according to its flex weight, proportional to the flex
+     * weights of other flexible siblings. If a sibling is not flexible, its flex weight will be 0.
      * When [tight] is set to true, the target component is forced to occupy the entire space
      * assigned to it by the parent. [LayoutFlexible] children will be measured after all the
-     * [LayoutInflexible] ones have been measured, in order to divide the unclaimed space between
+     * inflexible ones have been measured, in order to divide the unclaimed space between
      * them.
      */
     fun LayoutFlexible(
@@ -212,13 +214,21 @@ sealed class FlexScope {
     }
 
     /**
-     * A layout modifier within a [Column] or [Row] that positions target component in a
-     * perpendicular direction according to the [AlignmentLine] which is provided through the
-     * [alignmentLineBlock].
-     * If target component is the only component with the specified RelativeToSiblings modifier
-     * within a Column or Row, then the component will be positioned using
-     * [LayoutGravity.Start][ColumnScope.Start] in Column or [LayoutGravity.Top][RowScope.Top] in
-     * Row respectively.
+     * A layout modifier within a [Column] or [Row] that positions its target component relative
+     * to all other elements within the container which have [LayoutGravity.RelativeToSiblings].
+     * The [alignmentLineBlock] accepts the [Placeable] of the targeted layout and returns the
+     * position, perpendicular to the layout direction, along which the target should align
+     * such that it coincides with the alignment lines of all other siblings with
+     * [LayoutGravity.RelativeToSiblings].
+     * Within a [Column] or [Row], all components with [LayoutGravity.RelativeToSiblings] will
+     * align using the specified [AlignmentLine]s or values obtained from [alignmentLineBlock]s,
+     * forming a sibling group. At least one element of the sibling group will be placed as it had
+     * [LayoutGravity.Start][ColumnScope.Start] in [Column] or [LayoutGravity.Top][RowScope.Top]
+     * in [Row], respectively, and the alignment of the other siblings will be then determined
+     * such that the alignment lines coincide. Note that if the target component is the only one
+     * with the [RelativeToSiblings] modifier specified, then the component will be positioned
+     * using [LayoutGravity.Start][ColumnScope.Start] in [Column] or
+     * [LayoutGravity.Top][RowScope.Top] in [Row] respectively.
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
@@ -235,27 +245,34 @@ sealed class FlexScope {
 @Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
 class ColumnScope internal constructor() : FlexScope() {
     /**
-     * A layout modifier within a Column that positions target component in a horizontal direction
-     * so that its start edge is aligned to the start edge of the horizontal axis.
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * such that its start edge is aligned to the start edge of the [Column].
      */
     // TODO: Consider ltr/rtl.
     val LayoutGravity.Start: ParentDataModifier get() = StartGravityModifier
     /**
-     * A layout modifier within a Column that positions target component in a horizontal direction
-     * so that its center is in the middle of the horizontal axis.
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * such that its center is in the middle of the [Column].
      */
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
     /**
-     * A layout modifier within a Column that positions target component in a horizontal direction
-     * so that its end edge is aligned to the end edge of the horizontal axis.
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * such that its end edge is aligned to the end edge of the [Column].
      */
     val LayoutGravity.End: ParentDataModifier get() = EndGravityModifier
     /**
-     * A layout modifier within a [Column] that positions target component in a perpendicular
-     * direction according to the [AlignmentLine].
-     * If target component is the only component within a Column with the specified
-     * RelativeToSiblings modifier, or if the provided alignment line is not defined for the
-     * component, the component will be positioned using [LayoutGravity.Start].
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * according to the specified [VerticalAlignmentLine], such that the position of the alignment
+     * line coincides with the alignment lines of all other siblings having their gravity set to
+     * [LayoutGravity.RelativeToSiblings].
+     * Within a [Column], all components with [LayoutGravity.RelativeToSiblings] will align
+     * horizontally using the specified [AlignmentLine]s or values obtained from
+     * [alignmentLineBlocks][FlexScope.RelativeToSiblings], forming a sibling group.
+     * At least one element of the sibling group will be placed as it had
+     * [LayoutGravity.Start][ColumnScope.Start] in [Column], and the alignment of the other
+     * siblings will be then determined such that the alignment lines coincide. Note that if
+     * the target component is the only one with the [RelativeToSiblings] modifier specified,
+     * then the component will be positioned using [LayoutGravity.Start][ColumnScope.Start].
      *
      * Example usage:
      *
@@ -277,26 +294,33 @@ class ColumnScope internal constructor() : FlexScope() {
 @Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
 class RowScope internal constructor() : FlexScope() {
     /**
-     * A layout modifier within a Row that positions target component in a vertical direction
-     * so that its top edge is aligned to the top edge of the vertical axis.
+     * A layout modifier within a [Row] that positions its target component vertically
+     * such that its top edge is aligned to the top edge of the [Row].
      */
     val LayoutGravity.Top: ParentDataModifier get() = TopGravityModifier
     /**
-     * A layout modifier within a Row that positions target component in a vertical direction
-     * so that its center is in the middle of the vertical axis.
+     * A layout modifier within a Row that positions target component vertically
+     * such that its center is in the middle of the [Row].
      */
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
     /**
-     * A layout modifier within a Row that positions target component in a vertical direction
-     * so that its bottom edge is aligned to the bottom edge of the vertical axis.
+     * A layout modifier within a Row that positions target component vertically
+     * such that its bottom edge is aligned to the bottom edge of the [Row].
      */
     val LayoutGravity.Bottom: ParentDataModifier get() = BottomGravityModifier
     /**
-     * A layout modifier within a [Row] that positions target component in a perpendicular
-     * direction according to the [AlignmentLine].
-     * If target component is the only component within a Row with the specified
-     * RelativeToSiblings modifier, or if the provided alignment line is not defined for the
-     * component, the component will be positioned using [LayoutGravity.Top].
+     * A layout modifier within a [Row] that positions its target component vertically
+     * according to the specified [HorizontalAlignmentLine], such that the position of the alignment
+     * line coincides with the alignment lines of all other siblings having their gravity set to
+     * [LayoutGravity.RelativeToSiblings].
+     * Within a [Row], all components with [LayoutGravity.RelativeToSiblings] will align
+     * vertically using the specified [AlignmentLine]s or values obtained from
+     * [alignmentLineBlocks][FlexScope.RelativeToSiblings], forming a sibling group.
+     * At least one element of the sibling group will be placed as it had
+     * [LayoutGravity.Top][RowScope.Top] in [Row], and the alignment of the other
+     * siblings will be then determined such that the alignment lines coincide. Note that if
+     * the target component is the only one with the [RelativeToSiblings] modifier specified,
+     * then the component will be positioned using [LayoutGravity.Top][RowScope.Top].
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInRow
@@ -313,11 +337,11 @@ class RowScope internal constructor() : FlexScope() {
 }
 
 /**
- * A composable that places its children in a horizontal sequence and is able to assign them widths
- * according to their flex weights provided through [androidx.ui.layout.FlexScope.LayoutFlexible]
- * modifier.
- * If [androidx.ui.layout.FlexScope.LayoutInflexible] or no modifier is provided, the child will be
- * treated as inflexible, and will be sized to its preferred width.
+ * A layout composable that places its children in a horizontal sequence.
+ * The layout model is able to assign children widths according to their flex weights provided
+ * using the [androidx.ui.layout.FlexScope.LayoutFlexible] modifier. If a child is not
+ * [flexible][androidx.ui.layout.FlexScope.LayoutFlexible], it will be considered inflexible
+ * and will be sized to its preferred width.
  *
  * Example usage:
  *
@@ -343,11 +367,11 @@ fun Row(
 }
 
 /**
- * A composable that places its children in a vertical sequence and is able to assign them heights
- * according to their flex weights provided through [androidx.ui.layout.FlexScope.LayoutFlexible]
- * modifiers.
- * If [androidx.ui.layout.FlexScope.LayoutInflexible] or no modifier is provided, the child will be
- * treated as inflexible, and will be sized to its preferred height.
+ * A layout composable that places its children in a vertical sequence.
+ * The layout model is able to assign children heights according to their flex weights provided
+ * using the [androidx.ui.layout.FlexScope.LayoutFlexible] modifier. If a child is not
+ * [flexible][androidx.ui.layout.FlexScope.LayoutFlexible], it will be considered inflexible
+ * and will be sized to its preferred width.
  *
  * Example usage:
  *
