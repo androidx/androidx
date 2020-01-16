@@ -17,6 +17,14 @@ MissingNullability: androidx.work.Data#EMPTY:
     Missing nullability on field `EMPTY` in class `class androidx.work.Data`
 
 
+NoByteOrShort: androidx.work.Data#getByte(String, byte):
+    Should avoid odd sized primitives; use `int` instead of `byte` in method androidx.work.Data.getByte(String,byte)
+NoByteOrShort: androidx.work.Data#getByte(String, byte) parameter #1:
+    Should avoid odd sized primitives; use `int` instead of `byte` in parameter defaultValue in androidx.work.Data.getByte(String key, byte defaultValue)
+NoByteOrShort: androidx.work.Data.Builder#putByte(String, byte) parameter #1:
+    Should avoid odd sized primitives; use `int` instead of `byte` in parameter value in androidx.work.Data.Builder.putByte(String key, byte value)
+
+
 SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration):
     Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,java.time.Duration)
 SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit):
