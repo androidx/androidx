@@ -15,8 +15,10 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.viewpager2.test">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.viewpager2.test">
 
+    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator" />
     <application android:supportsRtl="true">
         <activity android:name="androidx.viewpager2.widget.swipe.TestActivity"
                   android:theme="@style/Theme.AppCompat"/>

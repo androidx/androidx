@@ -39,4 +39,5 @@
     <string name="second_rv">Vertical RecyclerView</string>
     <string name="page_position">Page %1$d</string>
     <string name="item_position">Item %1$d</string>
+    <string name="image_content_description">Android</string>
 </resources>
