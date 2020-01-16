@@ -58,4 +58,18 @@ class DefaultSpecialEffectsControllerTest {
                 .isInstanceOf(DefaultSpecialEffectsController::class.java)
         }
     }
+
+    /**
+     * Ensure that FragmentManager returns [DefaultSpecialEffectsController] implementations
+     * from its default factory when using [SpecialEffectsController.getOrCreateController].
+     */
+    @Test
+    fun fragmentManagerGetOrCreateController() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
+            val controller = SpecialEffectsController.getOrCreateController(container)
+            assertThat(controller)
+                .isInstanceOf(DefaultSpecialEffectsController::class.java)
+        }
+    }
 }

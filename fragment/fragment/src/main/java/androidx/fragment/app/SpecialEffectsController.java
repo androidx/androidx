@@ -32,6 +32,23 @@ abstract class SpecialEffectsController {
 
     /**
      * Get the {@link SpecialEffectsController} for a given container if it already exists
+     * or create it. This will automatically find the containing FragmentManager and use the
+     * factory provided by {@link FragmentManager#getSpecialEffectsControllerFactory()}.
+     *
+     * @param container ViewGroup to find the associated SpecialEffectsController for.
+     * @return a SpecialEffectsController for the given container
+     */
+    @NonNull
+    static SpecialEffectsController getOrCreateController(
+            @NonNull ViewGroup container) {
+        FragmentManager fragmentManager = FragmentManager.findFragmentManager(container);
+        SpecialEffectsControllerFactory factory =
+                fragmentManager.getSpecialEffectsControllerFactory();
+        return getOrCreateController(container, factory);
+    }
+
+    /**
+     * Get the {@link SpecialEffectsController} for a given container if it already exists
      * or create it using the given {@link SpecialEffectsControllerFactory} if it does not.
      *
      * @param container ViewGroup to find the associated SpecialEffectsController for.
