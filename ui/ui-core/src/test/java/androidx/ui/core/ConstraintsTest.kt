@@ -39,14 +39,14 @@ class ConstraintsTest {
         val constraints = Constraints(0.ipx, 1.ipx, 2.ipx, 3.ipx)
         constraints.assertEquals(0.ipx, 1.ipx, 2.ipx, 3.ipx)
 
-        val tightConstraintsForWidth = Constraints.fixedWidth(5.ipx)
-        tightConstraintsForWidth.assertEquals(5.ipx, 5.ipx, IntPx.Zero, IntPx.Infinity)
+        val fixedWidth = Constraints.fixedWidth(5.ipx)
+        fixedWidth.assertEquals(5.ipx, 5.ipx, IntPx.Zero, IntPx.Infinity)
 
-        val tightConstraintsForHeight = Constraints.fixedHeight(5.ipx)
-        tightConstraintsForHeight.assertEquals(IntPx.Zero, IntPx.Infinity, 5.ipx, 5.ipx)
+        val fixedHeight = Constraints.fixedHeight(5.ipx)
+        fixedHeight.assertEquals(IntPx.Zero, IntPx.Infinity, 5.ipx, 5.ipx)
 
-        val tightConstraints = Constraints.fixed(5.ipx, 7.ipx)
-        tightConstraints.assertEquals(5.ipx, 5.ipx, 7.ipx, 7.ipx)
+        val fixed = Constraints.fixed(5.ipx, 7.ipx)
+        fixed.assertEquals(5.ipx, 5.ipx, 7.ipx, 7.ipx)
     }
 
     @Test

@@ -308,11 +308,11 @@ class StackTest : LayoutTest() {
             Stack {
                 Container(LayoutGravity.TopLeft + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(
-                    DpConstraints.tightConstraints(testWidth, testHeight),
+                    DpConstraints.fixed(testWidth, testHeight),
                     LayoutGravity.BottomCenter
                 ) { }
                 ConstrainedBox(
-                    DpConstraints.tightConstraints(200.dp, 200.dp),
+                    DpConstraints.fixed(200.dp, 200.dp),
                     LayoutGravity.Stretch + LayoutPadding(10.dp)
                 ) { }
             }
@@ -342,7 +342,7 @@ class StackTest : LayoutTest() {
             Stack {
                 ConstrainedBox(
                     modifier = LayoutGravity.Stretch + LayoutPadding(10.dp),
-                    constraints = DpConstraints.tightConstraints(200.dp, 200.dp)
+                    constraints = DpConstraints.fixed(200.dp, 200.dp)
                 ) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->

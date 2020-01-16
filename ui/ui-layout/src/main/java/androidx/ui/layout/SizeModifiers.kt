@@ -76,7 +76,7 @@ private data class SizeModifier(private val modifierConstraints: DpConstraints) 
 @Stable
 data class LayoutWidth(val width: Dp)
 // TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(DpConstraints.tightConstraintsForWidth(width)) {
+    : LayoutModifier by SizeModifier(DpConstraints.fixedWidth(width)) {
     init {
         require(width.isFinite()) { "width must be finite" }
         require(width >= Dp.Hairline) { "width must be >= 0.dp" }
@@ -170,7 +170,7 @@ data class LayoutWidth(val width: Dp)
 @Stable
 data class LayoutHeight(val height: Dp)
 // TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(DpConstraints.tightConstraintsForHeight(height)) {
+    : LayoutModifier by SizeModifier(DpConstraints.fixedHeight(height)) {
     init {
         require(height.isFinite()) { "height must be finite" }
         require(height >= Dp.Hairline) { "height must be >= 0.dp" }
@@ -269,7 +269,7 @@ data class LayoutHeight(val height: Dp)
 @Stable
 data class LayoutSize(val width: Dp, val height: Dp)
 // TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(DpConstraints.tightConstraints(width, height)) {
+    : LayoutModifier by SizeModifier(DpConstraints.fixed(width, height)) {
 
     /**
      * [Modifies][LayoutModifier] a Compose UI layout element to have a square size of [size].
