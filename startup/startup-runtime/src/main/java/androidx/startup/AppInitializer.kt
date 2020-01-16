@@ -17,6 +17,7 @@
 package androidx.startup
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 
 /**
  * An [AppInitializer] can be used to initialize all discovered [ComponentInitializer]s.
@@ -32,8 +33,8 @@ class AppInitializer {
             initialize(context, components, mutableSetOf(), mutableSetOf())
         }
 
-        @Suppress("UNCHECKED_CAST")
-        private fun initialize(
+        @VisibleForTesting
+        internal fun initialize(
             context: Context,
             components: List<Class<*>>,
             initializing: MutableSet<Class<*>>,
