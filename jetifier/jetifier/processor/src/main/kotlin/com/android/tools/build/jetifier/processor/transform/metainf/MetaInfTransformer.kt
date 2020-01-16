@@ -43,7 +43,8 @@ class MetaInfTransformer internal constructor(
             "androidx.activity_activity-ktx.version",
             "androidx.lifecycle_lifecycle-runtime-ktx.version",
             "androidx.dynamicanimation_dynamicanimation-ktx.version",
-            "androidx.annotation_annotation-experimental.version"
+            "androidx.annotation_annotation-experimental.version",
+            "androidx.navigation_navigation-testing.version"
         )
     }
 
