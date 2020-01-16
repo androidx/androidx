@@ -17,6 +17,7 @@
 package androidx.startup
 
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.annotation.VisibleForTesting
 
 /**
@@ -26,8 +27,25 @@ import androidx.annotation.VisibleForTesting
  */
 class AppInitializer {
     companion object {
-        private const val TAG = "AppInitializer"
 
+        /**
+         * Discovers an initializes all available [ComponentInitializer] classes based on the merged
+         * manifest `<meta-data>` entries in the `AndroidManifest.xml`.
+         * @param context The Application context
+         */
+        @JvmName("initialize")
+        fun initialize(context: Context) {
+            val components = discoverComponents(context)
+            initialize(context, components)
+        }
+
+        /**
+         * Initializes a [List] of [ComponentInitializer] class types.
+         *
+         * @param context The Application context
+         * @param components The [List] of [Class]es that represent all discovered
+         * [ComponentInitializer]s
+         */
         @JvmName("initialize")
         fun initialize(context: Context, components: List<Class<*>>) {
             initialize(context, components, mutableSetOf(), mutableSetOf())
@@ -62,6 +80,36 @@ class AppInitializer {
                     initializing.remove(component)
                     initialized.add(component)
                 }
+            }
+        }
+
+        @VisibleForTesting
+        internal fun discoverComponents(context: Context): List<Class<*>> {
+            val metadata = context.packageManager.getApplicationInfo(
+                context.packageName,
+                PackageManager.GET_META_DATA
+            ).metaData
+
+            val startup = context.getString(R.string.androidx_startup)
+            return if (metadata != null && metadata.size() > 0) {
+                val components = mutableListOf<Class<*>>()
+                metadata.keySet().forEach { key ->
+                    val value = metadata.getString(key, null)
+                    if (startup == value) {
+                        try {
+                            val clazz = Class.forName(key)
+                            StartupLogger.i { "Discovered ($clazz)" }
+                            components.add(clazz)
+                        } catch (throwable: Throwable) {
+                            val message = "Cannot find ComponentInitializer ($key)"
+                            StartupLogger.e(message, throwable)
+                            throw StartupException(message, throwable)
+                        }
+                    }
+                }
+                components
+            } else {
+                emptyList()
             }
         }
     }
