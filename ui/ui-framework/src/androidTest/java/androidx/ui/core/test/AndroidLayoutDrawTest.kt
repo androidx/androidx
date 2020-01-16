@@ -53,7 +53,6 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.draw
 import androidx.ui.core.drawWithContent
 import androidx.ui.core.globalPosition
-import androidx.ui.core.looseMin
 import androidx.ui.core.offset
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
@@ -392,8 +391,8 @@ class AndroidLayoutDrawTest {
         val childrenCount = 3
         val childConstraints = arrayOf(
             Constraints(),
-            Constraints.tightConstraintsForWidth(50.ipx),
-            Constraints.tightConstraintsForHeight(50.ipx)
+            Constraints.fixedWidth(50.ipx),
+            Constraints.fixedHeight(50.ipx)
         )
         val headerChildrenCount = 1
         val footerChildrenCount = 2
@@ -2024,7 +2023,7 @@ class AndroidLayoutDrawTest {
 
     private val AlignTopLeft = object : LayoutModifier {
         override fun DensityScope.modifyConstraints(constraints: Constraints) =
-            constraints.looseMin()
+            constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
         override fun DensityScope.modifySize(
             constraints: Constraints,
             childSize: IntPxSize
@@ -2257,7 +2256,7 @@ fun FixedSize(
     children: @Composable() () -> Unit = {}
 ) {
     Layout(children = children, modifier = modifier) { measurables, _ ->
-        val newConstraints = Constraints.tightConstraints(size, size)
+        val newConstraints = Constraints.fixed(size, size)
         val placeables = measurables.map { m ->
             m.measure(newConstraints)
         }
@@ -2335,7 +2334,7 @@ fun TwoMeasureLayout(
     Layout(children = children) { measurables, _ ->
         val testConstraints = Constraints()
         measurables.forEach { it.measure(testConstraints) }
-        val childConstraints = Constraints.tightConstraints(size, size)
+        val childConstraints = Constraints.fixed(size, size)
         try {
             val placeables2 = measurables.map { it.measure(childConstraints) }
             fail("Measuring twice on the same Measurable should throw an exception")
@@ -2636,7 +2635,7 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
     }
 
     override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
-        return Constraints.tightConstraints(10.ipx, 10.ipx)
+        return Constraints.fixed(10.ipx, 10.ipx)
     }
 
     override fun DensityScope.modifySize(

@@ -104,7 +104,7 @@ internal class TextFieldDelegate {
         ): Triple<IntPx, IntPx, TextLayoutResult> {
             val layoutResult = if (constraints.maxWidth.isFinite()) {
                 textDelegate.layout(
-                    Constraints.tightConstraintsForWidth(constraints.maxWidth),
+                    Constraints.fixedWidth(constraints.maxWidth),
                     prevResultText
                 )
             } else {
@@ -112,7 +112,7 @@ internal class TextFieldDelegate {
                 // falling back to wrap-content behavior since it may be in the horizontal scroller.
                 textDelegate.layoutIntrinsics()
                 textDelegate.layout(
-                    Constraints.tightConstraintsForWidth(textDelegate.maxIntrinsicWidth),
+                    Constraints.fixedWidth(textDelegate.maxIntrinsicWidth),
                     prevResultText
                 )
             }

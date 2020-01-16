@@ -610,7 +610,7 @@ fun Table(
                 }
             }
             val decorationConstraints =
-                Constraints.tightConstraints(tableSize.width, tableSize.height)
+                Constraints.fixed(tableSize.width, tableSize.height)
             measurables.filter { it.rowIndex == null }.forEach {
                 it.measure(decorationConstraints).place(IntPx.Zero, IntPx.Zero)
             }

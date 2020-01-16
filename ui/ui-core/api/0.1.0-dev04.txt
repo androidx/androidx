@@ -74,9 +74,9 @@ package androidx.ui.core {
   }
 
   public static final class Constraints.Companion {
-    method public androidx.ui.core.Constraints tightConstraints(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
-    method public androidx.ui.core.Constraints tightConstraintsForHeight(androidx.ui.unit.IntPx height);
-    method public androidx.ui.core.Constraints tightConstraintsForWidth(androidx.ui.unit.IntPx width);
+    method public androidx.ui.core.Constraints fixed(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
+    method public androidx.ui.core.Constraints fixedHeight(androidx.ui.unit.IntPx height);
+    method public androidx.ui.core.Constraints fixedWidth(androidx.ui.unit.IntPx width);
   }
 
   public final class ConstraintsKt {
@@ -84,17 +84,11 @@ package androidx.ui.core {
     method public static androidx.ui.core.Constraints enforce(androidx.ui.core.Constraints, androidx.ui.core.Constraints otherConstraints);
     method public static boolean getHasBoundedHeight(androidx.ui.core.Constraints);
     method public static boolean getHasBoundedWidth(androidx.ui.core.Constraints);
-    method public static boolean getHasTightHeight(androidx.ui.core.Constraints);
-    method public static boolean getHasTightWidth(androidx.ui.core.Constraints);
-    method public static boolean isTight(androidx.ui.core.Constraints);
+    method public static boolean getHasFixedHeight(androidx.ui.core.Constraints);
+    method public static boolean getHasFixedWidth(androidx.ui.core.Constraints);
     method public static boolean isZero(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints looseMax(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints looseMin(androidx.ui.core.Constraints);
     method public static androidx.ui.core.Constraints offset(androidx.ui.core.Constraints, androidx.ui.unit.IntPx horizontal = 0.ipx, androidx.ui.unit.IntPx vertical = 0.ipx);
     method public static boolean satisfiedBy(androidx.ui.core.Constraints, androidx.ui.unit.IntPxSize size);
-    method public static androidx.ui.core.Constraints tightMax(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints tightMin(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints withTight(androidx.ui.core.Constraints, androidx.ui.unit.IntPx? width = null, androidx.ui.unit.IntPx? height = null);
   }
 
   public final class ConsumedData {
