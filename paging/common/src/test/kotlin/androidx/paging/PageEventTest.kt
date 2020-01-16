@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.paging.LoadState.Idle
-import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -25,6 +24,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
+import androidx.paging.PageEvent.LoadStateUpdate
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -138,10 +138,7 @@ class PageEventTest {
 
     @Test
     fun stateTransform() {
-        val state = PageEvent.StateUpdate<Char>(
-            loadType = REFRESH,
-            loadState = Loading
-        )
+        val state = LoadStateUpdate<Char>(loadType = REFRESH, loadState = LoadState.Loading)
 
         assertSame(state, state.map { it + 1 })
         assertSame(state, state.flatMap { listOf(it, it) })

@@ -123,7 +123,7 @@ internal class PagePresenter<T : Any>(
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
-            is PageEvent.StateUpdate -> {
+            is PageEvent.LoadStateUpdate -> {
                 callback.onStateUpdate(pageEvent.loadType, pageEvent.loadState)
             }
         }
