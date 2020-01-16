@@ -23,6 +23,8 @@ import android.os.Bundle
 import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -32,6 +34,7 @@ import androidx.ui.androidview.AndroidView
 import androidx.ui.androidview.adapters.Ref
 import androidx.ui.androidview.adapters.setRef
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
@@ -46,6 +49,12 @@ class ViewInCompose : Activity() {
             Column {
                 // Include Android View.
                 TextView(text = "This is a text in a TextView")
+                val ref = Ref<View>()
+                FrameLayout(ref = ref) {
+                    android.widget.TextView(text = "This is a very long very long text")
+                }
+                Text("This is a second text")
+                ref.value!!.layoutParams = ViewGroup.LayoutParams(100, WRAP_CONTENT)
 
                 // Inflate AndroidView from XML.
                 AndroidView(R.layout.test_layout)
