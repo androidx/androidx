@@ -323,6 +323,35 @@ package androidx.recyclerview.widget {
     method public void onRemoved(int, int);
   }
 
+  public final class MergeAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder> {
+    ctor @java.lang.SafeVarargs public MergeAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
+    ctor @java.lang.SafeVarargs public MergeAdapter(androidx.recyclerview.widget.MergeAdapter.Config, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
+    ctor public MergeAdapter(java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!>);
+    ctor public MergeAdapter(androidx.recyclerview.widget.MergeAdapter.Config, java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!>);
+    method public boolean addAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!> getCopyOfAdapters();
+    method public int getItemCount();
+    method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method public boolean onFailedToRecycleView(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onViewAttachedToWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onViewDetachedFromWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onViewRecycled(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public boolean removeAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+  }
+
+  public static class MergeAdapter.Config {
+    field public static final androidx.recyclerview.widget.MergeAdapter.Config DEFAULT;
+    field public final boolean isolateViewTypes;
+  }
+
+  public static class MergeAdapter.Config.Builder {
+    ctor public MergeAdapter.Config.Builder();
+    method public androidx.recyclerview.widget.MergeAdapter.Config build();
+    method public androidx.recyclerview.widget.MergeAdapter.Config.Builder setIsolateViewTypes(boolean);
+  }
+
   public abstract class OrientationHelper {
     method public static androidx.recyclerview.widget.OrientationHelper! createHorizontalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
     method public static androidx.recyclerview.widget.OrientationHelper! createOrientationHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager!, @androidx.recyclerview.widget.RecyclerView.Orientation int);
@@ -469,6 +498,7 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView.Adapter();
     method public final void bindViewHolder(VH, int);
     method public final VH createViewHolder(android.view.ViewGroup, int);
+    method public int findRelativeAdapterPositionIn(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>, androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public abstract int getItemCount();
     method public long getItemId(int);
     method public int getItemViewType(int);
@@ -760,7 +790,9 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public RecyclerView.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public RecyclerView.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams!);
-    method public int getViewAdapterPosition();
+    method public int getAbsoluteAdapterPosition();
+    method public int getBindingAdapterPosition();
+    method @Deprecated public int getViewAdapterPosition();
     method public int getViewLayoutPosition();
     method @Deprecated public int getViewPosition();
     method public boolean isItemChanged();
@@ -891,7 +923,10 @@ package androidx.recyclerview.widget {
 
   public abstract static class RecyclerView.ViewHolder {
     ctor public RecyclerView.ViewHolder(android.view.View);
-    method public final int getAdapterPosition();
+    method public final int getAbsoluteAdapterPosition();
+    method @Deprecated public final int getAdapterPosition();
+    method public final androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>? getBindingAdapter();
+    method public final int getBindingAdapterPosition();
     method public final long getItemId();
     method public final int getItemViewType();
     method public final int getLayoutPosition();

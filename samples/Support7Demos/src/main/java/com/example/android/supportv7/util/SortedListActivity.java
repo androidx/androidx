@@ -121,7 +121,7 @@ public class SortedListActivity extends AppCompatActivity {
                     mLayoutInflater.inflate(R.layout.sorted_list_item_view, parent, false)) {
                 @Override
                 void onDoneChanged(boolean isDone) {
-                    int adapterPosition = getAdapterPosition();
+                    int adapterPosition = getBindingAdapterPosition();
                     if (adapterPosition == RecyclerView.NO_POSITION) {
                         return;
                     }

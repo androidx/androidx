@@ -45,7 +45,7 @@ final class FancyItemHolder extends FancyHolder {
         mDetails = new ItemDetails<Uri>() {
             @Override
             public int getPosition() {
-                return FancyItemHolder.this.getAdapterPosition();
+                return FancyItemHolder.this.getBindingAdapterPosition();
             }
 
             @Override

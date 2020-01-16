@@ -2120,7 +2120,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         int totalItems = 0;
         for (int i = 0; i < scrapSize; i++) {
-            int pos = scrapList.get(i).getAdapterPosition();
+            int pos = scrapList.get(i).getAbsoluteAdapterPosition();
             if (pos >= 0) {
                 mDisappearingPositions[totalItems++] = pos;
             }
@@ -3658,7 +3658,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     void onChildRecycled(RecyclerView.ViewHolder holder) {
-        final int position = holder.getAdapterPosition();
+        final int position = holder.getAbsoluteAdapterPosition();
         if (position != NO_POSITION) {
             mChildrenStates.saveOffscreenView(holder.itemView, position);
         }

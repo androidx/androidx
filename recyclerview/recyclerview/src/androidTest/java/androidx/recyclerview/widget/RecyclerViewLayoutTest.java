@@ -513,7 +513,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 if (mRecyclerView.mRecycler.mCachedViews.contains(holder)) {
                     assertThat("ViewHolder's getAdapterPosition should be "
                                     + "RecyclerView.NO_POSITION",
-                            holder.getAdapterPosition(),
+                            holder.getAbsoluteAdapterPosition(),
                             is(RecyclerView.NO_POSITION));
                     cachedRecycleCount.incrementAndGet();
                 }
@@ -2388,6 +2388,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertThat(recycledViewCount.get(), is(9));
         assertTrue(failedToRecycle.get());
         assertNull(vh.mOwnerRecyclerView);
+        assertNull(vh.getBindingAdapter());
         checkForMainThreadException();
     }
 
@@ -2422,6 +2423,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 });
         assertTrue(animationsLatch.await(2, TimeUnit.SECONDS));
         assertNull(vh.mOwnerRecyclerView);
+        assertNull(vh.getBindingAdapter());
         checkForMainThreadException();
     }
 
@@ -2476,7 +2478,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 for (int i = 0; i < recyclerView.getChildCount(); i ++) {
                     View view = recyclerView.getChildAt(i);
                     RecyclerView.ViewHolder vh = recyclerView.getChildViewHolder(view);
-                    if (vh.getAdapterPosition() == 2) {
+                    if (vh.getAbsoluteAdapterPosition() == 2) {
                         if (mRecyclerView.mChildHelper.isHidden(view)) {
                             assertThat(hidden, CoreMatchers.nullValue());
                             hidden = vh;
@@ -2600,7 +2602,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         assertEquals("should be able to find VH with adapter position " + index, vh,
                                 recyclerView.findViewHolderForAdapterPosition(index));
                         assertEquals("get adapter position should return correct index", index,
-                                vh.getAdapterPosition());
+                                vh.getAbsoluteAdapterPosition());
                         layoutPositions.put(view, vh.mPosition);
                     }
                     if (adapterChanges != null) {
@@ -2616,7 +2618,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                         recyclerView.findViewHolderForAdapterPosition(index));
                             }
                             assertSame("get adapter position should return correct index", index,
-                                    vh.getAdapterPosition());
+                                    vh.getAbsoluteAdapterPosition());
                             assertSame("should be able to find view with layout position",
                                     vh, mRecyclerView.findViewHolderForLayoutPosition(
                                             layoutPositions.get(view)));
@@ -3891,7 +3893,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 try {
                     TestViewHolder tvh = (TestViewHolder) parent.getChildViewHolder(view);
                     Object data = tvh.getData();
-                    int adapterPos = tvh.getAdapterPosition();
+                    int adapterPos = tvh.getAbsoluteAdapterPosition();
                     assertThat(adapterPos, is(not(NO_POSITION)));
                     if (state.isPreLayout()) {
                         preLayoutData.put(adapterPos, data);
@@ -5458,7 +5460,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                     if (pendingScrollPosition != NO_POSITION) {
                                         assertEquals(pendingScrollPosition,
                                                 getChildViewHolderInt(getChildAt(0))
-                                                        .getAdapterPosition());
+                                                        .getAbsoluteAdapterPosition());
                                     }
                                     action.jumpTo(pendingScrollPosition + 2);
                                 }

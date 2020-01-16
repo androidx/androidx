@@ -237,7 +237,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
 
         @Override
         public void onItemClick(ViewHolder viewHolder) {
-            final int index = viewHolder.getAdapterPosition();
+            final int index = viewHolder.getAbsoluteAdapterPosition();
             if (index == RecyclerView.NO_POSITION) {
                 return;
             }
@@ -298,7 +298,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
 
         @Override
         public void onItemClick(ViewHolder viewHolder) {
-            final int index = viewHolder.getAdapterPosition();
+            final int index = viewHolder.getAbsoluteAdapterPosition();
             if (index == RecyclerView.NO_POSITION) {
                 return;
             }

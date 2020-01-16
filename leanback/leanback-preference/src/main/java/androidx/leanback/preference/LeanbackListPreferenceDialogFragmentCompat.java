@@ -240,7 +240,7 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
 
         @Override
         public void onItemClick(ViewHolder viewHolder) {
-            final int index = viewHolder.getAdapterPosition();
+            final int index = viewHolder.getAbsoluteAdapterPosition();
             if (index == RecyclerView.NO_POSITION) {
                 return;
             }
@@ -295,7 +295,7 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
 
         @Override
         public void onItemClick(ViewHolder viewHolder) {
-            final int index = viewHolder.getAdapterPosition();
+            final int index = viewHolder.getAbsoluteAdapterPosition();
             if (index == RecyclerView.NO_POSITION) {
                 return;
             }

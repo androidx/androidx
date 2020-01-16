@@ -237,7 +237,7 @@ public class GridActivity extends Activity {
             }
             if (mRequestLayoutOnFocus) {
                 RecyclerView.ViewHolder vh = mGridView.getChildViewHolder(v);
-                int position = vh.getAdapterPosition();
+                int position = vh.getAbsoluteAdapterPosition();
                 updateSize(v, position);
             }
         }
@@ -393,7 +393,7 @@ public class GridActivity extends Activity {
                             if (mRequestLayoutOnFocus) {
                                 if (v == view) {
                                     RecyclerView.ViewHolder vh = mGridView.getChildViewHolder(v);
-                                    int position = vh.getAdapterPosition();
+                                    int position = vh.getAbsoluteAdapterPosition();
                                     updateSize(v, position);
                                 }
                                 view.requestLayout();

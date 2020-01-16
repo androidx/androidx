@@ -774,7 +774,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         scrollBy(size * 2);
         assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
         assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
-        assertThat(vh.getAdapterPosition(), is(pos));
+        assertThat(vh.getAbsoluteAdapterPosition(), is(pos));
         scrollBy(size * 2);
         assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
     }
@@ -811,7 +811,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         scrollBy(-size * 2);
         assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
         assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
-        assertThat(vh.getAdapterPosition(), is(pos));
+        assertThat(vh.getAbsoluteAdapterPosition(), is(pos));
         scrollBy(-size * 2);
         assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
     }

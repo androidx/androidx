@@ -138,6 +138,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecation") // used for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -148,7 +149,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -177,7 +177,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             waitForIdleScroll(recyclerView);
             focusedView = recyclerView.getFocusedChild();
             assertEquals(Math.min(pos + 3, mAdapter.getItemCount() - 1),
-                    recyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+                    recyclerView
+                            .getChildViewHolder(focusedView).getAbsoluteAdapterPosition());
             pos += 3;
         }
     }
@@ -335,6 +336,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -343,7 +345,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -425,6 +426,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -433,7 +435,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -520,6 +521,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 new GridTestAdapter(itemCount, 1) {
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -528,7 +530,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -611,6 +612,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         .orientation(HORIZONTAL).reverseLayout(false),
                 new GridTestAdapter(itemCount, 1) {
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -619,7 +621,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -1158,7 +1159,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         for (int i = 0; i < childCount; i++) {
             View child = mGlm.getChildAt(i);
             RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
-            if (holder.getAdapterPosition() == removePos) {
+            if (holder.getAbsoluteAdapterPosition() == removePos) {
                 toBeRemoved = holder;
             } else {
                 toBeMoved.add(holder);
