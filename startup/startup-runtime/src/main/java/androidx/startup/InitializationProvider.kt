@@ -51,7 +51,7 @@ class InitializationProvider : ContentProvider() {
         ).metaData
 
         val startup = context.getString(R.string.androidx_startup)
-        if (metadata.size() > 0) {
+        if (metadata != null && metadata.size() > 0) {
             val components = mutableListOf<Class<*>>()
             metadata.keySet().forEach { key ->
                 val value = metadata.getString(key, null)
