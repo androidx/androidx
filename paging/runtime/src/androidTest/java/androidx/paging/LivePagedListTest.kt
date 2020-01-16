@@ -76,19 +76,14 @@ class LivePagedListTest {
             ) {
             }
 
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-            }
+            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {}
         }
 
         private val dataSourceFactory = object : DataSource.Factory<Int, String>() {
-            override fun create(): DataSource<Int, String> {
-                return dataSource
-            }
+            override fun create(): DataSource<Int, String> = dataSource
         }
 
-        private val pagingSource = LegacyPagingSource(dataSource, Dispatchers.Main)
-
-        private val pagingSourceFactory = { pagingSource }
+        private val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.Main)
 
         private val config = Config(10)
     }
