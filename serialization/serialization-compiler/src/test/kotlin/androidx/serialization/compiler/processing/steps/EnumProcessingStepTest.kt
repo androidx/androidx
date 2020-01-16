@@ -16,6 +16,7 @@
 
 package androidx.serialization.compiler.processing.steps
 
+import androidx.serialization.compiler.codegen.CodeGenEnvironment
 import androidx.serialization.compiler.schema.Enum
 import androidx.serialization.schema.Reserved
 import com.google.auto.common.BasicAnnotationProcessor
@@ -29,15 +30,15 @@ import org.junit.Test
 import javax.lang.model.SourceVersion
 import javax.tools.JavaFileObject
 
-/** Unit tests for [EnumCompilationStep]. */
-class EnumCompilationStepTest {
+/** Unit tests for [EnumProcessingStep]. */
+class EnumProcessingStepTest {
     private val enumValueCorrespondence = Correspondence.from({
             actual: Enum.Value?, expected: Pair<Int, String>? ->
         actual?.id == expected?.first && actual?.name == expected?.second
     }, "has ID and name")
 
     @Test
-    fun testEnum() {
+    fun testParsing() {
         val enum = compileEnum(JavaFileObjects.forSourceString("TestEnum", """
             import androidx.serialization.EnumValue;
             
@@ -70,8 +71,25 @@ class EnumCompilationStepTest {
         """.trimIndent())
 
         assertThat(compile(testEnum)).hadErrorContaining(
-            "Enum com.example.PrivateEnumTest.PrivateEnum is private and cannot be serialized"
-        )
+            "Enum com.example.PrivateEnumTest.PrivateEnum is private and cannot be serialized")
+    }
+
+    @Test
+    fun testInvalidPrivateNestedEnum() {
+        val testEnum = JavaFileObjects.forSourceString("PrivateNestedEnumTest", """
+            import androidx.serialization.EnumValue;
+            
+            public class PrivateNestedEnumTest {
+                private static class NestedClass {
+                    public enum NestedEnum {
+                        @EnumValue(EnumValue.DEFAULT) TEST
+                    }
+                }
+            }
+        """.trimIndent())
+
+        assertThat(compile(testEnum)).hadErrorContaining(
+            "Enum PrivateNestedEnumTest.NestedClass.NestedEnum is not visible to its package")
     }
 
     @Test
@@ -106,6 +124,26 @@ class EnumCompilationStepTest {
                     "annotated with @EnumValue")
     }
 
+    @Test
+    fun testCoderGeneration() {
+        val testEnum = JavaFileObjects.forSourceString("com.example.Test", """
+            package com.example;
+            import androidx.serialization.EnumValue;
+            
+            public enum Test {
+                @EnumValue(EnumValue.DEFAULT)
+                DEFAULT,
+                @EnumValue(1)
+                ONE,
+                @EnumValue(2)
+                TWO
+            }
+        """.trimIndent())
+
+        assertThat(compile(testEnum))
+            .generatedSourceFile("com.example.\$SerializationTestEnumCoder")
+    }
+
     private fun compile(vararg sources: JavaFileObject): Compilation {
         return javac().withProcessors(SchemaCompilationProcessor()).compile(*sources)
     }
@@ -115,18 +153,16 @@ class EnumCompilationStepTest {
         assertThat(javac().withProcessors(processor).compile(source))
             .succeededWithoutWarnings()
 
-        val enums = processor.enums
-        assertThat(enums).hasSize(1)
-
-        return enums.single()
+        return processor.enum
     }
 
     private class SchemaCompilationProcessor : BasicAnnotationProcessor() {
-        val enums = mutableSetOf<Enum>()
+        lateinit var enum: Enum
 
-        override fun initSteps(): List<ProcessingStep> = listOf(
-            EnumCompilationStep(processingEnv) { enums += it }
-        )
+        override fun initSteps(): List<ProcessingStep> {
+            val codeGenEnv = CodeGenEnvironment(EnumProcessingStepTest::class.qualifiedName)
+            return listOf(EnumProcessingStep(processingEnv, codeGenEnv) { enum = it })
+    }
 
         override fun getSupportedSourceVersion(): SourceVersion {
             return SourceVersion.latest()

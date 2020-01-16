@@ -16,7 +16,8 @@
 
 package androidx.serialization.compiler
 
-import androidx.serialization.compiler.processing.steps.EnumCompilationStep
+import androidx.serialization.compiler.codegen.CodeGenEnvironment
+import androidx.serialization.compiler.processing.steps.EnumProcessingStep
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
 import com.google.common.collect.ImmutableList
@@ -31,9 +32,12 @@ import javax.lang.model.SourceVersion
 @AutoService(Processor::class)
 @IncrementalAnnotationProcessor(ISOLATING)
 class SchemaProcessor : BasicAnnotationProcessor() {
-    override fun initSteps(): List<ProcessingStep> = ImmutableList.of(
-        EnumCompilationStep(processingEnv)
-    )
+    override fun initSteps(): List<ProcessingStep> {
+        val codeGenEnv = CodeGenEnvironment(processingEnv, this::class.qualifiedName)
+        return ImmutableList.of(
+            EnumProcessingStep(processingEnv, codeGenEnv)
+        )
+    }
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 }

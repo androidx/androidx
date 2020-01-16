@@ -16,7 +16,7 @@
 
 package androidx.serialization.compiler.processing
 
-import androidx.serialization.compiler.processing.steps.AbstractStep
+import androidx.serialization.compiler.processing.steps.AbstractProcessingStep
 import androidx.serialization.schema.Reserved
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.truth.Truth.assertThat
@@ -76,9 +76,9 @@ class ProcessReservedTest {
         return processor.reserved
     }
 
-    private class ReservedStep(
+    private class ReservedProcessingStep(
         private val onReserved: (Reserved) -> Unit
-    ) : AbstractStep(androidx.serialization.Reserved::class) {
+    ) : AbstractProcessingStep(androidx.serialization.Reserved::class) {
         override fun process(elementsByAnnotation: Map<KClass<out Annotation>, Set<Element>>) {
             elementsByAnnotation[androidx.serialization.Reserved::class]?.forEach {
                 onReserved(processReserved(it.asTypeElement()))
@@ -90,7 +90,7 @@ class ProcessReservedTest {
         lateinit var reserved: Reserved
 
         override fun initSteps(): List<ProcessingStep> = listOf(
-            ReservedStep { reserved = it }
+            ReservedProcessingStep { reserved = it }
         )
 
         override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
