@@ -27,6 +27,7 @@ import com.android.tools.lint.detector.api.Issue
 class StartupRuntimeIssueRegistry : IssueRegistry() {
     override val issues: List<Issue>
         get() = listOf(
+            ComponentInitializerConstructorDetector.ISSUE,
             EnsureComponentInitializerMetadataDetector.ISSUE
         )
 }
