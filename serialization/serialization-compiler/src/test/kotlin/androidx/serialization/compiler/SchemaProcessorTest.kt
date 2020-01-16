@@ -23,10 +23,10 @@ import com.google.testing.compile.JavaFileObjects
 import org.junit.Test
 import javax.tools.JavaFileObject
 
-/** Integration tests for [SchemaProcessor]. */
+/** Unit tests for [SchemaProcessor]. */
 class SchemaProcessorTest {
     @Test
-    fun testSucceedsWithoutWarningsa() {
+    fun testSucceedsWithoutWarnings() {
         val testClass = JavaFileObjects.forSourceString("Test", "public class Test {}")
         assertThat(compile(testClass)).succeededWithoutWarnings()
     }

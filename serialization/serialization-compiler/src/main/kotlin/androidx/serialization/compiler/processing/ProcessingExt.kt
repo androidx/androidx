@@ -17,12 +17,18 @@
 package androidx.serialization.compiler.processing
 
 import javax.annotation.processing.Messager
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.WARNING
 import kotlin.reflect.KClass
+
+/** Determine if a qualified class name is present in the processing environment. */
+internal fun ProcessingEnvironment.isClassPresent(qualifiedName: String): Boolean {
+    return elementUtils.getTypeElement(qualifiedName) != null
+}
 
 /** Print [message] as a warning with optional positional information. */
 internal inline fun Messager.warn(
