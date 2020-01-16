@@ -136,8 +136,6 @@ package androidx.ui.layout {
   @androidx.ui.layout.LayoutScopeMarker public abstract sealed class FlexScope {
     method public final androidx.ui.core.ParentDataModifier LayoutFlexible(@FloatRange(from=0.0, fromInclusive=false) float flex, boolean tight = true);
     method public final androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
-    method public final androidx.ui.core.ParentDataModifier getLayoutInflexible();
-    property public final androidx.ui.core.ParentDataModifier LayoutInflexible;
   }
 
   public enum FlowCrossAxisAlignment {
