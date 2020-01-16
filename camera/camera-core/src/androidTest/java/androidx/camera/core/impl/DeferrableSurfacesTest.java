@@ -54,6 +54,7 @@ public class DeferrableSurfacesTest {
 
     private ScheduledExecutorService mScheduledExecutorService;
     private List<CallbackToFutureAdapter.Completer<Surface>> mCompleterList = new ArrayList<>();
+    private List<DeferrableSurface> mFakeDeferrableSurfaces = new ArrayList<>();
 
     @Before
     public void setup() {
@@ -65,6 +66,11 @@ public class DeferrableSurfacesTest {
         for (CallbackToFutureAdapter.Completer<Surface> completer : mCompleterList) {
             completer.setCancelled();
         }
+
+        for (DeferrableSurface surface : mFakeDeferrableSurfaces) {
+            surface.close();
+        }
+
         mCompleterList.clear();
         mScheduledExecutorService.shutdown();
     }
@@ -107,6 +113,10 @@ public class DeferrableSurfacesTest {
         assertThat(fakeSurface0.getUseCount()).isEqualTo(initialCount0 + 1);
         assertThat(fakeSurface1.getUseCount()).isEqualTo(initialCount1 + 1);
         assertThat(fakeSurface2.getUseCount()).isEqualTo(initialCount2 + 1);
+
+        DeferrableSurfaces.decrementAll(Arrays.asList(fakeSurface0,
+                fakeSurface1,
+                fakeSurface2));
     }
 
     @Test
@@ -166,12 +176,15 @@ public class DeferrableSurfacesTest {
 
     @NonNull
     private DeferrableSurface getFakeDeferrableSurface() {
-        return new DeferrableSurface() {
+        DeferrableSurface surface = new DeferrableSurface() {
             @Override
             @NonNull
             public ListenableFuture<Surface> provideSurface() {
                 return getFakeProcessingListenableFuture();
             }
         };
+
+        mFakeDeferrableSurfaces.add(surface);
+        return surface;
     }
 }

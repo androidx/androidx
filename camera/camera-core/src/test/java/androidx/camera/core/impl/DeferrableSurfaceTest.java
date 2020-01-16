@@ -32,6 +32,7 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +59,11 @@ public class DeferrableSurfaceTest {
                 return Futures.immediateFuture(null);
             }
         };
+    }
+
+    @After
+    public void tearDown() {
+        mDeferrableSurface.close();
     }
 
     @Test

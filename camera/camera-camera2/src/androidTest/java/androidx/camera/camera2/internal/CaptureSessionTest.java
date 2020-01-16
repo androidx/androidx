@@ -878,6 +878,7 @@ public final class CaptureSessionTest {
 
         /** Clean up resources. */
         void tearDown() {
+            mDeferrableSurface.close();
             mImageReader.close();
             mHandlerThread.quitSafely();
         }
