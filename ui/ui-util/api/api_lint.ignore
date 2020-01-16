@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+NoByteOrShort: androidx.ui.util.Float16#Float16(short) parameter #0:
+    Should avoid odd sized primitives; use `int` instead of `short` in parameter halfValue in androidx.ui.util.Float16(short halfValue)
+NoByteOrShort: androidx.ui.util.Float16#getHalfValue():
+    Should avoid odd sized primitives; use `int` instead of `short` in method androidx.ui.util.Float16.getHalfValue()
+NoByteOrShort: androidx.ui.util.Float16#toByte():
+    Should avoid odd sized primitives; use `int` instead of `byte` in method androidx.ui.util.Float16.toByte()
+NoByteOrShort: androidx.ui.util.Float16#toShort():
+    Should avoid odd sized primitives; use `int` instead of `short` in method androidx.ui.util.Float16.toShort()
