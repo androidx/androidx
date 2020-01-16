@@ -180,7 +180,9 @@ class TextLayoutTest {
             override fun run() {
                 activity.setContent {
                     Layout(composable) { measurables, constraints ->
-                        val placeables = measurables.map { it.measure(constraints.looseMin()) }
+                        val placeables = measurables.map {
+                            it.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+                        }
                         layout(constraints.maxWidth, constraints.maxHeight) {
                             var top = 0.px
                             placeables.forEach {

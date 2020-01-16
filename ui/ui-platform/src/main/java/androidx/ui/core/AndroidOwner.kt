@@ -109,7 +109,7 @@ class AndroidComposeView constructor(context: Context) :
         }
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
-    var constraints = Constraints.tightConstraints(width = IntPx.Zero, height = IntPx.Zero)
+    var constraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
     // private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 

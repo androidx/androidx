@@ -463,7 +463,7 @@ fun DataTable(
                         measurables.forEach { measurable ->
                             val i = measurable.parentData as Int
                             val placeable = measurable.measure(
-                                Constraints.tightConstraints(
+                                Constraints.fixed(
                                     width = constraints.maxWidth,
                                     height = verticalOffsets[i + 2] - verticalOffsets[i + 1]
                                 )

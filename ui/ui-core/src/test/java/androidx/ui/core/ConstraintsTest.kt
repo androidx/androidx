@@ -39,13 +39,13 @@ class ConstraintsTest {
         val constraints = Constraints(0.ipx, 1.ipx, 2.ipx, 3.ipx)
         constraints.assertEquals(0.ipx, 1.ipx, 2.ipx, 3.ipx)
 
-        val tightConstraintsForWidth = Constraints.tightConstraintsForWidth(5.ipx)
+        val tightConstraintsForWidth = Constraints.fixedWidth(5.ipx)
         tightConstraintsForWidth.assertEquals(5.ipx, 5.ipx, IntPx.Zero, IntPx.Infinity)
 
-        val tightConstraintsForHeight = Constraints.tightConstraintsForHeight(5.ipx)
+        val tightConstraintsForHeight = Constraints.fixedHeight(5.ipx)
         tightConstraintsForHeight.assertEquals(IntPx.Zero, IntPx.Infinity, 5.ipx, 5.ipx)
 
-        val tightConstraints = Constraints.tightConstraints(5.ipx, 7.ipx)
+        val tightConstraints = Constraints.fixed(5.ipx, 7.ipx)
         tightConstraints.assertEquals(5.ipx, 5.ipx, 7.ipx, 7.ipx)
     }
 
@@ -61,16 +61,14 @@ class ConstraintsTest {
     }
 
     @Test
-    fun hasTightDimensions() {
+    fun hasFixedDimensions() {
         val untight = Constraints(3.ipx, 4.ipx, 8.ipx, 9.ipx)
-        assertFalse(untight.hasTightWidth)
-        assertFalse(untight.hasTightHeight)
-        assertFalse(untight.isTight)
+        assertFalse(untight.hasFixedWidth)
+        assertFalse(untight.hasFixedHeight)
 
         val tight = Constraints(3.ipx, 3.ipx, 5.ipx, 5.ipx)
-        assertTrue(tight.hasTightWidth)
-        assertTrue(tight.hasTightHeight)
-        assertTrue(tight.isTight)
+        assertTrue(tight.hasFixedWidth)
+        assertTrue(tight.hasFixedHeight)
     }
 
     @Test
@@ -100,13 +98,6 @@ class ConstraintsTest {
     }
 
     @Test
-    fun withTight() {
-        val constraints = Constraints(2.ipx, 3.ipx, 2.ipx, 3.ipx)
-        constraints.withTight().assertEquals(2.ipx, 3.ipx, 2.ipx, 3.ipx)
-        constraints.withTight(7.ipx, 8.ipx).assertEquals(7.ipx, 7.ipx, 8.ipx, 8.ipx)
-    }
-
-    @Test
     fun constrain() {
         val constraints = Constraints(2.ipx, 5.ipx, 2.ipx, 5.ipx)
         assertEquals(IntPxSize(2.ipx, 2.ipx), constraints.constrain(IntPxSize(1.ipx, 1.ipx)))
@@ -124,28 +115,6 @@ class ConstraintsTest {
         assertFalse(constraints.satisfiedBy(IntPxSize(7.ipx, 8.ipx)))
         assertFalse(constraints.satisfiedBy(IntPxSize(4.ipx, 5.ipx)))
         assertFalse(constraints.satisfiedBy(IntPxSize(4.ipx, 11.ipx)))
-    }
-
-    @Test
-    fun loose() {
-        val bounded = Constraints(2.ipx, 5.ipx, 2.ipx, 5.ipx)
-        bounded.looseMin().assertEquals(0.ipx, 5.ipx, 0.ipx, 5.ipx)
-        bounded.looseMax().assertEquals(2.ipx, IntPx.Infinity, 2.ipx, IntPx.Infinity)
-
-        val unbounded = Constraints(2.ipx, IntPx.Infinity, 2.ipx, IntPx.Infinity)
-        unbounded.looseMin().assertEquals(0.ipx, IntPx.Infinity, 0.ipx, IntPx.Infinity)
-        unbounded.looseMax().assertEquals(2.ipx, IntPx.Infinity, 2.ipx, IntPx.Infinity)
-    }
-
-    @Test
-    fun tight() {
-        val bounded = Constraints(2.ipx, 5.ipx, 2.ipx, 5.ipx)
-        bounded.tightMin().assertEquals(2.ipx, 2.ipx, 2.ipx, 2.ipx)
-        bounded.tightMax().assertEquals(5.ipx, 5.ipx, 5.ipx, 5.ipx)
-
-        val unbounded = Constraints(2.ipx, IntPx.Infinity, 2.ipx, IntPx.Infinity)
-        unbounded.tightMin().assertEquals(2.ipx, 2.ipx, 2.ipx, 2.ipx)
-        unbounded.tightMax().assertEquals(2.ipx, IntPx.Infinity, 2.ipx, IntPx.Infinity)
     }
 
     @Test

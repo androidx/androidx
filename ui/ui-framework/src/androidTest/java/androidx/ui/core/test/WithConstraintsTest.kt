@@ -144,7 +144,7 @@ class WithConstraintsTest {
                         }
                     }) { measurables, constraints3 ->
                         val placeable = measurables[0].measure(
-                            Constraints.tightConstraints(
+                            Constraints.fixed(
                                 model.size,
                                 model.size
                             )
@@ -283,13 +283,13 @@ class WithConstraintsTest {
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(Constraints.tightConstraints(50.ipx, 50.ipx), actualConstraints)
+        assertEquals(Constraints.fixed(50.ipx, 50.ipx), actualConstraints)
 
         latch = CountDownLatch(1)
         rule.runOnUiThread { model.value = 100.ipx }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(Constraints.tightConstraints(100.ipx, 100.ipx), actualConstraints)
+        assertEquals(Constraints.fixed(100.ipx, 100.ipx), actualConstraints)
     }
 
     @Test
@@ -535,7 +535,7 @@ fun Container(width: IntPx, height: IntPx, children: @Composable() () -> Unit) {
 private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Composable() () -> Unit) {
     Layout(children) { measurables, _ ->
         layout(100.ipx, 100.ipx) {
-            val constraints = Constraints.tightConstraints(size.value, size.value)
+            val constraints = Constraints.fixed(size.value, size.value)
             measurables.first().measure(constraints).place(0.ipx, 0.ipx)
         }
     }

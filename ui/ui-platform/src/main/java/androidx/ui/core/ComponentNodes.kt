@@ -823,7 +823,7 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The constraints used the last time [layout] was called.
      */
-    var constraints: Constraints = Constraints.tightConstraints(IntPx.Zero, IntPx.Zero)
+    var constraints: Constraints = Constraints.fixed(IntPx.Zero, IntPx.Zero)
 
     /**
      * Implementation oddity around composition; used to capture a reference to this

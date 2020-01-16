@@ -21,7 +21,6 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.looseMin
 import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -46,7 +45,7 @@ fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.looseMin())
+        val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
 
         // The layout is as large as possible for bounded constraints,
         // or wrap content otherwise.
@@ -225,7 +224,7 @@ private data class AlignmentModifier(
     private val direction: Direction
 ) : LayoutModifier {
     override fun DensityScope.modifyConstraints(constraints: Constraints) = when (direction) {
-        Direction.Both -> constraints.looseMin()
+        Direction.Both -> constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
         Direction.Horizontal -> constraints.copy(minWidth = 0.ipx)
         Direction.Vertical -> constraints.copy(minHeight = 0.ipx)
     }

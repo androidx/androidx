@@ -58,7 +58,7 @@ data class LayoutAspectRatio(
     override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
         val size = constraints.findSizeWith(aspectRatio)
         return if (size != null)
-            Constraints.tightConstraints(size.width, size.height)
+            Constraints.fixed(size.width, size.height)
         else
             constraints
     }
@@ -124,7 +124,7 @@ fun AspectRatio(
 
         val measurable = measurables.firstOrNull()
         val childConstraints = if (size != null) {
-            Constraints.tightConstraints(size.width, size.height)
+            Constraints.fixed(size.width, size.height)
         } else {
             constraints
         }

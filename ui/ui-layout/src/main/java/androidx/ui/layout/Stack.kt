@@ -24,10 +24,10 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
-import androidx.ui.core.looseMin
 import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
 
@@ -51,8 +51,9 @@ fun Stack(
     Layout(stackChildren, modifier = modifier) { measurables, constraints ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
+        val childConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
         (0 until measurables.size).filter { i -> !measurables[i].stretch }.forEach { i ->
-            placeables[i] = measurables[i].measure(constraints.looseMin())
+            placeables[i] = measurables[i].measure(childConstraints)
         }
         val (stackWidth, stackHeight) = with(placeables.filterNotNull()) {
             Pair(
