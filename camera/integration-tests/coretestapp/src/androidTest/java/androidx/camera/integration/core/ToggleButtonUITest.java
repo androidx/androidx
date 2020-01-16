@@ -48,9 +48,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.Until;
 
 import junit.framework.AssertionFailedError;
 
@@ -70,7 +68,6 @@ public final class ToggleButtonUITest {
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    private final String mLauncherPackageName = mDevice.getLauncherPackageName();
     private final Intent mIntent = ApplicationProvider.getApplicationContext().getPackageManager()
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
 
@@ -109,8 +106,14 @@ public final class ToggleButtonUITest {
 
     @After
     public void tearDown() {
-        pressBackAndReturnHome();
+        // Idles Espresso thread and make activity complete each action.
+        waitFor(new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS));
+
         mActivityRule.finishActivity();
+
+        // Returns to Home to restart next test.
+        mDevice.pressHome();
+        mDevice.waitForIdle(IDLE_TIMEOUT_MS);
     }
 
     @Test
@@ -136,8 +139,6 @@ public final class ToggleButtonUITest {
         // The mode3 should be different from first and second time.
         assertNotEquals(mode3, mode2);
         assertNotEquals(mode3, mode1);
-
-        waitForIdlingRegistryAndPressBackAndHomeButton();
     }
 
     @Test
@@ -155,8 +156,6 @@ public final class ToggleButtonUITest {
         // By pressing the torch toggle button two times, it should switch back to original state.
         onView(withId(R.id.torch_toggle)).perform(click());
         assertEquals(isTorchOn(cameraInfo), isTorchOn);
-
-        waitForIdlingRegistryAndPressBackAndHomeButton();
     }
 
     @Test
@@ -185,30 +184,10 @@ public final class ToggleButtonUITest {
                 assertNotNull(mActivityRule.getActivity().getPreview());
             }
         }
-
-        waitForIdlingRegistryAndPressBackAndHomeButton();
-    }
-
-    private void waitForIdlingRegistryAndPressBackAndHomeButton() {
-        // Idles Espresso thread and make activity complete each action.
-        waitFor(new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS));
-
-        mDevice.pressBack();
-
-        // Returns to Home to restart next test.
-        mDevice.pressHome();
-        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), IDLE_TIMEOUT_MS);
     }
 
     private boolean isTorchOn(CameraInfo cameraInfo) {
         return cameraInfo.getTorchState().getValue() == TorchState.ON;
-    }
-
-    private void pressBackAndReturnHome() {
-        mDevice.pressBack();
-
-        // Returns to Home to restart next test.
-        mDevice.pressHome();
     }
 
     private boolean detectButtonVisibility(int resource) {

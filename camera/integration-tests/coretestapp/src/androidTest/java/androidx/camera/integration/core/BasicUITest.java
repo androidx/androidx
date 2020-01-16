@@ -139,6 +139,7 @@ public final class BasicUITest {
 
         // Returns to Home to restart next test.
         mDevice.pressHome();
+        mDevice.waitForIdle(3000);
     }
 }
 
