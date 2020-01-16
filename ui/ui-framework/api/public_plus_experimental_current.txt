@@ -147,8 +147,8 @@ package androidx.ui.core {
     method public static androidx.compose.Ambient<androidx.ui.text.font.Font.ResourceLoader> getFontLoaderAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
     method public static androidx.compose.Ambient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
-    method public static androidx.compose.CompositionContext? setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method public static androidx.compose.CompositionContext? setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
 }
