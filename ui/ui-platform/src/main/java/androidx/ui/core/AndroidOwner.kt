@@ -42,8 +42,8 @@ import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
+import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
-import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
@@ -111,6 +111,8 @@ class AndroidComposeView constructor(context: Context) :
                 value.value = this
             }
         }
+
+    private val motionEventAdapter = MotionEventAdapter()
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
     var constraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
@@ -638,10 +640,11 @@ class AndroidComposeView constructor(context: Context) :
     // TODO(shepshapard): Test this method.
     override fun onTouchEvent(event: MotionEvent): Boolean {
         trace("AndroidOwner:onTouch") {
-            if (event.actionMasked == MotionEvent.ACTION_CANCEL) {
-                pointerInputEventProcessor.processCancel()
+            val pointerInputEvent = motionEventAdapter.processMotionEvent(event)
+            if (pointerInputEvent != null) {
+                pointerInputEventProcessor.process(pointerInputEvent, calculatePosition())
             } else {
-                pointerInputEventProcessor.process(event.toPointerInputEvent(), calculatePosition())
+                pointerInputEventProcessor.processCancel()
             }
         }
         // TODO(shepshapard): Only return if some aspect of the change was consumed.

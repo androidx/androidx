@@ -352,15 +352,16 @@ package androidx.ui.core.pointerinput {
   public final class HitPathTrackerKt {
   }
 
-  public final class MotionEventAdapterKt {
+  public final class MotionEventAdapter {
+    ctor public MotionEventAdapter();
   }
 
   public final class PointerInputEventData {
-    ctor public PointerInputEventData(int id, androidx.ui.core.PointerInputData pointerInputData);
-    method public int component1();
+    ctor public PointerInputEventData(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData pointerInputData);
+    method public androidx.ui.core.PointerId component1();
     method public androidx.ui.core.PointerInputData component2();
-    method public androidx.ui.core.pointerinput.PointerInputEventData copy(int id, androidx.ui.core.PointerInputData pointerInputData);
-    method public int getId();
+    method public androidx.ui.core.pointerinput.PointerInputEventData copy(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData pointerInputData);
+    method public androidx.ui.core.PointerId getId();
     method public androidx.ui.core.PointerInputData getPointerInputData();
   }
 

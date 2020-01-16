@@ -28,6 +28,7 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.PointerId
 import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
@@ -72,7 +73,7 @@ internal class LongPressGestureRecognizer(
     }
 
     private var state = State.Idle
-    private val pointerPositions = linkedMapOf<Int, PxPosition>()
+    private val pointerPositions = linkedMapOf<PointerId, PxPosition>()
     var longPressTimeout = LongPressTimeout
     var job: Job? = null
 

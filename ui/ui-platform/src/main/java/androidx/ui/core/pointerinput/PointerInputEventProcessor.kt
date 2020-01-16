@@ -20,6 +20,7 @@ import androidx.ui.core.ComponentNode
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
@@ -217,7 +218,7 @@ private data class HitTestBoundingBoxResult(val boundingBox: Rect?, val hit: Boo
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
  */
 private class PointerInputChangeEventProducer {
-    private val previousPointerInputData: MutableMap<Int, PointerInputData> = mutableMapOf()
+    private val previousPointerInputData: MutableMap<PointerId, PointerInputData> = mutableMapOf()
 
     /**
      * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s

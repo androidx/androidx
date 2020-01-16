@@ -21,6 +21,7 @@ import androidx.ui.core.LayoutNode
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Placeable
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
@@ -82,7 +83,7 @@ internal fun PointerInputEventData(
     down: Boolean
 ): PointerInputEventData {
     val pointerInputData = PointerInputData(uptime, position, down)
-    return PointerInputEventData(id, pointerInputData)
+    return PointerInputEventData(PointerId(id, Uptime.Boot), pointerInputData)
 }
 
 internal fun PointerInputEvent(

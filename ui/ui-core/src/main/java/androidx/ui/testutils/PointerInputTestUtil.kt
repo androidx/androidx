@@ -18,6 +18,7 @@ package androidx.ui.testutils
 
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
@@ -35,7 +36,7 @@ fun down(
     y: Float = 0f
 ): PointerInputChange =
     PointerInputChange(
-        id,
+        PointerId(id, Uptime.Boot + duration),
         PointerInputData(Uptime.Boot + duration, PxPosition(x.px, y.px), true),
         PointerInputData(null, null, false),
         ConsumedData(PxPosition.Origin, false)

@@ -247,16 +247,21 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.PointerEventPass PreUp;
   }
 
+  public final class PointerId {
+    ctor public PointerId(int id, androidx.ui.unit.Uptime creationTime);
+    method public androidx.ui.core.PointerId copy(int id, androidx.ui.unit.Uptime creationTime);
+  }
+
   public final class PointerInputChange {
-    ctor public PointerInputChange(int id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
-    method public int component1();
+    ctor public PointerInputChange(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
+    method public androidx.ui.core.PointerId component1();
     method public androidx.ui.core.PointerInputData component2();
     method public androidx.ui.core.PointerInputData component3();
     method public androidx.ui.core.ConsumedData component4();
-    method public androidx.ui.core.PointerInputChange copy(int id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
+    method public androidx.ui.core.PointerInputChange copy(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
     method public androidx.ui.core.ConsumedData getConsumed();
     method public androidx.ui.core.PointerInputData getCurrent();
-    method public int getId();
+    method public androidx.ui.core.PointerId getId();
     method public androidx.ui.core.PointerInputData getPrevious();
   }
 

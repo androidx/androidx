@@ -16,6 +16,7 @@
 
 package androidx.ui.core.pointerinput
 
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputData
 import androidx.ui.unit.Uptime
 
@@ -25,6 +26,8 @@ import androidx.ui.unit.Uptime
 /**
  * The normalized data structure for pointer input event information that is taken in processed by
  * Compose (via the [PointerInputEventProcessor]).
+ *
+ * All pointer locations are relative to the device screen.
  */
 internal data class PointerInputEvent(
     val uptime: Uptime,
@@ -33,8 +36,10 @@ internal data class PointerInputEvent(
 
 /**
  * Data that describes a particular pointer
+ *
+ * All pointer locations are relative to the device screen.
  */
 data class PointerInputEventData(
-    val id: Int,
+    val id: PointerId,
     val pointerInputData: PointerInputData
 )
