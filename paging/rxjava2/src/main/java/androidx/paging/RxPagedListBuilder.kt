@@ -212,18 +212,16 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @return The [Observable] of PagedLists
      */
     fun buildObservable(): Observable<PagedList<Value>> {
-        if (notifyDispatcher == null) {
-            notifyScheduler = ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
-            notifyDispatcher = notifyScheduler!!.asCoroutineDispatcher()
-        }
-        if (fetchDispatcher == null) {
-            val scheduledExecutor = ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
-            fetchScheduler = scheduledExecutor
-            fetchDispatcher = fetchScheduler!!.asCoroutineDispatcher()
-        }
+        val notifyScheduler = notifyScheduler
+            ?: ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
+        val notifyDispatcher = notifyDispatcher ?: notifyScheduler.asCoroutineDispatcher()
+
+        val fetchScheduler = fetchScheduler
+            ?: ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
+        val fetchDispatcher = fetchDispatcher ?: fetchScheduler.asCoroutineDispatcher()
 
         val pagingSourceFactory = pagingSourceFactory
-            ?: dataSourceFactory?.let { { LegacyPagingSource(it.create()) } }
+            ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
 
         check(pagingSourceFactory != null) {
             "LivePagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
@@ -236,8 +234,8 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     config,
                     boundaryCallback,
                     pagingSourceFactory,
-                    notifyDispatcher!!,
-                    fetchDispatcher!!
+                    notifyDispatcher,
+                    fetchDispatcher
                 )
             )
             .observeOn(notifyScheduler)
