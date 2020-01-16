@@ -377,24 +377,28 @@ fun TextDemoTextAlign() {
     Column(LayoutHeight.Fill) {
         SecondTagLine(tag = "textAlign = TextAlign.Left")
         Text(
+            modifier = LayoutWidth.Fill,
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Left)
         )
 
         SecondTagLine(tag = "textAlign = TextAlign.Right")
         Text(
+            modifier = LayoutWidth.Fill,
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Right)
         )
 
         SecondTagLine(tag = "textAlign = TextAlign.Center")
         Text(
+            modifier = LayoutWidth.Fill,
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Center)
         )
 
         SecondTagLine(tag = "textAlign = default and TextAlign.Justify")
         Text(
+            modifier = LayoutWidth.Fill,
             text = text,
             style = TextStyle(
                 fontSize = fontSize8,
@@ -402,6 +406,7 @@ fun TextDemoTextAlign() {
             )
         )
         Text(
+            modifier = LayoutWidth.Fill,
             text = text,
             style = TextStyle(
                 fontSize = fontSize8,
@@ -412,21 +417,25 @@ fun TextDemoTextAlign() {
 
         SecondTagLine(tag = "textAlign = TextAlign.Start for Ltr")
         Text(
+            modifier = LayoutWidth.Fill,
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Start)
         )
         SecondTagLine(tag = "textAlign = TextAlign.Start for Rtl")
         Text(
+            modifier = LayoutWidth.Fill,
             text = displayTextArabic,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Start)
         )
         SecondTagLine(tag = "textAlign = TextAlign.End for Ltr")
         Text(
+            modifier = LayoutWidth.Fill,
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.End)
         )
         SecondTagLine(tag = "textAlign = TextAlign.End for Rtl")
         Text(
+            modifier = LayoutWidth.Fill,
             text = displayTextArabic,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.End)
         )
