@@ -34,11 +34,8 @@ import androidx.ui.unit.ipx
 @Composable
 fun SimpleRow() {
     Row {
-        // The child with no flexibility modifier is inflexible by default, will have the specified
-        // size.
+        // The child with no flexibility modifier is inflexible and will have the specified size.
         SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)
-        // Inflexible, the child will have the specified size.
-        SizedRectangle(LayoutInflexible, color = Color.Red, width = 80.dp, height = 40.dp)
         // Flexible, the child will occupy have of the remaining width.
         SizedRectangle(LayoutFlexible(1f), color = Color.Yellow, height = 40.dp)
         // Flexible not tight, the child will occupy at most half of the remaining width.
@@ -50,11 +47,8 @@ fun SimpleRow() {
 @Composable
 fun SimpleColumn() {
     Column {
-        // The child with no flexibility modifier is inflexible by default, will have the specified
-        // size.
+        // The child with no flexibility modifier is inflexible and will have the specified size.
         SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)
-        // Inflexible, the child will have the specified size.
-        SizedRectangle(LayoutInflexible, color = Color.Red, width = 80.dp, height = 40.dp)
         // Flexible, the child will occupy have of the remaining height.
         SizedRectangle(LayoutFlexible(1f), color = Color.Yellow, width = 40.dp)
         // Flexible not tight, the child will occupy at most half of the remaining height.
