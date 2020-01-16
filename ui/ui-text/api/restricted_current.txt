@@ -540,18 +540,6 @@ package androidx.ui.text {
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
   }
 
-  public final class TextSpan {
-    ctor public TextSpan(androidx.ui.text.SpanStyle? style, String? text, java.util.List<androidx.ui.text.TextSpan> children);
-    ctor public TextSpan();
-    method public java.util.List<androidx.ui.text.TextSpan> getChildren();
-    method public androidx.ui.text.SpanStyle? getStyle();
-    method public String? getText();
-  }
-
-  public final class TextSpanKt {
-    method public static androidx.ui.text.AnnotatedString toAnnotatedString(androidx.ui.text.TextSpan);
-  }
-
   public final class TextStyle {
     ctor public TextStyle(androidx.ui.graphics.Color? color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     ctor public TextStyle();

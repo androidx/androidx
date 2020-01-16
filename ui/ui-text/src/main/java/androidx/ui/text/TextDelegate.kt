@@ -244,7 +244,7 @@ class TextDelegate(
      * the default black background color), so if you are writing an application with a white
      * background, the text will not be visible by default.
      *
-     * To set the text style, specify a [SpanStyle] when creating the [TextSpan] that you pass to
+     * To set the text style, specify a [SpanStyle] when creating the [AnnotatedString] that you pass to
      * the [TextDelegate] constructor or to the [text] property.
      */
     fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {

@@ -18,9 +18,9 @@ package androidx.ui.text.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.graphics.Color
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
@@ -28,8 +28,15 @@ import androidx.ui.unit.sp
 @Sampled
 @Composable
 fun SpanStyleSample() {
-    Text(style = TextStyle(fontSize = 16.sp)) {
-        Span("Hello", style = SpanStyle(color = Color.Red))
-        Span(" World", style = SpanStyle(color = Color.Blue))
-    }
+    Text(
+        style = TextStyle(fontSize = 16.sp),
+        text = AnnotatedString {
+            pushStyle(style = SpanStyle(color = Color.Red))
+            append("Hello")
+            popStyle()
+            pushStyle(SpanStyle(color = Color.Blue))
+            append(" World")
+            popStyle()
+        }
+    )
 }

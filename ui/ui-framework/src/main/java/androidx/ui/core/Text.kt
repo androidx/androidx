@@ -18,9 +18,7 @@ package androidx.ui.core
 import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.compositionReference
 import androidx.compose.onCommit
-import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.selection.Selectable
@@ -34,11 +32,9 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
-import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
-import androidx.ui.text.toAnnotatedString
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -50,46 +46,6 @@ private val DefaultOverflow: TextOverflow = TextOverflow.Clip
 
 /** The default selection color if none is specified. */
 internal val DefaultSelectionColor = Color(0x6633B5E5)
-
-/**
- * The Text composable displays text that uses multiple different styles. The text to display is
- * described using a tree of [Span], each of which has an associated style that is used
- * for that subtree. The text might break across multiple lines or might all be displayed on the
- * same line depending on the layout constraints.
- *
- * @param modifier Modifier to apply to this layout node.
- * @param style Style configuration for the text such as color, font, line height etc.
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- * [overflow] and [TextAlign] may have unexpected effects.
- * @param overflow How visual overflow should be handled.
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if
- * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- */
-@Composable
-fun Text(
-    modifier: Modifier = Modifier.None,
-    style: TextStyle? = null,
-    softWrap: Boolean = DefaultSoftWrap,
-    overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int = DefaultMaxLines,
-    child: @Composable TextSpanScope.() -> Unit
-) {
-    val rootTextSpan = remember { TextSpan() }
-    val ref = compositionReference()
-    compose(rootTextSpan, ref, child)
-    onDispose { disposeComposition(rootTextSpan, ref) }
-
-    Text(
-        text = rootTextSpan.toAnnotatedString(),
-        modifier = modifier,
-        style = style,
-        softWrap = softWrap,
-        overflow = overflow,
-        maxLines = maxLines
-    )
-}
 
 /**
  * Simplified version of [Text] component with minimal set of customizations.
