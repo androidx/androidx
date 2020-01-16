@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
 import androidx.paging.DataSource.KeyType.POSITIONAL
@@ -26,11 +25,8 @@ import kotlinx.coroutines.withContext
 
 /**
  * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LegacyPagingSource<Key : Any, Value : Any>(
+internal class LegacyPagingSource<Key : Any, Value : Any>(
     internal val dataSource: DataSource<Key, Value>,
     private val fetchDispatcher: CoroutineDispatcher = DirectDispatcher
 ) : PagingSource<Key, Value>() {

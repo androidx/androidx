@@ -198,7 +198,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      */
     fun build(): LiveData<PagedList<Value>> {
         val pagingSourceFactory = pagingSourceFactory
-            ?: dataSourceFactory?.let { { LegacyPagingSource(it.create()) } }
+            ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
 
         check(pagingSourceFactory != null) {
             "LivePagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
