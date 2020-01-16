@@ -106,4 +106,36 @@ class AnimatedValueTest {
         assertEquals(1f, animationEndValue!!, epsilon)
         assertEquals(AnimationEndReason.TargetReached, animationEndReason)
     }
+
+    @Test
+    fun testSubscription() {
+        val recordedFrameTimes = mutableListOf<Long>()
+        val observer = object : AnimationClockObserver {
+            override fun onAnimationFrame(frameTimeMillis: Long) {
+                recordedFrameTimes.add(frameTimeMillis)
+            }
+        }
+
+        clock.clockTimeMillis = 0L
+        clock.clockTimeMillis = 1L
+        clock.unsubscribe(observer)
+        clock.subscribe(observer)
+        // observer should record 1L
+        clock.clockTimeMillis = 2L
+        // observer should record 2L
+        clock.unsubscribe(observer)
+        clock.clockTimeMillis = 3L
+        clock.clockTimeMillis = 4L
+        clock.subscribe(observer)
+        // observer should record 4L
+        clock.clockTimeMillis = 5L
+        // observer should record 5L
+        clock.clockTimeMillis = 6L
+        // observer should record 6L
+        clock.unsubscribe(observer)
+        clock.clockTimeMillis = 7L
+
+        val expectedRecording = listOf(1L, 2L, 4L, 5L, 6L)
+        assertEquals(expectedRecording, recordedFrameTimes)
+    }
 }

@@ -84,7 +84,12 @@ sealed class BaseAnimationClock : AnimationClockObservable {
 
     override fun unsubscribe(observer: AnimationClockObserver) {
         // TODO: Support removing subscription from non-UI thread
-        toBeRemoved.add(observer)
+        if (observers.contains(observer)) {
+            // FIXME(147736746): checking if observers contains the observer can still trigger a
+            //  bug, if the observer is subscribed and unsubscribed multiple times per frame. For
+            //  example: subscribe(x), unsubscribe(x), unsubscribe(x), subscribe(x)
+            toBeRemoved.add(observer)
+        }
     }
 
     internal open fun dispatchTime(frameTimeMillis: Long) {
