@@ -17,17 +17,16 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
@@ -95,8 +94,6 @@ fun TextDemo() {
             TexDemoTextOverflowFade()
             TagLine(tag = "shadow")
             TextDemoShadowEffect()
-            TagLine(tag = "composable textspan")
-            TextDemoComposableTextSpan()
             TagLine(tag = "fontSizeScale")
             TextDemoFontSizeScale()
             TagLine(tag = "complex paragraph styling")
@@ -107,66 +104,75 @@ fun TextDemo() {
 
 @Composable
 fun TagLine(tag: String) {
-    Text {
-        Span(text = "\n", style = SpanStyle(fontSize = fontSize8))
-        Span(
-            text = tag,
-            style = SpanStyle(
-                color = Color(0xFFAAAAAA),
-                fontSize = fontSize6
+    Text(
+        style = TextStyle(fontSize = fontSize8),
+        text = AnnotatedString {
+            append("\n")
+            pushStyle(
+                style = SpanStyle(
+                    color = Color(0xFFAAAAAA),
+                    fontSize = fontSize6
+                )
             )
-        )
-    }
+            append(tag)
+        }
+    )
 }
 
 @Composable
 fun SecondTagLine(tag: String) {
-    Text {
-        Span(
-            text = tag,
-            style = SpanStyle(
-                color = Color(0xFFAAAAAA),
-                fontSize = fontSize4
+    Text(
+        text = AnnotatedString {
+            pushStyle(
+                style = SpanStyle(
+                    color = Color(0xFFAAAAAA),
+                    fontSize = fontSize4
+                )
             )
-        )
-    }
+            append(tag)
+            popStyle()
+        }
+    )
 }
 
 @Composable
 fun TextDemoBasic() {
     // This group of text composables show different color, fontSize, fontWeight and fontStyle in
     // English.
-    Text {
-        Span(
-            text = "$displayText   ",
-            style = SpanStyle(
+    Text(text = AnnotatedString {
+        pushStyle(
+            SpanStyle(
                 color = Color(0xFFFF0000),
                 fontSize = fontSize6,
                 fontWeight = FontWeight.W200,
                 fontStyle = FontStyle.Italic
             )
         )
+        append("$displayText   ")
+        popStyle()
 
-        Span(
-            text = "$displayText   ",
-            style = SpanStyle(
+        pushStyle(
+            SpanStyle(
                 color = Color(0xFF00FF00),
                 fontSize = fontSize8,
                 fontWeight = FontWeight.W500,
                 fontStyle = FontStyle.Normal
             )
         )
+        append("$displayText   ")
+        popStyle()
 
-        Span(
-            text = displayText,
-            style = SpanStyle(
+        pushStyle(
+            SpanStyle(
                 color = Color(0xFF0000FF),
                 fontSize = fontSize10,
                 fontWeight = FontWeight.W800,
                 fontStyle = FontStyle.Normal
             )
         )
-    }
+        append(displayText)
+        popStyle()
+    })
 }
 
 @Composable
@@ -178,9 +184,8 @@ fun TextDemoComplexStyling() {
 fun TextDemoLanguage() {
     // This group of text composables show different color, fontSize, fontWeight and fontStyle in
     // Chinese, Arabic, and Hindi.
-    Text {
-        Span(
-            text = "$displayTextChinese   ",
+    Text(text = AnnotatedString {
+        pushStyle(
             style = SpanStyle(
                 color = Color(0xFFFF0000),
                 fontSize = fontSize6,
@@ -188,9 +193,10 @@ fun TextDemoLanguage() {
                 fontStyle = FontStyle.Italic
             )
         )
+        append("$displayTextChinese   ")
+        popStyle()
 
-        Span(
-            text = "$displayTextArabic   ",
+        pushStyle(
             style = SpanStyle(
                 color = Color(0xFF00FF00),
                 fontSize = fontSize8,
@@ -198,9 +204,10 @@ fun TextDemoLanguage() {
                 fontStyle = FontStyle.Normal
             )
         )
+        append("$displayTextArabic   ")
+        popStyle()
 
-        Span(
-            text = displayTextHindi,
+        pushStyle(
             style = SpanStyle(
                 color = Color(0xFF0000FF),
                 fontSize = fontSize10,
@@ -208,34 +215,42 @@ fun TextDemoLanguage() {
                 fontStyle = FontStyle.Normal
             )
         )
-    }
+        append(displayTextHindi)
+        popStyle()
+    })
 }
 
 @Composable
 fun TextDemoFontFamily() {
     // This group of text composables show different fontFamilies in English.
-    Text {
-        Span(
-            text = "$displayText sans-serif\n", style = SpanStyle(
+    Text(AnnotatedString {
+        pushStyle(
+            style = SpanStyle(
                 fontSize = fontSize8,
                 fontFamily = FontFamily("sans-serif")
             )
         )
+        append("$displayText sans-serif\n")
+        popStyle()
 
-        Span(
-            text = "$displayText serif\n", style = SpanStyle(
+        pushStyle(
+            style = SpanStyle(
                 fontSize = fontSize8,
                 fontFamily = FontFamily("serif")
             )
         )
+        append("$displayText serif\n")
+        popStyle()
 
-        Span(
-            text = "$displayText monospace", style = SpanStyle(
+        pushStyle(
+            style = SpanStyle(
                 fontSize = fontSize8,
                 fontFamily = FontFamily("monospace")
             )
         )
-    }
+        append("$displayText monospace")
+        popStyle()
+    })
 }
 
 @Composable
@@ -258,16 +273,19 @@ fun TextDemoTextDecoration() {
 @Composable
 fun TextDemoLetterSpacing() {
     // This group of text composables show different letterSpacing.
-    Text {
-        Span(text = "$displayText   ", style = SpanStyle(fontSize = fontSize8))
-        Span(
-            text = displayText,
+    Text(text = AnnotatedString {
+        pushStyle(style = SpanStyle(fontSize = fontSize8))
+        append("$displayText   ")
+        popStyle()
+        pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
                 letterSpacing = 0.5.em
             )
         )
-    }
+        append(displayText)
+        popStyle()
+    })
 }
 
 @Composable
@@ -279,82 +297,73 @@ fun TextDemoBaselineShift() {
 fun TextDemoHeight() {
     // This group of text composables show different height.
     Row(LayoutWidth.Fill) {
-        Text {
-            Span(
-                text = "$displayText\n$displayText   ",
-                style = SpanStyle(fontSize = fontSize8)
-            )
-        }
-        Text(style = TextStyle(lineHeight = 50.sp)) {
-            Span(
-                text = "$displayText\n$displayText   ",
-                style = SpanStyle(
-                    fontSize = fontSize8
-                )
-            )
-        }
+        Text(
+            text = "$displayText\n$displayText   ",
+            style = TextStyle(fontSize = fontSize8)
+        )
+        Text(
+            text = "$displayText\n$displayText   ",
+            style = TextStyle(fontSize = fontSize8, lineHeight = 50.sp)
+        )
     }
 }
 
 @Composable
 fun TextDemoBackground() {
     // This group of text composables show different background.
-    Text {
-        Span(
-            text = "$displayText   ",
+    Text(text = AnnotatedString {
+        pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
                 background = Color(0xFFFF0000)
             )
         )
+        append("$displayText   ")
+        popStyle()
 
-        Span(
-            text = "$displayText   ",
+        pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
                 background = Color(0xFF00FF00)
             )
         )
+        append("$displayText   ")
+        popStyle()
 
-        Span(
-            text = displayText,
+        pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
                 background = Color(0xFF0000FF)
             )
         )
-    }
+        append(displayText)
+        popStyle()
+    })
 }
 
 @Composable
 fun TextDemoLocale() {
     // This group of text composables show different Locales of the same Unicode codepoint.
     val text = "\u82B1"
-    Text {
-        Span(
-            text = "$text   ",
-            style = SpanStyle(
-                fontSize = fontSize8,
-                localeList = LocaleList("ja-JP")
-            )
+    Text(AnnotatedString {
+        pushStyle(
+            style = SpanStyle(fontSize = fontSize8, localeList = LocaleList("ja-JP"))
         )
+        append("$text   ")
+        popStyle()
 
-        Span(
-            text = "$text   ",
-            style = SpanStyle(
-                fontSize = fontSize8,
-                localeList = LocaleList("zh-CN")
-            )
+        pushStyle(
+            style = SpanStyle(fontSize = fontSize8, localeList = LocaleList("zh-CN"))
         )
+        append("$text   ")
+        popStyle()
 
-        Span(
-            text = text,
-            style = SpanStyle(
-                fontSize = fontSize8,
-                localeList = LocaleList("zh-TW")
-            )
+        pushStyle(
+            style = SpanStyle(fontSize = fontSize8, localeList = LocaleList("zh-TW"))
         )
-    }
+        append(text)
+        popStyle()
+    })
 }
 
 @Composable
@@ -367,52 +376,60 @@ fun TextDemoTextAlign() {
     }
     Column(LayoutHeight.Fill) {
         SecondTagLine(tag = "textAlign = TextAlign.Left")
-        Text(style = TextStyle(textAlign = TextAlign.Left)) {
-            Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
-        }
+        Text(
+            text = displayText,
+            style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Left)
+        )
+
         SecondTagLine(tag = "textAlign = TextAlign.Right")
-        Text(style = TextStyle(textAlign = TextAlign.Right)) {
-            Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
-        }
+        Text(
+            text = displayText,
+            style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Right)
+        )
+
         SecondTagLine(tag = "textAlign = TextAlign.Center")
-        Text(style = TextStyle(textAlign = TextAlign.Center)) {
-            Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
-        }
+        Text(
+            text = displayText,
+            style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Center)
+        )
+
         SecondTagLine(tag = "textAlign = default and TextAlign.Justify")
-        Text {
-            Span(
-                text = text,
-                style = SpanStyle(
-                    fontSize = fontSize8,
-                    color = Color(0xFFFF0000)
-                )
+        Text(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize8,
+                color = Color(0xFFFF0000)
             )
-        }
-        Text(style = TextStyle(textAlign = TextAlign.Justify)) {
-            Span(
-                text = text,
-                style = SpanStyle(
-                    fontSize = fontSize8,
-                    color = Color(0xFF0000FF)
-                )
+        )
+        Text(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize8,
+                color = Color(0xFF0000FF),
+                textAlign = TextAlign.Justify
             )
-        }
-        SecondTagLine(tag = "textAlgin = TextAlign.Start for Ltr")
-        Text(style = TextStyle(textAlign = TextAlign.Start)) {
-            Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
-        }
-        SecondTagLine(tag = "textAlgin = TextAlign.Start for Rtl")
-        Text(style = TextStyle(textAlign = TextAlign.Start)) {
-            Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
-        }
-        SecondTagLine(tag = "textAlgin = TextAlign.End for Ltr")
-        Text(style = TextStyle(textAlign = TextAlign.End)) {
-            Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
-        }
-        SecondTagLine(tag = "textAlgin = TextAlign.End for Rtl")
-        Text(style = TextStyle(textAlign = TextAlign.End)) {
-            Span(text = displayText, style = SpanStyle(fontSize = fontSize8))
-        }
+        )
+
+        SecondTagLine(tag = "textAlign = TextAlign.Start for Ltr")
+        Text(
+            text = displayText,
+            style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Start)
+        )
+        SecondTagLine(tag = "textAlign = TextAlign.Start for Rtl")
+        Text(
+            text = displayTextArabic,
+            style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Start)
+        )
+        SecondTagLine(tag = "textAlign = TextAlign.End for Ltr")
+        Text(
+            text = displayText,
+            style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.End)
+        )
+        SecondTagLine(tag = "textAlign = TextAlign.End for Rtl")
+        Text(
+            text = displayTextArabic,
+            style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.End)
+        )
     }
 }
 
@@ -423,15 +440,11 @@ fun TextDemoSoftWrap() {
     for (i in 1..10) {
         text = "$text$displayText"
     }
-    val spanStyle = SpanStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
+    val textStyle = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
 
     Column(LayoutHeight.Fill) {
-        Text {
-            Span(text = text, style = spanStyle)
-        }
-        Text(softWrap = false) {
-            Span(text = text, style = spanStyle)
-        }
+        Text(text = text, style = textStyle)
+        Text(text = text, style = textStyle, softWrap = false)
     }
 }
 
@@ -441,22 +454,22 @@ fun TexDemoTextOverflowFade() {
     for (i in 1..15) {
         text += displayText
     }
-    val spanStyle = SpanStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
+    val textStyle = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
     SecondTagLine(tag = "horizontally fading edge")
     Text(
+        text = text,
+        style = textStyle,
         maxLines = 1,
         overflow = TextOverflow.Fade,
         softWrap = false
-    ) {
-        Span(text = text, style = spanStyle)
-    }
+    )
     SecondTagLine(tag = "vertically fading edge")
     Text(
+        text = text,
+        style = textStyle,
         maxLines = 3,
         overflow = TextOverflow.Fade
-    ) {
-        Span(text = text, style = spanStyle)
-    }
+    )
 }
 
 @Composable
@@ -466,38 +479,30 @@ fun TextDemoShadowEffect() {
         Offset(5f, 5f),
         blurRadius = 5.px
     )
-    Text {
-        Span(text = "text with ", style = SpanStyle(fontSize = fontSize8)) {
-            Span(text = "shadow!", style = SpanStyle(shadow = shadow))
+    Text(
+        style = TextStyle(fontSize = fontSize8),
+        text = AnnotatedString {
+            append("text with ")
+            pushStyle(style = SpanStyle(shadow = shadow))
+            append("shadow!")
+            popStyle()
         }
-    }
-}
-
-@Composable
-fun TextDemoComposableTextSpan() {
-    Text(style = TextStyle(fontSize = fontSize8)) {
-        Span(text = "This is a ")
-        Span(text = "composable ", style = SpanStyle(fontStyle = FontStyle.Italic))
-        val color1 = Color(0xFFEF50AD)
-        val color2 = Color(0xFF10AF52)
-        val text = "TextSpan"
-        text.forEachIndexed { index, ch ->
-            val color = lerp(color1, color2, index.toFloat() / text.lastIndex)
-            Span(text = "$ch", style = SpanStyle(color = color))
-        }
-    }
+    )
 }
 
 @Composable
 fun TextDemoFontSizeScale() {
-    Text {
-        Span(style = SpanStyle(fontSize = fontSize8)) {
+    Text(
+        style = TextStyle(fontSize = fontSize8),
+        text = AnnotatedString {
             for (i in 4..12 step 4) {
                 val scale = i * 0.1f
-                Span("fontSizeScale=$scale\n", style = SpanStyle(fontSize = scale.em))
+                pushStyle(style = SpanStyle(fontSize = scale.em))
+                append("fontSizeScale=$scale\n")
+                popStyle()
             }
         }
-    }
+    )
 }
 
 @Composable
