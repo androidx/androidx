@@ -722,34 +722,6 @@ package androidx.ui.graphics.vector {
     method public androidx.ui.graphics.vector.PathBuilder verticalLineToRelative(float y);
   }
 
-  public enum PathCommand {
-    method public final char toKey();
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand ArcTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand Close;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand CurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand HorizontalLineTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand LineTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand MoveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand QuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand ReflectiveCurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand ReflectiveQuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeArcTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeClose;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeCurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeHorizontalTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeLineTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeMoveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeQuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeReflectiveCurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeReflectiveQuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeVerticalTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand VerticalLineTo;
-  }
-
-  public final class PathCommandKt {
-    method public static androidx.ui.graphics.vector.PathCommand toPathCommand(char);
-  }
-
   public abstract sealed class PathNode {
     method public final boolean isCurve();
     method public final boolean isQuad();
