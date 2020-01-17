@@ -84,7 +84,7 @@ class ReleaseNotesImplTest {
                 _Body:Also fixed some other bugs
 
                 Here is an explanation of my commit
-                Release notes: Added an awesome new API!
+                Relnote: Added an awesome new API!
 
                 Bug: 123456
                 Bug: b/1234567
@@ -107,7 +107,7 @@ class ReleaseNotesImplTest {
                 _Body:Also fixed some other bugs
 
                 Here is an explanation of my commit
-                Release notes: Fixed a critical bug
+                Relnote: "Fixed a critical bug"
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
@@ -143,7 +143,7 @@ class ReleaseNotesImplTest {
                 _Body:Also fixed some other bugs
 
                 Here is an explanation of my commit
-                Release Notes: Added a new compat API
+                Relnote: Added a new compat API
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
@@ -238,6 +238,28 @@ class ReleaseNotesImplTest {
             }
         }
 
+        val expectedReleaseNotesResult = "### groupId Version 1.0.0-alpha01 {:#1.0.0-alpha01}\n" +
+                "October 23, 2019\n\n" +
+                "`groupId:groupId:1.0.0-alpha01` is released.  The commits included in this " +
+                    "version can be found ([here](https://android.googlesource.com/platform" +
+                    "/frameworks/support/+log/sha..topSha/group/artifact)).\n\n" +
+                "{# **New Features** #}\n\n\n" +
+                "**API Changes**\n\n" +
+                "- Added an awesome new API! " +
+                    "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                    "([b/123456](https://issuetracker.google.com/issues/123456)) " +
+                    "([b/1234567](https://issuetracker.google.com/issues/1234567)) " +
+                    "([b/123123](https://issuetracker.google.com/issues/123123))\n\n" +
+                "**Bug Fixes**\n\n" +
+                "- Fixed a critical bug " +
+                    "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                    "([b/111111](https://issuetracker.google.com/issues/111111)) " +
+                    "([b/222222](https://issuetracker.google.com/issues/222222))\n\n" +
+                "**External Contribution**\n\n" +
+                    "- Added a new compat API " +
+                    "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                    "([b/111111](https://issuetracker.google.com/issues/111111)) " +
+                    "([b/222222](https://issuetracker.google.com/issues/222222))\n"
         val releaseNotes = LibraryReleaseNotes(
             "groupId",
             mutableListOf("groupId"),
@@ -246,53 +268,16 @@ class ReleaseNotesImplTest {
             "sha",
             "topSha",
             projectDir,
+            gitLogList,
+            true,
             false
         )
-
-        val releaseNotesWithAllCommits = LibraryReleaseNotes(
-            "groupId",
-            mutableListOf("groupId"),
-            "1.0.0-alpha01",
-            LocalDate.parse("2019-10-23", DateTimeFormatter.ISO_DATE),
-            "sha",
-            "topSha",
-            projectDir,
-            true
-        )
-
-        gitLogList.forEach { commit ->
-            releaseNotes.addCommit(commit)
-            releaseNotesWithAllCommits.addCommit(commit)
-        }
-
-        val expectedReleaseNotesResult = "## groupId Version 1.0.0-alpha01 {:#1.0.0-alpha01}\n" +
-                "October 23, 2019\n\n" +
-                "`groupId:groupId:1.0.0-alpha01` is released.  The commits included in this " +
-                    "version can be found ([here](https://android.googlesource.com/platform" +
-                    "/frameworks/support/+log/sha..topSha/group/artifact)).\n\n" +
-                "{# **New Features** #}\n\n\n" +
-                "**API Changes**\n\n" +
-                "- Added an awesome new API! " +
-                    "([aosp/myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
-                    "([b/123456](https://issuetracker.google.com/issues/123456)) " +
-                    "([b/1234567](https://issuetracker.google.com/issues/1234567)) " +
-                    "([b/123123](https://issuetracker.google.com/issues/123123))\n\n" +
-                "**Bug Fixes**\n\n" +
-                "- Fixed a critical bug " +
-                    "([aosp/myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
-                    "([b/111111](https://issuetracker.google.com/issues/111111)) " +
-                    "([b/222222](https://issuetracker.google.com/issues/222222))\n\n" +
-                "**External Contribution**\n\n" +
-                    "- Added a new compat API " +
-                    "([aosp/myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
-                    "([b/111111](https://issuetracker.google.com/issues/111111)) " +
-                    "([b/222222](https://issuetracker.google.com/issues/222222))\n"
         assertEquals(
             expectedReleaseNotesResult,
             releaseNotes.toString()
         )
 
-        val expectedReleaseNotesWithAllCommits = "## groupId Version 1.0.0-alpha01 " +
+        val expectedReleaseNotesWithAllCommits = "### groupId Version 1.0.0-alpha01 " +
                 "{:#1.0.0-alpha01}\n" +
                 "October 23, 2019\n\n" +
                 "`groupId:groupId:1.0.0-alpha01` is released.  The commits included in this " +
@@ -302,27 +287,80 @@ class ReleaseNotesImplTest {
                 "{# **New Features** #}\n\n\n" +
                 "**API Changes**\n\n" +
                 "- Added an awesome new API! " +
-                    "([aosp/myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                    "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
                     "([b/123456](https://issuetracker.google.com/issues/123456)) " +
                     "([b/1234567](https://issuetracker.google.com/issues/1234567)) " +
                     "([b/123123](https://issuetracker.google.com/issues/123123))\n\n" +
                 "**Bug Fixes**\n\n" +
                 "- Fixed a critical bug " +
-                    "([aosp/myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                    "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
                     "([b/111111](https://issuetracker.google.com/issues/111111)) " +
                     "([b/222222](https://issuetracker.google.com/issues/222222))\n" +
                 "- Fixed a small test failure on API level 15 " +
-                    "([aosp/myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                    "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
                     "([b/111111](https://issuetracker.google.com/issues/111111)) " +
                     "([b/222222](https://issuetracker.google.com/issues/222222))\n\n" +
                 "**External Contribution**\n\n" +
                     "- Added a new compat API " +
-                    "([aosp/myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                    "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
                     "([b/111111](https://issuetracker.google.com/issues/111111)) " +
                     "([b/222222](https://issuetracker.google.com/issues/222222))\n"
+        val releaseNotesWithAllCommits = LibraryReleaseNotes(
+            "groupId",
+            mutableListOf("groupId"),
+            "1.0.0-alpha01",
+            LocalDate.parse("2019-10-23", DateTimeFormatter.ISO_DATE),
+            "sha",
+            "topSha",
+            projectDir,
+            gitLogList,
+            true,
+            true
+        )
         assertEquals(
             expectedReleaseNotesWithAllCommits,
             releaseNotesWithAllCommits.toString()
+        )
+
+        val expectedReleaseNotesWithArtifactIdHeader = "### " +
+                "artifactId1, artifactId2, artifactId3 Version 1.0.0-alpha01 {:#1.0.0-alpha01}\n" +
+                "October 23, 2019\n\n" +
+                "`groupId:artifactId1:1.0.0-alpha01`, `groupId:artifactId2:1.0.0-alpha01`, and " +
+                "`groupId:artifactId3:1.0.0-alpha01` are released. The commits included in this " +
+                "version can be found ([here](https://android.googlesource.com/platform" +
+                "/frameworks/support/+log/sha..topSha/group/artifact)).\n\n" +
+                "{# **New Features** #}\n\n\n" +
+                "**API Changes**\n\n" +
+                "- Added an awesome new API! " +
+                "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                "([b/123456](https://issuetracker.google.com/issues/123456)) " +
+                "([b/1234567](https://issuetracker.google.com/issues/1234567)) " +
+                "([b/123123](https://issuetracker.google.com/issues/123123))\n\n" +
+                "**Bug Fixes**\n\n" +
+                "- Fixed a critical bug " +
+                "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                "([b/111111](https://issuetracker.google.com/issues/111111)) " +
+                "([b/222222](https://issuetracker.google.com/issues/222222))\n\n" +
+                "**External Contribution**\n\n" +
+                "- Added a new compat API " +
+                "([myChan](https://android-review.googlesource.com/#/q/myChangeId)) " +
+                "([b/111111](https://issuetracker.google.com/issues/111111)) " +
+                "([b/222222](https://issuetracker.google.com/issues/222222))\n"
+        val releaseNotesWithArtifactIdHeader = LibraryReleaseNotes(
+            "groupId",
+            mutableListOf("artifactId1", "artifactId2", "artifactId3"),
+            "1.0.0-alpha01",
+            LocalDate.parse("2019-10-23", DateTimeFormatter.ISO_DATE),
+            "sha",
+            "topSha",
+            projectDir,
+            gitLogList,
+            false,
+            false
+        )
+        assertEquals(
+            expectedReleaseNotesWithArtifactIdHeader,
+            releaseNotesWithArtifactIdHeader.toString()
         )
     }
 
