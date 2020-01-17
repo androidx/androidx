@@ -35,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.AutoImageCaptureExtender;
@@ -283,17 +284,16 @@ public class CameraExtensionsActivity extends AppCompatActivity
         dir.mkdirs();
         captureButton.setOnClickListener((view) -> {
             mTakePictureIdlingResource.increment();
+            final File saveFile = new File(dir,
+                    formatter.format(Calendar.getInstance().getTime())
+                            + mCurrentImageCaptureType.name() + ".jpg");
             mImageCapture.takePicture(
-                    new File(
-                            dir,
-                            formatter.format(Calendar.getInstance().getTime())
-                                    + mCurrentImageCaptureType.name()
-                                    + ".jpg"),
+                    saveFile,
                     ContextCompat.getMainExecutor(CameraExtensionsActivity.this),
                     new ImageCapture.OnImageSavedCallback() {
                         @Override
-                        public void onImageSaved(@NonNull File file) {
-                            Log.d(TAG, "Saved image to " + file);
+                        public void onImageSaved() {
+                            Log.d(TAG, "Saved image to " + saveFile);
 
                             if (!mTakePictureIdlingResource.isIdleNow()) {
                                 mTakePictureIdlingResource.decrement();
@@ -302,20 +302,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
                             // Trigger MediaScanner to scan the file
                             Intent intent = new Intent(
                                     Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                            intent.setData(Uri.fromFile(file));
+                            intent.setData(Uri.fromFile(saveFile));
                             sendBroadcast(intent);
 
                             Toast.makeText(getApplicationContext(),
-                                    "Saved image to " + file,
+                                    "Saved image to " + saveFile,
                                     Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
-                        public void onError(
-                                @ImageCapture.ImageCaptureError int error,
-                                @NonNull String message,
-                                Throwable cause) {
-                            Log.e(TAG, "Failed to save image - " + message, cause);
+                        public void onError(@NonNull ImageCaptureException exception) {
+                            Log.e(TAG, "Failed to save image - " + exception.getMessage(),
+                                    exception.getCause());
                         }
                     });
         });
@@ -396,14 +394,14 @@ public class CameraExtensionsActivity extends AppCompatActivity
                             }
 
                             @Override
-                            public void onFailure(Throwable t) {
+                            public void onFailure(@NonNull Throwable t) {
                                 throw new RuntimeException("Failed to get camera provider", t);
                             }
                         }, ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 throw new RuntimeException("Failed to get permissions", t);
             }
         }, ContextCompat.getMainExecutor(this));
@@ -445,8 +443,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                     }
 
                     @Override
-                    public void onFailure(Throwable throwable) {
-
+                    public void onFailure(@NonNull Throwable throwable) {
                     }
                 },
                 ContextCompat.getMainExecutor(CameraExtensionsActivity.this)
