@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+
 /**
  * A SpecialEffectsController that hooks into the existing Fragment APIs to run
  * animations and transitions.
@@ -27,5 +29,12 @@ import androidx.annotation.NonNull;
 class DefaultSpecialEffectsController extends SpecialEffectsController {
     DefaultSpecialEffectsController(@NonNull ViewGroup container) {
         super(container);
+    }
+
+    @Override
+    void executeOperations(@NonNull List<Operation> operations) {
+        for (Operation operation : operations) {
+            operation.complete();
+        }
     }
 }

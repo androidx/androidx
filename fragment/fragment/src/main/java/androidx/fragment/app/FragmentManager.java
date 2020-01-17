@@ -1224,7 +1224,7 @@ public abstract class FragmentManager {
                         // If a fragment has an exit animation (or transition), do not destroy
                         // its view immediately and set the state after animating
                         if (mExitAnimationCancellationSignals.get(f) == null) {
-                            destroyFragmentView(f);
+                            fragmentStateManager.destroyFragmentView();
                         }
                     }
                     // fall through

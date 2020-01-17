@@ -21,6 +21,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Controller for all "special effects" (such as Animation, Animator, framework Transition, and
  * AndroidX Transition) that can be applied to a Fragment as part of the addition or removal
@@ -72,6 +75,9 @@ abstract class SpecialEffectsController {
 
     private final ViewGroup mContainer;
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayList<Operation> mPendingOperations = new ArrayList<>();
+
     SpecialEffectsController(@NonNull ViewGroup container) {
         mContainer = container;
     }
@@ -79,5 +85,124 @@ abstract class SpecialEffectsController {
     @NonNull
     public ViewGroup getContainer() {
         return mContainer;
+    }
+
+    void enqueueAdd(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.Type.ADD, fragmentStateManager);
+    }
+
+    void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.Type.REMOVE, fragmentStateManager);
+    }
+
+    private void enqueue(@NonNull Operation.Type type,
+            @NonNull FragmentStateManager fragmentStateManager) {
+        synchronized (mPendingOperations) {
+            final FragmentStateManagerOperation operation = new FragmentStateManagerOperation(
+                    type, fragmentStateManager);
+            mPendingOperations.add(operation);
+        }
+    }
+
+    void executePendingOperations() {
+        synchronized (mPendingOperations) {
+            executeOperations(new ArrayList<>(mPendingOperations));
+            mPendingOperations.clear();
+        }
+    }
+
+    /**
+     * Execute all of the given operations.
+     * <p>
+     * At a minimum, the SpecialEffectsController should call
+     * {@link Operation#complete()} on each operation when all of the special effects
+     * for the given Operation are complete.
+     *
+     * @param operations the list of operations to execute in order.
+     */
+    abstract void executeOperations(@NonNull List<Operation> operations);
+
+    /**
+     * Class representing an ongoing special effects operation.
+     *
+     * @see #executeOperations(List)
+     */
+    static class Operation {
+
+        /**
+         * The type of operation
+         */
+        enum Type {
+            /**
+             * An ADD operation indicates that the Fragment should be added to the
+             * {@link Operation#getContainer() container} and any "enter" special effects
+             * should be run before calling {@link #complete()}.
+             */
+            ADD,
+            /**
+             * A REMOVE operation indicates that the Fragment should be removed to the
+             * {@link Operation#getContainer() container} and any "exit" special effects
+             * should be run before calling {@link #complete()}.
+             */
+            REMOVE
+        }
+
+        @NonNull
+        private final Type mType;
+        @NonNull
+        private final Fragment mFragment;
+
+        /**
+         * Construct a new Operation.
+         *
+         * @param type What type of operation this is.
+         * @param fragment The Fragment being added / removed.
+         */
+        Operation(@NonNull Type type, @NonNull Fragment fragment) {
+            mType = type;
+            mFragment = fragment;
+        }
+
+        /**
+         * Returns what type of operation this is.
+         *
+         * @return the type of operation
+         */
+        @NonNull
+        public final Type getType() {
+            return mType;
+        }
+
+        /**
+         * The Fragment being added / removed.
+         * @return An {@link Fragment#isAdded() added} Fragment.
+         */
+        @NonNull
+        public final Fragment getFragment() {
+            return mFragment;
+        }
+
+        /**
+         * Mark this Operation as complete. This should only be called when all
+         * special effects associated with this Operation have completed successfully.
+         */
+        public void complete() {
+        }
+    }
+
+    private static class FragmentStateManagerOperation extends Operation {
+        @NonNull
+        private final FragmentStateManager mFragmentStateManager;
+
+        FragmentStateManagerOperation(@NonNull Type type,
+                @NonNull FragmentStateManager fragmentStateManager) {
+            super(type, fragmentStateManager.getFragment());
+            mFragmentStateManager = fragmentStateManager;
+        }
+
+        @Override
+        public void complete() {
+            mFragmentStateManager.moveToExpectedState();
+        }
     }
 }

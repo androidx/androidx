@@ -234,6 +234,11 @@ class FragmentStateManager {
                         createView();
                         activityCreated();
                         restoreViewState();
+                        if (mFragment.mContainer != null) {
+                            SpecialEffectsController controller = SpecialEffectsController
+                                    .getOrCreateController(mFragment.mContainer);
+                            controller.enqueueAdd(this);
+                        }
                         break;
                     case Fragment.STARTED:
                         start();
@@ -257,8 +262,13 @@ class FragmentStateManager {
                             Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                         }
                         // TODO call saveViewState()
-                        // TODO start exit animations
-                        // TODO destroy the view
+                        if (mFragment.mContainer != null) {
+                            SpecialEffectsController controller = SpecialEffectsController
+                                    .getOrCreateController(mFragment.mContainer);
+                            controller.enqueueRemove(this);
+                        }
+                        // TODO wait for the special effects to finish
+                        destroyFragmentView();
                         break;
                     case Fragment.ATTACHED:
                         // TODO move this into destroy()
@@ -567,6 +577,18 @@ class FragmentStateManager {
         if (mStateArray.size() > 0) {
             mFragment.mSavedViewState = mStateArray;
         }
+    }
+
+    void destroyFragmentView() {
+        mFragment.performDestroyView();
+        mDispatcher.dispatchOnFragmentViewDestroyed(mFragment, false);
+        mFragment.mContainer = null;
+        mFragment.mView = null;
+        // Set here to ensure that Observers are called after
+        // the Fragment's view is set to null
+        mFragment.mViewLifecycleOwner = null;
+        mFragment.mViewLifecycleOwnerLiveData.setValue(null);
+        mFragment.mInLayout = false;
     }
 
     void destroy() {
