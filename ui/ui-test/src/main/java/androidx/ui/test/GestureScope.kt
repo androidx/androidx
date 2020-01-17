@@ -65,14 +65,23 @@ private const val edgeFuzzFactor = 0.083f
  */
 private val doubleClickDelay = 145.milliseconds
 
-private fun GestureScope.getGlobalBounds(): Rect {
-    return requireNotNull(semanticsTreeNode.globalRect) {
-        "Semantic Node has no child layout to resolve coordinates on"
+/**
+ * Returns the global bounds of the component we're interacting with
+ */
+val GestureScope.globalBounds: Rect
+    get() {
+        return requireNotNull(semanticsTreeNode.globalRect) {
+            "Semantic Node has no child layout to resolve coordinates on"
+        }
     }
-}
 
-private fun GestureScope.toGlobalPosition(position: PxPosition): PxPosition {
-    val bounds = getGlobalBounds()
+/**
+ * Transforms the [position] to global coordinates, as defined by [globalBounds]
+ *
+ * @param position A position in local coordinates
+ */
+fun GestureScope.toGlobalPosition(position: PxPosition): PxPosition {
+    val bounds = globalBounds
     return position + PxPosition(bounds.left.px, bounds.top.px)
 }
 
@@ -97,7 +106,7 @@ fun GestureScope.sendClick(position: PxPosition) {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendClick() {
-    val bounds = getGlobalBounds()
+    val bounds = globalBounds
     sendClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
 }
 
@@ -122,7 +131,7 @@ fun GestureScope.sendLongClick(position: PxPosition) {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendLongClick() {
-    val bounds = getGlobalBounds()
+    val bounds = globalBounds
     sendLongClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
 }
 
@@ -150,7 +159,7 @@ fun GestureScope.sendDoubleClick(position: PxPosition) {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendDoubleClick() {
-    val bounds = getGlobalBounds()
+    val bounds = globalBounds
     sendDoubleClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
 }
 
@@ -246,7 +255,7 @@ fun GestureScope.sendSwipeWithVelocity(
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeUp() {
-    val bounds = getGlobalBounds()
+    val bounds = globalBounds
     val x = bounds.width / 2
     val y0 = bounds.height * (1 - edgeFuzzFactor)
     val y1 = 0f
@@ -262,7 +271,7 @@ fun GestureScope.sendSwipeUp() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeDown() {
-    val bounds = getGlobalBounds()
+    val bounds = globalBounds
     val x = bounds.width / 2
     val y0 = bounds.height * edgeFuzzFactor
     val y1 = bounds.height
@@ -278,7 +287,7 @@ fun GestureScope.sendSwipeDown() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeLeft() {
-    val bounds = getGlobalBounds()
+    val bounds = globalBounds
     val x0 = bounds.width * (1 - edgeFuzzFactor)
     val x1 = 0f
     val y = bounds.height / 2
@@ -294,7 +303,7 @@ fun GestureScope.sendSwipeLeft() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeRight() {
-    val bounds = getGlobalBounds()
+    val bounds = globalBounds
     val x0 = bounds.width * edgeFuzzFactor
     val x1 = bounds.width
     val y = bounds.height / 2
