@@ -164,8 +164,10 @@ public class PagerSnapHelper extends SnapHelper {
         return false;
     }
 
+    @Nullable
     @Override
-    protected LinearSmoothScroller createSnapScroller(RecyclerView.LayoutManager layoutManager) {
+    protected RecyclerView.SmoothScroller createScroller(
+            @NonNull RecyclerView.LayoutManager layoutManager) {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             return null;
         }

@@ -353,7 +353,6 @@ package androidx.recyclerview.widget {
   public class PagerSnapHelper extends androidx.recyclerview.widget.SnapHelper {
     ctor public PagerSnapHelper();
     method public int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
-    method protected androidx.recyclerview.widget.LinearSmoothScroller! createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
     method public android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
     method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
   }
@@ -944,8 +943,8 @@ package androidx.recyclerview.widget {
     method public void attachToRecyclerView(androidx.recyclerview.widget.RecyclerView?) throws java.lang.IllegalStateException;
     method public abstract int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
     method public int[]! calculateScrollDistance(int, int);
-    method protected androidx.recyclerview.widget.RecyclerView.SmoothScroller? createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
-    method @Deprecated protected androidx.recyclerview.widget.LinearSmoothScroller? createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
+    method protected androidx.recyclerview.widget.RecyclerView.SmoothScroller? createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method @Deprecated protected androidx.recyclerview.widget.LinearSmoothScroller? createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
     method public abstract android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
     method public abstract int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
     method public boolean onFling(int, int);
