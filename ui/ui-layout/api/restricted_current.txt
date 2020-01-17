@@ -81,9 +81,9 @@ package androidx.ui.layout {
   }
 
   public static final class DpConstraints.Companion {
-    method public androidx.ui.layout.DpConstraints tightConstraints(androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
-    method public androidx.ui.layout.DpConstraints tightConstraintsForHeight(androidx.ui.unit.Dp height);
-    method public androidx.ui.layout.DpConstraints tightConstraintsForWidth(androidx.ui.unit.Dp width);
+    method public androidx.ui.layout.DpConstraints fixed(androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
+    method public androidx.ui.layout.DpConstraints fixedHeight(androidx.ui.unit.Dp height);
+    method public androidx.ui.layout.DpConstraints fixedWidth(androidx.ui.unit.Dp width);
   }
 
   public final class DpConstraintsKt {
@@ -92,17 +92,11 @@ package androidx.ui.layout {
     method public static androidx.ui.layout.DpConstraints enforce(androidx.ui.layout.DpConstraints, androidx.ui.layout.DpConstraints otherConstraints);
     method public static boolean getHasBoundedHeight(androidx.ui.layout.DpConstraints);
     method public static boolean getHasBoundedWidth(androidx.ui.layout.DpConstraints);
-    method public static boolean getHasTightHeight(androidx.ui.layout.DpConstraints);
-    method public static boolean getHasTightWidth(androidx.ui.layout.DpConstraints);
+    method public static boolean getHasFixedHeight(androidx.ui.layout.DpConstraints);
+    method public static boolean getHasFixedWidth(androidx.ui.layout.DpConstraints);
     method public static boolean getSatisfiable(androidx.ui.layout.DpConstraints);
-    method public static boolean isTight(androidx.ui.layout.DpConstraints);
     method public static boolean isZero(androidx.ui.layout.DpConstraints);
-    method public static androidx.ui.layout.DpConstraints looseMax(androidx.ui.layout.DpConstraints);
-    method public static androidx.ui.layout.DpConstraints looseMin(androidx.ui.layout.DpConstraints);
     method public static androidx.ui.layout.DpConstraints offset(androidx.ui.layout.DpConstraints, androidx.ui.unit.Dp horizontal = 0.dp, androidx.ui.unit.Dp vertical = 0.dp);
-    method public static androidx.ui.layout.DpConstraints tightMax(androidx.ui.layout.DpConstraints);
-    method public static androidx.ui.layout.DpConstraints tightMin(androidx.ui.layout.DpConstraints);
-    method public static androidx.ui.layout.DpConstraints withTight(androidx.ui.layout.DpConstraints, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
   }
 
   public final class EdgeInsets {

@@ -60,12 +60,12 @@ data class DpConstraints(
         /**
          * Creates constraints tight in both dimensions.
          */
-        fun tightConstraints(width: Dp, height: Dp) = DpConstraints(width, width, height, height)
+        fun fixed(width: Dp, height: Dp) = DpConstraints(width, width, height, height)
 
         /**
          * Creates constraints with tight width and loose height.
          */
-        fun tightConstraintsForWidth(width: Dp) = DpConstraints(
+        fun fixedWidth(width: Dp) = DpConstraints(
             minWidth = width,
             maxWidth = width,
             minHeight = 0.dp,
@@ -75,7 +75,7 @@ data class DpConstraints(
         /**
          * Creates constraints with tight height and loose width.
          */
-        fun tightConstraintsForHeight(height: Dp) = DpConstraints(
+        fun fixedHeight(height: Dp) = DpConstraints(
             minWidth = 0.dp,
             maxWidth = Dp.Infinity,
             minHeight = height,
@@ -97,24 +97,18 @@ val DpConstraints.hasBoundedHeight get() = maxHeight.isFinite()
 val DpConstraints.hasBoundedWidth get() = maxWidth.isFinite()
 
 /**
- * Whether there is exactly one size that satisfies the constraints.
- * @see hasTightHeight
- * @see hasTightWidth
- */
-val DpConstraints.isTight get() = minWidth == maxWidth && minHeight == maxHeight
-
-/**
  * Whether there is exactly one width value that satisfies the constraints.
  */
-val DpConstraints.hasTightWidth get() = maxWidth == minWidth
+val DpConstraints.hasFixedWidth get() = maxWidth == minWidth
 
 /**
  * Whether there is exactly one height value that satisfies the constraints.
  */
-val DpConstraints.hasTightHeight get() = maxHeight == minHeight
+val DpConstraints.hasFixedHeight get() = maxHeight == minHeight
 
 /**
- * Whether there is exactly one height value that satisfies the constraints.
+ * Whether the area of a component respecting these constraints will definitely be 0.
+ * This is true when at least one of maxWidth and maxHeight are 0.
  */
 val DpConstraints.isZero get() = maxWidth == 0.dp || maxHeight == 0.dp
 
@@ -131,40 +125,6 @@ fun DpConstraints.enforce(otherConstraints: DpConstraints) = DpConstraints(
     maxWidth = maxWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
     minHeight = minHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight),
     maxHeight = maxHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight)
-)
-
-/**
- * Returns a copy of the current instance, overriding the specified values to be tight.
- */
-fun DpConstraints.withTight(width: Dp? = null, height: Dp? = null) = DpConstraints(
-    minWidth = width ?: this.minWidth,
-    maxWidth = width ?: this.maxWidth,
-    minHeight = height ?: this.minHeight,
-    maxHeight = height ?: this.maxHeight
-)
-
-/**
- * Returns a copy of the current instance with no min constraints.
- */
-fun DpConstraints.looseMin() = this.copy(minWidth = 0.dp, minHeight = 0.dp)
-
-/**
- * Returns a copy of the current instance with no max constraints.
- */
-fun DpConstraints.looseMax() = this.copy(maxWidth = Dp.Infinity, maxHeight = Dp.Infinity)
-
-/**
- * Returns a copy of the current instance with the constraints tightened to their smallest size.
- */
-fun DpConstraints.tightMin() = this.withTight(width = minWidth, height = minHeight)
-
-/**
- * Returns a copy of the current instance with the constraints tightened to their largest size.
- * Note that if any of the constraints are unbounded, they will be left unchanged.
- */
-fun DpConstraints.tightMax() = this.copy(
-    minWidth = if (hasBoundedWidth) maxWidth else minWidth,
-    minHeight = if (hasBoundedHeight) maxHeight else minHeight
 )
 
 /**
