@@ -189,14 +189,87 @@ class SpecialEffectsControllerTest {
                 .isFalse()
         }
     }
+
+    @MediumTest
+    @Test
+    fun enqueueAddAndCancel() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
+            val fm = withActivity { supportFragmentManager }
+            fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
+                TestSpecialEffectsController(it)
+            }
+            val fragment = StrictViewFragment()
+            val fragmentStore = FragmentStore()
+            fragmentStore.nonConfig = FragmentManagerViewModel(true)
+            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment)
+            // Set up the Fragment and FragmentStateManager as if the Fragment was
+            // added to the container via a FragmentTransaction
+            fragment.mFragmentManager = fm
+            fragment.mAdded = true
+            fragment.mContainerId = android.R.id.content
+            fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
+            val controller = SpecialEffectsController
+                .getOrCreateController(container) as TestSpecialEffectsController
+            onActivity {
+                // This moves the Fragment up to STARTED,
+                // calling enqueueAdd() under the hood
+                fragmentStateManager.moveToExpectedState()
+                controller.executePendingOperations()
+            }
+            assertThat(fragment.view)
+                .isNotNull()
+            controller.executePendingOperations()
+            val operations = controller.operationsToExecute
+            assertThat(operations)
+                .hasSize(1)
+            val firstOperation = operations[0]
+            assertThat(firstOperation.type)
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(firstOperation.fragment)
+                .isSameInstanceAs(fragment)
+            fragmentStateManager.setFragmentManagerState(Fragment.CREATED)
+            onActivity {
+                // move the Fragment's state back down, which
+                // cancels the ADD operation
+                fragmentStateManager.moveToExpectedState()
+                controller.executePendingOperations()
+            }
+            assertThat(firstOperation.cancellationSignal.isCanceled)
+                .isTrue()
+            assertThat(controller.operationsToExecute)
+                .doesNotContain(firstOperation)
+            assertThat(controller.operationsToExecute)
+                .hasSize(1)
+            onActivity {
+                controller.completeAllOperations()
+            }
+            assertThat(controller.operationsToExecute)
+                .isEmpty()
+            assertThat(fragment.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
+        }
+    }
 }
 
 internal class TestSpecialEffectsController(
     container: ViewGroup
 ) : SpecialEffectsController(container) {
+    val operationsToExecute = mutableListOf<Operation>()
+
     override fun executeOperations(operations: MutableList<Operation>) {
-        // TODO implement a realistic executeOperations
-        throw NotImplementedError("Use InstantSpecialEffectsController to execute operations")
+        operationsToExecute.addAll(operations)
+        operations.forEach { operation ->
+            operation.cancellationSignal.setOnCancelListener {
+                operationsToExecute.remove(operation)
+            }
+        }
+    }
+
+    fun completeAllOperations() {
+        operationsToExecute.forEach(Operation::complete)
+        operationsToExecute.clear()
     }
 }
 

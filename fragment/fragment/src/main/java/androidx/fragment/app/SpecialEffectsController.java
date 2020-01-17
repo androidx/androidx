@@ -19,6 +19,7 @@ package androidx.fragment.app;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.os.CancellationSignal;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
@@ -87,20 +88,36 @@ abstract class SpecialEffectsController {
         return mContainer;
     }
 
-    void enqueueAdd(@NonNull FragmentStateManager fragmentStateManager) {
-        enqueue(Operation.Type.ADD, fragmentStateManager);
+    void enqueueAdd(@NonNull FragmentStateManager fragmentStateManager,
+            @NonNull CancellationSignal cancellationSignal) {
+        enqueue(Operation.Type.ADD, fragmentStateManager, cancellationSignal);
     }
 
-    void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager) {
-        enqueue(Operation.Type.REMOVE, fragmentStateManager);
+    void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager,
+            @NonNull CancellationSignal cancellationSignal) {
+        enqueue(Operation.Type.REMOVE, fragmentStateManager, cancellationSignal);
     }
 
     private void enqueue(@NonNull Operation.Type type,
-            @NonNull FragmentStateManager fragmentStateManager) {
+            @NonNull FragmentStateManager fragmentStateManager,
+            @NonNull CancellationSignal cancellationSignal) {
+        if (cancellationSignal.isCanceled()) {
+            // Ignore enqueue operations that are already cancelled
+            return;
+        }
         synchronized (mPendingOperations) {
             final FragmentStateManagerOperation operation = new FragmentStateManagerOperation(
-                    type, fragmentStateManager);
+                    type, fragmentStateManager, cancellationSignal);
             mPendingOperations.add(operation);
+            // Ensure that pending operations are removed when cancelled
+            cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    synchronized (mPendingOperations) {
+                        mPendingOperations.remove(operation);
+                    }
+                }
+            });
         }
     }
 
@@ -117,6 +134,10 @@ abstract class SpecialEffectsController {
      * At a minimum, the SpecialEffectsController should call
      * {@link Operation#complete()} on each operation when all of the special effects
      * for the given Operation are complete.
+     * <p>
+     * It is <strong>strongly recommended</strong> that the SpecialEffectsController
+     * should call {@link Operation#getCancellationSignal()} and listen for cancellation,
+     * properly cancelling all special effects when the signal is cancelled.
      *
      * @param operations the list of operations to execute in order.
      */
@@ -151,16 +172,21 @@ abstract class SpecialEffectsController {
         private final Type mType;
         @NonNull
         private final Fragment mFragment;
+        @NonNull
+        private final CancellationSignal mCancellationSignal;
 
         /**
          * Construct a new Operation.
          *
          * @param type What type of operation this is.
          * @param fragment The Fragment being added / removed.
+         * @param cancellationSignal A signal for handling cancellation
          */
-        Operation(@NonNull Type type, @NonNull Fragment fragment) {
+        Operation(@NonNull Type type, @NonNull Fragment fragment,
+                @NonNull CancellationSignal cancellationSignal) {
             mType = type;
             mFragment = fragment;
+            mCancellationSignal = cancellationSignal;
         }
 
         /**
@@ -183,6 +209,17 @@ abstract class SpecialEffectsController {
         }
 
         /**
+         * The {@link CancellationSignal} that signals that the operation should be
+         * cancelled and any currently running special effects should be cancelled.
+         *
+         * @return A signal for handling cancellation
+         */
+        @NonNull
+        public final CancellationSignal getCancellationSignal() {
+            return mCancellationSignal;
+        }
+
+        /**
          * Mark this Operation as complete. This should only be called when all
          * special effects associated with this Operation have completed successfully.
          */
@@ -195,8 +232,9 @@ abstract class SpecialEffectsController {
         private final FragmentStateManager mFragmentStateManager;
 
         FragmentStateManagerOperation(@NonNull Type type,
-                @NonNull FragmentStateManager fragmentStateManager) {
-            super(type, fragmentStateManager.getFragment());
+                @NonNull FragmentStateManager fragmentStateManager,
+                @NonNull CancellationSignal cancellationSignal) {
+            super(type, fragmentStateManager.getFragment(), cancellationSignal);
             mFragmentStateManager = fragmentStateManager;
         }
 

@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.CancellationSignal;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
@@ -46,6 +47,8 @@ class FragmentStateManager {
     private final Fragment mFragment;
 
     private int mFragmentManagerState = Fragment.INITIALIZING;
+    private CancellationSignal mEnterAnimationCancellationSignal;
+    private CancellationSignal mExitAnimationCancellationSignal;
 
     /**
      * Create a FragmentStateManager from a brand new Fragment instance.
@@ -221,7 +224,10 @@ class FragmentStateManager {
             if (newState > mFragment.mState) {
                 // Moving upward
                 int nextStep = mFragment.mState + 1;
-                // TODO cancel exit animations
+                // Cancel any ongoing exit animations as we're moving the state upward
+                if (mExitAnimationCancellationSignal != null) {
+                    mExitAnimationCancellationSignal.cancel();
+                }
                 switch (nextStep) {
                     case Fragment.ATTACHED:
                         attach();
@@ -237,7 +243,9 @@ class FragmentStateManager {
                         if (mFragment.mContainer != null) {
                             SpecialEffectsController controller = SpecialEffectsController
                                     .getOrCreateController(mFragment.mContainer);
-                            controller.enqueueAdd(this);
+                            mEnterAnimationCancellationSignal = new CancellationSignal();
+                            controller.enqueueAdd(this,
+                                    mEnterAnimationCancellationSignal);
                         }
                         break;
                     case Fragment.STARTED:
@@ -250,6 +258,10 @@ class FragmentStateManager {
             } else {
                 // Moving downward
                 int nextStep = mFragment.mState - 1;
+                // Cancel any ongoing enter animations as we're moving the state downward
+                if (mEnterAnimationCancellationSignal != null) {
+                    mEnterAnimationCancellationSignal.cancel();
+                }
                 switch (nextStep) {
                     case Fragment.STARTED:
                         pause();
@@ -265,7 +277,9 @@ class FragmentStateManager {
                         if (mFragment.mContainer != null) {
                             SpecialEffectsController controller = SpecialEffectsController
                                     .getOrCreateController(mFragment.mContainer);
-                            controller.enqueueRemove(this);
+                            mExitAnimationCancellationSignal = new CancellationSignal();
+                            controller.enqueueRemove(this,
+                                    mExitAnimationCancellationSignal);
                         }
                         // TODO wait for the special effects to finish
                         destroyFragmentView();
