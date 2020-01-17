@@ -180,7 +180,7 @@ class LayoutPaddingTest : LayoutTest() {
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
-                ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
+                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     val children = @Composable {
                         Container {
                             OnPositioned(onPositioned = { coordinates ->
@@ -225,7 +225,7 @@ class LayoutPaddingTest : LayoutTest() {
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
-                ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
+                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     val children = @Composable {
                         Container {
                             OnPositioned(onPositioned = { coordinates ->
@@ -277,7 +277,7 @@ class LayoutPaddingTest : LayoutTest() {
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
-                ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
+                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     paddingContainer {
                         Container {
                             OnPositioned(onPositioned = { coordinates ->

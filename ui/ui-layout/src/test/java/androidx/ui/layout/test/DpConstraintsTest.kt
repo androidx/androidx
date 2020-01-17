@@ -20,16 +20,10 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.enforce
 import androidx.ui.layout.hasBoundedHeight
 import androidx.ui.layout.hasBoundedWidth
-import androidx.ui.layout.hasTightHeight
-import androidx.ui.layout.hasTightWidth
-import androidx.ui.layout.isTight
+import androidx.ui.layout.hasFixedHeight
+import androidx.ui.layout.hasFixedWidth
 import androidx.ui.layout.isZero
-import androidx.ui.layout.looseMax
-import androidx.ui.layout.looseMin
 import androidx.ui.layout.offset
-import androidx.ui.layout.tightMax
-import androidx.ui.layout.tightMin
-import androidx.ui.layout.withTight
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import org.junit.Assert.assertFalse
@@ -50,13 +44,13 @@ class DpConstraintsTest {
         val constraints = DpConstraints(0.dp, 1.dp, 2.dp, 3.dp)
         constraints.assertEquals(0.dp, 1.dp, 2.dp, 3.dp)
 
-        val tightDpConstraintsForWidth = DpConstraints.tightConstraintsForWidth(5.dp)
+        val tightDpConstraintsForWidth = DpConstraints.fixedWidth(5.dp)
         tightDpConstraintsForWidth.assertEquals(5.dp, 5.dp, 0.dp, Dp.Infinity)
 
-        val tightDpConstraintsForHeight = DpConstraints.tightConstraintsForHeight(5.dp)
+        val tightDpConstraintsForHeight = DpConstraints.fixedHeight(5.dp)
         tightDpConstraintsForHeight.assertEquals(0.dp, Dp.Infinity, 5.dp, 5.dp)
 
-        val tightDpConstraints = DpConstraints.tightConstraints(5.dp, 7.dp)
+        val tightDpConstraints = DpConstraints.fixed(5.dp, 7.dp)
         tightDpConstraints.assertEquals(5.dp, 5.dp, 7.dp, 7.dp)
     }
 
@@ -72,16 +66,14 @@ class DpConstraintsTest {
     }
 
     @Test
-    fun hasTightDimensions() {
+    fun hasFixedDimensions() {
         val untight = DpConstraints(3.dp, 4.dp, 8.dp, 9.dp)
-        assertFalse(untight.hasTightWidth)
-        assertFalse(untight.hasTightHeight)
-        assertFalse(untight.isTight)
+        assertFalse(untight.hasFixedWidth)
+        assertFalse(untight.hasFixedHeight)
 
         val tight = DpConstraints(3.dp, 3.dp, 5.dp, 5.dp)
-        assertTrue(tight.hasTightWidth)
-        assertTrue(tight.hasTightHeight)
-        assertTrue(tight.isTight)
+        assertTrue(tight.hasFixedWidth)
+        assertTrue(tight.hasFixedHeight)
     }
 
     @Test
@@ -108,35 +100,6 @@ class DpConstraintsTest {
         constraints.enforce(DpConstraints(10.dp, 11.dp, 10.dp, 11.dp)).assertEquals(
             10.dp, 10.dp, 10.dp, 10.dp
         )
-    }
-
-    @Test
-    fun withTight() {
-        val constraints = DpConstraints(2.dp, 3.dp, 2.dp, 3.dp)
-        constraints.withTight().assertEquals(2.dp, 3.dp, 2.dp, 3.dp)
-        constraints.withTight(7.dp, 8.dp).assertEquals(7.dp, 7.dp, 8.dp, 8.dp)
-    }
-
-    @Test
-    fun loose() {
-        val bounded = DpConstraints(2.dp, 5.dp, 2.dp, 5.dp)
-        bounded.looseMin().assertEquals(0.dp, 5.dp, 0.dp, 5.dp)
-        bounded.looseMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
-
-        val unbounded = DpConstraints(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
-        unbounded.looseMin().assertEquals(0.dp, Dp.Infinity, 0.dp, Dp.Infinity)
-        unbounded.looseMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
-    }
-
-    @Test
-    fun tight() {
-        val bounded = DpConstraints(2.dp, 5.dp, 2.dp, 5.dp)
-        bounded.tightMin().assertEquals(2.dp, 2.dp, 2.dp, 2.dp)
-        bounded.tightMax().assertEquals(5.dp, 5.dp, 5.dp, 5.dp)
-
-        val unbounded = DpConstraints(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
-        unbounded.tightMin().assertEquals(2.dp, 2.dp, 2.dp, 2.dp)
-        unbounded.tightMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
     }
 
     @Test

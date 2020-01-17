@@ -122,7 +122,7 @@ class ContainerTest : LayoutTest() {
         val childWidth = childWidthDp.toIntPx()
         val childHeightDp = 30.dp
         val childHeight = childHeightDp.toIntPx()
-        val childConstraints = DpConstraints.tightConstraints(childWidthDp, childHeightDp)
+        val childConstraints = DpConstraints.fixed(childWidthDp, childHeightDp)
 
         val positionedLatch = CountDownLatch(4)
         val containerSize = Ref<PxSize>()
