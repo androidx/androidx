@@ -110,7 +110,7 @@ class GitClientImplTest {
                 _CommitStart
                 Here is an explanation of my commit that changes a kotlin file
 
-                Release notes: "Missing close quote in the release note block.
+                Relnote: "Missing close quote in the release note block.
                 This is the second line of the release notes.  It should not be included in the
                 release notes because this commit is missing the closing quote.
 
@@ -144,7 +144,7 @@ class GitClientImplTest {
 
                 "This is a quote about why it's great!"
 
-                Release Notes: "Added a new API that does something awesome and does a whole bunch
+                Relnote: "Added a new API that does something awesome and does a whole bunch
                  of other things that are also awesome and I just can't elaborate enough how
                  incredible this API is"
 
@@ -208,7 +208,7 @@ class GitClientImplTest {
                 Fixes: 123123
                 Test: ./gradlew buildOnServer
 
-                Release Notes: Added an awesome new API!
+                Relnote: Added an awesome new API!
 
                 Change-Id: myChangeId
 
@@ -255,7 +255,7 @@ class GitClientImplTest {
 
                 Here is an explanation of my commit that changes a kotlin file
 
-                Release notes: "Fixed a critical bug"
+                Relnote: "Fixed a critical bug"
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
@@ -307,7 +307,7 @@ class GitClientImplTest {
 
                 Here is an explanation of my commit that changes a java file
 
-                release notes: Added a new compat API!
+                Relnote: Added a new compat API!
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
