@@ -54,5 +54,4 @@ androidx {
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView v7"
-    failOnDeprecationWarnings = false
 }

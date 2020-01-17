@@ -237,7 +237,8 @@ class PagedSnapHelper extends LinearSnapHelper {
      * @return a {@link RecyclerView.SmoothScroller} which will handle the scrolling.
      */
     @Override
-    protected RecyclerView.SmoothScroller createScroller(RecyclerView.LayoutManager layoutManager) {
+    protected RecyclerView.SmoothScroller createScroller(
+            @NonNull RecyclerView.LayoutManager layoutManager) {
         return new PagedSmoothScroller(mContext);
     }
 
