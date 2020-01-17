@@ -102,8 +102,10 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleTrackDatabases(CommandCallback callback) {
-        callback.reply(SqliteInspectorProtocol.Response.newBuilder().setTrackDatabases(
-                TrackDatabasesResponse.getDefaultInstance()).build().toByteArray());
+        callback.reply(Response.newBuilder()
+                .setTrackDatabases(TrackDatabasesResponse.getDefaultInstance())
+                .build().toByteArray()
+        );
 
         mEnvironment.registerExitHook(
                 SQLiteDatabase.class,
@@ -123,23 +125,15 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
-        final int databaseId = command.getDatabaseId();
-        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
-        if (database == null) {
-            replyNoDatabaseWithId(callback, databaseId);
-            return;
-        }
+        SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
+        if (database == null) return;
 
         callback.reply(querySchema(database).toByteArray());
     }
 
     private void handleQuery(QueryCommand command, CommandCallback callback) {
-        final int databaseId = command.getDatabaseId();
-        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
-        if (database == null) {
-            replyNoDatabaseWithId(callback, databaseId);
-            return;
-        }
+        SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
+        if (database == null) return;
 
         Cursor cursor = database.rawQuery(command.getQuery(), null);
         try {
@@ -151,6 +145,22 @@ final class SqliteInspector extends Inspector {
         } finally {
             cursor.close();
         }
+    }
+
+    /**
+     * Tries to find a database for an id. If no such database is found, it replies with an
+     * {@link ErrorOccurredResponse} via the {@code callback} provided.
+     *
+     * @return null if no database found for the provided id. A database reference otherwise.
+     */
+    @Nullable
+    private SQLiteDatabase handleDatabaseId(int databaseId, CommandCallback callback) {
+        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
+        if (database == null) {
+            replyNoDatabaseWithId(callback, databaseId);
+            return null;
+        }
+        return database;
     }
 
     private static List<Row> convert(Cursor cursor) {
@@ -257,7 +267,7 @@ final class SqliteInspector extends Inspector {
                 .build();
     }
 
-    private Event createErrorOccurredEvent(IllegalArgumentException exception) {
+    private Event createErrorOccurredEvent(@NonNull Exception exception) {
         return Event.newBuilder().setErrorOccurred(
                 ErrorOccurredEvent.newBuilder()
                         .setMessage(exception.getMessage())
@@ -277,7 +287,7 @@ final class SqliteInspector extends Inspector {
     }
 
     @NonNull
-    private String stackTraceFromException(IllegalArgumentException exception) {
+    private String stackTraceFromException(Exception exception) {
         StringWriter writer = new StringWriter();
         exception.printStackTrace(new PrintWriter(writer));
         return writer.toString();
