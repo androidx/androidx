@@ -166,6 +166,9 @@ internal class PagerState<Key : Any, Value : Any>(
         check(pages.size >= pageCount) {
             "invalid drop count. have ${pages.size} but wanted to drop $pageCount"
         }
+
+        loadStates[loadType] = Idle
+
         when (loadType) {
             START -> {
                 repeat(pageCount) { _pages.removeAt(0) }
