@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.CancellationSignal;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
@@ -46,6 +47,8 @@ class FragmentStateManager {
     private final Fragment mFragment;
 
     private int mFragmentManagerState = Fragment.INITIALIZING;
+    private CancellationSignal mEnterAnimationCancellationSignal;
+    private CancellationSignal mExitAnimationCancellationSignal;
 
     /**
      * Create a FragmentStateManager from a brand new Fragment instance.
@@ -221,7 +224,10 @@ class FragmentStateManager {
             if (newState > mFragment.mState) {
                 // Moving upward
                 int nextStep = mFragment.mState + 1;
-                // TODO cancel exit animations
+                // Cancel any ongoing exit animations as we're moving the state upward
+                if (mExitAnimationCancellationSignal != null) {
+                    mExitAnimationCancellationSignal.cancel();
+                }
                 switch (nextStep) {
                     case Fragment.ATTACHED:
                         attach();
@@ -234,6 +240,13 @@ class FragmentStateManager {
                         createView();
                         activityCreated();
                         restoreViewState();
+                        if (mFragment.mContainer != null) {
+                            SpecialEffectsController controller = SpecialEffectsController
+                                    .getOrCreateController(mFragment.mContainer);
+                            mEnterAnimationCancellationSignal = new CancellationSignal();
+                            controller.enqueueAdd(this,
+                                    mEnterAnimationCancellationSignal);
+                        }
                         break;
                     case Fragment.STARTED:
                         start();
@@ -245,6 +258,10 @@ class FragmentStateManager {
             } else {
                 // Moving downward
                 int nextStep = mFragment.mState - 1;
+                // Cancel any ongoing enter animations as we're moving the state downward
+                if (mEnterAnimationCancellationSignal != null) {
+                    mEnterAnimationCancellationSignal.cancel();
+                }
                 switch (nextStep) {
                     case Fragment.STARTED:
                         pause();
@@ -257,8 +274,15 @@ class FragmentStateManager {
                             Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                         }
                         // TODO call saveViewState()
-                        // TODO start exit animations
-                        // TODO destroy the view
+                        if (mFragment.mContainer != null) {
+                            SpecialEffectsController controller = SpecialEffectsController
+                                    .getOrCreateController(mFragment.mContainer);
+                            mExitAnimationCancellationSignal = new CancellationSignal();
+                            controller.enqueueRemove(this,
+                                    mExitAnimationCancellationSignal);
+                        }
+                        // TODO wait for the special effects to finish
+                        destroyFragmentView();
                         break;
                     case Fragment.ATTACHED:
                         // TODO move this into destroy()
@@ -567,6 +591,18 @@ class FragmentStateManager {
         if (mStateArray.size() > 0) {
             mFragment.mSavedViewState = mStateArray;
         }
+    }
+
+    void destroyFragmentView() {
+        mFragment.performDestroyView();
+        mDispatcher.dispatchOnFragmentViewDestroyed(mFragment, false);
+        mFragment.mContainer = null;
+        mFragment.mView = null;
+        // Set here to ensure that Observers are called after
+        // the Fragment's view is set to null
+        mFragment.mViewLifecycleOwner = null;
+        mFragment.mViewLifecycleOwnerLiveData.setValue(null);
+        mFragment.mInLayout = false;
     }
 
     void destroy() {
