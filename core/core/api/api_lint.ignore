@@ -111,10 +111,14 @@ ActionValue: androidx.core.app.ShareCompat#EXTRA_CALLING_PACKAGE:
     Inconsistent extra value; expected `androidx.core.app.extra.CALLING_PACKAGE`, was `androidx.core.app.EXTRA_CALLING_PACKAGE`
 ActionValue: androidx.core.app.ShareCompat#EXTRA_CALLING_PACKAGE_INTEROP:
     Inconsistent extra value; expected `androidx.core.app.extra.CALLING_PACKAGE_INTEROP`, was `android.support.v4.app.EXTRA_CALLING_PACKAGE`
+ActionValue: androidx.core.content.IntentCompat#ACTION_CREATE_REMINDER:
+    Inconsistent action value; expected `androidx.core.content.action.CREATE_REMINDER`, was `android.intent.action.CREATE_REMINDER`
 ActionValue: androidx.core.content.IntentCompat#EXTRA_HTML_TEXT:
     Inconsistent extra value; expected `androidx.core.content.extra.HTML_TEXT`, was `android.intent.extra.HTML_TEXT`
 ActionValue: androidx.core.content.IntentCompat#EXTRA_START_PLAYBACK:
     Inconsistent extra value; expected `androidx.core.content.extra.START_PLAYBACK`, was `android.intent.extra.START_PLAYBACK`
+ActionValue: androidx.core.content.IntentCompat#EXTRA_TIME:
+    Inconsistent extra value; expected `androidx.core.content.extra.TIME`, was `android.intent.extra.TIME`
 ActionValue: androidx.core.content.pm.ShortcutManagerCompat#EXTRA_SHORTCUT_ID:
     Inconsistent extra value; expected `androidx.core.content.pm.extra.SHORTCUT_ID`, was `android.intent.extra.shortcut.ID`
 ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_COLUMN_INT:

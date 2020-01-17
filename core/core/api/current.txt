@@ -872,9 +872,11 @@ package androidx.core.content {
 
   public final class IntentCompat {
     method public static android.content.Intent makeMainSelectorActivity(String, String);
+    field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
     field public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
     field public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
+    field public static final String EXTRA_TIME = "android.intent.extra.TIME";
   }
 
   public final class MimeTypeFilter {
