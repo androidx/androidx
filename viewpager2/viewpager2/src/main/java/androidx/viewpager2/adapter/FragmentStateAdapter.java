@@ -346,6 +346,7 @@ public abstract class FragmentStateAdapter extends
             List<OnPostEventListener> onPost =
                     mFragmentEventDispatcher.dispatchPreAdded(fragment);
             try {
+                fragment.setMenuVisibility(false); // appropriate for maxLifecycle == STARTED
                 mFragmentManager.beginTransaction()
                         .add(fragment, "f" + holder.getItemId())
                         .setMaxLifecycle(fragment, STARTED)
