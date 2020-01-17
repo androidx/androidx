@@ -20,7 +20,7 @@
     <application>
         <provider
             android:name=".InitializationProvider"
-            android:authorities="androidx.startup"
+            android:authorities="${applicationId}.androidx-startup"
             android:exported="false" />
     </application>
 
