@@ -48,7 +48,7 @@ def parse_arguments():
     for arg in sys.argv:
         if any(arg.endswith(SKIPPED_SUFFIX) for SKIPPED_SUFFIX in SKIPPED_ARG_SUFFIXES): continue
         elif arg in MERGE_COMMANDS:
-            things_to_merge += arg
+            things_to_merge.append(arg)
         elif "dist_dir" in arg.lower():
             dist_dir = arg.split("=")[1]
             dist_dir = remove_suffix(dist_dir, '/')
