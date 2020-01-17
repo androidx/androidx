@@ -224,7 +224,6 @@ class SelectionContainerTest {
     }
 
     private fun waitForOtherGesture(block: () -> Unit) {
-        gestureCountDownLatch = CountDownLatch(1)
         composeTestRule.runOnIdleCompose(block)
     }
 }
