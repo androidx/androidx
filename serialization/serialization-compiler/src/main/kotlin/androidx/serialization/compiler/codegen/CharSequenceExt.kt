@@ -19,7 +19,7 @@ package androidx.serialization.compiler.codegen
 import java.util.Locale
 
 /** Convert a string to lower camel case, treating '_' as a delimiter. */
-internal fun String.toLowerCamelCase(): String {
+internal fun CharSequence.toLowerCamelCase(): String {
     return if (contains('_')) {
         split('_').joinToString(separator = "") { it.safeCapitalize() }.safeDecapitalize()
     } else {
@@ -28,19 +28,19 @@ internal fun String.toLowerCamelCase(): String {
 }
 
 /** Replacement for [String.capitalize] that does not use experimental APIs. */
-private fun String.safeCapitalize(): String {
+private fun CharSequence.safeCapitalize(): String {
     return when (length) {
-        0 -> this
-        1 -> toUpperCase(Locale.ENGLISH)
+        0 -> toString()
+        1 -> toString().toUpperCase(Locale.ENGLISH)
         else -> substring(0, 1).toLowerCase(Locale.ENGLISH) + substring(1)
     }
 }
 
 /** Replacement for [String.decapitalize] that does not use experimental APIs. */
-private fun String.safeDecapitalize(): String {
+private fun CharSequence.safeDecapitalize(): String {
     return when (length) {
-        0 -> this
-        1 -> toLowerCase(Locale.ENGLISH)
+        0 -> toString()
+        1 -> toString().toLowerCase(Locale.ENGLISH)
         else -> substring(0, 1).toLowerCase(Locale.ENGLISH) + substring(1)
     }
 }

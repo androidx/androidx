@@ -16,8 +16,8 @@
 
 package androidx.serialization.compiler.codegen.java
 
-import androidx.serialization.compiler.TestEnum
 import androidx.serialization.compiler.codegen.javaGenEnv
+import androidx.serialization.compiler.testEnum
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import org.junit.Test
@@ -35,7 +35,7 @@ class EnumCoderTest {
 
     @Test
     fun testGenerateEnumCoder() {
-        assertThat(generateEnumCoder(TestEnum(), javaGenEnv(this::class)).toString()).contains("""
+        assertThat(generateEnumCoder(testEnum(), javaGenEnv(this::class)).toString()).contains("""
             package com.example;
 
             import androidx.annotation.NonNull;
