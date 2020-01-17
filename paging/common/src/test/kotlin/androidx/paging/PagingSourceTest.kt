@@ -256,15 +256,12 @@ class PagingSourceTest {
             itemsAfter = itemsAfter
         )
 
-        override fun getRefreshKeyFromPage(
-            indexInPage: Int,
-            page: LoadResult.Page<Key, Item>
-        ): Key? {
-            val item = page.data[indexInPage]
+        private var error = false
+
+        override fun getRefreshKey(state: PagingState<Key, Item>): Key? {
+            val item = state.closestItemToPosition(state.anchorPosition)
             return Key(item.name, item.id)
         }
-
-        private var error = false
 
         override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Item> {
             return when (params.loadType) {

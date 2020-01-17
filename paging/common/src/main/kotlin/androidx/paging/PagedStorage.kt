@@ -59,7 +59,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
     var lastLoadAroundIndex: Int
         get() = placeholdersStart + lastLoadAroundLocalIndex
         set(value) {
-            lastLoadAroundLocalIndex = (value - placeholdersStart).coerceIn(0, storageCount)
+            lastLoadAroundLocalIndex = (value - placeholdersStart).coerceIn(0, storageCount - 1)
         }
 
     val middleOfLoadedRange: Int
@@ -67,7 +67,11 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
 
     constructor()
 
-    constructor(leadingNulls: Int, page: Page<*, T>, trailingNulls: Int) : this() {
+    constructor(
+        leadingNulls: Int,
+        page: Page<*, T>,
+        trailingNulls: Int
+    ) : this() {
         init(leadingNulls, page, trailingNulls, 0, true)
     }
 
@@ -164,19 +168,22 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
      * Walk through the list of pages to find the data at local index
      */
     override fun getFromStorage(localIndex: Int): T =
-            traversePages(localIndex) { page, pageInternalIndex ->
-        page.data[pageInternalIndex]
-    }
-
-    /**
-     * Walk through the list of pages to find the page and local index for the last loadAround call
-     */
-    fun getLastPageAndIndex(): Pair<Page<*, T>, Int>? = if (isNotEmpty()) {
-        traversePages(lastLoadAroundLocalIndex) { page, pageInternalIndex ->
-            Pair(page, pageInternalIndex)
+        traversePages(localIndex) { page, pageInternalIndex ->
+            page.data[pageInternalIndex]
         }
-    } else {
-        null
+
+    fun getRefreshKeyInfo(initialLoadSize: Int): PagingState<*, T>? {
+        if (pages.isEmpty()) {
+            return null
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return PagingState(
+            pages = pages.toList() as List<Page<Any, T>>,
+            anchorPosition = lastLoadAroundIndex,
+            initialLoadSize = initialLoadSize,
+            placeholdersStart = placeholdersStart
+        )
     }
 
     override fun get(index: Int): T? {

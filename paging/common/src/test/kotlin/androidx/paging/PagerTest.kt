@@ -28,6 +28,7 @@ import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PageEvent.LoadStateUpdate
+import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import androidx.paging.TestPagingSource.Companion.items
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,6 +42,9 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -843,5 +847,123 @@ class PagerTest {
 
         assertEvents(expected, fetcherState.pageEventLists[0])
         fetcherState.job.cancel()
+    }
+
+    @Test
+    fun refreshKeyInfo_nullHint() = testScope.runBlockingTest {
+        val pagingSource = pagingSourceFactory()
+        val pager = Pager(50, pagingSource, config)
+        assertNull(pager.refreshKeyInfo())
+    }
+
+    @Test
+    fun refreshKeyInfo_pagesEmpty() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagingSource = pagingSourceFactory()
+            val pager = Pager(50, pagingSource, config)
+            pager.addHint(ViewportHint(0, 0))
+            assertNull(pager.refreshKeyInfo())
+        }
+    }
+
+    @Test
+    fun refreshKeyInfo_loadedIndex() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagingSource = pagingSourceFactory()
+            val pager = Pager(50, pagingSource, config)
+
+            val pageEvents = ArrayList<PageEvent<Int>>()
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
+
+            advanceUntilIdle()
+
+            pager.addHint(ViewportHint(0, 1))
+
+            val refreshKeyInfo = pager.refreshKeyInfo()
+            assertNotNull(refreshKeyInfo)
+            assertEquals(51, refreshKeyInfo.anchorPosition)
+
+            // Assert from anchorPosition in placeholdersStart
+            assertEquals(50, refreshKeyInfo.closestItemToPosition(10))
+            // Assert from anchorPosition in loaded indices
+            assertEquals(50, refreshKeyInfo.closestItemToPosition(50))
+            assertEquals(51, refreshKeyInfo.closestItemToPosition(51))
+            // Assert from anchorPosition in placeholdersEnd
+            assertEquals(51, refreshKeyInfo.closestItemToPosition(90))
+
+            val loadedPage = Page(
+                data = listOf(50, 51),
+                prevKey = 49,
+                nextKey = 52,
+                itemsBefore = 50,
+                itemsAfter = 48
+            )
+            assertEquals(listOf(loadedPage), refreshKeyInfo.pages)
+            // Assert from anchorPosition in placeholdersStart
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(10))
+            // Assert from anchorPosition in loaded indices
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(50))
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(51))
+            // Assert from anchorPosition in placeholdersEnd
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(90))
+
+            job.cancel()
+        }
+    }
+
+    @Test
+    fun refreshKeyInfo_placeholdersStart() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagingSource = pagingSourceFactory()
+            val pager = Pager(50, pagingSource, config)
+
+            val pageEvents = ArrayList<PageEvent<Int>>()
+            val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
+
+            advanceUntilIdle()
+
+            pager.addHint(ViewportHint(0, -40))
+
+            val refreshKeyInfo = pager.refreshKeyInfo()
+            assertNotNull(refreshKeyInfo)
+            assertEquals(10, refreshKeyInfo.anchorPosition)
+            assertEquals(
+                listOf(
+                    Page(
+                        data = listOf(50, 51),
+                        prevKey = 49,
+                        nextKey = 52,
+                        itemsBefore = 50,
+                        itemsAfter = 48
+                    )
+                ),
+                refreshKeyInfo.pages
+            )
+
+            // Assert from anchorPosition in placeholdersStart
+            assertEquals(50, refreshKeyInfo.closestItemToPosition(10))
+            // Assert from anchorPosition in loaded indices
+            assertEquals(50, refreshKeyInfo.closestItemToPosition(50))
+            assertEquals(51, refreshKeyInfo.closestItemToPosition(51))
+            // Assert from anchorPosition in placeholdersEnd
+            assertEquals(51, refreshKeyInfo.closestItemToPosition(90))
+
+            val loadedPage = Page(
+                data = listOf(50, 51),
+                prevKey = 49,
+                nextKey = 52,
+                itemsBefore = 50,
+                itemsAfter = 48
+            )
+            // Assert from anchorPosition in placeholdersStart
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(10))
+            // Assert from anchorPosition in loaded indices
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(50))
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(51))
+            // Assert from anchorPosition in placeholdersEnd
+            assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(90))
+
+            job.cancel()
+        }
     }
 }

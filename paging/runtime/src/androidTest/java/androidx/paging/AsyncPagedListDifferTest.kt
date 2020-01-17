@@ -283,7 +283,7 @@ class AsyncPagedListDifferTest {
 
         // finally, a full flush will complete the swap-triggered load within the new list
         drain()
-        verify(callback).onChanged(8, 2, null)
+        verify(callback).onChanged(6, 2, null)
     }
 
     @Test

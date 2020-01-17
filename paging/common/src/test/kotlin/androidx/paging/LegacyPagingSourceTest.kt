@@ -27,6 +27,19 @@ import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class LegacyPagingSourceTest {
+    private val fakePagingState = PagingState(
+        pages = listOf(
+            Page<Int, String>(
+                data = listOf("fakeData"),
+                prevKey = null,
+                nextKey = null
+            )
+        ),
+        anchorPosition = 0,
+        initialLoadSize = 1,
+        placeholdersStart = 0
+    )
+
     @Test
     fun item() {
         val dataSource = object : ItemKeyedDataSource<Int, String>() {
@@ -48,12 +61,7 @@ class LegacyPagingSourceTest {
             override fun getKey(item: String) = item.hashCode()
         }
         val pagingSource = LegacyPagingSource(dataSource)
-        val lastPage = Page<Int, String>(
-            data = listOf("fakeData"),
-            prevKey = null,
-            nextKey = null
-        )
-        val refreshKey = pagingSource.getRefreshKeyFromPage(0, lastPage)
+        val refreshKey = pagingSource.getRefreshKey(fakePagingState)
         assertEquals("fakeData".hashCode(), refreshKey)
 
         assertFalse { pagingSource.invalid }
@@ -84,12 +92,7 @@ class LegacyPagingSourceTest {
             }
         }
         val pagingSource = LegacyPagingSource(dataSource)
-        val lastPage = Page<Int, String>(
-            data = listOf("fakeData"),
-            prevKey = null,
-            nextKey = null
-        )
-        val refreshKey = pagingSource.getRefreshKeyFromPage(0, lastPage)
+        val refreshKey = pagingSource.getRefreshKey(fakePagingState)
         assertEquals(refreshKey, null)
 
         assertFalse { pagingSource.invalid }
@@ -106,14 +109,40 @@ class LegacyPagingSourceTest {
         val dataSource = createTestPositionalDataSource()
         val pagingSource = LegacyPagingSource(dataSource)
 
-        val lastPageCounted = Page(
-            data = listOf("fakeData"),
-            prevKey = 3,
-            nextKey = 8
+        assertEquals(
+            3,
+            pagingSource.getRefreshKey(
+                PagingState(
+                    pages = listOf(
+                        Page(
+                            data = listOf("fakeData"),
+                            prevKey = 3,
+                            nextKey = 8
+                        )
+                    ),
+                    anchorPosition = 3,
+                    initialLoadSize = 1,
+                    placeholdersStart = 0
+                )
+            )
         )
-
-        assertEquals(3, pagingSource.getRefreshKeyFromPage(0, lastPageCounted))
-        assertEquals(4, pagingSource.getRefreshKeyFromPage(1, lastPageCounted))
+        assertEquals(
+            4,
+            pagingSource.getRefreshKey(
+                PagingState(
+                    pages = listOf(
+                        Page(
+                            data = listOf("fakeData"),
+                            prevKey = 3,
+                            nextKey = 8
+                        )
+                    ),
+                    anchorPosition = 4,
+                    initialLoadSize = 1,
+                    placeholdersStart = 0
+                )
+            )
+        )
     }
 
     @Test

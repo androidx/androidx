@@ -270,7 +270,7 @@ package androidx.paging {
   public abstract class PagingSource<Key, Value> {
     ctor public PagingSource();
     method public final boolean getInvalid();
-    method public Key? getRefreshKeyFromPage(int indexInPage, androidx.paging.PagingSource.LoadResult.Page<Key,Value> page);
+    method public Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public void invalidate();
     method public abstract suspend Object load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
@@ -324,6 +324,14 @@ package androidx.paging {
   }
 
   public final class PagingSourceKt {
+  }
+
+  public final class PagingState<Key, Value> {
+    method public Value closestItemToPosition(int anchorPosition);
+    method public androidx.paging.PagingSource.LoadResult.Page<Key,Value> closestPageToPosition(int anchorPosition);
+    method public int getAnchorPosition();
+    method public int getInitialLoadSize();
+    method public java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> getPages();
   }
 
   public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {

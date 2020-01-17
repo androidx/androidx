@@ -174,7 +174,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
      * If this operation cannot be supported (generally, because keys cannot be reused across
      * refresh) return `null` - this is the default behavior.
      */
-    open fun getRefreshKeyFromPage(indexInPage: Int, page: LoadResult.Page<Key, Value>): Key? = null
+    open fun getRefreshKey(state: PagingState<Key, Value>): Key? = null
 
     private val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
 
