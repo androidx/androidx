@@ -16,8 +16,11 @@
 
 package androidx.sqlite.inspection.test
 
-import androidx.sqlite.inspection.SqliteInspectorProtocol
-import androidx.sqlite.inspection.test.MessageFactory.createQueryTableCommand
+import android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryResponse
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Row
+import androidx.sqlite.inspection.test.MessageFactory.createGetSchemaCommand
+import androidx.sqlite.inspection.test.MessageFactory.createQueryCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -55,8 +58,6 @@ class QueryTest {
         Column("id", "INTEGER"),
         Column("name", "TEXT")
     )
-
-    private val database = Database("db1", table1, table2)
 
     /** Query verifying type affinity behaviour */
     @Test
@@ -98,7 +99,7 @@ class QueryTest {
         val expectedColumnNames = table1.columns.map { it.name }
 
         test_valid_query(
-            database,
+            Database("db1", table1, table2),
             values,
             query,
             expectedValues,
@@ -139,7 +140,7 @@ class QueryTest {
         )
 
         test_valid_query(
-            database,
+            Database("db1", table1, table2),
             values,
             query,
             expectedValues,
@@ -159,21 +160,12 @@ class QueryTest {
         // given
         val databaseInstance = database.createInstance(temporaryFolder)
         values.forEach { (table, values) -> databaseInstance.insertValues(table, *values) }
-
-        testEnvironment.registerAlreadyOpenDatabases(
-            listOf(
-                Database("ignored_1").createInstance(temporaryFolder),
-                databaseInstance,
-                Database("ignored_2").createInstance(temporaryFolder)
-            )
-        )
-        testEnvironment.sendCommand(createTrackDatabasesCommand())
-        val databaseId = testEnvironment.awaitDatabaseOpenedEvent(database.name).databaseId
+        val databaseId = inspectDatabase(databaseInstance)
 
         // when
-        testEnvironment.sendCommand(createQueryTableCommand(databaseId, query)).let { response ->
+        issueQuery(databaseId, query).let { response ->
             // then
-            response.query.rowsList.let { actualRows: List<SqliteInspectorProtocol.Row> ->
+            response.rowsList.let { actualRows: List<Row> ->
                 actualRows.forEachIndexed { rowIx, row ->
                     row.valuesList.forEachIndexed { colIx, cell ->
                         assertThat(cell.value).isEqualTo(expectedValues[rowIx][colIx])
@@ -184,6 +176,139 @@ class QueryTest {
             }
         }
     }
+
+    @Test
+    fun test_create_table() = runBlocking {
+        // given
+        val database = Database("db1", table1, table2)
+        val databaseId = inspectDatabase(database.createInstance(temporaryFolder))
+        val initialTotalChanges = queryTotalChanges(databaseId)
+
+        // when
+        val newTable = Table("t", Column("c", "NUMBER"))
+        issueQuery(databaseId, newTable.toCreateString())
+
+        // then
+        assertThat(querySchema(databaseId)).isEqualTo(database.tables + newTable)
+        assertThat(queryTotalChanges(databaseId)).isEqualTo(initialTotalChanges) // note no diff
+    }
+
+    @Test
+    fun test_drop_table() = runBlocking {
+        // given
+        val database = Database("db1", table1, table2)
+        val databaseId = inspectDatabase(database.createInstance(temporaryFolder).also {
+            it.insertValues(table2, "1", "'1'")
+            it.insertValues(table2, "2", "'2'")
+        })
+        val initialTotalChanges = queryTotalChanges(databaseId)
+        assertThat(querySchema(databaseId)).isNotEmpty()
+
+        // when
+        database.tables.forEach { t -> issueQuery(databaseId, "drop table ${t.name}") }
+
+        // then
+        assertThat(querySchema(databaseId)).isEmpty()
+        assertThat(queryTotalChanges(databaseId)).isEqualTo(initialTotalChanges) // note no diff
+    }
+
+    @Test
+    fun test_alter_table() = runBlocking {
+        // given
+        val table = table2
+        val databaseId = inspectDatabase(Database("db", table).createInstance(temporaryFolder))
+        val initialTotalChanges = queryTotalChanges(databaseId)
+        val newColumn = Column("num", "NUM")
+
+        // when
+        issueQuery(databaseId, "alter table ${table.name} add ${newColumn.name} ${newColumn.type}")
+
+        // then
+        assertThat(querySchema(databaseId)).isEqualTo(
+            listOf(Table(table.name, table.columns + newColumn))
+        )
+        assertThat(queryTotalChanges(databaseId)).isEqualTo(initialTotalChanges) // note no diff
+    }
+
+    @Test
+    fun test_insert_update_delete_changes() = runBlocking {
+        // given
+        val table = table2
+        val databaseId = inspectDatabase(Database("db", table).createInstance(temporaryFolder))
+        var expectedTotalChanges = 1 // TODO: investigate why 1 and not 0
+        assertThat(queryChanges(databaseId)).isEqualTo(1) // TODO: investigate why 1 and not 0
+        assertThat(queryChanges(databaseId)).isEqualTo(1) // note querying doesn't reset it
+        assertThat(queryTotalChanges(databaseId)).isEqualTo(expectedTotalChanges)
+
+        val newValue = listOf("1", "a")
+        val insertQuery = "insert into ${table.name} values (${newValue.joinToString { "'$it'" }})"
+        val insertCount = 5
+
+        // when (insert)
+        repeat(insertCount) {
+            issueQuery(databaseId, insertQuery)
+            expectedTotalChanges++
+            assertThat(queryChanges(databaseId)).isEqualTo(1)
+            assertThat(queryTotalChanges(databaseId)).isEqualTo(expectedTotalChanges)
+        }
+
+        // then (insert)
+        issueQuery(databaseId, "select * from ${table.name}").let { response ->
+            assertThat(response.rowsList).hasSize(insertCount)
+            response.rowsList.forEach { row ->
+                assertThat(row.valuesList.map { it.value.toString() }).isEqualTo(newValue)
+            }
+        }
+        assertThat(queryChanges(databaseId)).isEqualTo(1) // note select doesn't reset it
+        assertThat(queryTotalChanges(databaseId)).isEqualTo(expectedTotalChanges)
+
+        // when (update)
+        issueQuery(databaseId, "update ${table.name} set id = 2 ")
+        expectedTotalChanges += insertCount // all inserted rows are affected
+
+        // then (update)
+        assertThat(queryChanges(databaseId)).isEqualTo(insertCount)
+        assertThat(queryTotalChanges(databaseId)).isEqualTo(expectedTotalChanges)
+
+        // when (delete)
+        issueQuery(databaseId, "delete from ${table.name}")
+        expectedTotalChanges += insertCount // all inserted rows are affected
+
+        // then (delete)
+        assertThat(queryChanges(databaseId)).isEqualTo(insertCount)
+        assertThat(queryTotalChanges(databaseId)).isEqualTo(expectedTotalChanges)
+    }
+
+    private suspend fun inspectDatabase(databaseInstance: SQLiteDatabase): Int {
+        testEnvironment.registerAlreadyOpenDatabases(
+            listOf(
+                Database("ignored_1").createInstance(temporaryFolder), // extra testing value
+                databaseInstance,
+                Database("ignored_2").createInstance(temporaryFolder) // extra testing value
+            )
+        )
+        testEnvironment.sendCommand(createTrackDatabasesCommand())
+        return testEnvironment.awaitDatabaseOpenedEvent(databaseInstance.path).databaseId
+    }
+
+    private suspend fun issueQuery(databaseId: Int, command: String): QueryResponse =
+        testEnvironment.sendCommand(createQueryCommand(databaseId, command)).query
+
+    private suspend fun querySchema(databaseId: Int): List<Table> =
+        testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).getSchema.toTableList()
+
+    private suspend fun queryChanges(databaseId: Int, useTotal: Boolean = false): Int {
+        val criterion = if (useTotal) "total_changes" else "changes"
+        return issueQuery(databaseId, "select $criterion()").rowsList.let { response ->
+            assertThat(response).hasSize(1)
+            assertThat(response.first().valuesList).hasSize(1)
+            val cell = response.first().getValues(0)
+            assertThat(cell.type).isEqualTo("integer")
+            cell.value as Int
+        }
+    }
+
+    private suspend fun queryTotalChanges(databaseId: Int): Int = queryChanges(databaseId, true)
 
     private inline fun <reified T> repeatN(value: T, n: Int): Array<T> =
         (0 until n).map { value }.toTypedArray()
