@@ -27,7 +27,7 @@ import androidx.compose.Ambient
 import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.Compose
-import androidx.compose.CompositionContext
+import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.Observe
 import androidx.compose.ambient
@@ -56,7 +56,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
 
     AndroidComposeView(ref = rootRef) {
         var reference: CompositionReference? = null
-        var cc: CompositionContext? = null
+        var cc: Composition? = null
 
         // This is a temporary solution until we get proper subcomposition APIs in place.
         // Right now, we want to enforce a sort of "depth-first" ordering of recompositions,
@@ -104,7 +104,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
  */
 fun Activity.setContent(
     content: @Composable() () -> Unit
-): CompositionContext? {
+): Composition {
     val composeView = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidComposeView
@@ -136,7 +136,7 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
  */
 fun ViewGroup.setContent(
     content: @Composable() () -> Unit
-): CompositionContext? {
+): Composition {
     val composeView =
         if (childCount > 0) { getChildAt(0) as? AndroidComposeView } else { removeAllViews(); null }
         ?: AndroidComposeView(context).also { addView(it) }

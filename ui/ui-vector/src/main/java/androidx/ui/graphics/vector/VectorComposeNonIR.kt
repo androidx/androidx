@@ -18,55 +18,56 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
-import androidx.compose.Component
 import androidx.compose.Composable
 import androidx.compose.Composer
 import androidx.compose.ComposerUpdater
-import androidx.compose.CompositionContext
+import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewValidator
 import androidx.compose.cache
+import androidx.compose.currentComposerNonNull
 import java.util.WeakHashMap
 
-private val VectorTreeRoots = WeakHashMap<VectorComponent, VectorTree>()
+private val VectorCompositions = WeakHashMap<VectorComponent, VectorComposition>()
 
 class VectorScope(val composer: VectorComposer)
-
-private fun obtainVectorTree(container: VectorComponent): VectorTree {
-    var vectorTree = VectorTreeRoots[container]
-    if (vectorTree == null) {
-        vectorTree = VectorTree()
-        VectorTreeRoots[container] = vectorTree
-    }
-    return vectorTree
-}
 
 fun composeVector(
     container: VectorComponent,
     parent: CompositionReference? = null,
     composable: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+): Composition {
+    val composition = VectorCompositions[container]
+        ?: VectorComposition(container, parent).also { VectorCompositions[container] = it }
+    composition.compose(composable)
+    return composition
+}
+
+class VectorComposition(
+    private val container: VectorComponent,
+    parent: CompositionReference? = null
+) : Composition(
+    { slots, recomposer -> VectorComposer(container.root, slots, recomposer) },
+    parent
 ) {
-    var root = VectorTreeRoots[container]
-    if (root == null) {
-        lateinit var composer: VectorComposer
-        root = obtainVectorTree(container)
-        root.context = CompositionContext.prepare(root, parent) {
-            VectorComposer(container.root, this).also { composer = it }
+    fun compose(
+        content: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    ) {
+        super.compose {
+            val composer = currentComposerNonNull as VectorComposer
+            val scope = VectorScope(composer)
+            scope.content(container.viewportWidth, container.viewportHeight)
         }
-        root.viewportWidth = container.viewportWidth
-        root.viewportHeight = container.viewportHeight
-        root.scope = VectorScope(composer)
     }
-    root.composable = composable
-    root.context.compose()
 }
 
 class VectorComposer(
     val root: VNode,
+    slotTable: SlotTable,
     recomposer: Recomposer
-) : Composer<VNode>(SlotTable(), Applier(root, VectorApplyAdapter()), recomposer) {
+) : Composer<VNode>(slotTable, Applier(root, VectorApplyAdapter()), recomposer) {
     inline fun <T : VNode> emit(
         key: Any,
         /*crossinline*/
@@ -151,29 +152,8 @@ class VectorComposer(
 
 fun disposeVector(container: VectorComponent, parent: CompositionReference? = null) {
     composeVector(container, parent) { _, _ -> }
-    VectorTreeRoots.remove(container)
+    VectorCompositions.remove(container)
 }
-
-private class VectorTree : Component() {
-
-    lateinit var scope: VectorScope
-    lateinit var composable: @Composable() VectorScope.(Float, Float) -> Unit
-    lateinit var context: CompositionContext
-
-    var viewportWidth: Float = 0.0f
-    var viewportHeight: Float = 0.0f
-
-    override fun compose() {
-        with(context.composer) {
-            startGroup(0) // TODO (njawad) what key should be used here?
-            scope.composable(viewportWidth, viewportHeight)
-            endGroup()
-        }
-    }
-}
-
-@PublishedApi
-internal val VectorGroupKey = Object()
 
 internal class VectorApplyAdapter : ApplyAdapter<VNode> {
     override fun VNode.start(instance: VNode) {
