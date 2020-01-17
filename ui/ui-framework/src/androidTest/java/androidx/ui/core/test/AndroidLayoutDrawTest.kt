@@ -27,6 +27,7 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.Compose
+import androidx.compose.FrameManager
 import androidx.compose.Model
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
@@ -100,6 +101,8 @@ class AndroidLayoutDrawTest {
     val activityTestRule = ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
+    @get:Rule
+    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 
@@ -2019,6 +2022,48 @@ class AndroidLayoutDrawTest {
             assertRect(Color.White, size = 28, holeSize = 20)
             assertRect(Color.Red, size = 30, holeSize = 28)
         }
+    }
+
+    @Test
+    fun requestRemeasureForAlreadyMeasuredChildWhileTheParentIsStillMeasuring() {
+        val drawlatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(children = {
+                    val state = state { false }
+                    var lastLayoutValue: Boolean = false
+                    Layout(children = {
+                        Draw { _, _ ->
+                            // this verifies the layout was remeasured before being drawn
+                            assertTrue(lastLayoutValue)
+                            drawlatch.countDown()
+                        }
+                    }) { _, _ ->
+                        lastLayoutValue = state.value
+                        // this registers the value read
+                        if (!state.value) {
+                            // change the value right inside the measure block
+                            // it will cause one more remeasure pass as we also read this value
+                            state.value = true
+                        }
+                        layout(100.ipx, 100.ipx) {}
+                    }
+                    FixedSize(30.ipx) { }
+                }) { measurables, constraints ->
+                    val (first, second) = measurables
+                    val firstPlaceable = first.measure(constraints)
+                    // switch frame, as inside the measure block we changed the model value
+                    // this will trigger requestRemeasure on this first layout
+                    FrameManager.nextFrame()
+                    val secondPlaceable = second.measure(constraints)
+                    layout(30.ipx, 30.ipx) {
+                        firstPlaceable.place(0.ipx, 0.ipx)
+                        secondPlaceable.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
+        assertTrue(drawlatch.await(1, TimeUnit.SECONDS))
     }
 
     private val AlignTopLeft = object : LayoutModifier {

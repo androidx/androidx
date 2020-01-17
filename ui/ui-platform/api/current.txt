@@ -53,6 +53,13 @@ package androidx.ui.core {
     property public final androidx.ui.core.LayoutNode root;
     property public boolean showLayoutBounds;
     property public final androidx.ui.input.TextInputService textInputService;
+    field public static final androidx.ui.core.AndroidComposeView.Companion! Companion;
+  }
+
+  public static final class AndroidComposeView.Companion {
+    method public boolean getEnableExtraAssertions();
+    method public void setEnableExtraAssertions(boolean p);
+    property public final boolean enableExtraAssertions;
   }
 
   public final class AndroidOwnerKt {
