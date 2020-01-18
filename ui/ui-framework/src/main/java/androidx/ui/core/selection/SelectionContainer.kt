@@ -22,6 +22,7 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
+import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Placeable
@@ -71,6 +72,8 @@ fun SelectionContainer(
 ) {
     val registrarImpl = remember { SelectionRegistrarImpl() }
     val manager = remember { SelectionManager(registrarImpl) }
+
+    manager.hapticFeedBack = HapticFeedBackAmbient.current
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 

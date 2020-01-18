@@ -21,12 +21,16 @@ import android.app.Activity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.Providers
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.MotionEvent
 import androidx.ui.core.gesture.PointerCoords
 import androidx.ui.core.gesture.PointerProperties
+import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.test.ValueModel
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.text.TextStyle
@@ -38,6 +42,9 @@ import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -69,21 +76,27 @@ class SelectionContainerTest {
     private val selection = ValueModel<Selection?>(null)
     private val fontSize = 10.sp
 
+    private val hapticFeedback = mock<HapticFeedback>()
+
     @Before
     fun setup() {
         withDensity(composeTestRule.density) {
             composeTestRule.setContent {
-                SelectionContainer(
-                    selection = selection.value,
-                    onSelectionChange = {
-                        selection.value = it
-                        gestureCountDownLatch.countDown()
-                    }
+                Providers(
+                    HapticFeedBackAmbient provides hapticFeedback
                 ) {
-                    Text(
-                        textContent,
-                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
-                    )
+                    SelectionContainer(
+                        selection = selection.value,
+                        onSelectionChange = {
+                            selection.value = it
+                            gestureCountDownLatch.countDown()
+                        }
+                    ) {
+                        Text(
+                            textContent,
+                            style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                        )
+                    }
                 }
             }
             view = activity.findViewById<ViewGroup>(R.id.content)
@@ -108,6 +121,10 @@ class SelectionContainerTest {
             // Assert.
             composeTestRule.runOnIdleCompose {
                 assertThat(selection.value).isNull()
+                verify(
+                    hapticFeedback,
+                    times(2)
+                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
             }
         }
     }
@@ -128,6 +145,10 @@ class SelectionContainerTest {
             composeTestRule.runOnIdleCompose {
                 assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
                 assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
+                verify(
+                    hapticFeedback,
+                    times(1)
+                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
             }
         }
     }
@@ -153,6 +174,10 @@ class SelectionContainerTest {
             composeTestRule.runOnIdleCompose {
                 assertThat(selection.value!!.start.offset).isEqualTo(startOffset)
                 assertThat(selection.value!!.end.offset).isEqualTo("Text Demo".length)
+                verify(
+                    hapticFeedback,
+                    times(1)
+                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
             }
         }
     }
