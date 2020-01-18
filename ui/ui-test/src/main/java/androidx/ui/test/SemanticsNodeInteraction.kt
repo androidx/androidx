@@ -16,13 +16,13 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.semantics.SemanticsNode
 
 internal fun SemanticsNodeInteraction(
-    semanticsTreeNode: SemanticsTreeNode,
+    nodeId: Int,
     semanticsTreeInteraction: SemanticsTreeInteraction
 ): SemanticsNodeInteraction {
-    return SemanticsNodeInteraction(listOf(semanticsTreeNode), semanticsTreeInteraction)
+    return SemanticsNodeInteraction(listOf(nodeId), semanticsTreeInteraction)
 }
 
 /**
@@ -35,19 +35,22 @@ internal fun SemanticsNodeInteraction(
  *    .assertIsOn()
  */
 class SemanticsNodeInteraction internal constructor(
-    private val semanticsTreeNodes: List<SemanticsTreeNode>,
+    internal val nodeIds: List<Int>,
     internal val semanticsTreeInteraction: SemanticsTreeInteraction
 ) {
+    internal val semanticsNodes: List<SemanticsNode>
+        get() = semanticsTreeInteraction.getNodesByIds(nodeIds)
 
-    internal val semanticsTreeNode: SemanticsTreeNode
-    get() {
-        if (semanticsTreeNodes.size != 1) {
-            // TODO(b/133217292)
-            throw AssertionError(
-                "Found '${semanticsTreeNodes.size}' nodes but exactly '1' was expected!")
+    internal val semanticsNode: SemanticsNode
+        get() {
+            if (semanticsNodes.size != 1) {
+                // TODO(b/133217292)
+                throw AssertionError(
+                    "Found '${semanticsNodes.size}' nodes but exactly '1' was expected!"
+                )
+            }
+            return semanticsNodes.first()
         }
-        return semanticsTreeNodes.first()
-    }
 
     /**
      * Asserts that no item was found or that the item is no longer in the hierarchy.
@@ -55,20 +58,10 @@ class SemanticsNodeInteraction internal constructor(
      * @throws [AssertionError] if the assert fails.
      */
     fun assertDoesNotExist() {
-        if (semanticsTreeNodes.isEmpty()) {
-            return
-        }
-
-        if (semanticsTreeNodes.size > 1) {
-            // TODO(b/133217292)
+        if (semanticsNodes.isNotEmpty()) {
             throw AssertionError(
-                "Found '${semanticsTreeNodes.size}' components that match, expected '0' components")
-        }
-
-        // We have exactly one
-        if (semanticsTreeInteraction.contains(semanticsTreeNodes[0].data)) {
-            // TODO(b/133217292)
-            throw AssertionError("Assert failed: The component does exist!")
+                "Found '${semanticsNodes.size}' components that match, expected '0' components"
+            )
         }
     }
 
@@ -78,15 +71,11 @@ class SemanticsNodeInteraction internal constructor(
      * @throws [AssertionError] if the assert fails.
      */
     fun assertExists() {
-        if (semanticsTreeNodes.size != 1) {
+        if (semanticsNodes.size != 1) {
             // TODO(b/133217292)
             throw AssertionError(
-                "Found '${semanticsTreeNodes.size}' components that match, expected '1' components")
-        }
-
-        if (!semanticsTreeInteraction.contains(semanticsTreeNodes[0].data)) {
-            // TODO(b/133217292)
-            throw AssertionError("The component does not exist!")
+                "Found '${semanticsNodes.size}' components that match, expected '1' components"
+            )
         }
     }
 }

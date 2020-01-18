@@ -33,6 +33,7 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.semantics.Semantics
 import androidx.ui.unit.DensityScope
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -56,11 +57,13 @@ fun Switch(
     onCheckedChange: ((Boolean) -> Unit)?,
     color: Color = MaterialTheme.colors().secondaryVariant
 ) {
-    Wrap {
-        Ripple(bounded = false) {
-            Toggleable(value = checked, onValueChange = onCheckedChange) {
-                Padding(padding = DefaultSwitchPadding) {
-                    SwitchImpl(checked, onCheckedChange, color)
+    Semantics(container = true, mergeAllDescendants = true) {
+        Wrap {
+            Ripple(bounded = false) {
+                Toggleable(value = checked, onValueChange = onCheckedChange) {
+                    Padding(padding = DefaultSwitchPadding) {
+                        SwitchImpl(checked, onCheckedChange, color)
+                    }
                 }
             }
         }

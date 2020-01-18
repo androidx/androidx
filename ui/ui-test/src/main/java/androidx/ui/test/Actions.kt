@@ -16,12 +16,12 @@
 
 package androidx.ui.test
 
-import androidx.ui.unit.PxPosition
-import androidx.ui.core.SemanticsComponentNode
+import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.findLastLayoutChild
 import androidx.ui.core.localToGlobal
-import androidx.ui.unit.px
 import androidx.ui.semantics.SemanticsActions
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 
 /**
  * Performs a click action on the given component.
@@ -51,22 +51,16 @@ fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
  */
 fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
     // find containing component with scroll action
-    val scrollableSemanticsNode = semanticsTreeNode.findClosestParentNode {
-        it is SemanticsComponentNode && it.semanticsConfiguration.hasScrollAction
-    } as SemanticsComponentNode?
-
-    if (scrollableSemanticsNode == null) {
-        throw AssertionError(
+    val scrollableSemanticsNode = semanticsNode.findClosestParentNode {
+        it.config.hasScrollAction
+    }
+        ?: throw AssertionError(
             "Semantic Node has no parent layout with a Scroll SemanticsAction"
         )
-    }
 
-    val globalRect = semanticsTreeNode.globalRect
-        ?: throw AssertionError(
-            "Semantic Node has no coordinates set!"
-        )
+    val globalRect = semanticsNode.globalBounds
 
-    val layoutNode = scrollableSemanticsNode.findLastLayoutChild { true }
+    val layoutNode = scrollableSemanticsNode.componentNode.findLastLayoutChild { true }
         ?: throw AssertionError(
             "No Layout Node found!"
         )
@@ -74,10 +68,9 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
     val position = layoutNode.localToGlobal(PxPosition(0.px, 0.px))
 
     semanticsTreeInteraction.performAction {
-        scrollableSemanticsNode.semanticsConfiguration[SemanticsActions.ScrollTo].action(
-            globalRect.left.px - position.x,
-            globalRect.top.px - position.y
-
+        scrollableSemanticsNode.config[SemanticsActions.ScrollTo].action(
+            globalRect.left - position.x,
+            globalRect.top - position.y
         )
     }
 

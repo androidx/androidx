@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 The Android Open Source Project
  *
@@ -31,6 +30,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
+import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -179,21 +179,25 @@ fun Button(
     style: ButtonStyle = ContainedButtonStyle(),
     children: @Composable() () -> Unit
 ) {
-    Surface(
-        shape = style.shape,
-        color = style.backgroundColor,
+    // Since we're adding layouts in between the clickable layer and the content, we need to
+    // merge all descendants, or we'll get multiple nodes
+    Semantics(container = true, mergeAllDescendants = true) {
+        Surface(
+            shape = style.shape,
+            color = style.backgroundColor,
         contentColor = style.contentColor,
-        border = style.border,
-        elevation = style.elevation,
-        modifier = modifier
-    ) {
-        Ripple(bounded = true, enabled = onClick != null) {
-            Clickable(onClick = onClick) {
-                Container(constraints = ButtonConstraints, padding = style.paddings) {
-                    CurrentTextStyleProvider(
+            border = style.border,
+            elevation = style.elevation,
+            modifier = modifier
+        ) {
+            Ripple(bounded = true, enabled = onClick != null) {
+                Clickable(onClick = onClick) {
+                    Container(constraints = ButtonConstraints, padding = style.paddings) {
+                        CurrentTextStyleProvider(
                         value = MaterialTheme.typography().button,
-                        children = children
-                    )
+                            children = children
+                        )
+                    }
                 }
             }
         }

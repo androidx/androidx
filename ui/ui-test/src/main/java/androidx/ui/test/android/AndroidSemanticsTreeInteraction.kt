@@ -24,15 +24,15 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
-import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.geometry.Rect
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.InputDispatcher
-import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 
 /**
  * Android specific implementation of [SemanticsTreeInteraction].
@@ -42,31 +42,10 @@ import androidx.ui.unit.px
  * held by your tests.
  */
 internal class AndroidSemanticsTreeInteraction internal constructor(
-    private val selector: SemanticsConfiguration.() -> Boolean
-) : SemanticsTreeInteraction {
+    selector: SemanticsConfiguration.() -> Boolean
+) : SemanticsTreeInteraction(selector) {
 
     private val handler = Handler(Looper.getMainLooper())
-
-    override fun findAllMatching(): List<SemanticsNodeInteraction> {
-        return SynchronizedTreeCollector.collectSemanticsProviders()
-            .getAllSemanticNodes()
-            .map {
-                SemanticsNodeInteraction(it, this)
-            }
-            .filter { node ->
-                node.semanticsTreeNode.data.selector()
-            }
-    }
-
-    override fun findOne(): SemanticsNodeInteraction {
-        val foundNodes = SynchronizedTreeCollector.collectSemanticsProviders()
-            .getAllSemanticNodes()
-            .filter { node ->
-                node.data.selector()
-            }.toList()
-
-        return SemanticsNodeInteraction(foundNodes, this)
-    }
 
     override fun performAction(action: (SemanticsTreeProvider) -> Unit) {
         val collectedInfo = SynchronizedTreeCollector.collectSemanticsProviders()
@@ -91,13 +70,11 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
         action(AndroidInputDispatcher(SynchronizedTreeCollector.collectSemanticsProviders()))
     }
 
-    override fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean {
-        return SynchronizedTreeCollector.collectSemanticsProviders()
-            .getAllSemanticNodes()
-            .any { it.data == semanticsConfiguration }
+    override fun getAllSemanticsNodes(): List<SemanticsNode> {
+        return SynchronizedTreeCollector.collectSemanticsProviders().getAllSemanticNodes()
     }
 
-    override fun isInScreenBounds(rectangle: Rect): Boolean {
+    override fun isInScreenBounds(rectangle: PxBounds): Boolean {
         val displayMetrics = SynchronizedTreeCollector.collectSemanticsProviders()
             .context
             .resources
@@ -107,25 +84,17 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
             displayMetrics.widthPixels.px,
             displayMetrics.heightPixels.px
         )
-        val screenRect = Rect.fromLTWH(
-            0.px.value,
-            0.px.value,
-            bottomRight.x.value,
-            bottomRight.y.value
-        )
-
-        return screenRect.contains(rectangle.getTopLeft()) &&
-                screenRect.contains(rectangle.getBottomRight())
+        return rectangle.top >= 0.px &&
+                rectangle.left >= 0.px &&
+                rectangle.right <= bottomRight.x &&
+                rectangle.bottom <= bottomRight.y
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap {
+    override fun captureNodeToBitmap(node: SemanticsNode): Bitmap {
         val collectedInfo = SynchronizedTreeCollector.collectSemanticsProviders()
 
-        // TODO: Share this code with contains() somehow?
-        val exists = collectedInfo
-            .getAllSemanticNodes()
-            .any { it.data == node.data }
+        val exists = contains(node.id)
         if (!exists) {
             throw AssertionError("The required node is no longer in the tree!")
         }
@@ -157,6 +126,6 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
         // TODO(pavlis): Add support for popups. So if we find composable hosted in popup we can
         // grab its reference to its window (need to add a hook to popup).
 
-        return captureRegionToBitmap(node.globalRect!!, handler, window)
+        return captureRegionToBitmap(node.globalBounds.toRect(), handler, window)
     }
 }

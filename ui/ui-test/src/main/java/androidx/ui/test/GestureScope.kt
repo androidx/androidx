@@ -17,15 +17,15 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
-import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.gesture.LongPressTimeout
-import androidx.ui.geometry.Rect
 import androidx.ui.unit.Duration
-import androidx.ui.unit.Px
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.height
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
+import androidx.ui.unit.width
 import androidx.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -35,7 +35,7 @@ import kotlin.math.sin
 /**
  * An object that has an associated component in which one can inject gestures. The gestures can
  * be injected by calling methods defined on [GestureScope], such as [sendSwipeUp]. The associated
- * component is the [SemanticsTreeNode] found by one of the finder methods such as [findByTag].
+ * component is the [SemanticsNodeInteraction] found by one of the finder methods such as [findByTag].
  *
  * Example usage:
  * findByTag("myWidget")
@@ -46,8 +46,8 @@ import kotlin.math.sin
 class GestureScope internal constructor(
     internal val semanticsNodeInteraction: SemanticsNodeInteraction
 ) {
-    internal inline val semanticsTreeNode
-        get() = semanticsNodeInteraction.semanticsTreeNode
+    internal inline val semanticsNode
+        get() = semanticsNodeInteraction.semanticsNode
     internal inline val semanticsTreeInteraction
         get() = semanticsNodeInteraction.semanticsTreeInteraction
 }
@@ -68,12 +68,8 @@ private val doubleClickDelay = 145.milliseconds
 /**
  * Returns the global bounds of the component we're interacting with
  */
-val GestureScope.globalBounds: Rect
-    get() {
-        return requireNotNull(semanticsTreeNode.globalRect) {
-            "Semantic Node has no child layout to resolve coordinates on"
-        }
-    }
+val GestureScope.globalBounds: PxBounds
+    get() = semanticsNode.globalBounds
 
 /**
  * Transforms the [position] to global coordinates, as defined by [globalBounds]
@@ -82,7 +78,7 @@ val GestureScope.globalBounds: Rect
  */
 fun GestureScope.toGlobalPosition(position: PxPosition): PxPosition {
     val bounds = globalBounds
-    return position + PxPosition(bounds.left.px, bounds.top.px)
+    return position + PxPosition(bounds.left, bounds.top)
 }
 
 /**
@@ -107,7 +103,7 @@ fun GestureScope.sendClick(position: PxPosition) {
  */
 fun GestureScope.sendClick() {
     val bounds = globalBounds
-    sendClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
+    sendClick(PxPosition(bounds.width / 2, bounds.height / 2))
 }
 
 /**
@@ -132,7 +128,7 @@ fun GestureScope.sendLongClick(position: PxPosition) {
  */
 fun GestureScope.sendLongClick() {
     val bounds = globalBounds
-    sendLongClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
+    sendLongClick(PxPosition(bounds.width / 2, bounds.height / 2))
 }
 
 /**
@@ -160,7 +156,7 @@ fun GestureScope.sendDoubleClick(position: PxPosition) {
  */
 fun GestureScope.sendDoubleClick() {
     val bounds = globalBounds
-    sendDoubleClick(PxPosition(Px(bounds.width / 2), Px(bounds.height / 2)))
+    sendDoubleClick(PxPosition(bounds.width / 2, bounds.height / 2))
 }
 
 /**
@@ -258,9 +254,9 @@ fun GestureScope.sendSwipeUp() {
     val bounds = globalBounds
     val x = bounds.width / 2
     val y0 = bounds.height * (1 - edgeFuzzFactor)
-    val y1 = 0f
-    val start = PxPosition(x.px, y0.px)
-    val end = PxPosition(x.px, y1.px)
+    val y1 = 0.px
+    val start = PxPosition(x, y0)
+    val end = PxPosition(x, y1)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -275,8 +271,8 @@ fun GestureScope.sendSwipeDown() {
     val x = bounds.width / 2
     val y0 = bounds.height * edgeFuzzFactor
     val y1 = bounds.height
-    val start = PxPosition(x.px, y0.px)
-    val end = PxPosition(x.px, y1.px)
+    val start = PxPosition(x, y0)
+    val end = PxPosition(x, y1)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -289,10 +285,10 @@ fun GestureScope.sendSwipeDown() {
 fun GestureScope.sendSwipeLeft() {
     val bounds = globalBounds
     val x0 = bounds.width * (1 - edgeFuzzFactor)
-    val x1 = 0f
+    val x1 = 0.px
     val y = bounds.height / 2
-    val start = PxPosition(x0.px, y.px)
-    val end = PxPosition(x1.px, y.px)
+    val start = PxPosition(x0, y)
+    val end = PxPosition(x1, y)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -307,8 +303,8 @@ fun GestureScope.sendSwipeRight() {
     val x0 = bounds.width * edgeFuzzFactor
     val x1 = bounds.width
     val y = bounds.height / 2
-    val start = PxPosition(x0.px, y.px)
-    val end = PxPosition(x1.px, y.px)
+    val start = PxPosition(x0, y)
+    val end = PxPosition(x1, y)
     sendSwipe(start, end, 200.milliseconds)
 }
 

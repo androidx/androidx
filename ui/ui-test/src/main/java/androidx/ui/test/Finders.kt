@@ -47,7 +47,7 @@ fun findAllByTag(testTag: String): List<SemanticsNodeInteraction> {
 }
 
 /**
- * Finds a component with label that matches the given text.
+ * Finds a component with the given text as its accessibilityLabel.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findBySubstring to search by substring instead of via exact match.
@@ -59,7 +59,7 @@ fun findByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteract
 }
 
 /**
- *  Finds a component with label that contains the given substring.
+ *  Finds a component with accessibilityLabel that contains the given substring.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findByText to perform exact matches.
@@ -67,6 +67,17 @@ fun findByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteract
 fun findBySubstring(text: String, ignoreCase: Boolean = false): SemanticsNodeInteraction {
     return find {
         hasSubstring(text, ignoreCase)
+    }
+}
+
+/**
+ * Finds all components with the given text as their accessibility label.
+ *
+ * For usage patterns see [SemanticsNodeInteraction]
+ */
+fun findAllByText(text: String, ignoreCase: Boolean = false): List<SemanticsNodeInteraction> {
+    return findAll {
+        getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
     }
 }
 

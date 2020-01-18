@@ -39,6 +39,7 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.semantics.Semantics
 import androidx.ui.unit.dp
 
 /**
@@ -95,12 +96,14 @@ fun TriStateCheckbox(
     modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().secondary
 ) {
-    Container(modifier) {
-        Ripple(bounded = false) {
-            TriStateToggleable(value = value, onToggle = onClick) {
-                Padding(padding = CheckboxDefaultPadding) {
-                    Container(width = CheckboxSize, height = CheckboxSize) {
-                        DrawCheckbox(value = value, activeColor = color)
+    Semantics(container = true, mergeAllDescendants = true) {
+        Container(modifier) {
+            Ripple(bounded = false) {
+                TriStateToggleable(value = value, onToggle = onClick) {
+                    Padding(padding = CheckboxDefaultPadding) {
+                        Container(width = CheckboxSize, height = CheckboxSize) {
+                            DrawCheckbox(value = value, activeColor = color)
+                        }
                     }
                 }
             }

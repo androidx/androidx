@@ -100,7 +100,7 @@ class ElevationOverlayTest(private val elevation: Dp, private val expectedOverla
                         Surface(elevation = elevation) {
                             // Make the surface size small so we compare less pixels
                             TestTag(Tag) {
-                                Semantics {
+                                Semantics(container = true) {
                                     Container(
                                         width = SurfaceSize.width.toDp(),
                                         height = SurfaceSize.height.toDp()

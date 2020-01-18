@@ -18,15 +18,17 @@ package androidx.ui.test
 
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.RepaintBoundaryNode
-import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.localToGlobal
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.semantics.accessibilityValue
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
@@ -155,13 +157,31 @@ fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeIn
 }
 
 /**
+ * Asserts the component's label equals the given String.
+ * For further details please check [SemanticsConfiguration.accessibilityLabel].
+ * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
+ */
+fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInteraction {
+    verify({ node -> "Expected label: $value, " +
+            "Actual label: ${node.getOrNull(SemanticsProperties.AccessibilityLabel)}"
+    }) {
+        it.getOrElse(SemanticsProperties.AccessibilityLabel) {
+            throw AssertionError("Expected label: $value, but had none")
+        } == value
+    }
+    return this
+}
+
+/**
  * Asserts the component's value equals the given value.
  *
  * For further details please check [SemanticsConfiguration.accessibilityValue].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
 fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction {
-    verify({ node -> "Expected value: $value, Actual value: ${node.accessibilityValue}" }) {
+    verify({ node -> "Expected value: $value, " +
+                "Actual value: ${node.getOrNull(SemanticsProperties.AccessibilityValue)}"
+    }) {
         it.getOrElse(SemanticsProperties.AccessibilityValue) {
             throw AssertionError("Expected value: $value, but had none")
         } == value
@@ -176,8 +196,7 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
 fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
     expectedProperties: SemanticsConfiguration
 ): SemanticsNodeInteraction {
-    assertExists()
-    semanticsTreeNode.data.assertEquals(expectedProperties)
+    semanticsNode.config.assertEquals(expectedProperties)
 
     return this
 }
@@ -216,7 +235,7 @@ fun List<SemanticsNodeInteraction>.assertCountEquals(
 ): List<SemanticsNodeInteraction> {
     if (size != count) {
         // TODO(b/133217292)
-        throw AssertionError("Found '$size' nodes but exactly '$count' was expected!")
+        throw AssertionError("Found $size nodes but exactly $count was expected!")
     }
 
     return this
@@ -230,11 +249,9 @@ fun SemanticsNodeInteraction.verify(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
 ) {
-    assertExists()
-
-    if (!condition.invoke(semanticsTreeNode.data)) {
+    if (!condition.invoke(semanticsNode.config)) {
         // TODO(b/133217292)
-        throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
+        throw AssertionError("Assert failed: ${assertionMessage(semanticsNode.config)}")
     }
 }
 
@@ -246,13 +263,11 @@ fun SemanticsNodeInteraction.verifyHierarchy(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
 ) {
-    assertExists()
-
-    var node: SemanticsTreeNode? = semanticsTreeNode
+    var node: SemanticsNode? = semanticsNode
     while (node != null) {
-        if (!condition.invoke(node.data)) {
+        if (!condition.invoke(node.config)) {
             // TODO(b/133217292)
-            throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
+            throw AssertionError("Assert failed: ${assertionMessage(semanticsNode.config)}")
         }
         node = node.parent
     }
@@ -286,20 +301,20 @@ internal fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInterac
 
 private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible
-    if (semanticsTreeNode.findClosestParentNode {
+    if (semanticsNode.componentNode.findClosestParentNode {
             it is LayoutNode && !it.isPlaced
         } != null) {
         return false
     }
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
-    val globalRect = semanticsTreeNode.globalRect
-    if (!semanticsTreeInteraction.isInScreenBounds(globalRect!!)) {
+    val globalRect = semanticsNode.globalBounds
+    if (!semanticsTreeInteraction.isInScreenBounds(globalRect)) {
         return false
     }
 
     // check if we have clipping via RepaintBoundaryNode
-    val repaintBoundaryNode = semanticsTreeNode.findClosestParentNode {
+    val repaintBoundaryNode = semanticsNode.componentNode.findClosestParentNode {
         it is RepaintBoundaryNode && it.clipToShape
     }
     if (repaintBoundaryNode == null) {
@@ -320,8 +335,9 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
  * Returns `true` if the given [rectangle] is completely contained within this
  * [LayoutNode].
  */
-private fun LayoutNode.contains(rectangle: Rect): Boolean {
+private fun LayoutNode.contains(rectangle: PxBounds): Boolean {
     val globalPositionTopLeft = localToGlobal(PxPosition(0.px, 0.px))
+    // TODO: This method generates a lot of objects when it could compare primitives
 
     val rect = Rect.fromLTWH(
         globalPositionTopLeft.x.value,
@@ -329,5 +345,6 @@ private fun LayoutNode.contains(rectangle: Rect): Boolean {
         width.toPx().value + 1f,
         height.toPx().value + 1f)
 
-    return rect.contains(rectangle.getTopLeft()) && rect.contains(rectangle.getBottomRight())
+    return rect.contains(Offset(rectangle.left.value, rectangle.top.value)) &&
+            rect.contains(Offset(rectangle.right.value, rectangle.bottom.value))
 }

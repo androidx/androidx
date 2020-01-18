@@ -20,6 +20,8 @@ import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.focus.FocusDetailedState
 import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.ActiveParent
@@ -50,12 +52,20 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
+ * Enable to log changes to the ComponentNode tree.  This logging is quite chatty.
+ */
+private const val DebugChanges = false
+
+/**
  * Owner implements the connection to the underlying view system. On Android, this connects
  * to Android [android.view.View]s and all layout, draw, input, and accessibility is hooked
  * through them.
  */
 interface Owner {
+
     val density: Density
+
+    val semanticsOwner: SemanticsOwner
 
     /**
      * `true` when layout should draw debug bounds.
@@ -152,6 +162,7 @@ interface Owner {
  * All other components are not represented in the backing hierarchy.
  */
 sealed class ComponentNode : Emittable {
+
     internal val children = mutableListOf<ComponentNode>()
 
     /**
@@ -232,6 +243,11 @@ sealed class ComponentNode : Emittable {
         }
         ErrorMessages.ComponentNodeHasParent.validateState(instance.parent == null)
         ErrorMessages.OwnerAlreadyAttached.validateState(instance.owner == null)
+
+        if (DebugChanges) {
+            println("$instance added to $this at index $index")
+        }
+
         instance.parent = this
         children.add(index, instance)
 
@@ -249,6 +265,10 @@ sealed class ComponentNode : Emittable {
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
             val child = children.removeAt(i)
+            if (DebugChanges) {
+                println("$child removed from $this at index $i")
+            }
+
             if (attached) {
                 child.detach()
             }
@@ -260,12 +280,26 @@ sealed class ComponentNode : Emittable {
         if (from == to) {
             return // nothing to do
         }
+        var shouldInvalidateSemanticsComponentNode = false
         for (i in 0 until count) {
             // if "from" is after "to," the from index moves because we're inserting before it
             val fromIndex = if (from > to) from + i else from
             val toIndex = if (from > to) to + i else to + count - 2
             val child = children.removeAt(fromIndex)
+
+            if (DebugChanges) {
+                println("$child moved in $this from index $fromIndex to $toIndex")
+            }
+
             children.add(toIndex, child)
+
+            if (child.hasSemanticsComponentNodeInTree()) {
+                shouldInvalidateSemanticsComponentNode = true
+            }
+        }
+
+        if (shouldInvalidateSemanticsComponentNode) {
+            invalidateSemanticsComponentNode()
         }
         containingLayoutNode?.layoutChildrenDirty = true
     }
@@ -308,6 +342,51 @@ sealed class ComponentNode : Emittable {
         owner.onDetach(this)
         this.owner = null
         depth = 0
+    }
+
+    internal open fun invalidateSemanticsComponentNode() {
+        if (parent == null) {
+            // We're at the top, invalidate the root so that it picks up changes
+            owner?.semanticsOwner?.invalidateSemanticsRoot()
+        }
+
+        parent?.invalidateSemanticsComponentNode()
+    }
+
+    internal open fun hasSemanticsComponentNodeInTree(): Boolean {
+        visitChildren {
+            if (it.hasSemanticsComponentNodeInTree()) {
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun toString(): String {
+        return "${simpleIdentityToString(this)} children: ${children.size}"
+    }
+
+    /**
+     * Call this method from the debugger to see a dump of the ComponentNode tree structure
+     */
+    private fun debugTreeToString(depth: Int = 0): String {
+        val tree = StringBuilder()
+        for (i in 0 until depth) {
+            tree.append("  ")
+        }
+        tree.append("|-")
+        tree.append(toString())
+        tree.append('\n')
+
+        for (child in children) {
+            tree.append(child.debugTreeToString(depth + 1))
+        }
+
+        if (depth == 0) {
+            // Delete trailing newline
+            tree.deleteCharAt(tree.length - 1)
+        }
+        return tree.toString()
     }
 }
 
@@ -417,7 +496,9 @@ class FocusNode : ComponentNode() {
     private lateinit var _recompose: () -> Unit
     var recompose: () -> Unit
         get() = _recompose
-        set(value) { _recompose = value }
+        set(value) {
+            _recompose = value
+        }
 
     /**
      * The focus state for the current component. When the component is in the [Active] state, it
@@ -1115,6 +1196,7 @@ class LayoutNode : ComponentNode(), Measurable {
         abstract override val wrapped: LayoutNodeWrapper
         override fun calculateContentPosition(offset: IntPxPosition) =
             wrapped.calculateContentPosition(position + offset)
+
         override fun layoutSize(innermostSize: IntPxSize) = wrapped.layoutSize(innermostSize)
         override fun draw(canvas: Canvas, density: Density) = wrapped.draw(canvas, density)
         override fun get(line: AlignmentLine): IntPx? = wrapped[line]
@@ -1123,6 +1205,7 @@ class LayoutNode : ComponentNode(), Measurable {
             wrapped.measure(constraints)
             return this
         }
+
         override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
         override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
         override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
@@ -1213,7 +1296,6 @@ class LayoutNode : ComponentNode(), Measurable {
 
         override var size: IntPxSize
             get() = if (super.size == Unmeasured) wrapped.size else super.size
-
             set(value) {
                 super.size = value
             }
@@ -1450,7 +1532,7 @@ class LayoutNode : ComponentNode(), Measurable {
                     child.alignmentLines.entries.forEach { (childLine, linePosition) ->
                         val offset = child.contentPosition
                         val linePositionInContainer = linePosition +
-                                    if (childLine.horizontal) offset.y else offset.x
+                                if (childLine.horizontal) offset.y else offset.x
                         // If the line was already provided by a previous child, merge the values.
                         alignmentLines[childLine] = if (childLine in alignmentLines) {
                             childLine.merge(
@@ -1519,6 +1601,10 @@ class LayoutNode : ComponentNode(), Measurable {
         // b) when the child of the Layout is positioned - `onChildPositioned`
         walkOnPosition(this, this.coordinates)
         walkOnChildPositioned(this, this.coordinates)
+    }
+
+    override fun toString(): String {
+        return "${super.toString()} measureBlocks: $measureBlocks"
     }
 
     internal companion object {
@@ -1605,53 +1691,149 @@ private class InvalidatingProperty<T>(private var value: T) :
 }
 
 class SemanticsComponentNode(
-    // TODO(ryanmentley): probably take away these default values
-    semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration(),
-    /**
-     * If [container] is true, this composable will introduce a new
-     * node in the semantics tree. Otherwise, the semantics will be
-     * merged with the semantics of any ancestors (if the ancestor allows that).
-     *
-     * Whether descendants of this composable can add their semantic information to the
-     * [SemanticsNode][androidx.ui.core.semantics.SemanticNode] introduced by this configuration is
-     * controlled by [explicitChildNodes].
-     */
-    @Suppress("KDocUnresolvedReference")
-    container: Boolean = false,
-    /**
-     * Whether descendants of this composable are allowed to add semantic information
-     * to the [SemanticsNode][androidx.ui.core.semantics.SemanticNode] annotated by this composable.
-     *
-     * When set to false descendants are allowed to annotate [SemanticNodes][androidx.ui.core
-     * .semantics.SemanticNode] of
-     * their parent with the semantic information they want to contribute to the
-     * semantic tree.
-     * When set to true the only way for descendants to contribute semantic
-     * information to the semantic tree is to introduce new explicit
-     * [SemanticNodes][androidx.ui.core.semantics.SemanticNode] to the tree.
-     *
-     * If the semantics properties of this node include
-     * [scopesRoute][androidx.ui.semantics.SemanticsProperties.scopesRoute] set to
-     * true, then [explicitChildNodes] must be true also.
-     *
-     * This setting is often used in combination with [SemanticsConfiguration.isSemanticBoundary]
-     * to create semantic boundaries that are either writable or not for children.
-     */
-    @Suppress("KDocUnresolvedReference")
-    explicitChildNodes: Boolean = false
+    semanticsConfiguration: SemanticsConfiguration,
+    val id: Int
 ) : ComponentNode() {
-    private var needsSemanticsUpdate = true
-
-    var container: Boolean by InvalidatingProperty(container)
-
-    var explicitChildNodes: Boolean by InvalidatingProperty(explicitChildNodes)
-
-    // TODO(ryanmentley): this should be smarter and invalidate less
-    var semanticsConfiguration: SemanticsConfiguration
+    private var localSemanticsConfiguration: SemanticsConfiguration
             by InvalidatingProperty(semanticsConfiguration)
 
+    private var topNodeOfConfig: SemanticsComponentNode? = null
+    private var _semanticsNode: SemanticsNode? = null
+
+    val semanticsNode: SemanticsNode
+        get() {
+            // If we're being asked for this, we should be the top node of the config
+            check(topNodeOfConfig == null)
+            var node = _semanticsNode
+            if (node == null) {
+                node = SemanticsNode(id, mergedSemanticsConfiguration, this)
+                _semanticsNode = node
+            }
+
+            return node
+        }
+
+    private var _mergedSemanticsConfiguration: SemanticsConfiguration? = null
+    private val mergedSemanticsConfiguration: SemanticsConfiguration
+        get() {
+            // If we're being asked for this, we should be the top node
+            check(topNodeOfConfig == null)
+            var config = _mergedSemanticsConfiguration
+            if (config == null) {
+                config = buildSemanticsConfiguration()
+                _mergedSemanticsConfiguration = config
+            }
+            return config
+        }
+
     internal fun markNeedsSemanticsUpdate() {
-        needsSemanticsUpdate = true
+        val topNodeOfConfig = topNodeOfConfig
+        if (topNodeOfConfig != null) {
+            // Need to invalidate from the node that owns the SemanticsNode
+            topNodeOfConfig.markNeedsSemanticsUpdate()
+            // Break the association - it will be regenerated if still correct
+            this.topNodeOfConfig = null
+        } else if (_mergedSemanticsConfiguration != null) {
+            // If we are the node that owns a SemanticsNode
+            _mergedSemanticsConfiguration = null
+            _semanticsNode?.invalidateChildren() // TODO(ryanmentley): this is overkill
+            if (_semanticsNode?.attached == true) {
+                _semanticsNode?.detach()
+            }
+            _semanticsNode = null
+        } else {
+            // Walk up until we hit another semantics component node
+            // TODO(ryanmentley): this is also overkill, we can be smarter about boundaries
+            // TODO: could this be smarter?  it'll always walk after the first time being marked
+            parent?.invalidateSemanticsComponentNode()
+        }
+    }
+
+    override fun invalidateSemanticsComponentNode() {
+        markNeedsSemanticsUpdate()
+    }
+
+    override fun hasSemanticsComponentNodeInTree(): Boolean {
+        return true
+    }
+
+    override fun attach(owner: Owner) {
+        super.attach(owner)
+        parent?.invalidateSemanticsComponentNode()
+    }
+
+    override fun detach() {
+        super.detach()
+        parent?.invalidateSemanticsComponentNode()
+    }
+
+    override fun toString(): String {
+        return "${super.toString()} localConfig: $localSemanticsConfiguration"
+    }
+
+    private fun ComponentNode.markNeedsSemanticsUpdate() {
+        when {
+            this is SemanticsComponentNode -> markNeedsSemanticsUpdate()
+            parent is LayoutNode -> return
+            else -> {
+                check(parent != null) {
+                    "Hit top of hierarchy looking for a layout or" +
+                            " semantics node - should not happen"
+                }
+                parent!!.markNeedsSemanticsUpdate()
+            }
+        }
+    }
+
+    /**
+     * "Merges" together the [SemanticsConfiguration]s that will apply to the child [LayoutNode].
+     *
+     * This ignores semantic boundaries (because they only apply once the node is built), and currently does not
+     * validate that a [LayoutNode] actually exists as a child (though this is not contractual)
+     */
+    private fun buildSemanticsConfiguration(
+        parentConfig: SemanticsConfiguration? = null,
+        topNodeOfConfig: SemanticsComponentNode? = null
+    ): SemanticsConfiguration {
+        // Either both are null, or neither is null
+        check((parentConfig == null) == (topNodeOfConfig == null)) {
+            "Trying to build a semantics configuration with incorrect parameters: " +
+                    "parentConfig=$parentConfig, topNodeOfConfig=$topNodeOfConfig"
+        }
+
+        val config: SemanticsConfiguration
+        if (parentConfig != null && topNodeOfConfig != null) {
+            config = parentConfig
+            this.topNodeOfConfig = topNodeOfConfig
+            parentConfig.absorb(localSemanticsConfiguration, ignoreAlreadySet = true)
+        } else {
+            check(topNodeOfConfig == null) // We are the top node of our config
+            config = localSemanticsConfiguration.copy()
+        }
+        val childNode = findChildSemanticsComponentNode()
+
+        // Recursively build the node, if we have children
+        childNode?.buildSemanticsConfiguration(config, topNodeOfConfig ?: this)
+
+        return config
+    }
+
+    /**
+     * This function finds one or zero child [SemanticsComponentNode]s that are between this node
+     * and any [LayoutNode]s, as there is no logical behavior if a single Semantics node wraps
+     * multiple child nodes, and this is the most efficient thing to implement (once we find one,
+     * we can stop looking)
+     */
+    private fun ComponentNode.findChildSemanticsComponentNode(): SemanticsComponentNode? {
+        // TODO(ryanmentley): Should this have an option to validate that there is at most one in debug mode?
+        visitChildren { child ->
+            when (child) {
+                is SemanticsComponentNode -> return child // Found one
+                is LayoutNode -> return@visitChildren // Stop on LayoutNodes
+                else -> return child.findChildSemanticsComponentNode() // Keep searching
+            }
+        }
+        return null // Didn't find any
     }
 }
 
@@ -1889,9 +2071,77 @@ fun ComponentNode.findClosestParentNode(selector: (ComponentNode) -> Boolean): C
 }
 
 /**
+ * Executes [selector] on every parent of this [SemanticsNode] and returns the closest
+ * [SemanticsNode] to return `true` from [selector] or null if [selector] returns false
+ * for all ancestors.
+ */
+fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): SemanticsNode? {
+    // TODO(b/143866294): move this to the testing side after the hierarchy isn't flattened anymore
+    var currentParent = parent
+    while (currentParent != null) {
+        if (currentParent.isSemanticBoundary && selector(currentParent)) {
+            return currentParent
+        } else {
+            currentParent = currentParent.parent
+        }
+    }
+
+    return null
+}
+
+/**
  * Returns `true` if this ComponentNode has no descendant [LayoutNode]s.
  */
 fun ComponentNode.hasNoLayoutDescendants() = findLastLayoutChild { true } == null
+
+internal fun ComponentNode.findChildSemanticsComponentNodes(): List<SemanticsComponentNode> {
+    // Stopping at SCNs, find all child SCNs of our node
+    val childSemanticsComponentNodes: MutableList<SemanticsComponentNode> = mutableListOf()
+    for (child in children) {
+        findChildSemanticsComponentNodesRecursive(childSemanticsComponentNodes, child)
+    }
+    return childSemanticsComponentNodes
+}
+
+private fun ComponentNode.findChildSemanticsComponentNodesRecursive(
+    list: MutableList<SemanticsComponentNode>,
+    node: ComponentNode
+) {
+    when (node) {
+        is SemanticsComponentNode -> {
+            list.add(node)
+            // Stop, we're done
+        }
+        else -> {
+            for (child in node.children) {
+                findChildSemanticsComponentNodesRecursive(list, child)
+            }
+        }
+    }
+}
+
+internal fun ComponentNode.findFirstLayoutNodeInTree(): LayoutNode? {
+    if (this is LayoutNode) {
+        return this
+    }
+    visitChildren { child ->
+        if (child is LayoutNode) {
+            return child
+        } else {
+            val layoutChild = child.findFirstLayoutNodeInTree()
+            if (layoutChild != null) {
+                return layoutChild
+            } // else, keep looking through the other children
+        }
+    }
+
+    return null
+}
+
+internal fun ComponentNode.requireFirstLayoutNodeInTree(): LayoutNode {
+    return findFirstLayoutNodeInTree()
+        ?: throw IllegalStateException("This component has no layout children")
+}
 
 /**
  * DataNodeKey for ParentData

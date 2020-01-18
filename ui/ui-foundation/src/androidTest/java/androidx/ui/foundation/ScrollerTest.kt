@@ -390,14 +390,16 @@ class ScrollerTest {
         composeTestRule.setContent {
             val content = @Composable {
                 repeat(itemCount) {
-                    Text(text = "$it")
+                    Semantics(container = true) {
+                        Text(text = "$it")
+                    }
                 }
             }
             Align(alignment = Alignment.TopLeft) {
                 Container(width = width, height = height) {
                     DrawShape(RectangleShape, Color.White)
                         TestTag(scrollerTag) {
-                            Semantics {
+                            Semantics(container = true) {
                                 if (isVertical) {
                                     VerticalScroller(scrollerPosition) {
                                         Column {

@@ -34,7 +34,8 @@ open class SemanticsPropertyKey<T>(
      */
     open fun merge(existingValue: T, newValue: T): T {
         throw IllegalStateException(
-            "merge function called on unmergeable property $name.  " +
+            "merge function called on unmergeable property $name. " +
+                    "Existing value: $existingValue, new value: $newValue. " +
                     "You may need to add a semantic boundary."
         )
     }
@@ -64,10 +65,22 @@ open class SemanticsPropertyKey<T>(
     ) {
         thisRef[this] = value
     }
+
+    override fun toString(): String {
+        return "SemanticsPropertyKey: $name"
+    }
 }
 
 // This needs to be in core because it needs to be accessible from platform
-data class AccessibilityAction<T : Function<Unit>>(val label: String?, val action: T)
+data class AccessibilityAction<T : Function<Unit>>(val label: String?, val action: T) {
+    // TODO(b/145951226): Workaround for a bytecode issue, remove this
+    override fun hashCode(): Int {
+        var result = label?.hashCode() ?: 0
+        // (action as Any) is the workaround
+        result = 31 * result + (action as Any).hashCode()
+        return result
+    }
+}
 
 interface SemanticsPropertyReceiver {
     operator fun <T> set(key: SemanticsPropertyKey<T>, value: T)

@@ -16,8 +16,8 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.semantics.accessibilityLabel
@@ -32,11 +32,9 @@ class FindersTests {
     fun findAll_zeroOutOfOne_findsNone() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withSemantics(newNode(
-                    SemanticsConfiguration().apply {
-                        testTag = "not_myTestTag"
-                    }
-                ))
+                .withSemantics(newNode {
+                    testTag = "not_myTestTag"
+                })
         }
 
         val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
@@ -45,12 +43,12 @@ class FindersTests {
 
     @Test
     fun findAll_oneOutOfTwo_findsOne() {
-        val node1 = newNode(SemanticsConfiguration().apply {
+        val node1 = newNode {
             testTag = "myTestTag"
-        })
-        val node2 = newNode(SemanticsConfiguration().apply {
+        }
+        val node2 = newNode {
             testTag = "myTestTag2"
-        })
+        }
 
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
@@ -58,21 +56,17 @@ class FindersTests {
         }
 
         val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
-        assertThat(foundNodes.map { it.semanticsTreeNode }).containsExactly(node1)
+        assertThat(foundNodes.map { it.semanticsNode }).containsExactly(node1)
     }
 
     @Test
     fun findAll_twoOutOfTwo_findsTwo() {
-        val node1 = newNode(
-            SemanticsConfiguration().apply {
-                testTag = "myTestTag"
-            }
-        )
-        val node2 = newNode(
-            SemanticsConfiguration().apply {
-                testTag = "myTestTag"
-            }
-        )
+        val node1 = newNode {
+            testTag = "myTestTag"
+        }
+        val node2 = newNode {
+            testTag = "myTestTag"
+        }
 
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
@@ -80,15 +74,15 @@ class FindersTests {
         }
 
         val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
-        assertThat(foundNodes.map { it.semanticsTreeNode }).containsExactly(node1, node2)
+        assertThat(foundNodes.map { it.semanticsNode }).containsExactly(node1, node2)
     }
 
     @Test
     fun findByText_matches() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.accessibilityLabel = "Hello World"
+                .withProperties({
+                    accessibilityLabel = "Hello World"
                 })
         }
 
@@ -99,20 +93,21 @@ class FindersTests {
     fun findByText_fails() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.accessibilityLabel = "Hello World"
+                .withProperties({
+                    accessibilityLabel = "Hello World"
                 })
         }
 
-        findByText("World")
+        // Need to assert exists or it won't fail
+        findByText("World").assertExists()
     }
 
     @Test
     fun findBySubstring_matches() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.accessibilityLabel = "Hello World"
+                .withProperties({
+                    accessibilityLabel = "Hello World"
                 })
         }
 
@@ -123,8 +118,8 @@ class FindersTests {
     fun findBySubstring_ignoreCase_matches() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.accessibilityLabel = "Hello World"
+                .withProperties({
+                    accessibilityLabel = "Hello World"
                 })
         }
 
@@ -135,15 +130,19 @@ class FindersTests {
     fun findBySubstring_wrongCase_fails() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.accessibilityLabel = "Hello World"
+                .withProperties({
+                    accessibilityLabel = "Hello World"
                 })
         }
 
-        findBySubstring("world")
+        // Need to assert exists or it won't fail
+        findBySubstring("world").assertExists()
     }
 
-    private fun newNode(properties: SemanticsConfiguration): SemanticsTreeNode {
-        return SemanticsTreeNodeStub(data = properties)
+    private fun newNode(propertiesBlock: SemanticsConfiguration.() -> Unit): SemanticsNode {
+        val config = SemanticsConfiguration()
+        config.isSemanticBoundary = true
+        config.propertiesBlock()
+        return SemanticsTreeNodeStub(data = config)
     }
 }

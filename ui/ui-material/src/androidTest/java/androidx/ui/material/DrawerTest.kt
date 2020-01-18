@@ -32,8 +32,10 @@ import androidx.ui.test.sendClick
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
 import androidx.ui.unit.px
 import androidx.ui.unit.round
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -194,9 +196,9 @@ class DrawerTest {
 
         // Click on the left-center pixel of the drawer
         findByTag("Drawer").doGesture {
-            val left = 1
+            val left = 1.px
             val centerY = globalBounds.height / 2
-            sendClick(PxPosition(left.px, centerY.px))
+            sendClick(PxPosition(left, centerY))
         }
 
         composeTestRule.runOnIdleCompose {
@@ -246,8 +248,8 @@ class DrawerTest {
         findByTag("Drawer").doGesture {
             val bounds = globalBounds
             val centerX = bounds.width / 2
-            val bottom = bounds.height - 1
-            sendClick(PxPosition(centerX.px, bottom.px))
+            val bottom = bounds.height - 1.px
+            sendClick(PxPosition(centerX, bottom))
         }
 
         assertThat(drawerClicks).isEqualTo(1)

@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.ui.core
 
+import android.view.MotionEvent
 import androidx.ui.core.semantics.SemanticsNode
 
 /**
- * Finds all [SemanticsNode]s under the given [rootNode].
+ * Element responsible for providing the semantics tree of the hierarchy.
+ * Typically the root container.
  */
-internal fun findAllSemanticNodesIn(rootNode: SemanticsNode): List<SemanticsNode> {
-    // TODO(pavlis): Write some unit tests for this
-    val nodes = mutableListOf<SemanticsNode>()
-    findAllSemanticNodesInternal(currentNode = rootNode, nodes = nodes)
-    return nodes
-}
-
-private fun findAllSemanticNodesInternal(
-    currentNode: SemanticsNode,
-    nodes: MutableList<SemanticsNode>
-) {
-    nodes.add(currentNode)
-
-    for (child in currentNode.children) {
-        findAllSemanticNodesInternal(child, nodes)
-    }
+interface SemanticsTreeProvider {
+    /**
+     * Returns all (merged) [SemanticsNode]s in the tree represented by this [SemanticsTreeProvider]
+     */
+    fun getAllSemanticNodes(): List<SemanticsNode>
+    fun sendEvent(event: MotionEvent)
 }

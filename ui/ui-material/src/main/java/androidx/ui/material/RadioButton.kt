@@ -41,6 +41,7 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
@@ -129,11 +130,13 @@ class RadioGroupScope internal constructor() {
         onSelect: () -> Unit,
         children: @Composable() () -> Unit
     ) {
-        Container {
-            Ripple(bounded = true) {
-                MutuallyExclusiveSetItem(
-                    selected = selected,
-                    onClick = { if (!selected) onSelect() }, children = children)
+        Semantics(container = true, mergeAllDescendants = true) {
+            Container {
+                Ripple(bounded = true) {
+                    MutuallyExclusiveSetItem(
+                        selected = selected,
+                        onClick = { if (!selected) onSelect() }, children = children)
+                }
             }
         }
     }

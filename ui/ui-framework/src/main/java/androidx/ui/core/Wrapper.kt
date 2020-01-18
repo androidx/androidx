@@ -29,6 +29,7 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
+import androidx.compose.FrameManager
 import androidx.compose.Observe
 import androidx.compose.ambient
 import androidx.compose.compositionReference
@@ -105,6 +106,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
 fun Activity.setContent(
     content: @Composable() () -> Unit
 ): Composition {
+    FrameManager.ensureStarted()
     val composeView = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidComposeView

@@ -22,7 +22,6 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
 import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.TestTag
 import androidx.ui.core.WithDensity
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
@@ -30,6 +29,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertOnlyLastEventIsUp
@@ -150,18 +150,16 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     fun Ui() {
         val paint = remember { Paint().apply { color = Color.Yellow } }
         Align(alignment = Alignment.BottomRight) {
-            TestTag(tag) {
-                Semantics {
-                    PointerInputWrapper(
-                        pointerInputHandler = recorder::onPointerInput,
-                        cancelHandler = {}
-                    ) {
-                        WithDensity {
-                            Container(width = 500.px.toDp(), height = 500.px.toDp()) {
-                                Draw { canvas, size ->
-                                    bounds = Rect(0f, 0f, size.width.value, size.height.value)
-                                    canvas.drawRect(bounds, paint)
-                                }
+            Semantics(container = true, properties = { testTag = tag }) {
+                PointerInputWrapper(
+                    pointerInputHandler = recorder::onPointerInput,
+                    cancelHandler = {}
+                ) {
+                    WithDensity {
+                        Container(width = 500.px.toDp(), height = 500.px.toDp()) {
+                            Draw { canvas, size ->
+                                bounds = Rect(0f, 0f, size.width.value, size.height.value)
+                                canvas.drawRect(bounds, paint)
                             }
                         }
                     }

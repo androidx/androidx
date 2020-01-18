@@ -84,7 +84,7 @@ class PopupTest {
                 // position of the parent to be (0, 0)
                 TestAlign {
                     SimpleContainer(width = parentWidthDp, height = parentHeightDp) {
-                        TestTag(testTag) {
+                        PopupTestTag(testTag) {
                             Popup(alignment = alignment, offset = offset) {
                                 // This is called after the OnChildPosition method in Popup() which
                                 // updates the popup to its final position
@@ -122,7 +122,7 @@ class PopupTest {
     fun popup_isShowing() {
         composeTestRule.setContent {
             SimpleContainer {
-                TestTag(testTag) {
+                PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
                         Text(popupText)
                     }
@@ -144,7 +144,7 @@ class PopupTest {
 
         composeTestRule.setContent {
             SimpleContainer {
-                TestTag(testTag) {
+                PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
                         SimpleContainer(width = popupWidthDp, height = popupHeightDp) {}
                     }

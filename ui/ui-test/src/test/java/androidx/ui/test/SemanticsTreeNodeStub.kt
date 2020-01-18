@@ -15,21 +15,18 @@
  */
 package androidx.ui.test
 
-import androidx.ui.core.ComponentNode
-import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.LayoutNode
+import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.geometry.Rect
+import androidx.ui.core.semantics.SemanticsNode
 
-class SemanticsTreeNodeStub(override val data: SemanticsConfiguration) : SemanticsTreeNode {
-    override val parent: SemanticsTreeNode?
-        get() = null
-    override val children: Set<SemanticsTreeNode> = setOf()
-    override val globalRect: Rect? = null
+private var stubId = 2
 
-    override fun findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode? {
-        // TODO(b/143866294): currently we do not have a way of specifying a hierarchy in
-        // FakeSemanticsTreeInteraction, this needs to be implemented after we stop flattening
-        // the hierarchy
-        return null
-    }
+fun SemanticsTreeNodeStub(data: SemanticsConfiguration): SemanticsNode {
+    // TODO: Find a better way to stub this stuff, this just bridges the old SemanticsTreeNode
+    //  system to use SemanticsNodes
+    val stubSemanticsComponentNode = SemanticsComponentNode(data, stubId++)
+    val stubLayoutNode = LayoutNode()
+    stubSemanticsComponentNode.emitInsertAt(0, stubLayoutNode)
+    return SemanticsNode(data, stubSemanticsComponentNode)
 }

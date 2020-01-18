@@ -23,6 +23,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
+import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -202,7 +203,10 @@ class AppBarTest {
                     title = { Text("Title") },
                     actionData = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(properties = { testTag = tag }, children = action)
+                        Semantics(
+                            properties = { testTag = tag },
+                            children = action
+                        )
                     }
                 )
             }
@@ -543,7 +547,10 @@ class AppBarTest {
                 BottomAppBar(
                     actionData = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(properties = { testTag = tag }, children = action)
+                        Semantics(
+                            properties = { testTag = tag },
+                            children = action
+                        )
                     }
                 )
             }
@@ -574,7 +581,9 @@ class AppBarTest {
     private fun createImageList(count: Int) =
         List<@Composable() () -> Unit>(count) { { FakeIcon() } }
 
-    // Render a red rectangle to simulate an icon
+    // Render a clickable red rectangle to simulate an icon
     @Composable
-    private fun FakeIcon() = ColoredRect(Color.Red, width = 24.dp, height = 24.dp)
+    private fun FakeIcon() = Clickable {
+        ColoredRect(Color.Red, width = 24.dp, height = 24.dp)
+    }
 }

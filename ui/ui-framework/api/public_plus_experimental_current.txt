@@ -107,10 +107,8 @@ package androidx.ui.core {
     method public static void RepaintBoundary(String? name = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class TestTagProviderKt {
+  public final class TestTagKt {
     method public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static String getDefaultTestTag();
-    method public static androidx.compose.Ambient<java.lang.String> getTestTagAmbient();
   }
 
   public final class TextFieldDelegateKt {
@@ -545,7 +543,7 @@ package androidx.ui.semantics {
   }
 
   public final class SemanticsKt {
-    method public static void Semantics(boolean container = false, boolean explicitChildNodes = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Semantics(boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class SemanticsProperties {
