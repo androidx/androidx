@@ -13,10 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.ui.core
 
-inline fun ifDebug(block: () -> Unit) {
+import androidx.annotation.RestrictTo
+
+internal inline fun ifDebug(block: () -> Unit) {
     // Right now, we always run these.  At a later point, we may revisit this
     block()
+}
+
+// TODO(MPP): this should use expect/actual
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun simpleIdentityToString(obj: Any, name: String? = null): String {
+    val className = name ?: if (obj::class.java.isAnonymousClass) {
+        obj::class.java.name
+    } else {
+        obj::class.java.simpleName
+    }
+
+    return className + "@" + String.format("%07x", System.identityHashCode(obj))
 }

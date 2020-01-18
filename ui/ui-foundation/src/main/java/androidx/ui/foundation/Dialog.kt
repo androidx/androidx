@@ -48,7 +48,8 @@ import androidx.ui.core.setContent
 fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
     val context = ambient(ContextAmbient)
 
-    val dialog = remember { DialogWrapper(context, onCloseRequest) }
+    val dialog = remember(context) { DialogWrapper(context, onCloseRequest) }
+    dialog.onCloseRequest = onCloseRequest
 
     onActive {
         dialog.show()
@@ -64,11 +65,11 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
     }
 }
 
-private class DialogWrapper(context: Context, val onCloseRequest: () -> Unit) : Dialog(context) {
+private class DialogWrapper(context: Context, var onCloseRequest: () -> Unit) : Dialog(context) {
     val frameLayout = FrameLayout(context)
     init {
-        window?.requestFeature(Window.FEATURE_NO_TITLE)
-        window?.setBackgroundDrawableResource(android.R.color.transparent)
+        window!!.requestFeature(Window.FEATURE_NO_TITLE)
+        window!!.setBackgroundDrawableResource(android.R.color.transparent)
         setContentView(frameLayout)
     }
 

@@ -41,6 +41,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toRect
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -77,7 +78,9 @@ class IsDisplayedTests {
                 VerticalScroller {
                     Column {
                         for (i in 1..100) {
-                            Text(text = i.toString(), style = style)
+                            Semantics(container = true) {
+                                Text(text = i.toString(), style = style)
+                            }
                         }
                     }
                 }
@@ -99,7 +102,9 @@ class IsDisplayedTests {
         composeTestRule.setContent {
             val lastNode = @Composable {
                 Center {
-                    Text("Foo")
+                    Semantics(container = true) {
+                        Text("Foo")
+                    }
                 }
             }
 
@@ -169,7 +174,9 @@ class IsDisplayedTests {
                     Layout({
                         Row {
                             for (i in 1..100) {
-                                Text(text = i.toString(), style = style)
+                                Semantics(container = true) {
+                                    Text(text = i.toString(), style = style)
+                                }
                             }
                         }
                     }) { measurables, constraints ->
@@ -194,14 +201,16 @@ class IsDisplayedTests {
 
         composeTestRule.setContent {
             Padding(padding = 10.dp) {
-                Semantics(properties = {
+                Semantics(container = true, properties = {
                     ScrollTo(action = { _, _ ->
                         wasScrollToCalled = true
                     })
                 }) {
-                    TestTag(tag) {
-                        Semantics {
-                            Container { }
+                    Container {
+                        TestTag(tag) {
+                            Semantics(container = true) {
+                                Container { }
+                            }
                         }
                     }
                 }
@@ -228,7 +237,7 @@ class IsDisplayedTests {
         val tag = "myTag"
 
         val drawRect = @Composable { color: Color ->
-            Semantics {
+            Semantics(container = true) {
                 Container(
                     width = 100.dp,
                     height = 100.dp
@@ -250,7 +259,9 @@ class IsDisplayedTests {
 
         composeTestRule.setContent {
             Padding(padding = 10.dp) {
-                Semantics(properties = {
+                // Need to make the "scrolling" container the semantics boundary so that it
+                // doesn't try to include the padding
+                Semantics(container = true, properties = {
                     ScrollTo(action = { x, y ->
                         currentScrollPositionY = y
                         currentScrollPositionX = x
@@ -272,8 +283,8 @@ class IsDisplayedTests {
         }
 
         composeTestRule.runOnIdleCompose {
-            Assert.assertTrue(currentScrollPositionY == 0.px)
-            Assert.assertTrue(currentScrollPositionX == 0.px)
+            assertThat(currentScrollPositionY).isEqualTo(0.px)
+            assertThat(currentScrollPositionX).isEqualTo(0.px)
         }
 
         findByTag(tag)
@@ -281,8 +292,8 @@ class IsDisplayedTests {
 
         composeTestRule.runOnIdleCompose {
             val expected = elementHeight * 2
-            Assert.assertTrue(currentScrollPositionY == expected)
-            Assert.assertTrue(currentScrollPositionX == 0.px)
+            assertThat(currentScrollPositionY).isEqualTo(expected)
+            assertThat(currentScrollPositionX).isEqualTo(0.px)
         }
     }
 }

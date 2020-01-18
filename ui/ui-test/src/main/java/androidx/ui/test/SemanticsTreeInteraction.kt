@@ -19,38 +19,62 @@ package androidx.ui.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.geometry.Rect
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.android.AndroidSemanticsTreeInteraction
+import androidx.ui.unit.PxBounds
 
 /**
  * Provides abstraction for writing queries, actions and asserts over Compose semantics tree using
  * extension functions. This class is expected to have Android and host side specific
  * implementations.
  */
-internal interface SemanticsTreeInteraction {
+internal abstract class SemanticsTreeInteraction(
+    protected val selector: SemanticsConfiguration.() -> Boolean
+) {
 
-    fun findAllMatching(): List<SemanticsNodeInteraction>
+    internal abstract fun performAction(action: (SemanticsTreeProvider) -> Unit)
 
-    fun findOne(): SemanticsNodeInteraction
+    internal abstract fun sendInput(action: (InputDispatcher) -> Unit)
 
-    fun performAction(action: (SemanticsTreeProvider) -> Unit)
+    internal abstract fun isInScreenBounds(rectangle: PxBounds): Boolean
 
-    fun sendInput(action: (InputDispatcher) -> Unit)
-
-    fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean
-
-    fun isInScreenBounds(rectangle: Rect): Boolean
+    internal abstract fun getAllSemanticsNodes(): List<SemanticsNode>
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap
+    internal abstract fun captureNodeToBitmap(node: SemanticsNode): Bitmap
+
+    fun findAllMatching(): List<SemanticsNodeInteraction> {
+        return getAllSemanticsNodes()
+            .filter { node ->
+                node.config.selector()
+            }.map {
+                SemanticsNodeInteraction(it.id, this)
+            }
+    }
+
+    internal fun getNodesByIds(ids: List<Int>): List<SemanticsNode> {
+        return getAllSemanticsNodes().filter { it.id in ids }
+    }
+
+    internal fun findOne(): SemanticsNodeInteraction {
+        val ids = getAllSemanticsNodes()
+            .filter { node ->
+                node.config.selector()
+            }.map {
+                it.id
+            }
+        return SemanticsNodeInteraction(ids, this)
+    }
+
+    internal fun contains(nodeId: Int): Boolean {
+        return getAllSemanticsNodes().any { it.id == nodeId }
+    }
 }
 
 internal var semanticsTreeInteractionFactory: (
     selector: SemanticsConfiguration.() -> Boolean
-) -> SemanticsTreeInteraction = {
-        selector ->
+) -> SemanticsTreeInteraction = { selector ->
     AndroidSemanticsTreeInteraction(selector)
 }

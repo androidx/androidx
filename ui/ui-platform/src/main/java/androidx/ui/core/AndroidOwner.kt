@@ -44,6 +44,8 @@ import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
@@ -83,6 +85,8 @@ class AndroidComposeView constructor(context: Context) :
 
     // LayoutNodes that need measure and layout, the value is true when measure is needed
     private val relayoutNodes = TreeSet<LayoutNode>(DepthComparator)
+
+    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
 
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
@@ -613,6 +617,7 @@ class AndroidComposeView constructor(context: Context) :
         modelObserver.enableModelUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
+        semanticsOwner.invalidateSemanticsRoot()
     }
 
     override fun onDetachedFromWindow() {
@@ -654,8 +659,8 @@ class AndroidComposeView constructor(context: Context) :
         }
     }
 
-    override fun getAllSemanticNodes(): List<SemanticsTreeNode> {
-        return findAllSemanticNodesIn(root)
+    override fun getAllSemanticNodes(): List<SemanticsNode> {
+        return findAllSemanticNodesIn(semanticsOwner.rootSemanticsNode)
     }
 
     override fun sendEvent(event: MotionEvent) {

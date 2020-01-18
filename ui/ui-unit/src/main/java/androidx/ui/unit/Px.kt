@@ -620,6 +620,14 @@ data class PxBounds(
     val bottom: Px
 )
 
+inline fun PxBounds(topLeft: PxPosition, size: PxSize) =
+    PxBounds(
+        left = topLeft.x,
+        top = topLeft.y,
+        right = topLeft.x + size.width,
+        bottom = topLeft.y + size.height
+    )
+
 /**
  * A width of this PxBounds in [Px].
  */

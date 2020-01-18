@@ -24,8 +24,8 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
+import androidx.ui.core.semantics.SemanticsNode
 
 /**
  * Collects all [SemanticsTreeProvider]s that are part of the currently visible window.
@@ -114,7 +114,7 @@ internal data class CollectedProviders(
     val context: Context,
     val treeProviders: Set<SemanticsTreeProvider>
 ) {
-    fun getAllSemanticNodes(): List<SemanticsTreeNode> {
+    fun getAllSemanticNodes(): List<SemanticsNode> {
         // TODO(pavlis): Once we have a tree support we will just add a fake root parent here
         return treeProviders.flatMap { it.getAllSemanticNodes() }
     }

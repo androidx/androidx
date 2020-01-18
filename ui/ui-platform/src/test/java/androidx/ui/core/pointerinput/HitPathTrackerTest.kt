@@ -30,6 +30,7 @@ import androidx.ui.core.add
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.positionChange
+import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.unit.IntPxPosition
@@ -2412,7 +2413,7 @@ class HitPathTrackerTest {
     // PointerInputNode -> SemanticsNode
     @Test
     fun removePointerInputNodesWithNoLayoutNodeDescendants_snInPin_pinRemoved() {
-        val semanticsNode = SemanticsComponentNode()
+        val semanticsNode = SemanticsComponentNode(SemanticsConfiguration(), 1)
         val pointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, semanticsNode)
             cancelHandler = spy {}
@@ -2428,7 +2429,7 @@ class HitPathTrackerTest {
     // PointerInputNode A -> PointerInputNode B -> SemanticsNode
     @Test
     fun removePointerInputNodesWithNoLayoutNodeDescendants_smInPinInPin_removesAndCancelsCorrect() {
-        val semanticsNode = SemanticsComponentNode()
+        val semanticsNode = SemanticsComponentNode(SemanticsConfiguration(), 1)
         val pointerInputNodeB = PointerInputNode().apply {
             emitInsertAt(0, semanticsNode)
             cancelHandler = spy {}

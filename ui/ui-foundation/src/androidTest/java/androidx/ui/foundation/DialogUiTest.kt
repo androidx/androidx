@@ -15,13 +15,13 @@
  */
 package androidx.ui.foundation
 
-import androidx.test.filters.MediumTest
-import androidx.ui.test.createComposeRule
 import androidx.compose.state
+import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.ui.core.Text
 import androidx.ui.test.assertIsVisible
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
 import org.junit.Ignore
@@ -66,19 +66,23 @@ class DialogUiTest {
                 Dialog(onCloseRequest = {
                     showDialog.value = false
                 }) {
-                    Clickable(onClick = { text.value = textAfterClick }) {
+                    Clickable(onClick = {
+                        text.value = textAfterClick
+                    }) {
                         Text(text = text.value)
                     }
                 }
             }
         }
 
-        findByText(textBeforeClick).assertIsVisible()
+        findByText(textBeforeClick)
+            .assertIsVisible()
+            // Click inside the dialog
+            .doClick()
 
-        // Click inside the dialog
-        findByText(textBeforeClick).doClick()
-
-        // Check that the Clickable was pressed and that the Dialog is still visible
+        // Check that the Clickable was pressed and that the Dialog is still visible, but with
+        // the new text
+        findByText(textBeforeClick).assertDoesNotExist()
         findByText(textAfterClick).assertIsVisible()
     }
 

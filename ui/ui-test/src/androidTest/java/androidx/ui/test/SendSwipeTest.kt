@@ -20,17 +20,17 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.TestTag
-import androidx.ui.unit.dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.testTag
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertTimestampsAreIncreasing
+import androidx.ui.unit.dp
 import com.google.common.collect.Ordering
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -58,15 +58,13 @@ class SendSwipeTest {
     @Composable
     fun Ui(alignment: Alignment) {
         Align(alignment = alignment) {
-            TestTag(tag) {
-                Semantics {
-                    PointerInputWrapper(
-                        pointerInputHandler = recorder::onPointerInput,
-                        cancelHandler = {}
-                    ) {
-                        Container(width = 100.dp, height = 100.dp) {
-                            DrawShape(RectangleShape, Color.Yellow)
-                        }
+            Semantics(container = true, properties = { testTag = tag }) {
+                PointerInputWrapper(
+                    pointerInputHandler = recorder::onPointerInput,
+                    cancelHandler = {}
+                ) {
+                    Container(width = 100.dp, height = 100.dp) {
+                        DrawShape(RectangleShape, Color.Yellow)
                     }
                 }
             }

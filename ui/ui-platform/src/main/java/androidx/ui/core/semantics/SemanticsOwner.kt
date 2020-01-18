@@ -16,27 +16,57 @@
 
 package androidx.ui.core.semantics
 
+import androidx.ui.core.ComponentNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
 
-// TODO(ryanmentley): Clean up and integrate this (probably with AndroidComposeView)
+// TODO(b/142821673): Clean up and integrate this (probably with AndroidComposeView)
 
 /**
  * Owns [SemanticsNode] objects and notifies listeners of changes to the
- * render tree semantics.
+ * semantics tree
  */
-class SemanticsOwner {
-    internal val dirtyNodes: MutableSet<SemanticsNode> = mutableSetOf()
-    internal val nodes: MutableMap<Int, SemanticsNode> = mutableMapOf()
-    internal val detachedNodes: MutableSet<SemanticsNode> = mutableSetOf()
+class SemanticsOwner(rootNode: ComponentNode) {
+    private val dirtyNodes: MutableSet<SemanticsNode> = mutableSetOf()
+    private val nodes: MutableMap<Int, SemanticsNode> = mutableMapOf()
+    private val detachedNodes: MutableSet<SemanticsNode> = mutableSetOf()
 
     /**
-     * The root node of the semantics tree, if any.
-     *
-     * If the semantics tree is empty, returns null.
+     * Should *only* be called by [SemanticsNode.attach]
      */
-    internal val rootSemanticsNode: SemanticsNode?
-        get() = nodes[0]
+    internal fun onAttach(node: SemanticsNode) {
+        assert(node.id !in nodes)
+        nodes[node.id] = node
+        detachedNodes.remove(node)
+    }
+
+    /**
+     * Should *only* be called by [SemanticsNode.markDirty]
+     */
+    internal fun onNodeMarkedDirty(node: SemanticsNode) {
+        assert(node !in detachedNodes)
+        dirtyNodes.add(node)
+    }
+
+    /**
+     * Should *only* be called by [SemanticsNode.detach]
+     */
+    internal fun onDetach(node: SemanticsNode) {
+        check(nodes.containsKey(node.id))
+        assert(!detachedNodes.contains(node))
+        nodes.remove(node.id)
+        detachedNodes.add(node)
+    }
+
+    /**
+     * The root node of the semantics tree.  Does not contain any unmerged data.
+     * May contain merged data.
+     */
+    val rootSemanticsNode: SemanticsNode = SemanticsNode.root(
+        this,
+        SemanticsConfiguration().also { it.isSemanticBoundary = true },
+        rootNode
+    )
 
     private fun dispose() {
         dirtyNodes.clear()
@@ -49,7 +79,7 @@ class SemanticsOwner {
         action: SemanticsPropertyKey<AccessibilityAction<T>>
     ): AccessibilityAction<*>? {
         var result: SemanticsNode? = nodes[id]
-        if (result != null && result.isPartOfNodeMerging && !result.canPerformAction(action)) {
+        if (result != null && !result.canPerformAction(action)) {
             result.visitDescendants { node: SemanticsNode ->
                 if (node.canPerformAction(action)) {
                     result = node
@@ -61,6 +91,10 @@ class SemanticsOwner {
         if (result?.canPerformAction(action) != true) {
             return null
         }
-        return result!!.config.getOrNull(action)
+        return result!!.unmergedConfig.getOrNull(action)
+    }
+
+    internal fun invalidateSemanticsRoot() {
+        rootSemanticsNode.invalidateChildren()
     }
 }

@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 
@@ -76,4 +77,8 @@ inline val LayoutCoordinates.globalPosition: PxPosition get() = localToGlobal(Px
 /**
  * The position of this layout inside the root composable.
  */
-inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToGlobal(PxPosition.Origin)
+inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToRoot(PxPosition.Origin)
+
+inline val LayoutCoordinates.boundsInRoot: PxBounds get() = PxBounds(positionInRoot, size)
+
+inline val LayoutCoordinates.globalBounds: PxBounds get() = PxBounds(globalPosition, size)

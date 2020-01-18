@@ -151,7 +151,7 @@ class BackgroundTest {
     private fun OuterJunk(children: @Composable DensityScope.() -> Unit) {
         Align(Alignment.TopLeft) {
             TestTag(contentTag) {
-                Semantics {
+                Semantics(container = true) {
                     WithDensity(children)
                 }
             }

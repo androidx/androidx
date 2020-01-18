@@ -16,6 +16,7 @@
 
 package androidx.ui.core.semantics
 
+import androidx.ui.core.simpleIdentityToString
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.semantics.SemanticsPropertyReceiver
 
@@ -77,10 +78,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      * parents. The [SemanticsNode] generated out of this configuration will
      * act as a boundary.
      *
-     * Whether descendants of the owning component can add their semantic
-     * information to the [SemanticsNode] introduced by this configuration
-     * is controlled by [explicitChildNodes].
-     *
      * This has to be true if [isMergingSemanticsOfDescendants] is also true.
      */
     var isSemanticBoundary: Boolean = false
@@ -88,23 +85,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
             assert(!isMergingSemanticsOfDescendants || value)
             field = value
         }
-
-    /**
-     * Whether the configuration forces all children of the owning component
-     * that want to contribute semantic information to the semantics tree to do
-     * so in the form of explicit [SemanticsNode]s.
-     *
-     * When set to false children of the owning component are allowed to
-     * annotate [SemanticNode]s of their parent with the semantic information
-     * they want to contribute to the semantic tree.
-     * When set to true the only way for children of the owning component
-     * to contribute semantic information to the semantic tree is to introduce
-     * new explicit [SemanticNode]s to the tree.
-     *
-     * This setting is often used in combination with [isSemanticBoundary] to
-     * create semantic boundaries that are either writable or not for children.
-     */
-    var explicitChildNodes = false
 
     /**
      * Whether the semantic information provided by the owning component and
@@ -118,25 +98,23 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      */
     var isMergingSemanticsOfDescendants: Boolean = false
         set(value) {
-            // TODO(ryanmentley): Changed this, confirm it's correct
             if (value) {
-                assert(isSemanticBoundary)
+                check(isSemanticBoundary) {
+                    "Attempting to set isMergingSemanticsOfDescendants to true on a configuration" +
+                            " that is not a semantic boundary"
+                }
             }
 
             field = value
         }
-
-    // SEMANTIC ANNOTATIONS
-    // These will end up on [SemanticNode]s generated from [SemanticsConfiguration]s.
-
     /**
      * Whether this configuration is empty.
      *
      * An empty configuration doesn't contain any semantic information that it
      * wants to contribute to the semantics tree.
      */
-    val hasBeenAnnotated: Boolean
-        get() = props.isEmpty()
+    val isEmpty: Boolean
+        get() = props.isEmpty() && !isSemanticBoundary && !isMergingSemanticsOfDescendants
 
     // CONFIGURATION COMBINATION LOGIC
 
@@ -146,23 +124,28 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      * This adds the semantic information of both configurations and saves the result in this
      * configuration.
      *
-     * Only configurations that have [explicitChildNodes] set to false can absorb other
-     * configurations.  The [other] configuration must not contain any properties that cannot be
+     * The [other] configuration must not contain any properties that cannot be
      * merged into this configuration.
+     *
+     * @param ignoreAlreadySet if true, ignore properties that are already set instead of merging
      */
-    internal fun absorb(other: SemanticsConfiguration) {
-        assert(!explicitChildNodes)
-
-        if (!other.hasBeenAnnotated) {
-            return
+    internal fun absorb(other: SemanticsConfiguration, ignoreAlreadySet: Boolean = false) {
+        // TODO(ryanmentley): should we support forcing these to false?
+        if (other.isSemanticBoundary) {
+            isSemanticBoundary = true
+        }
+        if (other.isMergingSemanticsOfDescendants) {
+            isMergingSemanticsOfDescendants = true
         }
 
         for (entry in other.props) {
             val key = entry.key
             if (props.containsKey(key)) {
-                @Suppress("UNCHECKED_CAST")
-                key as SemanticsPropertyKey<Any?>
-                props[key] = key.merge(props[key], entry.value)
+                if (!ignoreAlreadySet) {
+                    @Suppress("UNCHECKED_CAST")
+                    key as SemanticsPropertyKey<Any?>
+                    props[key] = key.merge(props[key], entry.value)
+                }
             } else {
                 props[key] = entry.value
             }
@@ -173,19 +156,54 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
     fun copy(): SemanticsConfiguration {
         val copy = SemanticsConfiguration()
         copy.isSemanticBoundary = isSemanticBoundary
-        copy.explicitChildNodes = explicitChildNodes
         copy.isMergingSemanticsOfDescendants = isMergingSemanticsOfDescendants
         copy.props.putAll(props)
         return copy
     }
 
-    // TODO(b/145977727): Remove this after we start using IDs.
-    @Deprecated("This is only a temporary until IDs are introduced (b/145977727).")
-    fun clear() {
-        props.clear()
-        isSemanticBoundary = false
-        explicitChildNodes = false
-        isMergingSemanticsOfDescendants = false
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SemanticsConfiguration
+
+        if (isSemanticBoundary != other.isSemanticBoundary) return false
+        if (isMergingSemanticsOfDescendants != other.isMergingSemanticsOfDescendants) return false
+        if (props != other.props) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = props.hashCode()
+        result = 31 * result + isSemanticBoundary.hashCode()
+        result = 31 * result + isMergingSemanticsOfDescendants.hashCode()
+        return result
+    }
+
+    private val CommaSeparator = ", "
+    override fun toString(): String {
+        val propsString = StringBuilder()
+        var nextSeparator = ""
+
+        if (isSemanticBoundary) {
+            propsString.append("boundary=true")
+            nextSeparator = CommaSeparator
+        }
+        if (isMergingSemanticsOfDescendants) {
+            propsString.append(nextSeparator)
+            propsString.append("mergeDescendants=true")
+            nextSeparator = CommaSeparator
+        }
+
+        for ((key, value) in props) {
+            propsString.append(nextSeparator)
+            propsString.append(key.name)
+            propsString.append(" : ")
+            propsString.append(value)
+            nextSeparator = CommaSeparator
+        }
+        return "${simpleIdentityToString(this@SemanticsConfiguration)}{ $propsString }"
     }
 }
 

@@ -102,7 +102,8 @@ class FindAllTest {
         }
 
         findAll {
-            getOrNull(FoundationSemanticsProperties.ToggleableState) != ToggleableState.On
+            isToggleable &&
+                    getOrNull(FoundationSemanticsProperties.ToggleableState) != ToggleableState.On
         }
             .assertCountEquals(0)
     }

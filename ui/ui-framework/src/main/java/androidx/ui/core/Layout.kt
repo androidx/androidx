@@ -272,6 +272,15 @@ internal class IntrinsicsMeasureScope(
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ) = densityScope.MeasuringMaxIntrinsicHeight(measureBlock, measurables, w)
+
+        override fun toString(): String {
+            // this calls simpleIdentityToString on measureBlock because it is typically a lambda,
+            // which has a useless toString that doesn't hint at the source location
+            return simpleIdentityToString(
+                this,
+                "MeasuringIntrinsicsMeasureBlocks"
+            ) + "{ measureBlock=${simpleIdentityToString(measureBlock)} }"
+        }
     }
 
 /**

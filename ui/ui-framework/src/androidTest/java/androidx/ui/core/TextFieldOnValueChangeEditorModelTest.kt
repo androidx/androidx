@@ -137,7 +137,7 @@ class TextFieldOnValueChangeEditorModelTest {
     }
 
     @Test
-    fun setCompsingText_onValueChange_call_once() {
+    fun setComposingText_onValueChange_call_once() {
         performEditOperation(SetComposingTextEditOp("ABCDE", 1))
         composeTestRule.runOnIdleCompose {
             verify(onValueChange, times(1)).invoke(eq(EditorModel("ABCDEabcde", TextRange(5, 5))))

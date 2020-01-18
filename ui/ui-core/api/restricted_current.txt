@@ -153,6 +153,8 @@ package androidx.ui.core {
   }
 
   public final class LayoutCoordinatesKt {
+    method public static inline androidx.ui.unit.PxBounds getBoundsInRoot(androidx.ui.core.LayoutCoordinates);
+    method public static inline androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getGlobalPosition(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }

@@ -35,6 +35,7 @@ import androidx.ui.unit.Uptime
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
+import androidx.ui.core.semantics.SemanticsConfiguration
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
@@ -1811,8 +1812,8 @@ class PointerInputEventProcessorTest {
     fun process_downOnPointerInputNodeWrappingSemanticsNodeWrappingLayoutNode_downReceived() {
         val semanticsComponentNode: SemanticsComponentNode =
             SemanticsComponentNode(
-                container = false,
-                explicitChildNodes = false
+                SemanticsConfiguration(),
+                1
             ).apply {
                 emitInsertAt(0, LayoutNode(0, 0, 100, 100))
             }
@@ -1862,10 +1863,8 @@ class PointerInputEventProcessorTest {
     fun process_downOnPointerInputNodeWrappingSemanticsNode_downNotReceived() {
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(
-                0, SemanticsComponentNode(
-                    container = false,
-                    explicitChildNodes = false
-                )
+                0,
+                SemanticsComponentNode(SemanticsConfiguration(), 1)
             )
             pointerInputHandler = spy(MyPointerInputHandler())
         }

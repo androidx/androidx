@@ -155,52 +155,54 @@ fun Slider(
     onValueChangeEnd: () -> Unit = {},
     color: Color = MaterialTheme.colors().primary
 ) {
-    Container(modifier = modifier) {
-        WithConstraints { constraints ->
-            val maxPx = constraints.maxWidth.value.toFloat()
-            val minPx = 0f
-            position.setBounds(minPx, maxPx)
+    Semantics(container = true, mergeAllDescendants = true) {
+        Container(modifier = modifier) {
+            WithConstraints { constraints ->
+                val maxPx = constraints.maxWidth.value.toFloat()
+                val minPx = 0f
+                position.setBounds(minPx, maxPx)
 
-            fun Float.toSliderPosition(): Float =
-                scale(minPx, maxPx, this, position.startValue, position.endValue)
+                fun Float.toSliderPosition(): Float =
+                    scale(minPx, maxPx, this, position.startValue, position.endValue)
 
-            val flingConfig =
-                if (position.anchorsPx.isNotEmpty()) {
-                    SliderFlingConfig(position, position.anchorsPx) { endValue ->
-                        onValueChange(endValue.toSliderPosition())
+                val flingConfig =
+                    if (position.anchorsPx.isNotEmpty()) {
+                        SliderFlingConfig(position, position.anchorsPx) { endValue ->
+                            onValueChange(endValue.toSliderPosition())
+                            onValueChangeEnd()
+                        }
+                    } else {
+                        null
+                    }
+                val gestureEndAction = { velocity: Float ->
+                    if (flingConfig != null) {
+                        position.holder.fling(flingConfig, velocity)
+                    } else {
                         onValueChangeEnd()
                     }
-                } else {
-                    null
                 }
-            val gestureEndAction = { velocity: Float ->
-                if (flingConfig != null) {
-                    position.holder.fling(flingConfig, velocity)
-                } else {
-                    onValueChangeEnd()
-                }
-            }
-            val pressed = state { false }
-            PressGestureDetector(
-                onPress = { pos ->
-                    onValueChange(pos.x.value.toSliderPosition())
-                    pressed.value = true
-                },
-                onRelease = {
-                    pressed.value = false
-                    gestureEndAction(0f)
-                }) {
-                Draggable(
-                    dragDirection = DragDirection.Horizontal,
-                    dragValue = position.holder,
-                    onDragStarted = { pressed.value = true },
-                    onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
-                    onDragStopped = { velocity ->
-                        pressed.value = false
-                        gestureEndAction(velocity)
+                val pressed = state { false }
+                PressGestureDetector(
+                    onPress = { pos ->
+                        onValueChange(pos.x.value.toSliderPosition())
+                        pressed.value = true
                     },
-                    children = { SliderImpl(position, color, maxPx, pressed.value) }
-                )
+                    onRelease = {
+                        pressed.value = false
+                        gestureEndAction(0f)
+                    }) {
+                    Draggable(
+                        dragDirection = DragDirection.Horizontal,
+                        dragValue = position.holder,
+                        onDragStarted = { pressed.value = true },
+                        onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
+                        onDragStopped = { velocity ->
+                            pressed.value = false
+                            gestureEndAction(velocity)
+                        },
+                        children = { SliderImpl(position, color, maxPx, pressed.value) }
+                    )
+                }
             }
         }
     }
