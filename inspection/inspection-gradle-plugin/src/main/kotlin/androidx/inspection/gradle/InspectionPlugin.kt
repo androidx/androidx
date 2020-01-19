@@ -26,13 +26,23 @@ import org.gradle.api.tasks.StopExecutionException
  * resources are generated at build time
  */
 class InspectionPlugin : Plugin<Project> {
+    @ExperimentalStdlibApi
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
+        var foundReleaseVariant = false
         project.pluginManager.withPlugin("com.android.library") {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
             includeMetaInfServices(libExtension)
+            libExtension.libraryVariants.all { variant ->
+                if (variant.name == "release") {
+                    foundReleaseVariant = true
+                    val unzip = project.registerUnzipTask(variant)
+                    project.registerDexInspectorTask(variant, libExtension, unzip)
+                }
+            }
         }
+
         project.afterEvaluate {
             if (!foundLibraryPlugin) {
                 throw StopExecutionException(
@@ -42,6 +52,10 @@ class InspectionPlugin : Plugin<Project> {
                         build.gradle file."""
                         .trimIndent()
                 )
+            }
+            if (!foundReleaseVariant) {
+                throw StopExecutionException("The androidx.inspection plugin requires " +
+                        "release build variant.")
             }
         }
     }
