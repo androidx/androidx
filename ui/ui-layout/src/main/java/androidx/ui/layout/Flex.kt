@@ -324,10 +324,24 @@ class RowScope private constructor() : FlexScope() {
 
 /**
  * A layout composable that places its children in a horizontal sequence.
+ *
  * The layout model is able to assign children widths according to their flex weights provided
  * using the [androidx.ui.layout.FlexScope.LayoutFlexible] modifier. If a child is not
  * [flexible][androidx.ui.layout.FlexScope.LayoutFlexible], it will be considered inflexible
  * and will be sized to its preferred width.
+ *
+ * When all children of a [Row] are inflexible, it will be as small as possible to fit its
+ * children one next to the other. In order to change the size of the [Row], use the
+ * [LayoutWidth] modifiers; to make it fill the available width [LayoutWidth.Fill] can be used.
+ * If at least one child of a [Row] is [flexible][FlexScope.LayoutFlexible], the [Row] will
+ * fill the available space, so there is no need for [LayoutWidth.Fill]. However, if [Row]'s
+ * size should be limited, the [LayoutWidth] or [LayoutWidth.Max] layout modifiers should be
+ * applied.
+ *
+ * When the size of the [Row] is larger than the sum of of its children sizes, an [arrangement]
+ * can be specified to define the positioning of the children inside the [Row]. See [Arrangement]
+ * for available positioning behaviors; a custom arrangement can also be defined using the
+ * constructor of [Arrangement].
  *
  * Example usage:
  *
@@ -354,10 +368,24 @@ fun Row(
 
 /**
  * A layout composable that places its children in a vertical sequence.
+ *
  * The layout model is able to assign children heights according to their flex weights provided
  * using the [androidx.ui.layout.FlexScope.LayoutFlexible] modifier. If a child is not
  * [flexible][androidx.ui.layout.FlexScope.LayoutFlexible], it will be considered inflexible
  * and will be sized to its preferred width.
+ *
+ * When all children of a [Column] are inflexible, it will be as small as possible to fit its
+ * children one on top of the other. In order to change the size of the [Column], use the
+ * [LayoutHeight] modifiers; to make it fill the available height [LayoutWidth.Fill] can be used.
+ * If at least one child of a [Column] is [flexible][FlexScope.LayoutFlexible], the [Column] will
+ * fill the available space, so there is no need for [LayoutWidth.Fill]. However, if [Column]'s
+ * size should be limited, the [LayoutHeight] or [LayoutHeight.Max] layout modifiers should be
+ * applied.
+ *
+ * When the size of the [Column] is larger than the sum of of its children sizes, an [arrangement]
+ * can be specified to define the positioning of the children inside the [Column]. See
+ * [Arrangement] for available positioning behaviors; a custom arrangement can also be defined
+ * using the constructor of [Arrangement].
  *
  * Example usage:
  *
