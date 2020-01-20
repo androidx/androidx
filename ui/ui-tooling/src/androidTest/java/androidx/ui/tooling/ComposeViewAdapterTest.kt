@@ -66,6 +66,10 @@ class ComposeViewAdapterTest {
             assertTrue(viewInfos.isNotEmpty())
             // Verify that valid line numbers are being recorded
             assertTrue(viewInfos.map { it.lineNumber }.all { it > 0 })
+            // Verify that method names are being captured
+            assertTrue(viewInfos.map { it.methodName }.all {
+                it.startsWith("androidx.ui.tooling.")
+            })
         }
     }
 
