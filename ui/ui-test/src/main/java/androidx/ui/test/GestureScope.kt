@@ -21,11 +21,10 @@ import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.height
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
-import androidx.ui.unit.width
 import androidx.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -66,6 +65,19 @@ private const val edgeFuzzFactor = 0.083f
 private val doubleClickDelay = 145.milliseconds
 
 /**
+ * Returns the size of the component we're interacting with
+ */
+val GestureScope.size: PxSize
+    get() = semanticsNode.size
+
+/**
+ * Returns the center of the component we're interacting with, in the component's local
+ * coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ */
+val GestureScope.center: PxPosition
+    get() = PxPosition(size.width / 2, size.height / 2)
+
+/**
  * Returns the global bounds of the component we're interacting with
  */
 val GestureScope.globalBounds: PxBounds
@@ -76,14 +88,15 @@ val GestureScope.globalBounds: PxBounds
  *
  * @param position A position in local coordinates
  */
-fun GestureScope.toGlobalPosition(position: PxPosition): PxPosition {
+fun GestureScope.localToGlobal(position: PxPosition): PxPosition {
     val bounds = globalBounds
     return position + PxPosition(bounds.left, bounds.top)
 }
 
 /**
  * Performs a click gesture on the given [position] on the associated component. The [position]
- * is in the component's local coordinate system.
+ * is in the component's local coordinate system, where (0.px, 0.px) is the top left corner of
+ * the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
@@ -91,7 +104,7 @@ fun GestureScope.toGlobalPosition(position: PxPosition): PxPosition {
  */
 fun GestureScope.sendClick(position: PxPosition) {
     semanticsTreeInteraction.sendInput {
-        it.sendClick(toGlobalPosition(position))
+        it.sendClick(localToGlobal(position))
     }
 }
 
@@ -102,14 +115,14 @@ fun GestureScope.sendClick(position: PxPosition) {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendClick() {
-    val bounds = globalBounds
-    sendClick(PxPosition(bounds.width / 2, bounds.height / 2))
+    sendClick(center)
 }
 
 /**
  * Performs a long click gesture on the given [position] on the associated component. There will
  * be [LongPressTimeout] + 100 milliseconds time between the down and the up event. The
- * [position] is in the component's local coordinate system.
+ * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
+ * corner of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
@@ -127,20 +140,20 @@ fun GestureScope.sendLongClick(position: PxPosition) {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendLongClick() {
-    val bounds = globalBounds
-    sendLongClick(PxPosition(bounds.width / 2, bounds.height / 2))
+    sendLongClick(center)
 }
 
 /**
  * Performs a double click gesture on the given [position] on the associated component. The
- * [position] is in the component's local coordinate system.
+ * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
+ * corner of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
  * @param position The position of the double click, in the component's local coordinate system
  */
 fun GestureScope.sendDoubleClick(position: PxPosition) {
-    val globalPosition = toGlobalPosition(position)
+    val globalPosition = localToGlobal(position)
     semanticsTreeInteraction.sendInput {
         it.sendClick(globalPosition)
         it.delay(doubleClickDelay)
@@ -155,15 +168,14 @@ fun GestureScope.sendDoubleClick(position: PxPosition) {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendDoubleClick() {
-    val bounds = globalBounds
-    sendDoubleClick(PxPosition(bounds.width / 2, bounds.height / 2))
+    sendDoubleClick(center)
 }
 
 /**
  * Performs the swipe gesture on the associated component. The motion events are linearly
  * interpolated between [start] and [end]. The coordinates are in the component's local
- * coordinate system, i.e. (0, 0) is the top left corner of the component. The default duration
- * is 200 milliseconds.
+ * coordinate system, where (0.px, 0.px) is the top left corner of the component. The default
+ * duration is 200 milliseconds.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
@@ -176,8 +188,8 @@ fun GestureScope.sendSwipe(
     end: PxPosition,
     duration: Duration = 200.milliseconds
 ) {
-    val globalStart = toGlobalPosition(start)
-    val globalEnd = toGlobalPosition(end)
+    val globalStart = localToGlobal(start)
+    val globalEnd = localToGlobal(end)
     semanticsTreeInteraction.sendInput {
         it.sendSwipe(globalStart, globalEnd, duration)
     }
@@ -187,8 +199,8 @@ fun GestureScope.sendSwipe(
  * Performs the swipe gesture on the associated component, such that the velocity when the
  * gesture is finished is roughly equal to [endVelocity]. The MotionEvents are linearly
  * interpolated between [start] and [end]. The coordinates are in the component's
- * local coordinate system, i.e. (0, 0) is the top left corner of the component. The default
- * duration is 200 milliseconds.
+ * local coordinate system, where (0.px, 0.px) is the top left corner of the component. The
+ * default duration is 200 milliseconds.
  *
  * Note that due to imprecisions, no guarantees can be made on the precision of the actual
  * velocity at the end of the gesture, but generally it is within 0.1% of the desired velocity.
@@ -215,8 +227,8 @@ fun GestureScope.sendSwipeWithVelocity(
     require(duration >= 25.milliseconds) {
         "Duration must be at least 25ms because velocity requires at least 3 input events"
     }
-    val globalStart = toGlobalPosition(start)
-    val globalEnd = toGlobalPosition(end)
+    val globalStart = localToGlobal(start)
+    val globalEnd = localToGlobal(end)
 
     // Decompose v into it's x and y components
     val delta = end - start
@@ -251,9 +263,8 @@ fun GestureScope.sendSwipeWithVelocity(
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeUp() {
-    val bounds = globalBounds
-    val x = bounds.width / 2
-    val y0 = bounds.height * (1 - edgeFuzzFactor)
+    val x = center.x
+    val y0 = size.height * (1 - edgeFuzzFactor)
     val y1 = 0.px
     val start = PxPosition(x, y0)
     val end = PxPosition(x, y1)
@@ -267,10 +278,9 @@ fun GestureScope.sendSwipeUp() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeDown() {
-    val bounds = globalBounds
-    val x = bounds.width / 2
-    val y0 = bounds.height * edgeFuzzFactor
-    val y1 = bounds.height
+    val x = center.x
+    val y0 = size.height * edgeFuzzFactor
+    val y1 = size.height
     val start = PxPosition(x, y0)
     val end = PxPosition(x, y1)
     sendSwipe(start, end, 200.milliseconds)
@@ -283,10 +293,9 @@ fun GestureScope.sendSwipeDown() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeLeft() {
-    val bounds = globalBounds
-    val x0 = bounds.width * (1 - edgeFuzzFactor)
+    val x0 = size.width * (1 - edgeFuzzFactor)
     val x1 = 0.px
-    val y = bounds.height / 2
+    val y = center.y
     val start = PxPosition(x0, y)
     val end = PxPosition(x1, y)
     sendSwipe(start, end, 200.milliseconds)
@@ -299,10 +308,9 @@ fun GestureScope.sendSwipeLeft() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeRight() {
-    val bounds = globalBounds
-    val x0 = bounds.width * edgeFuzzFactor
-    val x1 = bounds.width
-    val y = bounds.height / 2
+    val x0 = size.width * edgeFuzzFactor
+    val x1 = size.width
+    val y = center.y
     val start = PxPosition(x0, y)
     val end = PxPosition(x1, y)
     sendSwipe(start, end, 200.milliseconds)
