@@ -16,7 +16,6 @@
 
 package androidx.ui.test.util
 
-import android.content.ContextWrapper
 import android.view.MotionEvent
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsNode
@@ -35,7 +34,7 @@ internal class MotionEventRecorder : SemanticsTreeProvider {
     }
 
     fun asCollectedProviders(): CollectedProviders {
-        return CollectedProviders(ContextWrapper(null), setOf(this))
+        return CollectedProviders(setOf(this))
     }
 
     override fun getAllSemanticNodes(): List<SemanticsNode> {

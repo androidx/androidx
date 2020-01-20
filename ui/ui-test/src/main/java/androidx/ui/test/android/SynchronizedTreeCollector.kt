@@ -16,16 +16,20 @@
 
 package androidx.ui.test.android
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.Root
 import androidx.test.espresso.ViewAssertion
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsNode
+import org.hamcrest.BaseMatcher
+import org.hamcrest.Description
 
 /**
  * Collects all [SemanticsTreeProvider]s that are part of the currently visible window.
@@ -33,6 +37,9 @@ import androidx.ui.core.semantics.SemanticsNode
  * This operation is performed only after compose is idle via Espresso.
  */
 internal object SynchronizedTreeCollector {
+    /** ViewAssertion that asserts nothing (any View is valid) */
+    private val noChecks = ViewAssertion { _, _ -> }
+
     /**
      * Collects all [SemanticsTreeProvider]s that are part of the currently visible window.
      *
@@ -43,24 +50,30 @@ internal object SynchronizedTreeCollector {
      */
     internal fun collectSemanticsProviders(): CollectedProviders {
         ComposeIdlingResource.registerSelfIntoEspresso()
-        val viewForwarder = ViewForwarder()
+        val rootForwarder = RootForwarder()
 
-        // Use Espresso to find the content view for us.
+        // Use Espresso to iterate over all roots and find all SemanticsTreeProviders
         // We can't use onView(instanceOf(SemanticsTreeProvider::class.java)) as Espresso throws
         // on multiple instances in the tree.
-        Espresso.onView(
-            ViewMatchers.withId(
-                android.R.id.content
-            )
-        ).check(viewForwarder)
+        Espresso.onView(isRoot())
+            .inRoot(rootForwarder)
+            .check(noChecks)
 
-        if (viewForwarder.viewFound == null) {
-            throw IllegalArgumentException("Couldn't find a Compose root in the view hierarchy. " +
-                    "Are you using Compose in your Activity?")
+        if (!rootForwarder.foundRoots) {
+            throw IllegalArgumentException("No root views found. Is your Activity resumed?")
         }
 
-        val view = viewForwarder.viewFound!! as ViewGroup
-        return CollectedProviders(view.context, collectSemanticTreeProviders(view))
+        // TODO(jellefresen): the semantic tree providers may originate from multiple roots, but
+        //  we only use one context. Find out if this can cause problems, e.g., if different
+        //  roots have different contexts.
+        val semanticTreeProviders = rootForwarder.collectSemanticTreeProviders()
+        if (semanticTreeProviders.isEmpty()) {
+            throw IllegalArgumentException(
+                "Couldn't find a Compose root in the view hierarchy. Are you using Compose in " +
+                        "your Activity?"
+            )
+        }
+        return CollectedProviders(semanticTreeProviders)
     }
 
     /**
@@ -76,31 +89,52 @@ internal object SynchronizedTreeCollector {
         Espresso.onIdle()
     }
 
-    private fun collectSemanticTreeProviders(
-        contentViewGroup: ViewGroup
-    ): Set<SemanticsTreeProvider> {
+    /** Scans the entire view hierarchy rooted at [view] for SemanticsTreeProviders */
+    private fun collectSemanticTreeProviders(view: View): Set<SemanticsTreeProvider> {
         val collectedRoots = mutableSetOf<SemanticsTreeProvider>()
 
-        fun collectSemanticTreeProvidersInternal(parent: ViewGroup) {
-            for (index in 0 until parent.childCount) {
-                when (val child = parent.getChildAt(index)) {
-                    is SemanticsTreeProvider -> collectedRoots.add(child)
-                    is ViewGroup -> collectSemanticTreeProvidersInternal(child)
-                    else -> { }
+        fun collectSemanticTreeProvidersInternal(view: View) {
+            when (view) {
+                is SemanticsTreeProvider -> collectedRoots.add(view)
+                is ViewGroup -> {
+                    for (i in 0 until view.childCount) {
+                        collectSemanticTreeProvidersInternal(view.getChildAt(i))
+                    }
                 }
             }
         }
 
-        collectSemanticTreeProvidersInternal(contentViewGroup)
+        collectSemanticTreeProvidersInternal(view)
         return collectedRoots
     }
 
-    /** A hacky way to retrieve views from Espresso matchers. */
-    private class ViewForwarder : ViewAssertion {
-        var viewFound: View? = null
+    /** A hacky way to retrieve root views from Espresso matchers. */
+    private class RootForwarder : BaseMatcher<Root>() {
+        var isFirstRoot = true
+        val rootViews = mutableListOf<View>()
+        val foundRoots get() = rootViews.isNotEmpty()
 
-        override fun check(view: View?, noViewFoundException: NoMatchingViewException?) {
-            viewFound = view
+        fun collectSemanticTreeProviders(): Set<SemanticsTreeProvider> {
+            return rootViews.fold(mutableSetOf(), { acc, view ->
+                acc.also { it.addAll(collectSemanticTreeProviders(view)) }
+            })
+        }
+
+        override fun describeTo(description: Description?) {
+            description?.appendText("Root iterator")
+        }
+
+        override fun matches(item: Any?): Boolean {
+            var useRoot = false
+            if (item is Root) {
+                val view = item.decorView.findViewById<View>(android.R.id.content) ?: return false
+                rootViews.add(view)
+                if (isFirstRoot) {
+                    useRoot = true
+                    isFirstRoot = false
+                }
+            }
+            return useRoot
         }
     }
 }
@@ -110,10 +144,33 @@ internal object SynchronizedTreeCollector {
  * them. This class merges all the semantics trees into one, hiding the fact that the API might
  * be interacting with several Compose roots.
  */
-internal data class CollectedProviders(
-    val context: Context,
-    val treeProviders: Set<SemanticsTreeProvider>
-) {
+internal data class CollectedProviders(val treeProviders: Set<SemanticsTreeProvider>) {
+    val activity: Activity
+        get() {
+            treeProviders.forEach {
+                if (it is View) {
+                    val activity = it.context.activity
+                    if (activity != null) {
+                        return activity
+                    }
+                }
+            }
+            throw AssertionError(
+                "Out of ${treeProviders.size} SemanticsTreeProviders, none were attached to an " +
+                        "Activity"
+            )
+        }
+
+    // Recursively search for the Activity context through (possible) ContextWrappers
+    private val Context.activity: Activity?
+        get() {
+            return when (this) {
+                is Activity -> this
+                is ContextWrapper -> this.baseContext.activity
+                else -> null
+            }
+        }
+
     fun getAllSemanticNodes(): List<SemanticsNode> {
         // TODO(pavlis): Once we have a tree support we will just add a fake root parent here
         return treeProviders.flatMap { it.getAllSemanticNodes() }

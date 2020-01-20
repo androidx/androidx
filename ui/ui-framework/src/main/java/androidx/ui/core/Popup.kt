@@ -203,6 +203,7 @@ private class PopupLayout(
     var viewAdded: Boolean = false
 
     init {
+        id = android.R.id.content
         updateLayoutParams()
     }
 
