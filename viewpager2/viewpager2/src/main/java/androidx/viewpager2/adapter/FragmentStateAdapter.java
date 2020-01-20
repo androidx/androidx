@@ -20,6 +20,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.lifecycle.Lifecycle.State.RESUMED;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static androidx.recyclerview.widget.RecyclerView.NO_ID;
+import static androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,7 +48,11 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Similar in behavior to {@link FragmentStatePagerAdapter}
@@ -85,6 +90,9 @@ public abstract class FragmentStateAdapter extends
     private final LongSparseArray<Integer> mItemIdToViewHolder = new LongSparseArray<>();
 
     private FragmentMaxLifecycleEnforcer mFragmentMaxLifecycleEnforcer;
+
+    @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
+            FragmentEventDispatcher mFragmentEventDispatcher = new FragmentEventDispatcher();
 
     // Fragment GC
     @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
@@ -335,11 +343,17 @@ public abstract class FragmentStateAdapter extends
         // { f:notAdded, v:notCreated, v:notAttached } -> add, create, attach
         if (!shouldDelayFragmentTransactions()) {
             scheduleViewAttach(fragment, container);
-            mFragmentManager.beginTransaction()
-                    .add(fragment, "f" + holder.getItemId())
-                    .setMaxLifecycle(fragment, STARTED)
-                    .commitNow();
-            mFragmentMaxLifecycleEnforcer.updateFragmentMaxLifecycle(false);
+            List<OnPostEventListener> onPost =
+                    mFragmentEventDispatcher.dispatchPreAdded(fragment);
+            try {
+                mFragmentManager.beginTransaction()
+                        .add(fragment, "f" + holder.getItemId())
+                        .setMaxLifecycle(fragment, STARTED)
+                        .commitNow();
+                mFragmentMaxLifecycleEnforcer.updateFragmentMaxLifecycle(false);
+            } finally {
+                mFragmentEventDispatcher.dispatchPostEvents(onPost);
+            }
         } else {
             if (mFragmentManager.isDestroyed()) {
                 return; // nothing we can do
@@ -461,8 +475,14 @@ public abstract class FragmentStateAdapter extends
         if (fragment.isAdded() && containsItem(itemId)) {
             mSavedStates.put(itemId, mFragmentManager.saveFragmentInstanceState(fragment));
         }
-        mFragmentManager.beginTransaction().remove(fragment).commitNow();
-        mFragments.remove(itemId);
+        List<OnPostEventListener> onPost =
+                mFragmentEventDispatcher.dispatchPreRemoved(fragment);
+        try {
+            mFragmentManager.beginTransaction().remove(fragment).commitNow();
+            mFragments.remove(itemId);
+        } finally {
+            mFragmentEventDispatcher.dispatchPostEvents(onPost);
+        }
     }
 
     @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
@@ -702,6 +722,7 @@ public abstract class FragmentStateAdapter extends
             FragmentTransaction transaction = mFragmentManager.beginTransaction();
 
             Fragment toResume = null;
+            List<List<OnPostEventListener>> onPost = new ArrayList<>();
             for (int ix = 0; ix < mFragments.size(); ix++) {
                 long itemId = mFragments.keyAt(ix);
                 Fragment fragment = mFragments.valueAt(ix);
@@ -712,6 +733,8 @@ public abstract class FragmentStateAdapter extends
 
                 if (itemId != mPrimaryItemId) {
                     transaction.setMaxLifecycle(fragment, STARTED);
+                    onPost.add(mFragmentEventDispatcher.dispatchMaxLifecyclePreUpdated(fragment,
+                            STARTED));
                 } else {
                     toResume = fragment; // itemId map key, so only one can match the predicate
                 }
@@ -720,13 +743,18 @@ public abstract class FragmentStateAdapter extends
             }
             if (toResume != null) { // in case the Fragment wasn't added yet
                 transaction.setMaxLifecycle(toResume, RESUMED);
+                onPost.add(mFragmentEventDispatcher.dispatchMaxLifecyclePreUpdated(toResume,
+                        RESUMED));
             }
 
             if (!transaction.isEmpty()) {
                 transaction.commitNow();
+                Collections.reverse(onPost); // to assure 'nesting' of events
+                for (List<OnPostEventListener> event : onPost) {
+                    mFragmentEventDispatcher.dispatchPostEvents(event);
+                }
             }
         }
-
         @NonNull
         private ViewPager2 inferViewPager(@NonNull RecyclerView recyclerView) {
             ViewParent parent = recyclerView.getParent();
@@ -770,5 +798,128 @@ public abstract class FragmentStateAdapter extends
         public final void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
             onChanged();
         }
+    }
+
+    @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
+    static class FragmentEventDispatcher {
+        private List<FragmentTransactionCallback> mCallbacks = new CopyOnWriteArrayList<>();
+
+        public void registerCallback(FragmentTransactionCallback callback) {
+            mCallbacks.add(callback);
+        }
+
+        public void unregisterCallback(FragmentTransactionCallback callback) {
+            mCallbacks.remove(callback);
+        }
+
+        public List<OnPostEventListener> dispatchMaxLifecyclePreUpdated(Fragment fragment,
+                Lifecycle.State maxState) {
+            List<OnPostEventListener> result = new ArrayList<>();
+            for (FragmentTransactionCallback callback : mCallbacks) {
+                result.add(callback.onFragmentMaxLifecyclePreUpdated(fragment, maxState));
+            }
+            return result;
+        }
+
+        public void dispatchPostEvents(List<OnPostEventListener> entries) {
+            for (OnPostEventListener entry : entries) {
+                entry.onPost();
+            }
+        }
+
+        public List<OnPostEventListener> dispatchPreAdded(Fragment fragment) {
+            List<OnPostEventListener> result = new ArrayList<>();
+            for (FragmentTransactionCallback callback : mCallbacks) {
+                result.add(callback.onFragmentPreAdded(fragment));
+            }
+            return result;
+        }
+
+        public List<OnPostEventListener> dispatchPreRemoved(Fragment fragment) {
+            List<OnPostEventListener> result = new ArrayList<>();
+            for (FragmentTransactionCallback callback : mCallbacks) {
+                result.add(callback.onFragmentPreRemoved(fragment));
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Callback interface for listening to fragment lifecycle changes that happen
+     * inside the adapter.
+     */
+    public abstract static class FragmentTransactionCallback {
+        private static final @NonNull OnPostEventListener NO_OP = new OnPostEventListener() {
+            @Override
+            public void onPost() {
+                // do nothing
+            }
+        };
+
+        /**
+         * Called right before the Fragment is added to adapter's FragmentManager.
+         *
+         * @param fragment Fragment changing state
+         * @return Listener called after the operation
+         */
+        @NonNull
+        public OnPostEventListener onFragmentPreAdded(@NonNull Fragment fragment) {
+            return NO_OP;
+        }
+
+        /**
+         * Called right before the Fragment is removed from adapter's FragmentManager.
+         *
+         * @param fragment Fragment changing state
+         * @return Listener called after the operation
+         */
+        @NonNull
+        public OnPostEventListener onFragmentPreRemoved(@NonNull Fragment fragment) {
+            return NO_OP;
+        }
+
+        /**
+         * Called right before Fragment's maximum state is capped via
+         * {@link FragmentTransaction#setMaxLifecycle}.
+         *
+         * @param fragment Fragment to have its state capped
+         * @param maxLifecycleState Ceiling state for the fragment
+         * @return Listener called after the operation
+         */
+        @NonNull
+        public OnPostEventListener onFragmentMaxLifecyclePreUpdated(@NonNull Fragment fragment,
+                @NonNull Lifecycle.State maxLifecycleState) {
+            return NO_OP;
+        }
+
+        /**
+         * Callback returned by {@link #onFragmentPreAdded}, {@link #onFragmentPreRemoved},
+         * {@link #onFragmentMaxLifecyclePreUpdated} called after the operation ends.
+         */
+        public interface OnPostEventListener {
+            /** Called after the operation is ends. */
+            void onPost();
+        }
+    }
+
+    /**
+     * Registers a {@link FragmentTransactionCallback} to listen to fragment lifecycle changes
+     * that happen inside the adapter.
+     *
+     * @param callback Callback to register
+     */
+    public void registerFragmentTransactionCallback(@NonNull FragmentTransactionCallback callback) {
+        mFragmentEventDispatcher.registerCallback(callback);
+    }
+
+    /**
+     * Unregisters a {@link FragmentTransactionCallback}.
+     *
+     * @param callback Callback to unregister
+     * @see #registerFragmentTransactionCallback
+     */
+    public void unregisterFragmentTransactionCallback(
+            @NonNull FragmentTransactionCallback callback) {
+        mFragmentEventDispatcher.unregisterCallback(callback);
     }
 }
