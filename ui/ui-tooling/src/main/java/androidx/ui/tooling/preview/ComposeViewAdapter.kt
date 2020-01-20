@@ -50,6 +50,7 @@ const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
+    val methodName: String,
     val bounds: PxBounds,
     val children: List<ViewInfo>
 ) {
@@ -64,6 +65,17 @@ data class ViewInfo(
             |bottom=${bounds.bottom.value}, right=${bounds.right.value}),
             |childrenCount=${children.size})""".trimMargin()
 }
+
+/**
+ * Regular expression that matches and extracts the key information as serialized in
+ * [KeySourceInfo#recordSourceKeyInfo]. The expression supports two formats for backwards
+ * compatibility:
+ *
+ *  - fileName:lineNumber
+ *  - methodName (fileName:lineNumber)
+ */
+private val KEY_INFO_REGEX =
+    """(?<method>[\w\\.$]*?)\s?\(?(?<fileName>[\w.]+):(?<lineNumber>\d+)\)?""".toRegex()
 
 /**
  * View adapter that renders a `@Composable`. The `@Composable` is found by
@@ -128,8 +140,6 @@ internal class ComposeViewAdapter : FrameLayout {
         hasNullSourcePosition() && children.isEmpty()
 
     private fun Group.toViewInfo(): ViewInfo {
-        val fileName = (key as? String)?.substringBefore(":") ?: ""
-
         if (children.size == 1 && hasNullSourcePosition()) {
             // There is no useful information in this intermediate node, remove.
             return children.single().toViewInfo()
@@ -139,7 +149,15 @@ internal class ComposeViewAdapter : FrameLayout {
             .filter { !it.isNullGroup() }
             .map { it.toViewInfo() }
 
-        return ViewInfo(fileName, lineNumber, box, childrenViewInfo)
+        val match = KEY_INFO_REGEX.matchEntire(key as? String ?: "")
+            ?: return ViewInfo("", -1, "", box, childrenViewInfo)
+
+        // TODO: Use group names instead of indexing once it's supported
+        return ViewInfo(match.groups[2]?.value ?: "",
+            match.groups[3]?.value?.toInt() ?: -1,
+            match.groups[1]?.value ?: "",
+            box,
+            childrenViewInfo)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -162,7 +180,7 @@ internal class ComposeViewAdapter : FrameLayout {
         }
 
         viewInfos
-            .flatMap { it.allChildren() }
+            .flatMap { listOf(it) + it.allChildren() }
             .forEach {
                 if (it.hasBounds()) {
                     canvas?.apply {
