@@ -322,6 +322,7 @@ class FragmentStateManager {
                     mFragment.mSavedFragmentState), null, mFragment.mSavedFragmentState);
             if (mFragment.mView != null) {
                 mFragment.mView.setSaveFromParentEnabled(false);
+                mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
                 if (mFragment.mHidden) mFragment.mView.setVisibility(View.GONE);
                 mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
                 mDispatcher.dispatchOnFragmentViewCreated(
