@@ -43,6 +43,7 @@ import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.max
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.toOffset
+import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toRect
 import androidx.ui.unit.withDensity
 
@@ -114,13 +115,13 @@ private class DefaultRippleEffect(
     private val paint = Paint()
 
     init {
-        val surfaceSize = coordinates.size
+        val surfaceSize = coordinates.size.toPxSize()
         val startRadius = getRippleStartRadius(surfaceSize)
         val targetRadius = withDensity(density) {
             radius?.toPx() ?: getRippleTargetRadius(surfaceSize)
         }
 
-        val center = coordinates.size.center()
+        val center = coordinates.size.toPxSize().center()
         animation = RippleTransition.definition(
             startRadius = startRadius,
             endRadius = targetRadius,
@@ -154,7 +155,7 @@ private class DefaultRippleEffect(
 
         if (clipped) {
             canvas.save()
-            canvas.clipRect(coordinates.size.toRect())
+            canvas.clipRect(coordinates.size.toPxSize().toRect())
         }
 
         val centerOffset = animation[RippleTransition.Center].toOffset()

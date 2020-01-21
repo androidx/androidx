@@ -31,12 +31,13 @@ import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.toPx
+import androidx.ui.unit.toPxSize
 import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -59,7 +60,7 @@ class AspectRatioTest : LayoutTest() {
             Align(alignment = Alignment.TopLeft) {
                 AspectRatio(1f) {
                     OnChildPositioned(onPositioned = { coordinates ->
-                        containerSize.value = coordinates.size
+                        containerSize.value = coordinates.size.toPxSize()
                         containerPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         positionedLatch.countDown()
                     }) {
@@ -80,10 +81,10 @@ class AspectRatioTest : LayoutTest() {
     @Test
     fun testAspectRatio_withNoChild() = withDensity(density) {
         val sizeDp = 10.dp
-        val sizePx = 10.dp.toIntPx().toPx()
+        val sizePx = 10.dp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val size = arrayOf(Ref<PxSize>(), Ref<PxSize>())
+        val size = arrayOf(Ref<IntPxSize>(), Ref<IntPxSize>())
         val position = arrayOf(Ref<PxPosition>(), Ref<PxPosition>())
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -113,22 +114,22 @@ class AspectRatioTest : LayoutTest() {
 
     @Test
     fun testAspectRatio_sizesCorrectly() = withDensity(density) {
-        assertEquals(PxSize(30.px, 30.px), getSize(1f, Constraints(maxWidth = 30.ipx)))
-        assertEquals(PxSize(30.px, 15.px), getSize(2f, Constraints(maxWidth = 30.ipx)))
+        assertEquals(IntPxSize(30.ipx, 30.ipx), getSize(1f, Constraints(maxWidth = 30.ipx)))
+        assertEquals(IntPxSize(30.ipx, 15.ipx), getSize(2f, Constraints(maxWidth = 30.ipx)))
         assertEquals(
-            PxSize(10.px, 10.px),
+            IntPxSize(10.ipx, 10.ipx),
             getSize(1f, Constraints(maxWidth = 30.ipx, maxHeight = 10.ipx))
         )
         assertEquals(
-            PxSize(20.px, 10.px),
+            IntPxSize(20.ipx, 10.ipx),
             getSize(2f, Constraints(maxWidth = 30.ipx, maxHeight = 10.ipx))
         )
         assertEquals(
-            PxSize(10.px, 5.px),
+            IntPxSize(10.ipx, 5.ipx),
             getSize(2f, Constraints(minWidth = 10.ipx, minHeight = 5.ipx))
         )
         assertEquals(
-            PxSize(20.px, 10.px),
+            IntPxSize(20.ipx, 10.ipx),
             getSize(2f, Constraints(minWidth = 5.ipx, minHeight = 10.ipx))
         )
     }
@@ -152,9 +153,9 @@ class AspectRatioTest : LayoutTest() {
         }
     }
 
-    private fun getSize(aspectRatio: Float, aspectRatioConstraints: Constraints): PxSize {
+    private fun getSize(aspectRatio: Float, aspectRatioConstraints: Constraints): IntPxSize {
         val positionedLatch = CountDownLatch(1)
-        val size = Ref<PxSize>()
+        val size = Ref<IntPxSize>()
         show {
             Align(alignment = Alignment.TopLeft) {
                 val children = @Composable {

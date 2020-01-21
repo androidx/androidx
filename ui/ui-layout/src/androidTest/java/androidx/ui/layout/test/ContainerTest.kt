@@ -35,8 +35,8 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -60,7 +60,7 @@ class ContainerTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(1)
-        val containerSize = Ref<PxSize>()
+        val containerSize = Ref<IntPxSize>()
         show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
@@ -75,7 +75,7 @@ class ContainerTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size, size), containerSize.value)
+        assertEquals(IntPxSize(size, size), containerSize.value)
     }
 
     @Test
@@ -86,7 +86,7 @@ class ContainerTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val containerSize = Ref<PxSize>()
+        val containerSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -109,7 +109,7 @@ class ContainerTest : LayoutTest() {
 
         val totalPadding = paddingDp.toIntPx() * 2
         assertEquals(
-            PxSize(size + totalPadding, size + totalPadding),
+            IntPxSize(size + totalPadding, size + totalPadding),
             containerSize.value
         )
         assertEquals(PxPosition(padding, padding), childPosition.value)
@@ -125,8 +125,8 @@ class ContainerTest : LayoutTest() {
         val childConstraints = DpConstraints.fixed(childWidthDp, childHeightDp)
 
         val positionedLatch = CountDownLatch(4)
-        val containerSize = Ref<PxSize>()
-        val childSize = Array(3) { PxSize(0.px, 0.px) }
+        val containerSize = Ref<IntPxSize>()
+        val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
         show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
@@ -169,10 +169,10 @@ class ContainerTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(childWidth, childHeight), childSize[0])
-        assertEquals(PxSize(childWidth, childHeight), childSize[1])
+        assertEquals(IntPxSize(childWidth, childHeight), childSize[0])
+        assertEquals(IntPxSize(childWidth, childHeight), childSize[1])
         assertEquals(
-            PxSize((childWidthDp * 2).toIntPx(), (childHeightDp * 2).toIntPx()),
+            IntPxSize((childWidthDp * 2).toIntPx(), (childHeightDp * 2).toIntPx()),
             childSize[2]
         )
     }
@@ -183,9 +183,9 @@ class ContainerTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(3)
-        val alignSize = Ref<PxSize>()
-        val containerSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
+        val containerSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -212,11 +212,11 @@ class ContainerTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(alignSize.value, containerSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
             PxPosition(
-                (containerSize.value!!.width / 2 - size.toPx() / 2).round(),
-                (containerSize.value!!.height / 2 - size.toPx() / 2).round()
+                (containerSize.value!!.width.toPx() / 2 - size.toPx() / 2).round(),
+                (containerSize.value!!.height.toPx() / 2 - size.toPx() / 2).round()
             ),
             childPosition.value
         )
@@ -231,8 +231,8 @@ class ContainerTest : LayoutTest() {
         val sizeDp = size.toDp()
 
         val positionedLatch = CountDownLatch(2)
-        val containerSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val containerSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -259,10 +259,10 @@ class ContainerTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()),
+            IntPxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()),
             containerSize.value
         )
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(size, size), childPosition.value)
     }
 
@@ -271,7 +271,7 @@ class ContainerTest : LayoutTest() {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
-        val containerSize = Ref<PxSize>()
+        val containerSize = Ref<IntPxSize>()
         val latch = CountDownLatch(1)
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -285,7 +285,7 @@ class ContainerTest : LayoutTest() {
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(PxSize(size, size), containerSize.value)
+        assertEquals(IntPxSize(size, size), containerSize.value)
     }
 
     @Test
@@ -299,12 +299,12 @@ class ContainerTest : LayoutTest() {
             left = paddingLeft, top = paddingTop,
             right = paddingRight, bottom = paddingBottom
         )
-        val expectedSize = PxSize(
+        val expectedSize = IntPxSize(
             childSizeDp.toIntPx() + paddingLeft.toIntPx() + paddingRight.toIntPx(),
             childSizeDp.toIntPx() + paddingTop.toIntPx() + paddingBottom.toIntPx()
         )
 
-        var containerSize: PxSize? = null
+        var containerSize: IntPxSize? = null
         val latch = CountDownLatch(1)
         show {
             Wrap {
@@ -347,8 +347,11 @@ class ContainerTest : LayoutTest() {
 
         val centeringOffset = padding.toIntPx() +
                 (containerSize.toIntPx() - padding.toIntPx() * 2 - childSize.toIntPx()) / 2
-        assertEquals(PxPosition(centeringOffset, centeringOffset), childCoordinates!!.position)
-        assertEquals(PxSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
+        val lockedChildCoord = childCoordinates!!
+        val childPosition = lockedChildCoord.parentCoordinates!!
+            .childToLocal(lockedChildCoord, PxPosition.Origin)
+        assertEquals(PxPosition(centeringOffset, centeringOffset), childPosition)
+        assertEquals(IntPxSize(childSize.toIntPx(), childSize.toIntPx()), lockedChildCoord.size)
     }
 
     @Test

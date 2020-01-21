@@ -145,7 +145,7 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowWidth to tabRowHeight
@@ -160,10 +160,10 @@ class TabTest {
             withDensity(composeTestRule.density) {
                 val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
                 val expectedPositionX = tabRowWidth / 2
-                assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+                assertThat(indicatorPositionX).isEqualTo(expectedPositionX.toPx())
 
                 val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-                val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+                val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
                 assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
             }
         }
@@ -216,7 +216,7 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowHeight
@@ -233,7 +233,7 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
         }
     }

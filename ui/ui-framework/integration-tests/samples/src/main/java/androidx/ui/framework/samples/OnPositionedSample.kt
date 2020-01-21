@@ -42,8 +42,6 @@ fun OnPositionedSample() {
         OnPositioned(onPositioned = { coordinates ->
             // This will be the size of the Column.
             coordinates.size
-            // This will be the position of Column inside its parent.
-            coordinates.position
             // The position of the Column relative to the application window.
             coordinates.globalPosition
             // The position of the Column relative to the Compose root.
@@ -64,8 +62,6 @@ fun OnChildPositionedSample() {
         OnChildPositioned(onPositioned = { coordinates ->
             // This will be the size of the child SizedRectangle.
             coordinates.size
-            // This will be the position of SizedRectangle inside its Column parent.
-            coordinates.position
             // The position of the SizedRectangle relative to the application window.
             coordinates.globalPosition
             // The position of the SizedRectangle relative to the Compose root.

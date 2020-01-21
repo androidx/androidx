@@ -36,6 +36,7 @@ import androidx.ui.layout.Constraints
 import androidx.ui.layout.DpConstraints
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
@@ -127,12 +128,12 @@ open class LayoutTest {
 
     @Composable
     internal fun SaveLayoutInfo(
-        size: Ref<PxSize>,
+        size: Ref<IntPxSize>,
         position: Ref<PxPosition>,
         positionedLatch: CountDownLatch
     ) {
         OnPositioned(onPositioned = { coordinates ->
-            size.value = PxSize(coordinates.size.width, coordinates.size.height)
+            size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
             position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
             positionedLatch.countDown()
         })

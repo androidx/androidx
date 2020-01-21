@@ -33,15 +33,16 @@ import androidx.compose.TestOnly
 import androidx.compose.ambientOf
 import androidx.compose.disposeComposition
 import androidx.compose.escapeCompose
-import androidx.compose.remember
 import androidx.compose.onCommit
 import androidx.compose.onDispose
+import androidx.compose.remember
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.round
+import androidx.ui.unit.toPxSize
 
 /**
  * Opens a popup with the given content.
@@ -158,7 +159,7 @@ private fun Popup(
         val layoutSize = coordinates.size
 
         popupLayout.popupPositionProperties.parentPosition = layoutPosition
-        popupLayout.popupPositionProperties.parentSize = layoutSize
+        popupLayout.popupPositionProperties.parentSize = layoutSize.toPxSize()
 
         // Update the popup's position
         popupLayout.updatePosition()
@@ -168,7 +169,7 @@ private fun Popup(
         popupLayout.setContent {
             OnChildPositioned({
                 // Get the size of the content
-                popupLayout.popupPositionProperties.childrenSize = it.size
+                popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
 
                 // Update the popup's position
                 popupLayout.updatePosition()

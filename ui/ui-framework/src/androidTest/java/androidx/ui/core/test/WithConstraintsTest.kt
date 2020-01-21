@@ -37,7 +37,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.toRect
@@ -299,8 +299,8 @@ class WithConstraintsTest {
         val size = ValueModel(50.ipx)
         var withConstLatch = CountDownLatch(1)
         var childLatch = CountDownLatch(1)
-        var withConstSize: PxSize? = null
-        var childSize: PxSize? = null
+        var withConstSize: IntPxSize? = null
+        var childSize: IntPxSize? = null
 
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
@@ -330,7 +330,7 @@ class WithConstraintsTest {
         }
         assertTrue(withConstLatch.await(1, TimeUnit.SECONDS))
         assertTrue(childLatch.await(1, TimeUnit.SECONDS))
-        var expectedSize = PxSize(50.ipx, 50.ipx)
+        var expectedSize = IntPxSize(50.ipx, 50.ipx)
         assertEquals(expectedSize, withConstSize)
         assertEquals(expectedSize, childSize)
 
@@ -342,7 +342,7 @@ class WithConstraintsTest {
 
         assertTrue(withConstLatch.await(1, TimeUnit.SECONDS))
         assertTrue(childLatch.await(1, TimeUnit.SECONDS))
-        expectedSize = PxSize(100.ipx, 100.ipx)
+        expectedSize = IntPxSize(100.ipx, 100.ipx)
         assertEquals(expectedSize, withConstSize)
         assertEquals(expectedSize, childSize)
     }

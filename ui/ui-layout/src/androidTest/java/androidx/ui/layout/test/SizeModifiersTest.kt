@@ -31,11 +31,12 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.withDensity
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -52,7 +53,7 @@ class SizeModifiersTest : LayoutTest() {
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(6)
-        val size = MutableList(6) { Ref<PxSize>() }
+        val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -86,22 +87,22 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
 
-        assertEquals(PxSize(0.ipx, sizeIpx), size[1].value)
+        assertEquals(IntPxSize(0.ipx, sizeIpx), size[1].value)
         assertEquals(PxPosition(0.ipx, sizeIpx), position[1].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 2), position[2].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[3].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 3), position[3].value)
 
-        assertEquals(PxSize((sizeDp * 2).toIntPx(), sizeIpx), size[4].value)
+        assertEquals(IntPxSize((sizeDp * 2).toIntPx(), sizeIpx), size[4].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 4), position[4].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[5].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[5].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 5), position[5].value)
     }
 
@@ -111,7 +112,7 @@ class SizeModifiersTest : LayoutTest() {
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(6)
-        val size = MutableList(6) { Ref<PxSize>() }
+        val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -142,22 +143,22 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
 
-        assertEquals(PxSize(sizeIpx, 0.ipx), size[1].value)
+        assertEquals(IntPxSize(sizeIpx, 0.ipx), size[1].value)
         assertEquals(PxPosition(sizeIpx, 0.ipx), position[1].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
         assertEquals(PxPosition(sizeIpx * 2, 0.ipx), position[2].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[3].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
         assertEquals(PxPosition(sizeIpx * 3, 0.ipx), position[3].value)
 
-        assertEquals(PxSize(sizeIpx, (sizeDp * 2).toIntPx()), size[4].value)
+        assertEquals(IntPxSize(sizeIpx, (sizeDp * 2).toIntPx()), size[4].value)
         assertEquals(PxPosition(sizeIpx * 4, 0.ipx), position[4].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[5].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[5].value)
         assertEquals(PxPosition(sizeIpx * 5, 0.ipx), position[5].value)
     }
 
@@ -167,7 +168,7 @@ class SizeModifiersTest : LayoutTest() {
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(5)
-        val size = MutableList(5) { Ref<PxSize>() }
+        val size = MutableList(5) { Ref<IntPxSize>() }
         val position = MutableList(5) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -192,19 +193,19 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[1].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[1].value)
         assertEquals(PxPosition(sizeIpx, 0.ipx), position[1].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
         assertEquals(PxPosition(sizeIpx * 2, 0.ipx), position[2].value)
 
-        assertEquals(PxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()), size[3].value)
+        assertEquals(IntPxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()), size[3].value)
         assertEquals(PxPosition(sizeIpx * 3, 0.ipx), position[3].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[4].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[4].value)
         assertEquals(PxPosition((sizeDp * 5).toIntPx(), 0.ipx), position[4].value)
     }
 
@@ -214,8 +215,8 @@ class SizeModifiersTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val constrainedBoxSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val constrainedBoxSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -239,8 +240,8 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size, size), constrainedBoxSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), constrainedBoxSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition.Origin, childPosition.value)
     }
 
@@ -250,7 +251,7 @@ class SizeModifiersTest : LayoutTest() {
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(4)
-        val size = MutableList(4) { Ref<PxSize>() }
+        val size = MutableList(4) { Ref<IntPxSize>() }
         val position = MutableList(4) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -281,10 +282,10 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[1].value)
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[3].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[1].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
     }
 
     @Test

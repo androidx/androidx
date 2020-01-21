@@ -55,10 +55,12 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
+import androidx.ui.unit.toPxSize
 import androidx.ui.unit.withDensity
 import kotlin.math.sqrt
 
@@ -201,7 +203,7 @@ object BottomAppBar {
      */
     @Immutable
     data class FabConfiguration(
-        internal val fabSize: PxSize,
+        internal val fabSize: IntPxSize,
         internal val fabTopLeftPosition: PxPosition,
         internal val fabDockedPosition: FabDockedPosition
     )
@@ -298,7 +300,9 @@ fun <T> BottomAppBar(
         val shape =
             if (cutoutShape != null) {
                 BottomAppBarCutoutShape(
-                    cutoutShape, fabConfiguration.fabTopLeftPosition, fabConfiguration.fabSize
+                    cutoutShape,
+                    fabConfiguration.fabTopLeftPosition,
+                    fabConfiguration.fabSize.toPxSize()
                 )
             } else {
                 RectangleShape

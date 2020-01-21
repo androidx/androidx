@@ -33,7 +33,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -54,9 +53,9 @@ class AlignTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.BottomRight) {
@@ -79,9 +78,9 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px, root.height.px), alignSize.value)
+        assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
             PxPosition(root.width.px - size, root.height.px - size),
             childPosition.value
@@ -94,9 +93,9 @@ class AlignTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Container {
@@ -119,9 +118,9 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px, root.height.px), alignSize.value)
+        assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
             PxPosition(root.width.px - size, root.height.px - size),
             childPosition.value
@@ -134,9 +133,9 @@ class AlignTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Container {
@@ -159,9 +158,9 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px, root.height.px), alignSize.value)
+        assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, root.height.ipx), childSize.value)
+        assertEquals(IntPxSize(size, root.height.ipx), childSize.value)
         assertEquals(PxPosition(root.width.px - size, 0.px), childPosition.value)
     }
 
@@ -171,9 +170,9 @@ class AlignTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -206,9 +205,9 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(size, size), alignSize.value)
+        assertEquals(IntPxSize(size, size), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
@@ -220,9 +219,9 @@ class AlignTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -255,9 +254,9 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(size, size), alignSize.value)
+        assertEquals(IntPxSize(size, size), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
@@ -397,9 +396,9 @@ class AlignTest : LayoutTest() {
         val childSizeIpx = childSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -433,7 +432,7 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(childSizeIpx, childSizeIpx), childSize.value)
+        assertEquals(IntPxSize(childSizeIpx, childSizeIpx), childSize.value)
         assertEquals(
             PxPosition(
                 alignSize.value!!.width - childSizeIpx,
@@ -456,9 +455,9 @@ class AlignTest : LayoutTest() {
         val childSizeIpx = childSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -490,7 +489,7 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(childSizeIpx, childSizeIpx), childSize.value)
+        assertEquals(IntPxSize(childSizeIpx, childSizeIpx), childSize.value)
         assertEquals(
             PxPosition(
                 alignSize.value!!.width - childSizeIpx,
