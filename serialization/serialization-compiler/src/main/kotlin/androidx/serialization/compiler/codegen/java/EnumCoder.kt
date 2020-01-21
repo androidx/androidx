@@ -17,9 +17,8 @@
 package androidx.serialization.compiler.codegen.java
 
 import androidx.serialization.EnumValue
-import androidx.serialization.compiler.codegen.originatingElement
 import androidx.serialization.compiler.codegen.toLowerCamelCase
-import androidx.serialization.schema.Enum
+import androidx.serialization.compiler.schema.Enum
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -42,14 +41,14 @@ internal fun enumCoderName(enumName: ClassName): ClassName {
 
 /** Generate the Java source file for an enum coder. */
 internal fun generateEnumCoder(enum: Enum, javaGenEnv: JavaGenEnvironment): JavaFile {
-    val enumClass = enum.name.toClassName()
+    val enumClass = ClassName.get(enum.element)
     val variableName = nameAllocatorOf("encode", "decode")
-        .newName(enum.name.simpleName.toLowerCamelCase())
+        .newName(enum.element.simpleName.toLowerCamelCase())
 
     val default = enum.values.first { it.id == EnumValue.DEFAULT }
     val values = enum.values.filter { it.id != EnumValue.DEFAULT }.sortedBy { it.id }
 
-    return buildClass(enumCoderName(enumClass), javaGenEnv, enum.originatingElement) {
+    return buildClass(enumCoderName(enumClass), javaGenEnv, enum.element) {
         addModifiers(PUBLIC, FINAL)
         addJavadoc("Serialization of enum {@link $T}.\n", enumClass)
 
@@ -63,14 +62,14 @@ internal fun generateEnumCoder(enum: Enum, javaGenEnv: JavaGenEnvironment): Java
             controlFlow("if ($N != null)", variableName) {
                 controlFlow("switch ($N)", variableName) {
                     for (value in values) {
-                        switchCase("\$N", value.name) {
+                        switchCase("\$N", value.element.simpleName) {
                             addStatement("return $L", value.id)
                         }
                     }
                 }
             }
 
-            addCode("return $L; // $N\n", EnumValue.DEFAULT, default.name)
+            addCode("return $L; // $N\n", EnumValue.DEFAULT, default.element.simpleName)
         }
 
         method("decode") {
@@ -81,12 +80,12 @@ internal fun generateEnumCoder(enum: Enum, javaGenEnv: JavaGenEnvironment): Java
             controlFlow("switch (value)") {
                 for (value in values) {
                     switchCase("\$L", value.id) {
-                        addStatement("return $T.$N", enumClass, value.name)
+                        addStatement("return $T.$N", enumClass, value.element.simpleName)
                     }
                 }
 
                 switchDefault {
-                    addStatement("return $T.$N", enumClass, default.name)
+                    addStatement("return $T.$N", enumClass, default.element.simpleName)
                 }
             }
         }
