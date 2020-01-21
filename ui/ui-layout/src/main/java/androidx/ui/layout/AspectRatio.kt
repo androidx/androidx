@@ -108,7 +108,7 @@ data class LayoutAspectRatio(
  */
 @Deprecated(
     "Use AspectRatio layout modifier instead.",
-    ReplaceWith("modifier = AspectRatio(aspectRatio)"),
+    ReplaceWith("modifier = LayoutAspectRatio(aspectRatio)"),
     DeprecationLevel.WARNING
 )
 @Composable
