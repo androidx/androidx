@@ -113,8 +113,8 @@ public interface CameraControl {
      *
      * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
      * zoomRatio or linearZoom, they will get the update as well. If the ratio is
-     * smaller than {@link CameraInfo#getMinZoomRatio()} or larger than
-     * {@link CameraInfo#getMaxZoomRatio()}, the returned {@link ListenableFuture} will fail with
+     * smaller than {@link ZoomState#getMinZoomRatio()} or larger than
+     * {@link ZoomState#getMaxZoomRatio()}, the returned {@link ListenableFuture} will fail with
      * {@link IllegalArgumentException} and it won't modify current zoom ratio. It is the
      * applications' duty to clamp the ratio.
      *

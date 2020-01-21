@@ -22,9 +22,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
+import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -40,10 +42,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final int mLensFacing;
     private final boolean mHasFlashUnit = true;
     private MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
-    private MutableLiveData<Float> mMaxZoom = new MutableLiveData<>(4.0f);
-    private MutableLiveData<Float> mMinZoom = new MutableLiveData<>(1.0f);
-    private MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
-    private MutableLiveData<Float> mZoomPercentage = new MutableLiveData<>(0f);
+
+    private final MutableLiveData<ZoomState> mZoomLiveData;
 
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
@@ -62,6 +62,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mCameraId = cameraId;
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
+        mZoomLiveData = new MutableLiveData<>(ImmutableZoomState.create(1.0f, 4.0f, 1.0f, 0.0f));
     }
 
     @Nullable
@@ -108,26 +109,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public LiveData<Float> getZoomRatio() {
-        return mZoomRatio;
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Float> getMaxZoomRatio() {
-        return mMaxZoom;
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Float> getMinZoomRatio() {
-        return mMinZoom;
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Float> getLinearZoom() {
-        return mZoomPercentage;
+    public LiveData<ZoomState> getZoomState() {
+        return mZoomLiveData;
     }
 
     @NonNull
