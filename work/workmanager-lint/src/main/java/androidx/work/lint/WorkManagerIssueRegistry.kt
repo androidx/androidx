@@ -27,6 +27,7 @@ class WorkManagerIssueRegistry : IssueRegistry() {
     override val issues: List<Issue> = listOf(
         BadConfigurationProviderIssueDetector.ISSUE,
         PeriodicEnqueueIssueDetector.ISSUE,
-        RemoveWorkManagerInitializerDetector.ISSUE
+        RemoveWorkManagerInitializerDetector.ISSUE,
+        SpecifyForegroundServiceTypeIssueDetector.ISSUE
     )
 }
