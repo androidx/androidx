@@ -318,9 +318,9 @@ fun GestureScope.sendSwipeRight() {
  *
  * Filling in `f(0) = [start]`, `T = [duration]` and `b = [velocity]` gives:
  * * `a * (0 - duration)^2 + velocity * (0 - duration) + c = start`
- * * `a * duration^2 - velocity * duration + to = start`
- * * `a * duration^2 = start - to + velocity * duration`
- * * `a = (start - to + velocity * duration) / duration^2`
+ * * `a * duration^2 - velocity * duration + end = start`
+ * * `a * duration^2 = start - end + velocity * duration`
+ * * `a = (start - end + velocity * duration) / duration^2`
  *
  * @param duration The duration of the fling
  * @param start The start x or y position
