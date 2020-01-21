@@ -44,7 +44,7 @@ sealed class VectorAssetTestCase : ComposeTestCase {
     override fun emitContent() {
         Container {
             TestTag(testTag) {
-                Semantics {
+                Semantics(container = true) {
                     Container(width = 24.dp, height = 24.dp) {
                         DrawVector(vectorImage = getVectorAsset())
                     }
