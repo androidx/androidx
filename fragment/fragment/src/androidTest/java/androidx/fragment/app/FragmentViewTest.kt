@@ -336,6 +336,17 @@ class FragmentViewTest {
     }
 
     @Test
+    fun findInflatedFragment() {
+        activityRule.setContentView(R.layout.activity_inflated_fragment)
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment = fm.findFragmentById(R.id.inflated_fragment)!!
+
+        assertThat(FragmentManager.findFragment<StrictViewFragment>(fragment.requireView()))
+            .isSameInstanceAs(fragment)
+    }
+
+    @Test
     fun findFragmentFindByIdChildView() {
         activityRule.setContentView(R.layout.simple_container)
         val fm = activityRule.activity.supportFragmentManager
