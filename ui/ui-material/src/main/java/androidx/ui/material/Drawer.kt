@@ -327,4 +327,4 @@ private val AnimationBuilder =
         stiffness = DrawerStiffness
     }
 
-private val BottomDrawerOpenFraction = 0.5f
+internal val BottomDrawerOpenFraction = 0.5f
