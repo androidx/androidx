@@ -389,6 +389,48 @@ class TextDelegateIntegrationTest {
         assertThat(layoutIntrinsics.infoList.get(0))
             .isSameInstanceAs(multiParagraphIntrinsics?.infoList?.get(0))
     }
+
+    @Test
+    fun TextLayoutInput_reLayout_withDifferentHeight() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = "Hello World!"),
+            density = density,
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
+        )
+        val width = 200.ipx
+        val heightFirstLayout = 100.ipx
+        val heightSecondLayout = 200.ipx
+
+        val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
+        val resultFirstLayout = textDelegate.layout(constraintsFirstLayout)
+        assertThat(resultFirstLayout.layoutInput.constraints).isEqualTo(constraintsFirstLayout)
+
+        val constraintsSecondLayout = Constraints.fixed(width, heightSecondLayout)
+        val resultSecondLayout = textDelegate.layout(constraintsSecondLayout, resultFirstLayout)
+        assertThat(resultSecondLayout.layoutInput.constraints).isEqualTo(constraintsSecondLayout)
+    }
+
+    @Test
+    fun TextLayoutResult_reLayout_withDifferentHeight() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = "Hello World!"),
+            density = density,
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
+        )
+        val width = 200.ipx
+        val heightFirstLayout = 100.ipx
+        val heightSecondLayout = 200.ipx
+
+        val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
+        val resultFirstLayout = textDelegate.layout(constraintsFirstLayout)
+        assertThat(resultFirstLayout.size.height).isEqualTo(heightFirstLayout)
+
+        val constraintsSecondLayout = Constraints.fixed(width, heightSecondLayout)
+        val resultSecondLayout = textDelegate.layout(constraintsSecondLayout, resultFirstLayout)
+        assertThat(resultSecondLayout.size.height).isEqualTo(heightSecondLayout)
+    }
 }
 
 private fun TextLayoutResult.toBitmap() = Bitmap.createBitmap(
