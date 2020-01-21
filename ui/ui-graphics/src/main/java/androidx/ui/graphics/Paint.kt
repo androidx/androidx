@@ -19,6 +19,11 @@ package androidx.ui.graphics
 import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuffColorFilter
 
+/**
+ * Default alpha value used on [Paint]. This value will draw source content fully opaque.
+ */
+const val DefaultAlpha: Float = 1.0f
+
 class Paint {
 
     private var internalPaint = android.graphics.Paint()

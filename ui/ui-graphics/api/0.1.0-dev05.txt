@@ -317,6 +317,10 @@ package androidx.ui.graphics {
     property public final androidx.ui.graphics.PaintingStyle style;
   }
 
+  public final class PaintKt {
+    field public static final float DefaultAlpha = 1.0f;
+  }
+
   public enum PaintingStyle {
     enum_constant public static final androidx.ui.graphics.PaintingStyle fill;
     enum_constant public static final androidx.ui.graphics.PaintingStyle stroke;
@@ -700,6 +704,42 @@ package androidx.ui.graphics.colorspace {
     method public androidx.ui.graphics.colorspace.WhitePoint copy(float x, float y);
     method public float getX();
     method public float getY();
+  }
+
+}
+
+package androidx.ui.graphics.painter {
+
+  public final class ColorPainter extends androidx.ui.graphics.painter.Painter {
+    ctor public ColorPainter(androidx.ui.graphics.Color color);
+    method public androidx.ui.graphics.Color component1();
+    method public androidx.ui.graphics.painter.ColorPainter copy(androidx.ui.graphics.Color color);
+    method public androidx.ui.graphics.Color getColor();
+    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    property public androidx.ui.unit.PxSize intrinsicSize;
+  }
+
+  public final class ImagePainter extends androidx.ui.graphics.painter.Painter {
+    ctor public ImagePainter(androidx.ui.graphics.Image image);
+    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.Image image);
+    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    property public androidx.ui.unit.PxSize intrinsicSize;
+  }
+
+  public final class ImagePainterKt {
+  }
+
+  public abstract class Painter {
+    ctor public Painter();
+    method protected boolean applyAlpha(float alpha);
+    method protected boolean applyColorFilter(androidx.ui.graphics.ColorFilter? colorFilter);
+    method protected boolean applyRtl(boolean rtl);
+    method public final void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public abstract androidx.ui.unit.PxSize getIntrinsicSize();
+    method protected abstract void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    property public abstract androidx.ui.unit.PxSize intrinsicSize;
   }
 
 }
