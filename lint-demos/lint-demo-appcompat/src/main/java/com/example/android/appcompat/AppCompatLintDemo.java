@@ -16,16 +16,38 @@
 
 package com.example.android.appcompat;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 
 /**
  * Dummy activity for the AppCompat Lint demo
  */
 public class AppCompatLintDemo extends AppCompatActivity {
+    private class ResourceLoader {
+        private ColorStateList getColorStateList(int resourceId) {
+            return AppCompatResources.getColorStateList(AppCompatLintDemo.this, resourceId);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        TextView dummy = findViewById(R.id.dummy);
+        // The following call to getColorStateList should be flagged by our Lint rule, since
+        // it's on the core Android Resources class
+        ColorStateList csl =
+                getResources().getColorStateList(R.color.color_state_list_missing_android_alpha);
+        dummy.setTextColor(csl);
+
+        // The following call to getColorStateList should not be flagged by our Lint rule, since
+        // it's on our own custom inner class
+        ColorStateList csl2 = new ResourceLoader().getColorStateList(
+                R.color.color_state_list_missing_android_alpha);
+        dummy.setTextColor(csl2);
     }
 }
