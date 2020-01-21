@@ -28,9 +28,8 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
-import androidx.ui.foundation.shape.border.Border
-import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
@@ -39,7 +38,10 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
+import androidx.ui.layout.Stack
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
@@ -248,8 +250,12 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
         Container(height = 50.dp, padding = EdgeInsets(10.dp)) {
             Column(LayoutHeight.Fill) {
                 val color = if (selected) Color.Red else Color.Gray
-                ColoredRect(height = 10.dp, width = 10.dp, color = color,
-                    modifier = LayoutGravity.Center)
+                ColoredRect(
+                    height = 10.dp,
+                    width = 10.dp,
+                    color = color,
+                    modifier = LayoutGravity.Center
+                )
                 Padding(5.dp) {
                     Text(
                         text = title,
@@ -267,11 +273,10 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
 fun FancyIndicator(color: Color) {
     // Draws a rounded rectangular with border around the Tab, with a 5.dp padding from the edges
     // Color is passed in as a parameter [color]
-    Padding(5.dp) {
-        Container(expanded = true) {
-            DrawBorder(RoundedCornerShape(5.dp), Border(color, 2.dp))
-        }
-    }
+    Stack(
+        LayoutPadding(5.dp) + LayoutSize.Fill +
+                Border(RoundedCornerShape(5.dp), 2.dp, color)
+    ) {}
 }
 
 @Sampled

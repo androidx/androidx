@@ -22,9 +22,10 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.shape.border.Border
+import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
@@ -44,7 +45,9 @@ import androidx.ui.unit.dp
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
  * @param shape Defines the button's shape as well as its shadow
- * @param border Optional border to draw on top of the shape
+ * @param borderWidth width of the border of the Button (if it exists)
+ * @param borderBrush brush to paint the border with. If null, there will be no border, no matter
+ * the borderWidth
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button
  * @param paddings The spacing values to apply internally between the container and the content
@@ -54,7 +57,8 @@ data class ButtonStyle(
     val backgroundColor: Color,
     val contentColor: Color,
     val shape: Shape,
-    val border: Border? = null,
+    val borderWidth: Dp = 0.dp,
+    val borderBrush: Brush? = null,
     val elevation: Dp = 0.dp,
     val paddings: EdgeInsets = ButtonPaddings
 )
@@ -105,7 +109,9 @@ fun ContainedButtonStyle(
  * @see ContainedButtonStyle
  * @see TextButtonStyle
  *
- * @param border Border to draw on top of the button.
+ * @param borderBrush brush to paint the border with. If null, there will be no border, no matter
+ * the borderWidth
+ * @param borderWidth width of the border of the Button (if it exists)
  * @param backgroundColor The background color. Provide [Color.Transparent] to have no color.
  * @param contentColor The preferred content color. Will be used by text and iconography.
  * @param shape Defines the Button's shape.
@@ -114,9 +120,9 @@ fun ContainedButtonStyle(
  */
 @Composable
 fun OutlinedButtonStyle(
-    border: Border = Border(
-        MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity),
-        1.dp
+    borderWidth: Dp = 1.dp,
+    borderBrush: Brush = SolidColor(
+        MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity)
     ),
     backgroundColor: Color = MaterialTheme.colors().surface,
     contentColor: Color = MaterialTheme.colors().primary,
@@ -125,7 +131,8 @@ fun OutlinedButtonStyle(
 ) = ButtonStyle(
     backgroundColor = backgroundColor,
     shape = shape,
-    border = border,
+    borderBrush = borderBrush,
+    borderWidth = borderWidth,
     elevation = elevation,
     contentColor = contentColor
 )
@@ -185,8 +192,9 @@ fun Button(
         Surface(
             shape = style.shape,
             color = style.backgroundColor,
-        contentColor = style.contentColor,
-            border = style.border,
+            contentColor = style.contentColor,
+            borderBrush = style.borderBrush,
+            borderWidth = style.borderWidth,
             elevation = style.elevation,
             modifier = modifier
         ) {
@@ -194,7 +202,7 @@ fun Button(
                 Clickable(onClick = onClick) {
                     Container(constraints = ButtonConstraints, padding = style.paddings) {
                         CurrentTextStyleProvider(
-                        value = MaterialTheme.typography().button,
+                            value = MaterialTheme.typography().button,
                             children = children
                         )
                     }
