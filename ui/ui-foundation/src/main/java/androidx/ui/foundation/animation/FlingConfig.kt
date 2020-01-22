@@ -18,13 +18,17 @@ package androidx.ui.foundation.animation
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationBuilder
+import androidx.animation.AnimationEndReason
 import androidx.animation.DecayAnimation
 import androidx.animation.ExponentialDecay
-import androidx.animation.PhysicsBuilder
-import androidx.animation.AnimationEndReason
 import androidx.animation.OnAnimationEnd
+import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.remember
+import androidx.ui.core.DensityAmbient
 import kotlin.math.abs
 
 /**
@@ -35,8 +39,6 @@ import kotlin.math.abs
  *
  * Config that provides natural fling with customizable behaviour
  * e.g fling friction or result target adjustment.
- *
- * The most common Decay animation is [ExponentialDecay].
  *
  * If you want to only be able to drag/animate between predefined set of values,
  * consider using [AnchorsFlingConfig] function to generate such behaviour.
@@ -49,10 +51,39 @@ import kotlin.math.abs
  * so the final value for fling can be adjusted
  */
 data class FlingConfig(
-    val decayAnimation: DecayAnimation = ExponentialDecay(),
+    val decayAnimation: DecayAnimation,
     val onAnimationEnd: OnAnimationEnd? = null,
     val adjustTarget: (Float) -> TargetAnimation? = { null }
 )
+
+/**
+ * Specify fling behavior configured for the current composition. See [FlingConfig].
+ *
+ * @param onAnimationEnd callback to be invoked when fling finishes by decay
+ * or being interrupted by gesture input.
+ * Consider second boolean param "cancelled" to know what happened.
+ * @param adjustTarget callback to be called at the start of fling
+ * so the final value for fling can be adjusted
+ */
+@Composable
+fun FlingConfig(
+    onAnimationEnd: OnAnimationEnd? = null,
+    adjustTarget: (Float) -> TargetAnimation? = { null }
+): FlingConfig {
+    // This function will internally update the calculation of fling decay when the density changes,
+    // but the reference to the returned FlingConfig will not change across calls.
+    val density = ambient(DensityAmbient)
+    val calculator = remember(density.density) { AndroidFlingCalculator(density) }
+    val decayAnimation = remember { AndroidFlingDecayAnimation(calculator) }
+        .also { it.flingCalculator = calculator }
+    return remember {
+        FlingConfig(
+            decayAnimation = decayAnimation,
+            onAnimationEnd = onAnimationEnd,
+            adjustTarget = adjustTarget
+        )
+    }
+}
 
 /**
  * Starts a fling animation with the specified starting velocity and fling configuration.

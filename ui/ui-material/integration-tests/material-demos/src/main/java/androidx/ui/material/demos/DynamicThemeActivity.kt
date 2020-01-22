@@ -126,7 +126,7 @@ private fun BottomBar(scrollFraction: ScrollFraction) {
 
 @Composable
 private fun ScrollingContent(scrollFraction: ScrollFraction) {
-    val scrollerPosition = remember { ScrollerPosition() }
+    val scrollerPosition = ScrollerPosition()
     val fraction = round((scrollerPosition.value / scrollerPosition.maxPosition) * 100) / 100
     remember(fraction) { scrollFraction.fraction = fraction }
     VerticalScroller(scrollerPosition) {
