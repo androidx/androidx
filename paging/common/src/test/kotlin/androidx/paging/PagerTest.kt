@@ -817,4 +817,31 @@ class PagerTest {
         assertEvents(expected, fetcherState.pageEventLists[0])
         fetcherState.job.cancel()
     }
+
+    @Test
+    fun neverDropBelowTwoPages() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = true,
+            initialLoadSize = 3,
+            maxSize = 3
+        )
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 2))
+        advanceUntilIdle()
+
+        val expected: List<PageEvent<Int>> = listOf(
+            LoadStateUpdate(REFRESH, Loading),
+            createRefresh(range = 50..52),
+            LoadStateUpdate(END, Loading),
+            createAppend(pageOffset = 1, range = 53..53)
+        )
+
+        assertEvents(expected, fetcherState.pageEventLists[0])
+        fetcherState.job.cancel()
+    }
 }
