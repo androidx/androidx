@@ -22,7 +22,5 @@ import androidx.ui.semantics.testTag
 
 @Composable
 fun TestTag(tag: String, children: @Composable() () -> Unit) {
-    Semantics(properties = { testTag = tag }) {
-        children()
-    }
+    Semantics(properties = { testTag = tag }, children = children)
 }
