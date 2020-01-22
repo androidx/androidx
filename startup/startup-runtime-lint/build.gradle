@@ -47,7 +47,6 @@ androidx {
     toolingProject = true
     publish = Publish.NONE
     mavenVersion = LibraryVersions.STARTUP
-    mavenGroup = LibraryGroups.STARTUP
     inceptionYear = "2020"
     description = "Android App Startup Runtime"
     url = AndroidXExtension.ARCHITECTURE_URL

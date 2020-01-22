@@ -34,7 +34,6 @@ androidx {
     name = "AndroidX Serialization - Annotation"
     publish = Publish.NONE
     compilationTarget = CompilationTarget.HOST
-    mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2019"
     description = "Annotations for AndroidX Serialization"

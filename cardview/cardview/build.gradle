@@ -15,7 +15,6 @@ dependencies {
 androidx {
     name = "Android Support CardView v7"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.CARDVIEW
     mavenGroup = LibraryGroups.CARDVIEW
     inceptionYear = "2011"
     description = "Android Support CardView v7"

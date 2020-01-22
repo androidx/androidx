@@ -57,7 +57,6 @@ dependencies {
 androidx {
     name = "Android Navigation Common Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Common-Ktx"

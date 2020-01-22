@@ -58,7 +58,6 @@ androidx {
     name = "Android Navigation TypeSafe Arguments Gradle Plugin"
     publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Gradle Plugin"

@@ -47,7 +47,6 @@ dependencies {
 androidx {
     name = "Android Support Custom Tabs"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.BROWSER
     mavenGroup = LibraryGroups.BROWSER
     inceptionYear = "2015"
     description = "Android Support Custom Tabs"
