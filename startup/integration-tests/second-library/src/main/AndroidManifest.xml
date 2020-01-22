@@ -22,7 +22,7 @@
         <!-- This meta-data entry is useful for ComponentInitializer discovery. -->
         <meta-data
             android:name="androidx.startup.second_library.DependentComponentInitializer"
-            android:value="@string/androidx_startup" />
+            android:value="androidx.startup" />
 
     </application>
 </manifest>

@@ -4,3 +4,5 @@
     # Keep the public no-argument constructor while allowing other methods to be optimized.
     public <init>();
 }
+
+-assumenosideeffects class androidx.startup.StartupLogger

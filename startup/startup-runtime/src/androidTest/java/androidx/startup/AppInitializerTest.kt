@@ -41,11 +41,17 @@ class AppInitializerTest {
     }
 
     @Test
+    fun basicUsageTest() {
+        AppInitializer.initialize(context, listOf<Class<*>>(InitializerNoDependencies::class.java))
+        assertThat(AppInitializer.sInitialized.get(), `is`(true))
+    }
+
+    @Test
     fun basicInitializationTest() {
         val initializing = mutableSetOf<Class<*>>()
         val initialized = mutableSetOf<Class<*>>()
         val components = listOf<Class<*>>(InitializerNoDependencies::class.java)
-        AppInitializer.initialize(context, components, initializing, initialized)
+        AppInitializer.doInitialize(context, components, initializing, initialized)
         assertThat(initializing.size, `is`(0))
         assertThat(initialized.size, `is`(1))
         assertThat<Collection<Class<*>>>(
@@ -59,7 +65,7 @@ class AppInitializerTest {
         val initializing = mutableSetOf<Class<*>>()
         val initialized = mutableSetOf<Class<*>>()
         val components = listOf<Class<*>>(InitializerWithDependency::class.java)
-        AppInitializer.initialize(context, components, initializing, initialized)
+        AppInitializer.doInitialize(context, components, initializing, initialized)
         assertThat(initializing.size, `is`(0))
         assertThat(initialized.size, `is`(2))
         assertThat<Collection<Class<*>>>(
@@ -77,9 +83,9 @@ class AppInitializerTest {
         val initialized = mutableSetOf<Class<*>>()
         val components = listOf<Class<*>>(CyclicDependencyInitializer::class.java)
         try {
-            AppInitializer.initialize(context, components, initializing, initialized)
+            AppInitializer.doInitialize(context, components, initializing, initialized)
             fail()
-        } catch (exception: IllegalStateException) {
+        } catch (exception: StartupException) {
             assertThat(exception.localizedMessage, containsString("Cycle detected."))
         }
     }
