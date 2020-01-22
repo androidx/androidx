@@ -298,7 +298,7 @@ package androidx.paging {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class PagingDataDiffer<T> {
-    ctor public PagingDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
+    ctor public PagingDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
     ctor public PagingDataDiffer();
     method public final suspend Object! collectFrom(androidx.paging.PagingData<T> pagingData, androidx.paging.PresenterCallback callback, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final operator T? get(int index);

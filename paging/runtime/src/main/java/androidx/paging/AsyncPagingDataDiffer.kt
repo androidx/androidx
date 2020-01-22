@@ -73,7 +73,7 @@ open class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
-    private val differBase = object : PagingDataDiffer<T>(mainDispatcher, workerDispatcher) {
+    private val differBase = object : PagingDataDiffer<T>(mainDispatcher) {
         override suspend fun performDiff(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
