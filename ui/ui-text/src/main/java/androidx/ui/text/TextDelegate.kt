@@ -205,7 +205,14 @@ class TextDelegate(
         if (prevResult != null && prevResult.canReuse(
                 text, style, maxLines, softWrap, overflow, density, layoutDirection,
                 resourceLoader, constraints)) {
-            return prevResult
+            return with(prevResult) {
+                copy(
+                    layoutInput = layoutInput.copy(constraints = constraints),
+                    size = constraints.constrain(
+                        IntPxSize(multiParagraph.width.toIntPx(), multiParagraph.height.toIntPx())
+                    )
+                )
+            }
         }
 
         val multiParagraph = layoutText(minWidth.value.toFloat(), maxWidth.value.toFloat())
@@ -214,7 +221,7 @@ class TextDelegate(
             IntPxSize(multiParagraph.width.toIntPx(), multiParagraph.height.toIntPx())
         )
 
-        val result = TextLayoutResult(
+        return TextLayoutResult(
             TextLayoutInput(
                 text,
                 style,
@@ -231,7 +238,6 @@ class TextDelegate(
         ).also {
             overflowShader = createOverflowShader(it)
         }
-        return result
     }
 
     /**
