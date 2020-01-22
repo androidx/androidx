@@ -38,7 +38,6 @@ androidx {
     name = "UI lint checks"
     publish = Publish.NONE
     toolingProject = true
-    mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "Internal lint checks for Compose"

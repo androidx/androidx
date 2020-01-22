@@ -70,7 +70,6 @@ androidx {
     name = "Android Benchmark Gradle Plugin"
     publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
-    mavenVersion = LibraryVersions.BENCHMARK
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"

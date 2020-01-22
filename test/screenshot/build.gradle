@@ -35,6 +35,5 @@ dependencies {
 
 androidx {
     name = "AndroidX Library Screenshot Test"
-    mavenVersion = LibraryVersions.TEST_SCREENSHOT
     mavenGroup = LibraryGroups.TESTSCREENSHOT
 }

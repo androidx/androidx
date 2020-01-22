@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "AndroidX Inspection"
     publish = Publish.SNAPSHOT_ONLY
-    mavenVersion = LibraryVersions.INSPECTION
     mavenGroup = LibraryGroups.INSPECTION
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"

@@ -33,7 +33,6 @@ android {
 androidx {
     name = "Android TextClassifier Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.TEXTCLASSIFIER
     mavenGroup = LibraryGroups.TEXTCLASSIFIER
     inceptionYear = "2018"
     description = "The TextClassifier Support Library can be added to an Android application in order to use the TextClassifier API introduced in Android O on all devices with API level 14 or later."

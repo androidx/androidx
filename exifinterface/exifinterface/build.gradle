@@ -27,7 +27,6 @@ dependencies {
 androidx {
     name = "Android Support ExifInterface"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.EXIFINTERFACE
     mavenGroup = LibraryGroups.EXIFINTERFACE
     inceptionYear = "2016"
     description = "Android Support ExifInterface"

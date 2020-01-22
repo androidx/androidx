@@ -40,7 +40,6 @@ android {
 androidx {
     name = "Android MediaRouter Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.MEDIAROUTER
     mavenGroup = LibraryGroups.MEDIAROUTER
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"

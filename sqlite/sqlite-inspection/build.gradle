@@ -69,7 +69,6 @@ androidx {
     publish = Publish.NONE
     // Decouple SQLITE_INSPECTOR because it depends on
     // the inspection protocol, which is alpha
-    mavenVersion = LibraryVersions.SQLITE_INSPECTOR
     mavenGroup = LibraryGroups.INSPECTION_EXTENSIONS
     inceptionYear = "2019"
     toolingProject = true

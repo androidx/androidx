@@ -49,7 +49,6 @@ dependencies {
 androidx {
     name = "Android Navigation UI"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-UI"

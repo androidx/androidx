@@ -47,7 +47,6 @@ dependencies {
 androidx {
     name = "Transition Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.TRANSITION
     mavenGroup = LibraryGroups.TRANSITION
     inceptionYear = "2019"
     description = "Kotlin extensions for 'transition' artifact"

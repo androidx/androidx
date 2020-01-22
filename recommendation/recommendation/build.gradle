@@ -20,7 +20,6 @@ android {
 androidx {
     name = "Android Support Recommendation"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.RECOMMENDATION
     mavenGroup = LibraryGroups.RECOMMENDATION
     inceptionYear = "2015"
     description = "Android Support Recommendation"

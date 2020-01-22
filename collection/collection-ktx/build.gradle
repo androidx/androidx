@@ -35,7 +35,6 @@ dependencies {
 androidx {
     name = "Collections Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.COLLECTION
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'collection' artifact"
