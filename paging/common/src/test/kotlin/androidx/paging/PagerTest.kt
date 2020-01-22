@@ -449,8 +449,8 @@ class PagerTest {
             advanceUntilIdle()
             fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
             advanceUntilIdle()
-            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(1, 0))
             // Start hint processing until load starts, but hasn't finished.
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(1, 0))
             advanceTimeBy(500)
             fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
             advanceUntilIdle()
