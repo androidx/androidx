@@ -23,9 +23,6 @@ package androidx.paging {
     method public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
   }
 
-  public final class AsyncPagedListDifferKt {
-  }
-
   public class AsyncPagingDataDiffer<T> {
     ctor public AsyncPagingDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback);
     method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);

@@ -27,9 +27,6 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.CopyOnWriteArrayList
 
-typealias OnCurrentListChanged<T> =
-            (previousList: PagedList<T>?, currentList: PagedList<T>?) -> Unit
-
 /**
  * Helper object for mapping a [androidx.paging.PagedList] into a
  * [RecyclerView.Adapter][androidx.recyclerview.widget.RecyclerView.Adapter].
