@@ -18,9 +18,6 @@ package androidx.ui.test
 
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.semantics.getOrNull
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.layout.Column
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
@@ -50,9 +47,7 @@ class FindAllTest {
             }
         }
 
-        findAll {
-            getOrNull(FoundationSemanticsProperties.ToggleableState) == ToggleableState.On
-        }
+        findAll(isOn())
             .assertCountEquals(2)
             .forEach {
                 it.assertIsOn()
@@ -80,7 +75,7 @@ class FindAllTest {
             }
         }
 
-        findAll { isToggleable }
+        findAll(isToggleable())
             .assertCountEquals(2)
             .forEach {
                 it.doClick()
@@ -101,10 +96,7 @@ class FindAllTest {
             }
         }
 
-        findAll {
-            isToggleable &&
-                    getOrNull(FoundationSemanticsProperties.ToggleableState) != ToggleableState.On
-        }
+        findAll(isOff())
             .assertCountEquals(0)
     }
 
@@ -130,7 +122,7 @@ class FindAllTest {
             }
         }
 
-        findAll { isToggleable }.apply {
+        findAll(isToggleable()).apply {
             get(0)
                 .doClick()
                 .assertIsOn()
@@ -169,17 +161,19 @@ class FindAllTest {
             }
         }
 
-        findAll { isToggleable }.assertCountEquals(2).apply {
-            get(0)
-                .assertIsOff()
-                .doClick()
-                .assertIsOn()
-        }
+        findAll(isToggleable())
+            .assertCountEquals(2).apply {
+                get(0)
+                    .assertIsOff()
+                    .doClick()
+                    .assertIsOn()
+            }
 
-        findAll { isToggleable }.assertCountEquals(3).apply {
-            get(2)
-                .assertIsOff()
-        }
+        findAll(isToggleable())
+            .assertCountEquals(3).apply {
+                get(2)
+                    .assertIsOff()
+            }
     }
 
     @Test
@@ -207,13 +201,15 @@ class FindAllTest {
             }
         }
 
-        findAll { isToggleable }.assertCountEquals(2).apply {
-            get(0)
-                .assertIsOff()
-                .doClick()
-                .assertIsOn()
-            get(1)
-                .assertDoesNotExist()
+        findAll(isToggleable())
+            .assertCountEquals(2)
+            .apply {
+                get(0)
+                    .assertIsOff()
+                    .doClick()
+                    .assertIsOn()
+                get(1)
+                    .assertDoesNotExist()
         }
     }
 }

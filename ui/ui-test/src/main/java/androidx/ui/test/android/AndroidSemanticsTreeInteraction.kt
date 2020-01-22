@@ -23,9 +23,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.ui.core.SemanticsTreeProvider
-import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.InputDispatcher
+import androidx.ui.test.SemanticsPredicate
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
@@ -40,7 +40,7 @@ import androidx.ui.unit.toRect
  * held by your tests.
  */
 internal class AndroidSemanticsTreeInteraction internal constructor(
-    selector: SemanticsConfiguration.() -> Boolean
+    selector: SemanticsPredicate
 ) : SemanticsTreeInteraction(selector) {
 
     private val handler = Handler(Looper.getMainLooper())
