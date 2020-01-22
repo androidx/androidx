@@ -61,10 +61,10 @@ android.libraryVariants.all { variant ->
 }
 
 androidx {
-    name = "Android Dynamic Feature Navigation Core"
+    name = "Android Dynamic Feature Navigation Runtime"
     publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
-    description = "Android Dynamic Feature Navigation Core"
+    description = "Android Dynamic Feature Navigation Runtime"
     url = AndroidXExtension.ARCHITECTURE_URL
 }

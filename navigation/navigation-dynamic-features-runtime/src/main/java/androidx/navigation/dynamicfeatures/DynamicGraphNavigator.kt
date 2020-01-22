@@ -27,7 +27,6 @@ import androidx.navigation.NavGraphNavigator
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
-import androidx.navigation.dynamicfeatures.core.R
 
 /**
  * Navigator for graphs in dynamic feature modules.

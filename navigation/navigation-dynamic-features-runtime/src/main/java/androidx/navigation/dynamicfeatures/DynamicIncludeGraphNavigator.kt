@@ -26,7 +26,6 @@ import androidx.navigation.NavInflater
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
-import androidx.navigation.dynamicfeatures.core.R
 import androidx.navigation.get
 
 /**
