@@ -37,6 +37,10 @@
     <public type="attr" name="titleItemEndPadding" />
     <public type="attr" name="contentStartPadding" />
     <public type="attr" name="contentEndPadding" />
+    <public type="attr" name="titleStartPadding" />
+    <public type="attr" name="titleEndPadding" />
+    <public type="attr" name="subContentStartPadding" />
+    <public type="attr" name="subContentEndPadding" />
     <public type="attr" name="endItemStartPadding" />
     <public type="attr" name="endItemEndPadding" />
     <public type="attr" name="bottomDividerStartPadding" />

@@ -75,6 +75,16 @@
         <!-- Padding to the end edge of the content in the row. -->
         <attr name="contentEndPadding" format="dimension" />
 
+        <!-- Padding to the start edge of the title in the row. -->
+        <attr name="titleStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the title in the row. -->
+        <attr name="titleEndPadding" format="dimension" />
+
+        <!-- Padding to the start edge of the sub content in the row. -->
+        <attr name="subContentStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the sub content in the row. -->
+        <attr name="subContentEndPadding" format="dimension" />
+
         <!-- Padding to the start edge of the collection of items shown at the end of the row. -->
         <attr name="endItemStartPadding" format="dimension" />
         <!-- Padding to the end edge of the collection of items shown at the end of the row. -->

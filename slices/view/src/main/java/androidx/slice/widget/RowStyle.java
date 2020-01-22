@@ -36,6 +36,10 @@ public class RowStyle {
     private int mTitleItemEndPadding;
     private int mContentStartPadding;
     private int mContentEndPadding;
+    private int mTitleStartPadding;
+    private int mTitleEndPadding;
+    private int mSubContentStartPadding;
+    private int mSubContentEndPadding;
     private int mEndItemStartPadding;
     private int mEndItemEndPadding;
     private int mBottomDividerStartPadding;
@@ -53,6 +57,14 @@ public class RowStyle {
                     R.styleable.RowStyle_contentStartPadding, UNBOUNDED);
             mContentEndPadding = (int) a.getDimension(
                     R.styleable.RowStyle_contentEndPadding, UNBOUNDED);
+            mTitleStartPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_titleStartPadding, UNBOUNDED);
+            mTitleEndPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_titleEndPadding, UNBOUNDED);
+            mSubContentStartPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_subContentStartPadding, UNBOUNDED);
+            mSubContentEndPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_subContentEndPadding, UNBOUNDED);
             mEndItemStartPadding = (int) a.getDimension(
                     R.styleable.RowStyle_endItemStartPadding, UNBOUNDED);
             mEndItemEndPadding = (int) a.getDimension(
@@ -82,6 +94,22 @@ public class RowStyle {
 
     public int getContentEndPadding() {
         return mContentEndPadding;
+    }
+
+    public int getTitleStartPadding() {
+        return mTitleStartPadding;
+    }
+
+    public int getTitleEndPadding() {
+        return mTitleEndPadding;
+    }
+
+    public int getSubContentStartPadding() {
+        return mSubContentStartPadding;
+    }
+
+    public int getSubContentEndPadding() {
+        return mSubContentEndPadding;
     }
 
     public int getEndItemStartPadding() {
