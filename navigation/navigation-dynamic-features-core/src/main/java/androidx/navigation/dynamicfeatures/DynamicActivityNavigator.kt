@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation.dynamicfeatures.activity
+package androidx.navigation.dynamicfeatures
 
 import android.app.Activity
 import android.content.Context
@@ -26,8 +26,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
-import androidx.navigation.dynamicfeatures.DynamicExtras
-import androidx.navigation.dynamicfeatures.DynamicInstallManager
+import androidx.navigation.dynamicfeatures.core.R
 
 /**
  * Dynamic feature navigator for Activity destinations.

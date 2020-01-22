@@ -22,4 +22,7 @@
         <attr name="graphResName" format="string|reference"/>
         <attr name="graphPackage" format="string|reference"/>
     </declare-styleable>
+    <declare-styleable name="DynamicActivityNavigator">
+        <attr name="moduleName"/>
+    </declare-styleable>
 </resources>
