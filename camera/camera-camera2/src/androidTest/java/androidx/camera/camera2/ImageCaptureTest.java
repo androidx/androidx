@@ -174,7 +174,7 @@ public final class ImageCaptureTest {
         mDefaultBuilder = new ImageCapture.Builder();
 
         mFakeUseCaseConfig = new FakeUseCaseConfig.Builder().getUseCaseConfig();
-        mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig, BACK_SELECTOR);
+        mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
         mLifecycleOwner = new FakeLifecycleOwner();
 
         mMainExecutor = ContextCompat.getMainExecutor(context);
@@ -195,7 +195,8 @@ public final class ImageCaptureTest {
 
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -248,7 +249,8 @@ public final class ImageCaptureTest {
                     () -> {
                         CameraSelector cameraSelector =
                                 new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-                        CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
+                        CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase,
+                                mRepeatingUseCase);
                         mLifecycleOwner.startAndResume();
                     });
 
@@ -267,6 +269,7 @@ public final class ImageCaptureTest {
             mInstrumentation.runOnMainSync(() -> {
                 CameraX.unbindAll();
                 mLifecycleOwner.pauseAndStop();
+                mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
             });
         }
     }
@@ -276,7 +279,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -316,7 +320,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -338,7 +343,8 @@ public final class ImageCaptureTest {
                 Surface.ROTATION_0).build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -396,7 +402,8 @@ public final class ImageCaptureTest {
                 createNonRotatedConfiguration()).build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -424,7 +431,8 @@ public final class ImageCaptureTest {
                 createNonRotatedConfiguration()).build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -448,7 +456,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -473,7 +482,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -495,7 +505,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -519,7 +530,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = builder.build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -562,7 +574,8 @@ public final class ImageCaptureTest {
                 .build();
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
                     mLifecycleOwner.startAndResume();
                 });
 
@@ -604,7 +617,8 @@ public final class ImageCaptureTest {
                 captureBundle).build();
 
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
+                    mRepeatingUseCase);
             mLifecycleOwner.startAndResume();
         });
 
@@ -637,7 +651,8 @@ public final class ImageCaptureTest {
                 .build();
 
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
+                    mRepeatingUseCase);
             mLifecycleOwner.startAndResume();
         });
 
@@ -661,7 +676,8 @@ public final class ImageCaptureTest {
     public void onCaptureCancelled_onErrorCAMERA_CLOSED() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
+                    mRepeatingUseCase);
             mLifecycleOwner.startAndResume();
         });
 
@@ -687,7 +703,8 @@ public final class ImageCaptureTest {
     public void onRequestFailed_OnErrorCAPTURE_FAILED() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
+                    mRepeatingUseCase);
             mLifecycleOwner.startAndResume();
         });
 
@@ -716,7 +733,8 @@ public final class ImageCaptureTest {
     public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture);
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
+                    mRepeatingUseCase);
             mLifecycleOwner.startAndResume();
         });
 

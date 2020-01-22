@@ -345,14 +345,18 @@ public class FakeCamera implements CameraInternal {
     // Notify the surface is attached to a new capture session.
     private void notifySurfaceAttached() {
         for (DeferrableSurface deferrableSurface : mConfiguredDeferrableSurfaces) {
-            deferrableSurface.notifySurfaceAttached();
+            try {
+                deferrableSurface.incrementUseCount();
+            } catch (DeferrableSurface.SurfaceClosedException e) {
+                throw new RuntimeException("Surface in unexpected state", e);
+            }
         }
     }
 
     // Notify the surface is detached from current capture session.
     private void notifySurfaceDetached() {
         for (DeferrableSurface deferredSurface : mConfiguredDeferrableSurfaces) {
-            deferredSurface.notifySurfaceDetached();
+            deferredSurface.decrementUseCount();
         }
         // Clears the mConfiguredDeferrableSurfaces to prevent from duplicate
         // notifySurfaceDetached calls.

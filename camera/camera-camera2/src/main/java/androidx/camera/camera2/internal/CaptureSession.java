@@ -115,7 +115,7 @@ final class CaptureSession {
      */
     private final boolean mIsLegacyDevice;
     /** The list of DeferrableSurface used to notify surface detach events */
-    @GuardedBy("mConfiguredDeferrableSurfaces")
+    @GuardedBy("mStateLock")
     List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
     /** Tracks the current state of the session. */
     @GuardedBy("mStateLock")
@@ -270,7 +270,7 @@ final class CaptureSession {
                     return Futures.immediateFailedFuture(new IllegalStateException(
                             "openCaptureSession() should not be possible in state: " + mState));
                 case GET_SURFACE:
-                    ListenableFuture<Void> openFuture = CallbackToFutureAdapter.getFuture(
+                    return CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 Preconditions.checkState(Thread.holdsLock(mStateLock));
                                 // If a Surface in configuredSurfaces is null it means the
@@ -288,14 +288,25 @@ final class CaptureSession {
                                             new DeferrableSurface.SurfaceClosedException(
                                                     "Surface closed", deferrableSurface));
                                     return "openCaptureSession-cancelled[session="
-                                            + CaptureSession.this + "]";
+                                            + this + "]";
                                 }
 
                                 if (configuredSurfaces.isEmpty()) {
                                     completer.setException(new IllegalArgumentException(
                                             "Unable to open capture session with no surfaces."));
                                     return "openCaptureSession-cancelled[session="
-                                            + CaptureSession.this + "]";
+                                            + this + "]";
+                                }
+
+                                // Attempt to increase the usage count of all the configured
+                                // deferrable surfaces before adding them to the session.
+                                try {
+                                    DeferrableSurfaces.incrementAll(mConfiguredDeferrableSurfaces);
+                                } catch (DeferrableSurface.SurfaceClosedException e) {
+                                    mConfiguredDeferrableSurfaces.clear();
+                                    completer.setException(e);
+                                    return "openCaptureSession-cancelled[session="
+                                            + this + "]";
                                 }
 
                                 // Establishes the mapping of DeferrableSurface to Surface. Capture
@@ -313,7 +324,6 @@ final class CaptureSession {
                                 List<Surface> uniqueConfiguredSurface = new ArrayList<>(
                                         new HashSet<>(configuredSurfaces));
 
-                                notifySurfaceAttached();
                                 Preconditions.checkState(mOpenCaptureSessionCompleter == null,
                                         "The openCaptureSessionCompleter can only set once!");
                                 mState = State.OPENING;
@@ -374,9 +384,8 @@ final class CaptureSession {
                                 CameraDeviceCompat.createCaptureSession(cameraDevice,
                                         sessionConfigCompat);
 
-                                return "openCaptureSession[session=" + CaptureSession.this + "]";
+                                return "openCaptureSession[session=" + this + "]";
                             });
-                    return openFuture;
                 default:
                     return Futures.immediateFailedFuture(new CancellationException(
                             "openCaptureSession() not execute in state: " + mState));
@@ -524,29 +533,14 @@ final class CaptureSession {
         mCaptureSessionStateCallback.onClosed(mCameraCaptureSession);
     }
 
-    // Notify the surface is attached to a new capture session.
-    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-    @SuppressWarnings("SynchronizeOnNonFinalField")
-    void notifySurfaceAttached() {
-        synchronized (mConfiguredDeferrableSurfaces) {
-            for (DeferrableSurface deferrableSurface : mConfiguredDeferrableSurfaces) {
-                deferrableSurface.notifySurfaceAttached();
-            }
-        }
-    }
-
     // Notify the surface is detached from current capture session.
-    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-    @SuppressWarnings("SynchronizeOnNonFinalField")
-    void notifySurfaceDetached() {
-        synchronized (mConfiguredDeferrableSurfaces) {
-            for (DeferrableSurface deferredSurface : mConfiguredDeferrableSurfaces) {
-                deferredSurface.notifySurfaceDetached();
-            }
-            // Clears the mConfiguredDeferrableSurfaces to prevent from duplicate
-            // notifySurfaceDetached calls.
-            mConfiguredDeferrableSurfaces.clear();
-        }
+    @GuardedBy("mStateLock")
+    void clearConfiguredSurfaces() {
+        DeferrableSurfaces.decrementAll(mConfiguredDeferrableSurfaces);
+
+        // Clears the mConfiguredDeferrableSurfaces to prevent from duplicate
+        // decrement calls.
+        mConfiguredDeferrableSurfaces.clear();
     }
 
     /**
@@ -931,7 +925,7 @@ final class CaptureSession {
                 mState = State.RELEASED;
                 mCameraCaptureSession = null;
 
-                notifySurfaceDetached();
+                clearConfiguredSurfaces();
 
                 if (mReleaseCompleter != null) {
                     mReleaseCompleter.set(null);

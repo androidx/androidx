@@ -49,6 +49,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,7 @@ public class UseCaseAttachStateTest {
             Mockito.mock(CameraCaptureSession.class);
 
     private String mCameraId;
+    private List<TestUseCase> mTestUseCases = new ArrayList<>();
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
@@ -82,6 +84,10 @@ public class UseCaseAttachStateTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
+        for (TestUseCase useCase : mTestUseCases) {
+            useCase.clear();
+        }
+        mTestUseCases.clear();
         CameraX.shutdown().get();
     }
 
@@ -92,7 +98,7 @@ public class UseCaseAttachStateTest {
                 new FakeUseCaseConfig.Builder()
                         .setTargetName("UseCase")
                         .getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
@@ -124,11 +130,11 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase0 = new TestUseCase(config0, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase0 = createTestUseCase(config0, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
         FakeUseCaseConfig config1 = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase1 = new TestUseCase(config1, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase1 = createTestUseCase(config1, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase0);
@@ -166,7 +172,7 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
 
         useCaseAttachState.setUseCaseActive(fakeUseCase);
@@ -197,7 +203,7 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
@@ -230,7 +236,7 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
@@ -262,7 +268,7 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
@@ -295,7 +301,7 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA,
                 mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
@@ -323,7 +329,7 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_FRONT_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_FRONT_CAMERA,
                 mCameraId);
 
         // Should throw IllegalArgumentException
@@ -335,11 +341,18 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
-        TestUseCase fakeUseCase = new TestUseCase(config, CameraSelector.DEFAULT_FRONT_CAMERA,
+        TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_FRONT_CAMERA,
                 mCameraId);
 
         // Should throw IllegalArgumentException
         useCaseAttachState.setUseCaseActive(fakeUseCase);
+    }
+
+    private TestUseCase createTestUseCase(FakeUseCaseConfig config, CameraSelector selector,
+            String cameraId) {
+        TestUseCase testUseCase = new TestUseCase(config, selector, cameraId);
+        mTestUseCases.add(testUseCase);
+        return testUseCase;
     }
 
     private static class TestUseCase extends FakeUseCase {
@@ -350,6 +363,7 @@ public class UseCaseAttachStateTest {
                 Mockito.mock(CameraCaptureSession.StateCallback.class);
         private final CameraCaptureCallback mCameraCaptureCallback =
                 Mockito.mock(CameraCaptureCallback.class);
+        private DeferrableSurface mDeferrableSurface;
 
         TestUseCase(FakeUseCaseConfig config, CameraSelector selector, String cameraId) {
             super(config);
@@ -367,7 +381,11 @@ public class UseCaseAttachStateTest {
                 @NonNull Map<String, Size> suggestedResolutionMap) {
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            builder.addSurface(new ImmediateSurface(mSurface));
+            if (mDeferrableSurface != null) {
+                mDeferrableSurface.close();
+            }
+            mDeferrableSurface = new ImmediateSurface(mSurface);
+            builder.addSurface(mDeferrableSurface);
             builder.addDeviceStateCallback(mDeviceStateCallback);
             builder.addSessionStateCallback(mSessionStateCallback);
             builder.addRepeatingCameraCaptureCallback(mCameraCaptureCallback);
@@ -375,6 +393,14 @@ public class UseCaseAttachStateTest {
             attachToCamera(getBoundCameraId(), builder.build());
 
             return suggestedResolutionMap;
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            if (mDeferrableSurface != null) {
+                mDeferrableSurface.close();
+            }
         }
 
         @Override

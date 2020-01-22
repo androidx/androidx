@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -33,6 +32,7 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,8 +41,6 @@ import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-
-import java.util.concurrent.Executor;
 
 
 @SmallTest
@@ -63,89 +61,85 @@ public class DeferrableSurfaceTest {
         };
     }
 
-    @Test
-    public void attachCountIsCorrect() {
-
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
-
-        assertThat(mDeferrableSurface.getAttachedCount()).isEqualTo(0);
-
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
-
-        assertThat(mDeferrableSurface.getAttachedCount()).isEqualTo(2);
+    @After
+    public void tearDown() {
+        mDeferrableSurface.close();
     }
 
     @Test
-    public void onSurfaceDetachListenerIsCalledWhenDetachedLater() {
-        DeferrableSurface.OnSurfaceDetachedListener listener =
-                Mockito.mock(DeferrableSurface.OnSurfaceDetachedListener.class);
+    public void usageCountIsCorrect() throws DeferrableSurface.SurfaceClosedException {
 
-        Executor executor = new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        };
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.decrementUseCount();
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.decrementUseCount();
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.decrementUseCount();
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.decrementUseCount();
 
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
-        mDeferrableSurface.notifySurfaceDetached();
+        int firstCount = mDeferrableSurface.getUseCount();
 
-        Mockito.verify(listener, times(1)).onSurfaceDetached();
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.decrementUseCount();
+
+        assertThat(firstCount).isEqualTo(0);
+        assertThat(mDeferrableSurface.getUseCount()).isEqualTo(2);
     }
 
     @Test
-    public void onSurfaceDetachListenerIsCalledWhenDetachedAlready() {
-        DeferrableSurface.OnSurfaceDetachedListener listener =
-                Mockito.mock(DeferrableSurface.OnSurfaceDetachedListener.class);
+    public void terminationFutureFinishesWhenCompletelyDecremented()
+            throws DeferrableSurface.SurfaceClosedException {
+        Runnable listener = Mockito.mock(Runnable.class);
 
-        Executor executor = new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        };
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.close();
+        mDeferrableSurface.getTerminationFuture().addListener(listener,
+                CameraXExecutors.directExecutor());
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.decrementUseCount();
+        mDeferrableSurface.decrementUseCount();
 
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
-
-        mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
-
-        Mockito.verify(listener, times(1)).onSurfaceDetached();
+        Mockito.verify(listener, times(1)).run();
     }
 
     @Test
-    public void onSurfaceDetachListenerRunInCorrectExecutor() {
-        Executor executor = Mockito.mock(Executor.class);
-        DeferrableSurface.OnSurfaceDetachedListener listener =
-                Mockito.mock(DeferrableSurface.OnSurfaceDetachedListener.class);
+    public void terminationFutureFinishesAfterClose() {
+        Runnable listener = Mockito.mock(Runnable.class);
 
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
-        mDeferrableSurface.notifySurfaceDetached();
+        mDeferrableSurface.close();
+        mDeferrableSurface.getTerminationFuture().addListener(listener,
+                CameraXExecutors.directExecutor());
 
-        Mockito.verify(executor, times(1)).execute(any(Runnable.class));
+        Mockito.verify(listener, times(1)).run();
+    }
 
+    @Test(expected = DeferrableSurface.SurfaceClosedException.class)
+    public void incrementAfterCloseOnly_throwsException()
+            throws DeferrableSurface.SurfaceClosedException {
+        mDeferrableSurface.close();
+        mDeferrableSurface.incrementUseCount();
+    }
+
+    @Test
+    public void incrementAfterIncrementThenClose_increments()
+            throws DeferrableSurface.SurfaceClosedException {
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.close();
+        mDeferrableSurface.incrementUseCount();
+
+        assertThat(mDeferrableSurface.getUseCount()).isEqualTo(2);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void detachInWrongState_throwException() {
-        mDeferrableSurface.notifySurfaceAttached();
-        mDeferrableSurface.notifySurfaceDetached();
+    public void detachInWrongState_throwException()
+            throws DeferrableSurface.SurfaceClosedException {
+        mDeferrableSurface.incrementUseCount();
+        mDeferrableSurface.decrementUseCount();
 
-        mDeferrableSurface.notifySurfaceDetached();
+        mDeferrableSurface.decrementUseCount();
     }
 
     @Test

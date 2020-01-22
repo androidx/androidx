@@ -31,6 +31,7 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,11 @@ public final class ImmediateSurfaceTest {
     @Before
     public void setup() {
         mImmediateSurface = new ImmediateSurface(mMockSurface);
+    }
+
+    @After
+    public void tearDown() {
+        mImmediateSurface.close();
     }
 
     @Test

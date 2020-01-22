@@ -48,6 +48,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +80,7 @@ public final class ProcessingSurfaceTest {
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
     private CaptureStage mCaptureStage = new CaptureStage.DefaultCaptureStage();
-
+    private List<ProcessingSurface> mProcessingSurfaces = new ArrayList<>();
 
     /*
      * Capture processor that simply writes out an empty image to exercise the pipeline
@@ -122,7 +124,11 @@ public final class ProcessingSurfaceTest {
 
     @After
     public void tearDown() {
-        mBackgroundThread.getLooper().quit();
+        for (ProcessingSurface processingSurface : mProcessingSurfaces) {
+            processingSurface.release();
+        }
+        mProcessingSurfaces.clear();
+        mBackgroundThread.getLooper().quitSafely();
     }
 
     @Test
@@ -176,7 +182,7 @@ public final class ProcessingSurfaceTest {
 
     private ProcessingSurface createProcessingSurface(
             CallbackDeferrableSurface callbackDeferrableSurface) {
-        return new ProcessingSurface(
+        ProcessingSurface processingSurface = new ProcessingSurface(
                 RESOLUTION.getWidth(),
                 RESOLUTION.getHeight(),
                 FORMAT,
@@ -184,6 +190,8 @@ public final class ProcessingSurfaceTest {
                 mCaptureStage,
                 mCaptureProcessor,
                 callbackDeferrableSurface);
+        mProcessingSurfaces.add(processingSurface);
+        return processingSurface;
     }
 
     @Test
