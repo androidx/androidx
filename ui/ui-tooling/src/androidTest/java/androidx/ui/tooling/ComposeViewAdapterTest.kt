@@ -89,6 +89,51 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun defaultParametersComposableTest1() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.SimpleComposablePreviewKt",
+                "DefaultParametersPreview1",
+                debugViewInfos = true
+            )
+        }
+
+        activityTestRule.runOnUiThread {
+            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun defaultParametersComposableTest2() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.SimpleComposablePreviewKt",
+                "DefaultParametersPreview2",
+                debugViewInfos = true
+            )
+        }
+
+        activityTestRule.runOnUiThread {
+            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun defaultParametersComposableTest3() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.SimpleComposablePreviewKt",
+                "DefaultParametersPreview3",
+                debugViewInfos = true
+            )
+        }
+
+        activityTestRule.runOnUiThread {
+            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
+        }
+    }
+
+    @Test
     fun previewInClass() {
         activityTestRule.runOnUiThread {
             composeViewAdapter.init(
