@@ -17,6 +17,7 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.hasNoLayoutDescendants
@@ -46,7 +47,7 @@ internal class HitPathTracker {
      * @param pointerInputNodes The [PointerInputNode]s that were hit by [pointerId].  Must be
      * ordered from ancestor to descendant.
      */
-    fun addHitPath(pointerId: Int, pointerInputNodes: List<PointerInputNode>) {
+    fun addHitPath(pointerId: PointerId, pointerInputNodes: List<PointerInputNode>) {
         var parent = root
         var merging = true
         eachPin@ for (pointerInputNode in pointerInputNodes) {
@@ -109,7 +110,7 @@ internal class HitPathTracker {
      * Removes the [pointerId] and any [PointerInputNode]s that are no longer associated with any
      * remaining [pointerId].
      */
-    fun removePointerId(pointerId: Int) {
+    fun removePointerId(pointerId: PointerId) {
         root.removePointerId(pointerId)
     }
 
@@ -169,7 +170,7 @@ internal class HitPathTracker {
 internal class Node(
     val pointerInputNode: PointerInputNode? = null
 ) {
-    val pointerIds: MutableSet<Int> = mutableSetOf()
+    val pointerIds: MutableSet<PointerId> = mutableSetOf()
     val children: MutableSet<Node> = mutableSetOf()
 
     // Stores the associated PointerInputNode's virtual position relative to it's parent
@@ -180,7 +181,7 @@ internal class Node(
     var size = IntPxSize(0.ipx, 0.ipx)
 
     fun dispatchChanges(
-        pointerInputChanges: MutableMap<Int, PointerInputChange>,
+        pointerInputChanges: MutableMap<PointerId, PointerInputChange>,
         downPass: PointerEventPass,
         upPass: PointerEventPass?
     ) {
@@ -282,7 +283,7 @@ internal class Node(
             })
     }
 
-    fun removePointerId(pointerId: Int) {
+    fun removePointerId(pointerId: PointerId) {
         children.forEach {
             it.pointerIds.remove(pointerId)
         }
@@ -329,7 +330,7 @@ internal class Node(
                 "pointerIds=$pointerIds)"
     }
 
-    private fun MutableMap<Int, PointerInputChange>.dispatchToPointerInputNode(
+    private fun MutableMap<PointerId, PointerInputChange>.dispatchToPointerInputNode(
         node: PointerInputNode,
         pass: PointerEventPass,
         size: IntPxSize
@@ -339,7 +340,7 @@ internal class Node(
         }
     }
 
-    private fun MutableMap<Int, PointerInputChange>.addOffset(position: IntPxPosition) {
+    private fun MutableMap<PointerId, PointerInputChange>.addOffset(position: IntPxPosition) {
         if (position != IntPxPosition.Origin) {
             replaceEverything {
                 it.copy(
@@ -350,7 +351,7 @@ internal class Node(
         }
     }
 
-    private fun MutableMap<Int, PointerInputChange>.subtractOffset(position: IntPxPosition) {
+    private fun MutableMap<PointerId, PointerInputChange>.subtractOffset(position: IntPxPosition) {
         addOffset(-position)
     }
 

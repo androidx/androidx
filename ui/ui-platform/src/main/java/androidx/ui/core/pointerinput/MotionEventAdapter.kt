@@ -17,73 +17,132 @@
 package androidx.ui.core.pointerinput
 
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_CANCEL
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
+import androidx.annotation.VisibleForTesting
 import androidx.ui.core.PointerInputData
+import androidx.ui.core.PointerId
 import androidx.ui.unit.NanosecondsPerMillisecond
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
-import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
+import java.lang.IllegalStateException
 
 /**
- * Converts an Android framework [MotionEvent] into a [PointerInputEvent].
- *
- * The resulting [PointerInputEvent] has coordinates that are relative to the screen (the
- * [MotionEvent]s raw coordinates are used as provided by [MotionEvent.getRawX] and
- * [MotionEvent.getRawY].
+ * Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s.
  */
-internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
-    val upIndex = when (this.actionMasked) {
-        ACTION_POINTER_UP -> this.actionIndex
-        ACTION_UP -> 0
-        else -> null
-    }
+class MotionEventAdapter {
 
-    val pointers: MutableList<PointerInputEventData> = mutableListOf()
-    offsetLocation(getRawX() - getX(), getRawY() - getY())
-    for (i in 0 until this.pointerCount) {
-        pointers.add(
-            PointerInputEventData(this, i, upIndex)
-        )
-    }
+    @VisibleForTesting
+    internal val intIdToPointerIdMap: MutableMap<Int, PointerId> = mutableMapOf()
 
-    return PointerInputEvent(Uptime.Boot + eventTime.milliseconds, pointers)
-}
+    /**
+     * Converts a single [MotionEvent] from an Android event stream into a [PointerInputEvent], or
+     * null if the [MotionEvent.getActionMasked] is [ACTION_CANCEL].
+     *
+     * All MotionEvents should be passed to this method so that it can correctly maintain it's
+     * internal state.
+     *
+     * @param motionEvent The MotionEvent to process.
+     *
+     * @return The PointerInputEvent or null if the event action was ACTION_CANCEL.
+     */
+    internal fun processMotionEvent(motionEvent: MotionEvent): PointerInputEvent? {
 
-/**
- * Creates a new [PointerInputEventData] with coordinates relative to the screen.
- */
-private fun PointerInputEventData(
-    motionEvent: MotionEvent,
-    index: Int,
-    upIndex: Int?
-): PointerInputEventData {
-    return PointerInputEventData(
-        motionEvent.getPointerId(index),
-        PointerInputData(
+        if (motionEvent.actionMasked == ACTION_CANCEL) {
+            intIdToPointerIdMap.clear()
+            return null
+        }
+
+        val downIndex = when (motionEvent.actionMasked) {
+            ACTION_POINTER_DOWN -> motionEvent.actionIndex
+            ACTION_DOWN -> 0
+            else -> null
+        }
+
+        val upIndex = when (motionEvent.actionMasked) {
+            ACTION_POINTER_UP -> motionEvent.actionIndex
+            ACTION_UP -> 0
+            else -> null
+        }
+
+        // This offsets the entire MotionEvent to be relative to the screen.  This is required to
+        // create a valid PointerInputEvent.
+        motionEvent.setLocation(motionEvent.rawX, motionEvent.rawY)
+
+        val pointers: MutableList<PointerInputEventData> = mutableListOf()
+        for (i in 0 until motionEvent.pointerCount) {
+            pointers.add(createPointerInputEventData(motionEvent, i, downIndex, upIndex))
+        }
+
+        return PointerInputEvent(
             Uptime(motionEvent.eventTime * NanosecondsPerMillisecond),
-            motionEvent,
-            index,
-            upIndex
+            pointers
         )
-    )
-}
+    }
 
-/**
- * Creates a new [PointerInputData] with coordinates that are relative to the screen.
- */
-private fun PointerInputData(
-    uptime: Uptime,
-    motionEvent: MotionEvent,
-    index: Int,
-    upIndex: Int?
-): PointerInputData {
-    val offset = PxPosition(motionEvent.getX(index).px, motionEvent.getY(index).px)
+    /**
+     * Creates a new PointerInputEventData.
+     */
+    private fun createPointerInputEventData(
+        motionEvent: MotionEvent,
+        index: Int,
+        downIndex: Int?,
+        upIndex: Int?
+    ): PointerInputEventData {
 
-    return PointerInputData(
-        uptime,
-        offset,
-        index != upIndex
-    )
+        val pointerIdInt = motionEvent.getPointerId(index)
+
+        val pointerId =
+            when (index) {
+                downIndex ->
+                    PointerId(
+                        pointerIdInt,
+                        Uptime(motionEvent.eventTime * NanosecondsPerMillisecond)
+                    ).also {
+                        intIdToPointerIdMap[pointerIdInt] = it
+                    }
+                upIndex ->
+                    intIdToPointerIdMap.remove(pointerIdInt)
+                else ->
+                    intIdToPointerIdMap[pointerIdInt]
+            } ?: throw IllegalStateException(
+                "Compose assumes that all pointer ids in MotionEvents are first provided " +
+                        "alongside ACTION_DOWN or ACTION_POINTER_DOWN.  This appears not " +
+                        "to have been the case"
+            )
+
+        return PointerInputEventData(
+            pointerId,
+            createPointerInputData(
+                Uptime(motionEvent.eventTime * NanosecondsPerMillisecond),
+                motionEvent,
+                index,
+                upIndex
+            )
+        )
+    }
+
+    /**
+     * Creates a new PointerInputData.
+     */
+    private fun createPointerInputData(
+        timestamp: Uptime,
+        motionEvent: MotionEvent,
+        index: Int,
+        upIndex: Int?
+    ): PointerInputData {
+        val pointerCoords = MotionEvent.PointerCoords()
+        motionEvent.getPointerCoords(index, pointerCoords)
+        val offset = PxPosition(pointerCoords.x.px, pointerCoords.y.px)
+
+        return PointerInputData(
+            timestamp,
+            offset,
+            index != upIndex
+        )
+    }
 }

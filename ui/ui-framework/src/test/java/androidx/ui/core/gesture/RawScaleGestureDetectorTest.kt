@@ -17,6 +17,7 @@
 package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
@@ -26,6 +27,7 @@ import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -663,9 +665,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(-1.px, 0.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(1.px, 0.px))
     }
 
@@ -697,9 +699,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, -1.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, 1.px))
     }
 
@@ -715,9 +717,9 @@ class RawScaleGestureDetectorTest {
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(-1.px, -1.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(1.px, 1.px))
     }
 
@@ -749,9 +751,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(1.px, 0.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(-1.px, 0.px))
     }
 
@@ -783,9 +785,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, 1.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, -1.px))
     }
 
@@ -835,9 +837,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(-1.px, 0.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(1.px, 0.px))
     }
 
@@ -869,9 +871,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, -1.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, 1.px))
     }
 
@@ -903,9 +905,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(1.px, 0.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(-1.px, 0.px))
     }
 
@@ -937,9 +939,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, 1.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(0.px, -1.px))
     }
 
@@ -971,9 +973,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(.5.px, -1.5.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(-.5.px, 1.5.px))
     }
 
@@ -1005,9 +1007,9 @@ class RawScaleGestureDetectorTest {
 
         // Assert
 
-        assertThat(result.first { it.id == 0 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(2.px, -1.px))
-        assertThat(result.first { it.id == 1 }.consumed.positionChange)
+        assertThat(result.first { it.id == PointerId(1, Uptime.Boot) }.consumed.positionChange)
             .isEqualTo(PxPosition(-2.px, 1.px))
     }
 
@@ -1056,7 +1058,7 @@ class RawScaleGestureDetectorTest {
         change2 = change2.moveTo(20.milliseconds, 3f, 3f)
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change1, change2)
 
-        assertThat(result.first { it.id == 0 }.consumed.downChange).isTrue()
+        assertThat(result.first { it.id == PointerId(0, Uptime.Boot) }.consumed.downChange).isTrue()
     }
 
     @Test
