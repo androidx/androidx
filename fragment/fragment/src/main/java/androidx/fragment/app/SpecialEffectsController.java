@@ -18,11 +18,13 @@ package androidx.fragment.app;
 
 import android.view.ViewGroup;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -78,6 +80,8 @@ abstract class SpecialEffectsController {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayList<Operation> mPendingOperations = new ArrayList<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final HashMap<Fragment, Operation> mAwaitingCompletionOperations = new HashMap<>();
 
     SpecialEffectsController(@NonNull ViewGroup container) {
         mContainer = container;
@@ -86,6 +90,21 @@ abstract class SpecialEffectsController {
     @NonNull
     public ViewGroup getContainer() {
         return mContainer;
+    }
+
+    /**
+     * Checks whether the given FragmentStateManager's special effects are still awaiting
+     * completion (or cancellation).
+     * <p>
+     * This could be because the Operation is still pending (and
+     * {@link #executePendingOperations()} hasn't been called) or because the
+     * controller hasn't called {@link Operation#complete()}.
+     *
+     * @param fragmentStateManager the FragmentStateManager to check for
+     * @return Whether an Operation is still awaiting completion
+     */
+    boolean isAwaitingCompletion(@NonNull FragmentStateManager fragmentStateManager) {
+        return mAwaitingCompletionOperations.containsKey(fragmentStateManager.getFragment());
     }
 
     void enqueueAdd(@NonNull FragmentStateManager fragmentStateManager,
@@ -99,23 +118,35 @@ abstract class SpecialEffectsController {
     }
 
     private void enqueue(@NonNull Operation.Type type,
-            @NonNull FragmentStateManager fragmentStateManager,
+            @NonNull final FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
         if (cancellationSignal.isCanceled()) {
             // Ignore enqueue operations that are already cancelled
             return;
         }
         synchronized (mPendingOperations) {
+            final CancellationSignal signal = new CancellationSignal();
             final FragmentStateManagerOperation operation = new FragmentStateManagerOperation(
-                    type, fragmentStateManager, cancellationSignal);
+                    type, fragmentStateManager, signal);
             mPendingOperations.add(operation);
+            mAwaitingCompletionOperations.put(operation.getFragment(), operation);
             // Ensure that pending operations are removed when cancelled
             cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                 @Override
                 public void onCancel() {
                     synchronized (mPendingOperations) {
                         mPendingOperations.remove(operation);
+                        mAwaitingCompletionOperations.remove(operation.getFragment());
+                        signal.cancel();
                     }
+                }
+            });
+            // Ensure that we remove the Operation from the list of
+            // awaiting completion operations when the operation is complete
+            operation.addCompletionListener(new Runnable() {
+                @Override
+                public void run() {
+                    mAwaitingCompletionOperations.remove(operation.getFragment());
                 }
             });
         }
@@ -174,6 +205,8 @@ abstract class SpecialEffectsController {
         private final Fragment mFragment;
         @NonNull
         private final CancellationSignal mCancellationSignal;
+        @NonNull
+        private final List<Runnable> mCompletionListeners = new ArrayList<>();
 
         /**
          * Construct a new Operation.
@@ -219,11 +252,19 @@ abstract class SpecialEffectsController {
             return mCancellationSignal;
         }
 
+        final void addCompletionListener(@NonNull Runnable listener) {
+            mCompletionListeners.add(listener);
+        }
+
         /**
          * Mark this Operation as complete. This should only be called when all
          * special effects associated with this Operation have completed successfully.
          */
+        @CallSuper
         public void complete() {
+            for (Runnable listener : mCompletionListeners) {
+                listener.run();
+            }
         }
     }
 
@@ -240,6 +281,7 @@ abstract class SpecialEffectsController {
 
         @Override
         public void complete() {
+            super.complete();
             mFragmentStateManager.moveToExpectedState();
         }
     }
