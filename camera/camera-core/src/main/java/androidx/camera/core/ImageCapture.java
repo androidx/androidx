@@ -202,10 +202,6 @@ public class ImageCapture extends UseCase {
     // Empty metadata object used as a placeholder for no user-supplied metadata.
     // Should be initialized to all default values.
     private static final Metadata EMPTY_METADATA = new Metadata();
-    @Nullable
-    private HandlerThread mProcessingImageResultThread;
-    @Nullable
-    private Handler mProcessingImageResultHandler;
 
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -328,9 +324,11 @@ public class ImageCapture extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
 
-        mProcessingImageResultThread = new HandlerThread("OnImageAvailableHandlerThread");
-        mProcessingImageResultThread.start();
-        mProcessingImageResultHandler = new Handler(mProcessingImageResultThread.getLooper());
+        HandlerThread processingImageResultThread = new HandlerThread(
+                "OnImageAvailableHandlerThread");
+        processingImageResultThread.start();
+        Handler processingImageResultHandler = new Handler(
+                processingImageResultThread.getLooper());
 
         // Setup the ImageReader to do processing
         if (mCaptureProcessor != null) {
@@ -340,7 +338,7 @@ public class ImageCapture extends UseCase {
                             resolution.getWidth(),
                             resolution.getHeight(),
                             getImageFormat(), mMaxCaptureStages,
-                            mProcessingImageResultHandler,
+                            processingImageResultHandler,
                             getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
                             mCaptureProcessor);
             mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
@@ -348,7 +346,7 @@ public class ImageCapture extends UseCase {
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
                     resolution.getHeight(), getImageFormat(), MAX_IMAGES,
-                    mProcessingImageResultHandler);
+                    processingImageResultHandler);
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = metadataImageReader;
         }
@@ -357,7 +355,18 @@ public class ImageCapture extends UseCase {
         mImageReader.setOnImageAvailableListener(mClosingListener,
                 CameraXExecutors.mainThreadExecutor());
 
+        ImageReaderProxy imageReaderProxy = mImageReader;
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+        }
         mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+        mDeferrableSurface.getTerminationFuture().addListener(
+                () -> {
+                    imageReaderProxy.close();
+
+                    // Close the handlerThread after the ImageReader was closed.
+                    processingImageResultThread.quitSafely();
+                }, CameraXExecutors.mainThreadExecutor());
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
@@ -384,23 +393,10 @@ public class ImageCapture extends UseCase {
         Threads.checkMainThread();
         DeferrableSurface deferrableSurface = mDeferrableSurface;
         mDeferrableSurface = null;
-        ImageReaderProxy imageReaderProxy = mImageReader;
         mImageReader = null;
-        HandlerThread handlerThread = mProcessingImageResultThread;
 
         if (deferrableSurface != null) {
-            deferrableSurface.setOnSurfaceDetachedListener(
-                    CameraXExecutors.mainThreadExecutor(),
-                    () -> {
-                        if (imageReaderProxy != null) {
-                            imageReaderProxy.close();
-                        }
-
-                        // Close the handlerThread after the ImageReader was closed.
-                        if (handlerThread != null) {
-                            handlerThread.quitSafely();
-                        }
-                    });
+            deferrableSurface.close();
         }
     }
 
@@ -960,15 +956,6 @@ public class ImageCapture extends UseCase {
         if (resolution == null) {
             throw new IllegalArgumentException(
                     "Suggested resolution map missing resolution for camera " + cameraId);
-        }
-
-        if (mImageReader != null) {
-            if (mImageReader.getHeight() == resolution.getHeight()
-                    && mImageReader.getWidth() == resolution.getWidth()) {
-                // Resolution does not need to be updated. Return early.
-                return suggestedResolutionMap;
-            }
-            mImageReader.close();
         }
 
         mSessionConfigBuilder = createPipeline(cameraId, mConfig, resolution);

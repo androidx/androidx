@@ -85,10 +85,9 @@ final class CallbackDeferrableSurface extends DeferrableSurface implements Surfa
      */
     @Override
     public void release() {
-        setOnSurfaceDetachedListener(mCallbackExecutor, () -> {
-            if (mCancellationCompleter != null) {
-                mCancellationCompleter.set(null);
-            }
-        });
+        close();
+        if (mCancellationCompleter != null) {
+            Futures.propagate(getTerminationFuture(), mCancellationCompleter);
+        }
     }
 }

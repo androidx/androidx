@@ -36,10 +36,12 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraRepository;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseGroup;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -133,6 +135,8 @@ public final class Camera2ImplCameraRepositoryTest {
             if (mLatchForDeviceClose != null) {
                 mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
             }
+
+            mUseCase.clear();
         }
     }
 
@@ -171,17 +175,24 @@ public final class Camera2ImplCameraRepositoryTest {
     private static class CallbackAttachingFakeUseCase extends FakeUseCase {
         private final DeviceStateCallback mDeviceStateCallback = new DeviceStateCallback();
         private final SessionStateCallback mSessionStateCallback = new SessionStateCallback();
-        private final SurfaceTexture mSurfaceTexture = new SurfaceTexture(0);
+        private final DeferrableSurface mDeferrableSurface;
 
         CallbackAttachingFakeUseCase(FakeUseCaseConfig config, String cameraId) {
             super(config);
+            SurfaceTexture surfaceTexture = new SurfaceTexture(0);
             // Use most supported resolution for different supported hardware level devices,
             // especially for legacy devices.
-            mSurfaceTexture.setDefaultBufferSize(640, 480);
+            surfaceTexture.setDefaultBufferSize(640, 480);
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));
+            Surface surface = new Surface(surfaceTexture);
+            mDeferrableSurface = new ImmediateSurface(surface);
+            mDeferrableSurface.getTerminationFuture().addListener(() -> {
+                surface.release();
+                surfaceTexture.release();
+            }, CameraXExecutors.directExecutor());
+            builder.addSurface(mDeferrableSurface);
             builder.addDeviceStateCallback(mDeviceStateCallback);
             builder.addSessionStateCallback(mSessionStateCallback);
 
@@ -201,6 +212,12 @@ public final class Camera2ImplCameraRepositoryTest {
         protected Map<String, Size> onSuggestedResolutionUpdated(
                 @NonNull Map<String, Size> suggestedResolutionMap) {
             return suggestedResolutionMap;
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            mDeferrableSurface.close();
         }
 
         void doNotifyActive() {

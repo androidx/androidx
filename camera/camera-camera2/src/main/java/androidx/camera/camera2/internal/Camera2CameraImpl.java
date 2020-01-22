@@ -46,6 +46,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.camera.core.impl.Observable;
@@ -672,32 +673,16 @@ final class Camera2CameraImpl implements CameraInternal {
         List<DeferrableSurface> currentSurfaces = sessionConfig.getSurfaces();
         List<DeferrableSurface> newSurfaces = newSessionConfig.getSurfaces();
 
-        // New added DeferrableSurfaces need to be attached.
-        for (DeferrableSurface newSurface : newSurfaces) {
-            if (!currentSurfaces.contains(newSurface)) {
-                newSurface.notifySurfaceAttached();
-            }
-        }
-
-        // Removed DeferrableSurfaces need to be detached.
-        for (DeferrableSurface currentSurface : currentSurfaces) {
-            if (!newSurfaces.contains(currentSurface)) {
-                currentSurface.notifySurfaceDetached();
-            }
-        }
-    }
-
-    private void notifyAttachToUseCaseSurfaces(UseCase useCase) {
-        for (DeferrableSurface surface : useCase.getSessionConfig(
-                mCameraInfoInternal.getCameraId()).getSurfaces()) {
-            surface.notifySurfaceAttached();
-        }
-    }
-
-    private void notifyDetachFromUseCaseSurfaces(UseCase useCase) {
-        for (DeferrableSurface surface : useCase.getSessionConfig(
-                mCameraInfoInternal.getCameraId()).getSurfaces()) {
-            surface.notifySurfaceDetached();
+        // Increment use count of surfaces in the new session config. If this fails then a new
+        // surface has already been closed and we can notify the surface of an error. If this
+        // succeeds, then we can decrement the use count of the old surfaces which will only leave
+        // the new surfaces and remaining surfaces with a net-positive use count. Surfaces which
+        // no longer remain should have their use-count decremented and they may be safely
+        // terminated.
+        if (DeferrableSurfaces.tryIncrementAll(newSurfaces)) {
+            DeferrableSurfaces.decrementAll(currentSurfaces);
+        } else {
+            postSurfaceClosedError(useCase);
         }
     }
 
@@ -722,6 +707,8 @@ final class Camera2CameraImpl implements CameraInternal {
         // use cases that are either pending for addOnline or are already online.
         // It's ok for two thread to run here, since it‘ll do nothing if use case is already
         // pending.
+        Set<UseCase> validUseCases = new HashSet<>(useCases);
+        String cameraId = mCameraInfoInternal.getCameraId();
         synchronized (mPendingLock) {
             for (UseCase useCase : useCases) {
                 boolean isOnline = isUseCaseOnline(useCase);
@@ -729,29 +716,41 @@ final class Camera2CameraImpl implements CameraInternal {
                     continue;
                 }
 
-                notifyAttachToUseCaseSurfaces(useCase);
-                mPendingForAddOnline.add(useCase);
+                SessionConfig sessionConfig = useCase.getSessionConfig(cameraId);
+                List<DeferrableSurface> useCaseSurfaces = sessionConfig.getSurfaces();
+                if (DeferrableSurfaces.tryIncrementAll(useCaseSurfaces)) {
+                    mPendingForAddOnline.add(useCase);
+                } else {
+                    // Failed to increment use count for use case. Post error for this use case.
+                    validUseCases.remove(useCase);
+                    postSurfaceClosedError(useCase);
+                }
             }
         }
 
         // CameraControl is active when there are any online use cases.
-        mCameraControlInternal.setActive(true);
+        if (!validUseCases.isEmpty()) {
+            mCameraControlInternal.setActive(true);
+        } else {
+            // No valid use cases, so no need to continue.
+            return;
+        }
 
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera2CameraImpl.this.addOnlineUseCase(useCases);
+                    Camera2CameraImpl.this.addOnlineUseCase(validUseCases);
                 }
             });
             return;
         }
 
-        Log.d(TAG, "Use cases " + useCases + " ONLINE for camera "
+        Log.d(TAG, "Use cases " + validUseCases + " ONLINE for camera "
                 + mCameraInfoInternal.getCameraId());
         List<UseCase> useCasesChangedToOnline = new ArrayList<>();
         synchronized (mAttachedUseCaseLock) {
-            for (UseCase useCase : useCases) {
+            for (UseCase useCase : validUseCases) {
                 if (!isUseCaseOnline(useCase)) {
                     mUseCaseAttachState.setUseCaseOnline(useCase);
                     useCasesChangedToOnline.add(useCase);
@@ -760,7 +759,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         synchronized (mPendingLock) {
-            mPendingForAddOnline.removeAll(useCases);
+            mPendingForAddOnline.removeAll(validUseCases);
         }
 
         notifyStateOnlineToUseCases(useCasesChangedToOnline);
@@ -774,7 +773,7 @@ final class Camera2CameraImpl implements CameraInternal {
             open();
         }
 
-        updateCameraControlPreviewAspectRatio(useCases);
+        updateCameraControlPreviewAspectRatio(validUseCases);
     }
 
     private void notifyStateOnlineToUseCases(List<UseCase> useCases) {
@@ -846,8 +845,9 @@ final class Camera2CameraImpl implements CameraInternal {
                 mUseCaseAttachState.setUseCaseOffline(useCase);
             }
 
+            String cameraId = mCameraInfoInternal.getCameraId();
             for (UseCase detach : useCasesChangedToOffline) {
-                notifyDetachFromUseCaseSurfaces(detach);
+                DeferrableSurfaces.decrementAll(detach.getSessionConfig(cameraId).getSurfaces());
             }
 
             notifyStateOfflineToUseCases(useCasesChangedToOffline);
@@ -963,7 +963,13 @@ final class Camera2CameraImpl implements CameraInternal {
                     Log.d(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
                             + " cancelled");
                 } else if (t instanceof DeferrableSurface.SurfaceClosedException) {
-                    postSurfaceClosedError((DeferrableSurface.SurfaceClosedException) t);
+                    UseCase useCase =
+                            findUseCaseForSurface(
+                                    ((DeferrableSurface.SurfaceClosedException) t)
+                                            .getDeferrableSurface());
+                    if (useCase != null) {
+                        postSurfaceClosedError(useCase);
+                    }
                 } else if (t instanceof TimeoutException) {
                     // TODO: Consider to handle the timeout error.
                     Log.e(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
@@ -998,29 +1004,37 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
-    @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-    void postSurfaceClosedError(DeferrableSurface.SurfaceClosedException e) {
-        Executor executor = CameraXExecutors.mainThreadExecutor();
-
-        for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
-            SessionConfig sessionConfigError = useCase.getSessionConfig(
-                    mCameraInfoInternal.getCameraId());
-            if (sessionConfigError.getSurfaces().contains(e.getDeferrableSurface())) {
-                List<SessionConfig.ErrorListener> errorListeners =
-                        sessionConfigError.getErrorListeners();
-                if (!errorListeners.isEmpty()) {
-                    SessionConfig.ErrorListener errorListener = errorListeners.get(0);
-                    Log.d(TAG, "Posting surface closed", new Throwable());
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            errorListener.onError(sessionConfigError,
-                                    SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
-                        }
-                    });
-                    break;
+    @Nullable
+    UseCase findUseCaseForSurface(@NonNull DeferrableSurface surface) {
+        synchronized (mAttachedUseCaseLock) {
+            for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
+                SessionConfig sessionConfig = useCase.getSessionConfig(
+                        mCameraInfoInternal.getCameraId());
+                if (sessionConfig.getSurfaces().contains(surface)) {
+                    return useCase;
                 }
             }
+        }
+
+        return null;
+    }
+
+    void postSurfaceClosedError(@NonNull UseCase useCase) {
+        Executor executor = CameraXExecutors.mainThreadExecutor();
+        SessionConfig sessionConfigError = useCase.getSessionConfig(
+                mCameraInfoInternal.getCameraId());
+        List<SessionConfig.ErrorListener> errorListeners =
+                sessionConfigError.getErrorListeners();
+        if (!errorListeners.isEmpty()) {
+            SessionConfig.ErrorListener errorListener = errorListeners.get(0);
+            Log.d(TAG, "Posting surface closed", new Throwable());
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    errorListener.onError(sessionConfigError,
+                            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
+                }
+            });
         }
     }
 

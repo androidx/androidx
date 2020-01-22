@@ -426,23 +426,17 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        final Surface surface = mCameraSurface;
         final MediaCodec videoEncoder = mVideoEncoder;
 
-        mDeferrableSurface.setOnSurfaceDetachedListener(
-                CameraXExecutors.mainThreadExecutor(),
-                new DeferrableSurface.OnSurfaceDetachedListener() {
-                    @Override
-                    public void onSurfaceDetached() {
+        // Calling close should allow termination future to complete and close the surface with
+        // the listener that was added after constructing the DeferrableSurface.
+        mDeferrableSurface.close();
+        mDeferrableSurface.getTerminationFuture().addListener(
+                () -> {
                         if (releaseVideoEncoder && videoEncoder != null) {
                             videoEncoder.release();
                         }
-
-                        if (surface != null) {
-                            surface.release();
-                        }
-                    }
-                });
+                }, CameraXExecutors.mainThreadExecutor());
 
         if (releaseVideoEncoder) {
             mVideoEncoder = null;
@@ -489,11 +483,18 @@ public class VideoCapture extends UseCase {
         if (mCameraSurface != null) {
             releaseCameraSurface(false);
         }
-        mCameraSurface = mVideoEncoder.createInputSurface();
+        Surface cameraSurface = mVideoEncoder.createInputSurface();
+        mCameraSurface = cameraSurface;
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+        }
         mDeferrableSurface = new ImmediateSurface(mCameraSurface);
+        mDeferrableSurface.getTerminationFuture().addListener(
+                cameraSurface::release, CameraXExecutors.mainThreadExecutor()
+        );
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 

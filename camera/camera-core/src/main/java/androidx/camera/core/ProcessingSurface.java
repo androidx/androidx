@@ -244,13 +244,8 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
             );
 
             // Need to wait for Surface has been detached before closing it
-            setOnSurfaceDetachedListener(directExecutor(),
-                    new OnSurfaceDetachedListener() {
-                        @Override
-                        public void onSurfaceDetached() {
-                            closeInputs();
-                        }
-                    });
+            getTerminationFuture().addListener(this::closeInputs, directExecutor());
+            close();
         }
     }
 
