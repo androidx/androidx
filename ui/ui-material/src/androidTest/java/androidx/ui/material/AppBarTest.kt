@@ -29,7 +29,7 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.BottomAppBar.FabPosition
+import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.test.assertCountEquals
@@ -40,8 +40,10 @@ import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
@@ -342,8 +344,8 @@ class AppBarTest {
     fun bottomAppBar_centerFab_positioning() {
         var appBarCoords: LayoutCoordinates? = null
         var navigationIconCoords: LayoutCoordinates? = null
-        var fabCoords: LayoutCoordinates? = null
         var actionCoords: LayoutCoordinates? = null
+        val fabConfig = createFabConfiguration(FabDockedPosition.Center)
         composeTestRule.setMaterialContent {
             Container {
                 OnChildPositioned(onPositioned = { coords ->
@@ -357,13 +359,7 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        fabConfiguration = FabConfiguration(FabPosition.Center) {
-                            OnChildPositioned(onPositioned = { coords ->
-                                fabCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
+                        fabConfiguration = fabConfig,
                         actionData = createImageList(1),
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
@@ -380,12 +376,6 @@ class AppBarTest {
             val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
-
-            // FAB should be placed in the center
-            val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
-            val fabExpectedPositionX =
-                ((appBarCoords!!.size.width - 24.dp.toPx()) / 2).round().toPx()
-            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
@@ -399,8 +389,8 @@ class AppBarTest {
     fun bottomAppBar_centerCutoutFab_positioning() {
         var appBarCoords: LayoutCoordinates? = null
         var navigationIconCoords: LayoutCoordinates? = null
-        var fabCoords: LayoutCoordinates? = null
         var actionCoords: LayoutCoordinates? = null
+        val fabConfig = createFabConfiguration(FabDockedPosition.Center)
         composeTestRule.setMaterialContent {
             Container {
                 OnChildPositioned(onPositioned = { coords ->
@@ -414,13 +404,8 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        fabConfiguration = FabConfiguration(FabPosition.Center, CircleShape) {
-                            OnChildPositioned(onPositioned = { coords ->
-                                fabCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
+                        fabConfiguration = fabConfig,
+                        cutoutShape = CircleShape,
                         actionData = createImageList(1),
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
@@ -438,12 +423,6 @@ class AppBarTest {
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
-            // FAB should be placed in the center
-            val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
-            val fabExpectedPositionX =
-                ((appBarCoords!!.size.width - 24.dp.toPx()) / 2).round().toPx()
-            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
-
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
@@ -454,30 +433,19 @@ class AppBarTest {
 
     @Test
     fun bottomAppBar_endFab_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var fabCoords: LayoutCoordinates? = null
         var actionCoords: LayoutCoordinates? = null
+        val fabConfig = createFabConfiguration(FabDockedPosition.End)
         composeTestRule.setMaterialContent {
             Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    BottomAppBar(
-                        fabConfiguration = FabConfiguration(FabPosition.End) {
-                            OnChildPositioned(onPositioned = { coords ->
-                                fabCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
-                        actionData = createImageList(1),
-                        action = { action ->
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }, children = action)
-                        }
-                    )
-                }
+                BottomAppBar(
+                    fabConfiguration = fabConfig,
+                    actionData = createImageList(1),
+                    action = { action ->
+                        OnChildPositioned(onPositioned = { coords ->
+                            actionCoords = coords
+                        }, children = action)
+                    }
+                )
             }
         }
 
@@ -486,41 +454,25 @@ class AppBarTest {
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = 16.dp.toIntPx().toPx()
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-
-            // FAB should be placed at the end
-            val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
-            val fabExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
-                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
         }
     }
 
     @Test
     fun bottomAppBar_endCutoutFab_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var fabCoords: LayoutCoordinates? = null
         var actionCoords: LayoutCoordinates? = null
+        val fabConfig = createFabConfiguration(FabDockedPosition.End)
         composeTestRule.setMaterialContent {
             Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    BottomAppBar(
-                        fabConfiguration = FabConfiguration(FabPosition.End, CircleShape) {
-                            OnChildPositioned(onPositioned = { coords ->
-                                fabCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
-                        actionData = createImageList(1),
-                        action = { action ->
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }, children = action)
-                        }
-                    )
-                }
+                BottomAppBar(
+                    fabConfiguration = fabConfig,
+                    cutoutShape = CircleShape,
+                    actionData = createImageList(1),
+                    action = { action ->
+                        OnChildPositioned(onPositioned = { coords ->
+                            actionCoords = coords
+                        }, children = action)
+                    }
+                )
             }
         }
 
@@ -528,13 +480,8 @@ class AppBarTest {
             // Action should be placed at the start
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = 16.dp.toIntPx().toPx()
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
 
-            // FAB should be placed at the end
-            val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
-            val fabExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
-                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
-            assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -586,4 +533,12 @@ class AppBarTest {
     private fun FakeIcon() = Clickable {
         ColoredRect(Color.Red, width = 24.dp, height = 24.dp)
     }
+
+    private fun createFabConfiguration(position: FabDockedPosition) =
+        FabConfiguration(
+            fabSize = PxSize(100.px, 100.px),
+            fabTopLeftPosition = PxPosition(0.px, 0.px),
+            // all what matters here is a fabDockedPosition, as it will decide the layout
+            fabDockedPosition = position
+        )
 }
