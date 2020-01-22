@@ -428,6 +428,35 @@ class NavDeepLinkTest {
 
     // Make sure we allow extra params that may not been part of the given deep link
     @Test
+    fun deepLinkQueryParamArgumentIgnoreExtraParams() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        assertThat(deepLink.matches(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?extraParam={extraParam}"))).isTrue()
+    }
+
+    @Test
+    fun deepLinkQueryParamArgumentMatchPathParamCorrectly() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{myarg}"
+        val deepLinkArgumentWithExtraParam = "$deepLinkArgument?extraParam={extraParam}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val myarg = "test"
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkArgumentWithExtraParam.replace("{myarg}", myarg)),
+            mapOf("myarg" to stringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the argument")
+            .that(matchArgs?.getString("myarg"))
+            .isEqualTo(myarg)
+    }
+
+    // Make sure we allow extra params that may not been part of the given deep link
+    @Test
     fun deepLinkQueryParamArgumentMatchExtraParam() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}"
         val deepLink = NavDeepLink(deepLinkArgument)
