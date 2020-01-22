@@ -78,7 +78,7 @@ internal class PagerState<Key : Any, Value : Any>(
      * Note: This method should be called after state updated by [insert]
      *
      * TODO: Move this into Pager, which owns pageEventCh, since this logic is sensitive to its
-     * implementation.
+     *  implementation.
      */
     internal fun Page<Key, Value>.toPageEvent(
         loadType: LoadType,
