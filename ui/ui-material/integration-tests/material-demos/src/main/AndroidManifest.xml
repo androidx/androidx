@@ -241,11 +241,20 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EmphasisActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Emphasis">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ScaffoldActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Scaffold"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />

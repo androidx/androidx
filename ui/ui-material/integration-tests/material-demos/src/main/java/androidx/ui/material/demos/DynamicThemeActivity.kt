@@ -34,21 +34,16 @@ import androidx.ui.graphics.lerp
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Padding
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.Stack
 import androidx.ui.material.BottomAppBar
-import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.lightColorPalette
-import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import kotlin.math.round
@@ -90,67 +85,50 @@ private class ScrollFraction(var fraction: Float = 0f)
 @Composable
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalette) {
     MaterialTheme(palette) {
-        Stack {
-            Column(LayoutSize.Fill) {
-                TopBar()
-                val background = MaterialTheme.colors().background
-                Surface(color = background, modifier = LayoutFlexible(1f)) {
-                    ScrollingContent(scrollFraction)
+        val scrollerPosition = ScrollerPosition()
+        val fraction =
+            round((scrollerPosition.value / scrollerPosition.maxPosition) * 100) / 100
+        remember(fraction) { scrollFraction.fraction = fraction }
+        Scaffold(
+            topAppBar = { TopAppBar({ Text("Scroll down!") }) },
+            bottomAppBar = { BottomAppBar<Any>(fabConfiguration = it, cutoutShape = CircleShape) },
+            floatingActionButton = { Fab(scrollFraction) },
+            floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
+            bodyContent = { modifier ->
+                VerticalScroller(scrollerPosition) {
+                    Column(modifier) {
+                        repeat(20) { index ->
+                            Card(index)
+                        }
+                    }
                 }
             }
-            Container(LayoutGravity.BottomCenter) {
-                BottomBar(scrollFraction)
-            }
-        }
+        )
     }
 }
 
 @Composable
-private fun TopBar() {
-    TopAppBar({ Text("Scroll down!") })
-}
-
-@Composable
-private fun BottomBar(scrollFraction: ScrollFraction) {
+private fun Fab(scrollFraction: ScrollFraction) {
     val secondary = MaterialTheme.colors().secondary
     val fabText = emojiForScrollFraction(scrollFraction.fraction)
-    BottomAppBar<Any>(fabConfiguration = FabConfiguration(fab = {
-        FloatingActionButton(
-            text = fabText,
-            textStyle = MaterialTheme.typography().h5,
-            color = secondary,
-            onClick = {}
-        )
-    }, cutoutShape = CircleShape))
+    FloatingActionButton(
+        text = fabText,
+        textStyle = MaterialTheme.typography().h5,
+        color = secondary,
+        onClick = {}
+    )
 }
 
 @Composable
-private fun ScrollingContent(scrollFraction: ScrollFraction) {
-    val scrollerPosition = ScrollerPosition()
-    val fraction = round((scrollerPosition.value / scrollerPosition.maxPosition) * 100) / 100
-    remember(fraction) { scrollFraction.fraction = fraction }
-    VerticalScroller(scrollerPosition) {
-        Cards()
-    }
-}
-
-@Composable
-private fun Cards() {
-    Column {
-        repeat(20) { index ->
-            val shapeColor = lerp(Color(0xFF303030), Color.White, index / 19f)
-            val textColor = lerp(Color.White, Color(0xFF303030), index / 19f)
-            Padding(25.dp) {
-                Container(LayoutWidth.Fill, height = 150.dp) {
-                    // TODO: ideally this would be a Card but currently Surface consumes every
-                    // colour from the Material theme to work out text colour, so we end up doing a
-                    // large amount of work here when the top level theme changes
-                    DrawShape(RoundedCornerShape(10.dp), shapeColor)
-                    Text("Card ${index + 1}", style = TextStyle(color = textColor))
-                }
-            }
-        }
-        Spacer(LayoutHeight(100.dp))
+private fun Card(index: Int) {
+    val shapeColor = lerp(Color(0xFF303030), Color.White, index / 19f)
+    val textColor = lerp(Color.White, Color(0xFF303030), index / 19f)
+    Container(LayoutPadding(25.dp) + LayoutWidth.Fill + LayoutHeight(150.dp)) {
+        // TODO: ideally this would be a Card but currently Surface consumes every
+        // colour from the Material theme to work out text colour, so we end up doing a
+        // large amount of work here when the top level theme changes
+        DrawShape(RoundedCornerShape(10.dp), shapeColor)
+        Text("Card ${index + 1}", style = TextStyle(color = textColor))
     }
 }
 
