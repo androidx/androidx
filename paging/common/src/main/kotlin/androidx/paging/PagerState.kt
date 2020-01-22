@@ -190,6 +190,11 @@ internal class PagerState<Key : Any, Value : Any>(
     }
 
     fun dropInfo(loadType: LoadType): DropInfo? {
+        // Never drop below 2 pages as this can cause UI flickering with certain configs and it's
+        // much more important to protect against this behaviour over respecting a config where
+        // maxSize is set unusually (probably incorrectly) strict.
+        if (pages.size <= 2) return null
+
         when (loadType) {
             REFRESH -> throw IllegalArgumentException(
                 "Drop LoadType must be START or END, but got $loadType"
