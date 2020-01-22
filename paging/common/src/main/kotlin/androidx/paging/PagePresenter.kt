@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
@@ -266,7 +267,7 @@ internal class PagePresenter<T : Any>(
 
     companion object {
         private val INITIAL = PagePresenter<Any>(
-            Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Idle, END to Idle))
+            Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Done, END to Done))
         )
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")

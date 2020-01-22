@@ -25,7 +25,3 @@ RegistrationName: androidx.paging.PagedList#addWeakCallback(androidx.paging.Page
     Callback methods should be named register/unregister; was addWeakCallback
 RegistrationName: androidx.paging.PagedList#removeWeakCallback(androidx.paging.PagedList.Callback):
     Callback methods should be named register/unregister; was removeWeakCallback
-
-
-TopLevelBuilder: androidx.paging.PagedDataFlowBuilder:
-    Builder should be defined as inner class: androidx.paging.PagedDataFlowBuilder
