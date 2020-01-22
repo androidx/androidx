@@ -205,9 +205,7 @@ private fun ScrollableTabRow(
     // indicator container
     var tabPositions by state { listOf<TabPosition>() }
 
-    val scrollableTabData = remember {
-        ScrollableTabData(selectedIndex, tabPositions, width, edgeOffset)
-    }
+    val scrollableTabData = ScrollableTabData(selectedIndex, tabPositions, width, edgeOffset)
 
     scrollableTabData.tabPositions = tabPositions
     scrollableTabData.selectedTab = selectedIndex
@@ -294,10 +292,29 @@ private fun ScrollableTabRow(
     }
 }
 
+@Composable
+private fun ScrollableTabData(
+    initialSelectedTab: Int,
+    tabPositions: List<TabPosition>,
+    visibleWidth: IntPx,
+    edgeOffset: IntPx
+) = ScrollerPosition().let {
+    remember(it) {
+        ScrollableTabData(
+            position = it,
+            initialSelectedTab = initialSelectedTab,
+            tabPositions = tabPositions,
+            visibleWidth = visibleWidth,
+            edgeOffset = edgeOffset
+        )
+    }
+}
+
 /**
  * Class holding onto state needed for [ScrollableTabRow]
  */
 private class ScrollableTabData(
+    val position: ScrollerPosition,
     initialSelectedTab: Int,
     var tabPositions: List<TabPosition>,
     var visibleWidth: IntPx,
@@ -311,8 +328,6 @@ private class ScrollableTabData(
             }
             field = value
         }
-
-    val position = ScrollerPosition()
 
     private fun isTabFullyVisible(index: Int): Boolean {
         val tabPosition = tabPositions[index]

@@ -17,41 +17,48 @@
 package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
+import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.Text
 import androidx.ui.core.WithDensity
-import androidx.ui.unit.px
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
 import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.layout.Row
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.graphics.Color
+import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.px
 import kotlin.random.Random
 
 /**
  * Test case that puts many horizontal scrollers in a vertical scroller
  */
 class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
-    private val scrollerPosition = ScrollerPosition()
+    // ScrollerPosition must now be constructed during composition to obtain the Density
+    private lateinit var scrollerPosition: ScrollerPosition
 
     @Composable
     override fun emitContent() {
+        val scrollerPosition = ScrollerPosition()
+        onCommit(true) {
+            this@NestedScrollerTestCase.scrollerPosition = scrollerPosition
+        }
         MaterialTheme {
             Surface {
                 VerticalScroller {
                     Column {
                         repeat(5) { index ->
-                            SquareRow(index == 0)
+                            if (index == 0) SquareRow(scrollerPosition)
+                            else SquareRow()
                         }
                     }
                 }
@@ -64,7 +71,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     }
 
     @Composable
-    fun SquareRow(useScrollerPosition: Boolean) {
+    fun SquareRow(scrollerPosition: ScrollerPosition = ScrollerPosition()) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
         val content = @Composable {
             Row(LayoutWidth.Fill) {
@@ -104,10 +111,6 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                 }
             }
         }
-        if (useScrollerPosition) {
-            HorizontalScroller(scrollerPosition = scrollerPosition, child = content)
-        } else {
-            HorizontalScroller(child = content)
-        }
+        HorizontalScroller(scrollerPosition = scrollerPosition, child = content)
     }
 }

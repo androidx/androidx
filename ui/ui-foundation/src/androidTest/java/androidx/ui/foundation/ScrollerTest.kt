@@ -17,6 +17,7 @@ package androidx.ui.foundation
 
 import android.os.Handler
 import android.os.Looper
+import androidx.animation.ExponentialDecay
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
@@ -25,6 +26,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
+import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
@@ -105,7 +107,7 @@ class ScrollerTest {
 
     @Test
     fun verticalScroller_SmallContent_Unscrollable() {
-        val scrollerPosition = ScrollerPosition()
+        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
 
         composeVerticalScroller(scrollerPosition)
 
@@ -127,7 +129,7 @@ class ScrollerTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun verticalScroller_LargeContent_ScrollToEnd() {
-        val scrollerPosition = ScrollerPosition()
+        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
         val height = 30.ipx
         val scrollDistance = 10.ipx
 
@@ -170,7 +172,7 @@ class ScrollerTest {
         val width = 30.ipx
         val scrollDistance = 10.ipx
 
-        val scrollerPosition = ScrollerPosition()
+        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
 
         composeHorizontalScroller(scrollerPosition, width = width)
 
@@ -250,7 +252,7 @@ class ScrollerTest {
         firstSwipe: GestureScope.() -> Unit,
         secondSwipe: GestureScope.() -> Unit
     ) {
-        val scrollerPosition = ScrollerPosition()
+        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
 
         createScrollableContent(isVertical, scrollerPosition = scrollerPosition)
 
@@ -277,7 +279,7 @@ class ScrollerTest {
     }
 
     private fun composeVerticalScroller(
-        scrollerPosition: ScrollerPosition = ScrollerPosition(),
+        scrollerPosition: ScrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay())),
         width: IntPx = defaultCrossAxisSize,
         height: IntPx = defaultMainAxisSize,
         rowHeight: IntPx = defaultCellSize
@@ -314,7 +316,7 @@ class ScrollerTest {
     }
 
     private fun composeHorizontalScroller(
-        scrollerPosition: ScrollerPosition = ScrollerPosition(),
+        scrollerPosition: ScrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay())),
         width: IntPx = defaultMainAxisSize,
         height: IntPx = defaultCrossAxisSize,
         columnWidth: IntPx = defaultCellSize
@@ -385,7 +387,7 @@ class ScrollerTest {
         itemCount: Int = 100,
         width: Dp = 100.dp,
         height: Dp = 100.dp,
-        scrollerPosition: ScrollerPosition = ScrollerPosition()
+        scrollerPosition: ScrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
     ) {
         composeTestRule.setContent {
             val content = @Composable {

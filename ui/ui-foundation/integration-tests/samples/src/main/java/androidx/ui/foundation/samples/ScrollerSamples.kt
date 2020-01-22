@@ -19,7 +19,6 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.MutableState
-import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
@@ -114,7 +113,7 @@ fun SimpleHorizontalScrollerSample() {
 @Composable
 fun ControlledHorizontalScrollerSample() {
     // Create and own ScrollerPosition to call `smoothScrollTo` later
-    val position = remember { ScrollerPosition() }
+    val position = ScrollerPosition()
     val scrollable = state { true }
     Column {
         HorizontalScroller(
