@@ -29,5 +29,7 @@ class FragmentIssueRegistry : IssueRegistry() {
     override val issues get() = listOf(
         FragmentTagDetector.ISSUE,
         UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE,
-        UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE)
+        UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE,
+        UseRequireInsteadOfGet.ISSUE
+    )
 }
