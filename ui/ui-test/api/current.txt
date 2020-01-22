@@ -146,7 +146,10 @@ package androidx.ui.test {
   }
 
   public final class GestureScopeKt {
+    method public static androidx.ui.unit.PxPosition getCenter(androidx.ui.test.GestureScope);
     method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.GestureScope);
+    method public static androidx.ui.unit.PxSize getSize(androidx.ui.test.GestureScope);
+    method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope);
     method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
@@ -159,7 +162,6 @@ package androidx.ui.test {
     method public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method public static void sendSwipeUp(androidx.ui.test.GestureScope);
     method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
-    method public static androidx.ui.unit.PxPosition toGlobalPosition(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
   }
 
   public final class GoldenSemanticsKt {
