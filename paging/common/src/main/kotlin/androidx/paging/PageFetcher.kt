@@ -56,6 +56,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
             pagingSource.registerInvalidatedCallback(::refresh)
             previousGeneration?.pagingSource?.unregisterInvalidatedCallback(::refresh)
             previousGeneration?.pagingSource?.invalidate() // Note: Invalidate is idempotent.
+            previousGeneration?.close()
 
             Pager(initialKey, pagingSource, config)
         }

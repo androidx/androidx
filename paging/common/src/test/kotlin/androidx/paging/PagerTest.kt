@@ -33,6 +33,7 @@ import androidx.paging.TestPagingSource.Companion.items
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -40,6 +41,8 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -524,6 +527,33 @@ class PagerTest {
 
         assertEvents(expected[1], fetcherState.pageEventLists[1])
         fetcherState.job.cancel()
+    }
+
+    @Test
+    fun close_cancelsCollectionBeforeInitialLoad() = testScope.runBlockingTest {
+        // Infinitely suspending PagingSource which never finishes loading anything.
+        val pagingSource = object : PagingSource<Int, Int>() {
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                delay(2000)
+                fail("Should never get here")
+            }
+        }
+
+        val pager = Pager(50, pagingSource, config)
+        val job = launch {
+            pager.pageEventFlow
+                // Return immediately to avoid blocking cancellation. This is analogous to
+                // logic which would process a single PageEvent and doesn't suspend
+                // indefinitely, which is what we expect to happen.
+                .collect { }
+        }
+
+        advanceTimeBy(500)
+
+        pager.close()
+        advanceTimeBy(500)
+
+        assertTrue { !job.isActive }
     }
 
     @Test
