@@ -97,7 +97,10 @@ def mergeAggregateBuildInfoFiles() :
         # artifactid and groupid is the unique identifier for libraries
         if (artifactId, groupId) not in duplicate_checking_dict:
             duplicate_checking_dict[(artifactId, groupId)] = (sha, buildinfo)
-        else: assert duplicate_checking_dict[(artifactId, groupId)][0] == sha # neither build is massively out-of-date
+        else:
+            expected_hash = duplicate_checking_dict[(artifactId, groupId)][0]
+            if expected_hash != sha:
+                raise Exception("Build info specifies having been built from multiple commits: " + expected_hash + " and " + sha + ". Were AndroidX and Compose built from the same commit?")
         # don't allow androidx and compose to release two different versions of the same lib
     resultJson = {"artifacts":[buildinfo for sha,buildinfo in duplicate_checking_dict.values()]}
 
