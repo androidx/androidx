@@ -73,6 +73,31 @@ object Stubs {
         """
     ).indented().within("src")
 
+    val NOTIFICATION: TestFile = kotlin(
+        "android/app/Notification.kt",
+        """
+            package android.app
+
+            class Notification {
+            }
+        """
+    ).indented().within("src")
+
+    val FOREGROUND_INFO: TestFile = kotlin(
+        "androidx/work/ForegroundInfo.kt",
+        """
+            package androidx.work
+
+            import android.app.Notification
+
+            class ForegroundInfo(id: Int, notification: Notification, serviceType: Int) {
+                constructor(id: Int, notification: Notification) {
+                   this(id, notification, 0)
+                }
+            }
+        """
+    ).indented().within("src")
+
     val WORK_MANAGER: TestFile = kotlin(
         "androidx/work/WorkManager.kt",
         """
