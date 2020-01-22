@@ -464,7 +464,7 @@ class PointerInputTest {
         consumedDown: Boolean
     ): PointerInputChange {
         return PointerInputChange(
-            0,
+            PointerId(0, Uptime.Boot),
             PointerInputData(
                 Uptime.Boot + 100.milliseconds,
                 PxPosition(currentX.px, currentY.px),

@@ -24,18 +24,26 @@ import androidx.ui.unit.px
 
 /**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change
- * has been consumed (meaning, used by a node in the UI)
+ * has been consumed (meaning, used by a node in the UI).
  */
 data class PointerInputChange(
-    val id: Int,
+    val id: PointerId,
     val current: PointerInputData,
     val previous: PointerInputData,
     val consumed: ConsumedData
 )
 
+/**
+ * Uniquely identifies each pointer based on its [creationTime] and its unique [id] at creation.
+ */
+data class PointerId(
+    private val id: Int,
+    private val creationTime: Uptime
+)
+
 // TODO(shepshapard): Uptime will be an Inline Class, so it should not be nullable.
 /**
- * Data associated with a pointer
+ * Data associated with a pointer.
  */
 data class PointerInputData(
     val uptime: Uptime? = null,
