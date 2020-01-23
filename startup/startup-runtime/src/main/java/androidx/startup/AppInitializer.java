@@ -25,7 +25,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,9 +49,8 @@ public final class AppInitializer {
     /**
      * Keeps track of whether components were initialized.
      */
-    @VisibleForTesting
     @NonNull
-    public static AtomicBoolean sInitialized = new AtomicBoolean(false);
+    static final AtomicBoolean sInitialized = new AtomicBoolean(false);
 
     private AppInitializer() {
         // Does nothing.
