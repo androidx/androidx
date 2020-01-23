@@ -23,6 +23,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
@@ -88,7 +89,9 @@ class SelectionManagerLongPressDragTest {
                 startPosition = any(),
                 endPosition = any(),
                 containerLayoutCoordinates = any(),
-                longPress = any()
+                longPress = any(),
+                previousSelection = anyOrNull(),
+                isStartHandle = any()
             )
         ).thenReturn(fakeResultSelection)
 
@@ -108,7 +111,9 @@ class SelectionManagerLongPressDragTest {
                 startPosition = position,
                 endPosition = position,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = true
+                longPress = true,
+                previousSelection = null,
+                isStartHandle = true
             )
         assertThat(selection).isEqualTo(fakeResultSelection)
         verify(spyLambda, times(1)).invoke(fakeResultSelection)
@@ -141,7 +146,8 @@ class SelectionManagerLongPressDragTest {
                 startPosition = beginPosition2,
                 endPosition = beginPosition2 + dragDistance2,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = true
+                longPress = true,
+                previousSelection = fakeInitialSelection
             )
         assertThat(selection).isEqualTo(fakeResultSelection)
         verify(spyLambda, times(3)).invoke(fakeResultSelection)
@@ -164,7 +170,8 @@ class SelectionManagerLongPressDragTest {
                 startPosition = beginPosition,
                 endPosition = beginPosition + dragDistance,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = true
+                longPress = true,
+                previousSelection = fakeInitialSelection
             )
         assertThat(selection).isEqualTo(fakeResultSelection)
         verify(spyLambda, times(2)).invoke(fakeResultSelection)

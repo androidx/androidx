@@ -95,7 +95,9 @@ class SelectionManagerDragTest {
                 startPosition = any(),
                 endPosition = any(),
                 containerLayoutCoordinates = any(),
-                longPress = any()
+                longPress = any(),
+                previousSelection = any(),
+                isStartHandle = any()
             )
         ).thenReturn(fakeResultSelection)
 
@@ -148,7 +150,9 @@ class SelectionManagerDragTest {
                 startPosition = childToLocal_result + dragDistance,
                 endPosition = childToLocal_result,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = false
+                longPress = false,
+                isStartHandle = true,
+                previousSelection = fakeInitialSelection
             )
         assertThat(selection).isEqualTo(fakeResultSelection)
         verify(spyLambda, times(1)).invoke(fakeResultSelection)
@@ -173,7 +177,9 @@ class SelectionManagerDragTest {
                 startPosition = childToLocal_result,
                 endPosition = childToLocal_result + dragDistance,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = false
+                longPress = false,
+                isStartHandle = false,
+                previousSelection = fakeInitialSelection
             )
         assertThat(selection).isEqualTo(fakeResultSelection)
         verify(spyLambda, times(1)).invoke(fakeResultSelection)
