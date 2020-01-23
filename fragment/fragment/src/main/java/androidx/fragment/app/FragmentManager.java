@@ -2526,6 +2526,12 @@ public abstract class FragmentManager {
     }
 
     void noteStateNotSaved() {
+        // A fragment added via the <fragment> tag can have noteStateNotSaved() called
+        // by its parent fragment before attachController() has been called. In this case,
+        // we should early return as the state not being saved is the default.
+        if (mHost == null) {
+            return;
+        }
         mStateSaved = false;
         mStopped = false;
         mNonConfig.setIsStateSaved(false);
