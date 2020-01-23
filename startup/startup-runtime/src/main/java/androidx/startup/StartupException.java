@@ -14,10 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.startup
+package androidx.startup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
- * Is thrown when there is a problem during application startup.
+ * The Runtime Exception thrown by the android.startup library.
+ *
+ * @hide
  */
-internal class StartupException(override val message: String?, override val cause: Throwable?) :
-    Throwable(message, cause)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressWarnings("WeakerAccess")
+public final class StartupException extends RuntimeException {
+    public StartupException(@NonNull String message) {
+        super(message);
+    }
+
+    public StartupException(@NonNull Throwable throwable) {
+        super(throwable);
+    }
+
+    public StartupException(@NonNull String message, @NonNull Throwable throwable) {
+        super(message, throwable);
+    }
+}
