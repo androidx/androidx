@@ -17,6 +17,7 @@ package androidx.ui.core
 
 import androidx.compose.Ambient
 import androidx.compose.Composable
+import androidx.compose.StructurallyEqual
 import androidx.compose.ambient
 import androidx.compose.onCommit
 import androidx.compose.remember
@@ -145,7 +146,7 @@ fun Text(
                 resourceLoader = resourceLoader
             )
         }
-        val layoutResultState = state<TextLayoutResult?> { null }
+        val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
 
         val children = @Composable {
             // Get the layout coordinates of the text composable. This is for hit test of
@@ -183,9 +184,7 @@ fun Text(
         ) { _, constraints ->
 
             val layoutResult = textDelegate.layout(constraints, layoutResultState.value)
-            if (layoutResultState.value != layoutResult) {
-                layoutResultState.value = layoutResult
-            }
+            layoutResultState.value = layoutResult
 
             layout(
                 layoutResult.size.width,
