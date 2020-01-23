@@ -52,7 +52,7 @@ dependencies {
 
 androidx {
     name = "Android App Startup Runtime"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.STARTUP
     inceptionYear = "2020"
     description = "Android App Startup Runtime"
