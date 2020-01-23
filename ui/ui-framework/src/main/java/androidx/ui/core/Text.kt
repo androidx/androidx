@@ -15,15 +15,14 @@
  */
 package androidx.ui.core
 
-import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
-import androidx.compose.ambient
+import androidx.compose.Providers
+import androidx.compose.ambientOf
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.SelectionRegistrar
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.selection.TextSelectionDelegate
 import androidx.ui.graphics.Color
@@ -114,11 +113,11 @@ fun Text(
 
     // Ambients
     // selection registrar, if no SelectionContainer is added ambient value will be null
-    val selectionRegistrar: SelectionRegistrar? = ambient(SelectionRegistrarAmbient)
+    val selectionRegistrar = SelectionRegistrarAmbient.current
     val density = ambientDensity()
-    val resourceLoader = ambient(FontLoaderAmbient)
-    val layoutDirection = ambient(LayoutDirectionAmbient)
-    val themeStyle = ambient(CurrentTextStyleAmbient)
+    val resourceLoader = FontLoaderAmbient.current
+    val layoutDirection = LayoutDirectionAmbient.current
+    val themeStyle = CurrentTextStyleAmbient.current
 
     val mergedStyle = themeStyle.merge(style)
 
@@ -236,7 +235,7 @@ val FirstBaseline = HorizontalAlignmentLine(::min)
  */
 val LastBaseline = HorizontalAlignmentLine(::max)
 
-internal val CurrentTextStyleAmbient = Ambient.of { TextStyle() }
+internal val CurrentTextStyleAmbient = ambientOf { TextStyle() }
 
 /**
  * This component is used to set the current value of the Text style ambient. The given style will
@@ -246,9 +245,9 @@ internal val CurrentTextStyleAmbient = Ambient.of { TextStyle() }
  */
 @Composable
 fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Unit) {
-    val style = ambient(CurrentTextStyleAmbient)
+    val style = CurrentTextStyleAmbient.current
     val mergedStyle = style.merge(value)
-    CurrentTextStyleAmbient.Provider(value = mergedStyle, children = children)
+    Providers(CurrentTextStyleAmbient provides mergedStyle, children = children)
 }
 
 /**
@@ -257,4 +256,4 @@ fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Uni
  * styled explicitly.
  */
 @Composable
-fun currentTextStyle(): TextStyle = ambient(CurrentTextStyleAmbient)
+fun currentTextStyle(): TextStyle = CurrentTextStyleAmbient.current

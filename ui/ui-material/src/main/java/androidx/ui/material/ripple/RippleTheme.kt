@@ -16,8 +16,8 @@
 
 package androidx.ui.material.ripple
 
-import androidx.compose.Ambient
 import androidx.compose.Composable
+import androidx.compose.ambientOf
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialTheme
@@ -46,7 +46,7 @@ data class RippleTheme(
     val opacity: @Composable() () -> Float
 )
 
-val CurrentRippleTheme = Ambient.of { DefaultRippleTheme }
+val CurrentRippleTheme = ambientOf { DefaultRippleTheme }
 
 @Suppress("PLUGIN_WARNING")
 private val DefaultRippleTheme = RippleTheme(

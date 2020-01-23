@@ -16,7 +16,7 @@
 
 package androidx.ui.material
 
-import androidx.compose.Ambient
+import androidx.compose.ambientOf
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Shape
@@ -42,4 +42,4 @@ data class Shapes(
 /**
  * Ambient used to specify the default shapes for the surfaces.
  */
-internal val ShapeAmbient = Ambient.of { Shapes() }
+internal val ShapeAmbient = ambientOf { Shapes() }

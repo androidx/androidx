@@ -29,6 +29,7 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.FrameManager
 import androidx.compose.Model
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -467,9 +468,11 @@ class AndroidLayoutDrawTest {
 
         setContentView(root)
         Compose.composeInto(root.root, context = this) {
-            ContextAmbient.Provider(value = this) {
-                DensityAmbient.Provider(value = Density(this), children = composable)
-            }
+            Providers(
+                ContextAmbient provides this,
+                DensityAmbient provides Density(this),
+                children = composable
+            )
         }
     }
 

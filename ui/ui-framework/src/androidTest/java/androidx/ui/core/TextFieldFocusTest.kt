@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.input.FocusManager
@@ -70,11 +71,12 @@ class TextFieldFocusTest {
         )
 
         composeTestRule.setContent {
-            FocusManagerAmbient.Provider(value = focusManager) {
-                TextInputServiceAmbient.Provider(value = textInputService) {
-                    TestTag(tag = "textField") {
-                        TextFieldApp(testDataList)
-                    }
+            Providers(
+                FocusManagerAmbient provides focusManager,
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag(tag = "textField") {
+                    TextFieldApp(testDataList)
                 }
             }
         }

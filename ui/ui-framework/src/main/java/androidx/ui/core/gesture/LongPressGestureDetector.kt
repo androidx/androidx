@@ -17,7 +17,6 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.PointerEventPass
@@ -51,7 +50,7 @@ fun LongPressGestureDetector(
     onLongPress: (PxPosition) -> Unit,
     children: @Composable() () -> Unit
 ) {
-    val coroutineContext = ambient(CoroutineContextAmbient)
+    val coroutineContext = CoroutineContextAmbient.current
     val recognizer =
         remember { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress

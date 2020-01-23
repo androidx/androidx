@@ -24,6 +24,7 @@ import androidx.animation.ManualAnimationClock
 import androidx.animation.PhysicsBuilder
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.animation.animatedFloat
@@ -52,7 +53,7 @@ class AnimatableSeekBar : Activity() {
         super.onCreate(savedInstanceState)
         setContent {
             val clock = remember { ManualAnimationClock(0L) }
-            AnimationClockAmbient.Provider(clock) {
+            Providers(AnimationClockAmbient provides clock) {
                 Column {
                     Padding(40.dp) {
                         Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 20.sp))

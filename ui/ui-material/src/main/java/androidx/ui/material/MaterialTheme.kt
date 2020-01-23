@@ -17,7 +17,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.ambient
+import androidx.compose.Providers
 import androidx.ui.core.CurrentTextStyleProvider
 
 /**
@@ -46,7 +46,7 @@ fun MaterialTheme(
     children: @Composable() () -> Unit
 ) {
     ProvideColorPalette(colors) {
-        TypographyAmbient.Provider(value = typography) {
+        Providers(TypographyAmbient provides typography) {
             CurrentTextStyleProvider(value = typography.body1, children = children)
         }
     }
@@ -63,7 +63,7 @@ object MaterialTheme {
      * @sample androidx.ui.material.samples.ThemeColorSample
      */
     @Composable
-    fun colors() = ambient(ColorAmbient)
+    fun colors() = ColorAmbient.current
 
     /**
      * Retrieves the current [Typography] at the call site's position in the hierarchy.
@@ -71,17 +71,17 @@ object MaterialTheme {
      * @sample androidx.ui.material.samples.ThemeTextStyleSample
      */
     @Composable
-    fun typography() = ambient(TypographyAmbient)
+    fun typography() = TypographyAmbient.current
 
     /**
      * Retrieves the current [Shapes] at the call site's position in the hierarchy.
      */
     @Composable
-    fun shapes() = ambient(ShapeAmbient)
+    fun shapes() = ShapeAmbient.current
 
     /**
      * Retrieves the current [EmphasisLevels] at the call site's position in the hierarchy.
      */
     @Composable
-    fun emphasisLevels() = ambient(EmphasisAmbient)
+    fun emphasisLevels() = EmphasisAmbient.current
 }

@@ -17,6 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
@@ -73,7 +74,7 @@ fun SelectionContainer(
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
-    SelectionRegistrarAmbient.Provider(value = registrarImpl) {
+    Providers(SelectionRegistrarAmbient provides registrarImpl) {
         Wrap {
             // Get the layout coordinates of the selection container. This is for hit test of
             // cross-composable selection.
