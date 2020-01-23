@@ -16,29 +16,48 @@
 
 package androidx.animation
 
+import android.os.Handler
+import android.os.Looper
 import android.view.Choreographer
+import androidx.annotation.CallSuper
 
 /**
  * Default Choreographer based clock that pushes a new frame to all subscribers on each
  * Choreographer tick, until all subscribers have unsubscribed.
  */
 class DefaultAnimationClock : BaseAnimationClock() {
+    private val mainThreadHandler = Handler(Looper.getMainLooper())
+    @Volatile private var subscribedToChoreographer = false
     private val frameCallback = Choreographer.FrameCallback {
         dispatchTime(it / 1000000)
     }
 
     override fun subscribe(observer: AnimationClockObserver) {
-        // TODO: Support subscription from non-UI thread
-        if (observers.isEmpty()) {
-            Choreographer.getInstance().postFrameCallback(frameCallback)
-        }
+        postFrameCallbackToChoreographer()
         super.subscribe(observer)
+    }
+
+    private fun postFrameCallbackToChoreographer() {
+        if (!subscribedToChoreographer) {
+            // Check if we are currently on the main thread
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                Choreographer.getInstance().postFrameCallback(frameCallback)
+            } else {
+                mainThreadHandler.post {
+                    Choreographer.getInstance().postFrameCallback(frameCallback)
+                }
+            }
+            subscribedToChoreographer = true
+        }
     }
 
     override fun dispatchTime(frameTimeMillis: Long) {
         super.dispatchTime(frameTimeMillis)
-        if (observers.isNotEmpty()) {
-            Choreographer.getInstance().postFrameCallback(frameCallback)
+        subscribedToChoreographer = if (hasObservers()) {
+            Choreographer.getInstance().postFrameCallback(this@DefaultAnimationClock.frameCallback)
+            true
+        } else {
+            false
         }
     }
 }
@@ -71,41 +90,90 @@ class ManualAnimationClock(initTimeMillis: Long) : BaseAnimationClock() {
  * unsubscribing logic that would be common for all custom animation clocks.
  */
 sealed class BaseAnimationClock : AnimationClockObservable {
-    // By allowing this observers list to be mutated during iteration, it means sequential animation
-    // will see an animation end and the subsequent animation start in the same frame. This is a
-    // desirable outcome. Does it have any side effects?
-    internal val observers: MutableList<AnimationClockObserver> = mutableListOf()
-    private val toBeRemoved: MutableList<AnimationClockObserver> = mutableListOf()
+    // Using LinkedHashSet to increase removal performance
+    private val observers: MutableSet<AnimationClockObserver> = LinkedHashSet()
 
+    private val pendingActions: MutableList<Int> = mutableListOf()
+    private val pendingObservers: MutableList<AnimationClockObserver> = mutableListOf()
+
+    private fun addToPendingActions(action: Int, observer: AnimationClockObserver) =
+        synchronized(pendingActions) {
+            pendingActions.add(action) && pendingObservers.add(observer)
+        }
+    private fun pendingActionsIsNotEmpty(): Boolean = synchronized(pendingActions) {
+        pendingActions.isNotEmpty()
+    }
+    private fun pendingActionsHasAddAction(): Boolean = synchronized(pendingActions) {
+        pendingActions.any { it == AddAction }
+    }
+
+    private inline fun forEachObserver(crossinline action: (AnimationClockObserver) -> Unit) =
+        synchronized(observers) {
+            observers.forEach(action)
+        }
+    private fun observersIsNotEmpty() = synchronized(observers) { observers.isNotEmpty() }
+
+    /**
+     * Subscribes [observer] to this clock. Duplicate subscriptions will be ignored.
+     */
     override fun subscribe(observer: AnimationClockObserver) {
-        // TODO: Support subscription from non-UI thread
-        observers.add(observer)
+        addToPendingActions(AddAction, observer)
     }
 
     override fun unsubscribe(observer: AnimationClockObserver) {
-        // TODO: Support removing subscription from non-UI thread
-        if (observers.contains(observer)) {
-            // FIXME(147736746): checking if observers contains the observer can still trigger a
-            //  bug, if the observer is subscribed and unsubscribed multiple times per frame. For
-            //  example: subscribe(x), unsubscribe(x), unsubscribe(x), subscribe(x)
-            toBeRemoved.add(observer)
-        }
+        addToPendingActions(RemoveAction, observer)
     }
 
+    @CallSuper
     internal open fun dispatchTime(frameTimeMillis: Long) {
-        reset()
-        // Start dispatching to observers the new frame time
-        for (observer in observers) {
-            observer.onAnimationFrame(frameTimeMillis)
+        processPendingActions()
+
+        forEachObserver {
+            it.onAnimationFrame(frameTimeMillis)
         }
-        reset()
+
+        while (pendingActionsIsNotEmpty()) {
+            processPendingActions().forEach {
+                it.onAnimationFrame(frameTimeMillis)
+            }
+        }
     }
 
-    private fun reset() {
-        // Remove the first occurrence of the removed items in observers list
-        toBeRemoved.forEach {
-            observers.remove(it)
+    internal fun hasObservers(): Boolean {
+        return observersIsNotEmpty() || pendingActionsHasAddAction()
+    }
+
+    // Declare as member for performance
+    private val additions: MutableSet<AnimationClockObserver> = LinkedHashSet(50)
+
+    private fun processPendingActions(): Set<AnimationClockObserver> {
+        additions.clear()
+        synchronized(observers) {
+            synchronized(pendingActions) {
+                pendingActions.forEachIndexed { i, action ->
+                    when (action) {
+                        AddAction -> {
+                            // This check ensures that we only have one instance of the observer in
+                            // the callbacks at any given time.
+                            if (observers.add(pendingObservers[i])) {
+                                additions.add(pendingObservers[i])
+                            }
+                        }
+                        RemoveAction -> {
+                            observers.remove(pendingObservers[i])
+                            additions.remove(pendingObservers[i])
+                        }
+                    }
+                }
+                pendingActions.clear()
+                pendingObservers.clear()
+            }
         }
-        toBeRemoved.clear()
+        return additions
+    }
+
+    internal companion object {
+        private const val AddAction = 1
+        private const val RemoveAction = 2
     }
 }
