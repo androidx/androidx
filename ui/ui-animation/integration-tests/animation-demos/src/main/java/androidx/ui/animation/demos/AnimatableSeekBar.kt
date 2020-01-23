@@ -21,7 +21,7 @@ import android.os.Bundle
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.ManualAnimationClock
-import androidx.animation.PhysicsBuilder
+import androidx.animation.TweenBuilder
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.Providers
@@ -56,7 +56,7 @@ class AnimatableSeekBar : Activity() {
             Providers(AnimationClockAmbient provides clock) {
                 Column {
                     Padding(40.dp) {
-                        Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 20.sp))
+                        Text("Drag to update AnimationClock", style = TextStyle(fontSize = 20.sp))
                     }
 
                     Padding(left = 10.dp, right = 10.dp, bottom = 30.dp) {
@@ -111,7 +111,9 @@ class AnimatableSeekBar : Activity() {
                 PressGestureDetector(
                     onPress = { position ->
                         animValue.animateTo(position.x.value,
-                            PhysicsBuilder(dampingRatio = 1.0f, stiffness = 1500f))
+                            TweenBuilder<Float>().apply {
+                                duration = 400
+                            })
                     }) {
 
                     Container(height = 60.dp, expanded = true) {
