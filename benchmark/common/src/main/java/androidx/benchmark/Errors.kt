@@ -190,6 +190,13 @@ internal object Errors {
             """.trimMarginWrapNewlines()
         }
 
+        if (Arguments.profilingMode != Arguments.ProfilingMode.None) {
+            warningPrefix += "PROFILED_"
+            warningString += """
+                |WARNING: Benchmark capturing profile information, results affected.
+            """.trimMarginWrapNewlines()
+        }
+
         PREFIX = warningPrefix
         if (warningString.isNotEmpty()) {
             this.warningString = warningString
@@ -200,7 +207,8 @@ internal object Errors {
             .split('_')
             .filter { it.isNotEmpty() }
             .toSet()
-        val unsuppressedWarningSet = warningSet - Arguments.suppressedErrors
+        val nonfatalErrors = setOf("PROFILED")
+        val unsuppressedWarningSet = warningSet - (Arguments.suppressedErrors + nonfatalErrors)
         UNSUPPRESSED_WARNING_MESSAGE = if (unsuppressedWarningSet.isNotEmpty()) {
             """
                 |ERRORS (not suppressed): ${unsuppressedWarningSet.toDisplayString()}
