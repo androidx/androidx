@@ -20,11 +20,6 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 import androidx.build.Publish
 
-buildscript {
-    dependencies {
-        classpath("gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8")
-    }
-}
 
 plugins {
     id("AndroidXPlugin")
@@ -33,12 +28,9 @@ plugins {
     id("androidx.inspection")
 }
 
-apply(plugin: "com.google.protobuf")
-
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    implementation(project(":inspection:inspection"))
-    implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
+    compileOnly(project(":inspection:inspection"))
 
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
@@ -47,21 +39,6 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
-}
-
-protobuf {
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.10.0'
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
 }
 
 androidx {
@@ -81,4 +58,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
+
+    sourceSets {
+        main.resources.srcDirs += "src/main/proto"
+    }
+
+//    sourceSets {
+//        main {
+//            resources.s .srcDir += ["proto"]
+//        }
+//    }
 }
