@@ -471,7 +471,7 @@ private class WithConstrainsState {
     var lastConstraints: Constraints? = null
     var children: @Composable() (Constraints) -> Unit = {}
     var forceRecompose = false
-    val measureBlocks = object : LayoutNode.NoIntristicsMeasureBlocks(
+    val measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         error = "Intrinsic measurements are not supported by WithConstraints"
     ) {
         override fun measure(

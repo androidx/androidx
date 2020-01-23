@@ -32,7 +32,7 @@ class Ref<T> {
             val proxyTo = proxyTo
             return if (proxyTo == null) field else proxyTo.value
         }
-        internal set(value) {
+        set(value) { // TODO(popam): make internal when non-ir module is removed
             val proxyTo = proxyTo
             if (proxyTo == null) {
                 field = value

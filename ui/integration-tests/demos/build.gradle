@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":ui:ui-android-view"))
+    implementation(project(":ui:ui-android-view:integration-tests:ui-android-view-demos"))
     implementation(project(":ui:ui-animation:integration-tests:ui-animation-demos"))
     implementation(project(":ui:ui-framework:integration-tests:ui-framework-demos"))
     implementation(project(":ui:ui-layout:integration-tests:ui-layout-demos"))
