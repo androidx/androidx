@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
@@ -159,6 +160,7 @@ public class VisibilityTest extends BaseTest {
         assertThat((float) animator.getAnimatedValue(), is(0.25f));
     }
 
+    @FlakyTest
     @Test
     public void testViewDetachedFromOverlayWhilePaused() throws Throwable {
         // create fake transition and listener
