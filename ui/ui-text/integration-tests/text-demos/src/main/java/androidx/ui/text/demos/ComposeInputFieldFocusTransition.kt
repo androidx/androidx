@@ -17,7 +17,6 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.state
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TextField
@@ -44,7 +43,7 @@ fun TextFieldFocusTransition() {
 
 @Composable
 private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
-    val focusManager = ambient(FocusManagerAmbient)
+    val focusManager = FocusManagerAmbient.current
     val state = state { "Focus ID: $focusID" }
     val focused = state { false }
     val color = if (focused.value) {

@@ -135,19 +135,19 @@ package androidx.ui.core {
   public final class WrapperKt {
     method public static void ComposeView(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,kotlin.Unit> block);
-    method public static androidx.ui.unit.Density ambientDensity();
-    method public static androidx.compose.Ambient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
-    method public static androidx.compose.Ambient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.autofill.Autofill> getAutofillAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
-    method public static androidx.compose.Ambient<android.content.res.Configuration> getConfigurationAmbient();
-    method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
-    method public static androidx.compose.Ambient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.unit.Density> getDensityAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.core.input.FocusManager> getFocusManagerAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.text.font.Font.ResourceLoader> getFontLoaderAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
+    method public static inline androidx.ui.unit.Density ambientDensity();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.Autofill> getAutofillAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
+    method public static androidx.compose.ProvidableAmbient<android.content.res.Configuration> getConfigurationAmbient();
+    method public static androidx.compose.ProvidableAmbient<android.content.Context> getContextAmbient();
+    method public static androidx.compose.ProvidableAmbient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.unit.Density> getDensityAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.input.FocusManager> getFocusManagerAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.text.font.Font.ResourceLoader> getFontLoaderAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
     method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
@@ -338,7 +338,7 @@ package androidx.ui.core.selection {
   }
 
   public final class SelectionRegistrarKt {
-    method public static androidx.compose.Ambient<androidx.ui.core.selection.SelectionRegistrar> getSelectionRegistrarAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.selection.SelectionRegistrar> getSelectionRegistrarAmbient();
   }
 
   public final class TextSelectionDelegateKt {
@@ -593,7 +593,7 @@ package androidx.ui.semantics {
 package androidx.ui.tooling {
 
   public final class InspectionModeKt {
-    method public static androidx.compose.Ambient<java.lang.Boolean> getInspectionMode();
+    method public static androidx.compose.ProvidableAmbient<java.lang.Boolean> getInspectionMode();
   }
 
 }

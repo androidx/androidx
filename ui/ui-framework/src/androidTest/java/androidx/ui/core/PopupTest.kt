@@ -17,7 +17,6 @@ package androidx.ui.core
 
 import android.view.View
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -72,7 +71,7 @@ class PopupTest {
 
             composeTestRule.setContent {
                 // Get the compose view position on screen
-                val composeView = ambient(AndroidComposeViewAmbient)
+                val composeView = AndroidComposeViewAmbient.current
                 val positionArray = IntArray(2)
                 composeView.getLocationOnScreen(positionArray)
                 composeViewAbsolutePosition = IntPxPosition(

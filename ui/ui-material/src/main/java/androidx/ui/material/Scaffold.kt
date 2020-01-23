@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.ambient
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
@@ -260,7 +259,7 @@ private fun ScaffoldContent(
     content: @Composable() (Modifier) -> Unit
 ) {
     ScaffoldSlot(modifier) {
-        val bottomSpace = withDensity(ambient(DensityAmbient)) {
+        val bottomSpace = withDensity(DensityAmbient.current) {
             scaffoldState.bottomBarSize?.height?.toDp() ?: 0.dp
         }
         content(LayoutPadding(bottom = bottomSpace))

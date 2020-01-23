@@ -18,7 +18,6 @@ package androidx.ui.material.ripple
 
 import androidx.compose.Composable
 import androidx.compose.Recompose
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.compose.onDispose
 import androidx.ui.animation.transitionsEnabled
@@ -60,7 +59,7 @@ fun Ripple(
 ) {
     val density = ambientDensity()
     val state = remember { RippleState() }
-    val theme = ambient(CurrentRippleTheme)
+    val theme = CurrentRippleTheme.current
 
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
         PressIndicatorGestureDetector(

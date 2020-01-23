@@ -17,6 +17,7 @@
 package androidx.ui.res
 
 import android.util.LruCache
+import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
@@ -68,7 +69,7 @@ class ResourcesTest {
         var res: DeferredResource<Image>? = null
 
         composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
+            Providers(ContextAmbient provides context) {
                 res = loadResourceInternal(
                     id = R.drawable.loaded_image,
                     pendingResource = pendingImage,
@@ -122,7 +123,7 @@ class ResourcesTest {
         var res: DeferredResource<Image>? = null
 
         composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
+            Providers(ContextAmbient provides context) {
                 res = loadResourceInternal(
                     id = R.drawable.loaded_image,
                     pendingResource = pendingImage,

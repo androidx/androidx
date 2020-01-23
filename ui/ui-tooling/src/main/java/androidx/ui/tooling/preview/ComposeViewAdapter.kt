@@ -25,6 +25,7 @@ import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.disposeComposition
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
@@ -200,7 +201,7 @@ internal class ComposeViewAdapter : FrameLayout {
         // We need to replace the FontResourceLoader to avoid using ResourcesCompat.
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
-        FontLoaderAmbient.Provider(value = LayoutlibFontResourceLoader(context)) {
+        Providers(FontLoaderAmbient provides LayoutlibFontResourceLoader(context)) {
             Inspectable(children)
         }
     }

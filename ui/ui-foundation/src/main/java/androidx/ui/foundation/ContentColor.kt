@@ -16,9 +16,9 @@
 
 package androidx.ui.foundation
 
-import androidx.compose.Ambient
 import androidx.compose.Composable
-import androidx.compose.ambient
+import androidx.compose.Providers
+import androidx.compose.ambientOf
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
@@ -34,7 +34,7 @@ import androidx.ui.text.TextStyle
  * unspecified.
  */
 @Composable
-fun contentColor() = ambient(ContentColorAmbient)
+fun contentColor() = ContentColorAmbient.current
 
 /**
  * Sets [color] as the preferred content color for [children].
@@ -43,11 +43,11 @@ fun contentColor() = ambient(ContentColorAmbient)
  */
 @Composable
 fun ProvideContentColor(color: Color, children: @Composable() () -> Unit) {
-    ContentColorAmbient.Provider(color) {
+    Providers(ContentColorAmbient provides color) {
         // TODO: we probably want to instead provide a Text component that queries contentColor()
         // instead of needing to manually merge this style.
         CurrentTextStyleProvider(value = TextStyle(color = color), children = children)
     }
 }
 
-private val ContentColorAmbient = Ambient.of { Color.Black }
+private val ContentColorAmbient = ambientOf { Color.Black }

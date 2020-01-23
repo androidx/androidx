@@ -16,9 +16,9 @@
 
 package androidx.ui.material
 
-import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Immutable
+import androidx.compose.ambientOf
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
@@ -90,7 +90,7 @@ fun ProvideEmphasis(emphasis: Emphasis, children: @Composable() () -> Unit) {
 /**
  * Ambient containing the current [EmphasisLevels] in this hierarchy.
  */
-val EmphasisAmbient = Ambient.of { EmphasisLevels() }
+val EmphasisAmbient = ambientOf { EmphasisLevels() }
 
 /**
  * Default implementation for expressing high emphasis.

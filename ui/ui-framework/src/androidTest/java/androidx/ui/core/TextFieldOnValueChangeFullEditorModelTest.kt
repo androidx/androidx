@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.input.FocusManager
@@ -73,20 +74,21 @@ class TextFieldOnValueChangeFullEditorModelTest {
             .thenReturn(inputSessionToken)
 
         composeTestRule.setContent {
-            FocusManagerAmbient.Provider(value = focusManager) {
-                TextInputServiceAmbient.Provider(value = textInputService) {
-                    TestTag(tag = "textField") {
-                        val model = state { EditorModel("abcde", TextRange(0, 0)) }
-                        val composition = state<TextRange?> { null }
-                        TextField(
-                            model = model.value,
-                            compositionRange = composition.value,
-                            onValueChange = { newModel, newComposition ->
-                                model.value = newModel
-                                composition.value = newComposition
-                                onValueChange(newModel, newComposition)
-                            })
-                    }
+            Providers(
+                FocusManagerAmbient provides focusManager,
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag(tag = "textField") {
+                    val model = state { EditorModel("abcde", TextRange(0, 0)) }
+                    val composition = state<TextRange?> { null }
+                    TextField(
+                        model = model.value,
+                        compositionRange = composition.value,
+                        onValueChange = { newModel, newComposition ->
+                            model.value = newModel
+                            composition.value = newComposition
+                            onValueChange(newModel, newComposition)
+                        })
                 }
             }
         }

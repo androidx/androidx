@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.input.FocusManager
@@ -53,20 +54,20 @@ class TextFieldTest {
         val inputService = mock<TextInputService>()
         composeTestRule.setContent {
             val state = state { "" }
-            FocusManagerAmbient.Provider(value = focusManager) {
-                TextInputServiceAmbient.Provider(value = inputService) {
-                    TestTag(tag = "textField") {
-                        TextField(
-                            value = state.value,
-                            onValueChange = { state.value = it }
-                        )
-                    }
+            Providers(
+                FocusManagerAmbient provides focusManager,
+                TextInputServiceAmbient provides inputService
+            ) {
+                TestTag(tag = "textField") {
+                    TextField(
+                        value = state.value,
+                        onValueChange = { state.value = it }
+                    )
                 }
             }
         }
 
-        findByTag("textField")
-            .doClick()
+        findByTag("textField").doClick()
 
         composeTestRule.runOnIdleCompose {
             verify(focusManager, times(1)).requestFocus(any())
@@ -98,11 +99,12 @@ class TextFieldTest {
             .thenReturn(inputSessionToken)
 
         composeTestRule.setContent {
-            FocusManagerAmbient.Provider(value = focusManager) {
-                TextInputServiceAmbient.Provider(value = textInputService) {
-                    TestTag(tag = "textField") {
-                        TextFieldApp()
-                    }
+            Providers(
+                FocusManagerAmbient provides focusManager,
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag(tag = "textField") {
+                    TextFieldApp()
                 }
             }
         }
@@ -178,11 +180,12 @@ class TextFieldTest {
             .thenReturn(inputSessionToken)
 
         composeTestRule.setContent {
-            FocusManagerAmbient.Provider(value = focusManager) {
-                TextInputServiceAmbient.Provider(value = textInputService) {
-                    TestTag(tag = "textField") {
-                        OnlyDigitsApp()
-                    }
+            Providers(
+                FocusManagerAmbient provides focusManager,
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag(tag = "textField") {
+                    OnlyDigitsApp()
                 }
             }
         }
