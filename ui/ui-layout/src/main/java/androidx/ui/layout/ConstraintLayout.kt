@@ -531,8 +531,8 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     internal companion object {
         val verticalAnchorFunctions: Array<Array<ConstraintReference.(Any) -> Unit>> = arrayOf(
             arrayOf(
-                { other -> startToStart(other).apply() },
-                { other -> startToEnd(other).apply() }
+                { other -> startToStart(other) },
+                { other -> startToEnd(other) }
             ),
             arrayOf(
                 { other -> endToStart(other) },
