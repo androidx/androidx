@@ -33,6 +33,8 @@ interface Selectable {
      * @param containerLayoutCoordinates [LayoutCoordinates] of the widget
      * @param longPress true represents that selection is either initiated via a long press or
      *  being dragged after long press
+     * @param previousSelection previous selection result
+     * @param isStartHandle true if the start handle is being dragged
      *
      *  @return null if no selection will be applied for this composable, or [Selection] instance
      *    if selection is applied to this composable.
@@ -41,6 +43,8 @@ interface Selectable {
         startPosition: PxPosition,
         endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
-        longPress: Boolean
+        longPress: Boolean,
+        previousSelection: Selection? = null,
+        isStartHandle: Boolean = true
     ): Selection?
 }
