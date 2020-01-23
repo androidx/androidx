@@ -18,11 +18,11 @@ package androidx.ui.material
 
 import androidx.compose.Ambient
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.StructurallyEqual
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
-import kotlin.reflect.KProperty
 
 /**
  * Collection of colors in the
@@ -252,37 +252,19 @@ private class ObservableColorPalette(
         isLight = colorPalette.isLight
     )
 
-    override var primary by ObservableColor(primary)
-    override var primaryVariant by ObservableColor(primaryVariant)
-    override var secondary by ObservableColor(secondary)
-    override var secondaryVariant by ObservableColor(secondaryVariant)
-    override var background by ObservableColor(background)
-    override var surface by ObservableColor(surface)
-    override var error by ObservableColor(error)
-    override var onPrimary by ObservableColor(onPrimary)
-    override var onSecondary by ObservableColor(onSecondary)
-    override var onBackground by ObservableColor(onBackground)
-    override var onSurface by ObservableColor(onSurface)
-    override var onError by ObservableColor(onError)
-    override var isLight by ObservableBoolean(isLight)
-}
-
-@Model
-private class ObservableColor(var color: Color) {
-    operator fun getValue(thisObj: Any?, property: KProperty<*>) = color
-
-    operator fun setValue(thisObj: Any?, property: KProperty<*>, next: Color) {
-        if (color != next) color = next
-    }
-}
-
-@Model
-private class ObservableBoolean(var boolean: Boolean) {
-    operator fun getValue(thisObj: Any?, property: KProperty<*>) = boolean
-
-    operator fun setValue(thisObj: Any?, property: KProperty<*>, next: Boolean) {
-        if (boolean != next) boolean = next
-    }
+    override var primary by mutableStateOf(primary, StructurallyEqual)
+    override var primaryVariant by mutableStateOf(primaryVariant, StructurallyEqual)
+    override var secondary by mutableStateOf(secondary, StructurallyEqual)
+    override var secondaryVariant by mutableStateOf(secondaryVariant, StructurallyEqual)
+    override var background by mutableStateOf(background, StructurallyEqual)
+    override var surface by mutableStateOf(surface, StructurallyEqual)
+    override var error by mutableStateOf(error, StructurallyEqual)
+    override var onPrimary by mutableStateOf(onPrimary, StructurallyEqual)
+    override var onSecondary by mutableStateOf(onSecondary, StructurallyEqual)
+    override var onBackground by mutableStateOf(onBackground, StructurallyEqual)
+    override var onSurface by mutableStateOf(onSurface, StructurallyEqual)
+    override var onError by mutableStateOf(onError, StructurallyEqual)
+    override var isLight by mutableStateOf(isLight, StructurallyEqual)
 }
 
 /**

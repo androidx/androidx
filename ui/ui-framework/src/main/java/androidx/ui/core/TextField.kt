@@ -16,6 +16,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.StructurallyEqual
 import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.compose.onDispose
@@ -380,7 +381,7 @@ internal fun BaseTextField(
         val hasFocus = state { false }
         val coords = state<LayoutCoordinates?> { null }
         val inputSession = state { NO_SESSION }
-        val layoutResult = state<TextLayoutResult?> { null }
+        val layoutResult = state<TextLayoutResult?>(StructurallyEqual) { null }
 
         processor.onNewState(value, textInputService, inputSession.value)
         TextInputEventObserver(
@@ -475,9 +476,7 @@ internal fun BaseTextField(
                 measureBlock = { _, constraints ->
                     TextFieldDelegate.layout(textDelegate, constraints, layoutResult.value)
                         .let { (width, height, result) ->
-                            if (result != layoutResult.value) {
-                                layoutResult.value = result
-                            }
+                            layoutResult.value = result
                             layout(width, height) {}
                         }
                 }
