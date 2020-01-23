@@ -70,4 +70,31 @@ class EnsureComponentInitializerMetadataTest {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun testSuccessWhenMetadataIsProvidedWithStringResourceName() {
+        val manifest = manifest(
+            """
+               <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  package="com.example">
+                  <application>
+                    <meta-data
+                        android:name="com.example.TestComponentInitializer"
+                        android:value="@string/androidx_startup" />
+                  </application>
+                </manifest>
+        """
+        ).indented()
+
+        lint()
+            .files(
+                COMPONENT_INITIALIZER,
+                TEST_COMPONENT,
+                manifest
+            )
+            .issues(EnsureComponentInitializerMetadataDetector.ISSUE)
+            .run()
+            .expectClean()
+    }
 }

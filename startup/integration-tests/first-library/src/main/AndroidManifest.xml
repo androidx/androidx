@@ -23,7 +23,7 @@
         <!-- This meta-data entry is useful for ComponentInitializer discovery. -->
         <meta-data
             android:name="androidx.startup.first_library.WorkManagerComponentInitializer"
-            android:value="androidx.startup" />
+            android:value="@string/androidx_startup" />
 
         <!-- Remove provider for WorkManager on-demand initialization -->
         <provider

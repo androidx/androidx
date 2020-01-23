@@ -90,7 +90,9 @@ class EnsureComponentInitializerMetadataDetector : Detector(), SourceCodeScanner
         // Track all <meta-data> elements with value androidx.startup
         val name = element.getAttributeNS(ANDROID_URI, ATTR_NAME)
         val value = element.getAttributeNS(ANDROID_URI, ATTR_VALUE)
-        if (value == "androidx.startup") {
+        // There does not seem to be a way to evaluate resources defined in the manifest.
+        // Figure out if there is a better way.
+        if (value == "androidx.startup" || value == "@string/androidx_startup") {
             components.add(name)
         }
     }
