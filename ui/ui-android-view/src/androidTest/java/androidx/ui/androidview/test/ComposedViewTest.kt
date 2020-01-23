@@ -16,12 +16,16 @@
 
 package androidx.ui.androidview.test
 
+import android.util.TypedValue
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RelativeLayout
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.filters.SmallTest
 import androidx.ui.androidview.AndroidView
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.test.createComposeRule
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Rule
@@ -43,5 +47,29 @@ class ComposedViewTest {
         Espresso
             .onView(instanceOf(RelativeLayout::class.java))
             .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun androidViewTest_preservesLayoutParams() {
+        composeTestRule.setContent {
+            AndroidView(R.layout.test_layout)
+        }
+        Espresso
+            .onView(withParent(withParent(instanceOf(AndroidComposeView::class.java))))
+            .check(matches(isDisplayed()))
+            .check { view, exception ->
+                if (view.layoutParams.width ==
+                        TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            300f,
+                            view.context.resources.displayMetrics
+                        ).toInt()
+                ) {
+                    throw exception
+                }
+                if (view.layoutParams.height != WRAP_CONTENT) {
+                    throw exception
+                }
+            }
     }
 }

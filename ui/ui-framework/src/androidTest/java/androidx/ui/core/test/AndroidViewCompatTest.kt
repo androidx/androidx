@@ -22,6 +22,10 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Build
 import android.view.View
+import android.view.ViewGroup
+import android.view.View.MeasureSpec
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.espresso.Espresso
@@ -30,7 +34,10 @@ import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.AndroidComposeView
+import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.TestTag
@@ -42,6 +49,7 @@ import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
 import junit.framework.TestCase.assertNotNull
@@ -180,6 +188,133 @@ class AndroidViewCompatTest {
             .assertPixels(expectedColorProvider = expectedPixelColor)
     }
 
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs() {
+        val viewRef = Ref<MeasureSpecSaverView>()
+        val widthMeasureSpecRef = Ref<Int>()
+        val heightMeasureSpecRef = Ref<Int>()
+        val constraintsHolder = ConstraintsModel(Constraints())
+        composeTestRule.setContent {
+            Container(LayoutConstraints(constraintsHolder.constraints)) {
+                MeasureSpecSaverView(
+                    ref = viewRef,
+                    widthMeasureSpecRef = widthMeasureSpecRef,
+                    heightMeasureSpecRef = heightMeasureSpecRef
+                )
+            }
+        }
+        fun assertMeasureSpec(
+            expectedWidthSpec: Int,
+            expectedHeightSpec: Int,
+            constraints: Constraints,
+            layoutParams: ViewGroup.LayoutParams
+        ) {
+            composeTestRule.runOnUiThread {
+                constraintsHolder.constraints = constraints
+                viewRef.value?.layoutParams = layoutParams
+            }
+
+            composeTestRule.runOnIdleCompose {
+                assertEquals(expectedWidthSpec, widthMeasureSpecRef.value)
+                assertEquals(expectedHeightSpec, heightMeasureSpecRef.value)
+            }
+        }
+        // When incoming constraints are fixed.
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            Constraints.fixed(20.ipx, 30.ipx),
+            ViewGroup.LayoutParams(40, 50)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            Constraints.fixed(20.ipx, 30.ipx),
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            Constraints.fixed(20.ipx, 30.ipx),
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+        // When incoming constraints are finite.
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
+            Constraints(
+                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+            ),
+            ViewGroup.LayoutParams(25, 35)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
+            Constraints(
+                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+            ),
+            ViewGroup.LayoutParams(15, 25)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(45, MeasureSpec.EXACTLY),
+            Constraints(
+                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+            ),
+            ViewGroup.LayoutParams(35, 50)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(40, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(50, MeasureSpec.AT_MOST),
+            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(40, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(50, MeasureSpec.EXACTLY),
+            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+        // When incoming constraints are infinite.
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
+            Constraints(),
+            ViewGroup.LayoutParams(25, 35)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            Constraints(),
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        )
+        assertMeasureSpec(
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            Constraints(),
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMinimumDimensionsSetOnView() {
+        val viewRef = Ref<MeasureSpecSaverView>()
+        val constraintsHolder = ConstraintsModel(Constraints())
+        composeTestRule.setContent {
+            Container(LayoutConstraints(constraintsHolder.constraints)) {
+                MeasureSpecSaverView(ref = viewRef)
+            }
+        }
+        composeTestRule.runOnUiThread {
+            constraintsHolder.constraints = Constraints(minWidth = 20.ipx, minHeight = 30.ipx)
+        }
+
+        composeTestRule.runOnIdleCompose {
+            assertEquals(20, viewRef.value!!.minimumWidth)
+            assertEquals(30, viewRef.value!!.minimumHeight)
+        }
+    }
+
     class ColoredSquareView(context: Context) : View(context) {
         var size: Int = 100
             set(value) {
@@ -216,6 +351,42 @@ class AndroidViewCompatTest {
             )
         }
     }
+
+    class MeasureSpecSaverView(context: Context) : View(context) {
+        var ref: Ref<MeasureSpecSaverView>? = null
+            set(value) {
+                field = value
+                value?.value = this
+            }
+        var widthMeasureSpecRef: Ref<Int>? = null
+        var heightMeasureSpecRef: Ref<Int>? = null
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            widthMeasureSpecRef?.value = widthMeasureSpec
+            heightMeasureSpecRef?.value = heightMeasureSpec
+            setMeasuredDimension(0, 0)
+        }
+    }
+
+    fun LayoutConstraints(childConstraints: Constraints) = object : LayoutModifier {
+        override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+            return childConstraints
+        }
+    }
+
+    @Composable
+    fun Container(
+        modifier: Modifier = Modifier.None,
+        children: @Composable() () -> Unit
+    ) {
+        Layout(children, modifier) { measurables, constraints ->
+            val placeable = measurables[0].measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(0.ipx, 0.ipx)
+            }
+        }
+    }
 }
 
 @Model private data class ColorModel(var color: Color)
+@Model private data class ConstraintsModel(var constraints: Constraints)
