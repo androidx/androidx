@@ -19,6 +19,7 @@ package androidx.fragment.app
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.AttributeSet
 import androidx.annotation.LayoutRes
 
 /**
@@ -87,6 +88,12 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onAttachFragment(childFragment: Fragment) {
         calledOnAttachFragment = true
+    }
+
+    override fun onInflate(context: Context, attrs: AttributeSet, savedInstanceState: Bundle?) {
+        super.onInflate(context, attrs, savedInstanceState)
+        checkActivityNotDestroyed()
+        checkState("onInflate", State.DETACHED)
     }
 
     override fun onAttach(context: Context) {

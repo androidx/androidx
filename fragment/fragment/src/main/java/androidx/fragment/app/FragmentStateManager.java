@@ -178,9 +178,18 @@ class FragmentStateManager {
                 // actually added to the layout (mInLayout).
                 maxState = Math.max(mFragmentManagerState, Fragment.CREATED);
             } else {
-                // But don't allow their state to progress upward beyond CREATED
-                // if they're not in a layout
-                maxState = Math.min(maxState, Fragment.CREATED);
+                if (mFragmentManagerState < Fragment.ACTIVITY_CREATED) {
+                    // But while they are not in the layout, don't allow their
+                    // state to progress upward until the FragmentManager state
+                    // is at least ACTIVITY_CREATED. This ensures they get the onInflate()
+                    // callback before being attached or created.
+                    maxState = Math.min(maxState, mFragment.mState);
+                } else {
+                    // Once the FragmentManager state is at least ACTIVITY_CREATED
+                    // their state can progress up to CREATED as we assume that
+                    // they are not ever going to be in layout
+                    maxState = Math.min(maxState, Fragment.CREATED);
+                }
             }
         }
         // Fragments that are not currently added will sit in the CREATED state.
