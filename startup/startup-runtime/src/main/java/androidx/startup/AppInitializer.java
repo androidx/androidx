@@ -43,6 +43,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class AppInitializer {
 
     /**
+     * Guards app initialization.
+     */
+    private static final Object sLock = new Object();
+
+    /**
      * Keeps track of whether components were initialized.
      */
     @VisibleForTesting
@@ -60,8 +65,9 @@ public final class AppInitializer {
      * @param context The Application context
      */
     public static void initialize(@NonNull Context context) {
-        List<Class<?>> components = discoverComponents(context);
-        initialize(context, components);
+        Context applicationContext = context.getApplicationContext();
+        List<Class<?>> components = discoverComponents(applicationContext);
+        initialize(applicationContext, components);
     }
 
     /**
@@ -72,11 +78,14 @@ public final class AppInitializer {
      *                   {@link ComponentInitializer}s
      */
     public static void initialize(@NonNull Context context, @NonNull List<Class<?>> components) {
-        if (sInitialized.compareAndSet(false, true)) {
-            doInitialize(context, components, new HashSet<>(), new HashSet<>());
-        } else {
-            if (StartupLogger.DEBUG) {
-                StartupLogger.i("Already initialized");
+        synchronized (sLock) {
+            Context applicationContext = context.getApplicationContext();
+            if (sInitialized.compareAndSet(false, true)) {
+                doInitialize(applicationContext, components, new HashSet<>(), new HashSet<>());
+            } else {
+                if (StartupLogger.DEBUG) {
+                    StartupLogger.i("Already initialized");
+                }
             }
         }
     }
@@ -91,6 +100,7 @@ public final class AppInitializer {
             @NonNull Set<Class<?>> initializing,
             @NonNull Set<Class<?>> initialized) {
 
+        Context applicationContext = context.getApplicationContext();
         for (Class<?> component : components) {
             if (initializing.contains(component)) {
                 String message = String.format(
@@ -118,12 +128,12 @@ public final class AppInitializer {
                         }
                     }
                     if (!filtered.isEmpty()) {
-                        doInitialize(context, filtered, initializing, initialized);
+                        doInitialize(applicationContext, filtered, initializing, initialized);
                     }
                     if (StartupLogger.DEBUG) {
                         StartupLogger.i(String.format("Initializing %s", component.getName()));
                     }
-                    initializer.create(context);
+                    initializer.create(applicationContext);
                     if (StartupLogger.DEBUG) {
                         StartupLogger.i(String.format("Initialized %s", component.getName()));
                     }
@@ -143,12 +153,13 @@ public final class AppInitializer {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static List<Class<?>> discoverComponents(@NonNull Context context) {
         try {
+            Context applicationContext = context.getApplicationContext();
             ApplicationInfo applicationInfo =
-                    context.getPackageManager()
-                            .getApplicationInfo(context.getPackageName(), GET_META_DATA);
+                    applicationContext.getPackageManager()
+                            .getApplicationInfo(applicationContext.getPackageName(), GET_META_DATA);
 
             Bundle metadata = applicationInfo.metaData;
-            String startup = context.getString(R.string.androidx_startup);
+            String startup = applicationContext.getString(R.string.androidx_startup);
             if (metadata != null) {
                 List<Class<?>> components = new ArrayList<>(metadata.size());
                 Set<String> keys = metadata.keySet();
