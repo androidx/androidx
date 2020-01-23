@@ -7,6 +7,19 @@ package androidx.navigation.dynamicfeatures {
     field public static final String KEY_NAVIGATED = "dfn:navigated";
   }
 
+  @androidx.navigation.Navigator.Name("activity") public final class DynamicActivityNavigator extends androidx.navigation.ActivityNavigator {
+    ctor public DynamicActivityNavigator(android.app.Activity activity, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
+    method public androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination createDestination();
+  }
+
+  public static final class DynamicActivityNavigator.Destination extends androidx.navigation.ActivityNavigator.Destination {
+    ctor public DynamicActivityNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
+    ctor public DynamicActivityNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.ActivityNavigator.Destination> activityNavigator);
+    method public String? getModuleName();
+    method public void setModuleName(String? p);
+    property public final String? moduleName;
+  }
+
   public final class DynamicExtras implements androidx.navigation.Navigator.Extras {
     method public androidx.navigation.Navigator.Extras? getDestinationExtras();
     method public androidx.navigation.dynamicfeatures.DynamicInstallMonitor? getInstallMonitor();
