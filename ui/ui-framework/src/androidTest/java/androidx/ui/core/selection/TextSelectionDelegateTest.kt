@@ -24,13 +24,16 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
+import androidx.ui.framework.test.R
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.font.Font
+import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
@@ -45,8 +48,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-val BASIC_MEASURE_FONT = Font(
-    name = "sample_font.ttf",
+val BASIC_MEASURE_FONT = font(
+    resId = R.font.sample_font,
     weight = FontWeight.Normal,
     style = FontStyle.Normal
 )
@@ -1590,12 +1593,9 @@ class TextSelectionDelegateTest {
 
 class TestFontResourceLoader(val context: Context) : Font.ResourceLoader {
     override fun load(font: Font): Typeface {
-        val resId = context.resources.getIdentifier(
-            font.name.substringBefore("."),
-            "font",
-            context.packageName
-        )
-
-        return ResourcesCompat.getFont(context, resId)!!
+        return when (font) {
+            is ResourceFont -> ResourcesCompat.getFont(context, font.resId)!!
+            else -> throw IllegalArgumentException("Unknown font type: $font")
+        }
     }
 }

@@ -23,6 +23,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class FontFamilyTest {
 
+    private val dummyResourceId1 = 1
+    private val dummyResourceId2 = 2
+
     @Test(expected = AssertionError::class)
     fun `cannot be instantiated with empty font list`() {
         FontFamily(listOf())
@@ -31,16 +34,16 @@ class FontFamilyTest {
     @Test
     fun `two equal family declarations are equal`() {
         val fontFamily = FontFamily(
-            Font(
-                name = "fontName",
+            font(
+                resId = dummyResourceId1,
                 weight = FontWeight.W900,
                 style = FontStyle.Italic
             )
         )
 
         val otherFontFamily = FontFamily(
-            Font(
-                name = "fontName",
+            font(
+                resId = dummyResourceId1,
                 weight = FontWeight.W900,
                 style = FontStyle.Italic
             )
@@ -52,16 +55,16 @@ class FontFamilyTest {
     @Test
     fun `two non equal family declarations are not equal`() {
         val fontFamily = FontFamily(
-            Font(
-                name = "fontName",
+            font(
+                resId = dummyResourceId1,
                 weight = FontWeight.W900,
                 style = FontStyle.Italic
             )
         )
 
         val otherFontFamily = FontFamily(
-            Font(
-                name = "fontName",
+            font(
+                resId = dummyResourceId1,
                 weight = FontWeight.W800,
                 style = FontStyle.Italic
             )
@@ -73,13 +76,13 @@ class FontFamilyTest {
     @Test(expected = AssertionError::class)
     fun `cannot add two fonts that have the same FontWeight and FontStyle`() {
         FontFamily(
-            Font(
-                name = "fontName1",
+            font(
+                resId = dummyResourceId1,
                 weight = FontWeight.W900,
                 style = FontStyle.Italic
             ),
-            Font(
-                name = "fontName2",
+            font(
+                resId = dummyResourceId2,
                 weight = FontWeight.W900,
                 style = FontStyle.Italic
             )

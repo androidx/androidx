@@ -595,15 +595,11 @@ package androidx.ui.text {
 
 package androidx.ui.text.font {
 
-  public final class Font {
-    ctor public Font(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
-    method public String component1();
-    method public androidx.ui.text.font.FontWeight component2();
-    method public androidx.ui.text.font.FontStyle component3();
-    method public androidx.ui.text.font.Font copy(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
-    method public String getName();
+  public interface Font {
     method public androidx.ui.text.font.FontStyle getStyle();
     method public androidx.ui.text.font.FontWeight getWeight();
+    property public abstract androidx.ui.text.font.FontStyle style;
+    property public abstract androidx.ui.text.font.FontWeight weight;
   }
 
   public static interface Font.ResourceLoader {
@@ -613,13 +609,13 @@ package androidx.ui.text.font {
   public final class FontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
     ctor public FontFamily(String genericFamily);
     ctor public FontFamily(androidx.ui.text.font.Font font);
-    ctor public FontFamily(java.util.List<androidx.ui.text.font.Font> fonts);
+    ctor public FontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     ctor public FontFamily(androidx.ui.text.font.Font... fonts);
     method public String? component1();
     method public java.util.List<androidx.ui.text.font.Font> component2();
     method public boolean contains(androidx.ui.text.font.Font element);
     method public boolean containsAll(java.util.Collection<?> elements);
-    method public androidx.ui.text.font.FontFamily copy(String? genericFamily, java.util.List<androidx.ui.text.font.Font> fonts);
+    method public androidx.ui.text.font.FontFamily copy(String? genericFamily, java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public androidx.ui.text.font.Font get(int index);
     method public java.util.List<androidx.ui.text.font.Font> getFonts();
     method public String? getGenericFamily();
@@ -647,6 +643,7 @@ package androidx.ui.text.font {
 
   public final class FontKt {
     method public static androidx.ui.text.font.FontFamily asFontFamily(androidx.ui.text.font.Font);
+    method public static androidx.ui.text.font.Font font(int resId, androidx.ui.text.font.FontWeight weight = FontWeight.Normal, androidx.ui.text.font.FontStyle style = androidx.ui.text.font.FontStyle.Normal);
   }
 
   public enum FontStyle {
@@ -694,6 +691,17 @@ package androidx.ui.text.font {
 
   public final class FontWeightKt {
     method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
+  }
+
+  public final class ResourceFont implements androidx.ui.text.font.Font {
+    ctor public ResourceFont(int resId, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
+    method public int component1();
+    method public androidx.ui.text.font.FontWeight component2();
+    method public androidx.ui.text.font.FontStyle component3();
+    method public androidx.ui.text.font.ResourceFont copy(int resId, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
+    method public int getResId();
+    method public androidx.ui.text.font.FontStyle getStyle();
+    method public androidx.ui.text.font.FontWeight getWeight();
   }
 
 }

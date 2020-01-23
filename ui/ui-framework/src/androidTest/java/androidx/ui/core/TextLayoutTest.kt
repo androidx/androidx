@@ -19,9 +19,10 @@ package androidx.ui.core
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.framework.test.R
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.Font
+import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
@@ -48,8 +49,8 @@ import java.util.concurrent.TimeUnit
 class TextLayoutTest {
     @get:Rule
     internal val activityTestRule = ActivityTestRule(TestActivity::class.java)
-    private val fontFamily = Font(
-        name = "sample_font.ttf",
+    private val fontFamily = font(
+        resId = R.font.sample_font,
         weight = FontWeight.Normal,
         style = FontStyle.Normal
     ).asFontFamily()
