@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.navigation.dynamicfeatures.activity
+package androidx.navigation.dynamicfeatures
 
 import android.app.Activity
 import android.content.Intent
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NoOpNavigator
-import androidx.navigation.dynamicfeatures.DynamicInstallManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
