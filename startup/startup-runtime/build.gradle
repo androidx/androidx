@@ -38,9 +38,9 @@ android {
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
     implementation("androidx.annotation:annotation:1.1.0")
     lintPublish(project(':startup:startup-runtime-lint'))
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
