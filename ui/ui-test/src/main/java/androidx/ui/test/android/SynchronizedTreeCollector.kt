@@ -63,9 +63,6 @@ internal object SynchronizedTreeCollector {
             throw IllegalArgumentException("No root views found. Is your Activity resumed?")
         }
 
-        // TODO(jellefresen): the semantic tree providers may originate from multiple roots, but
-        //  we only use one context. Find out if this can cause problems, e.g., if different
-        //  roots have different contexts.
         val semanticTreeProviders = rootForwarder.collectSemanticTreeProviders()
         if (semanticTreeProviders.isEmpty()) {
             throw IllegalArgumentException(
@@ -145,22 +142,6 @@ internal object SynchronizedTreeCollector {
  * be interacting with several Compose roots.
  */
 internal data class CollectedProviders(val treeProviders: Set<SemanticsTreeProvider>) {
-    val activity: Activity
-        get() {
-            treeProviders.forEach {
-                if (it is View) {
-                    val activity = it.context.activity
-                    if (activity != null) {
-                        return activity
-                    }
-                }
-            }
-            throw AssertionError(
-                "Out of ${treeProviders.size} SemanticsTreeProviders, none were attached to an " +
-                        "Activity"
-            )
-        }
-
     // Recursively search for the Activity context through (possible) ContextWrappers
     private val Context.activity: Activity?
         get() {
@@ -170,6 +151,20 @@ internal data class CollectedProviders(val treeProviders: Set<SemanticsTreeProvi
                 else -> null
             }
         }
+
+    fun findActivity(): Activity {
+        treeProviders.forEach {
+            if (it is View) {
+                val activity = it.context.activity
+                if (activity != null) {
+                    return activity
+                }
+            }
+        }
+        throw AssertionError(
+            "Out of ${treeProviders.size} SemanticsTreeProviders, none were attached to an Activity"
+        )
+    }
 
     fun getAllSemanticNodes(): List<SemanticsNode> {
         // TODO(pavlis): Once we have a tree support we will just add a fake root parent here

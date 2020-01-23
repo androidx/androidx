@@ -74,7 +74,7 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 
     override fun isInScreenBounds(rectangle: PxBounds): Boolean {
         val displayMetrics = SynchronizedTreeCollector.collectSemanticsProviders()
-            .activity
+            .findActivity()
             .resources
             .displayMetrics
 
@@ -97,7 +97,7 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
             throw AssertionError("The required node is no longer in the tree!")
         }
 
-        val window = collectedInfo.activity.window
+        val window = collectedInfo.findActivity().window
 
         // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
 
