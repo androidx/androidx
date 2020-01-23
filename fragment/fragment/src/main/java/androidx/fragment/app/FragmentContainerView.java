@@ -81,7 +81,7 @@ import java.util.ArrayList;
  * <p>FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
  * LinearLayout, etc) outside of Fragment use cases.
  *
- * <p>FragmentContainerView will only allow views to returned by a Fragment's
+ * <p>FragmentContainerView will only allow views returned by a Fragment's
  * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any other
  * view will result in an {@link IllegalStateException}.
  *
@@ -264,7 +264,7 @@ public final class FragmentContainerView extends FrameLayout {
     }
 
     /**
-     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * <p>FragmentContainerView will only allow views returned by a Fragment's
      * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
      *  other view will result in an {@link IllegalStateException}.
      *
@@ -281,7 +281,7 @@ public final class FragmentContainerView extends FrameLayout {
     }
 
     /**
-     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * <p>FragmentContainerView will only allow views returned by a Fragment's
      * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
      *  other view will result in an {@link IllegalStateException}.
      *
