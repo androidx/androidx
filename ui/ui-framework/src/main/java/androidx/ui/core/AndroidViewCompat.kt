@@ -17,6 +17,8 @@
 package androidx.ui.core
 
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
@@ -58,16 +60,14 @@ private fun View.toComponentNode(): ComponentNode {
             constraints: Constraints
         ): MeasureScope.LayoutResult {
             if (constraints.minWidth != 0.ipx) {
-                minimumHeight = constraints.minWidth.value
+                minimumWidth = constraints.minWidth.value
             }
             if (constraints.minHeight != 0.ipx) {
                 minimumHeight = constraints.minHeight.value
             }
-            // TODO(popam): look at the layout params of the child
-
             measure(
-                obtainMeasureSpec(constraints.minWidth, constraints.maxWidth),
-                obtainMeasureSpec(constraints.minHeight, constraints.maxHeight)
+                obtainMeasureSpec(constraints.minWidth, constraints.maxWidth, layoutParams.width),
+                obtainMeasureSpec(constraints.minHeight, constraints.maxHeight, layoutParams.height)
             )
             return measureScope.layout(measuredWidth.ipx, measuredHeight.ipx) {
                 layout(
@@ -82,15 +82,33 @@ private fun View.toComponentNode(): ComponentNode {
     return layoutNode
 }
 
+/**
+ * Intersects [Constraints] and [View] LayoutParams to obtain the suitable [View.MeasureSpec]
+ * for measuring the [View].
+ */
 private fun obtainMeasureSpec(
     min: IntPx,
-    max: IntPx
-): Int {
-    return if (min == max) {
-        View.MeasureSpec.makeMeasureSpec(max.value, View.MeasureSpec.EXACTLY)
-    } else if (max.isFinite()) {
+    max: IntPx,
+    preferred: Int
+): Int = when {
+    preferred >= 0 || min == max -> {
+        // Fixed size due to fixed size layout param or fixed constraints.
+        View.MeasureSpec.makeMeasureSpec(
+            preferred.coerceIn(min.value, max.value),
+            View.MeasureSpec.EXACTLY
+        )
+    }
+    preferred == WRAP_CONTENT && max.isFinite() -> {
+        // Wrap content layout param with finite max constraint. If max constraint is infinite,
+        // we will measure the child with UNSPECIFIED.
         View.MeasureSpec.makeMeasureSpec(max.value, View.MeasureSpec.AT_MOST)
-    } else {
+    }
+    preferred == MATCH_PARENT && max.isFinite() -> {
+        // Match parent layout param, so we force the child to fill the available space.
+        View.MeasureSpec.makeMeasureSpec(max.value, View.MeasureSpec.EXACTLY)
+    }
+    else -> {
+        // max constraint is infinite and layout param is WRAP_CONTENT or MATCH_PARENT.
         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
     }
 }

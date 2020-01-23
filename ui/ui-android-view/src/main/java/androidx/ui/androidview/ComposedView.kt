@@ -19,7 +19,8 @@ package androidx.ui.androidview
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.FrameLayout
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.LayoutRes
 import androidx.compose.Composable
 
@@ -40,7 +41,7 @@ fun AndroidView(@LayoutRes resId: Int, postInflationCallback: (View) -> Unit = {
     )
 }
 
-private class AndroidViewHolder(context: Context) : FrameLayout(context) {
+private class AndroidViewHolder(context: Context) : ViewGroup(context) {
     var view: View? = null
         set(value) {
             if (value != field) {
@@ -57,10 +58,22 @@ private class AndroidViewHolder(context: Context) : FrameLayout(context) {
             if (value != field) {
                 field = value
                 val inflater = LayoutInflater.from(context)
-                // TODO(popam): handle layout params
-                val view = inflater.inflate(resId!!, null)
+                val view = inflater.inflate(resId!!, this, false)
                 this.view = view
                 postInflationCallback(view)
             }
         }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        view?.measure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(view?.measuredWidth ?: 0, view?.measuredHeight ?: 0)
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        view?.layout(l, t, r, b)
+    }
+
+    override fun getLayoutParams(): LayoutParams? {
+        return view?.layoutParams ?: LayoutParams(MATCH_PARENT, MATCH_PARENT)
+    }
 }
