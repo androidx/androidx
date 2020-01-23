@@ -75,7 +75,7 @@ import kotlin.math.roundToInt
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidComposeView constructor(context: Context) :
-    ViewGroup(context), Owner, SemanticsTreeProvider, DensityScope {
+    ViewGroup(context), AndroidOwner, SemanticsTreeProvider, DensityScope {
     override var density: Density = Density(context)
         private set
 
@@ -221,6 +221,13 @@ class AndroidComposeView constructor(context: Context) :
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
         // ownerScope.launch {
         invalidateRepaintBoundary(drawNode)
+        // }
+    }
+
+    override fun onInvalidate(layoutNode: LayoutNode) {
+        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
+        // ownerScope.launch {
+        invalidateRepaintBoundary(layoutNode)
         // }
     }
 
@@ -409,6 +416,20 @@ class AndroidComposeView constructor(context: Context) :
             }
         }
         modelObserver.clear(node)
+    }
+
+    private val androidViewsHandler by lazy(LazyThreadSafetyMode.NONE) {
+        AndroidViewsHandler(context).also { addView(it) }
+    }
+
+    override fun addAndroidView(view: View, layoutNode: LayoutNode) {
+        androidViewsHandler.addView(view)
+        androidViewsHandler.layoutNode[view] = layoutNode
+    }
+
+    override fun removeAndroidView(view: View) {
+        androidViewsHandler.removeView(view)
+        androidViewsHandler.layoutNode.remove(view)
     }
 
     /**
@@ -874,6 +895,24 @@ class AndroidComposeView constructor(context: Context) :
             ) = error("Undefined intrinsics block and it is required")
         }
     }
+}
+
+/**
+ * Interface to be implemented by [Owner]s able to handle Android [View]s as part of
+ * their hierarchy.
+ */
+interface AndroidOwner : Owner {
+    /**
+     * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
+     * to the hierarchy.
+     */
+    fun addAndroidView(view: View, layoutNode: LayoutNode)
+
+    /**
+     * Called to inform the owner that an Android [View] was [detached][Owner.onDetach]
+     * from the hierarchy.
+     */
+    fun removeAndroidView(view: View)
 }
 
 private class ConstraintRange(val min: IntPx, val max: IntPx)

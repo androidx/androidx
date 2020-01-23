@@ -1,6 +1,9 @@
 // Signature format: 3.0
 package androidx.ui.core {
 
+  public final class AndroidViewCompatKt {
+  }
+
   public final class ClipKt {
     method public static inline void Clip(androidx.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
