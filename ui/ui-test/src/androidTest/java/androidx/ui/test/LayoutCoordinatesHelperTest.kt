@@ -17,7 +17,9 @@
 package androidx.ui.test
 
 import androidx.test.filters.MediumTest
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.OnPositioned
 import androidx.ui.core.WithDensity
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -45,11 +47,17 @@ class LayoutCoordinatesHelperTest {
 
     @Test
     fun positionInParent_noOffset() {
-        val latch = CountDownLatch(1)
+        val latch = CountDownLatch(2)
+        var parentCoordinates: LayoutCoordinates? = null
+        var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
             Column {
+                OnPositioned { coordinates ->
+                    parentCoordinates = coordinates
+                    latch.countDown()
+                }
                 OnChildPositioned(onPositioned = { coordinates ->
-                    assertEquals(PxPosition.Origin, coordinates.positionInParent)
+                    childCoordinates = coordinates
                     latch.countDown()
                 }) {
                     Container(width = 10.dp, height = 10.dp, modifier = LayoutGravity.Start) {}
@@ -58,17 +66,25 @@ class LayoutCoordinatesHelperTest {
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(PxPosition.Origin,
+            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin))
     }
 
     @Test
     fun positionInParent_centered() {
-        val latch = CountDownLatch(1)
+        val latch = CountDownLatch(2)
+        var parentCoordinates: LayoutCoordinates? = null
+        var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
             WithDensity {
                 Container(LayoutWidth(40.ipx.toDp())) {
                     Column(LayoutWidth(20.ipx.toDp())) {
+                        OnPositioned { coordinates ->
+                            parentCoordinates = coordinates
+                            latch.countDown()
+                        }
                         OnChildPositioned(onPositioned = { coordinates ->
-                            assertEquals(PxPosition(5.px, 0.px), coordinates.positionInParent)
+                            childCoordinates = coordinates
                             latch.countDown()
                         }) {
                             Container(
@@ -83,5 +99,7 @@ class LayoutCoordinatesHelperTest {
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(PxPosition(5.px, 0.px),
+            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin))
     }
 }
