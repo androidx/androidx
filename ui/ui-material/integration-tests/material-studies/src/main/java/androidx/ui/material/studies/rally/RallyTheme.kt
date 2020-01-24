@@ -22,7 +22,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
 import androidx.ui.material.lightColorPalette
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.em
 import androidx.ui.unit.sp
@@ -44,43 +44,43 @@ fun RallyTheme(children: @Composable() () -> Unit) {
         onBackground = Color.White
     )
     val typography = Typography(
-        h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        h1 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W100,
             fontSize = 96.sp),
-        h2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        h2 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W100,
             fontSize = 60.sp),
-        h3 = TextStyle(fontFamily = FontFamily("Eczar"),
+        h3 = TextStyle(fontFamily = fontFamily("Eczar"),
             fontWeight = FontWeight.W500,
             fontSize = 48.sp),
-        h4 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        h4 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W700,
             fontSize = 34.sp),
-        h5 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        h5 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W700,
             fontSize = 24.sp),
-        h6 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        h6 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W700,
             fontSize = 20.sp),
-        subtitle1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        subtitle1 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W700,
             fontSize = 16.sp),
-        subtitle2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        subtitle2 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W500,
             fontSize = 14.sp),
-        body1 = TextStyle(fontFamily = FontFamily("Eczar"),
+        body1 = TextStyle(fontFamily = fontFamily("Eczar"),
             fontWeight = FontWeight.W700,
             fontSize = 16.sp),
-        body2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        body2 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W200,
             fontSize = 14.sp),
-        button = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        button = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W800,
             fontSize = 14.sp),
-        caption = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        caption = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W500,
             fontSize = 12.sp),
-        overline = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+        overline = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W500,
             fontSize = 10.sp)
 
@@ -98,7 +98,7 @@ fun RallyDialogThemeOverlay(children: @Composable() () -> Unit) {
     val currentTypography = MaterialTheme.typography()
     val dialogTypography = currentTypography.copy(
         body1 = currentTypography.body1.copy(
-            fontFamily = FontFamily("RobotoCondensed"),
+            fontFamily = fontFamily("RobotoCondensed"),
             fontWeight = FontWeight.Normal,
             fontSize = 20.sp
         ),

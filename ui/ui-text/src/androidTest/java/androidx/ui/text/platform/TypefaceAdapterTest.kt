@@ -40,7 +40,7 @@ import androidx.ui.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_900_REGULAR
 import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.font.font
-import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontMatcher
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -108,8 +108,8 @@ class TypefaceAdapterTest {
 
     @Test
     fun serifAndSansSerifPaintsDifferent() {
-        val typefaceSans = TypefaceAdapter().create(FontFamily("sans-serif"))
-        val typefaceSerif = TypefaceAdapter().create(FontFamily("serif"))
+        val typefaceSans = TypefaceAdapter().create(fontFamily("sans-serif"))
+        val typefaceSerif = TypefaceAdapter().create(fontFamily("serif"))
 
         assertThat(typefaceSans).isNotNull()
         assertThat(typefaceSans).isNotNull()
@@ -266,8 +266,8 @@ class TypefaceAdapterTest {
     }
 
     @Test
-    fun customSingleFontFamilyExactMatch() {
-        val fontFamily = FontFamily(
+    fun customSinglefontFamilyExactMatch() {
+        val fontFamily = fontFamily(
             FONT_100_REGULAR,
             FONT_100_ITALIC,
             FONT_200_REGULAR,
@@ -304,12 +304,12 @@ class TypefaceAdapterTest {
 
     @Test
     fun fontMatcherCalledForCustomFont() {
-        // customSingleFontFamilyExactMatch tests all the possible outcomes that FontMatcher
+        // customSinglefontFamilyExactMatch tests all the possible outcomes that FontMatcher
         // might return. Therefore for the best effort matching we just make sure that FontMatcher
         // is called.
         val fontWeight = FontWeight.W300
         val fontStyle = FontStyle.Italic
-        val fontFamily = FontFamily(FONT_200_ITALIC)
+        val fontFamily = fontFamily(FONT_200_ITALIC)
 
         val fontMatcher = mock<FontMatcher>()
         whenever(fontMatcher.matchFont(any(), any(), any()))
@@ -364,7 +364,7 @@ class TypefaceAdapterTest {
 
     @Test
     fun resultsAreCached_withCustomTypeface() {
-        val fontFamily = FontFamily("sans-serif")
+        val fontFamily = fontFamily("sans-serif")
         val fontWeight = FontWeight.Normal
         val fontStyle = FontStyle.Italic
 
@@ -379,10 +379,10 @@ class TypefaceAdapterTest {
     fun cacheCanHoldTwoResults() {
         val typefaceAdapter = TypefaceAdapter()
 
-        val serifTypeface = typefaceAdapter.create(FontFamily("serif"))
-        val otherSerifTypeface = typefaceAdapter.create(FontFamily("serif"))
-        val sansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
-        val otherSansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
+        val serifTypeface = typefaceAdapter.create(fontFamily("serif"))
+        val otherSerifTypeface = typefaceAdapter.create(fontFamily("serif"))
+        val sansTypeface = typefaceAdapter.create(fontFamily("sans-serif"))
+        val otherSansTypeface = typefaceAdapter.create(fontFamily("sans-serif"))
 
         assertThat(serifTypeface).isSameInstanceAs(otherSerifTypeface)
         assertThat(sansTypeface).isSameInstanceAs(otherSansTypeface)
@@ -391,15 +391,13 @@ class TypefaceAdapterTest {
 
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotIncludedInTheApp() {
-        val fontFamily = FontFamily(font(-1))
-
+        val fontFamily = fontFamily(font(-1))
         TypefaceAdapter().create(fontFamily)
     }
 
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotReadable() {
-        val fontFamily = FontFamily(font(R.font.invalid_font))
-
+        val fontFamily = fontFamily(font(R.font.invalid_font))
         TypefaceAdapter().create(fontFamily)
     }
 

@@ -87,6 +87,4 @@ fun font(
 /**
  * Create a [FontFamily] from this single [font].
  */
-fun Font.asFontFamily(): FontFamily {
-    return FontFamily(this)
-}
+fun Font.asFontFamily() = fontFamily(this)
