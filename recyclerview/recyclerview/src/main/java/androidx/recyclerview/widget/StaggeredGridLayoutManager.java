@@ -151,13 +151,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     int mPendingScrollPositionOffset = INVALID_OFFSET;
 
     /**
-     * Set if {@link #scrollToPosition(int)} or its variants is called. Even if the state is
-     * restored lazily, we'll ignore the saved state because we'll have different span information
-     * and other state cannot be used anymore.
-     */
-    private boolean mIgnoreSavedStatePositions = false;
-
-    /**
      * Keeps the mapping between the adapter positions and spans. This is necessary to provide
      * a consistent experience when user scrolls the list.
      */
@@ -1227,10 +1220,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof SavedState) {
             mPendingSavedState = (SavedState) state;
-            if (mIgnoreSavedStatePositions) {
-                mPendingSavedState.invalidateAnchorPositionInfo();
-                mPendingSavedState.invalidateSpanInfo();
-            }
             requestLayout();
         } else if (DEBUG) {
             Log.d(TAG, "invalid saved state class");
@@ -2051,7 +2040,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         }
         mPendingScrollPosition = position;
         mPendingScrollPositionOffset = INVALID_OFFSET;
-        mIgnoreSavedStatePositions = true;
         requestLayout();
     }
 
@@ -2074,7 +2062,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         }
         mPendingScrollPosition = position;
         mPendingScrollPositionOffset = offset;
-        mIgnoreSavedStatePositions = true;
         requestLayout();
     }
 

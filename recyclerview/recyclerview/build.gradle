@@ -22,7 +22,6 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(TRUTH)
     androidTestImplementation(JUNIT)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(project(":internal-testutils-espresso"))
