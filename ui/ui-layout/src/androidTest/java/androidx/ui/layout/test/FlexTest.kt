@@ -49,9 +49,8 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.Px
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -60,7 +59,7 @@ import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import androidx.ui.unit.withDensity
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Ignore
@@ -80,7 +79,7 @@ class FlexTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
+        val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
             Container(alignment = Alignment.TopLeft) {
@@ -108,9 +107,9 @@ class FlexTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(size, size), childSize[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
+            IntPxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -124,7 +123,7 @@ class FlexTest : LayoutTest() {
         val childrenHeight = height.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOfNulls<PxSize>(2)
+        val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
             Container(alignment = Alignment.TopLeft) {
@@ -154,11 +153,11 @@ class FlexTest : LayoutTest() {
         val rootWidth = root.width.px
 
         assertEquals(
-            PxSize((rootWidth / 3).round().toPx(), childrenHeight.toPx()),
+            IntPxSize((rootWidth / 3).round(), childrenHeight),
             childSize[0]
         )
         assertEquals(
-            PxSize((rootWidth * 2 / 3).round().toPx(), childrenHeight.toPx()),
+            IntPxSize((rootWidth * 2 / 3).round(), childrenHeight),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -173,7 +172,7 @@ class FlexTest : LayoutTest() {
         val childrenHeight = height.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOfNulls<PxSize>(2)
+        val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
             Container(alignment = Alignment.TopLeft) {
@@ -209,10 +208,8 @@ class FlexTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(childrenWidth.toPx(), childrenHeight.toPx()), childSize[0])
-        assertEquals(
-            PxSize(childrenWidth.toPx(), (childrenHeight.toPx() * 2).round().toPx()), childSize[1]
-        )
+        assertEquals(IntPxSize(childrenWidth, childrenHeight), childSize[0])
+        assertEquals(IntPxSize(childrenWidth, childrenHeight * 2), childSize[1])
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
         assertEquals(PxPosition(childrenWidth.toPx(), 0.px), childPosition[1])
     }
@@ -223,7 +220,7 @@ class FlexTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
+        val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
             Container(alignment = Alignment.TopLeft) {
@@ -250,9 +247,9 @@ class FlexTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(size, size), childSize[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
+            IntPxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -266,7 +263,7 @@ class FlexTest : LayoutTest() {
         val height = 50.dp
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOfNulls<PxSize>(2)
+        val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
             Container(alignment = Alignment.TopLeft) {
@@ -296,10 +293,10 @@ class FlexTest : LayoutTest() {
         val rootHeight = root.height.px
 
         assertEquals(
-            PxSize(childrenWidth.toPx(), (rootHeight / 3).round().toPx()), childSize[0]
+            IntPxSize(childrenWidth, (rootHeight / 3).round()), childSize[0]
         )
         assertEquals(
-            PxSize(childrenWidth.toPx(), (rootHeight * 2 / 3).round().toPx()), childSize[1]
+            IntPxSize(childrenWidth, (rootHeight * 2 / 3).round()), childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
         assertEquals(PxPosition(0.px, (rootHeight / 3).round().toPx()), childPosition[1])
@@ -313,7 +310,7 @@ class FlexTest : LayoutTest() {
         val childrenHeight = height.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOfNulls<PxSize>(2)
+        val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
             Container(alignment = Alignment.TopLeft) {
@@ -340,9 +337,9 @@ class FlexTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(childrenWidth.toPx(), childrenHeight.toPx()), childSize[0])
+        assertEquals(IntPxSize(childrenWidth, childrenHeight), childSize[0])
         assertEquals(
-            PxSize(childrenWidth.toPx(), childrenHeight.toPx()), childSize[1]
+            IntPxSize(childrenWidth, childrenHeight), childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
         assertEquals(PxPosition(0.px, childrenHeight.toPx()), childPosition[1])
@@ -350,10 +347,10 @@ class FlexTest : LayoutTest() {
 
     @Test
     fun testRow_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = withDensity(density) {
-        val expectedRowWidth = 11.px
+        val expectedRowWidth = 11.ipx
         val leftPadding = 1.px
-        var rowWidth = 0.px
-        val width = Array(2) { 0.px }
+        var rowWidth = 0.ipx
+        val width = Array(2) { 0.ipx }
         val x = Array(2) { 0.px }
         val latch = CountDownLatch(2)
         show {
@@ -381,18 +378,18 @@ class FlexTest : LayoutTest() {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
-        Assert.assertEquals(expectedRowWidth, rowWidth)
-        Assert.assertEquals(leftPadding, x[0])
-        Assert.assertEquals(leftPadding + width[0], x[1])
-        Assert.assertEquals(rowWidth, width[0] + width[1])
+        assertEquals(expectedRowWidth, rowWidth)
+        assertEquals(leftPadding, x[0])
+        assertEquals(leftPadding + width[0], x[1])
+        assertEquals(rowWidth, width[0] + width[1])
     }
 
     @Test
     fun testRow_isNotLargerThanItsChildren_becauseOfRoundings() = withDensity(density) {
-        val expectedRowWidth = 8.px
+        val expectedRowWidth = 8.ipx
         val leftPadding = 1.px
-        var rowWidth = 0.px
-        val width = Array(3) { 0.px }
+        var rowWidth = 0.ipx
+        val width = Array(3) { 0.ipx }
         val x = Array(3) { 0.px }
         val latch = CountDownLatch(3)
         show {
@@ -427,19 +424,19 @@ class FlexTest : LayoutTest() {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
-        Assert.assertEquals(expectedRowWidth, rowWidth)
-        Assert.assertEquals(leftPadding, x[0])
-        Assert.assertEquals(leftPadding + width[0], x[1])
-        Assert.assertEquals(leftPadding + width[0] + width[1], x[2])
-        Assert.assertEquals(rowWidth, width[0] + width[1] + width[2])
+        assertEquals(expectedRowWidth, rowWidth)
+        assertEquals(leftPadding, x[0])
+        assertEquals(leftPadding + width[0], x[1])
+        assertEquals(leftPadding + width[0] + width[1], x[2])
+        assertEquals(rowWidth, width[0] + width[1] + width[2])
     }
 
     @Test
     fun testColumn_isNotLargetThanItsChildren_becauseOfRoundings() = withDensity(density) {
-        val expectedColumnHeight = 8.px
+        val expectedColumnHeight = 8.ipx
         val topPadding = 1.px
-        var columnHeight = 0.px
-        val height = Array(3) { 0.px }
+        var columnHeight = 0.ipx
+        val height = Array(3) { 0.ipx }
         val y = Array(3) { 0.px }
         val latch = CountDownLatch(3)
         show {
@@ -474,19 +471,19 @@ class FlexTest : LayoutTest() {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
-        Assert.assertEquals(expectedColumnHeight, columnHeight)
-        Assert.assertEquals(topPadding, y[0])
-        Assert.assertEquals(topPadding + height[0], y[1])
-        Assert.assertEquals(topPadding + height[0] + height[1], y[2])
-        Assert.assertEquals(columnHeight, height[0] + height[1] + height[2])
+        assertEquals(expectedColumnHeight, columnHeight)
+        assertEquals(topPadding, y[0])
+        assertEquals(topPadding + height[0], y[1])
+        assertEquals(topPadding + height[0] + height[1], y[2])
+        assertEquals(columnHeight, height[0] + height[1] + height[2])
     }
 
     @Test
     fun testColumn_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = withDensity(density) {
-        val expectedColumnHeight = 11.px
+        val expectedColumnHeight = 11.ipx
         val topPadding = 1.px
-        var columnHeight = 0.px
-        val height = Array(2) { 0.px }
+        var columnHeight = 0.ipx
+        val height = Array(2) { 0.ipx }
         val y = Array(2) { 0.px }
         val latch = CountDownLatch(2)
         show {
@@ -514,10 +511,10 @@ class FlexTest : LayoutTest() {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
-        Assert.assertEquals(expectedColumnHeight, columnHeight)
-        Assert.assertEquals(topPadding, y[0])
-        Assert.assertEquals(topPadding + height[0], y[1])
-        Assert.assertEquals(columnHeight, height[0] + height[1])
+        assertEquals(expectedColumnHeight, columnHeight)
+        assertEquals(topPadding, y[0])
+        assertEquals(topPadding + height[0], y[1])
+        assertEquals(columnHeight, height[0] + height[1])
     }
 
     // endregion
@@ -529,7 +526,7 @@ class FlexTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
+        val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
             Align(Alignment.CenterLeft) {
@@ -561,9 +558,9 @@ class FlexTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(size.toPx(), root.height.px), childSize[0])
+        assertEquals(IntPxSize(size, root.height.ipx), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx() * 2).round().toPx(), root.height.px),
+            IntPxSize((sizeDp.toPx() * 2).round(), root.height.ipx),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -576,7 +573,7 @@ class FlexTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(3)
-        val childSize = arrayOfNulls<PxSize>(3)
+        val childSize = arrayOfNulls<IntPxSize>(3)
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
             Align(Alignment.TopLeft) {
@@ -611,16 +608,16 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
         val rootHeight = root.height.px
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[1])
+        assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
             PxPosition(size.toPx(), ((rootHeight - size.toPx()) / 2).round().toPx()),
             childPosition[1]
         )
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
+        assertEquals(IntPxSize(size, size), childSize[2])
         assertEquals(PxPosition(size.toPx() * 2, rootHeight - size.toPx()), childPosition[2])
     }
 
@@ -634,7 +631,7 @@ class FlexTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
-        val childSize = arrayOfNulls<PxSize>(4)
+        val childSize = arrayOfNulls<IntPxSize>(4)
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
             Align(Alignment.TopLeft) {
@@ -690,22 +687,22 @@ class FlexTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[1])
+        assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
             PxPosition(size.toPx(), (baseline1 - (size.toPx() / 2).round()).toPx()),
             childPosition[1]
         )
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
+        assertEquals(IntPxSize(size, size), childSize[2])
         assertEquals(
             PxPosition(size.toPx() * 2, (baseline1 - baseline2).toPx()),
             childPosition[2]
         )
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[3])
+        assertEquals(IntPxSize(size, size), childSize[3])
         assertEquals(
             PxPosition(size.toPx() * 3, 0.px),
             childPosition[3]
@@ -720,7 +717,7 @@ class FlexTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
+        val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
             Align(Alignment.TopCenter) {
@@ -750,9 +747,9 @@ class FlexTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px, size.toPx()), childSize[0])
+        assertEquals(IntPxSize(root.width.ipx, size), childSize[0])
         assertEquals(
-            PxSize(root.width.px, (sizeDp.toPx() * 2).round().toPx()),
+            IntPxSize(root.width.ipx, (sizeDp * 2).toIntPx()),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -765,7 +762,7 @@ class FlexTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(3)
-        val childSize = arrayOfNulls<PxSize>(3)
+        val childSize = arrayOfNulls<IntPxSize>(3)
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
             Align(Alignment.TopCenter) {
@@ -800,16 +797,16 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
         val rootWidth = root.width.px
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[1])
+        assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
             PxPosition(((rootWidth - size.toPx()) / 2).round().toPx(), size.toPx()),
             childPosition[1]
         )
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
+        assertEquals(IntPxSize(size, size), childSize[2])
         assertEquals(PxPosition(rootWidth - size.toPx(), size.toPx() * 2), childPosition[2])
     }
 
@@ -821,7 +818,7 @@ class FlexTest : LayoutTest() {
         val firstBaseline2Dp = 30.dp
 
         val drawLatch = CountDownLatch(4)
-        val childSize = arrayOfNulls<PxSize>(4)
+        val childSize = arrayOfNulls<IntPxSize>(4)
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
             Align(Alignment.TopLeft) {
@@ -877,19 +874,19 @@ class FlexTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[1])
+        assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(PxPosition(size.toPx(), size.toPx()), childPosition[1])
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[2])
+        assertEquals(IntPxSize(size, size), childSize[2])
         assertEquals(
             PxPosition((size - firstBaseline1Dp.toIntPx()).toPx(), size.toPx() * 2),
             childPosition[2]
         )
 
-        assertEquals(PxSize(size.toPx(), size.toPx()), childSize[3])
+        assertEquals(IntPxSize(size, size), childSize[3])
         assertEquals(
             PxPosition((size - firstBaseline2Dp.toIntPx()).toPx(), size.toPx() * 3),
             childPosition[3]
@@ -903,7 +900,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 Row(LayoutWidth.Fill) {
@@ -924,7 +921,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             root.width.ipx,
-            rowSize.width.round()
+            rowSize.width
         )
     }
 
@@ -933,7 +930,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 Row {
@@ -954,7 +951,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             (sizeDp * 3).toIntPx(),
-            rowSize.width.round()
+            rowSize.width
         )
     }
 
@@ -963,7 +960,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 Row {
@@ -984,7 +981,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             root.width.ipx,
-            rowSize.width.round()
+            rowSize.width
         )
     }
 
@@ -993,7 +990,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 Row(LayoutHeight.Fill) {
@@ -1014,7 +1011,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             root.height.ipx,
-            rowSize.height.round()
+            rowSize.height
         )
     }
 
@@ -1023,7 +1020,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 Row {
@@ -1044,7 +1041,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             (sizeDp * 2).toIntPx(),
-            rowSize.height.round()
+            rowSize.height
         )
     }
 
@@ -1054,7 +1051,7 @@ class FlexTest : LayoutTest() {
         val rowWidthDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
@@ -1077,7 +1074,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             min(root.width.ipx, rowWidthDp.toIntPx()),
-            rowSize.width.round()
+            rowSize.width
         )
     }
 
@@ -1087,7 +1084,7 @@ class FlexTest : LayoutTest() {
         val rowWidthDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
@@ -1110,7 +1107,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             min(root.width.ipx, rowWidthDp.toIntPx()),
-            rowSize.width.round()
+            rowSize.width
         )
     }
 
@@ -1120,7 +1117,7 @@ class FlexTest : LayoutTest() {
         val rowWidthDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
@@ -1143,7 +1140,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             rowWidthDp.toIntPx(),
-            rowSize.width.round()
+            rowSize.width
         )
     }
 
@@ -1153,7 +1150,7 @@ class FlexTest : LayoutTest() {
         val rowHeightDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
@@ -1176,7 +1173,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             min(root.height.ipx, rowHeightDp.toIntPx()),
-            rowSize.height.round()
+            rowSize.height
         )
     }
 
@@ -1186,7 +1183,7 @@ class FlexTest : LayoutTest() {
         val rowHeightDp = 150.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: PxSize
+        lateinit var rowSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = rowHeightDp)) {
@@ -1209,7 +1206,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             rowHeightDp.toIntPx(),
-            rowSize.height.round()
+            rowSize.height
         )
     }
 
@@ -1222,8 +1219,8 @@ class FlexTest : LayoutTest() {
         val rowWidth = rowWidthDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        lateinit var rowSize: PxSize
-        lateinit var expandedChildSize: PxSize
+        lateinit var rowSize: IntPxSize
+        lateinit var expandedChildSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
@@ -1249,11 +1246,11 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize(rowWidth, size),
+            IntPxSize(rowWidth, size),
             rowSize
         )
         assertEquals(
-            PxSize(rowWidth, size),
+            IntPxSize(rowWidth, size),
             expandedChildSize
         )
     }
@@ -1268,19 +1265,19 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints(minWidth = rowMinWidth)) {
                     Row {
                         WithConstraints { constraints ->
-                            Assert.assertEquals(Constraints(), constraints)
+                            assertEquals(Constraints(), constraints)
                             FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
                         }
                         WithConstraints { constraints ->
-                            Assert.assertEquals(Constraints(), constraints)
+                            assertEquals(Constraints(), constraints)
                             FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
                         }
                         Layout({}, LayoutFlexible(1f)) { _, constraints ->
-                            Assert.assertEquals(
+                            assertEquals(
                                 rowMinWidth.toIntPx() - inflexibleChildWidth.toIntPx() * 2,
                                 constraints.minWidth
                             )
-                            Assert.assertEquals(
+                            assertEquals(
                                 rowMinWidth.toIntPx() - inflexibleChildWidth.toIntPx() * 2,
                                 constraints.maxWidth
                             )
@@ -1313,7 +1310,7 @@ class FlexTest : LayoutTest() {
                 ) {
                     Row {
                         WithConstraints { constraints ->
-                            Assert.assertEquals(
+                            assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
                                     maxHeight = availableHeight.toIntPx()
@@ -1323,7 +1320,7 @@ class FlexTest : LayoutTest() {
                             FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
                         }
                         WithConstraints { constraints ->
-                            Assert.assertEquals(
+                            assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx() - childWidth.toIntPx(),
                                     maxHeight = availableHeight.toIntPx()
@@ -1347,7 +1344,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 Column(LayoutHeight.Fill) {
@@ -1368,7 +1365,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             root.height.ipx,
-            columnSize.height.round()
+            columnSize.height
         )
     }
 
@@ -1377,7 +1374,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 Column {
@@ -1398,7 +1395,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             (sizeDp * 3).toIntPx(),
-            columnSize.height.round()
+            columnSize.height
         )
     }
 
@@ -1407,7 +1404,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 Column {
@@ -1428,7 +1425,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             root.height.ipx,
-            columnSize.height.round()
+            columnSize.height
         )
     }
 
@@ -1437,7 +1434,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 Column(LayoutWidth.Fill) {
@@ -1458,7 +1455,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             root.width.ipx,
-            columnSize.width.round()
+            columnSize.width
         )
     }
 
@@ -1467,7 +1464,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 Column {
@@ -1488,7 +1485,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             (sizeDp * 2).toIntPx(),
-            columnSize.width.round()
+            columnSize.width
         )
     }
 
@@ -1498,7 +1495,7 @@ class FlexTest : LayoutTest() {
         val columnHeightDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
@@ -1521,7 +1518,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             min(root.height.ipx, columnHeightDp.toIntPx()),
-            columnSize.height.round()
+            columnSize.height
         )
     }
 
@@ -1531,7 +1528,7 @@ class FlexTest : LayoutTest() {
         val columnHeightDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
@@ -1554,7 +1551,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             min(root.height.ipx, columnHeightDp.toIntPx()),
-            columnSize.height.round()
+            columnSize.height
         )
     }
 
@@ -1564,7 +1561,7 @@ class FlexTest : LayoutTest() {
         val columnHeightDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
@@ -1587,7 +1584,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             columnHeightDp.toIntPx(),
-            columnSize.height.round()
+            columnSize.height
         )
     }
 
@@ -1597,7 +1594,7 @@ class FlexTest : LayoutTest() {
         val columnWidthDp = 250.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = columnWidthDp)) {
@@ -1620,7 +1617,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             min(root.width.ipx, columnWidthDp.toIntPx()),
-            columnSize.width.round()
+            columnSize.width
         )
     }
 
@@ -1630,7 +1627,7 @@ class FlexTest : LayoutTest() {
         val columnWidthDp = 150.dp
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: PxSize
+        lateinit var columnSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = columnWidthDp)) {
@@ -1653,7 +1650,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(
             columnWidthDp.toIntPx(),
-            columnSize.width.round()
+            columnSize.width
         )
     }
 
@@ -1666,8 +1663,8 @@ class FlexTest : LayoutTest() {
         val columnHeight = columnHeightDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        lateinit var columnSize: PxSize
-        lateinit var expandedChildSize: PxSize
+        lateinit var columnSize: IntPxSize
+        lateinit var expandedChildSize: IntPxSize
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
@@ -1693,11 +1690,11 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize(size, columnHeight),
+            IntPxSize(size, columnHeight),
             columnSize
         )
         assertEquals(
-            PxSize(size, columnHeight),
+            IntPxSize(size, columnHeight),
             expandedChildSize
         )
     }
@@ -1713,11 +1710,11 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints(minHeight = columnMinHeight)) {
                     Column {
                         WithConstraints { constraints ->
-                            Assert.assertEquals(Constraints(), constraints)
+                            assertEquals(Constraints(), constraints)
                             FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
                         }
                         WithConstraints { constraints ->
-                            Assert.assertEquals(Constraints(), constraints)
+                            assertEquals(Constraints(), constraints)
                             FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
                         }
                         Layout({}, LayoutFlexible(1f)) { _, constraints ->
@@ -1757,7 +1754,7 @@ class FlexTest : LayoutTest() {
                 ) {
                     Column {
                         WithConstraints { constraints ->
-                            Assert.assertEquals(
+                            assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
                                     maxHeight = availableHeight.toIntPx()
@@ -1767,7 +1764,7 @@ class FlexTest : LayoutTest() {
                             FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
                         }
                         WithConstraints { constraints ->
-                            Assert.assertEquals(
+                            assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
                                     maxHeight = availableHeight.toIntPx() - childHeight.toIntPx()
@@ -2391,7 +2388,7 @@ class FlexTest : LayoutTest() {
         val childSize = childSizeDp.toIntPx()
 
         val layoutLatch = CountDownLatch(1)
-        val containerSize = Ref<PxSize>()
+        val containerSize = Ref<IntPxSize>()
         show {
             Center {
                 ConstrainedBox(
@@ -2410,7 +2407,7 @@ class FlexTest : LayoutTest() {
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(PxSize(childSize, childSize), containerSize.value)
+        assertEquals(IntPxSize(childSize, childSize), containerSize.value)
     }
 
     @Test
@@ -2420,7 +2417,7 @@ class FlexTest : LayoutTest() {
         val childSize = childSizeDp.toIntPx()
 
         val layoutLatch = CountDownLatch(1)
-        val containerSize = Ref<PxSize>()
+        val containerSize = Ref<IntPxSize>()
         show {
             Center {
                 ConstrainedBox(
@@ -2439,7 +2436,7 @@ class FlexTest : LayoutTest() {
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(PxSize(childSize, childSize), containerSize.value)
+        assertEquals(IntPxSize(childSize, childSize), containerSize.value)
     }
     // endregion
 
@@ -2899,7 +2896,7 @@ class FlexTest : LayoutTest() {
     @Test
     fun testFlexModifiersChain_leftMostWins() = withDensity(density) {
         val positionedLatch = CountDownLatch(1)
-        val containerHeight = Ref<Px>()
+        val containerHeight = Ref<IntPx>()
         val columnHeight = 24.ipx
 
         show {
@@ -2921,13 +2918,13 @@ class FlexTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertNotNull(containerHeight.value)
-        Assert.assertEquals(columnHeight.toPx() * 2 / 3, containerHeight.value)
+        assertEquals(columnHeight * 2 / 3, containerHeight.value)
     }
 
     @Test
     fun testRelativeToSiblingsModifiersChain_leftMostWins() = withDensity(density) {
         val positionedLatch = CountDownLatch(1)
-        val containerSize = Ref<PxSize>()
+        val containerSize = Ref<IntPxSize>()
         val containerPosition = Ref<PxPosition>()
         val size = 40.dp
 

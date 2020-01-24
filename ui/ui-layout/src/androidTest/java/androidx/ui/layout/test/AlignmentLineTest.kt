@@ -23,18 +23,18 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Ref
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
+import androidx.ui.layout.AlignmentLineOffset
+import androidx.ui.layout.CenterAlignmentLine
+import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.Wrap
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import androidx.ui.unit.withDensity
-import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.CenterAlignmentLine
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,8 +54,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30.px.toDp()
         val lineDp = 10.px.toDp()
 
-        val parentSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val parentSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Wrap {
@@ -71,7 +71,7 @@ class AlignmentLineTest : LayoutTest() {
 
         Assert.assertNotNull(parentSize.value)
         Assert.assertEquals(
-            beforeDp.toIntPx().toPx() + afterDp.toIntPx().toPx(),
+            beforeDp.toIntPx() + afterDp.toIntPx(),
             parentSize.value!!.width
         )
         Assert.assertNotNull(childSize.value)
@@ -93,8 +93,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30.px.toDp()
         val lineDp = 10.px.toDp()
 
-        val parentSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val parentSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Wrap {
@@ -111,10 +111,7 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(childSize.value)
         Assert.assertEquals(childSize.value!!.width, parentSize.value!!.width)
         Assert.assertNotNull(parentSize.value)
-        Assert.assertEquals(
-            beforeDp.toIntPx().toPx() + afterDp.toIntPx().toPx(),
-            parentSize.value!!.height
-        )
+        Assert.assertEquals(beforeDp.toIntPx() + afterDp.toIntPx(), parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(0.px, childPosition.value!!.x)
         Assert.assertEquals(
@@ -132,8 +129,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30.px.toDp()
         val lineDp = 10.px.toDp()
 
-        val parentSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val parentSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Wrap {
@@ -164,8 +161,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30.px.toDp()
         val lineDp = 10.px.toDp()
 
-        val parentSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val parentSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Wrap {
@@ -197,8 +194,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 25.px.toDp()
         val lineDp = 10.px.toDp()
 
-        val parentSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val parentSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Wrap {
@@ -219,7 +216,7 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
 
         Assert.assertNotNull(parentSize.value)
-        Assert.assertEquals(maxWidth.toIntPx().toPx(), parentSize.value!!.width)
+        Assert.assertEquals(maxWidth.toIntPx(), parentSize.value!!.width)
         Assert.assertNotNull(childSize.value)
         Assert.assertEquals(childSize.value!!.height, parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
@@ -237,8 +234,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 25.px.toDp()
         val lineDp = 10.px.toDp()
 
-        val parentSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val parentSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Wrap {
@@ -261,7 +258,7 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(childSize.value)
         Assert.assertEquals(childSize.value!!.width, parentSize.value!!.width)
         Assert.assertNotNull(parentSize.value)
-        Assert.assertEquals(maxHeight.toIntPx().toPx(), parentSize.value!!.height)
+        Assert.assertEquals(maxHeight.toIntPx(), parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(0.px, childPosition.value!!.x)
         Assert.assertEquals(5.px, childPosition.value!!.y)
@@ -355,7 +352,7 @@ class AlignmentLineTest : LayoutTest() {
         val childHeight = 40.dp
         val lineDp = 10.dp
 
-        val centerSize = Ref<PxSize>()
+        val centerSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout({
@@ -380,10 +377,10 @@ class AlignmentLineTest : LayoutTest() {
 
         Assert.assertNotNull(centerSize.value)
         Assert.assertEquals(
-            ((childWidth.toIntPx() - lineDp.toIntPx()) * 2).toPx(),
+            ((childWidth.toIntPx() - lineDp.toIntPx()) * 2),
             centerSize.value!!.width
         )
-        Assert.assertEquals(childHeight.toIntPx().toPx(), centerSize.value!!.height)
+        Assert.assertEquals(childHeight.toIntPx(), centerSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(
             (childWidth.toIntPx() - lineDp.toIntPx() * 2).toPx(), childPosition.value!!.x
@@ -399,7 +396,7 @@ class AlignmentLineTest : LayoutTest() {
         val childHeight = 40.dp
         val lineDp = 10.dp
 
-        val centerSize = Ref<PxSize>()
+        val centerSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout({
@@ -423,9 +420,9 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
 
         Assert.assertNotNull(centerSize.value)
-        Assert.assertEquals(childWidth.toIntPx().toPx(), centerSize.value!!.width)
+        Assert.assertEquals(childWidth.toIntPx(), centerSize.value!!.width)
         Assert.assertEquals(
-            ((childHeight.toIntPx() - lineDp.toIntPx()) * 2).toPx(),
+            ((childHeight.toIntPx() - lineDp.toIntPx()) * 2),
             centerSize.value!!.height
         )
         Assert.assertNotNull(childPosition.value)

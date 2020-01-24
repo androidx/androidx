@@ -148,7 +148,7 @@ package androidx.ui.test {
   public final class GestureScopeKt {
     method public static androidx.ui.unit.PxPosition getCenter(androidx.ui.test.GestureScope);
     method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.GestureScope);
-    method public static androidx.ui.unit.PxSize getSize(androidx.ui.test.GestureScope);
+    method public static androidx.ui.unit.IntPxSize getSize(androidx.ui.test.GestureScope);
     method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope);
@@ -168,6 +168,10 @@ package androidx.ui.test {
     method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
     method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,kotlin.Unit> diff);
     method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, String? value = null, androidx.ui.foundation.selection.ToggleableState? toggleableState = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? isSelected = null);
+  }
+
+  public final class LayoutCoordinatesHelperKt {
+    method public static androidx.ui.unit.PxPosition getPositionInParent(androidx.ui.core.LayoutCoordinates);
   }
 
   public final class OutputKt {

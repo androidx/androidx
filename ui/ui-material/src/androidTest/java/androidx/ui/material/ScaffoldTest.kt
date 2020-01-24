@@ -27,10 +27,11 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.positionInParent
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -69,12 +70,12 @@ class ScaffoldTest {
         composeTestRule.setMaterialContent {
             Scaffold {
                 OnChildPositioned({ positioned ->
-                    child1 = positioned.position
+                    child1 = positioned.positionInParent
                 }) {
                     Text("One")
                 }
                 OnChildPositioned({ positioned ->
-                    child2 = positioned.position
+                    child2 = positioned.positionInParent
                 }) {
                     Text("Two")
                 }
@@ -87,13 +88,13 @@ class ScaffoldTest {
     @Test
     fun scaffold_AppbarAndContent_inColumn() {
         lateinit var appbarPosition: PxPosition
-        lateinit var appbarSize: PxSize
+        lateinit var appbarSize: IntPxSize
         lateinit var contentPosition: PxPosition
         composeTestRule.setMaterialContent {
             Scaffold(
                 topAppBar = {
                     OnChildPositioned({ positioned ->
-                        appbarPosition = positioned.localToGlobal(positioned.position)
+                        appbarPosition = positioned.localToGlobal(PxPosition.Origin)
                         appbarSize = positioned.size
                     }) {
                         ColoredRect(Color.Red, height = 50.dp)
@@ -101,7 +102,7 @@ class ScaffoldTest {
                 }
             ) {
                 OnChildPositioned({ positioned ->
-                    contentPosition = positioned.localToGlobal(positioned.position)
+                    contentPosition = positioned.localToGlobal(PxPosition.Origin)
                 }) {
                     ColoredRect(Color.Blue, height = 50.dp)
                 }
@@ -113,14 +114,14 @@ class ScaffoldTest {
     @Test
     fun scaffold_bottomBarAndContent_inStack() {
         lateinit var appbarPosition: PxPosition
-        lateinit var appbarSize: PxSize
+        lateinit var appbarSize: IntPxSize
         lateinit var contentPosition: PxPosition
-        lateinit var contentSize: PxSize
+        lateinit var contentSize: IntPxSize
         composeTestRule.setMaterialContent {
             Scaffold(
                 bottomAppBar = {
                     OnChildPositioned({ positioned ->
-                        appbarPosition = positioned.position
+                        appbarPosition = positioned.positionInParent
                         appbarSize = positioned.size
                     }) {
                         ColoredRect(Color.Red, height = 50.dp)
@@ -128,7 +129,7 @@ class ScaffoldTest {
                 }
             ) {
                 OnChildPositioned({ positioned ->
-                    contentPosition = positioned.position
+                    contentPosition = positioned.positionInParent
                     contentSize = positioned.size
                 }) {
                     ColoredRect(Color.Blue, height = 50.dp)
@@ -152,7 +153,7 @@ class ScaffoldTest {
                         scaffoldState = scaffoldState,
                         drawerContent = {
                             OnChildPositioned({ positioned ->
-                                drawerChildPosition = positioned.position
+                                drawerChildPosition = positioned.positionInParent
                             }) {
                                 ColoredRect(Color.Blue, height = 50.dp)
                             }
@@ -199,7 +200,7 @@ class ScaffoldTest {
                         scaffoldState = scaffoldState,
                         drawerContent = {
                             OnChildPositioned({ positioned ->
-                                drawerChildPosition = positioned.position
+                                drawerChildPosition = positioned.positionInParent
                             }) {
                                 ColoredRect(Color.Blue, height = 50.dp)
                             }
@@ -252,14 +253,14 @@ class ScaffoldTest {
     @Test
     fun scaffold_centerDockedFab_position() {
         lateinit var fabPosition: PxPosition
-        lateinit var fabSize: PxSize
+        lateinit var fabSize: IntPxSize
         lateinit var bottomBarPosition: PxPosition
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
                     OnChildPositioned({ positioned ->
                         fabSize = positioned.size
-                        fabPosition = positioned.localToGlobal(positioned.position)
+                        fabPosition = positioned.localToGlobal(positioned.positionInParent)
                     }) {
                         FloatingActionButton("text")
                     }
@@ -267,7 +268,7 @@ class ScaffoldTest {
                 floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
                 bottomAppBar = {
                     OnChildPositioned({ positioned ->
-                        bottomBarPosition = positioned.localToGlobal(positioned.position)
+                        bottomBarPosition = positioned.localToGlobal(positioned.positionInParent)
                     }) {
                         ColoredRect(Color.Red, height = 100.dp)
                     }
@@ -283,14 +284,14 @@ class ScaffoldTest {
     @Test
     fun scaffold_endDockedFab_position() {
         lateinit var fabPosition: PxPosition
-        lateinit var fabSize: PxSize
+        lateinit var fabSize: IntPxSize
         lateinit var bottomBarPosition: PxPosition
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
                     OnChildPositioned({ positioned ->
                         fabSize = positioned.size
-                        fabPosition = positioned.localToGlobal(positioned.position)
+                        fabPosition = positioned.localToGlobal(positioned.positionInParent)
                     }) {
                         FloatingActionButton("text")
                     }
@@ -298,7 +299,7 @@ class ScaffoldTest {
                 floatingActionButtonPosition = Scaffold.FabPosition.EndDocked,
                 bottomAppBar = {
                     OnChildPositioned({ positioned ->
-                        bottomBarPosition = positioned.localToGlobal(positioned.position)
+                        bottomBarPosition = positioned.localToGlobal(positioned.positionInParent)
                     }) {
                         ColoredRect(Color.Red, height = 100.dp)
                     }

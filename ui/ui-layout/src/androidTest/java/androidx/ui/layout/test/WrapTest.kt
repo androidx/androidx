@@ -34,11 +34,12 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWrapped
 import androidx.ui.layout.Wrap
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import androidx.ui.unit.withDensity
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -54,8 +55,8 @@ class WrapTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val wrapSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -77,8 +78,8 @@ class WrapTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size, size), wrapSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), wrapSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
@@ -88,7 +89,7 @@ class WrapTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
+        val wrapSize = Ref<IntPxSize>()
         show {
             Container(LayoutWrapped) {
                 OnPositioned(onPositioned = { coordinates ->
@@ -100,7 +101,7 @@ class WrapTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size, size), wrapSize.value)
+        assertEquals(IntPxSize(size, size), wrapSize.value)
     }
 
     @Test
@@ -111,8 +112,8 @@ class WrapTest : LayoutTest() {
         val doubleSize = doubleSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val wrapSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -138,8 +139,8 @@ class WrapTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(doubleSize, doubleSize), wrapSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(doubleSize, doubleSize), wrapSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
@@ -151,8 +152,8 @@ class WrapTest : LayoutTest() {
         val doubleSize = doubleSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val wrapSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Container(LayoutAlign.TopLeft) {
@@ -187,8 +188,8 @@ class WrapTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(doubleSize, doubleSize), wrapSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(doubleSize, doubleSize), wrapSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
             PxPosition((doubleSize - size) / 2, (doubleSize - size) / 2),
             childPosition.value
@@ -203,8 +204,8 @@ class WrapTest : LayoutTest() {
         val doubleSize = doubleSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val wrapSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -232,8 +233,8 @@ class WrapTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(doubleSize, doubleSize), wrapSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(doubleSize, doubleSize), wrapSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(size / 2, size / 2), childPosition.value)
     }
 

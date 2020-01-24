@@ -27,13 +27,14 @@ import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import androidx.ui.unit.withDensity
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -131,7 +132,7 @@ class PaddingTest : LayoutTest() {
         val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = PxSize(-1.px, -1.px)
+        var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
@@ -156,7 +157,7 @@ class PaddingTest : LayoutTest() {
         waitForDraw(root)
 
         val innerSize = (size - paddingPx * 2)
-        assertEquals(PxSize(innerSize, innerSize), childSize)
+        assertEquals(IntPxSize(innerSize, innerSize), childSize)
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
         assertEquals(
@@ -176,7 +177,7 @@ class PaddingTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = PxSize(-1.px, -1.px)
+        var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
@@ -205,7 +206,7 @@ class PaddingTest : LayoutTest() {
         val paddingTop = top.toIntPx()
         val paddingBottom = bottom.toIntPx()
         assertEquals(
-            PxSize(
+            IntPxSize(
                 size - paddingLeft - paddingRight,
                 size - paddingTop - paddingBottom
             ),
@@ -229,7 +230,7 @@ class PaddingTest : LayoutTest() {
             val paddingPx = padding.toIntPx()
 
             val drawLatch = CountDownLatch(1)
-            var childSize = PxSize(-1.px, -1.px)
+            var childSize = IntPxSize(-1.ipx, -1.ipx)
             var childPosition = PxPosition(-1.px, -1.px)
             show {
                 Center {
@@ -253,7 +254,7 @@ class PaddingTest : LayoutTest() {
             val root = findAndroidComposeView()
             waitForDraw(root)
 
-            assertEquals(PxSize(0.px, 0.px), childSize)
+            assertEquals(IntPxSize(0.ipx, 0.ipx), childSize)
             val left = ((root.width.ipx - size) / 2) + paddingPx
             val top = ((root.height.ipx - size) / 2) + paddingPx
             assertEquals(PxPosition(left.toPx(), top.toPx()), childPosition)

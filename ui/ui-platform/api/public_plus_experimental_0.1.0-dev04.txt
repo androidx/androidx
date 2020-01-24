@@ -433,7 +433,7 @@ package androidx.ui.core.semantics {
     method public boolean getHasChildren();
     method public int getId();
     method public androidx.ui.core.semantics.SemanticsNode? getParent();
-    method public androidx.ui.unit.PxSize getSize();
+    method public androidx.ui.unit.IntPxSize getSize();
     method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getUnmergedChildren();
     method public androidx.ui.core.semantics.SemanticsConfiguration getUnmergedConfig();
     method public boolean isSemanticBoundary();
@@ -447,7 +447,7 @@ package androidx.ui.core.semantics {
     property public final boolean hasChildren;
     property public final boolean isSemanticBoundary;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
-    property public final androidx.ui.unit.PxSize size;
+    property public final androidx.ui.unit.IntPxSize size;
     property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> unmergedChildren;
     property public final androidx.ui.core.semantics.SemanticsConfiguration unmergedConfig;
     field public static final androidx.ui.core.semantics.SemanticsNode.Companion! Companion;

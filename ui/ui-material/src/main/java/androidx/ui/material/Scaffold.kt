@@ -37,7 +37,8 @@ import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.Scaffold.FabPosition
 import androidx.ui.material.surface.Surface
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.withDensity
 
@@ -59,7 +60,7 @@ class ScaffoldState(
     // TODO: add showSnackbar() method here
 
     internal var fabConfiguration: FabConfiguration? = null
-    internal var bottomBarSize: PxSize? = null
+    internal var bottomBarSize: IntPxSize? = null
 }
 
 object Scaffold {
@@ -293,13 +294,16 @@ private fun FabContainer(
 ) {
     onDispose(callback = { scaffoldState.fabConfiguration = null })
     OnChildPositioned(onPositioned = { coords ->
+        // TODO(mount): This should probably use bounding box rather than position/size
+        val position = coords.parentCoordinates?.childToLocal(coords, PxPosition.Origin)
+            ?: PxPosition.Origin
         val config =
             when (fabPos) {
                 FabPosition.CenterDocked -> {
-                    FabConfiguration(coords.size, coords.position, FabDockedPosition.Center)
+                    FabConfiguration(coords.size, position, FabDockedPosition.Center)
                 }
                 FabPosition.EndDocked -> {
-                    FabConfiguration(coords.size, coords.position, FabDockedPosition.End)
+                    FabConfiguration(coords.size, position, FabDockedPosition.End)
                 }
                 else -> {
                     null

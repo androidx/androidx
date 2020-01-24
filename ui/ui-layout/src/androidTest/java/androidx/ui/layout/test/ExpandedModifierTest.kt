@@ -23,7 +23,6 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.geometry.Rect
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAspectRatio
@@ -31,12 +30,11 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.toRect
 import androidx.ui.unit.withDensity
 import org.junit.Assert
 import org.junit.Test
@@ -54,24 +52,24 @@ class ExpandedModifierTest : LayoutTest() {
     @Test
     fun testExpandedModifier_correctSize() = withDensity(density) {
         val displayMetrics = Resources.getSystem().displayMetrics
-        val screenWidth = displayMetrics.widthPixels.toFloat()
-        val screenHeight = displayMetrics.heightPixels.toFloat()
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
 
         Assert.assertEquals(
-            Rect(0f, 0f, Width.toIntPx().value.toFloat(), Height.toIntPx().value.toFloat()),
-            getSize().toRect()
+            IntPxSize(Width.toIntPx(), Height.toIntPx()),
+            getSize()
         )
         Assert.assertEquals(
-            Rect(0f, 0f, screenWidth, Height.toIntPx().value.toFloat()),
-            getSize(LayoutWidth.Fill).toRect()
+            IntPxSize(screenWidth.ipx, Height.toIntPx()),
+            getSize(LayoutWidth.Fill)
         )
         Assert.assertEquals(
-            Rect(0f, 0f, Width.toIntPx().value.toFloat(), screenHeight),
-            getSize(LayoutHeight.Fill).toRect()
+            IntPxSize(Width.toIntPx(), screenHeight.ipx),
+            getSize(LayoutHeight.Fill)
         )
         Assert.assertEquals(
-            Rect(0f, 0f, screenWidth, screenHeight),
-            getSize(LayoutSize.Fill).toRect()
+            IntPxSize(screenWidth.ipx, screenHeight.ipx),
+            getSize(LayoutSize.Fill)
         )
     }
 
@@ -82,9 +80,9 @@ class ExpandedModifierTest : LayoutTest() {
         verifyIntrinsicMeasurements(LayoutSize.Fill)
     }
 
-    private fun getSize(modifier: Modifier = Modifier.None): PxSize {
+    private fun getSize(modifier: Modifier = Modifier.None): IntPxSize {
         val positionedLatch = CountDownLatch(1)
-        val size = Ref<PxSize>()
+        val size = Ref<IntPxSize>()
         val position = Ref<PxPosition>()
         show {
             Layout(@Composable {

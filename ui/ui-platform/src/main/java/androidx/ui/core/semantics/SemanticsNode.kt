@@ -26,8 +26,8 @@ import androidx.ui.core.ifDebug
 import androidx.ui.core.requireFirstLayoutNodeInTree
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxSize
 
 /**
  * Signature for a function that is called for each [SemanticsNode].
@@ -102,7 +102,7 @@ class SemanticsNode internal constructor(
     // GEOMETRY
 
     /** The size of the bounding box for this node */
-    val size: PxSize
+    val size: IntPxSize
         get() {
             val layoutNode = componentNode.requireFirstLayoutNodeInTree()
             return layoutNode.coordinates.size
