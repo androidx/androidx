@@ -20,10 +20,10 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.lerp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextAlign
@@ -140,7 +140,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized fontFamily`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
+        val fontFamily = fontFamily("sans-serif")
 
         val style = TextStyle(fontFamily = fontFamily)
 
@@ -177,7 +177,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontFamily is null should use this' fontFamily`() {
-        val style = TextStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
+        val style = TextStyle(fontFamily = fontFamily("sans-serif"))
 
         val newStyle = style.merge(TextStyle(fontFamily = null))
 
@@ -186,8 +186,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontFamily is set should use other's fontFamily`() {
-        val style = TextStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
-        val otherStyle = TextStyle(fontFamily = FontFamily(genericFamily = "serif"))
+        val style = TextStyle(fontFamily = fontFamily("sans-serif"))
+        val otherStyle = TextStyle(fontFamily = fontFamily("serif"))
 
         val newStyle = style.merge(otherStyle)
 
@@ -511,8 +511,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with a and b are not Null and t is smaller than half`() {
-        val fontFamily1 = FontFamily(genericFamily = "sans-serif")
-        val fontFamily2 = FontFamily(genericFamily = "serif")
+        val fontFamily1 = fontFamily("sans-serif")
+        val fontFamily2 = fontFamily("serif")
         val t = 0.3f
         val style1 = TextStyle(fontFamily = fontFamily1)
         val style2 = TextStyle(fontFamily = fontFamily2)
@@ -524,8 +524,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with a and b are not Null and t is larger than half`() {
-        val fontFamily1 = FontFamily(genericFamily = "sans-serif")
-        val fontFamily2 = FontFamily(genericFamily = "serif")
+        val fontFamily1 = fontFamily("sans-serif")
+        val fontFamily2 = fontFamily("serif")
         val t = 0.8f
         val style1 = TextStyle(fontFamily = fontFamily1)
         val style2 = TextStyle(fontFamily = fontFamily2)
@@ -906,7 +906,7 @@ class TextStyleTest {
         val fontWeight = FontWeight.Bold
         val fontStyle = FontStyle.Italic
         val fontSynthesis = FontSynthesis.All
-        val fontFamily = FontFamily("myfontfamily")
+        val fontFamily = fontFamily("myfontfamily")
         val fontFeatureSettings = "font feature settings"
         val letterSpacing = 0.2.sp
         val baselineShift = BaselineShift.Subscript

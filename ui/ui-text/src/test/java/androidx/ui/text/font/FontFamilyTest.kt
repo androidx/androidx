@@ -28,12 +28,12 @@ class FontFamilyTest {
 
     @Test(expected = AssertionError::class)
     fun `cannot be instantiated with empty font list`() {
-        FontFamily(listOf())
+        fontFamily(listOf())
     }
 
     @Test
     fun `two equal family declarations are equal`() {
-        val fontFamily = FontFamily(
+        val fontFamily = fontFamily(
             font(
                 resId = dummyResourceId1,
                 weight = FontWeight.W900,
@@ -41,7 +41,7 @@ class FontFamilyTest {
             )
         )
 
-        val otherFontFamily = FontFamily(
+        val otherFontFamily = fontFamily(
             font(
                 resId = dummyResourceId1,
                 weight = FontWeight.W900,
@@ -54,7 +54,7 @@ class FontFamilyTest {
 
     @Test
     fun `two non equal family declarations are not equal`() {
-        val fontFamily = FontFamily(
+        val fontFamily = fontFamily(
             font(
                 resId = dummyResourceId1,
                 weight = FontWeight.W900,
@@ -62,7 +62,7 @@ class FontFamilyTest {
             )
         )
 
-        val otherFontFamily = FontFamily(
+        val otherFontFamily = fontFamily(
             font(
                 resId = dummyResourceId1,
                 weight = FontWeight.W800,
@@ -75,7 +75,7 @@ class FontFamilyTest {
 
     @Test(expected = AssertionError::class)
     fun `cannot add two fonts that have the same FontWeight and FontStyle`() {
-        FontFamily(
+        fontFamily(
             font(
                 resId = dummyResourceId1,
                 weight = FontWeight.W900,
@@ -92,7 +92,7 @@ class FontFamilyTest {
     @Test
     fun `can create FontFamily with genericFamily even though there are no custom fonts`() {
         // main expectation is that there should be no exception
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
-        assertThat(fontFamily.genericFamily).isEqualTo("sans-serif")
+        val fontFamily = fontFamily("sans-serif")
+        assertThat(fontFamily.name).isEqualTo("sans-serif")
     }
 }
