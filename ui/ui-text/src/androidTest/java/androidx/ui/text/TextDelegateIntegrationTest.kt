@@ -28,7 +28,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.assertThat
-import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
@@ -86,52 +85,6 @@ class TextDelegateIntegrationTest {
             assertThat(textDelegate.maxIntrinsicWidth)
                 .isEqualTo((fontSize.toPx().value * text.length).toIntPx())
         }
-    }
-
-    @Test
-    fun hasOverflowShaderFadeHorizontallyTrue() {
-        val text = "Hello World".repeat(15)
-        val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, spanStyle)
-
-        val textDelegate = TextDelegate(
-            text = annotatedString,
-            overflow = TextOverflow.Fade,
-            softWrap = false,
-            maxLines = 1,
-            density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
-        )
-
-        val layoutResult = textDelegate.layout(Constraints(maxWidth = 100.ipx))
-
-        assertThat(layoutResult.hasVisualOverflow).isTrue()
-
-        // paint should not throw exception
-        textDelegate.paint(Canvas(android.graphics.Canvas()), layoutResult)
-    }
-
-    @Test
-    fun hasOverflowShaderFadeVerticallyTrue() {
-        val text = "Hello World".repeat(30)
-        val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, spanStyle)
-        val textDelegate = TextDelegate(
-            text = annotatedString,
-            overflow = TextOverflow.Fade,
-            maxLines = 2,
-            density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
-        )
-
-        val layoutResult = textDelegate.layout(Constraints(maxWidth = 100.ipx))
-
-        assertThat(layoutResult.hasVisualOverflow).isTrue()
-
-        // paint should not throw exception
-        textDelegate.paint(Canvas(android.graphics.Canvas()), layoutResult)
     }
 
     @Test

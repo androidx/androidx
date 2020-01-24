@@ -21,14 +21,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.constrain
-import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
-import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.LinearGradientShader
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.Shader
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
@@ -124,8 +120,6 @@ class TextDelegate(
 ) {
 
     val style: TextStyle = resolveTextStyle(style, layoutDirection)
-
-    private var overflowShader: Shader? = null
 
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
@@ -235,9 +229,7 @@ class TextDelegate(
             ),
             multiParagraph,
             size
-        ).also {
-            overflowShader = createOverflowShader(it)
-        }
+        )
     }
 
     /**
@@ -254,32 +246,22 @@ class TextDelegate(
      * the [TextDelegate] constructor or to the [text] property.
      */
     fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
-        val width = textLayoutResult.size.width.value.toFloat()
-        val height = textLayoutResult.size.height.value.toFloat()
 
-        if (textLayoutResult.hasVisualOverflow) {
+        val needClipping = textLayoutResult.hasVisualOverflow &&
+                textLayoutResult.layoutInput.overflow == TextOverflow.Clip
+        if (needClipping) {
+            val width = textLayoutResult.size.width.value.toFloat()
+            val height = textLayoutResult.size.height.value.toFloat()
             val bounds = Rect.fromLTWH(0f, 0f, width, height)
-            if (overflowShader != null) {
-                // This layer limits what the shader below blends with to be just the text
-                // (as opposed to the text and its background).
-                canvas.saveLayer(bounds, Paint())
-            } else {
-                canvas.save()
-            }
+            canvas.save()
             canvas.clipRect(bounds)
         }
-
-        textLayoutResult.multiParagraph.paint(canvas)
-
-        if (textLayoutResult.hasVisualOverflow) {
-            if (overflowShader != null) {
-                val bounds = Rect.fromLTWH(0f, 0f, width, height)
-                val paint = Paint()
-                paint.blendMode = BlendMode.multiply
-                paint.shader = overflowShader
-                canvas.drawRect(bounds, paint)
+        try {
+            textLayoutResult.multiParagraph.paint(canvas)
+        } finally {
+            if (needClipping) {
+                canvas.restore()
             }
-            canvas.restore()
         }
     }
 
@@ -314,48 +296,6 @@ class TextDelegate(
     fun paintCursor(offset: Int, canvas: Canvas, textLayoutResult: TextLayoutResult) {
         val cursorRect = textLayoutResult.multiParagraph.getCursorRect(offset)
         canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
-    }
-}
-
-private fun TextDelegate.createOverflowShader(textLayoutResult: TextLayoutResult): Shader? {
-    return if (textLayoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
-        val paragraph = Paragraph(
-            text = "\u2026", // horizontal ellipsis
-            spanStyles = listOf(),
-            style = style,
-            density = density,
-            resourceLoader = resourceLoader,
-            constraints = ParagraphConstraints(Float.POSITIVE_INFINITY)
-        )
-
-        val fadeWidth = paragraph.maxIntrinsicWidth
-        val fadeHeight = paragraph.height
-        val width = textLayoutResult.size.width.value.toFloat()
-
-        if (textLayoutResult.didOverflowWidth) {
-            // FIXME: Should only fade the last line, i.e., should use last line's direction.
-            // (b/139496055)
-            val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
-                Pair(fadeWidth, 0.0f)
-            } else {
-                Pair(width - fadeWidth, width)
-            }
-            LinearGradientShader(
-                Offset(fadeStart, 0.0f),
-                Offset(fadeEnd, 0.0f),
-                listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
-            )
-        } else {
-            val fadeEnd = textLayoutResult.size.height.value.toFloat()
-            val fadeStart = fadeEnd - fadeHeight
-            LinearGradientShader(
-                Offset(0.0f, fadeStart),
-                Offset(0.0f, fadeEnd),
-                listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
-            )
-        }
-    } else {
-        null
     }
 }
 
