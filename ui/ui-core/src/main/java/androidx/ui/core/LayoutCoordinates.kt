@@ -43,6 +43,11 @@ interface LayoutCoordinates {
     val parentCoordinates: LayoutCoordinates?
 
     /**
+     * Returns false if the corresponding layout was detached from the hierarchy.
+     */
+    val isAttached: Boolean
+
+    /**
      * Converts a global position into a local position within this layout.
      */
     fun globalToLocal(global: PxPosition): PxPosition
