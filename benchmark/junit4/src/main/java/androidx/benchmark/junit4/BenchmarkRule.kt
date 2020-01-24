@@ -190,6 +190,8 @@ class BenchmarkRule : TestRule {
                 invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
                         invokeMethodName.substring(5)
             }
+            internalState.traceUniqueName = description.testClass.simpleName + "_" +
+                    invokeMethodName
 
             try {
                 beginTraceSection(description.displayName)

@@ -17,8 +17,6 @@
 package androidx.benchmark
 
 import android.os.Build
-import android.os.Environment.DIRECTORY_DOWNLOADS
-import android.os.Environment.getExternalStoragePublicDirectory
 import android.util.JsonWriter
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
@@ -38,10 +36,7 @@ internal object ResultWriter {
             val packageName =
                 InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
-            @Suppress("DEPRECATION") // Legacy code path for versions of agp older than 3.6
-            val filePath = Arguments.additionalTestOutputDir?.let { File(it) }
-                ?: getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
-            val file = File(filePath, "$packageName-benchmarkData.json")
+            val file = File(Arguments.testOutputDir, "$packageName-benchmarkData.json")
             writeReport(file, reports)
         }
     }
