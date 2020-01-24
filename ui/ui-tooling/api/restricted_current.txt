@@ -52,6 +52,8 @@ package androidx.ui.tooling.preview {
     method public abstract int heightDp() default -1;
     method public abstract String locale() default "";
     method public abstract String name() default "";
+    method public abstract boolean showBackground() default false;
+    method public abstract boolean showDecoration() default false;
     method public abstract String theme() default "";
     method public abstract int widthDp() default -1;
   }
