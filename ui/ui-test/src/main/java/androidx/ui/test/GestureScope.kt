@@ -19,12 +19,13 @@ package androidx.ui.test
 import androidx.annotation.FloatRange
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.unit.Duration
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
+import androidx.ui.unit.toPx
 import androidx.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -67,7 +68,7 @@ private val doubleClickDelay = 145.milliseconds
 /**
  * Returns the size of the component we're interacting with
  */
-val GestureScope.size: PxSize
+val GestureScope.size: IntPxSize
     get() = semanticsNode.size
 
 /**
@@ -266,7 +267,7 @@ fun GestureScope.sendSwipeUp() {
     val x = center.x
     val y0 = size.height * (1 - edgeFuzzFactor)
     val y1 = 0.px
-    val start = PxPosition(x, y0)
+    val start = PxPosition(x, y0.toPx())
     val end = PxPosition(x, y1)
     sendSwipe(start, end, 200.milliseconds)
 }
@@ -281,8 +282,8 @@ fun GestureScope.sendSwipeDown() {
     val x = center.x
     val y0 = size.height * edgeFuzzFactor
     val y1 = size.height
-    val start = PxPosition(x, y0)
-    val end = PxPosition(x, y1)
+    val start = PxPosition(x, y0.toPx())
+    val end = PxPosition(x, y1.toPx())
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -296,7 +297,7 @@ fun GestureScope.sendSwipeLeft() {
     val x0 = size.width * (1 - edgeFuzzFactor)
     val x1 = 0.px
     val y = center.y
-    val start = PxPosition(x0, y)
+    val start = PxPosition(x0.toPx(), y)
     val end = PxPosition(x1, y)
     sendSwipe(start, end, 200.milliseconds)
 }
@@ -311,8 +312,8 @@ fun GestureScope.sendSwipeRight() {
     val x0 = size.width * edgeFuzzFactor
     val x1 = size.width
     val y = center.y
-    val start = PxPosition(x0, y)
-    val end = PxPosition(x1, y)
+    val start = PxPosition(x0.toPx(), y)
+    val end = PxPosition(x1.toPx(), y)
     sendSwipe(start, end, 200.milliseconds)
 }
 

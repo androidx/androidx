@@ -46,7 +46,6 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toPx
-import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -2192,9 +2191,7 @@ private class LayoutNodeCoordinates(
     private val layoutNode: LayoutNode
 ) : LayoutCoordinates {
 
-    override val position get() = layoutNode.contentPosition.toPxPosition()
-
-    override val size get() = layoutNode.contentSize.toPxSize()
+    override val size get() = layoutNode.contentSize
 
     override val providedAlignmentLines get() = layoutNode.providedAlignmentLines
 

@@ -33,6 +33,7 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
+import androidx.ui.test.positionInParent
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -65,8 +66,8 @@ class OnPositionedTest : LayoutTest() {
             Padding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) {
                 Container(expanded = true) {
                     OnPositioned(onPositioned = {
-                        realLeft = it.position.x
-                        realTop = it.position.y
+                        realLeft = it.positionInParent.x
+                        realTop = it.positionInParent.y
                         positionedLatch.countDown()
                     })
                 }
@@ -89,8 +90,8 @@ class OnPositionedTest : LayoutTest() {
         show {
             Padding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) {
                 OnChildPositioned(onPositioned = {
-                    realLeft = it.position.x
-                    realTop = it.position.y
+                    realLeft = it.positionInParent.x
+                    realTop = it.positionInParent.y
                     positionedLatch.countDown()
                 }) {
                     Container(expanded = true) {}
@@ -139,7 +140,7 @@ class OnPositionedTest : LayoutTest() {
         val gpPos = gpCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin).x
         assertThat(gpPos).isEqualTo(secondPaddingPx + thirdPaddingPx)
         // local position
-        assertThat(childCoordinates!!.position.x).isEqualTo(thirdPaddingPx)
+        assertThat(childCoordinates!!.positionInParent.x).isEqualTo(thirdPaddingPx)
     }
 
     @Test
@@ -168,8 +169,8 @@ class OnPositionedTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertThat(0.px).isEqualTo(firstCoordinates!!.position.x)
-        assertThat(size).isEqualTo(secondCoordinates!!.position.x)
+        assertThat(0.px).isEqualTo(firstCoordinates!!.positionInParent.x)
+        assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x)
     }
 
     @Test
@@ -234,7 +235,7 @@ class OnPositionedTest : LayoutTest() {
             Center {
                 Padding(left = modelLeft.size) {
                     OnChildPositioned(onPositioned = {
-                        realLeft = it.position.x
+                        realLeft = it.positionInParent.x
                         positionedLatch.countDown()
                     }) {
                         Container(expanded = true) {}

@@ -29,10 +29,12 @@ import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
+import androidx.ui.test.positionInParent
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.round
+import androidx.ui.unit.toPx
 import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -95,7 +97,7 @@ class SnackbarTest {
                 assertThat(alignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
                 assertThat(alignmentLines.get(FirstBaseline))
                     .isEqualTo(alignmentLines.get(LastBaseline))
-                assertThat(it.position.y.round() + alignmentLines.getValue(FirstBaseline))
+                assertThat(it.positionInParent.y.round() + alignmentLines.getValue(FirstBaseline))
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -190,7 +192,7 @@ class SnackbarTest {
                 assertThat(alignmentLines.get(LastBaseline)).isNotEqualTo(IntPx.Zero)
                 assertThat(alignmentLines.get(FirstBaseline))
                     .isNotEqualTo(alignmentLines.get(LastBaseline))
-                assertThat(it.position.y.round() + alignmentLines.getValue(FirstBaseline))
+                assertThat(it.positionInParent.y.round() + alignmentLines.getValue(FirstBaseline))
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -246,7 +248,7 @@ class SnackbarTest {
                             textAlignmentLines.getValue(FirstBaseline)
                 ).isEqualTo(30.dp.toIntPx())
 
-                assertThat(buttonCenter).isEqualTo(localSnackCoords.size.height / 2)
+                assertThat(buttonCenter).isEqualTo((localSnackCoords.size.height / 2).toPx())
             }
         }
     }
@@ -300,13 +302,13 @@ class SnackbarTest {
                 ).isEqualTo(18.dp.toIntPx())
 
                 assertThat(
-                    localSnackCoords.size.height.round() - buttonPositionInSnack.y.round() -
-                            localButtonCoords.size.height.round()
+                    localSnackCoords.size.height - buttonPositionInSnack.y.round() -
+                            localButtonCoords.size.height
                 ).isEqualTo(8.dp.toIntPx())
 
                 assertThat(
-                    localSnackCoords.size.width.round() - buttonPositionInSnack.x.round() -
-                            localButtonCoords.size.width.round()
+                    localSnackCoords.size.width - buttonPositionInSnack.x.round() -
+                            localButtonCoords.size.width
                 ).isEqualTo(8.dp.toIntPx())
             }
         }

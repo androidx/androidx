@@ -17,25 +17,20 @@
 package androidx.ui.core
 
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
+import androidx.ui.unit.toPxSize
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
  */
 // TODO(Andrey): Add Matrix transformation here when we would have this logic.
 interface LayoutCoordinates {
-
-    /**
-     * The position within the parent of this layout.
-     */
-    val position: PxPosition
-
     /**
      * The size of this layout in the local coordinates space.
      */
-    val size: PxSize
+    val size: IntPxSize
 
     /**
      * The alignment lines provided for this layout, relative to the current layout.
@@ -79,6 +74,14 @@ inline val LayoutCoordinates.globalPosition: PxPosition get() = localToGlobal(Px
  */
 inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToRoot(PxPosition.Origin)
 
-inline val LayoutCoordinates.boundsInRoot: PxBounds get() = PxBounds(positionInRoot, size)
+inline val LayoutCoordinates.boundsInRoot: PxBounds
+    get() = PxBounds(
+        positionInRoot,
+        size.toPxSize()
+    )
 
-inline val LayoutCoordinates.globalBounds: PxBounds get() = PxBounds(globalPosition, size)
+inline val LayoutCoordinates.globalBounds: PxBounds
+    get() = PxBounds(
+        globalPosition,
+        size.toPxSize()
+    )

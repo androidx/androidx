@@ -71,7 +71,7 @@ private class DeepHierarchyOnPositionedTestCase :
                 StaticChildren(count - 1)
             }
         } else {
-            OnPositioned { coordinates -> coordinates.position }
+            OnPositioned { coordinates -> coordinates.size }
         }
     }
 

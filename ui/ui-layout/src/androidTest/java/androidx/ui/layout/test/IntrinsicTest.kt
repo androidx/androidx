@@ -29,12 +29,13 @@ import androidx.ui.layout.MaxIntrinsicWidth
 import androidx.ui.layout.MinIntrinsicHeight
 import androidx.ui.layout.MinIntrinsicWidth
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.withDensity
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -47,8 +48,8 @@ class IntrinsicTest : LayoutTest() {
     @Test
     fun testMinIntrinsicWidth() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val minIntrinsicWidthSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val minIntrinsicWidthSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -70,16 +71,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(10.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
-        assertEquals(PxSize(10.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(10.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
+        assertEquals(IntPxSize(10.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMinIntrinsicHeight() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val minIntrinsicHeightSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val minIntrinsicHeightSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -101,16 +102,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(20.dp.toIntPx(), 40.dp.toIntPx()), minIntrinsicHeightSize.value)
-        assertEquals(PxSize(20.dp.toIntPx(), 40.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 40.dp.toIntPx()), minIntrinsicHeightSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 40.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMaxIntrinsicWidth() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val maxIntrinsicWidthSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val maxIntrinsicWidthSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -132,16 +133,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(30.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
-        assertEquals(PxSize(30.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(30.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
+        assertEquals(IntPxSize(30.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMaxIntrinsicHeight() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val maxIntrinsicHeightSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val maxIntrinsicHeightSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -163,16 +164,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(20.dp.toIntPx(), 60.dp.toIntPx()), maxIntrinsicHeightSize.value)
-        assertEquals(PxSize(20.dp.toIntPx(), 60.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 60.dp.toIntPx()), maxIntrinsicHeightSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 60.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMinIntrinsicWidth_respectsIncomingMaxConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val minIntrinsicWidthSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val minIntrinsicWidthSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -196,16 +197,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(5.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
-        assertEquals(PxSize(5.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(5.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
+        assertEquals(IntPxSize(5.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMinIntrinsicWidth_respectsIncomingMinConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val minIntrinsicWidthSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val minIntrinsicWidthSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -229,16 +230,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(15.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
-        assertEquals(PxSize(15.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(15.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
+        assertEquals(IntPxSize(15.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMinIntrinsicHeight_respectsMaxIncomingConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val minIntrinsicHeightSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val minIntrinsicHeightSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -262,16 +263,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(20.dp.toIntPx(), 35.dp.toIntPx()), minIntrinsicHeightSize.value)
-        assertEquals(PxSize(20.dp.toIntPx(), 35.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 35.dp.toIntPx()), minIntrinsicHeightSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 35.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMinIntrinsicHeight_respectsMinIncomingConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val minIntrinsicHeightSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val minIntrinsicHeightSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -295,16 +296,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(20.dp.toIntPx(), 45.dp.toIntPx()), minIntrinsicHeightSize.value)
-        assertEquals(PxSize(20.dp.toIntPx(), 45.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 45.dp.toIntPx()), minIntrinsicHeightSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 45.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMaxIntrinsicWidth_respectsMaxIncomingConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val maxIntrinsicWidthSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val maxIntrinsicWidthSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -328,16 +329,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(25.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
-        assertEquals(PxSize(25.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(25.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
+        assertEquals(IntPxSize(25.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMaxIntrinsicWidth_respectsMinIncomingConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val maxIntrinsicWidthSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val maxIntrinsicWidthSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -361,16 +362,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(35.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
-        assertEquals(PxSize(35.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(35.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
+        assertEquals(IntPxSize(35.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMaxIntrinsicHeight_respectsMaxIncomingConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val maxIntrinsicHeightSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val maxIntrinsicHeightSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -394,16 +395,16 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(20.dp.toIntPx(), 55.dp.toIntPx()), maxIntrinsicHeightSize.value)
-        assertEquals(PxSize(20.dp.toIntPx(), 55.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 55.dp.toIntPx()), maxIntrinsicHeightSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 55.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
     fun testMaxIntrinsicHeight_respectsMinIncomingConstraints() = withDensity(density) {
         val positionedLatch = CountDownLatch(2)
-        val maxIntrinsicHeightSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val maxIntrinsicHeightSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -427,8 +428,8 @@ class IntrinsicTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(20.dp.toIntPx(), 65.dp.toIntPx()), maxIntrinsicHeightSize.value)
-        assertEquals(PxSize(20.dp.toIntPx(), 65.dp.toIntPx()), childSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 65.dp.toIntPx()), maxIntrinsicHeightSize.value)
+        assertEquals(IntPxSize(20.dp.toIntPx(), 65.dp.toIntPx()), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 

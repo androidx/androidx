@@ -28,10 +28,9 @@ import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.round
 import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -66,8 +65,8 @@ class TextLayoutTest {
     @Test
     fun testTextLayout() = withDensity(density) {
         val layoutLatch = CountDownLatch(2)
-        val textSize = Ref<PxSize>()
-        val doubleTextSize = Ref<PxSize>()
+        val textSize = Ref<IntPxSize>()
+        val doubleTextSize = Ref<IntPxSize>()
         show {
             OnChildPositioned({ coordinates ->
                 textSize.value = coordinates.size
@@ -94,8 +93,8 @@ class TextLayoutTest {
     @Test
     fun testTextLayout_intrinsicMeasurements() = withDensity(density) {
         val layoutLatch = CountDownLatch(2)
-        val textSize = Ref<PxSize>()
-        val doubleTextSize = Ref<PxSize>()
+        val textSize = Ref<IntPxSize>()
+        val doubleTextSize = Ref<IntPxSize>()
         show {
             OnChildPositioned({ coordinates ->
                 textSize.value = coordinates.size
@@ -111,9 +110,9 @@ class TextLayoutTest {
             }
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
-        val textWidth = textSize.value!!.width.round()
-        val textHeight = textSize.value!!.height.round()
-        val doubleTextWidth = doubleTextSize.value!!.width.round()
+        val textWidth = textSize.value!!.width
+        val textHeight = textSize.value!!.height
+        val doubleTextWidth = doubleTextSize.value!!.width
 
         val intrinsicsLatch = CountDownLatch(1)
         show {

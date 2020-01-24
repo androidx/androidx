@@ -18,19 +18,20 @@ package androidx.ui.material.ripple
 
 import androidx.compose.Composable
 import androidx.compose.Recompose
-import androidx.compose.remember
 import androidx.compose.onDispose
+import androidx.compose.remember
 import androidx.ui.animation.transitionsEnabled
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.graphics.Color
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.center
+import androidx.ui.unit.toPxSize
 
 /**
  * Ripple is a visual indicator for a pressed state.
@@ -79,7 +80,8 @@ fun Ripple(
         val finalColor = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
         Draw { canvas, _ ->
             if (state.effects.isNotEmpty()) {
-                val position = state.coordinates!!.position
+                val position = state.coordinates!!.parentCoordinates
+                    ?.childToLocal(state.coordinates!!, PxPosition.Origin) ?: PxPosition.Origin
                 canvas.translate(position.x.value, position.y.value)
                 state.effects.forEach { it.draw(canvas, finalColor) }
                 canvas.translate(-position.x.value, -position.y.value)
@@ -111,7 +113,7 @@ private class RippleState {
         val coordinates = checkNotNull(coordinates) {
             "handleStart() called before the layout coordinates were provided!"
         }
-        val position = if (bounded) touchPosition else coordinates.size.center()
+        val position = if (bounded) touchPosition else coordinates.size.toPxSize().center()
         val onAnimationFinished = { effect: RippleEffect ->
             effects.remove(effect)
             if (currentEffect == effect) {

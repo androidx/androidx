@@ -38,13 +38,12 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findAllByTag
 import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.round
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
@@ -148,7 +147,7 @@ class AppBarTest {
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX =
                 appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX.toPx())
         }
     }
 
@@ -191,7 +190,7 @@ class AppBarTest {
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX =
                 appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX.toPx())
         }
     }
 
@@ -291,7 +290,7 @@ class AppBarTest {
         composeTestRule.runOnIdleComposeWithDensity {
             // Action should still be placed at the end, even though there is no navigation icon
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
+            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
@@ -334,7 +333,7 @@ class AppBarTest {
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
+            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
@@ -379,7 +378,7 @@ class AppBarTest {
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
+            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
@@ -425,7 +424,7 @@ class AppBarTest {
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
+            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
@@ -536,7 +535,7 @@ class AppBarTest {
 
     private fun createFabConfiguration(position: FabDockedPosition) =
         FabConfiguration(
-            fabSize = PxSize(100.px, 100.px),
+            fabSize = IntPxSize(100.ipx, 100.ipx),
             fabTopLeftPosition = PxPosition(0.px, 0.px),
             // all what matters here is a fabDockedPosition, as it will decide the layout
             fabDockedPosition = position

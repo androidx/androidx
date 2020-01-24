@@ -23,8 +23,8 @@ package androidx.ui.material {
   }
 
   public static final class BottomAppBar.FabConfiguration {
-    ctor public BottomAppBar.FabConfiguration(internal androidx.ui.unit.PxSize fabSize, internal androidx.ui.unit.PxPosition fabTopLeftPosition, internal androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
-    method public androidx.ui.material.BottomAppBar.FabConfiguration copy(androidx.ui.unit.PxSize fabSize, androidx.ui.unit.PxPosition fabTopLeftPosition, androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
+    ctor public BottomAppBar.FabConfiguration(internal androidx.ui.unit.IntPxSize fabSize, internal androidx.ui.unit.PxPosition fabTopLeftPosition, internal androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
+    method public androidx.ui.material.BottomAppBar.FabConfiguration copy(androidx.ui.unit.IntPxSize fabSize, androidx.ui.unit.PxPosition fabTopLeftPosition, androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
   }
 
   public enum BottomAppBar.FabDockedPosition {
