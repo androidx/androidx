@@ -19,6 +19,8 @@ package androidx.ui.core.gesture
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
+import androidx.ui.core.CustomEvent
+import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInput
@@ -51,21 +53,24 @@ fun LongPressGestureDetector(
     children: @Composable() () -> Unit
 ) {
     val coroutineContext = CoroutineContextAmbient.current
-    val recognizer =
-        remember { LongPressGestureRecognizer(coroutineContext) }
+    val recognizer = remember { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
 
     PointerInput(
+        initHandler = recognizer.initHandler,
         pointerInputHandler = recognizer.pointerInputHandler,
+        customEventHandler = recognizer.customEventHandler,
         cancelHandler = recognizer.cancelHandler,
         children = children
     )
 }
 
 internal class LongPressGestureRecognizer(
-    coroutineContext: CoroutineContext
+    private val coroutineContext: CoroutineContext
 ) {
     lateinit var onLongPress: (PxPosition) -> Unit
+
+    var longPressTimeout = LongPressTimeout
 
     private enum class State {
         Idle, Primed, Fired
@@ -73,8 +78,12 @@ internal class LongPressGestureRecognizer(
 
     private var state = State.Idle
     private val pointerPositions = linkedMapOf<PointerId, PxPosition>()
-    var longPressTimeout = LongPressTimeout
-    var job: Job? = null
+    private var job: Job? = null
+    private lateinit var customEventDispatcher: CustomEventDispatcher
+
+    val initHandler = { customEventDispatcher: CustomEventDispatcher ->
+        this.customEventDispatcher = customEventDispatcher
+    }
 
     val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
@@ -82,8 +91,8 @@ internal class LongPressGestureRecognizer(
             var changesToReturn = changes
 
             if (pass == PointerEventPass.InitialDown && state == State.Fired) {
-                // If we are in the Fired state, we dispatched the long press event and pointers are still down so we
-                // should consume any up events to prevent other gesture detectors from responding to up.
+                // If we fired and have not reset, we should prevent other pointer input nodes from
+                // responding to up, so consume it early on.
                 changesToReturn = changesToReturn.map {
                     if (it.changedToUp()) {
                         it.consumeDownChange()
@@ -95,26 +104,20 @@ internal class LongPressGestureRecognizer(
 
             if (pass == PointerEventPass.PostUp) {
                 if (state == State.Idle && changes.all { it.changedToDown() }) {
-                    // If we have not yet started and all of the changes changed to down, we are
-                    // starting.
-                    job = delay(longPressTimeout, coroutineContext) {
-                        onLongPress.invoke(pointerPositions.asIterable().first().value)
-                        state = State.Fired
-                    }
-                    pointerPositions.clear()
-                    state = State.Primed
+                    // If we are idle and all of the changes changed to down, we are prime to fire
+                    // the event.
+                    primeToFire()
                 } else if (state != State.Idle && changes.all { it.changedToUpIgnoreConsumed() }) {
-                    // If we have started and all of the changes changed to up, we are stopping.
-                    cancelHandler()
+                    // If we have started and all of the changes changed to up, reset to idle.
+                    resetToIdle()
                 } else if (!changesToReturn.anyPointersInBounds(bounds)) {
-                    // If none of the pointers are in bounds of our bounds, we should reset and wait
-                    // till all pointers are changing to down to "prime" again.
-                    cancelHandler()
+                    // If all pointers have gone out of bounds, reset to idle.
+                    resetToIdle()
                 }
 
                 if (state == State.Primed) {
-                    // If we are primed, for all down pointers, keep track of their current
-                    // positions, and for all other pointers, remove their tracked information.
+                    // If we are primed, keep track of all down pointer positions so we can pass
+                    // pointer position information to the event we will fire.
                     changes.forEach {
                         if (it.current.down) {
                             pointerPositions[it.id] = it.current.position!!
@@ -125,21 +128,53 @@ internal class LongPressGestureRecognizer(
                 }
             }
 
-            if (pass == PointerEventPass.PostDown &&
+            if (
+                pass == PointerEventPass.PostDown &&
                 state != State.Idle &&
                 changes.any { it.anyPositionChangeConsumed() }
             ) {
-                // If we are primed, reset so we don't fire.
-                // If we are fired, reset to idle so we don't block up events that still fire after
-                // dragging (like flinging).
-                cancelHandler()
+                // If we are anything but Idle and something consumed movement, reset.
+                resetToIdle()
             }
 
             changesToReturn
         }
 
+    val customEventHandler: (CustomEvent, PointerEventPass) -> Unit =
+        { customEvent, pointerInputPass ->
+            if (
+                state == State.Primed &&
+                customEvent is LongPressFiredEvent &&
+                pointerInputPass == PointerEventPass.InitialDown
+            ) {
+                // If we are primed but something else fired long press, we should reset.
+                // Doesn't matter what pass we are on, just choosing one so we only reset once.
+                resetToIdle()
+            }
+        }
+
     val cancelHandler = {
-        job?.cancel()
+        resetToIdle()
+    }
+
+    private fun fireLongPress() {
+        state = State.Fired
+        onLongPress.invoke(pointerPositions.asIterable().first().value)
+        customEventDispatcher.dispatchCustomEvent(LongPressFiredEvent)
+    }
+
+    private fun primeToFire() {
+        state = State.Primed
+        job = delay(longPressTimeout, coroutineContext) {
+            fireLongPress()
+        }
+    }
+
+    private fun resetToIdle() {
         state = State.Idle
+        job?.cancel()
+        pointerPositions.clear()
     }
 }
+
+object LongPressFiredEvent : CustomEvent

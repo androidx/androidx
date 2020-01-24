@@ -462,10 +462,31 @@ class RepaintBoundaryNode(val name: String?) : ComponentNode() {
  * Backing node for handling pointer events.
  */
 class PointerInputNode : ComponentNode() {
+
+    /**
+     * Invoked right after the [PointerInputNode] is hit by a pointer during hit testing.
+     *
+     * @See CustomEventDispatcher
+     */
+    var initHandler: ((CustomEventDispatcher) -> Unit)? = null
+
     /**
      * Invoked when pointers that previously hit this PointerInputNode have changed.
      */
     var pointerInputHandler: PointerInputHandler = { event, _, _ -> event }
+
+    /**
+     * Invoked when a [CustomEvent] is dispatched by a [PointerInputNode].
+     *
+     * Dispatch occurs over all passes of [PointerEventPass].
+     *
+     * The [CustomEvent] is the event being dispatched. The [PointerEventPass] is the pass that
+     * dispatch is currently on.
+     *
+     * @see CustomEvent
+     * @see PointerEventPass
+     */
+    var customEventHandler: ((CustomEvent, PointerEventPass) -> Unit)? = null
 
     /**
      * Invoked to notify the handler that no more calls to pointerInputHandler will be made, until

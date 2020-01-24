@@ -17,6 +17,7 @@
 package androidx.ui.testutils
 
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.CustomEvent
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
@@ -28,6 +29,8 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
+
+// TODO(shepshapard): Document.
 
 fun down(
     id: Long,
@@ -137,4 +140,41 @@ fun PointerInputHandler.invokeOverPasses(
         localPointerInputChanges = this.invoke(localPointerInputChanges, it, size)
     }
     return localPointerInputChanges
+}
+
+/**
+ * Simulates the dispatching of [event] to [this] on all [PointerEventPass]es in their standard
+ * order.
+ *
+ * @param event The event to dispatch.
+ */
+fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverAllPasses(
+    event: CustomEvent
+) {
+    invokeOverPasses(
+        event,
+        listOf(
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
+            PointerEventPass.PostUp,
+            PointerEventPass.PostDown
+        )
+    )
+}
+
+/**
+ * Simulates the dispatching of [event] to [this] on all [PointerEventPass]es in their standard
+ * order.
+ *
+ * @param event The event to dispatch.
+ * @param pointerEventPasses The [PointerEventPass]es to pass to each call to [this].
+ */
+fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverPasses(
+    event: CustomEvent,
+    pointerEventPasses: List<PointerEventPass>
+) {
+    pointerEventPasses.forEach { pass ->
+        this.invoke(event, pass)
+    }
 }
