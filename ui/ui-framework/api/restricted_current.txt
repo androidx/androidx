@@ -551,12 +551,14 @@ package androidx.ui.semantics {
 
   public final class SemanticsProperties {
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityLabel();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> getAccessibilityRangeInfo();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityValue();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getEnabled();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getHidden();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.style.TextDirection> getTextDirection();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Enabled;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Hidden;
@@ -569,6 +571,7 @@ package androidx.ui.semantics {
     method public static void ScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function2<? super androidx.ui.unit.Px,? super androidx.ui.unit.Px,kotlin.Unit> action);
     method public static String getAccessibilityLabel(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static String getAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.semantics.AccessibilityRangeInfo getAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> getCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getEnabled(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getHidden(androidx.ui.semantics.SemanticsPropertyReceiver);
@@ -579,6 +582,7 @@ package androidx.ui.semantics {
     method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public static void setAccessibilityLabel(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
     method public static void setAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
+    method public static void setAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityRangeInfo p);
     method public static void setCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver, java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> p);
     method public static void setEnabled(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
     method public static void setHidden(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
