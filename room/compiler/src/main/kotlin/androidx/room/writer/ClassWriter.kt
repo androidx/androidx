@@ -20,6 +20,7 @@ import androidx.room.RoomProcessor
 import androidx.room.ext.S
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
+import com.google.auto.common.GeneratedAnnotations
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -65,16 +66,13 @@ abstract class ClassWriter(private val className: ClassName) {
         adapterTypeSpecBuilder: TypeSpec.Builder,
         processingEnv: ProcessingEnvironment
     ) {
-        val generatedAnnotationAvailable = processingEnv
-                .elementUtils
-                .getTypeElement("$GENERATED_PACKAGE.$GENERATED_NAME") != null
-        if (generatedAnnotationAvailable) {
-            val className = ClassName.get(GENERATED_PACKAGE, GENERATED_NAME)
+        GeneratedAnnotations.generatedAnnotation(
+            processingEnv.elementUtils, processingEnv.sourceVersion
+        ).ifPresent {
             val generatedAnnotationSpec =
-                    AnnotationSpec.builder(className).addMember(
-                            "value",
-                            S,
-                            RoomProcessor::class.java.canonicalName).build()
+                AnnotationSpec.builder(ClassName.get(it))
+                    .addMember("value", S, RoomProcessor::class.java.canonicalName)
+                    .build()
             adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)
         }
     }
@@ -130,10 +128,5 @@ abstract class ClassWriter(private val className: ClassName) {
             prepare(name, writer, builder)
             return builder.build()
         }
-    }
-
-    companion object {
-        private const val GENERATED_PACKAGE = "javax.annotation"
-        private const val GENERATED_NAME = "Generated"
     }
 }
