@@ -2193,7 +2193,7 @@ private class LayoutNodeCoordinates(
 
     override val size get() = layoutNode.contentSize
 
-    override val providedAlignmentLines get() = layoutNode.providedAlignmentLines
+    override val providedAlignmentLines get() = layoutNode.providedAlignmentLines.keys
 
     override val parentCoordinates get() = layoutNode.parentLayoutNode?.coordinates
 
@@ -2208,5 +2208,9 @@ private class LayoutNodeCoordinates(
             throw IllegalArgumentException("Incorrect child provided.")
         }
         return layoutNode.childToLocal(child.layoutNode, childLocal)
+    }
+
+    override fun get(line: AlignmentLine): IntPx? {
+        return layoutNode.providedAlignmentLines[line]
     }
 }
