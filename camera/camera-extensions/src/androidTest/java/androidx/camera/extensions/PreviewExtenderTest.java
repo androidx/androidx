@@ -63,7 +63,6 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -347,7 +346,7 @@ public class PreviewExtenderTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void canAddCameraIdFilterToConfigBuilder() {
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
         when(mockPreviewExtenderImpl.getProcessorType()).thenReturn(
