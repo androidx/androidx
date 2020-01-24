@@ -361,7 +361,7 @@ public class WorkerWrapper implements Runnable {
         // completed by GreedyScheduler, we should make sure JobScheduler is informed
         // that it should remove this job and AlarmManager should remove all related alarms.
         if (mSchedulers != null) {
-            if (isWorkFinished) {
+            if (isWorkFinished || mWorkSpec.isPeriodic()) {
                 for (Scheduler scheduler : mSchedulers) {
                     scheduler.cancel(mWorkSpecId);
                 }
