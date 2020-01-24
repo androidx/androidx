@@ -36,7 +36,6 @@ public interface ComponentInitializer<T> {
      * @param context The application context.
      */
     @NonNull
-    @SuppressWarnings("UnusedReturnValue")
     T create(@NonNull Context context);
 
     /**

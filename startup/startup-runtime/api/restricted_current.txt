@@ -2,8 +2,9 @@
 package androidx.startup {
 
   public final class AppInitializer {
-    method public static void initialize(android.content.Context);
-    method public static void initialize(android.content.Context, java.util.List<java.lang.Class<?>!>);
+    method public static androidx.startup.AppInitializer getInstance(android.content.Context);
+    method public void initializeAllComponents();
+    method public void initializeComponents(java.util.List<java.lang.Class<?>!>);
   }
 
   public interface ComponentInitializer<T> {

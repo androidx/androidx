@@ -19,71 +19,64 @@ package androidx.startup
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.containsString
-import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.Assert.assertThat
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@MediumTest
 class AppInitializerTest {
 
     private lateinit var context: Context
+    private lateinit var appInitializer: AppInitializer
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        appInitializer = AppInitializer(context)
     }
 
     @Test
     fun basicUsageTest() {
-        AppInitializer.initialize(context, listOf<Class<*>>(InitializerNoDependencies::class.java))
-        assertThat(AppInitializer.sInitialized.get(), `is`(true))
+        appInitializer.initializeComponents(listOf<Class<*>>(InitializerNoDependencies::class.java))
+        assertTrue(appInitializer.mInitialized.containsKey(InitializerNoDependencies::class.java))
     }
 
     @Test
     fun basicInitializationTest() {
         val initializing = mutableSetOf<Class<*>>()
-        val initialized = mutableSetOf<Class<*>>()
         val components = listOf<Class<*>>(InitializerNoDependencies::class.java)
-        AppInitializer.doInitialize(context, components, initializing, initialized)
+        appInitializer.doInitialize(components, initializing)
         assertThat(initializing.size, `is`(0))
-        assertThat(initialized.size, `is`(1))
-        assertThat<Collection<Class<*>>>(
-            initialized,
-            containsInAnyOrder<Class<*>>(*components.toTypedArray())
-        )
+        assertThat(appInitializer.mInitialized.size, `is`(1))
+        for (component in components) {
+            assertTrue(appInitializer.mInitialized.containsKey(component))
+        }
     }
 
     @Test
     fun initializationWithDependencies() {
         val initializing = mutableSetOf<Class<*>>()
-        val initialized = mutableSetOf<Class<*>>()
         val components = listOf<Class<*>>(InitializerWithDependency::class.java)
-        AppInitializer.doInitialize(context, components, initializing, initialized)
+        appInitializer.doInitialize(components, initializing)
         assertThat(initializing.size, `is`(0))
-        assertThat(initialized.size, `is`(2))
-        assertThat<Collection<Class<*>>>(
-            initialized,
-            containsInAnyOrder<Class<*>>(
-                InitializerNoDependencies::class.java,
-                InitializerWithDependency::class.java
-            )
-        )
+        assertThat(appInitializer.mInitialized.size, `is`(2))
+        assertTrue(appInitializer.mInitialized.containsKey(InitializerNoDependencies::class.java))
+        assertTrue(appInitializer.mInitialized.containsKey(InitializerWithDependency::class.java))
     }
 
     @Test
     fun initializationWithCyclicDependencies() {
         val initializing = mutableSetOf<Class<*>>()
-        val initialized = mutableSetOf<Class<*>>()
         val components = listOf<Class<*>>(CyclicDependencyInitializer::class.java)
         try {
-            AppInitializer.doInitialize(context, components, initializing, initialized)
+            appInitializer.doInitialize(components, initializing)
             fail()
         } catch (exception: StartupException) {
             assertThat(exception.localizedMessage, containsString("Cycle detected."))
