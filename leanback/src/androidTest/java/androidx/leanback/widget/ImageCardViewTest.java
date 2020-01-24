@@ -35,6 +35,7 @@ import androidx.leanback.app.TestActivity;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.testutils.AnimationTest;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,6 +46,7 @@ import org.junit.runner.RunWith;
 import java.util.Random;
 
 @LargeTest
+@AnimationTest
 @RunWith(AndroidJUnit4.class)
 public class ImageCardViewTest {
 
@@ -59,8 +61,37 @@ public class ImageCardViewTest {
     @Rule
     public TestName mUnitTestName = new TestName();
 
+    // The following provider will create an Activity which can inflate the ImageCardView
+    // And the ImageCardView can be fetched through ID for future testing.
+    private final TestActivity.Provider mImageCardViewProvider = new TestActivity.Provider() {
+        @Override
+        public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+            super.onCreate(activity, savedInstanceState);
+
+            // The theme must be set to make sure imageCardView can be populated correctly.
+            activity.setTheme(R.style.Widget_Leanback_ImageCardView_BadgeStyle);
+
+            // Create Drawable using random color for test purpose.
+            mSampleDrawable = new ColorDrawable(RANDOM_COLOR_ONE);
+
+            // Create Drawable using random color for test purpose.
+            mSampleDrawable2 = new ColorDrawable(RANDOM_COLOR_TWO);
+
+            // Create imageCardView and save system generated ID.
+            ImageCardView imageCardView = new ImageCardView(activity);
+            mImageCardViewId = imageCardView.generateViewId();
+            imageCardView.setId(mImageCardViewId);
+
+            // Set up imageCardView with activity programmatically.
+            activity.setContentView(imageCardView);
+        }
+    };
+
     // Enable lifecycle based testing
-    private TestActivity.TestActivityTestRule mRule;
+    @Rule
+    public final TestActivity.TestActivityTestRule mRule =
+            new TestActivity.TestActivityTestRule(
+                    mImageCardViewProvider, generateProviderName(IMAGE_CARD_VIEW_ACTIVITY));
 
     // Only support alpha animation
     private static final String ALPHA = "alpha";
@@ -132,35 +163,8 @@ public class ImageCardViewTest {
     // Set up before executing test cases.
     @Before
     public void setUp() throws Exception {
-        // The following provider will create an Activity which can inflate the ImageCardView
-        // And the ImageCardView can be fetched through ID for future testing.
-        TestActivity.Provider imageCardViewProvider = new TestActivity.Provider() {
-            @Override
-            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
-                super.onCreate(activity, savedInstanceState);
-
-                // The theme must be set to make sure imageCardView can be populated correctly.
-                activity.setTheme(R.style.Widget_Leanback_ImageCardView_BadgeStyle);
-
-                // Create Drawable using random color for test purpose.
-                mSampleDrawable = new ColorDrawable(RANDOM_COLOR_ONE);
-
-                // Create Drawable using random color for test purpose.
-                mSampleDrawable2 = new ColorDrawable(RANDOM_COLOR_TWO);
-
-                // Create imageCardView and save system generated ID.
-                ImageCardView imageCardView = new ImageCardView(activity);
-                mImageCardViewId = imageCardView.generateViewId();
-                imageCardView.setId(mImageCardViewId);
-
-                // Set up imageCardView with activity programmatically.
-                activity.setContentView(imageCardView);
-            }
-        };
 
         // Initialize testing rule and testing activity
-        mRule = new TestActivity.TestActivityTestRule(imageCardViewProvider, generateProviderName(
-                IMAGE_CARD_VIEW_ACTIVITY));
         final TestActivity imageCardViewTestActivity = mRule.launchActivity();
 
         // Create card view and image view

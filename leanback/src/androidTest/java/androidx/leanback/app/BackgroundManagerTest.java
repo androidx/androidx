@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -47,7 +46,8 @@ public class BackgroundManagerTest {
     public TestName mUnitTestName = new TestName();
 
     @Rule
-    public TestActivity.TestActivityTestRule mRule;
+    public final TestActivity.TestActivityTestRule mRule = new TestActivity.TestActivityTestRule(
+            generateProviderName("activity1"));
 
     String generateProviderName(String name) {
         return mUnitTestName.getMethodName() + "_" + name;
@@ -146,36 +146,6 @@ public class BackgroundManagerTest {
         assertIsColorDrawable(manager, color);
     }
 
-    /**
-     * Launch TestActivity without using TestActivityRule.
-     */
-    TestActivity launchActivity(String name, final TestActivity.Provider provider2)
-            throws Throwable {
-        final String providerName2 = generateProviderName(name);
-        TestActivity.setProvider(providerName2, provider2);
-        mRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(mRule.getActivity(), TestActivity.class);
-                intent.putExtra(TestActivity.EXTRA_PROVIDER, providerName2);
-                mRule.getActivity().startActivity(intent);
-            }
-        });
-
-        PollingCheck.waitFor(5000/*timeout*/, new PollingCheck.PollingCheckCondition() {
-            @Override
-            public boolean canPreProceed() {
-                return false;
-            }
-
-            @Override
-            public boolean canProceed() {
-                return provider2.getActivity() != null && provider2.getActivity().isStarted();
-            }
-        });
-        return provider2.getActivity();
-    }
-
     void assertIsColorDrawable(BackgroundManager manager, int color) {
         assertNull(manager.mLayerDrawable.mWrapper[0]);
         assertTrue(manager.mLayerDrawable.getDrawable(0)
@@ -246,7 +216,7 @@ public class BackgroundManagerTest {
 
     @Test
     public void establishInOnAttachToWindow() throws Throwable {
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onAttachedToWindow(TestActivity activity) {
                 BackgroundManager.getInstance(activity).attach(activity.getWindow());
@@ -256,8 +226,7 @@ public class BackgroundManagerTest {
             public void onStart(TestActivity activity) {
                 BackgroundManager.getInstance(activity).setColor(Color.BLUE);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
         BackgroundManager manager = BackgroundManager.getInstance(activity1);
@@ -269,7 +238,7 @@ public class BackgroundManagerTest {
 
     @Test
     public void multipleSetBitmaps() throws Throwable {
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onAttachedToWindow(TestActivity activity) {
                 BackgroundManager.getInstance(activity).attach(activity.getWindow());
@@ -279,9 +248,7 @@ public class BackgroundManagerTest {
             public void onStart(TestActivity activity) {
                 BackgroundManager.getInstance(activity).setColor(Color.BLUE);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1,
-                generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
         final BackgroundManager manager = BackgroundManager.getInstance(activity1);
@@ -307,7 +274,7 @@ public class BackgroundManagerTest {
 
     @Test
     public void multipleSetBitmapsAndColor() throws Throwable {
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onAttachedToWindow(TestActivity activity) {
                 BackgroundManager.getInstance(activity).attach(activity.getWindow());
@@ -317,8 +284,7 @@ public class BackgroundManagerTest {
             public void onStart(TestActivity activity) {
                 BackgroundManager.getInstance(activity).setColor(Color.BLUE);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
         final BackgroundManager manager = BackgroundManager.getInstance(activity1);
@@ -349,7 +315,7 @@ public class BackgroundManagerTest {
 
     @Test
     public void establishInOnCreate() throws Throwable {
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -360,8 +326,7 @@ public class BackgroundManagerTest {
             public void onStart(TestActivity activity) {
                 BackgroundManager.getInstance(activity).setColor(Color.BLUE);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
         BackgroundManager manager = BackgroundManager.getInstance(activity1);
@@ -373,7 +338,7 @@ public class BackgroundManagerTest {
 
     @Test
     public void establishInOnStart() throws Throwable {
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onStart(TestActivity activity) {
                 BackgroundManager m = BackgroundManager.getInstance(activity);
@@ -383,8 +348,7 @@ public class BackgroundManagerTest {
                 }
                 m.setColor(Color.BLUE);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
         BackgroundManager manager = BackgroundManager.getInstance(activity1);
@@ -396,7 +360,7 @@ public class BackgroundManagerTest {
 
     @Test
     public void assignColorImmediately() throws Throwable {
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -406,8 +370,7 @@ public class BackgroundManagerTest {
                 m.attach(activity.getWindow());
                 assertIsColorDrawable(m, Color.BLUE);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
         BackgroundManager manager = BackgroundManager.getInstance(activity1);
@@ -418,7 +381,7 @@ public class BackgroundManagerTest {
     @Test
     public void assignBitmapImmediately() throws Throwable {
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -428,8 +391,7 @@ public class BackgroundManagerTest {
                 m.attach(activity.getWindow());
                 assertIsBitmapDrawable(m, bitmap);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
         BackgroundManager manager = BackgroundManager.getInstance(activity1);
@@ -441,7 +403,7 @@ public class BackgroundManagerTest {
     @Test
     public void inheritBitmapByNewActivity() throws Throwable {
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -451,21 +413,21 @@ public class BackgroundManagerTest {
                 m.attach(activity.getWindow());
                 assertIsBitmapDrawable(m, bitmap);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
-        TestActivity.Provider provider2 = new TestActivity.Provider() {
-            @Override
-            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
-                super.onCreate(activity, savedInstanceState);
-                BackgroundManager m = BackgroundManager.getInstance(activity);
-                m.attach(activity.getWindow());
-                assertIsBitmapDrawable(m, bitmap);
-            }
-        };
+        TestActivity activity2 = mRule.launchSecondActivity(
+                generateProviderName("activity2"),
+                new TestActivity.Provider() {
+                    @Override
+                    public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                        super.onCreate(activity, savedInstanceState);
+                        BackgroundManager m = BackgroundManager.getInstance(activity);
+                        m.attach(activity.getWindow());
+                        assertIsBitmapDrawable(m, bitmap);
+                    }
+                });
 
-        TestActivity activity2 = launchActivity("activity2", provider2);
         waitForActivityStop(activity1);
 
         BackgroundManager manager2 = BackgroundManager.getInstance(activity2);
@@ -476,7 +438,7 @@ public class BackgroundManagerTest {
     @Test
     public void inheritColorByNewActivity() throws Throwable {
         final int color = Color.BLUE;
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -486,20 +448,20 @@ public class BackgroundManagerTest {
                 m.attach(activity.getWindow());
                 assertIsColorDrawable(m, color);
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
 
-        TestActivity.Provider provider2 = new TestActivity.Provider() {
-            @Override
-            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
-                super.onCreate(activity, savedInstanceState);
-                BackgroundManager m = BackgroundManager.getInstance(activity);
-                m.attach(activity.getWindow());
-                assertIsColorDrawable(m, color);
-            }
-        };
-        TestActivity activity2 = launchActivity("activity2", provider2);
+        TestActivity activity2 = mRule.launchSecondActivity(
+                generateProviderName("activity2"),
+                new TestActivity.Provider() {
+                    @Override
+                    public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                        super.onCreate(activity, savedInstanceState);
+                        BackgroundManager m = BackgroundManager.getInstance(activity);
+                        m.attach(activity.getWindow());
+                        assertIsColorDrawable(m, color);
+                    }
+                });
         waitForActivityStop(activity1);
 
         BackgroundManager manager2 = BackgroundManager.getInstance(activity2);
@@ -511,7 +473,7 @@ public class BackgroundManagerTest {
     public void returnFromNewActivity() throws Throwable {
         final int color = Color.RED;
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -523,21 +485,21 @@ public class BackgroundManagerTest {
                 assertIsBitmapDrawable(m, bitmap);
             }
 
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
         final BackgroundManager manager1 = BackgroundManager.getInstance(activity1);
 
-        TestActivity.Provider provider2 = new TestActivity.Provider() {
-            @Override
-            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
-                super.onCreate(activity, savedInstanceState);
-                BackgroundManager m = BackgroundManager.getInstance(activity);
-                m.attach(activity.getWindow());
-                assertIsBitmapDrawable(m, bitmap);
-            }
-        };
-        TestActivity activity2 = launchActivity("activity2", provider2);
+        TestActivity activity2 = mRule.launchSecondActivity(
+                generateProviderName("activity2"),
+                new TestActivity.Provider() {
+                    @Override
+                    public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                        super.onCreate(activity, savedInstanceState);
+                        BackgroundManager m = BackgroundManager.getInstance(activity);
+                        m.attach(activity.getWindow());
+                        assertIsBitmapDrawable(m, bitmap);
+                    }
+                });
         waitForActivityStop(activity1);
         final BackgroundManager manager2 = BackgroundManager.getInstance(activity2);
 
@@ -559,7 +521,7 @@ public class BackgroundManagerTest {
     public void manuallyReleaseInOnStop() throws Throwable {
         final int color = Color.RED;
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -576,21 +538,21 @@ public class BackgroundManagerTest {
             public void onStop(TestActivity activity) {
                 BackgroundManager.getInstance(activity).release();
             }
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
         final BackgroundManager manager1 = BackgroundManager.getInstance(activity1);
 
-        TestActivity.Provider provider2 = new TestActivity.Provider() {
-            @Override
-            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
-                super.onCreate(activity, savedInstanceState);
-                BackgroundManager m = BackgroundManager.getInstance(activity);
-                m.attach(activity.getWindow());
-                assertIsBitmapDrawable(m, bitmap);
-            }
-        };
-        TestActivity activity2 = launchActivity("activity2", provider2);
+        TestActivity activity2 = mRule.launchSecondActivity(
+                generateProviderName("activity2"),
+                new TestActivity.Provider() {
+                    @Override
+                    public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                        super.onCreate(activity, savedInstanceState);
+                        BackgroundManager m = BackgroundManager.getInstance(activity);
+                        m.attach(activity.getWindow());
+                        assertIsBitmapDrawable(m, bitmap);
+                    }
+                });
         waitForActivityStop(activity1);
         final BackgroundManager manager2 = BackgroundManager.getInstance(activity2);
 
@@ -612,7 +574,7 @@ public class BackgroundManagerTest {
     public void disableAutoRelease() throws Throwable {
         final int color = Color.RED;
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -625,21 +587,21 @@ public class BackgroundManagerTest {
                 assertIsBitmapDrawable(m, bitmap);
             }
 
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
         final BackgroundManager manager1 = BackgroundManager.getInstance(activity1);
 
-        TestActivity.Provider provider2 = new TestActivity.Provider() {
-            @Override
-            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
-                super.onCreate(activity, savedInstanceState);
-                BackgroundManager m = BackgroundManager.getInstance(activity);
-                m.attach(activity.getWindow());
-                assertIsBitmapDrawable(m, bitmap);
-            }
-        };
-        TestActivity activity2 = launchActivity("activity2", provider2);
+        TestActivity activity2 = mRule.launchSecondActivity(
+                generateProviderName("activity2"),
+                new TestActivity.Provider() {
+                    @Override
+                    public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                        super.onCreate(activity, savedInstanceState);
+                        BackgroundManager m = BackgroundManager.getInstance(activity);
+                        m.attach(activity.getWindow());
+                        assertIsBitmapDrawable(m, bitmap);
+                    }
+                });
         waitForActivityStop(activity1);
         final BackgroundManager manager2 = BackgroundManager.getInstance(activity2);
 
@@ -660,7 +622,7 @@ public class BackgroundManagerTest {
     @Test
     public void delayDrawableChangeUntilFullAlpha() throws Throwable {
         final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
-        TestActivity.Provider provider1 = new TestActivity.Provider() {
+        TestActivity.setProvider(mRule.getProviderName(), new TestActivity.Provider() {
             @Override
             public void onCreate(TestActivity activity, Bundle savedInstanceState) {
                 super.onCreate(activity, savedInstanceState);
@@ -670,8 +632,7 @@ public class BackgroundManagerTest {
                 m.setColor(Color.RED);
             }
 
-        };
-        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        });
         final TestActivity activity1 = mRule.launchActivity();
         final BackgroundManager manager1 = BackgroundManager.getInstance(activity1);
         assertIsColorDrawable(manager1, Color.RED);

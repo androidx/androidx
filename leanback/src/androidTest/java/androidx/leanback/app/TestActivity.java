@@ -20,7 +20,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.CallSuper;
-import androidx.test.rule.ActivityTestRule;
+import androidx.leanback.testutils.PollingCheck;
+import androidx.testutils.AnimationActivityTestRule;
 
 import java.util.HashMap;
 
@@ -65,14 +66,22 @@ public class TestActivity extends Activity {
         }
     }
 
-    public static class TestActivityTestRule extends ActivityTestRule<TestActivity> {
+    public static class TestActivityTestRule extends AnimationActivityTestRule<TestActivity> {
 
-        String mProviderName;
+        final String mProviderName;
+
         public TestActivityTestRule(TestActivity.Provider provider, String providerName) {
+            this(providerName);
+            TestActivity.setProvider(mProviderName, provider);
+        }
+
+        public TestActivityTestRule(String providerName) {
             super(TestActivity.class, false, false);
             mProviderName = providerName;
-            provider.mActivity = null;
-            TestActivity.setProvider(mProviderName, provider);
+        }
+
+        public String getProviderName() {
+            return mProviderName;
         }
 
         public TestActivity launchActivity() {
@@ -80,6 +89,37 @@ public class TestActivity extends Activity {
             intent.putExtra(TestActivity.EXTRA_PROVIDER, mProviderName);
             return launchActivity(intent);
         }
+
+        /**
+         * Launch secondary TestActivity without using TestActivityRule.
+         */
+        TestActivity launchSecondActivity(String providerName2, TestActivity.Provider provider2)
+                throws Throwable {
+            TestActivity.setProvider(providerName2, provider2);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(getActivity(), TestActivity.class);
+                    intent.putExtra(TestActivity.EXTRA_PROVIDER, providerName2);
+                    getActivity().startActivity(intent);
+                }
+            });
+
+            PollingCheck.waitFor(5000/*timeout*/, new PollingCheck.PollingCheckCondition() {
+                @Override
+                public boolean canPreProceed() {
+                    return false;
+                }
+
+                @Override
+                public boolean canProceed() {
+                    return provider2.getActivity() != null && provider2.getActivity().isStarted();
+                }
+            });
+            afterActivityLaunched();
+            return provider2.getActivity();
+        }
+
     }
 
     public static final String EXTRA_PROVIDER = "testActivityProvider";
