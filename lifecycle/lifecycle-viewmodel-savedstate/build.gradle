@@ -57,7 +57,7 @@ dependencies {
 androidx {
     name = "Android Lifecycle ViewModel with SavedState"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLES_SAVEDSTATE
+    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
