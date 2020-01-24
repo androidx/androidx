@@ -82,6 +82,11 @@ data class AccessibilityAction<T : Function<Unit>>(val label: String?, val actio
     }
 }
 
+data class AccessibilityRangeInfo(
+    val current: Float,
+    val range: ClosedFloatingPointRange<Float>
+)
+
 interface SemanticsPropertyReceiver {
     operator fun <T> set(key: SemanticsPropertyKey<T>, value: T)
 }

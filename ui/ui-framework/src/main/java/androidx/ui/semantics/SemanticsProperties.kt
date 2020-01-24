@@ -30,6 +30,9 @@ object SemanticsProperties {
 
     val AccessibilityValue = SemanticsPropertyKey<String>("AccessibilityValue")
 
+    val AccessibilityRangeInfo =
+        SemanticsPropertyKey<AccessibilityRangeInfo>("AccessibilityRangeInfo")
+
     val Enabled = SemanticsPropertyKey<Boolean>("Enabled")
 
     val Hidden = SemanticsPropertyKey<Boolean>("Hidden")
@@ -55,6 +58,9 @@ class SemanticsActions {
 var SemanticsPropertyReceiver.accessibilityLabel by SemanticsProperties.AccessibilityLabel
 
 var SemanticsPropertyReceiver.accessibilityValue by SemanticsProperties.AccessibilityValue
+
+var SemanticsPropertyReceiver.accessibilityValueRange
+        by SemanticsProperties.AccessibilityRangeInfo
 
 var SemanticsPropertyReceiver.enabled by SemanticsProperties.Enabled
 
