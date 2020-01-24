@@ -58,7 +58,8 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.AnimationActivityTestRule;
+import androidx.testutils.AnimationTest;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -84,7 +85,9 @@ public class GridWidgetTest {
     private static final int WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS = 2000;
     private static final int WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS = 6000;
 
-    protected ActivityTestRule<GridActivity> mActivityTestRule;
+    @Rule
+    public final AnimationActivityTestRule<GridActivity> mActivityTestRule =
+            new AnimationActivityTestRule<GridActivity>(GridActivity.class, false, false);;
     protected GridActivity mActivity;
     protected BaseGridView mGridView;
     protected GridLayoutManager mLayoutManager;
@@ -381,7 +384,6 @@ public class GridWidgetTest {
     }
 
     private void initActivity(Intent intent) throws Throwable {
-        mActivityTestRule = new ActivityTestRule<GridActivity>(GridActivity.class, false, false);
         mActivity = mActivityTestRule.launchActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
                 @Override
@@ -400,7 +402,6 @@ public class GridWidgetTest {
         mLayoutManager = null;
         mGridView = null;
         mActivity = null;
-        mActivityTestRule = null;
     }
 
     /**
@@ -833,6 +834,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testWrongInsertViewIndexInFastRelayout() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
@@ -901,6 +903,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testMoveIntoPrelayoutItems2() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
@@ -949,6 +952,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testPredictiveLayoutAdd1() throws Throwable {
         preparePredictiveLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -964,6 +968,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testPredictiveLayoutAdd2() throws Throwable {
         preparePredictiveLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -979,6 +984,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testPredictiveLayoutRemove1() throws Throwable {
         preparePredictiveLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -994,6 +1000,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testPredictiveLayoutRemove2() throws Throwable {
         preparePredictiveLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -1009,6 +1016,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testPredictiveLayoutRemove3() throws Throwable {
         preparePredictiveLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -1132,6 +1140,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testDontPruneMovingItem() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
@@ -1185,6 +1194,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testMoveItemToTheRight() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
@@ -1249,6 +1259,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testMoveItemToTheLeft() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
@@ -1600,6 +1611,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testSwapAfterScroll() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
@@ -4561,6 +4573,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void test27766012() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
@@ -5663,6 +5676,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testRemoveLastItemWithStableId() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
@@ -5840,6 +5854,7 @@ public class GridWidgetTest {
      * This test would need talkback on.
      */
     @Test
+    @AnimationTest
     public void testAccessibilityOfItemsBeingPushedOut() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
@@ -5942,6 +5957,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testAccessibilityNodeInfoOnRemovedFirstItem() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
@@ -5968,6 +5984,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @AnimationTest
     public void testAccessibilityNodeInfoOnRemovedLastItem() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);

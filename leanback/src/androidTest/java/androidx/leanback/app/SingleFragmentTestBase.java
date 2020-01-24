@@ -24,7 +24,7 @@ import android.os.SystemClock;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.AnimationActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -37,12 +37,12 @@ public class SingleFragmentTestBase {
     public TestName mUnitTestName = new TestName();
 
     @Rule
-    public ActivityTestRule<SingleFragmentTestActivity> activityTestRule =
-            new ActivityTestRule<>(SingleFragmentTestActivity.class, false, false);
+    public AnimationActivityTestRule<SingleFragmentTestActivity> activityTestRule =
+            new AnimationActivityTestRule<>(SingleFragmentTestActivity.class, false, false);
 
     @Rule
-    public ActivityTestRule<TestActivity> activityTestRule2 =
-            new ActivityTestRule<>(TestActivity.class, false, false);
+    public AnimationActivityTestRule<TestActivity> activityTestRule2 =
+            new AnimationActivityTestRule<>(TestActivity.class, false, false);
 
     public void sendKeys(int ...keys) {
         for (int i = 0; i < keys.length; i++) {

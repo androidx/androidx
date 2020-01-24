@@ -58,6 +58,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.testutils.AnimationTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @LargeTest
+@AnimationTest
 @RunWith(AndroidJUnit4.class)
 public class RowsFragmentTest extends SingleFragmentTestBase {
 
