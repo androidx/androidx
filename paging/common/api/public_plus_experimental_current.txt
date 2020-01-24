@@ -250,16 +250,10 @@ package androidx.paging {
   public final class PagingData<T> {
     method public androidx.paging.PagingData<T> addFooter(T item);
     method public androidx.paging.PagingData<T> addHeader(T item);
-    method public static <T> androidx.paging.PagingData<T> empty();
     method public androidx.paging.PagingData<T> filter(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public <R> androidx.paging.PagingData<R> flatMap(kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
     method public <R extends T> androidx.paging.PagingData<T> insertSeparators(kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
     method public <R> androidx.paging.PagingData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
-    field public static final androidx.paging.PagingData.Companion! Companion;
-  }
-
-  public static final class PagingData.Companion {
-    method public <T> androidx.paging.PagingData<T> empty();
   }
 
   public final class PagingDataFlow {
