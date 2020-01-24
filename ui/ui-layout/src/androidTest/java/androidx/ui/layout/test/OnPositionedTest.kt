@@ -298,7 +298,7 @@ class OnPositionedTest : LayoutTest() {
             val onPositioned = @Composable {
                 OnPositioned { coordinates ->
                     Assert.assertEquals(1, coordinates.providedAlignmentLines.size)
-                    Assert.assertEquals(lineValue, coordinates.providedAlignmentLines[line])
+                    Assert.assertEquals(lineValue, coordinates[line])
                     latch.countDown()
                 }
             }

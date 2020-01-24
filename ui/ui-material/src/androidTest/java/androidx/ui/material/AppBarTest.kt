@@ -106,7 +106,7 @@ class AppBarTest {
                             OnChildPositioned(onPositioned = { coords ->
                                 titleCoords = coords
                                 titleLastBaselineRelativePosition =
-                                    coords.providedAlignmentLines[LastBaseline]!!.toPx()
+                                    coords[LastBaseline]!!.toPx()
                             }) {
                                 Text("title")
                             }

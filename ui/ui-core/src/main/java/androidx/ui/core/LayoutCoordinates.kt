@@ -33,10 +33,9 @@ interface LayoutCoordinates {
     val size: IntPxSize
 
     /**
-     * The alignment lines provided for this layout, relative to the current layout.
-     * This map does not contain inherited lines.
+     * The alignment lines provided for this layout, not including inherited lines.
      */
-    val providedAlignmentLines: Map<AlignmentLine, IntPx>
+    val providedAlignmentLines: Set<AlignmentLine>
 
     /**
      * The coordinates of the parent layout. Null if there is no parent.
@@ -62,6 +61,12 @@ interface LayoutCoordinates {
      * Converts a child layout position into a local position within this layout.
      */
     fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition
+
+    /**
+     * Returns the position of an [alignment line][AlignmentLine],
+     * or `null` if the line is not provided.
+     */
+    operator fun get(line: AlignmentLine): IntPx?
 }
 
 /**
