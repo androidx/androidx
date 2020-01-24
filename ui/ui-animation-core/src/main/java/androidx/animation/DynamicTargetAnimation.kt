@@ -17,9 +17,9 @@
 package androidx.animation
 
 /**
- * TargetAnimation class defines how to animate to a given target position.
+ * TargetAnimation class defines how to animate to a given target value.
  *
- * @param target Target position for the animation to animate to
+ * @param target Target value for the animation to animate to
  * @param animation The animation that will be used to animate to the target destination. This
  *                  animation defaults to a Spring Animation unless specified.
  */
