@@ -22,7 +22,6 @@ package androidx.collection {
     method public boolean add(E?);
     method public void addAll(androidx.collection.ArraySet<? extends E>);
     method public boolean addAll(java.util.Collection<? extends E>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void append(E!);
     method public void clear();
     method public boolean contains(Object?);
     method public boolean containsAll(java.util.Collection<?>);

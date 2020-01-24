@@ -12,11 +12,6 @@ package androidx.work.testing {
     method public void setPeriodDelayMet(java.util.UUID);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TestForegroundUpdater implements androidx.work.ForegroundUpdater {
-    ctor public TestForegroundUpdater();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
-  }
-
   public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
     method public W build();
     method public static androidx.work.testing.TestListenableWorkerBuilder from(android.content.Context, androidx.work.WorkRequest);
@@ -35,11 +30,6 @@ package androidx.work.testing {
 
   public final class TestListenableWorkerBuilderKt {
     method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TestProgressUpdater implements androidx.work.ProgressUpdater {
-    ctor public TestProgressUpdater();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {

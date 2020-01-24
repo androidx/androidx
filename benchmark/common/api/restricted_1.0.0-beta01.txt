@@ -5,29 +5,13 @@ package androidx.benchmark {
   }
 
   public final class BenchmarkState {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public BenchmarkState();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public long getMin();
     method public boolean keepRunning();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public inline boolean keepRunningInline();
     method public void pauseTiming();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void report(String fullClassName, String simpleClassName, String methodName);
     method public void resumeTiming();
     field public static final androidx.benchmark.BenchmarkState.Companion! Companion;
   }
 
   public static final class BenchmarkState.Companion {
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class IsolationActivity extends android.app.Activity {
-    method public void actuallyFinish();
-    field public static final androidx.benchmark.IsolationActivity.Companion! Companion;
-  }
-
-  public static final class IsolationActivity.Companion {
-    method @AnyThread public void finishSingleton();
-    method public boolean getResumed();
-    method @WorkerThread public void launchSingleton();
-    property public final boolean resumed;
   }
 
 }

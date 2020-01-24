@@ -1,12 +1,6 @@
 // Signature format: 3.0
 package androidx.navigation.dynamicfeatures {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Constants {
-    field public static final String DESTINATION_ARGS = "dfn:destinationArgs";
-    field public static final String DESTINATION_ID = "dfn:destinationId";
-    field public static final String KEY_NAVIGATED = "dfn:navigated";
-  }
-
   @androidx.navigation.Navigator.Name("activity") public final class DynamicActivityNavigator extends androidx.navigation.ActivityNavigator {
     ctor public DynamicActivityNavigator(android.app.Activity activity, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
     method public androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination createDestination();
@@ -69,8 +63,6 @@ package androidx.navigation.dynamicfeatures {
 
   public class DynamicInstallManager {
     ctor public DynamicInstallManager(android.content.Context context, com.google.android.play.core.splitinstall.SplitInstallManager splitInstallManager);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final boolean needsInstall(String module);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.navigation.NavDestination? performInstall(androidx.navigation.NavDestination destination, android.os.Bundle? args, androidx.navigation.dynamicfeatures.DynamicExtras? extras, String moduleName);
   }
 
   public final class DynamicInstallMonitor {

@@ -192,12 +192,5 @@ package androidx.navigation {
     method @CallSuper public <T extends androidx.navigation.Navigator<?>> T getNavigator(String);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.navigation.Navigator.Name("NoOp") public class NoOpNavigator extends androidx.navigation.Navigator<androidx.navigation.NavDestination> {
-    ctor public NoOpNavigator();
-    method public androidx.navigation.NavDestination createDestination();
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.NavDestination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
-    method public boolean popBackStack();
-  }
-
 }
 

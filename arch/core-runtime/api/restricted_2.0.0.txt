@@ -1,13 +1,1 @@
 // Signature format: 3.0
-package androidx.arch.core.executor {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class DefaultTaskExecutor {
-    ctor public DefaultTaskExecutor();
-    method public void executeOnDiskIO(Runnable!);
-    method public void executeOnMainThread(Runnable);
-    method public boolean isMainThread();
-    method public void postToMainThread(Runnable!);
-  }
-
-}
-

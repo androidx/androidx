@@ -1,14 +1,6 @@
 // Signature format: 3.0
 package androidx.preference {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class AndroidResources {
-    field public static final int ANDROID_R_EDITTEXT_PREFERENCE_STYLE = 16842898; // 0x1010092
-    field public static final int ANDROID_R_ICON_FRAME = 16908350; // 0x102003e
-    field public static final int ANDROID_R_LIST_CONTAINER = 16908351; // 0x102003f
-    field public static final int ANDROID_R_PREFERENCE_FRAGMENT_STYLE = 16844038; // 0x1010506
-    field public static final int ANDROID_R_SWITCH_WIDGET = 16908352; // 0x1020040
-  }
-
   public class CheckBoxPreference extends androidx.preference.TwoStatePreference {
     ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!, int);
     ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!, int, int);
@@ -50,7 +42,6 @@ package androidx.preference {
     ctor public DropDownPreference(android.content.Context!, android.util.AttributeSet!, int);
     ctor public DropDownPreference(android.content.Context!, android.util.AttributeSet!, int, int);
     method protected android.widget.ArrayAdapter! createAdapter();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int findSpinnerIndexOfValue(String!);
   }
 
   public class EditTextPreference extends androidx.preference.DialogPreference {
@@ -104,7 +95,7 @@ package androidx.preference {
     method public void onDialogClosed(boolean);
   }
 
-  public class MultiSelectListPreference extends androidx.preference.internal.AbstractMultiSelectListPreference {
+  public class MultiSelectListPreference extends androidx.preference.DialogPreference {
     ctor public MultiSelectListPreference(android.content.Context!, android.util.AttributeSet!, int, int);
     ctor public MultiSelectListPreference(android.content.Context!, android.util.AttributeSet!, int);
     ctor public MultiSelectListPreference(android.content.Context!, android.util.AttributeSet!);
@@ -179,7 +170,6 @@ package androidx.preference {
     method protected void notifyHierarchyChanged();
     method public void onAttached();
     method protected void onAttachedToHierarchy(androidx.preference.PreferenceManager!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void onAttachedToHierarchy(androidx.preference.PreferenceManager!, long);
     method public void onBindViewHolder(androidx.preference.PreferenceViewHolder!);
     method protected void onClick();
     method public void onDependencyChanged(androidx.preference.Preference!, boolean);
@@ -193,8 +183,6 @@ package androidx.preference {
     method @Deprecated protected void onSetInitialValue(boolean, Object!);
     method protected void onSetInitialValue(Object?);
     method public android.os.Bundle! peekExtras();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void performClick(android.view.View!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void performClick();
     method protected boolean persistBoolean(boolean);
     method protected boolean persistFloat(float);
     method protected boolean persistInt(int);
@@ -273,7 +261,6 @@ package androidx.preference {
   public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
     ctor public PreferenceDialogFragment();
     method public androidx.preference.DialogPreference! getPreference();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected boolean needInputMethod();
     method protected void onBindDialogView(android.view.View!);
     method public void onClick(android.content.DialogInterface!, int);
     method public void onCreate(android.os.Bundle!);
@@ -289,7 +276,6 @@ package androidx.preference {
   public abstract class PreferenceDialogFragmentCompat extends androidx.fragment.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
     ctor public PreferenceDialogFragmentCompat();
     method public androidx.preference.DialogPreference! getPreference();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected boolean needInputMethod();
     method protected void onBindDialogView(android.view.View!);
     method public void onClick(android.content.DialogInterface!, int);
     method protected android.view.View! onCreateDialogView(android.content.Context!);
@@ -302,11 +288,9 @@ package androidx.preference {
     ctor public PreferenceFragment();
     method public void addPreferencesFromResource(@XmlRes int);
     method public androidx.preference.Preference! findPreference(CharSequence!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.app.Fragment! getCallbackFragment();
     method public final androidx.recyclerview.widget.RecyclerView! getListView();
     method public androidx.preference.PreferenceManager! getPreferenceManager();
     method public androidx.preference.PreferenceScreen! getPreferenceScreen();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void onBindPreferences();
     method public void onCreate(android.os.Bundle!);
     method protected androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter(androidx.preference.PreferenceScreen!);
     method public androidx.recyclerview.widget.RecyclerView.LayoutManager! onCreateLayoutManager();
@@ -320,7 +304,6 @@ package androidx.preference {
     method public void onSaveInstanceState(android.os.Bundle!);
     method public void onStart();
     method public void onStop();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void onUnbindPreferences();
     method public void onViewCreated(android.view.View!, android.os.Bundle!);
     method public void scrollToPreference(String!);
     method public void scrollToPreference(androidx.preference.Preference!);
@@ -347,11 +330,9 @@ package androidx.preference {
     ctor public PreferenceFragmentCompat();
     method public void addPreferencesFromResource(@XmlRes int);
     method public androidx.preference.Preference! findPreference(CharSequence!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.fragment.app.Fragment! getCallbackFragment();
     method public final androidx.recyclerview.widget.RecyclerView! getListView();
     method public androidx.preference.PreferenceManager! getPreferenceManager();
     method public androidx.preference.PreferenceScreen! getPreferenceScreen();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void onBindPreferences();
     method protected androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter(androidx.preference.PreferenceScreen!);
     method public androidx.recyclerview.widget.RecyclerView.LayoutManager! onCreateLayoutManager();
     method public abstract void onCreatePreferences(android.os.Bundle!, String!);
@@ -359,7 +340,6 @@ package androidx.preference {
     method public void onDisplayPreferenceDialog(androidx.preference.Preference!);
     method public void onNavigateToScreen(androidx.preference.PreferenceScreen!);
     method public boolean onPreferenceTreeClick(androidx.preference.Preference!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void onUnbindPreferences();
     method public void scrollToPreference(String!);
     method public void scrollToPreference(androidx.preference.Preference!);
     method public void setDivider(android.graphics.drawable.Drawable!);
@@ -391,22 +371,15 @@ package androidx.preference {
     method protected void dispatchSaveInstanceState(android.os.Bundle!);
     method public androidx.preference.Preference! findPreference(CharSequence!);
     method public int getInitialExpandedChildrenCount();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.preference.PreferenceGroup.OnExpandButtonClickListener? getOnExpandButtonClickListener();
     method public androidx.preference.Preference! getPreference(int);
     method public int getPreferenceCount();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isAttached();
     method protected boolean isOnSameScreenAsChildren();
     method public boolean isOrderingAsAdded();
     method protected boolean onPrepareAddPreference(androidx.preference.Preference!);
     method public void removeAll();
     method public boolean removePreference(androidx.preference.Preference!);
     method public void setInitialExpandedChildrenCount(int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setOnExpandButtonClickListener(androidx.preference.PreferenceGroup.OnExpandButtonClickListener?);
     method public void setOrderingAsAdded(boolean);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface PreferenceGroup.OnExpandButtonClickListener {
-    method public void onExpandButtonClick();
   }
 
   public static interface PreferenceGroup.PreferencePositionCallback {
@@ -414,21 +387,7 @@ package androidx.preference {
     method public int getPreferenceAdapterPosition(androidx.preference.Preference!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class PreferenceGroupAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.preference.PreferenceViewHolder> implements androidx.preference.PreferenceGroup.PreferencePositionCallback {
-    ctor public PreferenceGroupAdapter(androidx.preference.PreferenceGroup!);
-    method public androidx.preference.Preference! getItem(int);
-    method public int getItemCount();
-    method public int getPreferenceAdapterPosition(String!);
-    method public int getPreferenceAdapterPosition(androidx.preference.Preference!);
-    method public void onBindViewHolder(androidx.preference.PreferenceViewHolder!, int);
-    method public androidx.preference.PreferenceViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
-    method public void onPreferenceChange(androidx.preference.Preference!);
-    method public void onPreferenceHierarchyChange(androidx.preference.Preference!);
-    method public void onPreferenceVisibilityChange(androidx.preference.Preference!);
-  }
-
   public class PreferenceManager {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public PreferenceManager(android.content.Context!);
     method public androidx.preference.PreferenceScreen! createPreferenceScreen(android.content.Context!);
     method public androidx.preference.Preference! findPreference(CharSequence!);
     method public android.content.Context! getContext();
@@ -442,7 +401,6 @@ package androidx.preference {
     method public android.content.SharedPreferences! getSharedPreferences();
     method public int getSharedPreferencesMode();
     method public String! getSharedPreferencesName();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.preference.PreferenceScreen! inflateFromResource(android.content.Context!, int, androidx.preference.PreferenceScreen!);
     method public boolean isStorageDefault();
     method public boolean isStorageDeviceProtected();
     method public static void setDefaultValues(android.content.Context!, int, boolean);
@@ -485,12 +443,7 @@ package androidx.preference {
     method public boolean arePreferenceItemsTheSame(androidx.preference.Preference!, androidx.preference.Preference!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class PreferenceRecyclerViewAccessibilityDelegate extends androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate {
-    ctor public PreferenceRecyclerViewAccessibilityDelegate(androidx.recyclerview.widget.RecyclerView!);
-  }
-
   public final class PreferenceScreen extends androidx.preference.PreferenceGroup {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public PreferenceScreen(android.content.Context!, android.util.AttributeSet!);
     method public void setShouldUseGeneratedIds(boolean);
     method public boolean shouldUseGeneratedIds();
   }
@@ -562,34 +515,7 @@ package androidx.preference {
     method public void setSummaryOn(CharSequence!);
     method public void setSummaryOn(int);
     method protected void syncSummaryView(androidx.preference.PreferenceViewHolder!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void syncSummaryView(android.view.View!);
     field protected boolean mChecked;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class UnPressableLinearLayout extends android.widget.LinearLayout {
-    ctor public UnPressableLinearLayout(android.content.Context!);
-    ctor public UnPressableLinearLayout(android.content.Context!, android.util.AttributeSet!);
-  }
-
-}
-
-package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.preference.internal {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class AbstractMultiSelectListPreference extends androidx.preference.DialogPreference {
-    ctor public AbstractMultiSelectListPreference(android.content.Context!, android.util.AttributeSet!, int, int);
-    ctor public AbstractMultiSelectListPreference(android.content.Context!, android.util.AttributeSet!, int);
-    ctor public AbstractMultiSelectListPreference(android.content.Context!, android.util.AttributeSet!);
-    ctor public AbstractMultiSelectListPreference(android.content.Context!);
-    method public abstract CharSequence![]! getEntries();
-    method public abstract CharSequence![]! getEntryValues();
-    method public abstract java.util.Set<java.lang.String!>! getValues();
-    method public abstract void setValues(java.util.Set<java.lang.String!>!);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class PreferenceImageView extends android.widget.ImageView {
-    ctor public PreferenceImageView(android.content.Context!);
-    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!);
-    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!, int);
   }
 
 }
