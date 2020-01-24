@@ -2409,6 +2409,41 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testSmoothScrollStuck() throws Throwable {
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 30);
+
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffset(0);
+                mGridView.setWindowAlignmentOffsetPercent(50);
+                mGridView.setHasFixedSize(true);
+                mGridView.setSelectedPosition(29);
+            }
+        });
+        waitOneUiCycle();
+        // adding few items immediately consumes the pending moves
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(30, new int[]{200, 200});
+                // simulate pressing DPAD keys that creates a PendingMoveSmoothScroller
+                mGridView.mLayoutManager.processPendingMovement(true);
+            }
+        });
+        waitForScrollIdle();
+    }
+
+    @Test
     public void testSmoothScrollAndRemove() throws Throwable {
 
         Intent intent = new Intent();

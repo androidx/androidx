@@ -365,14 +365,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         @Override
-        protected void updateActionForInterimTarget(Action action) {
-            if (mPendingMoves == 0) {
-                return;
-            }
-            super.updateActionForInterimTarget(action);
-        }
-
-        @Override
         public PointF computeScrollVectorForPosition(int targetPosition) {
             if (mPendingMoves == 0) {
                 return null;
@@ -2785,7 +2777,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void processPendingMovement(boolean forward) {
+    void processPendingMovement(boolean forward) {
         if (forward ? hasCreatedLastItem() : hasCreatedFirstItem()) {
             return;
         }
