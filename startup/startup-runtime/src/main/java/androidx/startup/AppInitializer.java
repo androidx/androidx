@@ -28,10 +28,11 @@ import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An {@link AppInitializer} can be used to initialize all discovered [ComponentInitializer]s.
@@ -42,49 +43,67 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class AppInitializer {
 
     /**
+     * The {@link AppInitializer} instance.
+     */
+    private static AppInitializer sInstance;
+
+    /**
      * Guards app initialization.
      */
     private static final Object sLock = new Object();
 
+    @NonNull
+    final List<Class<?>> mDiscovered;
+
+    @NonNull
+    final Map<Class<?>, Object> mInitialized;
+
+    @NonNull
+    final Context mContext;
+
     /**
-     * Keeps track of whether components were initialized.
+     * Creates an instance of {@link AppInitializer}
+     *
+     * @param context The application context
+     */
+    AppInitializer(@NonNull Context context) {
+        mContext = context.getApplicationContext();
+        mInitialized = new HashMap<>();
+        mDiscovered = discoverComponents();
+    }
+
+    /**
+     * @param context The Application {@link Context}
+     * @return The instance of {@link AppInitializer} after initialization.
      */
     @NonNull
-    static final AtomicBoolean sInitialized = new AtomicBoolean(false);
-
-    private AppInitializer() {
-        // Does nothing.
+    @SuppressWarnings("UnusedReturnValue")
+    public static AppInitializer getInstance(@NonNull Context context) {
+        synchronized (sLock) {
+            if (sInstance == null) {
+                sInstance = new AppInitializer(context);
+            }
+            return sInstance;
+        }
     }
 
     /**
      * Discovers an initializes all available {@link ComponentInitializer} classes based on the
      * merged manifest `<meta-data>` entries in the `AndroidManifest.xml`.
-     *
-     * @param context The Application context
      */
-    public static void initialize(@NonNull Context context) {
-        Context applicationContext = context.getApplicationContext();
-        List<Class<?>> components = discoverComponents(applicationContext);
-        initialize(applicationContext, components);
+    public void initializeAllComponents() {
+        initializeComponents(mDiscovered);
     }
 
     /**
      * Initializes a {@link List} of {@link ComponentInitializer} class types.
      *
-     * @param context    The Application context
      * @param components The {@link List} of {@link Class}es that represent all discovered
      *                   {@link ComponentInitializer}s
      */
-    public static void initialize(@NonNull Context context, @NonNull List<Class<?>> components) {
+    public void initializeComponents(@NonNull List<Class<?>> components) {
         synchronized (sLock) {
-            Context applicationContext = context.getApplicationContext();
-            if (sInitialized.compareAndSet(false, true)) {
-                doInitialize(applicationContext, components, new HashSet<>(), new HashSet<>());
-            } else {
-                if (StartupLogger.DEBUG) {
-                    StartupLogger.i("Already initialized");
-                }
-            }
+            doInitialize(components, new HashSet<>());
         }
     }
 
@@ -92,13 +111,10 @@ public final class AppInitializer {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void doInitialize(
-            @NonNull Context context,
+    public void doInitialize(
             @NonNull List<Class<?>> components,
-            @NonNull Set<Class<?>> initializing,
-            @NonNull Set<Class<?>> initialized) {
+            @NonNull Set<Class<?>> initializing) {
 
-        Context applicationContext = context.getApplicationContext();
         for (Class<?> component : components) {
             if (initializing.contains(component)) {
                 String message = String.format(
@@ -106,7 +122,7 @@ public final class AppInitializer {
                 );
                 throw new IllegalStateException(message);
             }
-            if (!initialized.contains(component)) {
+            if (!mInitialized.containsKey(component)) {
                 initializing.add(component);
                 try {
                     Object instance = component.getDeclaredConstructor().newInstance();
@@ -121,22 +137,22 @@ public final class AppInitializer {
                             initializer.dependencies();
                     List<Class<?>> filtered = new ArrayList<>(dependencies.size());
                     for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
-                        if (!initialized.contains(clazz)) {
+                        if (!mInitialized.containsKey(clazz)) {
                             filtered.add(clazz);
                         }
                     }
                     if (!filtered.isEmpty()) {
-                        doInitialize(applicationContext, filtered, initializing, initialized);
+                        doInitialize(filtered, initializing);
                     }
                     if (StartupLogger.DEBUG) {
                         StartupLogger.i(String.format("Initializing %s", component.getName()));
                     }
-                    initializer.create(applicationContext);
+                    Object result = initializer.create(mContext);
                     if (StartupLogger.DEBUG) {
                         StartupLogger.i(String.format("Initialized %s", component.getName()));
                     }
                     initializing.remove(component);
-                    initialized.add(component);
+                    mInitialized.put(component, result);
                 } catch (Throwable throwable) {
                     throw new StartupException(throwable);
                 }
@@ -149,15 +165,14 @@ public final class AppInitializer {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static List<Class<?>> discoverComponents(@NonNull Context context) {
+    public List<Class<?>> discoverComponents() {
         try {
-            Context applicationContext = context.getApplicationContext();
             ApplicationInfo applicationInfo =
-                    applicationContext.getPackageManager()
-                            .getApplicationInfo(applicationContext.getPackageName(), GET_META_DATA);
+                    mContext.getPackageManager()
+                            .getApplicationInfo(mContext.getPackageName(), GET_META_DATA);
 
             Bundle metadata = applicationInfo.metaData;
-            String startup = applicationContext.getString(R.string.androidx_startup);
+            String startup = mContext.getString(R.string.androidx_startup);
             if (metadata != null) {
                 List<Class<?>> components = new ArrayList<>(metadata.size());
                 Set<String> keys = metadata.keySet();
