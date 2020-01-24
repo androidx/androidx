@@ -93,11 +93,10 @@ class SnackbarTest {
         assertThat(textCoords).isNotNull()
         textCoords?.let {
             withDensity(composeTestRule.density) {
-                val alignmentLines = it.providedAlignmentLines
-                assertThat(alignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                assertThat(alignmentLines.get(FirstBaseline))
-                    .isEqualTo(alignmentLines.get(LastBaseline))
-                assertThat(it.positionInParent.y.round() + alignmentLines.getValue(FirstBaseline))
+                assertThat(it[FirstBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(it[FirstBaseline])
+                    .isEqualTo(it[LastBaseline])
+                assertThat(it.positionInParent.y.round() + it[FirstBaseline]!!)
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -149,18 +148,16 @@ class SnackbarTest {
             localSnackCoords != null
         ) {
             withDensity(composeTestRule.density) {
-                val textAlignmentLines = localTextCoords.providedAlignmentLines
-                val buttonAlignmentLines = localButtonTextCoords.providedAlignmentLines
                 val buttonTextPos =
                     localSnackCoords.childToLocal(localButtonTextCoords, PxPosition.Origin)
-                assertThat(textAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                assertThat(buttonAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
+                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(localButtonTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
                 assertThat(
                     localTextCoords.globalPosition.y.round() +
-                            textAlignmentLines.getValue(FirstBaseline)
+                            localTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
                 assertThat(
-                    buttonTextPos.y.round() + buttonAlignmentLines.getValue(FirstBaseline)
+                    buttonTextPos.y.round() + localButtonTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
             }
         }
@@ -186,14 +183,12 @@ class SnackbarTest {
         assertThat(textCoords).isNotNull()
         textCoords?.let {
             withDensity(composeTestRule.density) {
-                val alignmentLines = it.providedAlignmentLines
-
-                assertThat(alignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                assertThat(alignmentLines.get(LastBaseline)).isNotEqualTo(IntPx.Zero)
-                assertThat(alignmentLines.get(FirstBaseline))
-                    .isNotEqualTo(alignmentLines.get(LastBaseline))
-                assertThat(it.positionInParent.y.round() + alignmentLines.getValue(FirstBaseline))
-                    .isEqualTo(30.dp.toIntPx())
+                assertThat(it[FirstBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(it[LastBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(it[FirstBaseline]).isNotEqualTo(it[LastBaseline])
+                assertThat(
+                    it.positionInParent.y.round() + it[FirstBaseline]!!
+                ).isEqualTo(30.dp.toIntPx())
             }
         }
     }
@@ -233,19 +228,18 @@ class SnackbarTest {
 
         if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
             withDensity(composeTestRule.density) {
-                val textAlignmentLines = localTextCoords.providedAlignmentLines
                 val buttonPositionInSnack =
                     localSnackCoords.childToLocal(localButtonCoords, PxPosition.Origin)
                 val buttonCenter =
                     buttonPositionInSnack.y + localButtonCoords.size.height / 2
 
-                assertThat(textAlignmentLines.get(FirstBaseline)).isNotEqualTo(IntPx.Zero)
-                assertThat(textAlignmentLines.get(LastBaseline)).isNotEqualTo(IntPx.Zero)
-                assertThat(textAlignmentLines.get(FirstBaseline))
-                    .isNotEqualTo(textAlignmentLines.get(LastBaseline))
+                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(localTextCoords[LastBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(localTextCoords[FirstBaseline])
+                    .isNotEqualTo(localTextCoords[LastBaseline])
                 assertThat(
                     localTextCoords.globalPosition.y.round() +
-                            textAlignmentLines.getValue(FirstBaseline)
+                            localTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
 
                 assertThat(buttonCenter).isEqualTo((localSnackCoords.size.height / 2).toPx())
@@ -286,19 +280,18 @@ class SnackbarTest {
 
         if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
             withDensity(composeTestRule.density) {
-                val textAlignmentLines = localTextCoords.providedAlignmentLines
                 val buttonPositionInSnack =
                     localSnackCoords.childToLocal(localButtonCoords, PxPosition.Origin)
                 val textPositionInSnack =
                     localSnackCoords.childToLocal(localTextCoords, PxPosition.Origin)
 
                 assertThat(
-                    textPositionInSnack.y.round() + textAlignmentLines.getValue(FirstBaseline)
+                    textPositionInSnack.y.round() + localTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
 
                 assertThat(
                     buttonPositionInSnack.y.round() - textPositionInSnack.y.round() -
-                            textAlignmentLines.getValue(LastBaseline)
+                            localTextCoords[LastBaseline]!!
                 ).isEqualTo(18.dp.toIntPx())
 
                 assertThat(
