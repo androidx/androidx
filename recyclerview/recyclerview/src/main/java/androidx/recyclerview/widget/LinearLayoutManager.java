@@ -120,11 +120,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     int mPendingScrollPosition = RecyclerView.NO_POSITION;
 
     /**
-     * Set if {@link #scrollToPosition(int)} or its variants is called. Even if the state is
-     * restored lazily, we'll ignore the saved state.
-     */
-    boolean mIgnoreSavedScrollPosition = false;
-    /**
      * Used to keep the offset value when {@link #scrollToPositionWithOffset(int, int)} is
      * called.
      */
@@ -283,9 +278,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof SavedState) {
             mPendingSavedState = (SavedState) state;
-            if (mIgnoreSavedScrollPosition) {
-                mPendingSavedState.invalidateAnchor();
-            }
             requestLayout();
             if (DEBUG) {
                 Log.d(TAG, "loaded saved state");
@@ -1080,7 +1072,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (mPendingSavedState != null) {
             mPendingSavedState.invalidateAnchor();
         }
-        mIgnoreSavedScrollPosition = true;
         requestLayout();
     }
 
@@ -1109,7 +1100,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (mPendingSavedState != null) {
             mPendingSavedState.invalidateAnchor();
         }
-        mIgnoreSavedScrollPosition = true;
         requestLayout();
     }
 
