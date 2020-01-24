@@ -78,7 +78,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
 
         // Remove hit paths from the tracker due to up events.
         pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
-            hitPathTracker.removePointerId(it.id)
+            hitPathTracker.removeHitPath(it.id)
         }
     }
 
@@ -92,8 +92,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
      */
     fun processCancel() {
         pointerInputChangeEventProducer.clear()
-        hitPathTracker.dispatchCancel()
-        hitPathTracker.clear()
+        hitPathTracker.processCancel()
     }
 
     /**
