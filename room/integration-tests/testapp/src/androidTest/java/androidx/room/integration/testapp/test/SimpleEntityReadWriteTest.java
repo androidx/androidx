@@ -55,6 +55,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -493,8 +494,21 @@ public class SimpleEntityReadWriteTest {
         mBlobEntityDao.insert(b);
         List<BlobEntity> list = mBlobEntityDao.selectAll();
         assertThat(list, hasSize(2));
+        ImmutableList<BlobEntity> immutableList = mBlobEntityDao.selectAllImmutable();
+        assertThat(immutableList, hasSize(2));
         mBlobEntityDao.updateContent(2, "ghi".getBytes(Charsets.UTF_8));
         assertThat(mBlobEntityDao.getContent(2), is(equalTo("ghi".getBytes(Charsets.UTF_8))));
+    }
+
+    @Test
+    public void blobImmutable() {
+        BlobEntity a = new BlobEntity(1, "abc".getBytes(Charsets.UTF_8));
+        BlobEntity b = new BlobEntity(2, "def".getBytes(Charsets.UTF_8));
+        mBlobEntityDao.insert(a);
+        mBlobEntityDao.insert(b);
+        ImmutableList<BlobEntity> immutableList = mBlobEntityDao.selectAllImmutable();
+        assertThat(immutableList, hasSize(2));
+        assertThat(immutableList.get(1).content, is(equalTo("def".getBytes(Charsets.UTF_8))));
     }
 
     @Test
