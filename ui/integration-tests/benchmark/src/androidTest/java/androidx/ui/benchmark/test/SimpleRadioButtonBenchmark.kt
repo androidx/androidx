@@ -31,6 +31,7 @@ import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.integration.test.core.SimpleRadioButton1TestCase
 import androidx.ui.integration.test.core.SimpleRadioButton2TestCase
 import androidx.ui.integration.test.core.SimpleRadioButton3TestCase
+import androidx.ui.integration.test.core.SimpleRadioButton4TestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +46,7 @@ class SimpleRadioButtonBenchmark {
     private val button1CaseFactory = { SimpleRadioButton1TestCase() }
     private val button2CaseFactory = { SimpleRadioButton2TestCase() }
     private val button3CaseFactory = { SimpleRadioButton3TestCase() }
+    private val button4CaseFactory = { SimpleRadioButton4TestCase() }
 
     @Test
     fun radio_button_1_first_compose() {
@@ -189,5 +191,55 @@ class SimpleRadioButtonBenchmark {
     @Test
     fun radio_button_3_draw() {
         benchmarkRule.benchmarkDrawPerf(button3CaseFactory)
+    }
+
+    @Test
+    fun radio_button_4_first_compose() {
+        benchmarkRule.benchmarkFirstCompose(button4CaseFactory)
+    }
+
+    @Test
+    fun radio_button_4_first_measure() {
+        benchmarkRule.benchmarkFirstMeasure(button4CaseFactory)
+    }
+
+    @Test
+    fun radio_button_4_first_layout() {
+        benchmarkRule.benchmarkFirstLayout(button4CaseFactory)
+    }
+
+    @Test
+    fun radio_button_4_first_draw() {
+        benchmarkRule.benchmarkFirstDraw(button4CaseFactory)
+    }
+
+    @Test
+    fun radio_button_4_update_recompose() {
+        benchmarkRule.toggleStateBenchmarkRecompose(button4CaseFactory)
+    }
+
+    @Test
+    fun radio_button_4_update_measure() {
+        benchmarkRule.toggleStateBenchmarkMeasure(button4CaseFactory, toggleCausesRecompose = true)
+    }
+
+    @Test
+    fun radio_button_4_update_layout() {
+        benchmarkRule.toggleStateBenchmarkLayout(button4CaseFactory, toggleCausesRecompose = true)
+    }
+
+    @Test
+    fun radio_button_4_update_draw() {
+        benchmarkRule.toggleStateBenchmarkDraw(button4CaseFactory, toggleCausesRecompose = true)
+    }
+
+    @Test
+    fun radio_button_4_layout() {
+        benchmarkRule.benchmarkLayoutPerf(button4CaseFactory)
+    }
+
+    @Test
+    fun radio_button_4_draw() {
+        benchmarkRule.benchmarkDrawPerf(button4CaseFactory)
     }
 }
