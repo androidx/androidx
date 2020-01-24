@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -310,17 +311,19 @@ public class RecyclerViewBasicTest {
         savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
 
         RecyclerView restored = new RecyclerView(getContext());
-        mRecyclerView = restored;
         MockLayoutManager mlmRestored = new MockLayoutManager();
         restored.setLayoutManager(mlmRestored);
         restored.setAdapter(new MockAdapter(3));
         restored.onRestoreInstanceState(savedState);
-        layout();
+
         assertEquals("Parcel reading should not go out of bounds", parcelSuffix,
                 parcel.readString());
         assertEquals("When unmarshalling, all of the parcel should be read", 0, parcel.dataAvail());
         assertEquals("uuid in layout manager should be preserved properly", mlm.mUuid,
                 mlmRestored.mUuid);
+        assertNotSame("stateless parameter should not be preserved", mlm.mLayoutCount,
+                mlmRestored.mLayoutCount);
+        layout();
     }
 
     @Test
