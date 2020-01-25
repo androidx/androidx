@@ -40,7 +40,7 @@ android {
 
 dependencies {
     api(project(":navigation:navigation-common"))
-    implementation("androidx.collection:collection:1.0.0")
+    implementation("androidx.collection:collection:1.1.0")
 
     api(KOTLIN_STDLIB)
     testImplementation(JUNIT)
