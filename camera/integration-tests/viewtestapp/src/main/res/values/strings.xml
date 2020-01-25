@@ -26,4 +26,9 @@ limitations under the License.
     <string name="camera_view">Camera View</string>
     <string name="preview_view">Preview View</string>
 
+    <!-- Override the default config provider for CameraX -->
+    <string name="androidx_camera_default_config_provider">
+        androidx.camera.integration.view.ViewCameraXConfigProvider
+    </string>
+
 </resources>
