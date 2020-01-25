@@ -5,10 +5,13 @@ package androidx.animation {
     ctor public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder, androidx.animation.AnimationClockObservable clock);
     ctor public AnimatedFloat(float initVal, androidx.animation.AnimationClockObservable clock);
     ctor @Deprecated public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder);
-    method public void doAnimationFrame$lintWithKotlin(long timeMillis);
+    method public float getMax();
+    method public float getMin();
     method public float getVelocity();
     method public void setBounds(float min = Float.NEGATIVE_INFINITY, float max = Float.POSITIVE_INFINITY);
     method public void snapTo(float targetValue);
+    property public final float max;
+    property public final float min;
     property public final float velocity;
   }
 
@@ -103,6 +106,7 @@ package androidx.animation {
     method public final void animateTo(T? targetValue, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
     method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
     method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim);
+    method protected void checkFinished(long playtime);
     method public final T! getTargetValue();
     method public final T! getValue();
     method public final boolean isRunning();

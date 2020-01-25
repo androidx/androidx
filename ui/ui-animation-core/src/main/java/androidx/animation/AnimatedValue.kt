@@ -210,7 +210,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
         onEnd?.invoke(endReason, endValue)
     }
 
-    internal open fun doAnimationFrame(timeMillis: Long) {
+    private fun doAnimationFrame(timeMillis: Long) {
         val playtime: Long
         if (startTime == Unset) {
             startTime = timeMillis
@@ -222,6 +222,11 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
         lastFrameTime = timeMillis
         value = anim.getValue(playtime)
         velocityVector = anim.getVelocity(playtime)
+
+        checkFinished(playtime)
+    }
+
+    protected open fun checkFinished(playtime: Long) {
         val animationFinished = anim.isFinished(playtime)
         if (DEBUG) {
             val debugLogMessage = if (animationFinished)
@@ -315,8 +320,21 @@ class AnimatedFloat(
     @Deprecated("This method is to support existing APIs not providing clocks.")
     constructor(valueHolder: ValueHolder<Float>) : this(valueHolder, DefaultAnimationClock())
 
-    private var min: Float = Float.NEGATIVE_INFINITY
-    private var max: Float = Float.POSITIVE_INFINITY
+    /**
+     * Lower bound of the animation value. When animations reach this lower bound, it will
+     * automatically stop with [AnimationEndReason] being [AnimationEndReason.BoundReached].
+     * This bound is [Float.NEGATIVE_INFINITY] by default. It can be adjusted via [setBounds].
+     */
+    var min: Float = Float.NEGATIVE_INFINITY
+        private set
+    /**
+     * Upper bound of the animation value. When animations reach this upper bound, it will
+     * automatically stop with [AnimationEndReason] being [AnimationEndReason.BoundReached].
+     * This bound is [Float.POSITIVE_INFINITY] by default. It can be adjusted via [setBounds].
+     */
+    var max: Float = Float.POSITIVE_INFINITY
+        private set
+
     val velocity: Float
         get() = velocityVector.value
 
@@ -339,14 +357,15 @@ class AnimatedFloat(
         super.snapTo(targetValue.coerceIn(min, max))
     }
 
-    override fun doAnimationFrame(timeMillis: Long) {
-        super.doAnimationFrame(timeMillis)
+    override fun checkFinished(playtime: Long) {
         if (value < min) {
             value = min
             endAnimation(BoundReached)
         } else if (value > max) {
             value = max
             endAnimation(BoundReached)
+        } else {
+            super.checkFinished(playtime)
         }
     }
 }
