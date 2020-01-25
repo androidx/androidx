@@ -16,17 +16,20 @@
 
 package androidx.camera.integration.view;
 
-import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraXConfig;
 
-/** The application. */
-public class ViewApplication extends Application implements CameraXConfig.Provider {
+/** Custom config provider to be specified by application resources */
+public final class ViewCameraXConfigProvider implements CameraXConfig.Provider {
+    private static final String TAG = "ViewConfigProvider";
+
     @NonNull
     @Override
     public CameraXConfig getCameraXConfig() {
+        Log.d(TAG, "Providing custom CameraXConfig");
         return Camera2Config.defaultConfig();
     }
 }
