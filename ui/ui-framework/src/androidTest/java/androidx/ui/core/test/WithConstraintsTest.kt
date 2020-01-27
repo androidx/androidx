@@ -556,6 +556,38 @@ class WithConstraintsTest {
         assertTrue(innerLayoutLatch.await(1, TimeUnit.SECONDS))
     }
 
+    @Test
+    fun triggerRootRemeasureWhileRootIsLayouting() {
+        val latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            activity.setContent {
+                val state = state { 0 }
+                ContainerChildrenAffectsParentSize(100.ipx, 100.ipx) {
+                    WithConstraints {
+                        Layout(children = {
+                            Draw { _, _ ->
+                                latch.countDown()
+                            }
+                        }) { _, _ ->
+                            // read and write once inside measureBlock
+                            if (state.value == 0) {
+                                state.value = 1
+                            }
+                            layout(100.ipx, 100.ipx) {}
+                        }
+                    }
+                    Container(100.ipx, 100.ipx) {
+                        WithConstraints {}
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        // before the fix this was failing our internal assertions in AndroidOwner
+        // so nothing else to assert, apart from not crashing
+    }
+
     private fun takeScreenShot(size: Int): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
@@ -603,6 +635,25 @@ fun Container(width: IntPx, height: IntPx, children: @Composable() () -> Unit) {
                     val placeable = it.measure(constraint)
                     placeable.place((width - placeable.width) / 2,
                         (height - placeable.height) / 2)
+                }
+            }
+        }
+    })
+}
+
+@Composable
+fun ContainerChildrenAffectsParentSize(
+    width: IntPx,
+    height: IntPx,
+    children: @Composable() () -> Unit
+) {
+    Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
+        { measurables, _ ->
+            val constraint = Constraints(maxWidth = width, maxHeight = height)
+            val placeables = measurables.map { it.measure(constraint) }
+            layout(width, height) {
+                placeables.forEach {
+                    it.place((width - width) / 2, (height - height) / 2)
                 }
             }
         }

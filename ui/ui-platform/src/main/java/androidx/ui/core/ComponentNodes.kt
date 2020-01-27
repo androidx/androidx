@@ -983,11 +983,19 @@ class LayoutNode : ComponentNode(), Measurable {
      * `true` when the parent's size depends on this LayoutNode's size
      */
     var affectsParentSize: Boolean = true
+        private set
 
     /**
      * `true` when inside [measure]
      */
     var isMeasuring: Boolean = false
+        private set
+
+    /**
+     * `true` when inside [layout]
+     */
+    var isLayingOut: Boolean = false
+        private set
 
     /**
      * `true` when the current node is positioned during the measure pass,
@@ -1002,6 +1010,7 @@ class LayoutNode : ComponentNode(), Measurable {
     var needsRemeasure = false
         internal set(value) {
             require(!isMeasuring)
+            require(!isLayingOut)
             field = value
         }
 
@@ -1010,7 +1019,11 @@ class LayoutNode : ComponentNode(), Measurable {
      * lambda accessed a model that has been dirtied.
      */
     var needsRelayout = false
-        internal set
+        internal set(value) {
+            require(!isMeasuring)
+            require(!isLayingOut)
+            field = value
+        }
 
     /**
      * `true` when the parent reads our alignment lines
@@ -1249,7 +1262,7 @@ class LayoutNode : ComponentNode(), Measurable {
             if (oldContentPosition != contentPosition) {
                 owner?.onPositionChange(this@LayoutNode)
             }
-            placeChildren()
+            layout()
         }
 
         override val density: Density get() = measureScope.density
@@ -1478,20 +1491,16 @@ class LayoutNode : ComponentNode(), Measurable {
             "measure() may not be called multiple times on the same Measurable"
         }
         measureIteration = iteration
+        val parent = parentLayoutNode
+        // The more idiomatic, `if (parentLayoutNode?.isMeasuring == true)` causes boxing
+        affectsParentSize = parent != null && parent.isMeasuring == true
         if (this.constraints == constraints && !needsRemeasure) {
-            val parent = parentLayoutNode
-            if (parent != null && parent.isMeasuring) {
-                affectsParentSize = true
-            }
             return layoutNodeWrapper // we're already measured to this size, don't do anything
         }
 
         needsRemeasure = false
         isMeasuring = true
         dirtyAlignmentLines = true
-        layoutChildren.forEach { child ->
-            child.affectsParentSize = false
-        }
         this.constraints = constraints
         owner.observeMeasureModelReads(this) {
             layoutNodeWrapper.measure(constraints)
@@ -1521,8 +1530,10 @@ class LayoutNode : ComponentNode(), Measurable {
 
     fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
 
-    fun placeChildren() {
+    fun layout() {
         if (needsRelayout) {
+            needsRelayout = false
+            isLayingOut = true
             val owner = requireOwner()
             owner.observeLayoutModelReads(this) {
                 layoutChildren.forEach { child ->
@@ -1541,7 +1552,6 @@ class LayoutNode : ComponentNode(), Measurable {
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
             }
-            needsRelayout = false
 
             if (alignmentLinesRequired && dirtyAlignmentLines) {
                 alignmentLines.clear()
@@ -1565,6 +1575,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 alignmentLines += providedAlignmentLines
                 dirtyAlignmentLines = false
             }
+            isLayingOut = false
         }
     }
 
@@ -1574,7 +1585,7 @@ class LayoutNode : ComponentNode(), Measurable {
         alignmentLinesQueriedSinceLastLayout = true
         if (dirtyAlignmentLines) {
             needsRelayout = true
-            placeChildren()
+            layout()
         }
         return alignmentLines
     }
@@ -1584,12 +1595,6 @@ class LayoutNode : ComponentNode(), Measurable {
             IntPxSize(layoutResult.width, layoutResult.height)
         )
 
-        // The more idiomatic, `if (parentLayoutNode?.isMeasuring == true)` causes boxing
-        val parent = parentLayoutNode
-        @Suppress("SimplifyBooleanWithConstants")
-        if (parent != null && parent.isMeasuring == true) {
-            affectsParentSize = true
-        }
         if (layoutNodeWrapper.hasDirtySize()) {
             owner?.onSizeChange(this@LayoutNode)
         }
