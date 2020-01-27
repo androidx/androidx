@@ -42,9 +42,6 @@ class IconParser(private val icon: Icon) {
 
         check(parser.name == "vector") { "The start tag must be <vector>!" }
 
-        val width = parser.getDpValueAsFloat(WIDTH) ?: 24f
-        val height = parser.getDpValueAsFloat(HEIGHT) ?: 24f
-
         parser.next()
 
         val nodes = mutableListOf<VectorNode>()
@@ -88,15 +85,9 @@ class IconParser(private val icon: Icon) {
             parser.next()
         }
 
-        return Vector(nodes, width, height)
+        return Vector(nodes)
     }
 }
-
-/**
- * @return the float value for the attribute [name], or null if it couldn't be found
- */
-private fun XmlPullParser.getDpValueAsFloat(name: String) =
-    getAttributeValue(null, name)?.replace("dp", "")?.toFloatOrNull()
 
 /**
  * @return the float value for the attribute [name], or null if it couldn't be found
@@ -125,8 +116,6 @@ private const val GROUP = "group"
 private const val PATH = "path"
 
 // XML attribute names
-private const val WIDTH = "android:width"
-private const val HEIGHT = "android:height"
 private const val PATH_DATA = "android:pathData"
 private const val FILL_ALPHA = "android:fillAlpha"
 private const val STROKE_ALPHA = "android:strokeAlpha"

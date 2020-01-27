@@ -17,12 +17,12 @@
 package androidx.ui.material.icons.generator.vector
 
 /**
- * Simplified representation of a vector, with root [nodes] and a preferred [width] and [height].
+ * Simplified representation of a vector, with root [nodes].
  *
  * [nodes] may either be a singleton list of the root group, or a list of root paths / groups if
  * there are multiple top level declaration.
  */
-class Vector(val nodes: List<VectorNode>, val width: Float, val height: Float)
+class Vector(val nodes: List<VectorNode>)
 
 /**
  * Simplified vector node representation, as the total set of properties we need to care about
