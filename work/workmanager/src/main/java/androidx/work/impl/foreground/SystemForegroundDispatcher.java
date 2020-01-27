@@ -85,6 +85,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     String mCurrentForegroundWorkSpecId;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
+    ForegroundInfo mLastForegroundInfo;
+
+    @SuppressWarnings("WeakerAccess") // Synthetic access
     final Map<String, ForegroundInfo> mForegroundInfoById;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
@@ -105,6 +108,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mWorkManagerImpl = WorkManagerImpl.getInstance(mContext);
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
         mCurrentForegroundWorkSpecId = null;
+        mLastForegroundInfo = null;
         mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
@@ -146,7 +150,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         }
 
         // Promote new notifications to the foreground if necessary.
-        ForegroundInfo removedInfo = mForegroundInfoById.remove(workSpecId);
+        mLastForegroundInfo = mForegroundInfoById.remove(workSpecId);
         if (workSpecId.equals(mCurrentForegroundWorkSpecId)) {
             if (mForegroundInfoById.size() > 0) {
                 // Find the next eligible ForegroundInfo
@@ -173,15 +177,16 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                     // that we reference count the Notification instance down by
                     // cancelling the notification.
                     mCallback.cancelNotification(info.getNotificationId());
+                    // Explicitly decrement the reference count for the notification
+                    // We are doing this just to be extra sure that all Notifications are cleared
+                    // when we may execute onExecuted() callbacks faster than Intents getting
+                    // delivered to the Foreground Service. This way mLastForegroundInfo truly
+                    // remains the last notification which needs to be cleared before
+                    // calling stopSelf().
+                    // More info at b/147249312
+                    mCallback.cancelNotification(mLastForegroundInfo.getNotificationId());
                 }
             }
-        } else if (mCallback != null && removedInfo != null) {
-            // We don't need to worry about the current foreground WorkSpecId because if there
-            // is nothing running, the Processor will call stopForeground() which will eventually
-            // turn into a stopSelf().
-
-            // Explicitly remove this notification instance to decrease the reference count.
-            mCallback.cancelNotification(removedInfo.getNotificationId());
         }
     }
 
@@ -290,6 +295,11 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private void handleStop(@NonNull Intent intent) {
         Logger.get().info(TAG, String.format("Stopping foreground service %s", intent));
         if (mCallback != null) {
+            if (mLastForegroundInfo != null) {
+                // Explicitly decrement the reference count for the notification.
+                mCallback.cancelNotification(mLastForegroundInfo.getNotificationId());
+                mLastForegroundInfo = null;
+            }
             mCallback.stop();
         }
     }
