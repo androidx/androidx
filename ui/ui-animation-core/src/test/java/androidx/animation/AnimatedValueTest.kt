@@ -56,6 +56,37 @@ class AnimatedValueTest {
         assertEquals(1.5f, animatedFloat.targetValue, epsilon)
     }
 
+    /**
+     * Test setBounds(Float, Float), min, max, and end reason.
+     */
+    @Test
+    fun testSetBounds() {
+        val animatedFloat = AnimatedFloat(0f, clock)
+        assertEquals(Float.NEGATIVE_INFINITY, animatedFloat.min)
+        assertEquals(Float.POSITIVE_INFINITY, animatedFloat.max)
+        animatedFloat.setBounds(-4f, 4f)
+        assertEquals(-4f, animatedFloat.min)
+        assertEquals(4f, animatedFloat.max)
+        var reason = AnimationEndReason.Interrupted
+
+        // Animate beyond upper bound
+        animatedFloat.animateTo(5f) { endReason: AnimationEndReason, _: Float ->
+                reason = endReason
+        }
+        clock.clockTimeMillis += 10000L
+        assertEquals(4f, animatedFloat.value)
+        assertEquals(AnimationEndReason.BoundReached, reason)
+
+        // Now animate beyond lower bound
+        reason = AnimationEndReason.Interrupted
+        animatedFloat.animateTo(-500f) { endReason: AnimationEndReason, _: Float ->
+            reason = endReason
+        }
+        clock.clockTimeMillis += 10000L
+        assertEquals(-4f, animatedFloat.value)
+        assertEquals(reason, AnimationEndReason.BoundReached)
+    }
+
     @Test
     fun testProgressionUp() {
         val animatedFloat = AnimatedFloat(0f, clock)
