@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":fragment:fragment"))
+    api("androidx.fragment:fragment:1.2.1")
     api(project(":navigation:navigation-runtime"))
 
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
