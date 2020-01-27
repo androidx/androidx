@@ -265,12 +265,12 @@ internal class PagePresenter<T : Any>(
         }
     }
 
-    companion object {
+    internal companion object {
         private val INITIAL = PagePresenter<Any>(
             Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Done, END to Done))
         )
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
-        fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>
+        internal fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>
     }
 }
