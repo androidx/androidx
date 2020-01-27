@@ -30,7 +30,7 @@ MERGE_COMMANDS = [SOURCE_JARS, EXECUTION_DATA, BUILD_INFO]
 # utility function to allow running these scripts from any directory with paths relative to androidx-master-dev/
 def move_to_base_dir(print_pwd=True):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    os.chdir("../../../")
+    os.chdir("../../../../")
     if print_pwd: print("Currently in", os.getcwd())
 
 move_to_base_dir(print_pwd=False)
