@@ -23,6 +23,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
 class WorkManagerIssueRegistry : IssueRegistry() {
+    override val api = CURRENT_API
     override val minApi: Int = CURRENT_API
     override val issues: List<Issue> = listOf(
         BadConfigurationProviderIssueDetector.ISSUE,
