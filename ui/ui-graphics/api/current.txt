@@ -469,6 +469,8 @@ package androidx.ui.graphics {
   public final class SolidColor implements androidx.ui.graphics.Brush {
     ctor public SolidColor(androidx.ui.graphics.Color value);
     method public void applyTo(androidx.ui.graphics.Paint p);
+    method public androidx.ui.graphics.Color component1();
+    method public androidx.ui.graphics.SolidColor copy(androidx.ui.graphics.Color value);
     method public androidx.ui.graphics.Color getValue();
   }
 
