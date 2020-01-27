@@ -58,3 +58,8 @@ android {
         }
     }
 }
+
+androidx {
+    // b/142788501: Set toolingProject to true so Dokka does not generate reference docs for this project
+    toolingProject = true
+}
