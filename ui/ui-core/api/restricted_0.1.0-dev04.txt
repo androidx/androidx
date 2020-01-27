@@ -144,8 +144,10 @@ package androidx.ui.core {
     method public java.util.Set<androidx.ui.core.AlignmentLine> getProvidedAlignmentLines();
     method public androidx.ui.unit.IntPxSize getSize();
     method public androidx.ui.unit.PxPosition globalToLocal(androidx.ui.unit.PxPosition global);
+    method public boolean isAttached();
     method public androidx.ui.unit.PxPosition localToGlobal(androidx.ui.unit.PxPosition local);
     method public androidx.ui.unit.PxPosition localToRoot(androidx.ui.unit.PxPosition local);
+    property public abstract boolean isAttached;
     property public abstract androidx.ui.core.LayoutCoordinates? parentCoordinates;
     property public abstract java.util.Set<androidx.ui.core.AlignmentLine> providedAlignmentLines;
     property public abstract androidx.ui.unit.IntPxSize size;

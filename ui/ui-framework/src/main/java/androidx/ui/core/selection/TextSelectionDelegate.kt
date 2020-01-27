@@ -42,7 +42,8 @@ internal class TextSelectionDelegate(
         previousSelection: Selection?,
         isStartHandle: Boolean
     ): Selection? {
-        val layoutCoordinates = layoutCoordinates.value!!
+        val layoutCoordinates = layoutCoordinates.value
+        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
         val textLayoutResult = textLayoutResult.value ?: return null
 
         val relativePosition = containerLayoutCoordinates.childToLocal(
