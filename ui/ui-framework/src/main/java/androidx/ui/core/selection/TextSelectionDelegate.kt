@@ -227,8 +227,6 @@ private fun getRefinedSelectionInfo(
     return getAssembledSelectionInfo(
         startOffset = startOffset,
         endOffset = endOffset,
-        containsWholeSelectionStart = containsWholeSelectionStart,
-        containsWholeSelectionEnd = containsWholeSelectionEnd,
         handlesCrossed = handlesCrossed,
         layoutCoordinates = layoutCoordinates,
         textLayoutResult = textLayoutResult
@@ -241,10 +239,6 @@ private fun getRefinedSelectionInfo(
  *
  * @param startOffset the final start offset to be returned.
  * @param endOffset the final end offset to be returned.
- * @param containsWholeSelectionStart a flag to check if current composable contains the overall
- * selection start
- * @param containsWholeSelectionEnd a flag to check if current composable contains the overall
- * selection end
  * @param handlesCrossed true if the selection handles are crossed
  * @param layoutCoordinates The [LayoutCoordinates] of the composable.
  * @param textLayoutResult a result of the text layout.
@@ -254,8 +248,6 @@ private fun getRefinedSelectionInfo(
 private fun getAssembledSelectionInfo(
     startOffset: Int,
     endOffset: Int,
-    containsWholeSelectionStart: Boolean,
-    containsWholeSelectionEnd: Boolean,
     handlesCrossed: Boolean,
     layoutCoordinates: LayoutCoordinates,
     textLayoutResult: TextLayoutResult
@@ -270,7 +262,7 @@ private fun getAssembledSelectionInfo(
             ),
             direction = textLayoutResult.getBidiRunDirection(startOffset),
             offset = startOffset,
-            layoutCoordinates = if (containsWholeSelectionStart) layoutCoordinates else null
+            layoutCoordinates = layoutCoordinates
         ),
         end = Selection.AnchorInfo(
             coordinates = getSelectionHandleCoordinates(
@@ -281,7 +273,7 @@ private fun getAssembledSelectionInfo(
             ),
             direction = textLayoutResult.getBidiRunDirection(max(endOffset - 1, 0)),
             offset = endOffset,
-            layoutCoordinates = if (containsWholeSelectionEnd) layoutCoordinates else null
+            layoutCoordinates = layoutCoordinates
         ),
         handlesCrossed = handlesCrossed
     )

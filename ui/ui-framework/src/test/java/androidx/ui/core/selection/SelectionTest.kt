@@ -197,63 +197,6 @@ class SelectionTest {
     }
 
     @Test
-    fun selection_handles_crossed_to_not_crossed() {
-        val startOffset1 = 20
-        val endOffset1 = 9
-        val startCoordinates1 = PxPosition(50.px, 50.px)
-        val endCoordinates1 = PxPosition(20.px, 20.px)
-        val layoutCoordinates: LayoutCoordinates = mock()
-        val startAnchor1 = Selection.AnchorInfo(
-            coordinates = startCoordinates1,
-            direction = TextDirection.Ltr,
-            offset = startOffset1,
-            layoutCoordinates = layoutCoordinates
-        )
-        val endAnchor1 = Selection.AnchorInfo(
-            coordinates = endCoordinates1,
-            direction = TextDirection.Ltr,
-            offset = endOffset1,
-            layoutCoordinates = layoutCoordinates
-        )
-        val oldSelection = Selection(
-            start = startAnchor1,
-            end = endAnchor1,
-            handlesCrossed = true
-        )
-        val startOffset2 = 0
-        val endOffset2 = 30
-        val startCoordinates2 = PxPosition(0.px, 20.px)
-        val endCoordinates2 = PxPosition(50.px, 300.px)
-        val startAnchor2 = Selection.AnchorInfo(
-            coordinates = startCoordinates2,
-            direction = TextDirection.Ltr,
-            offset = startOffset2,
-            layoutCoordinates = layoutCoordinates
-        )
-        val endAnchor2 = Selection.AnchorInfo(
-            coordinates = endCoordinates2,
-            direction = TextDirection.Ltr,
-            offset = endOffset2,
-            layoutCoordinates = layoutCoordinates
-        )
-        val newSelection = Selection(
-            start = startAnchor2,
-            end = endAnchor2,
-            handlesCrossed = false
-        )
-
-        val selection = oldSelection.merge(newSelection)
-
-        assertThat(selection.start.offset).isEqualTo(startOffset2)
-        assertThat(selection.end.offset).isEqualTo(endOffset2)
-        assertThat(selection.start.coordinates).isEqualTo(startCoordinates2)
-        assertThat(selection.end.coordinates).isEqualTo(endCoordinates2)
-        assertThat(selection.start.layoutCoordinates).isEqualTo(layoutCoordinates)
-        assertThat(selection.end.layoutCoordinates).isEqualTo(layoutCoordinates)
-        assertThat(selection.handlesCrossed).isFalse()
-    }
-
-    @Test
     fun selection_toTextRange_handles_not_cross() {
         val startOffset = 0
         val endOffset = 6

@@ -70,7 +70,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * @param startPosition [PxPosition] for the start of the selection
      * @param endPosition [PxPosition] for the end of the selection
      * @param longPress the selection is a result of long press
-     * @param selection initial selection to start with
      *
      * @return [Selection] object which is constructed by combining all Composables that are
      * selected.
@@ -84,7 +83,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         isStartHandle: Boolean = true
     ): Selection? {
         val handlers = selectionRegistrar.selectables
-        return handlers.fold(selection) { mergedSelection: Selection?,
+        return handlers.fold(null) { mergedSelection: Selection?,
                                           handler: Selectable ->
             merge(
                 mergedSelection,

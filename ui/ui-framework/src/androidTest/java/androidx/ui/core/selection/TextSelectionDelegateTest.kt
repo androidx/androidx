@@ -1387,7 +1387,7 @@ class TextSelectionDelegateTest {
                     PxPosition(0.px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(0)
             }
 
@@ -1446,7 +1446,7 @@ class TextSelectionDelegateTest {
                     PxPosition((fontSizeInPx * (text.length)).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(text.length)
             }
         }
@@ -1485,7 +1485,7 @@ class TextSelectionDelegateTest {
                     PxPosition(((text.length) * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(text.length)
             }
 
@@ -1545,7 +1545,7 @@ class TextSelectionDelegateTest {
                     PxPosition(0.px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(0)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
