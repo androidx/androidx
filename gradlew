@@ -215,10 +215,22 @@ if [ "$TMPDIR" != "" ]; then
   TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
 fi
 
+function tryToDiagnosePossibleDaemonFailure() {
+  # copy daemon logs
+  if [ -n "$GRADLE_USER_HOME" ]; then
+    if [ -n "$DIST_DIR" ]; then
+      cp -r "$GRADLE_USER_HOME/daemon" "$DIST_DIR/gradle-daemon"
+      # TODO (146217083): consider removing this after the Gradle daemons stop occasionally dying
+      echo "Current java processes: '$(ps -ef | grep java)'"
+    fi
+  fi
+}
+
 function runGradle() {
   if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$XMX_ARG" "$@"; then
     return 0
   else
+    tryToDiagnosePossibleDaemonFailure
     # Print AndroidX-specific help message if build fails
     # Have to do this build-failure detection in gradlew rather than in build.gradle
     # so that this message still prints even if buildSrc itself fails
