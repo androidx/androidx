@@ -19,12 +19,14 @@
 package androidx.startup.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
 /**
  * The [IssueRegistry] for `androidx.startup`.
  */
 class StartupRuntimeIssueRegistry : IssueRegistry() {
+    override val api = CURRENT_API
     override val issues: List<Issue>
         get() = listOf(
             ComponentInitializerConstructorDetector.ISSUE,
