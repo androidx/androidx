@@ -92,5 +92,4 @@ androidx {
     description = "Android WorkManager runtime library"
     url = AndroidXExtension.ARCHITECTURE_URL
     failOnDeprecationWarnings = false
-    trackRestrictedAPIs = false
 }

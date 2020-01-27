@@ -50,5 +50,4 @@ androidx {
     inceptionYear = "2017"
     description = "A library that handles rendering of slice content into supported templates"
     failOnDeprecationWarnings = false
-    trackRestrictedAPIs = false
 }

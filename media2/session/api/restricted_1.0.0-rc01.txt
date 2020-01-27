@@ -59,9 +59,7 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> addPlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> adjustVolume(@androidx.media2.session.MediaController.VolumeDirection int, @androidx.media2.session.MediaController.VolumeFlags int);
     method public void close();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> deselectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> fastForward();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.media2.session.SessionCommandGroup? getAllowedCommands();
     method public long getBufferedPosition();
     method @androidx.media2.common.SessionPlayer.BuffState public int getBufferingState();
     method public androidx.media2.session.SessionToken? getConnectedToken();
@@ -77,11 +75,8 @@ package androidx.media2.session {
     method public androidx.media2.common.MediaMetadata? getPlaylistMetadata();
     method public int getPreviousMediaItemIndex();
     method @androidx.media2.common.SessionPlayer.RepeatMode public int getRepeatMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrack(@androidx.media2.common.SessionPlayer.TrackInfo.MediaTrackType int);
     method public android.app.PendingIntent? getSessionActivity();
     method @androidx.media2.common.SessionPlayer.ShuffleMode public int getShuffleMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!>? getTrackInfo();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.media2.common.VideoSize getVideoSize();
     method public boolean isConnected();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> pause();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> play();
@@ -92,12 +87,10 @@ package androidx.media2.session {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> prepareFromMediaId(String, android.os.Bundle?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> prepareFromSearch(String, android.os.Bundle?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> prepareFromUri(android.net.Uri, android.os.Bundle?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void registerExtraCallback(java.util.concurrent.Executor, androidx.media2.session.MediaController.ControllerCallback);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> removePlaylistItem(@IntRange(from=0) int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> replacePlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> rewind();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> seekTo(long);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> selectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> sendCustomCommand(androidx.media2.session.SessionCommand, android.os.Bundle?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setMediaItem(String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setPlaybackSpeed(float);
@@ -105,7 +98,6 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRating(String, androidx.media2.common.Rating);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRepeatMode(@androidx.media2.common.SessionPlayer.RepeatMode int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setShuffleMode(@androidx.media2.common.SessionPlayer.ShuffleMode int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!>! setSurface(android.view.Surface?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setTimeDiff(Long!);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setVolumeTo(int, @androidx.media2.session.MediaController.VolumeFlags int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipBackward();
@@ -113,7 +105,6 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipToNextPlaylistItem();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipToPlaylistItem(@IntRange(from=0) int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipToPreviousPlaylistItem();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void unregisterExtraCallback(androidx.media2.session.MediaController.ControllerCallback);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> updatePlaylistMetadata(androidx.media2.common.MediaMetadata?);
   }
 
@@ -143,11 +134,6 @@ package androidx.media2.session {
     method public void onSeekCompleted(androidx.media2.session.MediaController, long);
     method @androidx.media2.session.SessionResult.ResultCode public int onSetCustomLayout(androidx.media2.session.MediaController, java.util.List<androidx.media2.session.MediaSession.CommandButton!>);
     method public void onShuffleModeChanged(androidx.media2.session.MediaController, @androidx.media2.common.SessionPlayer.ShuffleMode int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onSubtitleData(androidx.media2.session.MediaController, androidx.media2.common.MediaItem, androidx.media2.common.SessionPlayer.TrackInfo, androidx.media2.common.SubtitleData);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onTrackDeselected(androidx.media2.session.MediaController, androidx.media2.common.SessionPlayer.TrackInfo);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onTrackInfoChanged(androidx.media2.session.MediaController, java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onTrackSelected(androidx.media2.session.MediaController, androidx.media2.common.SessionPlayer.TrackInfo);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onVideoSizeChanged(androidx.media2.session.MediaController, androidx.media2.common.MediaItem, androidx.media2.common.VideoSize);
   }
 
   public static final class MediaController.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
@@ -348,7 +334,6 @@ package androidx.media2.session {
     field public static final int COMMAND_CODE_LIBRARY_SUBSCRIBE = 50001; // 0xc351
     field public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 50002; // 0xc352
     field public static final int COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM = 10013; // 0x271d
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int COMMAND_CODE_PLAYER_DESELECT_TRACK = 11002; // 0x2afa
     field public static final int COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM = 10016; // 0x2720
     field public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST = 10005; // 0x2715
     field public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA = 10012; // 0x271c
@@ -358,13 +343,11 @@ package androidx.media2.session {
     field public static final int COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM = 10014; // 0x271e
     field public static final int COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM = 10015; // 0x271f
     field public static final int COMMAND_CODE_PLAYER_SEEK_TO = 10003; // 0x2713
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int COMMAND_CODE_PLAYER_SELECT_TRACK = 11001; // 0x2af9
     field public static final int COMMAND_CODE_PLAYER_SET_MEDIA_ITEM = 10018; // 0x2722
     field public static final int COMMAND_CODE_PLAYER_SET_PLAYLIST = 10006; // 0x2716
     field public static final int COMMAND_CODE_PLAYER_SET_REPEAT_MODE = 10011; // 0x271b
     field public static final int COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE = 10010; // 0x271a
     field public static final int COMMAND_CODE_PLAYER_SET_SPEED = 10004; // 0x2714
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int COMMAND_CODE_PLAYER_SET_SURFACE = 11000; // 0x2af8
     field public static final int COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM = 10009; // 0x2719
     field public static final int COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM = 10007; // 0x2717
     field public static final int COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM = 10008; // 0x2718
@@ -386,7 +369,7 @@ package androidx.media2.session {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_VERSION_CURRENT = 1; // 0x1
   }
 
-  @IntDef({androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PLAY, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PAUSE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PREPARE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_PLAYLIST, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SURFACE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK, androidx.media2.session.SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME, androidx.media2.session.SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_REWIND, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_FORWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_BACKWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionCommand.CommandCode {
+  @IntDef({androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PLAY, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PAUSE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PREPARE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_PLAYLIST, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, 0x2af8, 0x2af9, 0x2afa, androidx.media2.session.SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME, androidx.media2.session.SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_REWIND, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_FORWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_BACKWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionCommand.CommandCode {
   }
 
   @IntDef({androidx.media2.session.SessionCommand.COMMAND_VERSION_1}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionCommand.CommandVersion {
@@ -465,34 +448,6 @@ package androidx.media2.session {
     ctor public ThumbRating(boolean);
     method public boolean isRated();
     method public boolean isThumbUp();
-  }
-
-}
-
-package androidx.media2.session.futures {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class AbstractResolvableFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {
-    ctor protected AbstractResolvableFuture();
-    method public final void addListener(Runnable!, java.util.concurrent.Executor!);
-    method protected void afterDone();
-    method public final boolean cancel(boolean);
-    method public final V! get(long, java.util.concurrent.TimeUnit!) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
-    method public final V! get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
-    method protected void interruptTask();
-    method public final boolean isCancelled();
-    method public final boolean isDone();
-    method protected String? pendingToString();
-    method protected boolean set(V?);
-    method protected boolean setException(Throwable!);
-    method protected boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
-    method protected final boolean wasInterrupted();
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResolvableFuture<V> extends androidx.media2.session.futures.AbstractResolvableFuture<V> {
-    method public static <V> androidx.media2.session.futures.ResolvableFuture<V!>! create();
-    method public boolean set(V?);
-    method public boolean setException(Throwable!);
-    method public boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
   }
 
 }

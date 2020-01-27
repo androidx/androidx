@@ -71,31 +71,11 @@ package androidx.transition {
   }
 
   public class Fade extends androidx.transition.Visibility {
-    ctor public Fade(@androidx.transition.Visibility.Mode int);
+    ctor public Fade(int);
     ctor public Fade();
     ctor public Fade(android.content.Context!, android.util.AttributeSet!);
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class FragmentTransitionSupport {
-    ctor public FragmentTransitionSupport();
-    method public void addTarget(Object!, android.view.View!);
-    method public void addTargets(Object!, java.util.ArrayList<android.view.View!>!);
-    method public void beginDelayedTransition(android.view.ViewGroup!, Object!);
-    method public boolean canHandle(Object!);
-    method public Object! cloneTransition(Object!);
-    method public Object! mergeTransitionsInSequence(Object!, Object!, Object!);
-    method public Object! mergeTransitionsTogether(Object!, Object!, Object!);
-    method public void removeTarget(Object!, android.view.View!);
-    method public void replaceTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
-    method public void scheduleHideFragmentView(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
-    method public void scheduleRemoveTargets(Object!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!);
-    method public void setEpicenter(Object!, android.view.View!);
-    method public void setEpicenter(Object!, android.graphics.Rect!);
-    method public void setSharedElementTargets(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
-    method public void swapSharedElementTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
-    method public Object! wrapTransitionInSet(Object!);
   }
 
   public abstract class PathMotion {
@@ -128,18 +108,15 @@ package androidx.transition {
     ctor public SidePropagation();
     method public long getStartDelay(android.view.ViewGroup!, androidx.transition.Transition!, androidx.transition.TransitionValues!, androidx.transition.TransitionValues!);
     method public void setPropagationSpeed(float);
-    method public void setSide(@androidx.transition.Slide.GravityFlag int);
+    method public void setSide(int);
   }
 
   public class Slide extends androidx.transition.Visibility {
     ctor public Slide();
-    ctor public Slide(@androidx.transition.Slide.GravityFlag int);
+    ctor public Slide(int);
     ctor public Slide(android.content.Context!, android.util.AttributeSet!);
-    method @androidx.transition.Slide.GravityFlag public int getSlideEdge();
-    method public void setSlideEdge(@androidx.transition.Slide.GravityFlag int);
-  }
-
-  @IntDef({android.view.Gravity.LEFT, android.view.Gravity.TOP, android.view.Gravity.RIGHT, android.view.Gravity.BOTTOM, android.view.Gravity.START, android.view.Gravity.END}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface Slide.GravityFlag {
+    method public int getSlideEdge();
+    method public void setSlideEdge(int);
   }
 
   public abstract class Transition implements java.lang.Cloneable {
@@ -150,14 +127,10 @@ package androidx.transition {
     method public androidx.transition.Transition addTarget(@IdRes int);
     method public androidx.transition.Transition addTarget(String);
     method public androidx.transition.Transition addTarget(Class);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void animate(android.animation.Animator!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void cancel();
     method public abstract void captureEndValues(androidx.transition.TransitionValues);
     method public abstract void captureStartValues(androidx.transition.TransitionValues);
     method public androidx.transition.Transition! clone();
     method public android.animation.Animator? createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void createAnimators(android.view.ViewGroup!, androidx.transition.TransitionValuesMaps!, androidx.transition.TransitionValuesMaps!, java.util.ArrayList<androidx.transition.TransitionValues!>!, java.util.ArrayList<androidx.transition.TransitionValues!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void end();
     method public androidx.transition.Transition excludeChildren(android.view.View, boolean);
     method public androidx.transition.Transition excludeChildren(@IdRes int, boolean);
     method public androidx.transition.Transition excludeChildren(Class, boolean);
@@ -180,22 +153,18 @@ package androidx.transition {
     method public String![]? getTransitionProperties();
     method public androidx.transition.TransitionValues? getTransitionValues(android.view.View, boolean);
     method public boolean isTransitionRequired(androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void pause(android.view.View!);
     method public androidx.transition.Transition removeListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.Transition removeTarget(android.view.View);
     method public androidx.transition.Transition removeTarget(@IdRes int);
     method public androidx.transition.Transition removeTarget(String);
     method public androidx.transition.Transition removeTarget(Class);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void resume(android.view.View!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void runAnimators();
     method public androidx.transition.Transition setDuration(long);
     method public void setEpicenterCallback(androidx.transition.Transition.EpicenterCallback?);
     method public androidx.transition.Transition setInterpolator(android.animation.TimeInterpolator?);
-    method public void setMatchOrder(@androidx.transition.Transition.MatchOrder int...);
+    method public void setMatchOrder(int...);
     method public void setPathMotion(androidx.transition.PathMotion?);
     method public void setPropagation(androidx.transition.TransitionPropagation?);
     method public androidx.transition.Transition setStartDelay(long);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void start();
     field public static final int MATCH_ID = 3; // 0x3
     field public static final int MATCH_INSTANCE = 1; // 0x1
     field public static final int MATCH_ITEM_ID = 4; // 0x4
@@ -205,9 +174,6 @@ package androidx.transition {
   public abstract static class Transition.EpicenterCallback {
     ctor public Transition.EpicenterCallback();
     method public abstract android.graphics.Rect! onGetEpicenter(androidx.transition.Transition);
-  }
-
-  @IntDef({androidx.transition.Transition.MATCH_INSTANCE, androidx.transition.Transition.MATCH_NAME, androidx.transition.Transition.MATCH_ID, androidx.transition.Transition.MATCH_ITEM_ID}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface Transition.MatchOrder {
   }
 
   public static interface Transition.TransitionListener {
@@ -291,18 +257,15 @@ package androidx.transition {
     ctor public Visibility(android.content.Context!, android.util.AttributeSet!);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
-    method @androidx.transition.Visibility.Mode public int getMode();
+    method public int getMode();
     method public boolean isVisible(androidx.transition.TransitionValues!);
     method public android.animation.Animator! onAppear(android.view.ViewGroup!, androidx.transition.TransitionValues!, int, androidx.transition.TransitionValues!, int);
     method public android.animation.Animator! onAppear(android.view.ViewGroup!, android.view.View!, androidx.transition.TransitionValues!, androidx.transition.TransitionValues!);
     method public android.animation.Animator! onDisappear(android.view.ViewGroup!, androidx.transition.TransitionValues!, int, androidx.transition.TransitionValues!, int);
     method public android.animation.Animator! onDisappear(android.view.ViewGroup!, android.view.View!, androidx.transition.TransitionValues!, androidx.transition.TransitionValues!);
-    method public void setMode(@androidx.transition.Visibility.Mode int);
+    method public void setMode(int);
     field public static final int MODE_IN = 1; // 0x1
     field public static final int MODE_OUT = 2; // 0x2
-  }
-
-  @IntDef(flag=true, value={androidx.transition.Visibility.MODE_IN, androidx.transition.Visibility.MODE_OUT, androidx.transition.Fade.IN, androidx.transition.Fade.OUT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface Visibility.Mode {
   }
 
   public abstract class VisibilityPropagation extends androidx.transition.TransitionPropagation {

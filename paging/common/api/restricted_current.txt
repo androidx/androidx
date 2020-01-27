@@ -103,18 +103,6 @@ package androidx.paging {
     enum_constant public static final androidx.paging.LoadType START;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface NullPaddedList<T> {
-    method public T! getFromStorage(int localIndex);
-    method public int getPlaceholdersEnd();
-    method public int getPlaceholdersStart();
-    method public int getSize();
-    method public int getStorageCount();
-    property public abstract int placeholdersEnd;
-    property public abstract int placeholdersStart;
-    property public abstract int size;
-    property public abstract int storageCount;
-  }
-
   public final class PageEventKt {
   }
 
@@ -156,24 +144,20 @@ package androidx.paging {
     method @Deprecated public final void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
     method public final void addWeakCallback(androidx.paging.PagedList.Callback callback);
     method public final void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final <K, T> androidx.paging.PagedList<T> create(androidx.paging.PagingSource<K,T> pagingSource, androidx.paging.PagingSource.LoadResult.Page<K,T>? initialPage, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher notifyDispatcher, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key);
     method public abstract void detach();
     method public T? get(int index);
     method public final androidx.paging.PagedList.Config getConfig();
     method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
     method public abstract Object? getLastKey();
     method public final int getLoadedCount();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.paging.NullPaddedList<T> getNullPaddedList();
     method public final int getPositionOffset();
     method public int getSize();
     method public abstract boolean isDetached();
     method public boolean isImmutable();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final int lastLoad();
     method public final void loadAround(int index);
     method public final void removeWeakCallback(androidx.paging.PagedList.Callback callback);
     method public final void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public void retry();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setInitialLoadState(androidx.paging.LoadType loadType, androidx.paging.LoadState loadState);
     method public final java.util.List<T> snapshot();
     property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
     property public abstract boolean isDetached;
@@ -213,10 +197,6 @@ package androidx.paging {
     method public abstract void onRemoved(int position, int count);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class PagedList.Companion {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <K, T> androidx.paging.PagedList<T> create(androidx.paging.PagingSource<K,T> pagingSource, androidx.paging.PagingSource.LoadResult.Page<K,T>? initialPage, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher notifyDispatcher, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key);
-  }
-
   public static final class PagedList.Config {
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
     field public final boolean enablePlaceholders;
@@ -234,21 +214,6 @@ package androidx.paging {
     method public androidx.paging.PagedList.Config.Builder setMaxSize(@IntRange(from=2) int maxSize);
     method public androidx.paging.PagedList.Config.Builder setPageSize(@IntRange(from=1) int pageSize);
     method public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0) int prefetchDistance);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract static class PagedList.LoadStateManager {
-    method public final void dispatchCurrentLoadState(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> callback);
-    method public final androidx.paging.LoadState getEndState();
-    method public final androidx.paging.LoadState getRefreshState();
-    method public final androidx.paging.LoadState getStartState();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract void onStateChanged(androidx.paging.LoadType type, androidx.paging.LoadState state);
-    method public final void setEndState(androidx.paging.LoadState p);
-    method public final void setRefreshState(androidx.paging.LoadState p);
-    method public final void setStartState(androidx.paging.LoadState p);
-    method public final void setState(androidx.paging.LoadType type, androidx.paging.LoadState state);
-    property public final androidx.paging.LoadState endState;
-    property public final androidx.paging.LoadState refreshState;
-    property public final androidx.paging.LoadState startState;
   }
 
   public final class PagedListConfigKt {
@@ -289,18 +254,6 @@ package androidx.paging {
     method public <R> androidx.paging.PagingData<R> flatMap(kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
     method public <R extends T> androidx.paging.PagingData<T> insertSeparators(kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
     method public <R> androidx.paging.PagingData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class PagingDataDiffer<T> {
-    ctor public PagingDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
-    ctor public PagingDataDiffer();
-    method public final suspend Object! collectFrom(androidx.paging.PagingData<T> pagingData, androidx.paging.PresenterCallback callback, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public final operator T? get(int index);
-    method public final int getSize();
-    method public abstract suspend Object? performDiff(androidx.paging.NullPaddedList<T> previousList, androidx.paging.NullPaddedList<T> newList, java.util.Map<androidx.paging.LoadType,? extends androidx.paging.LoadState> newLoadStates, int lastAccessedIndex, kotlin.coroutines.Continuation<? super java.lang.Integer> p);
-    method public final void refresh();
-    method public final void retry();
-    property public final int size;
   }
 
   public final class PagingDataFlow {
@@ -365,7 +318,6 @@ package androidx.paging {
   }
 
   public final class PagingSourceKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <Key> androidx.paging.PagingSource.LoadParams<Key> toRefreshLoadParams(androidx.paging.PagedList.Config, Key? key);
   }
 
   public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {
@@ -403,13 +355,6 @@ package androidx.paging {
     ctor public PositionalDataSource.LoadRangeParams(int startPosition, int loadSize);
     field public final int loadSize;
     field public final int startPosition;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface PresenterCallback {
-    method public void onChanged(int position, int count);
-    method public void onInserted(int position, int count);
-    method public void onRemoved(int position, int count);
-    method public void onStateUpdate(androidx.paging.LoadType loadType, androidx.paging.LoadState loadState);
   }
 
   public final class SeparatorsKt {
