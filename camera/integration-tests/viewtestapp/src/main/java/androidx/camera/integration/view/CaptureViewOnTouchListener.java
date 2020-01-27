@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
@@ -107,7 +108,8 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
                     ContextCompat.getMainExecutor(mCameraView.getContext()),
                     new OnImageSavedCallback() {
                         @Override
-                        public void onImageSaved() {
+                        public void onImageSaved(
+                                @NonNull ImageCapture.OutputFileResults outputFileResults) {
                             report("Picture saved to " + saveFile.getAbsolutePath());
                             // Print out metadata about the picture
                             // TODO: Print out metadata to log once metadata is implemented
@@ -221,7 +223,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     @SuppressWarnings("WeakerAccess")
-    void broadcastPicture(@NonNull final  File file) {
+    void broadcastPicture(@NonNull final File file) {
         if (Build.VERSION.SDK_INT < 24) {
             @SuppressWarnings("deprecation")
             Intent intent = new Intent(Camera.ACTION_NEW_PICTURE);

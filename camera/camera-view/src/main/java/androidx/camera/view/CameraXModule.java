@@ -351,7 +351,10 @@ final class CameraXModule {
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
         metadata.setReversedHorizontal(
                 mCameraLensFacing != null && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
-        mImageCapture.takePicture(saveLocation, metadata, executor, callback);
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(saveLocation).setMetadata(
+                        metadata).build();
+        mImageCapture.takePicture(outputFileOptions, executor, callback);
     }
 
     public void startRecording(File file, Executor executor, final OnVideoSavedCallback callback) {

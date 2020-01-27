@@ -228,8 +228,7 @@ package androidx.camera.core {
     method public void setTargetAspectRatioCustom(android.util.Rational);
     method public void setTargetRotation(int);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
-    method public void takePicture(java.io.File, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
-    method public void takePicture(java.io.File, androidx.camera.core.ImageCapture.Metadata, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
+    method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     field public static final int CAPTURE_MODE_MAXIMIZE_QUALITY = 0; // 0x0
     field public static final int CAPTURE_MODE_MINIMIZE_LATENCY = 1; // 0x1
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.ImageCapture.Defaults! DEFAULT_CONFIG;
@@ -306,7 +305,22 @@ package androidx.camera.core {
 
   public static interface ImageCapture.OnImageSavedCallback {
     method public void onError(androidx.camera.core.ImageCaptureException);
-    method public void onImageSaved();
+    method public void onImageSaved(androidx.camera.core.ImageCapture.OutputFileResults);
+  }
+
+  public static final class ImageCapture.OutputFileOptions {
+  }
+
+  public static final class ImageCapture.OutputFileOptions.Builder {
+    ctor public ImageCapture.OutputFileOptions.Builder(java.io.File);
+    ctor public ImageCapture.OutputFileOptions.Builder(android.content.ContentResolver, android.net.Uri, android.content.ContentValues);
+    ctor public ImageCapture.OutputFileOptions.Builder(java.io.OutputStream);
+    method public androidx.camera.core.ImageCapture.OutputFileOptions build();
+    method public androidx.camera.core.ImageCapture.OutputFileOptions.Builder setMetadata(androidx.camera.core.ImageCapture.Metadata);
+  }
+
+  public static class ImageCapture.OutputFileResults {
+    method public android.net.Uri? getSavedUri();
   }
 
   public class ImageCaptureException extends java.lang.Exception {
