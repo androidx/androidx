@@ -2014,6 +2014,7 @@ fun LayoutNode.localToGlobal(local: IntPxPosition, withOwnerOffset: Boolean = tr
  * Converts a child LayoutNode position into a local position within this LayoutNode.
  */
 fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPosition {
+    require(child.isAttached()) { "Child $child is not attached!" }
     if (child === this) {
         return childLocal
     }
@@ -2201,6 +2202,8 @@ private class LayoutNodeCoordinates(
     override val providedAlignmentLines get() = layoutNode.providedAlignmentLines.keys
 
     override val parentCoordinates get() = layoutNode.parentLayoutNode?.coordinates
+
+    override val isAttached: Boolean get() = layoutNode.isAttached()
 
     override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
 

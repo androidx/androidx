@@ -582,6 +582,7 @@ class ComponentNodeTest {
     @Test
     fun testChildToLocal() {
         val node0 = LayoutNode()
+        node0.attach(mockOwner())
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
@@ -604,6 +605,7 @@ class ComponentNodeTest {
     @Test
     fun testChildToLocalFailedWhenNotAncestor() {
         val node0 = LayoutNode()
+        node0.attach(mockOwner())
         val node1 = LayoutNode()
         val node2 = LayoutNode()
         node0.emitInsertAt(0, node1)
@@ -616,8 +618,11 @@ class ComponentNodeTest {
 
     @Test
     fun testChildToLocalFailedWhenNotAncestorNoParent() {
+        val owner = mockOwner()
         val node0 = LayoutNode()
+        node0.attach(owner)
         val node1 = LayoutNode()
+        node1.attach(owner)
 
         thrown.expect(IllegalStateException::class.java)
 
@@ -627,6 +632,7 @@ class ComponentNodeTest {
     @Test
     fun testChildToLocalTheSameNode() {
         val node = LayoutNode()
+        node.attach(mockOwner())
         val position = PxPosition(5.px, 15.px)
 
         val result = node.childToLocal(node, position)
@@ -663,6 +669,7 @@ class ComponentNodeTest {
     @Test
     fun testPositionRelativeToAncestorWithParent() {
         val parent = LayoutNode()
+        parent.attach(mockOwner())
         val child = LayoutNode()
         parent.emitInsertAt(0, child)
         parent.place(-100.ipx, 10.ipx)
@@ -676,6 +683,7 @@ class ComponentNodeTest {
     @Test
     fun testPositionRelativeToAncestorWithGrandParent() {
         val grandParent = LayoutNode()
+        grandParent.attach(mockOwner())
         val parent = LayoutNode()
         val child = LayoutNode()
         grandParent.emitInsertAt(0, parent)
