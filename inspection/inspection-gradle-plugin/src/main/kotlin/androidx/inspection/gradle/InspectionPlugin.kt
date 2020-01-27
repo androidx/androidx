@@ -28,6 +28,7 @@ import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getPlugin
+import java.io.File
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
@@ -48,6 +49,9 @@ class InspectionPlugin : Plugin<Project> {
                     val unzip = project.registerUnzipTask(variant)
                     project.registerDexInspectorTask(variant, libExtension, unzip)
                 }
+            }
+            libExtension.sourceSets {
+                it.getByName("main").resources.srcDirs(File(project.rootDir, "src/main/proto"))
             }
         }
 
@@ -94,4 +98,5 @@ class InspectionPlugin : Plugin<Project> {
 
 private fun includeMetaInfServices(library: LibraryExtension) {
     library.sourceSets.getByName("main").resources.include("META-INF/services/*")
+    library.sourceSets.getByName("main").resources.include("**/*.proto")
 }
