@@ -84,7 +84,6 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> pause();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> play();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> prepare();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void registerExtraCallback(java.util.concurrent.Executor, androidx.media2.session.MediaController.ControllerCallback);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> removePlaylistItem(@IntRange(from=0) int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> replacePlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> rewind();
@@ -104,7 +103,6 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipToNextPlaylistItem();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipToPlaylistItem(@IntRange(from=0) int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipToPreviousPlaylistItem();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void unregisterExtraCallback(androidx.media2.session.MediaController.ControllerCallback);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> updatePlaylistMetadata(androidx.media2.common.MediaMetadata?);
   }
 

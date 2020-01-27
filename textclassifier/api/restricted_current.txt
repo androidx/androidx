@@ -372,23 +372,6 @@ package androidx.textclassifier {
 
 package androidx.textclassifier.widget {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface IFloatingToolbar {
-    method public void dismiss();
-    method public androidx.core.internal.view.SupportMenu? getMenu();
-    method public void hide();
-    method public boolean isHidden();
-    method public boolean isShowing();
-    method public void setContentRect(android.graphics.Rect);
-    method public void setDismissOnMenuItemClick(boolean);
-    method public void setMenu(androidx.core.internal.view.SupportMenu);
-    method public void setOnDismissListener(android.widget.PopupWindow.OnDismissListener?);
-    method public void setOnMenuItemClickListener(androidx.core.internal.view.SupportMenuItem.OnMenuItemClickListener?);
-    method public void setSuggestedWidth(int);
-    method public void show();
-    method public void updateLayout();
-    field public static final int MENU_ID_SMART_ACTION;
-  }
-
   @RequiresApi(android.os.Build.VERSION_CODES.M) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @UiThread public final class ToolbarController {
     method public static androidx.textclassifier.widget.ToolbarController! getInstance(android.widget.TextView!);
     method public static void setFloatingToolbarFactory(androidx.textclassifier.widget.ToolbarController.FloatingToolbarFactory);
