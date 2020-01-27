@@ -32,6 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -58,12 +59,12 @@ class ComposedViewTest {
             .onView(withParent(withParent(instanceOf(AndroidComposeView::class.java))))
             .check(matches(isDisplayed()))
             .check { view, exception ->
-                if (view.layoutParams.width ==
+                if (view.layoutParams.width !=
                         TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_DIP,
                             300f,
                             view.context.resources.displayMetrics
-                        ).toInt()
+                        ).roundToInt()
                 ) {
                     throw exception
                 }
