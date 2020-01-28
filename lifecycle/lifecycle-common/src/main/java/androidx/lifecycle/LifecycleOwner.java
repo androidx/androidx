@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
  * handle lifecycle changes without implementing any code inside the Activity or the Fragment.
  *
  * @see Lifecycle
+ * @see ViewTreeLifecycleOwner
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public interface LifecycleOwner {
