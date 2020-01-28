@@ -268,6 +268,9 @@ package androidx.ui.core {
     method public Void minIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
   }
 
+  public final class LayoutNodeWrapperKt {
+  }
+
   public final class ModelObserver {
     ctor public ModelObserver(kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> commitExecutor);
     method public void clear(Object target);
