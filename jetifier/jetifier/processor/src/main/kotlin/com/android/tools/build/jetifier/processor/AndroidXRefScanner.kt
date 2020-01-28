@@ -16,9 +16,12 @@
 
 package com.android.tools.build.jetifier.processor
 
+import com.android.tools.build.jetifier.core.config.Config
+import com.android.tools.build.jetifier.core.type.JavaType
 import com.android.tools.build.jetifier.processor.archive.Archive
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.archive.ArchiveItemVisitor
+import com.android.tools.build.jetifier.processor.transform.bytecode.InvalidByteCodeException
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.commons.ClassRemapper
@@ -27,10 +30,28 @@ import org.objectweb.asm.commons.Remapper
 /**
  * Scans java bytecode for any references to androidX.
  */
-class AndroidXRefScanner(private val library: Archive) : ArchiveItemVisitor {
+class AndroidXRefScanner(
+    private val library: Archive,
+    private val config: Config
+) : ArchiveItemVisitor {
 
     /** Whether any androidX references were discovered. Check after calling [scan]. */
-    var androidXDetected = false
+    val androidXDetected
+        get() = androidXRefExample != null
+    /** Whether any android support references were discovered. Check after calling [scan]. */
+    val androidSupportDetected
+        get() = androidSupportRefExample != null
+
+    /**
+     * Example of androidX reference that was discovered. This is null if no reference was found.
+     * Check after calling [scan].
+     */
+    var androidXRefExample: String? = null
+    /**
+     * Example of android support reference that was discovered. This is null if no reference was
+     * found. Check after calling [scan].
+     */
+    var androidSupportRefExample: String? = null
 
     fun scan(): AndroidXRefScanner {
         library.accept(this)
@@ -39,7 +60,7 @@ class AndroidXRefScanner(private val library: Archive) : ArchiveItemVisitor {
 
     override fun visit(archive: Archive) {
         archive.files.forEach {
-            if (androidXDetected) {
+            if (androidXDetected && androidSupportDetected) {
                 return@forEach
             }
 
@@ -55,22 +76,36 @@ class AndroidXRefScanner(private val library: Archive) : ArchiveItemVisitor {
         val reader = ClassReader(archiveFile.data)
         val writer = ClassWriter(0 /* flags */)
 
-        val androidXTrackingRemapper = AndroidXTrackingRemapper()
+        val androidXTrackingRemapper = AndroidXTrackingRemapper(config)
         val classRemapper = ClassRemapper(writer, androidXTrackingRemapper)
 
-        reader.accept(classRemapper, 0 /* flags */)
+        try {
+            reader.accept(classRemapper, 0 /* flags */)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            throw InvalidByteCodeException(
+                "Error processing '${archiveFile.relativePath}' bytecode.", e)
+        }
 
-        androidXDetected = androidXDetected || androidXTrackingRemapper.androidXDetected
+        if (androidXTrackingRemapper.androidXRefExample != null) {
+            androidXRefExample = androidXTrackingRemapper.androidXRefExample
+        }
+        if (androidXTrackingRemapper.androidSupportRefExample != null) {
+            androidSupportRefExample = androidXTrackingRemapper.androidSupportRefExample
+        }
     }
 
-    class AndroidXTrackingRemapper : Remapper() {
+    class AndroidXTrackingRemapper(private val config: Config) : Remapper() {
 
-        var androidXDetected = false
+        var androidXRefExample: String? = null
+        var androidSupportRefExample: String? = null
 
         override fun map(typeName: String): String {
             if (typeName.startsWith("androidx/")) {
-                androidXDetected = true
+                androidXRefExample = typeName
+            } else if (config.isEligibleForRewrite(JavaType(typeName))) {
+                androidSupportRefExample = typeName
             }
+
             return typeName
         }
     }
