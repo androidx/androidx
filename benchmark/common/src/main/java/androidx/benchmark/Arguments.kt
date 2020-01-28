@@ -26,7 +26,7 @@ import java.io.File
 /**
  * This allows tests to override arguments from code
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.TESTS)
 var argumentSource: Bundle? = null

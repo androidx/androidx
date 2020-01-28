@@ -56,12 +56,12 @@ import java.util.concurrent.TimeUnit
  * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
 class BenchmarkState {
-    /** @hide */
+    /** @suppress */
     @Suppress("ConvertSecondaryConstructorToPrimary")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor()
 
-    /** @hide */
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     var traceUniqueName = "benchmark"
 
@@ -134,7 +134,7 @@ class BenchmarkState {
     /**
      * Used for testing in other modules
      *
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getMin(): Long = stats.min
@@ -305,7 +305,7 @@ class BenchmarkState {
      * in the inlined loop. On recent Android Platform versions, ART inlines these accessors anyway,
      * but we want to be sure it's as simple as possible.
      *
-     * @hide
+     * @suppress
      */
     @Suppress("NOTHING_TO_INLINE")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -484,7 +484,7 @@ class BenchmarkState {
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun report(
