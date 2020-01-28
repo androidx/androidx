@@ -66,26 +66,30 @@ data class CutCornerShape(
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
+ * @param corner [CornerSize] to apply.
  */
 /*inline*/ fun CutCornerShape(corner: CornerSize) = CutCornerShape(corner, corner, corner, corner)
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
+ * @param size Size in [Dp] to apply.
  */
 /*inline*/ fun CutCornerShape(size: Dp) = CutCornerShape(CornerSize(size))
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
+ * @param size Size in [Px] to apply.
  */
 /*inline*/ fun CutCornerShape(size: Px) = CutCornerShape(CornerSize(size))
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
+ * @param percent Size in percents to apply.
  */
 /*inline*/ fun CutCornerShape(percent: Int) = CutCornerShape(CornerSize(percent))
 
 /**
- * Creates [CutCornerShape] with sizes defined by [Dp].
+ * Creates [CutCornerShape] with sizes defined in [Dp].
  */
 /*inline*/ fun CutCornerShape(
     topLeft: Dp = 0.dp,
@@ -100,7 +104,7 @@ data class CutCornerShape(
 )
 
 /**
- * Creates [CutCornerShape] with sizes defined by [Px].
+ * Creates [CutCornerShape] with sizes defined in [Px].
  */
 /*inline*/ fun CutCornerShape(
     topLeft: Px = 0.px,
@@ -115,7 +119,7 @@ data class CutCornerShape(
 )
 
 /**
- * Creates [CutCornerShape] with sizes defined by percents of the shape's smaller side.
+ * Creates [CutCornerShape] with sizes defined in percents of the shape's smaller side.
  */
 /*inline*/ fun CutCornerShape(
     @IntRange(from = 0, to = 50) topLeftPercent: Int = 0,
