@@ -16,10 +16,14 @@
 
 package androidx.ui.lint
 
+import androidx.build.lint.AndroidXIssueRegistry
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
+import com.android.tools.lint.detector.api.Issue
 
 class ComposeIssueRegistry : IssueRegistry() {
     override val api = CURRENT_API
-    override val issues get() = listOf(UnnecessaryLambdaCreationDetector.ISSUE)
+    override val issues get(): List<Issue> {
+        return listOf(UnnecessaryLambdaCreationDetector.ISSUE) + AndroidXIssueRegistry.Issues
+    }
 }
