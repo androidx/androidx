@@ -21,9 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -58,6 +56,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.Metadata;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
@@ -331,7 +330,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved();
     }
 
     @Test
@@ -354,7 +353,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -366,7 +365,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocationRotated90, mMainExecutor, callbackRotated90);
 
         // Wait for the signal that the image has been saved.
-        verify(callbackRotated90, timeout(3000)).onImageSaved(eq(saveLocationRotated90));
+        verify(callbackRotated90, timeout(3000)).onImageSaved();
 
         // Retrieve the exif from the image
         Exif exifRotated90 = Exif.createFromFile(saveLocationRotated90);
@@ -415,7 +414,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -444,7 +443,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -470,7 +469,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(eq(saveLocation));
+        verify(callback, timeout(3000)).onImageSaved();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -497,7 +496,7 @@ public final class ImageCaptureTest {
         }
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(15000).times(numImages)).onImageSaved(any(File.class));
+        verify(callback, timeout(15000).times(numImages)).onImageSaved();
     }
 
     @Test
@@ -515,9 +514,13 @@ public final class ImageCaptureTest {
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         useCase.takePicture(saveLocation, mMainExecutor, callback);
 
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor =
+                ArgumentCaptor.forClass(ImageCaptureException.class);
+
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000))
-                .onError(eq(ImageCapture.ERROR_FILE_IO), anyString(), any(Throwable.class));
+        verify(callback, timeout(3000)).onError(exceptionCaptor.capture());
+        assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
+                ImageCapture.ERROR_FILE_IO);
     }
 
     @Test
@@ -625,9 +628,11 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         imageCapture.takePicture(mMainExecutor, callback);
 
-        verify(callback, timeout(3000)).onError(any(Integer.class),
-                anyString(), any(IllegalArgumentException.class));
-
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor =
+                ArgumentCaptor.forClass(ImageCaptureException.class);
+        verify(callback, timeout(3000)).onError(exceptionCaptor.capture());
+        assertThat(exceptionCaptor.getValue().getCause()).isInstanceOf(
+                IllegalArgumentException.class);
     }
 
     @Test
@@ -667,8 +672,11 @@ public final class ImageCaptureTest {
         imageCapture.takePicture(mMainExecutor, callback);
 
         // It should get onError() callback twice.
-        verify(callback, timeout(3000).times(2)).onError(any(Integer.class), anyString(),
-                any(IllegalArgumentException.class));
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
+                ImageCaptureException.class);
+        verify(callback, timeout(3000).times(2)).onError(exceptionCaptor.capture());
+        assertThat(exceptionCaptor.getValue().getCause()).isInstanceOf(
+                IllegalArgumentException.class);
 
     }
 
@@ -692,11 +700,11 @@ public final class ImageCaptureTest {
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestOnCaptureCancelled();
 
-        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
-                any(String.class),
-                any(Throwable.class));
-        assertThat(errorCaptor.getValue()).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
+                ImageCaptureException.class);
+        verify(callback, timeout(500).times(1)).onError(exceptionCaptor.capture());
+        assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
+                ImageCapture.ERROR_CAMERA_CLOSED);
     }
 
     @Test
@@ -722,11 +730,11 @@ public final class ImageCaptureTest {
         captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
         fakeCameraControl.notifyAllRequestsOnCaptureFailed();
 
-        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(callback, timeout(500).times(1)).onError(errorCaptor.capture(),
-                any(String.class),
-                any(Throwable.class));
-        assertThat(errorCaptor.getValue()).isEqualTo(ImageCapture.ERROR_CAPTURE_FAILED);
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
+                ImageCaptureException.class);
+        verify(callback, timeout(500).times(1)).onError(exceptionCaptor.capture());
+        assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
+                ImageCapture.ERROR_CAPTURE_FAILED);
     }
 
     @Test
@@ -760,10 +768,11 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         imageCapture.takePicture(mMainExecutor, callback);
 
-        ArgumentCaptor<Integer> errorCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(callback, timeout(500)).onError(errorCaptor.capture(), any(String.class),
-                any(Throwable.class));
-        assertThat(errorCaptor.getValue()).isEqualTo(ImageCapture.ERROR_INVALID_CAMERA);
+        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
+                ImageCaptureException.class);
+        verify(callback, timeout(500)).onError(exceptionCaptor.capture());
+        assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
+                ImageCapture.ERROR_INVALID_CAMERA);
     }
 
     private static final class ImageProperties {
@@ -827,11 +836,9 @@ public final class ImageCaptureTest {
         }
 
         @Override
-        public void onError(@ImageCapture.ImageCaptureError int imageCaptureError,
-                @NonNull String message,
-                @Nullable Throwable cause) {
+        public void onError(@NonNull final ImageCaptureException exception) {
             mNumOnErrorSuccess++;
-            mImageCaptureErrors.add(imageCaptureError);
+            mImageCaptureErrors.add(exception.getImageCaptureError());
             mCountDownLatch.countDown();
         }
     }

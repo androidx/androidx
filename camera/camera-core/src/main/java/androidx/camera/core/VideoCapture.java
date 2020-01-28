@@ -886,6 +886,8 @@ public class VideoCapture extends UseCase {
     /** Listener containing callbacks for video file I/O events. */
     public interface OnVideoSavedCallback {
         /** Called when the video has been successfully saved. */
+        // TODO: Should remove file argument to match ImageCapture.OnImageSavedCallback
+        //  #onImageSaved()
         void onVideoSaved(@NonNull File file);
 
         /** Called when an error occurs while attempting to save the video. */

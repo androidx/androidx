@@ -25,7 +25,6 @@ import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -47,6 +46,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ImageCaptureConfig;
@@ -170,8 +170,7 @@ public class ExtensionTest {
         imageProxy.getValue().close(); // Close the image after verification.
 
         // Verify the take picture should not have any error happen.
-        verify(mockOnImageCapturedCallback, never()).onError(any(Integer.class), anyString(),
-                any(Throwable.class));
+        verify(mockOnImageCapturedCallback, never()).onError(any(ImageCaptureException.class));
     }
 
     @Test
