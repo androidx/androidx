@@ -177,6 +177,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
             }
         }
+        if (Build.VERSION.SDK_INT >= 23) {
+            mBuilder.setSmallIcon(n.getSmallIcon());
+        }
         if (Build.VERSION.SDK_INT >= 24) {
             mBuilder.setExtras(b.mExtras)
                     .setRemoteInputHistory(b.mRemoteInputHistory);
