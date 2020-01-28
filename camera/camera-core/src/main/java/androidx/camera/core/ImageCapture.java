@@ -73,6 +73,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -710,21 +711,19 @@ public final class ImageCapture extends UseCase {
     private void sendImageCaptureRequest(
             @Nullable Executor listenerExecutor, OnImageCapturedCallback callback) {
 
-        String cameraId;
-        try {
-            // TODO(b/143734846): From here on, the image capture request should be
-            //  self-contained and use this camera ID for everything. Currently the pre-capture
-            //  sequence does not follow this approach and could fail if this use case is unbound
-            //  or unbound to a different camera in the middle of pre-capture.
-            cameraId = getBoundCameraId();
-        } catch (Throwable e) {
+        // TODO(b/143734846): From here on, the image capture request should be
+        //  self-contained and use this camera ID for everything. Currently the pre-capture
+        //  sequence does not follow this approach and could fail if this use case is unbound
+        //  or unbound to a different camera in the middle of pre-capture.
+        CameraInternal boundCamera = getBoundCamera();
+        if (boundCamera == null) {
             // Not bound. Notify callback.
             callback.onError(new ImageCaptureException(ERROR_INVALID_CAMERA,
-                    "Not bound to a valid Camera [" + ImageCapture.this + "]", e));
+                    "Not bound to a valid Camera [" + ImageCapture.this + "]", null));
             return;
         }
 
-        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        CameraInfoInternal cameraInfoInternal = boundCamera.getCameraInfoInternal();
         int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
                 mConfig.getTargetRotation(Surface.ROTATION_0));
 
