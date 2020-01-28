@@ -20,9 +20,7 @@ import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
-import androidx.ui.unit.Density
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 import androidx.ui.framework.test.R
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -78,9 +76,7 @@ class PrimitiveResourcesTest {
 
         composeTestRule.setContent {
             Providers(ContextAmbient provides context) {
-                withDensity(Density(context.resources.displayMetrics.density)) {
-                    assertThat(dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp)
-                }
+                assertThat(dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp)
             }
         }
     }

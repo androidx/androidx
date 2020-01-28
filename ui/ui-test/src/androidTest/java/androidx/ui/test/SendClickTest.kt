@@ -24,10 +24,10 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.test.filters.MediumTest
 import androidx.ui.core.AndroidComposeView
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
-import androidx.ui.core.WithDensity
 import androidx.ui.core.changedToUp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.shape.DrawShape
@@ -104,7 +104,7 @@ private fun <T : Activity> AndroidComposeTestRule<T>.setContent(
 
 @Composable
 private fun Ui(recordedClicks: MutableList<ClickData>) {
-    WithDensity {
+    with(DensityAmbient.current) {
         Column {
             for (i in first..last) {
                 TestTag(tag = "$tag$i") {

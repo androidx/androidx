@@ -65,7 +65,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -2070,9 +2069,9 @@ class AndroidLayoutDrawTest {
     }
 
     private val AlignTopLeft = object : LayoutModifier {
-        override fun DensityScope.modifyConstraints(constraints: Constraints) =
+        override fun Density.modifyConstraints(constraints: Constraints) =
             constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
-        override fun DensityScope.modifySize(
+        override fun Density.modifySize(
             constraints: Constraints,
             childSize: IntPxSize
         ) = IntPxSize(constraints.maxWidth, constraints.maxHeight)
@@ -2528,30 +2527,30 @@ data class PaddingModifier(
     val bottom: IntPx = 0.ipx
 ) : LayoutModifier {
 
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun Density.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.minIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
                 (left + right)
 
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun Density.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.maxIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
                 (left + right)
 
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun Density.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.minIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
                 (top + bottom)
 
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun Density.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.maxIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
                 (top + bottom)
 
-    override fun DensityScope.modifyConstraints(
+    override fun Density.modifyConstraints(
         constraints: Constraints
     ) = constraints.offset(
         horizontal = -left - right,
         vertical = -top - bottom
     )
 
-    override fun DensityScope.modifySize(
+    override fun Density.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ) = IntPxSize(
@@ -2561,7 +2560,7 @@ data class PaddingModifier(
             .coerceIn(constraints.minHeight, constraints.maxHeight)
     )
 
-    override fun DensityScope.modifyPosition(
+    override fun Density.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ) = IntPxPosition(left, top)
@@ -2672,7 +2671,7 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
         paint.style = PaintingStyle.fill
     }
 
-    override fun DensityScope.modifyPosition(
+    override fun Density.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ): IntPxPosition {
@@ -2682,11 +2681,11 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
         )
     }
 
-    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+    override fun Density.modifyConstraints(constraints: Constraints): Constraints {
         return Constraints.fixed(10.ipx, 10.ipx)
     }
 
-    override fun DensityScope.modifySize(
+    override fun Density.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ): IntPxSize {

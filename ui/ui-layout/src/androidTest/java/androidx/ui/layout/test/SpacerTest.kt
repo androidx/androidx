@@ -28,7 +28,6 @@ import androidx.ui.layout.Spacer
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,7 +63,7 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
+        with(density) {
             Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
             Truth.assertThat(size?.width).isEqualTo(width.toIntPx())
         }
@@ -98,7 +97,7 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
+        with(density) {
             Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
             Truth.assertThat(size?.width).isEqualTo(containerWidth.toIntPx())
         }
@@ -122,7 +121,7 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
+        with(density) {
             Truth.assertThat(size?.height).isEqualTo(0.ipx)
             Truth.assertThat(size?.width).isEqualTo(width.toIntPx())
         }
@@ -155,7 +154,7 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
+        with(density) {
             Truth.assertThat(size?.height).isEqualTo(0.ipx)
             Truth.assertThat(size?.width).isEqualTo(containerWidth.toIntPx())
         }
@@ -179,7 +178,7 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
+        with(density) {
             Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
             Truth.assertThat(size?.width).isEqualTo(0.ipx)
         }
@@ -212,7 +211,7 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
+        with(density) {
             Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
             Truth.assertThat(size?.width).isEqualTo(0.ipx)
         }

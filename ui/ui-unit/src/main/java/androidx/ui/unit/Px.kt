@@ -32,7 +32,7 @@ import kotlin.math.sqrt
  * Dimension value represented in pixels (px). Component APIs specify their
  * dimensions such as line thickness in DP with Dp objects, while drawing and layout are done
  * in pixel dimensions. When specific pixel dimensions are required, create a Px and convert
- * it to Dp using [DensityScope.toDp]. Px are normally defined using [px], which can be applied to
+ * it to Dp using [Density.toDp]. Px are normally defined using [px], which can be applied to
  * [Int], [Double], and [Float].
  *     val leftMargin = 10.px
  *     val rightMargin = 10f.px

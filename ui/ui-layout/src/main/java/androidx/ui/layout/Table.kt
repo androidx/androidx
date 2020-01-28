@@ -28,14 +28,12 @@ import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.constrain
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.withDensity
 
 /**
  * Collects information about the children of a [Table] when
@@ -331,7 +329,7 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
             containerWidth: IntPx,
             density: Density
         ): IntPx {
-            return withDensity(density) { width.toIntPx() }
+            return with(density) { width.toIntPx() }
         }
     }
 
@@ -543,7 +541,7 @@ fun Table(
                     }
                 )
             }
-            columnWidths[column] = spec.preferredWidth(cells, constraints.maxWidth, density)
+            columnWidths[column] = spec.preferredWidth(cells, constraints.maxWidth, this)
             availableSpace -= columnWidths[column]
             totalFlex += spec.flexValue
         }
@@ -674,7 +672,7 @@ private val MaxIntrinsicHeightMeasureBlock:
         }
     }
 
-private fun DensityScope.intrinsicWidth(
+private fun Density.intrinsicWidth(
     columns: Int,
     columnWidth: (columnIndex: Int) -> TableColumnWidth,
     children: List<IntrinsicMeasurable>,
@@ -703,9 +701,9 @@ private fun DensityScope.intrinsicWidth(
             )
         }
         val width = if (minimise) {
-            spec.minIntrinsicWidth(cells, IntPx.Infinity, density, availableHeight)
+            spec.minIntrinsicWidth(cells, IntPx.Infinity, this, availableHeight)
         } else {
-            spec.maxIntrinsicWidth(cells, IntPx.Infinity, density, availableHeight)
+            spec.maxIntrinsicWidth(cells, IntPx.Infinity, this, availableHeight)
         }
         if (spec.flexValue <= 0) {
             inflexibleSpace += width
@@ -717,7 +715,7 @@ private fun DensityScope.intrinsicWidth(
     return flexibleSpace * totalFlex + inflexibleSpace
 }
 
-private fun DensityScope.intrinsicHeight(
+private fun Density.intrinsicHeight(
     columns: Int,
     columnWidth: (columnIndex: Int) -> TableColumnWidth,
     children: List<IntrinsicMeasurable>,
@@ -746,7 +744,7 @@ private fun DensityScope.intrinsicHeight(
             )
         }
         columnWidths[column] =
-            spec.maxIntrinsicWidth(cells, availableWidth, density, IntPx.Infinity)
+            spec.maxIntrinsicWidth(cells, availableWidth, this, IntPx.Infinity)
         availableSpace -= columnWidths[column]
         totalFlex += spec.flexValue
     }

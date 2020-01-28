@@ -24,7 +24,7 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -207,7 +207,7 @@ private data class StackGravityModifier(
     val alignment: Alignment,
     val stretch: Boolean = false
 ) : ParentDataModifier {
-    override fun DensityScope.modifyParentData(parentData: Any?): StackChildData {
+    override fun Density.modifyParentData(parentData: Any?): StackChildData {
         return ((parentData as? StackChildData) ?: StackChildData(alignment, stretch))
     }
 }

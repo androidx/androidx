@@ -23,7 +23,6 @@ import androidx.animation.AnimationClockObservable
 import androidx.animation.DefaultAnimationClock
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
-import androidx.compose.Ambient
 import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.Compose
@@ -44,7 +43,6 @@ import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
@@ -232,28 +230,3 @@ val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
  * The ambient to provide haptic feedback to the user.
  */
 val HapticFeedBackAmbient = staticAmbientOf<HapticFeedback>()
-
-/**
- * Aambient to get a [Density] object from an internal [DensityAmbient].
- *
- * Note: this is an experiment with the ways to achieve a read-only public [Ambient]s.
- */
-@Suppress("NOTHING_TO_INLINE")
-@Composable
-inline fun ambientDensity() = DensityAmbient.current
-
-/**
- * A component to be able to convert dimensions between each other.
- * A [Density] object will be take from an ambient.
- *
- * Usage example:
- *   WithDensity {
- *     Draw() { canvas, _ ->
- *       canvas.drawRect(Rect(0, 0, dpHeight.toPx(), dpWidth.toPx()), paint)
- *     }
- *   }
- */
-@Composable
-fun WithDensity(block: @Composable DensityScope.() -> Unit) {
-    DensityScope(ambientDensity()).block()
-}

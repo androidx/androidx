@@ -21,7 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -223,13 +223,13 @@ private data class AlignmentModifier(
     private val alignment: Alignment,
     private val direction: Direction
 ) : LayoutModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints) = when (direction) {
+    override fun Density.modifyConstraints(constraints: Constraints) = when (direction) {
         Direction.Both -> constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
         Direction.Horizontal -> constraints.copy(minWidth = 0.ipx)
         Direction.Vertical -> constraints.copy(minHeight = 0.ipx)
     }
 
-    override fun DensityScope.modifySize(
+    override fun Density.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ): IntPxSize {
@@ -250,7 +250,7 @@ private data class AlignmentModifier(
         return IntPxSize(width, height)
     }
 
-    override fun DensityScope.modifyPosition(
+    override fun Density.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ): IntPxPosition {

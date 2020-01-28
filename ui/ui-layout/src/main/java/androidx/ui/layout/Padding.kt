@@ -22,7 +22,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.offset
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -89,14 +89,14 @@ data class LayoutPadding(
     val right: Dp = 0.dp,
     val bottom: Dp = 0.dp
 ) : LayoutModifier {
-    override fun DensityScope.modifyConstraints(
+    override fun Density.modifyConstraints(
         constraints: Constraints
     ) = constraints.offset(
         horizontal = -left.toIntPx() - right.toIntPx(),
         vertical = -top.toIntPx() - bottom.toIntPx()
     )
 
-    override fun DensityScope.modifySize(
+    override fun Density.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ) = IntPxSize(
@@ -106,7 +106,7 @@ data class LayoutPadding(
             .coerceIn(constraints.minHeight, constraints.maxHeight)
     )
 
-    override fun DensityScope.modifyPosition(
+    override fun Density.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ) = IntPxPosition(left.toIntPx(), top.toIntPx())

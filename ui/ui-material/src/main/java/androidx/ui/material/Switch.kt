@@ -18,8 +18,8 @@ package androidx.ui.material
 
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
-import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.selection.Toggleable
@@ -34,11 +34,10 @@ import androidx.ui.layout.Wrap
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options
@@ -73,7 +72,7 @@ fun Switch(
 @Composable
 private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, color: Color) {
     val minBound = 0f
-    val maxBound = withDensity(ambientDensity()) { ThumbPathLength.toPx().value }
+    val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx().value }
     StateDraggable(
         state = checked,
         onStateChange = onCheckedChange ?: {},
@@ -107,7 +106,7 @@ private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbValue: V
     }
 }
 
-private fun DensityScope.drawTrack(
+private fun Density.drawTrack(
     canvas: Canvas,
     parentSize: PxSize,
     trackColor: Color
@@ -129,7 +128,7 @@ private fun DensityScope.drawTrack(
     )
 }
 
-private fun DensityScope.drawThumb(
+private fun Density.drawThumb(
     canvas: Canvas,
     parentSize: PxSize,
     position: Float,

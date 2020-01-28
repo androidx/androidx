@@ -19,9 +19,9 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
-import androidx.ui.core.WithDensity
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.foundation.shape.DrawShape
@@ -60,7 +60,7 @@ private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit
                         pointerInputHandler = recorder::onPointerInput,
                         cancelHandler = {}
                     ) {
-                        WithDensity {
+                        with(DensityAmbient.current) {
                             Container(width = width.toDp(), height = height.toDp()) {
                                 DrawShape(RectangleShape, Color.Yellow)
                             }

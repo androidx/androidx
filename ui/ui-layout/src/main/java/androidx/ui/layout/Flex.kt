@@ -31,7 +31,7 @@ import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -1098,7 +1098,7 @@ private fun intrinsicCrossAxisSize(
 }
 
 private data class FlexModifier(val flexProperties: FlexChildProperties) : ParentDataModifier {
-    override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
+    override fun Density.modifyParentData(parentData: Any?): FlexChildProperties {
         return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
             it.flex = flexProperties.flex
             it.fit = flexProperties.fit
@@ -1107,11 +1107,11 @@ private data class FlexModifier(val flexProperties: FlexChildProperties) : Paren
 }
 
 private sealed class SiblingsAlignedModifier : ParentDataModifier {
-    abstract override fun DensityScope.modifyParentData(parentData: Any?): Any?
+    abstract override fun Density.modifyParentData(parentData: Any?): Any?
 
     internal data class WithAlignmentLineBlock(val block: (Placeable) -> IntPx) :
         SiblingsAlignedModifier() {
-        override fun DensityScope.modifyParentData(parentData: Any?): Any? {
+        override fun Density.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
                 it.crossAxisAlignment =
                     CrossAxisAlignment.Relative(AlignmentLineProvider.Block(block))
@@ -1121,7 +1121,7 @@ private sealed class SiblingsAlignedModifier : ParentDataModifier {
 
     internal data class WithAlignmentLine(val line: AlignmentLine) :
         SiblingsAlignedModifier() {
-        override fun DensityScope.modifyParentData(parentData: Any?): Any? {
+        override fun Density.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
                 it.crossAxisAlignment =
                     CrossAxisAlignment.Relative(AlignmentLineProvider.Value(line))
@@ -1131,7 +1131,7 @@ private sealed class SiblingsAlignedModifier : ParentDataModifier {
 }
 
 private data class GravityModifier(val alignment: CrossAxisAlignment) : ParentDataModifier {
-    override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
+    override fun Density.modifyParentData(parentData: Any?): FlexChildProperties {
         return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
             it.crossAxisAlignment = alignment
         }

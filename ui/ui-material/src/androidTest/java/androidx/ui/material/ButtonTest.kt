@@ -43,7 +43,6 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -227,7 +226,7 @@ class ButtonTest {
             }
         }
 
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             assertThat(realSize.height.value)
                 .isGreaterThan(36.dp.toIntPx().value.toFloat())
         }
@@ -311,7 +310,7 @@ class ButtonTest {
         composeTestRule.runOnIdleCompose {
             val topLeft = childCoordinates!!.localToGlobal(PxPosition.Origin).x -
                     parentCoordinates!!.localToGlobal(PxPosition.Origin).x
-            val currentPadding = withDensity(composeTestRule.density) {
+            val currentPadding = with(composeTestRule.density) {
                 padding.toIntPx().toPx()
             }
             assertThat(currentPadding).isEqualTo(topLeft)

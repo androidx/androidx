@@ -18,7 +18,7 @@ package androidx.ui.layout
 
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.coerceAtLeast
 import androidx.ui.unit.coerceIn
@@ -140,7 +140,7 @@ fun DpConstraints.offset(horizontal: Dp = 0.dp, vertical: Dp = 0.dp) = DpConstra
 /**
  * Creates the [Constraints] corresponding to the current [DpConstraints].
  */
-fun DensityScope.Constraints(dpConstraints: DpConstraints) = Constraints(
+fun Density.Constraints(dpConstraints: DpConstraints) = Constraints(
     minWidth = dpConstraints.minWidth.toIntPx(),
     maxWidth = dpConstraints.maxWidth.toIntPx(),
     minHeight = dpConstraints.minHeight.toIntPx(),
@@ -150,7 +150,7 @@ fun DensityScope.Constraints(dpConstraints: DpConstraints) = Constraints(
 /**
  * Creates the [DpConstraints] corresponding to the current [Constraints].
  */
-fun DensityScope.DpConstraints(constraints: Constraints) = DpConstraints(
+fun Density.DpConstraints(constraints: Constraints) = DpConstraints(
     minWidth = constraints.minWidth.toDp(),
     maxWidth = constraints.maxWidth.toDp(),
     minHeight = constraints.minHeight.toDp(),

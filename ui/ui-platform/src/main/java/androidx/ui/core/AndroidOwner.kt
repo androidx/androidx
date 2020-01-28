@@ -59,7 +59,6 @@ import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxSize
@@ -67,7 +66,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
@@ -76,8 +74,9 @@ import kotlin.math.roundToInt
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidComposeView constructor(context: Context) :
-    ViewGroup(context), AndroidOwner, SemanticsTreeProvider, DensityScope {
-    override var density: Density = Density(context)
+    ViewGroup(context), AndroidOwner, SemanticsTreeProvider {
+
+    override var density = Density(context)
         private set
 
     val root = LayoutNode().also {
@@ -563,7 +562,7 @@ class AndroidComposeView constructor(context: Context) :
                             receiver.childDrawn = false
                             receiver.canvas = canvas
                             receiver.parentSize = parentSize
-                            receiver.density = density
+                            receiver.currentDensity = density
                         }
                         onPaintWithChildren(receiver, canvas, parentSize)
                         if (!receiver.childDrawn) {
@@ -571,7 +570,7 @@ class AndroidComposeView constructor(context: Context) :
                         }
                     } else {
                         val onPaint = node.onPaint!!
-                        this.onPaint(canvas, parentSize)
+                        density.onPaint(canvas, parentSize)
                     }
                     node.needsPaint = false
                 }
@@ -738,9 +737,12 @@ class AndroidComposeView constructor(context: Context) :
         private val drawNode: DrawNode,
         var canvas: Canvas,
         var parentSize: PxSize,
-        override var density: Density
-    ) : DensityScope, DrawReceiver {
+        var currentDensity: Density
+    ) : DrawReceiver {
         internal var childDrawn = false
+
+        override val density: Float get() = currentDensity.density
+        override val fontScale: Float get() = currentDensity.fontScale
 
         override fun drawChildren() {
             if (childDrawn) {
@@ -907,25 +909,25 @@ class AndroidComposeView constructor(context: Context) :
             }
 
             override fun minIntrinsicWidth(
-                densityScope: DensityScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun minIntrinsicHeight(
-                densityScope: DensityScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicWidth(
-                densityScope: DensityScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicHeight(
-                densityScope: DensityScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx
             ) = error("Undefined intrinsics block and it is required")
@@ -1136,7 +1138,7 @@ private class RepaintBoundaryView(
             dirty = true
         }
         alpha = repaintBoundaryNode.opacity
-        elevation = withDensity(density) { repaintBoundaryNode.elevation.toPx().value }
+        elevation = with(density) { repaintBoundaryNode.elevation.toPx().value }
     }
 
     override fun updateDisplayList() {
@@ -1228,7 +1230,7 @@ private class RepaintBoundaryRenderNode(
             dirty = true
         }
         renderNode.alpha = repaintBoundaryNode.opacity
-        renderNode.elevation = withDensity(density) { repaintBoundaryNode.elevation.toPx().value }
+        renderNode.elevation = with(density) { repaintBoundaryNode.elevation.toPx().value }
         ownerView.invalidate()
     }
 }

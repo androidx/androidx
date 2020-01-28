@@ -33,7 +33,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -78,7 +77,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun didExceedMaxLines_withLineWrap() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 50.sp
             // Each line has the space only for 1 character
             val width = fontSize.toPx().value
@@ -137,7 +136,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getPathForRange() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("ab", "c", "de")
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -200,7 +199,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getOffsetForPosition() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val lineLength = 2
             val text = createAnnotatedString(List(3) { "a".repeat(lineLength) })
 
@@ -233,7 +232,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getBoundingBox() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val lineLength = 2
             val text = createAnnotatedString(List(3) { "a".repeat(lineLength) })
 
@@ -283,7 +282,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPosition() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val paragraphCount = 3
             val lineLength = 2
             val text = createAnnotatedString(List(paragraphCount) { "a".repeat(lineLength) })
@@ -417,7 +416,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("a\u05D0", "\u05D0a")
             val paragraph = simpleMultiParagraph(text = text)
 
@@ -502,7 +501,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getCursorRect() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val paragraphCount = 3
             val lineLength = 2
             // A text with 3 lines and each line has 2 characters.
@@ -598,7 +597,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getLineLeft() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("aa", "\u05D0\u05D0")
 
             val fontSize = 50.sp
@@ -635,7 +634,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getLineRight() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("aa", "\u05D0\u05D0")
 
             val fontSize = 50.sp
@@ -672,7 +671,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getLineBottom() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("a", "a", "a")
 
             val fontSize = 50.sp
@@ -709,7 +708,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun getLineHeight() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("a", "a", "a")
 
             val fontSize = 50.sp
@@ -801,7 +800,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textAlign_center_textIsCentered() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "aa"
             val textRtl = "\u05D0\u05D0"
             val text = createAnnotatedString(textLtr, textRtl)
@@ -857,7 +856,7 @@ class MultiParagraphIntegrationTest {
     @Test
     @SdkSuppress(maxSdkVersion = 27, minSdkVersion = 26)
     fun textAlign_justify_justifies_underApi28() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "a a a"
             val textRtl = "\u05D0 \u05D0 \u05D0"
             val text = createAnnotatedString(textLtr, textRtl)
@@ -933,7 +932,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textDirectionAlgorithm_defaultValue() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "a ."
             val textRtl = "\u05D0 ."
             val textNeutral = "  ."
@@ -964,7 +963,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textDirectionAlgorithm_contentOrLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "a ."
             val textRtl = "\u05D0 ."
             val textNeutral = "  ."
@@ -996,7 +995,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textDirectionAlgorithm_contentOrRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "a ."
             val textRtl = "\u05D0 ."
             val textNeutral = "  ."
@@ -1028,7 +1027,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textDirectionAlgorithm_forceLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "a ."
             val textRtl = "\u05D0 ."
             val textNeutral = "  ."
@@ -1060,7 +1059,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textDirectionAlgorithm_forceRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "a ."
             val textRtl = "\u05D0 ."
             val textNeutral = "  ."
@@ -1092,7 +1091,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun lineHeight_returnsSameAsGiven() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("a\na\na", "a\na\na")
             // Need to specify font size in case the asserted line height happens to be the default
             // line height corresponding to the font size.
@@ -1116,7 +1115,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textIndent_onFirstLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("aaa", "\u05D0\u05D0\u05D0")
             val indent = 20.sp
             val indentInPx = indent.toPx().value
@@ -1146,7 +1145,7 @@ class MultiParagraphIntegrationTest {
 
     @Test
     fun textIndent_onRestLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = createAnnotatedString("aaa", "\u05D0\u05D0\u05D0")
             val indent = 20.sp
             val indentInPx = indent.toPx().value

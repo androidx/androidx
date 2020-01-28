@@ -37,11 +37,11 @@ package androidx.ui.test {
   public final class CollectedSizes {
     ctor public CollectedSizes(androidx.ui.unit.PxSize size, androidx.ui.unit.Density density);
     method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(androidx.ui.unit.Dp expectedHeight);
-    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,androidx.ui.unit.IntPx> expectedHeightPx);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedHeightPx);
     method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(androidx.ui.unit.Dp expectedSize);
-    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,androidx.ui.unit.IntPx> expectedSquarePx);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedSquarePx);
     method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(androidx.ui.unit.Dp expectedWidth);
-    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,androidx.ui.unit.IntPx> expectedWidthPx);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedWidthPx);
   }
 
   public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {
