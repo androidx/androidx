@@ -164,6 +164,7 @@ includeProject(":lifecycle:lifecycle-reactivestreams-ktx", "lifecycle/lifecycle-
 includeProject(":lifecycle:lifecycle-runtime", "lifecycle/lifecycle-runtime")
 includeProject(":lifecycle:lifecycle-runtime-ktx", "lifecycle/lifecycle-runtime-ktx")
 includeProject(":lifecycle:lifecycle-runtime-ktx-lint", "lifecycle/lifecycle-runtime-ktx-lint")
+includeProject(":lifecycle:lifecycle-runtime-testing", "lifecycle/lifecycle-runtime-testing")
 includeProject(":lifecycle:lifecycle-service", "lifecycle/lifecycle-service")
 includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/lifecycle-viewmodel")
 includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/lifecycle-viewmodel-ktx")
