@@ -19,12 +19,10 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
@@ -46,77 +44,7 @@ public class ShadowCameraX {
                         }
                     }).getUseCaseConfig();
 
-    private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfoInternal() {
-        final boolean mHasFlashUnit = true;
-        MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
-        MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
-        MutableLiveData<Float> mMaxZoomRatio = new MutableLiveData<>(4.0f);
-        MutableLiveData<Float> mMinZoomRatio = new MutableLiveData<>(1.0f);
-        MutableLiveData<Float> mLinearZoom = new MutableLiveData<>(0f);
-
-        @Override
-        public Integer getLensFacing() {
-            return CameraSelector.LENS_FACING_BACK;
-        }
-
-        @NonNull
-        @Override
-        public String getCameraId() {
-            return DEFAULT_CAMERA_ID;
-        }
-
-        @Override
-        public int getSensorRotationDegrees() {
-            return 0;
-        }
-
-        @Override
-        public int getSensorRotationDegrees(int relativeRotation) {
-            return 0;
-        }
-
-        @Override
-        public boolean hasFlashUnit() {
-            return mHasFlashUnit;
-        }
-
-        @NonNull
-        @Override
-        @TorchState.State
-        public LiveData<Integer> getTorchState() {
-            return mTorchState;
-        }
-
-        @NonNull
-        @Override
-        public LiveData<Float> getZoomRatio() {
-            return mZoomRatio;
-        }
-
-        @NonNull
-        @Override
-        public LiveData<Float> getMaxZoomRatio() {
-            return mMaxZoomRatio;
-        }
-
-        @NonNull
-        @Override
-        public LiveData<Float> getMinZoomRatio() {
-            return mMinZoomRatio;
-        }
-
-        @NonNull
-        @Override
-        public LiveData<Float> getLinearZoom() {
-            return mLinearZoom;
-        }
-
-        @NonNull
-        @Override
-        public String getImplementationType() {
-            return IMPLEMENTATION_TYPE_UNKNOWN;
-        }
-    };
+    private static final CameraInfo DEFAULT_CAMERA_INFO = new FakeCameraInfoInternal();
 
     private static final CameraDeviceSurfaceManager DEFAULT_DEVICE_SURFACE_MANAGER =
             new FakeCameraDeviceSurfaceManager();
