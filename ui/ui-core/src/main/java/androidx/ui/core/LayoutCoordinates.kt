@@ -79,12 +79,17 @@ inline val LayoutCoordinates.globalPosition: PxPosition get() = localToGlobal(Px
  */
 inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToRoot(PxPosition.Origin)
 
+/**
+ * The boundaries of this layout inside the root composable.
+ */
 inline val LayoutCoordinates.boundsInRoot: PxBounds
     get() = PxBounds(
         positionInRoot,
         size.toPxSize()
     )
-
+/**
+ * The global boundaries of this layout inside.
+ */
 inline val LayoutCoordinates.globalBounds: PxBounds
     get() = PxBounds(
         globalPosition,
