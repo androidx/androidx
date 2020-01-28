@@ -61,8 +61,8 @@ class TestPagingSource(counted: Boolean = true) : PagingSource<Int, Int>() {
         )
     }
 
-    override fun getRefreshKeyFromPage(indexInPage: Int, page: LoadResult.Page<Int, Int>): Int? {
-        return page.data[indexInPage]
+    override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
+        return state.anchorPosition
     }
 
     companion object {

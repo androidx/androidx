@@ -44,13 +44,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
         .onStart { emit(Unit) }
         .scan(null) { previousGeneration: Pager<Key, Value>?, _ ->
             val pagingSource = pagingSourceFactory()
-            val initialKey = when (previousGeneration) {
-                null -> initialKey
-                else -> when (val info = previousGeneration.refreshKeyInfo()) {
-                    null -> previousGeneration.initialKey
-                    else -> pagingSource.getRefreshKeyFromPage(info.indexInPage, info.page)
-                }
-            }
+            val initialKey = previousGeneration?.refreshKeyInfo()
+                ?.let { pagingSource.getRefreshKey(it) }
+                ?: initialKey
 
             // Hook up refresh signals from DataSource / PagingSource.
             pagingSource.registerInvalidatedCallback(::refresh)

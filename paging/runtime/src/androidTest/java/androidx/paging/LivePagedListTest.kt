@@ -83,7 +83,9 @@ class LivePagedListTest {
             override fun create(): DataSource<Int, String> = dataSource
         }
 
-        private val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.Main)
+        private val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(
+            fetchDispatcher = Dispatchers.Main
+        )
 
         private val config = Config(10)
     }
