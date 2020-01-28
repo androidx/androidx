@@ -32,6 +32,7 @@ import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.ResourceFont
 import androidx.ui.unit.Density
@@ -61,6 +62,7 @@ class TextFieldDelegateIntegrationTest {
     fun draw_selection_test() {
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
+            style = TextStyle.Empty,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -101,6 +103,7 @@ class TextFieldDelegateIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
+            style = TextStyle.Empty,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -135,6 +138,7 @@ class TextFieldDelegateIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
+            style = TextStyle.Empty,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
