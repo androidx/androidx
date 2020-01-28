@@ -595,6 +595,9 @@ package androidx.ui.text {
 
 package androidx.ui.text.font {
 
+  public abstract sealed class FileBasedFontFamily extends androidx.ui.text.font.FontFamily {
+  }
+
   public interface Font {
     method public androidx.ui.text.font.FontStyle getStyle();
     method public androidx.ui.text.font.FontWeight getWeight();
@@ -632,7 +635,7 @@ package androidx.ui.text.font {
     method public static androidx.ui.text.font.Font font(int resId, androidx.ui.text.font.FontWeight weight = FontWeight.Normal, androidx.ui.text.font.FontStyle style = androidx.ui.text.font.FontStyle.Normal);
   }
 
-  public final class FontListFontFamily extends androidx.ui.text.font.FontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
+  public final class FontListFontFamily extends androidx.ui.text.font.FileBasedFontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
     ctor public FontListFontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public java.util.List<androidx.ui.text.font.Font> component1();
     method public boolean contains(androidx.ui.text.font.Font element);
