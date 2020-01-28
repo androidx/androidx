@@ -17,7 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.compose.Composable
-import androidx.compose.ambientOf
+import androidx.compose.staticAmbientOf
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialTheme
@@ -47,7 +47,7 @@ data class RippleTheme(
 /**
  * Ambient used for providing [RippleTheme] down the tree.
  */
-val RippleThemeAmbient = ambientOf { DefaultRippleTheme }
+val RippleThemeAmbient = staticAmbientOf { DefaultRippleTheme }
 
 private val DefaultRippleTheme = RippleTheme(
     factory = DefaultRippleEffectFactory,
