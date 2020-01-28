@@ -28,7 +28,7 @@ import androidx.lifecycle.LifecycleOwner;
  * Provides access to a camera which has has its opening and closing controlled by a
  * {@link LifecycleOwner}.
  */
-public interface LifecycleCameraProvider {
+interface LifecycleCameraProvider {
 
     /**
      * Returns true if the {@link UseCase} is bound to a lifecycle. Otherwise returns false.
