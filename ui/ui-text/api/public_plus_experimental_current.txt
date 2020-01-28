@@ -825,7 +825,6 @@ package androidx.ui.text.style {
   public enum TextOverflow {
     enum_constant public static final androidx.ui.text.style.TextOverflow Clip;
     enum_constant public static final androidx.ui.text.style.TextOverflow Ellipsis;
-    enum_constant public static final androidx.ui.text.style.TextOverflow Fade;
   }
 
 }

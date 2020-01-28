@@ -45,7 +45,6 @@ import androidx.ui.text.samples.TextDecorationLineThroughSample
 import androidx.ui.text.samples.TextDecorationUnderlineSample
 import androidx.ui.text.samples.TextStyleSample
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.em
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
@@ -90,8 +89,6 @@ fun TextDemo() {
             TextDemoTextAlign()
             TagLine(tag = "softWrap: on and off")
             TextDemoSoftWrap()
-            TagLine(tag = "TextOverFlow: Fade")
-            TexDemoTextOverflowFade()
             TagLine(tag = "shadow")
             TextDemoShadowEffect()
             TagLine(tag = "fontSizeScale")
@@ -455,30 +452,6 @@ fun TextDemoSoftWrap() {
         Text(text = text, style = textStyle)
         Text(text = text, style = textStyle, softWrap = false)
     }
-}
-
-@Composable
-fun TexDemoTextOverflowFade() {
-    var text = ""
-    for (i in 1..15) {
-        text += displayText
-    }
-    val textStyle = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
-    SecondTagLine(tag = "horizontally fading edge")
-    Text(
-        text = text,
-        style = textStyle,
-        maxLines = 1,
-        overflow = TextOverflow.Fade,
-        softWrap = false
-    )
-    SecondTagLine(tag = "vertically fading edge")
-    Text(
-        text = text,
-        style = textStyle,
-        maxLines = 3,
-        overflow = TextOverflow.Fade
-    )
 }
 
 @Composable
