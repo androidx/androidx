@@ -16,8 +16,8 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.StructurallyEqual
 import androidx.compose.Providers
+import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
 import androidx.compose.onCommit
 import androidx.compose.remember
@@ -39,6 +39,7 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
+import androidx.ui.unit.round
 
 private const val DefaultSoftWrap: Boolean = true
 private const val DefaultMaxLines = Int.MAX_VALUE
@@ -191,9 +192,16 @@ fun Text(
                 // Provide values for the alignment lines defined by text - the first
                 // and last baselines of the text. These can be used by parent layouts
                 // to position this text or align this and other texts by baseline.
+                //
+                // Note: we use round to make IntPx but any rounding doesn't work well here since
+                // the layout system works with integer pixels but baseline can be in a middle of
+                // the pixel. So any rounding doesn't offer the pixel perfect baseline. We use
+                // round just because the Android framework is doing float-to-int conversion with
+                // round.
+                // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/android/graphics/Paint.cpp;l=635?q=Paint.cpp
                 mapOf(
-                    FirstBaseline to layoutResult.firstBaseline,
-                    LastBaseline to layoutResult.lastBaseline
+                    FirstBaseline to layoutResult.firstBaseline.round(),
+                    LastBaseline to layoutResult.lastBaseline.round()
                 )
             ) {}
         }
