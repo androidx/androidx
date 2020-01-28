@@ -20,6 +20,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -218,6 +219,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *                                  camera to be used for the given use cases.
      */
     @SuppressWarnings("lambdaLast")
+    @MainThread
     @NonNull
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
@@ -230,11 +232,13 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         return CameraX.isBound(useCase);
     }
 
+    @MainThread
     @Override
     public void unbind(@NonNull UseCase... useCases) {
         CameraX.unbind(useCases);
     }
 
+    @MainThread
     @Override
     public void unbindAll() {
         CameraX.unbindAll();
