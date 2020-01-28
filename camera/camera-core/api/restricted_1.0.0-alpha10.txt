@@ -29,13 +29,10 @@ package androidx.camera.core {
 
   public interface CameraInfo {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.CameraInfo.ImplementationType public String getImplementationType();
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getLinearZoom();
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getMaxZoomRatio();
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getMinZoomRatio();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getZoomRatio();
+    method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String IMPLEMENTATION_TYPE_CAMERA2 = "androidx.camera.camera2";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String IMPLEMENTATION_TYPE_CAMERA2_LEGACY = "androidx.camera.camera2.legacy";
@@ -480,6 +477,13 @@ package androidx.camera.core {
   }
 
   @IntDef({androidx.camera.core.VideoCapture.ERROR_UNKNOWN, androidx.camera.core.VideoCapture.ERROR_ENCODER, androidx.camera.core.VideoCapture.ERROR_MUXER, androidx.camera.core.VideoCapture.ERROR_RECORDING_IN_PROGRESS}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface VideoCapture.VideoCaptureError {
+  }
+
+  public interface ZoomState {
+    method public float getLinearZoom();
+    method public float getMaxZoomRatio();
+    method public float getMinZoomRatio();
+    method public float getZoomRatio();
   }
 
 }

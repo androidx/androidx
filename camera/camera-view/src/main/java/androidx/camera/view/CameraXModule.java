@@ -464,7 +464,7 @@ final class CameraXModule {
 
     public float getZoomRatio() {
         if (mCamera != null) {
-            return mCamera.getCameraInfo().getZoomRatio().getValue();
+            return mCamera.getCameraInfo().getZoomState().getValue().getZoomRatio();
         } else {
             return UNITY_ZOOM_SCALE;
         }
@@ -492,7 +492,7 @@ final class CameraXModule {
 
     public float getMinZoomRatio() {
         if (mCamera != null) {
-            return mCamera.getCameraInfo().getMinZoomRatio().getValue();
+            return mCamera.getCameraInfo().getZoomState().getValue().getMinZoomRatio();
         } else {
             return UNITY_ZOOM_SCALE;
         }
@@ -500,7 +500,7 @@ final class CameraXModule {
 
     public float getMaxZoomRatio() {
         if (mCamera != null) {
-            return mCamera.getCameraInfo().getMaxZoomRatio().getValue();
+            return mCamera.getCameraInfo().getZoomState().getValue().getMaxZoomRatio();
         } else {
             return ZOOM_NOT_SUPPORTED;
         }

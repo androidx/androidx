@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
@@ -158,26 +159,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public LiveData<Float> getZoomRatio() {
-        return mZoomControl.getZoomRatio();
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Float> getMaxZoomRatio() {
-        return mZoomControl.getMaxZoomRatio();
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Float> getMinZoomRatio() {
-        return mZoomControl.getMinZoomRatio();
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Float> getLinearZoom() {
-        return mZoomControl.getLinearZoom();
+    public LiveData<ZoomState> getZoomState() {
+        return mZoomControl.getZoomState();
     }
 
     /**

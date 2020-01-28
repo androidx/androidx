@@ -23,13 +23,10 @@ package androidx.camera.core {
   }
 
   public interface CameraInfo {
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getLinearZoom();
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getMaxZoomRatio();
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getMinZoomRatio();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
-    method public androidx.lifecycle.LiveData<java.lang.Float!> getZoomRatio();
+    method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
   }
 
@@ -237,6 +234,13 @@ package androidx.camera.core {
   }
 
   public abstract class UseCase {
+  }
+
+  public interface ZoomState {
+    method public float getLinearZoom();
+    method public float getMaxZoomRatio();
+    method public float getMinZoomRatio();
+    method public float getZoomRatio();
   }
 
 }
