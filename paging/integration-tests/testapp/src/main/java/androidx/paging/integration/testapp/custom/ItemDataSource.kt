@@ -20,6 +20,7 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.paging.LoadType
 import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -33,10 +34,7 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
 
     private val generationId = sGenerationId++
 
-    override fun getRefreshKeyFromPage(
-        indexInPage: Int,
-        page: LoadResult.Page<Int, Item>
-    ): Int? = page.prevKey!! + indexInPage
+    override fun getRefreshKey(state: PagingState<Int, Item>): Int? = state.anchorPosition
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> =
         when (params.loadType) {

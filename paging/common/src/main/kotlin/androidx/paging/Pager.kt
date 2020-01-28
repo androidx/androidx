@@ -131,13 +131,33 @@ internal class Pager<Key : Any, Value : Any>(
         pageEventChannelFlowJob.cancel()
     }
 
-    suspend fun refreshKeyInfo(): RefreshInfo<Key, Value>? {
-        return lastHint?.let { hint ->
-            stateLock.withLock {
-                with(state) {
-                    hint.withCoercedHint { indexInPage, pageIndex, _ ->
-                        state.refreshInfo(indexInPage, pageIndex)
+    suspend fun refreshKeyInfo(): PagingState<Key, Value>? {
+        return stateLock.withLock {
+            val lastHint = lastHint
+
+            if (lastHint == null) {
+                return null
+            }
+
+            with(state) {
+                if (state.pages.isEmpty()) {
+                    return null
+                }
+
+                lastHint.withCoercedHint { indexInPage, pageIndex, _ ->
+                    var lastAccessedIndex = indexInPage
+                    var i = 0
+                    while (i < pageIndex) {
+                        lastAccessedIndex += pages[i].data.size
+                        i++
                     }
+
+                    PagingState(
+                        pages = state.pages.toList(),
+                        anchorPosition = lastAccessedIndex + state.placeholdersStart,
+                        initialLoadSize = config.initialLoadSize,
+                        placeholdersStart = state.placeholdersStart
+                    )
                 }
             }
         }

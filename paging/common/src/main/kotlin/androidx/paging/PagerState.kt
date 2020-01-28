@@ -45,8 +45,8 @@ internal class PagerState<Key : Any, Value : Any>(
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
     private var initialPageIndex = 0
-    private var placeholdersStart = COUNT_UNDEFINED
-    private var placeholdersEnd = COUNT_UNDEFINED
+    internal var placeholdersStart = COUNT_UNDEFINED
+    internal var placeholdersEnd = COUNT_UNDEFINED
 
     internal var prependLoadId = 0
         private set
@@ -234,28 +234,6 @@ internal class PagerState<Key : Any, Value : Any>(
     }
 
     /**
-     * @param indexInPage Index in [Page] with index [pageIndex]
-     * @param pageIndex Index in [pages]
-     *
-     * @return Information needed to request a refresh key from [PagingSource] via
-     * [PagingSource.getRefreshKeyFromPage] if available, null otherwise, which should direct the
-     * [PageFetcher] to simply use initialKey.
-     */
-    internal fun refreshInfo(indexInPage: Int, pageIndex: Int): RefreshInfo<Key, Value>? {
-        if (pages.isEmpty()) return null
-
-        // Try to find the page and use prev page's next key
-        return when {
-            pageIndex < 0 -> RefreshInfo(0, pages.first())
-            pageIndex > pages.size -> {
-                val lastPage = pages.last()
-                RefreshInfo(lastPage.data.size - 1, lastPage)
-            }
-            else -> RefreshInfo(indexInPage, pages[pageIndex])
-        }
-    }
-
-    /**
      * Calls the specified [block] with a [ViewportHint] that has been coerced with respect to the
      * current state of [pages].
      *
@@ -309,8 +287,3 @@ internal class PagerState<Key : Any, Value : Any>(
 }
 
 internal class DropInfo(val pageCount: Int, val placeholdersRemaining: Int)
-
-internal class RefreshInfo<Key : Any, Value : Any>(
-    val indexInPage: Int,
-    val page: Page<Key, Value>
-)
