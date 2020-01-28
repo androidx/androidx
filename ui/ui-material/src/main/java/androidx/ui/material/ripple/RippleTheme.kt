@@ -25,9 +25,7 @@ import androidx.ui.material.MaterialTheme
 /**
  * Defines the appearance and the behavior for [Ripple]s.
  *
- * To change some parameter and apply it to descendants modify the [CurrentRippleTheme] ambient.
- *
- * To apply the default values based on the Material Design guidelines use [MaterialTheme].
+ * You can define new theme and apply it via [RippleThemeAmbient].
  */
 data class RippleTheme(
     /**
@@ -46,9 +44,11 @@ data class RippleTheme(
     val opacity: @Composable() () -> Float
 )
 
-val CurrentRippleTheme = ambientOf { DefaultRippleTheme }
+/**
+ * Ambient used for providing [RippleTheme] down the tree.
+ */
+val RippleThemeAmbient = ambientOf { DefaultRippleTheme }
 
-@Suppress("PLUGIN_WARNING")
 private val DefaultRippleTheme = RippleTheme(
     factory = DefaultRippleEffectFactory,
     defaultColor = { contentColor() },

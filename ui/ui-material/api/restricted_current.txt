@@ -382,7 +382,7 @@ package androidx.ui.material.ripple {
   }
 
   public final class RippleThemeKt {
-    method public static androidx.compose.ProvidableAmbient<androidx.ui.material.ripple.RippleTheme> getCurrentRippleTheme();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.material.ripple.RippleTheme> getRippleThemeAmbient();
   }
 
 }

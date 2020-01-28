@@ -60,7 +60,7 @@ fun Ripple(
 ) {
     val density = ambientDensity()
     val state = remember { RippleState() }
-    val theme = CurrentRippleTheme.current
+    val theme = RippleThemeAmbient.current
 
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
         PressIndicatorGestureDetector(
