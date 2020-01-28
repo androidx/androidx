@@ -1,0 +1,371 @@
+// Signature format: 3.0
+package androidx.animation {
+
+  public class AccelerateDecelerateInterpolator implements androidx.animation.Interpolator {
+    ctor public AccelerateDecelerateInterpolator();
+    method @FloatRange(from=0, to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public class AccelerateInterpolator implements androidx.animation.Interpolator {
+    ctor public AccelerateInterpolator();
+    ctor public AccelerateInterpolator(float);
+    ctor public AccelerateInterpolator(android.content.Context, android.util.AttributeSet);
+    method @FloatRange(from=0, to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public abstract class Animator implements java.lang.Cloneable {
+    ctor public Animator();
+    method public void addListener(androidx.animation.Animator.AnimatorListener);
+    method public void addPauseListener(androidx.animation.Animator.AnimatorPauseListener);
+    method public void addUpdateListener(androidx.animation.Animator.AnimatorUpdateListener);
+    method public void cancel();
+    method public androidx.animation.Animator clone();
+    method public void end();
+    method public abstract long getDuration();
+    method public androidx.animation.Interpolator? getInterpolator();
+    method public abstract long getStartDelay();
+    method public long getTotalDuration();
+    method public boolean isPaused();
+    method public abstract boolean isRunning();
+    method public boolean isStarted();
+    method public void pause();
+    method public void removeAllListeners();
+    method public void removeAllUpdateListeners();
+    method public void removeListener(androidx.animation.Animator.AnimatorListener);
+    method public void removePauseListener(androidx.animation.Animator.AnimatorPauseListener);
+    method public void removeUpdateListener(androidx.animation.Animator.AnimatorUpdateListener);
+    method public void resume();
+    method public abstract androidx.animation.Animator setDuration(@IntRange(from=0) long);
+    method public abstract void setInterpolator(androidx.animation.Interpolator?);
+    method public abstract void setStartDelay(@IntRange(from=0) long);
+    method public void setTarget(Object?);
+    method public void setupEndValues();
+    method public void setupStartValues();
+    method public void start();
+    field public static final long DURATION_INFINITE = -1L; // 0xffffffffffffffffL
+  }
+
+  public static interface Animator.AnimatorListener {
+    method public void onAnimationCancel(androidx.animation.Animator);
+    method public default void onAnimationEnd(androidx.animation.Animator, boolean);
+    method public void onAnimationEnd(androidx.animation.Animator);
+    method public void onAnimationRepeat(androidx.animation.Animator);
+    method public default void onAnimationStart(androidx.animation.Animator, boolean);
+    method public void onAnimationStart(androidx.animation.Animator);
+  }
+
+  public static interface Animator.AnimatorPauseListener {
+    method public void onAnimationPause(androidx.animation.Animator);
+    method public void onAnimationResume(androidx.animation.Animator);
+  }
+
+  public static interface Animator.AnimatorUpdateListener {
+    method public void onAnimationUpdate(androidx.animation.Animator);
+  }
+
+  public class AnimatorInflater {
+    method public static androidx.animation.Animator loadAnimator(android.content.Context, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
+    method public static androidx.animation.Animator loadAnimator(android.content.res.Resources, android.content.res.Resources.Theme?, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
+    method public static androidx.animation.Interpolator loadInterpolator(android.content.Context, @AnimatorRes @InterpolatorRes int) throws android.content.res.Resources.NotFoundException;
+  }
+
+  public abstract class AnimatorListenerAdapter implements androidx.animation.Animator.AnimatorListener androidx.animation.Animator.AnimatorPauseListener {
+    ctor public AnimatorListenerAdapter();
+    method public void onAnimationCancel(androidx.animation.Animator);
+    method public void onAnimationEnd(androidx.animation.Animator);
+    method public void onAnimationPause(androidx.animation.Animator);
+    method public void onAnimationRepeat(androidx.animation.Animator);
+    method public void onAnimationResume(androidx.animation.Animator);
+    method public void onAnimationStart(androidx.animation.Animator);
+  }
+
+  public final class AnimatorSet extends androidx.animation.Animator {
+    ctor public AnimatorSet();
+    method public boolean canReverse();
+    method public androidx.animation.AnimatorSet clone();
+    method public java.util.ArrayList<androidx.animation.Animator!> getChildAnimations();
+    method public long getCurrentPlayTime();
+    method public long getDuration();
+    method public long getStartDelay();
+    method public boolean isRunning();
+    method public androidx.animation.AnimatorSet.Builder play(androidx.animation.Animator);
+    method public void playSequentially(androidx.animation.Animator!...);
+    method public void playSequentially(java.util.List<androidx.animation.Animator!>);
+    method public void playTogether(androidx.animation.Animator!...);
+    method public void playTogether(java.util.Collection<androidx.animation.Animator!>);
+    method public void reverse();
+    method public void setCurrentPlayTime(long);
+    method public androidx.animation.AnimatorSet setDuration(long);
+    method public void setInterpolator(androidx.animation.Interpolator?);
+    method public void setStartDelay(long);
+  }
+
+  public class AnimatorSet.Builder {
+    method public androidx.animation.AnimatorSet.Builder after(androidx.animation.Animator);
+    method public androidx.animation.AnimatorSet.Builder after(long);
+    method public androidx.animation.AnimatorSet.Builder before(androidx.animation.Animator);
+    method public androidx.animation.AnimatorSet.Builder with(androidx.animation.Animator);
+  }
+
+  public class AnticipateInterpolator implements androidx.animation.Interpolator {
+    ctor public AnticipateInterpolator();
+    ctor public AnticipateInterpolator(float);
+    ctor public AnticipateInterpolator(android.content.Context, android.util.AttributeSet?);
+    method @FloatRange(to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public class AnticipateOvershootInterpolator implements androidx.animation.Interpolator {
+    ctor public AnticipateOvershootInterpolator();
+    ctor public AnticipateOvershootInterpolator(float);
+    ctor public AnticipateOvershootInterpolator(float, float);
+    ctor public AnticipateOvershootInterpolator(android.content.Context, android.util.AttributeSet?);
+    method @FloatRange(to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public final class ArgbEvaluator implements androidx.animation.TypeEvaluator<java.lang.Integer> {
+    method public Integer evaluate(float, Integer, Integer);
+    method public static androidx.animation.ArgbEvaluator getInstance();
+  }
+
+  public abstract class BidirectionalTypeConverter<T, V> extends androidx.animation.TypeConverter<T,V> {
+    ctor public BidirectionalTypeConverter(Class<T!>, Class<V!>);
+    method public abstract T convertBack(V);
+    method public androidx.animation.BidirectionalTypeConverter<V!,T!> invert();
+  }
+
+  public class BounceInterpolator implements androidx.animation.Interpolator {
+    ctor public BounceInterpolator();
+    method @FloatRange(from=0, to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public class CycleInterpolator implements androidx.animation.Interpolator {
+    ctor public CycleInterpolator(float);
+    ctor public CycleInterpolator(android.content.Context, android.util.AttributeSet?);
+    method @FloatRange(from=0, to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public class DecelerateInterpolator implements androidx.animation.Interpolator {
+    ctor public DecelerateInterpolator();
+    ctor public DecelerateInterpolator(float);
+    ctor public DecelerateInterpolator(android.content.Context, android.util.AttributeSet?);
+    method @FloatRange(from=0, to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public final class FloatArrayEvaluator implements androidx.animation.TypeEvaluator<float[]> {
+    ctor public FloatArrayEvaluator();
+    ctor public FloatArrayEvaluator(float[]?);
+    method public float[] evaluate(float, float[], float[]);
+  }
+
+  public final class FloatEvaluator implements androidx.animation.TypeEvaluator<java.lang.Float> {
+    method public Float evaluate(float, Float, Float);
+    method public static androidx.animation.FloatEvaluator getInstance();
+  }
+
+  public abstract class FloatProperty<T> extends android.util.Property<T,java.lang.Float> {
+    ctor public FloatProperty(String);
+    ctor public FloatProperty();
+    method public final void set(T, Float);
+    method public abstract void setValue(T, float);
+  }
+
+  public class IntArrayEvaluator implements androidx.animation.TypeEvaluator<int[]> {
+    ctor public IntArrayEvaluator();
+    ctor public IntArrayEvaluator(int[]?);
+    method public int[] evaluate(float, int[], int[]);
+  }
+
+  public class IntEvaluator implements androidx.animation.TypeEvaluator<java.lang.Integer> {
+    method public Integer evaluate(float, Integer, Integer);
+    method public static androidx.animation.IntEvaluator getInstance();
+  }
+
+  public abstract class IntProperty<T> extends android.util.Property<T,java.lang.Integer> {
+    ctor public IntProperty(String);
+    ctor public IntProperty();
+    method public final void set(T, Integer);
+    method public abstract void setValue(T, int);
+  }
+
+  public interface Interpolator {
+    method public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public abstract class Keyframe<T> implements java.lang.Cloneable {
+    ctor public Keyframe();
+    method public abstract androidx.animation.Keyframe<T!> clone();
+    method @FloatRange(from=0, to=1) public float getFraction();
+    method public androidx.animation.Interpolator? getInterpolator();
+    method public Class<?> getType();
+    method public abstract T? getValue();
+    method public boolean hasValue();
+    method public static androidx.animation.Keyframe<java.lang.Float!> ofFloat(@FloatRange(from=0, to=1) float, float);
+    method public static androidx.animation.Keyframe<java.lang.Float!> ofFloat(@FloatRange(from=0, to=1) float);
+    method public static androidx.animation.Keyframe<java.lang.Integer!> ofInt(@FloatRange(from=0, to=1) float, int);
+    method public static androidx.animation.Keyframe<java.lang.Integer!> ofInt(@FloatRange(from=0, to=1) float);
+    method public static <T> androidx.animation.Keyframe<T!> ofObject(@FloatRange(from=0, to=1) float, T?);
+    method public static <T> androidx.animation.Keyframe<T!> ofObject(@FloatRange(from=0, to=1) float);
+    method public void setFraction(@FloatRange(from=0, to=1) float);
+    method public void setInterpolator(androidx.animation.Interpolator?);
+    method public abstract void setValue(T?);
+  }
+
+  public class LinearInterpolator implements androidx.animation.Interpolator {
+    ctor public LinearInterpolator();
+    ctor public LinearInterpolator(android.content.Context, android.util.AttributeSet?);
+    method @FloatRange(from=0, to=1) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public final class ObjectAnimator extends androidx.animation.ValueAnimator {
+    ctor public ObjectAnimator();
+    method public androidx.animation.ObjectAnimator clone();
+    method public String getPropertyName();
+    method public Object? getTarget();
+    method public static androidx.animation.ObjectAnimator ofArgb(Object, String, int...);
+    method public static <T> androidx.animation.ObjectAnimator ofArgb(T, android.util.Property<T!,java.lang.Integer!>, int...);
+    method public static androidx.animation.ObjectAnimator ofFloat(Object, String, float...);
+    method public static androidx.animation.ObjectAnimator ofFloat(Object, String?, String?, android.graphics.Path);
+    method public static <T> androidx.animation.ObjectAnimator ofFloat(T, android.util.Property<T!,java.lang.Float!>, float...);
+    method public static <T> androidx.animation.ObjectAnimator ofFloat(T, android.util.Property<T!,java.lang.Float!>?, android.util.Property<T!,java.lang.Float!>?, android.graphics.Path);
+    method public static androidx.animation.ObjectAnimator ofInt(Object, String, int...);
+    method public static androidx.animation.ObjectAnimator ofInt(Object, String, String, android.graphics.Path);
+    method public static <T> androidx.animation.ObjectAnimator ofInt(T, android.util.Property<T!,java.lang.Integer!>, int...);
+    method public static <T> androidx.animation.ObjectAnimator ofInt(T, android.util.Property<T!,java.lang.Integer!>?, android.util.Property<T!,java.lang.Integer!>?, android.graphics.Path);
+    method public static androidx.animation.ObjectAnimator ofMultiFloat(Object, String, float[]![]);
+    method public static androidx.animation.ObjectAnimator ofMultiFloat(Object, String, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <T> androidx.animation.ObjectAnimator ofMultiFloat(Object, String, androidx.animation.TypeConverter<T!,float[]!>, androidx.animation.TypeEvaluator<T!>, T!...);
+    method public static androidx.animation.ObjectAnimator ofMultiInt(Object, String, int[]![]);
+    method public static androidx.animation.ObjectAnimator ofMultiInt(Object, String, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <T> androidx.animation.ObjectAnimator ofMultiInt(Object, String, androidx.animation.TypeConverter<T!,int[]!>, androidx.animation.TypeEvaluator<T!>, T!...);
+    method public static androidx.animation.ObjectAnimator ofObject(Object, String, androidx.animation.TypeEvaluator, java.lang.Object!...);
+    method public static androidx.animation.ObjectAnimator ofObject(Object, String, androidx.animation.TypeConverter<android.graphics.PointF!,?>?, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <T, V> androidx.animation.ObjectAnimator ofObject(T, android.util.Property<T!,V!>, androidx.animation.TypeEvaluator<V!>, V!...);
+    method @java.lang.SafeVarargs public static <T, V, P> androidx.animation.ObjectAnimator ofObject(T, android.util.Property<T!,P!>, androidx.animation.TypeConverter<V!,P!>, androidx.animation.TypeEvaluator<V!>, V!...);
+    method public static <T, V> androidx.animation.ObjectAnimator ofObject(T, android.util.Property<T!,V!>, androidx.animation.TypeConverter<android.graphics.PointF!,V!>, android.graphics.Path);
+    method public static androidx.animation.ObjectAnimator ofPropertyValuesHolder(Object, androidx.animation.PropertyValuesHolder!...);
+    method public void setAutoCancel(boolean);
+    method public androidx.animation.ObjectAnimator setDuration(long);
+    method public void setProperty(android.util.Property);
+    method public void setPropertyName(String);
+  }
+
+  public class OvershootInterpolator implements androidx.animation.Interpolator {
+    ctor public OvershootInterpolator();
+    ctor public OvershootInterpolator(float);
+    ctor public OvershootInterpolator(android.content.Context, android.util.AttributeSet?);
+    method @FloatRange(from=0) public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public class PathInterpolator implements androidx.animation.Interpolator {
+    ctor public PathInterpolator(android.graphics.Path);
+    ctor public PathInterpolator(float, float);
+    ctor public PathInterpolator(float, float, float, float);
+    ctor public PathInterpolator(android.content.Context, android.util.AttributeSet?);
+    method public float getInterpolation(@FloatRange(from=0, to=1) float);
+  }
+
+  public class PointFEvaluator implements androidx.animation.TypeEvaluator<android.graphics.PointF> {
+    ctor public PointFEvaluator();
+    ctor public PointFEvaluator(android.graphics.PointF);
+    method public android.graphics.PointF evaluate(float, android.graphics.PointF, android.graphics.PointF);
+  }
+
+  public class PropertyValuesHolder implements java.lang.Cloneable {
+    method public androidx.animation.PropertyValuesHolder clone();
+    method public String getPropertyName();
+    method public static androidx.animation.PropertyValuesHolder ofFloat(String, float...);
+    method public static androidx.animation.PropertyValuesHolder ofFloat(android.util.Property<?,java.lang.Float!>, float...);
+    method public static androidx.animation.PropertyValuesHolder ofInt(String, int...);
+    method public static androidx.animation.PropertyValuesHolder ofInt(android.util.Property<?,java.lang.Integer!>, int...);
+    method @java.lang.SafeVarargs public static androidx.animation.PropertyValuesHolder ofKeyframe(String, androidx.animation.Keyframe!...);
+    method @java.lang.SafeVarargs public static androidx.animation.PropertyValuesHolder ofKeyframe(android.util.Property, androidx.animation.Keyframe!...);
+    method public static androidx.animation.PropertyValuesHolder ofMultiFloat(String, float[]![]);
+    method public static androidx.animation.PropertyValuesHolder ofMultiFloat(String, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <V> androidx.animation.PropertyValuesHolder ofMultiFloat(String, androidx.animation.TypeConverter<V!,float[]!>, androidx.animation.TypeEvaluator<V!>, V!...);
+    method @java.lang.SafeVarargs public static <T> androidx.animation.PropertyValuesHolder ofMultiFloat(String, androidx.animation.TypeConverter<T!,float[]!>, androidx.animation.TypeEvaluator<T!>, androidx.animation.Keyframe!...);
+    method public static androidx.animation.PropertyValuesHolder ofMultiInt(String, int[]![]);
+    method public static androidx.animation.PropertyValuesHolder ofMultiInt(String, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <V> androidx.animation.PropertyValuesHolder ofMultiInt(String, androidx.animation.TypeConverter<V!,int[]!>, androidx.animation.TypeEvaluator<V!>, V!...);
+    method @java.lang.SafeVarargs public static <T> androidx.animation.PropertyValuesHolder ofMultiInt(String, androidx.animation.TypeConverter<T!,int[]!>, androidx.animation.TypeEvaluator<T!>, androidx.animation.Keyframe!...);
+    method public static androidx.animation.PropertyValuesHolder ofObject(String, androidx.animation.TypeEvaluator, java.lang.Object!...);
+    method public static androidx.animation.PropertyValuesHolder ofObject(String, androidx.animation.TypeConverter<android.graphics.PointF!,?>, android.graphics.Path);
+    method @java.lang.SafeVarargs public static <V> androidx.animation.PropertyValuesHolder ofObject(android.util.Property, androidx.animation.TypeEvaluator<V!>, V!...);
+    method @java.lang.SafeVarargs public static <T, V> androidx.animation.PropertyValuesHolder ofObject(android.util.Property<?,V!>, androidx.animation.TypeConverter<T!,V!>, androidx.animation.TypeEvaluator<T!>, T!...);
+    method public static <V> androidx.animation.PropertyValuesHolder ofObject(android.util.Property<?,V!>, androidx.animation.TypeConverter<android.graphics.PointF!,V!>, android.graphics.Path);
+    method public void setConverter(androidx.animation.TypeConverter);
+    method public void setEvaluator(androidx.animation.TypeEvaluator);
+    method public void setFloatValues(float...);
+    method public void setIntValues(int...);
+    method public void setKeyframes(androidx.animation.Keyframe!...);
+    method public void setObjectValues(java.lang.Object!...);
+    method public void setProperty(android.util.Property);
+    method public void setPropertyName(String);
+  }
+
+  public class RectEvaluator implements androidx.animation.TypeEvaluator<android.graphics.Rect> {
+    ctor public RectEvaluator();
+    ctor public RectEvaluator(android.graphics.Rect);
+    method public android.graphics.Rect evaluate(float, android.graphics.Rect, android.graphics.Rect);
+  }
+
+  public class TimeAnimator extends androidx.animation.ValueAnimator {
+    ctor public TimeAnimator();
+    method public void setTimeListener(androidx.animation.TimeAnimator.TimeListener?);
+  }
+
+  public static interface TimeAnimator.TimeListener {
+    method public void onTimeUpdate(androidx.animation.TimeAnimator, long, long);
+  }
+
+  public abstract class TypeConverter<T, V> {
+    ctor public TypeConverter(Class<T!>, Class<V!>);
+    method public abstract V convert(T);
+  }
+
+  public interface TypeEvaluator<T> {
+    method public T evaluate(float, T, T);
+  }
+
+  public class ValueAnimator extends androidx.animation.Animator {
+    ctor public ValueAnimator();
+    method public static boolean areAnimatorsEnabled();
+    method public androidx.animation.ValueAnimator clone();
+    method public float getAnimatedFraction();
+    method public Object getAnimatedValue();
+    method public Object? getAnimatedValue(String);
+    method public long getCurrentPlayTime();
+    method public long getDuration();
+    method public static long getFrameDelay();
+    method public String getNameForTrace();
+    method public int getRepeatCount();
+    method public int getRepeatMode();
+    method public long getStartDelay();
+    method public androidx.animation.PropertyValuesHolder![] getValues();
+    method public boolean isRunning();
+    method public static androidx.animation.ValueAnimator ofArgb(int...);
+    method public static androidx.animation.ValueAnimator ofFloat(float...);
+    method public static androidx.animation.ValueAnimator ofInt(int...);
+    method public static androidx.animation.ValueAnimator ofObject(androidx.animation.TypeEvaluator, java.lang.Object!...);
+    method public static androidx.animation.ValueAnimator ofPropertyValuesHolder(androidx.animation.PropertyValuesHolder!...);
+    method public void reverse();
+    method public void setCurrentFraction(float);
+    method public void setCurrentPlayTime(long);
+    method public androidx.animation.ValueAnimator setDuration(long);
+    method public void setEvaluator(androidx.animation.TypeEvaluator);
+    method public void setFloatValues(float...);
+    method public static void setFrameDelay(long);
+    method public void setIntValues(int...);
+    method public void setInterpolator(androidx.animation.Interpolator?);
+    method public void setNameForTrace(String);
+    method public void setObjectValues(java.lang.Object!...);
+    method public void setRepeatCount(int);
+    method public void setRepeatMode(int);
+    method public void setStartDelay(long);
+    method public void setValues(androidx.animation.PropertyValuesHolder!...);
+    field public static final int INFINITE = -1; // 0xffffffff
+    field public static final int RESTART = 1; // 0x1
+    field public static final int REVERSE = 2; // 0x2
+  }
+
+}
+

@@ -33,15 +33,18 @@ public class AccelerateInterpolator implements Interpolator {
     private final float mFactor;
     private final double mDoubleFactor;
 
+    /**
+     * Creates a new instance of {@link AccelerateInterpolator} with y=x^2 parabola.
+     */
     public AccelerateInterpolator() {
         mFactor = 1.0f;
         mDoubleFactor = 2.0;
     }
 
     /**
-     * Constructor
+     * Creates a new instance of {@link AccelerateInterpolator}.
      *
-     * @param factor Degree to which the animation should be eased. Seting
+     * @param factor Degree to which the animation should be eased. Setting
      *        factor to 1.0f produces a y=x^2 parabola. Increasing factor above
      *        1.0f  exaggerates the ease-in effect (i.e., it starts even
      *        slower and ends evens faster)
@@ -51,6 +54,12 @@ public class AccelerateInterpolator implements Interpolator {
         mDoubleFactor = 2 * mFactor;
     }
 
+    /**
+     * Creates a new instance of {@link AccelerateInterpolator} from XML.
+     *
+     * @param context The context.
+     * @param attrs The AttributeSet from XML.
+     */
     public AccelerateInterpolator(@NonNull Context context, @NonNull AttributeSet attrs) {
         this(context.getResources(), context.getTheme(), attrs);
     }

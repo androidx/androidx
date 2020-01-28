@@ -16,6 +16,8 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -53,9 +55,14 @@ public final class FloatEvaluator implements TypeEvaluator<Float> {
      * @return A linear interpolation between the start and end values, given the
      *         <code>fraction</code> parameter.
      */
+    @SuppressLint("AutoBoxing") /* Generics */
     @Override
     @NonNull
-    public Float evaluate(float fraction, @NonNull Float startValue, @NonNull Float endValue) {
+    public Float evaluate(
+            float fraction,
+            @SuppressLint("AutoBoxing") @NonNull Float startValue,
+            @SuppressLint("AutoBoxing") @NonNull Float endValue
+    ) {
         float startFloat = startValue.floatValue();
         return startFloat + fraction * (endValue.floatValue() - startFloat);
     }

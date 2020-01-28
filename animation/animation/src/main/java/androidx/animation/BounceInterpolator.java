@@ -22,6 +22,10 @@ import androidx.annotation.FloatRange;
  * An interpolator where the change bounces at the end.
  */
 public class BounceInterpolator implements Interpolator {
+
+    /**
+     * Creates a new instance of {@link BounceInterpolator}.
+     */
     public BounceInterpolator() {
     }
 
