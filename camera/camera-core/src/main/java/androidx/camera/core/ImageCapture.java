@@ -437,7 +437,8 @@ public class ImageCapture extends UseCase {
     /**
      * Get the flash mode.
      *
-     * @return the flashMode.
+     * @return the flashMode. Value is {@link #FLASH_MODE_AUTO}, {@link #FLASH_MODE_ON}, or
+     * {@link #FLASH_MODE_OFF}.
      */
     @FlashMode
     public int getFlashMode() {
@@ -456,7 +457,8 @@ public class ImageCapture extends UseCase {
      * will remain enabled during photo capture regardless of flashMode setting. When
      * the torch is disabled, flash will function as specified by {@link #setFlashMode(int)}.
      *
-     * @param flashMode the flash mode.
+     * @param flashMode the flash mode. Value is {@link #FLASH_MODE_AUTO}, {@link #FLASH_MODE_ON},
+     *                  or {@link #FLASH_MODE_OFF}.
      */
     public void setFlashMode(@FlashMode int flashMode) {
         this.mFlashMode = flashMode;
@@ -1832,7 +1834,8 @@ public class ImageCapture extends UseCase {
          *
          * <p>See {@link ImageCapture#setFlashMode(int)} for more information.
          *
-         * @param flashMode The requested flash mode.
+         * @param flashMode The requested flash mode. Value is {@link #FLASH_MODE_AUTO},
+         *                  {@link #FLASH_MODE_ON}, or {@link #FLASH_MODE_OFF}.
          * @return The current Builder.
          */
         @NonNull
