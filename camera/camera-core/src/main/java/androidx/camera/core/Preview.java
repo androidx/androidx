@@ -128,7 +128,7 @@ import java.util.concurrent.Executor;
  *     </code>
  * </pre>
  */
-public class Preview extends UseCase {
+public final class Preview extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *

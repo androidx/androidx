@@ -116,7 +116,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageAnalysis.Builder setTargetRotation(int);
   }
 
-  public class ImageCapture extends androidx.camera.core.UseCase {
+  public final class ImageCapture extends androidx.camera.core.UseCase {
     method public int getFlashMode();
     method public void setFlashMode(int);
     method public void setTargetAspectRatioCustom(android.util.Rational);
@@ -206,7 +206,7 @@ package androidx.camera.core {
     method public static float getDefaultPointSize();
   }
 
-  public class Preview extends androidx.camera.core.UseCase {
+  public final class Preview extends androidx.camera.core.UseCase {
     method @UiThread public androidx.camera.core.Preview.PreviewSurfaceProvider? getPreviewSurfaceProvider();
     method @UiThread public void setPreviewSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.PreviewSurfaceProvider?);
     method @UiThread public void setPreviewSurfaceProvider(androidx.camera.core.Preview.PreviewSurfaceProvider?);
