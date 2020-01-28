@@ -18,6 +18,8 @@ package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.Config.Option;
 
 /**
@@ -32,12 +34,18 @@ public interface TargetConfig<T> {
 
     /**
      * Option: camerax.core.target.name
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     Option<String> OPTION_TARGET_NAME = Option.create("camerax.core.target.name", String.class);
     /**
      * Option: camerax.core.target.class
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     Option<Class<?>> OPTION_TARGET_CLASS =
             Option.create("camerax.core.target.class", Class.class);
