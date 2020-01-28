@@ -32,11 +32,16 @@ import androidx.annotation.Nullable;
 public class AnticipateInterpolator implements Interpolator {
     private final float mTension;
 
+    /**
+     * Creates a new instance of {@link AnticipateInterpolator}.
+     */
     public AnticipateInterpolator() {
         mTension = 2.0f;
     }
 
     /**
+     * Creates a new instance of {@link AnticipateInterpolator}.
+     *
      * @param tension Amount of anticipation. When tension equals 0.0f, there is
      *                no anticipation and the interpolator becomes a simple
      *                acceleration interpolator.
@@ -45,6 +50,12 @@ public class AnticipateInterpolator implements Interpolator {
         mTension = tension;
     }
 
+    /**
+     * Creates a new instance of {@link AnticipateInterpolator} from XML.
+     *
+     * @param context The context.
+     * @param attrs The {@link AttributeSet} from the XML.
+     */
     public AnticipateInterpolator(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context.getResources(), context.getTheme(), attrs);
     }

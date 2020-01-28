@@ -16,6 +16,7 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.Log;
@@ -332,8 +333,11 @@ public final class ObjectAnimator extends ValueAnimator {
      * @return An ObjectAnimator object that is set up to animate between the given values.
      */
     @NonNull
-    public static ObjectAnimator ofMultiInt(@NonNull Object target, @NonNull String propertyName,
-            @NonNull int[][] values) {
+    public static ObjectAnimator ofMultiInt(
+            @NonNull Object target,
+            @NonNull String propertyName,
+            @SuppressLint("ArrayReturn") /* Platform API */ @NonNull int[][] values
+    ) {
         PropertyValuesHolder pvh = PropertyValuesHolder.ofMultiInt(propertyName, values);
         return ofPropertyValuesHolder(target, pvh);
     }
@@ -547,8 +551,11 @@ public final class ObjectAnimator extends ValueAnimator {
      * @return An ObjectAnimator object that is set up to animate between the given values.
      */
     @NonNull
-    public static ObjectAnimator ofMultiFloat(@NonNull Object target, @NonNull String propertyName,
-            @NonNull float[][] values) {
+    public static ObjectAnimator ofMultiFloat(
+            @NonNull Object target,
+            @NonNull String propertyName,
+            @SuppressLint("ArrayReturn") /* Platform API */ @NonNull float[][] values
+    ) {
         PropertyValuesHolder pvh = PropertyValuesHolder.ofMultiFloat(propertyName, values);
         return ofPropertyValuesHolder(target, pvh);
     }
@@ -1020,6 +1027,7 @@ public final class ObjectAnimator extends ValueAnimator {
         return mInitialized;
     }
 
+    @SuppressLint("NoClone") /* Platform API */
     @NonNull
     @Override
     public ObjectAnimator clone() {

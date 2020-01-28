@@ -15,6 +15,7 @@
  */
 package androidx.animation;
 
+import android.annotation.SuppressLint;
 import android.util.Property;
 
 import androidx.annotation.NonNull;
@@ -59,7 +60,10 @@ public abstract class FloatProperty<T> extends Property<T, Float> {
     public abstract void setValue(@NonNull T object, float value);
 
     @Override
-    public final void set(@NonNull T object, @NonNull Float value) {
+    public final void set(
+            @NonNull T object,
+            @SuppressLint("AutoBoxing") /* Generics */ @NonNull Float value
+    ) {
         setValue(object, value);
     }
 }
