@@ -69,13 +69,18 @@ sealed class FontFamily {
 }
 
 /**
+ * A base class of [FontFamily]s that is created from file sources.
+ */
+sealed class FileBasedFontFamily : FontFamily()
+
+/**
  * Defines a font family with list of [Font].
  *
  * @sample androidx.ui.text.samples.FontFamilySansSerifSample
  * @sample androidx.ui.text.samples.CustomFontFamilySample
  */
 @Immutable
-data class FontListFontFamily(val fonts: List<Font>) : FontFamily(), List<Font> by fonts {
+data class FontListFontFamily(val fonts: List<Font>) : FileBasedFontFamily(), List<Font> by fonts {
     init {
         assert(fonts.isNotEmpty()) { "At least one font should be passed to FontFamily" }
         assert(fonts.distinctBy { Pair(it.weight, it.style) }.size == fonts.size) {
