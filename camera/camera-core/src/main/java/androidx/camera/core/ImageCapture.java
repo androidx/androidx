@@ -631,7 +631,7 @@ public class ImageCapture extends UseCase {
                 new ImageSaver.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(File file) {
-                        imageSavedCallback.onImageSaved(file);
+                        imageSavedCallback.onImageSaved();
                     }
 
                     @Override
@@ -647,7 +647,8 @@ public class ImageCapture extends UseCase {
                                 break;
                         }
 
-                        imageSavedCallback.onError(imageCaptureError, message, cause);
+                        imageSavedCallback.onError(
+                                new ImageCaptureException(imageCaptureError, message, cause));
                     }
                 };
 
@@ -670,9 +671,8 @@ public class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onError(@ImageCaptureError int error, @NonNull String message,
-                            @Nullable Throwable cause) {
-                        imageSavedCallback.onError(error, message, cause);
+                    public void onError(@NonNull final ImageCaptureException exception) {
+                        imageSavedCallback.onError(exception);
                     }
                 };
 
@@ -719,8 +719,8 @@ public class ImageCapture extends UseCase {
             cameraId = getBoundCameraId();
         } catch (Throwable e) {
             // Not bound. Notify callback.
-            callback.onError(ERROR_INVALID_CAMERA,
-                    "Not bound to a valid Camera [" + ImageCapture.this + "]", e);
+            callback.onError(new ImageCaptureException(ERROR_INVALID_CAMERA,
+                    "Not bound to a valid Camera [" + ImageCapture.this + "]", e));
             return;
         }
 
@@ -1276,7 +1276,7 @@ public class ImageCapture extends UseCase {
      * ImageCapture#takePicture(Executor, OnImageCapturedCallback)}).
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * ImageCapture.OnImageSavedCallback#onError(int, String, Throwable)}.
+     * ImageCapture.OnImageSavedCallback#onError(ImageCaptureException)}.
      *
      * @hide
      */
@@ -1322,26 +1322,16 @@ public class ImageCapture extends UseCase {
 
     /** Listener containing callbacks for image file I/O events. */
     public interface OnImageSavedCallback {
-        /**
-         * Called when an image has been successfully saved.
-         *
-         * @param file The file object which the image is saved to
-         */
-        // Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor`
-        @SuppressLint("StreamFiles")
-        void onImageSaved(@NonNull File file);
+        /** Called when an image has been successfully saved. */
+        void onImageSaved();
 
         /**
          * Called when an error occurs while attempting to save an image.
          *
-         * @param imageCaptureError The type of error composed by CameraX
-         * @param message           The error message composed by CameraX
-         * @param cause             The throwable from lower-layer error
+         * @param exception An {@link ImageCaptureException} that contains the type of error, the
+         *                  error message and the throwable that caused it.
          */
-        void onError(
-                @ImageCaptureError int imageCaptureError,
-                @NonNull String message,
-                @Nullable Throwable cause);
+        void onError(@NonNull ImageCaptureException exception);
     }
 
     /**
@@ -1384,12 +1374,10 @@ public class ImageCapture extends UseCase {
         /**
          * Callback for when an error occurred during image capture.
          *
-         * @param imageCaptureError The type of error composed by CameraX
-         * @param message           The error message composed by CameraX
-         * @param cause             The throwable from lower-layer error
+         * @param exception An {@link ImageCaptureException} that contains the type of error, the
+         *                  error message and the throwable that caused it.
          */
-        public void onError(@ImageCaptureError int imageCaptureError, @NonNull String message,
-                @Nullable Throwable cause) {
+        public void onError(@NonNull final ImageCaptureException exception) {
         }
     }
 
@@ -1709,8 +1697,8 @@ public class ImageCapture extends UseCase {
             }
 
             try {
-                mListenerExecutor.execute(
-                        () -> mCallback.onError(imageCaptureError, message, cause));
+                mListenerExecutor.execute(() -> mCallback.onError(
+                        new ImageCaptureException(imageCaptureError, message, cause)));
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");
             }

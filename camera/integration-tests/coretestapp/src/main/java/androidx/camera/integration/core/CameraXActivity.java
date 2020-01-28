@@ -50,6 +50,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -145,6 +146,7 @@ public class CameraXActivity extends AppCompatActivity
 
     /**
      * Retrieve idling resource that waits for image received by analyzer).
+     *
      * @return idline resource for image capture
      */
     @VisibleForTesting
@@ -155,6 +157,7 @@ public class CameraXActivity extends AppCompatActivity
 
     /**
      * Retrieve idling resource that waits view to get texture update.
+     *
      * @return idline resource for image capture
      */
     @VisibleForTesting
@@ -176,7 +179,7 @@ public class CameraXActivity extends AppCompatActivity
 
     /**
      * Retrieve idling resource that waits for capture to complete (save or error).
-     * */
+     */
     @VisibleForTesting
     public void resetViewIdlingResource() {
         mPreviewFrameCount.set(0);
@@ -491,16 +494,14 @@ public class CameraXActivity extends AppCompatActivity
                         mImageSavedIdlingResource.increment();
 
                         mStartCaptureTime = SystemClock.elapsedRealtime();
-                        mImageCapture.takePicture(
-                                new File(
-                                        dir,
-                                        formatter.format(Calendar.getInstance().getTime())
-                                                + ".jpg"),
+                        final File saveFile = new File(dir,
+                                formatter.format(Calendar.getInstance().getTime()) + ".jpg");
+                        mImageCapture.takePicture(saveFile,
                                 ContextCompat.getMainExecutor(CameraXActivity.this),
                                 new ImageCapture.OnImageSavedCallback() {
                                     @Override
-                                    public void onImageSaved(@NonNull File file) {
-                                        Log.d(TAG, "Saved image to " + file);
+                                    public void onImageSaved() {
+                                        Log.d(TAG, "Saved image to " + saveFile);
                                         try {
                                             mImageSavedIdlingResource.decrement();
                                         } catch (IllegalStateException e) {
@@ -521,11 +522,8 @@ public class CameraXActivity extends AppCompatActivity
                                     }
 
                                     @Override
-                                    public void onError(
-                                            @ImageCapture.ImageCaptureError int error,
-                                            @NonNull String message,
-                                            Throwable cause) {
-                                        Log.e(TAG, "Failed to save image.", cause);
+                                    public void onError(@NonNull ImageCaptureException exception) {
+                                        Log.e(TAG, "Failed to save image.", exception.getCause());
                                         try {
                                             mImageSavedIdlingResource.decrement();
                                         } catch (IllegalStateException e) {

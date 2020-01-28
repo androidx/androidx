@@ -647,7 +647,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Takes a picture and calls {@link OnImageSavedCallback#onImageSaved(File)} when done.
+     * Takes a picture and calls {@link OnImageSavedCallback#onImageSaved()} when done.
      *
      * @param file     The destination.
      * @param executor The executor in which the callback methods will be run.

@@ -32,10 +32,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
-import androidx.camera.core.VideoCapture.VideoCaptureError;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.core.content.ContextCompat;
@@ -51,8 +50,7 @@ import java.util.Locale;
  * taking or video recording actions through a {@link CameraView}. A click is interpreted as a
  * take-photo signal, while a long-press is interpreted as a record-video signal.
  */
-class CaptureViewOnTouchListener
-        implements View.OnTouchListener, OnImageSavedCallback, OnVideoSavedCallback {
+class CaptureViewOnTouchListener implements View.OnTouchListener {
     private static final String TAG = "ViewOnTouchListener";
 
     private static final String FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS";
@@ -100,25 +98,56 @@ class CaptureViewOnTouchListener
     }
 
     /** Called when the user taps. */
-    void onTap() {
+    private void onTap() {
         if (mCameraView.getCaptureMode() == CaptureMode.IMAGE
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
-            mCameraView.takePicture(createNewFile(PHOTO_EXTENSION),
-                    ContextCompat.getMainExecutor(mCameraView.getContext()), this);
+
+            final File saveFile = createNewFile(PHOTO_EXTENSION);
+            mCameraView.takePicture(saveFile,
+                    ContextCompat.getMainExecutor(mCameraView.getContext()),
+                    new OnImageSavedCallback() {
+                        @Override
+                        public void onImageSaved() {
+                            report("Picture saved to " + saveFile.getAbsolutePath());
+                            // Print out metadata about the picture
+                            // TODO: Print out metadata to log once metadata is implemented
+                            broadcastPicture(saveFile);
+                        }
+
+                        @Override
+                        public void onError(@NonNull ImageCaptureException exception) {
+                            report("Failure: " + exception.getMessage());
+                        }
+                    });
         }
     }
 
     /** Called when the user holds (long presses). */
-    void onHold() {
+    private void onHold() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
-            mCameraView.startRecording(createNewFile(VIDEO_EXTENSION),
-                    ContextCompat.getMainExecutor(mCameraView.getContext()), this);
+
+            final File saveFile = createNewFile(VIDEO_EXTENSION);
+            mCameraView.startRecording(saveFile,
+                    ContextCompat.getMainExecutor(mCameraView.getContext()),
+                    new OnVideoSavedCallback() {
+                        @Override
+                        public void onVideoSaved(@NonNull File file) {
+                            report("Video saved to " + saveFile.getAbsolutePath());
+                            broadcastVideo(saveFile);
+                        }
+
+                        @Override
+                        public void onError(int videoCaptureError, @NonNull String message,
+                                @Nullable Throwable cause) {
+                            report("Failure: " + message);
+                        }
+                    });
         }
     }
 
     /** Called when the user releases. */
-    void onRelease() {
+    private void onRelease() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
             mCameraView.stopRecording();
@@ -185,44 +214,14 @@ class CaptureViewOnTouchListener
                         + extension);
     }
 
-    @Override
-    public void onImageSaved(@NonNull File file) {
-        report("Picture saved to " + file.getAbsolutePath());
-
-        // Print out metadata about the picture
-        // TODO: Print out metadata to log once metadata is implemented
-
-        broadcastPicture(file);
-    }
-
-    @Override
-    public void onVideoSaved(@NonNull File file) {
-        report("Video saved to " + file.getAbsolutePath());
-        broadcastVideo(file);
-    }
-
-    /**
-     * This method overrides both
-     * {@link OnVideoSavedCallback#onError(int, String, Throwable)} and
-     * {@link OnImageSavedCallback#onError(int, String, Throwable)} which have the same signature
-     * . For now they both have the same implementation, if ever this changes, the implementation
-     * will need to take into account that the {@param error} can be either a
-     * {@link VideoCaptureError} or a {@link ImageCaptureError}.
-     *
-     * @param error Is either a {@link VideoCaptureError} or a
-     *              {@link ImageCaptureError}.
-     */
-    @Override
-    public void onError(int error, @NonNull String message, @Nullable Throwable cause) {
-        report("Failure: " + message);
-    }
-
-    private void report(String msg) {
+    @SuppressWarnings("WeakerAccess")
+    void report(String msg) {
         Log.d(TAG, msg);
         Toast.makeText(mCameraView.getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
-    private void broadcastPicture(File file) {
+    @SuppressWarnings("WeakerAccess")
+    void broadcastPicture(@NonNull final  File file) {
         if (Build.VERSION.SDK_INT < 24) {
             @SuppressWarnings("deprecation")
             Intent intent = new Intent(Camera.ACTION_NEW_PICTURE);
@@ -235,7 +234,8 @@ class CaptureViewOnTouchListener
         }
     }
 
-    private void broadcastVideo(File file) {
+    @SuppressWarnings("WeakerAccess")
+    void broadcastVideo(@NonNull final File file) {
         if (Build.VERSION.SDK_INT < 24) {
             @SuppressWarnings("deprecation")
             Intent intent = new Intent(Camera.ACTION_NEW_VIDEO);
