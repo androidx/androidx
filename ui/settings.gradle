@@ -20,9 +20,12 @@ def includeProject(name, filePath) {
 
     def file
     if (filePath instanceof String) {
-        file = new File(filePath)
+        file = new File(rootDir, filePath)
     } else {
         file = filePath
+    }
+    if (!file.exists()) {
+        throw new Exception("Path " + file + " does not exist; cannot include project " + name)
     }
     project(name).projectDir = file
 }
