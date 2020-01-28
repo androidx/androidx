@@ -47,12 +47,9 @@ package androidx.camera.core {
   }
 
   public final class CameraXConfig {
-    field public static final androidx.camera.core.impl.Config.Option<java.lang.Class<?>!> OPTION_TARGET_CLASS;
-    field public static final androidx.camera.core.impl.Config.Option<java.lang.String!> OPTION_TARGET_NAME;
   }
 
   public static final class CameraXConfig.Builder {
-    ctor public CameraXConfig.Builder();
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
