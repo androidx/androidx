@@ -48,6 +48,8 @@ class DynamicGraphNavigator(
     internal var defaultProgressDestinationSupplier: (() -> NavDestination)? = null
         private set
 
+    internal val destinationsWithoutDefaultProgressDestination = mutableListOf<DynamicNavGraph>()
+
     /**
      * Navigate to a destination.
      *
@@ -88,6 +90,10 @@ class DynamicGraphNavigator(
      * This supplies a [NavDestination] to use when the actual destination is not installed at
      * navigation time.
      *
+     * This **must** be called before you call [androidx.navigation.NavController.setGraph] to
+     * ensure that all [DynamicNavGraph] instances have the correct progress destination
+     * installed in [onRestoreState].
+     *
      * @param progressDestinationSupplier The default progress destination supplier.
      */
     fun installDefaultProgressDestination(
@@ -107,19 +113,7 @@ class DynamicGraphNavigator(
     ): NavDestination? {
         var progressDestinationId = dynamicNavGraph.progressDestination
         if (progressDestinationId == 0) {
-            val progressDestinationSupplier = defaultProgressDestinationSupplier
-            checkNotNull(progressDestinationSupplier) {
-                "You must set a default progress destination " +
-                        "using DynamicNavGraphNavigator.installDefaultProgressDestination or " +
-                        "pass in an DynamicInstallMonitor in the DynamicExtras.\n" +
-                        "Alternatively, when using NavHostFragment make sure to swap it with " +
-                        "DynamicNavHostFragment. This will take care of setting the default " +
-                        "progress destination for you."
-            }
-            val progressDestination = progressDestinationSupplier.invoke()
-            dynamicNavGraph.addDestination(progressDestination)
-            dynamicNavGraph.progressDestination = progressDestination.id
-            progressDestinationId = progressDestination.id
+            progressDestinationId = installDefaultProgressDestination(dynamicNavGraph)
         }
 
         val progressDestination = dynamicNavGraph.findNode(progressDestinationId)
@@ -132,10 +126,50 @@ class DynamicGraphNavigator(
     }
 
     /**
+     * Install the default progress destination
+     *
+     * @return The [NavDestination.getId] of the newly added progress destination
+     */
+    private fun installDefaultProgressDestination(dynamicNavGraph: DynamicNavGraph): Int {
+        val progressDestinationSupplier = defaultProgressDestinationSupplier
+        checkNotNull(progressDestinationSupplier) {
+            "You must set a default progress destination " +
+                    "using DynamicNavGraphNavigator.installDefaultProgressDestination or " +
+                    "pass in an DynamicInstallMonitor in the DynamicExtras.\n" +
+                    "Alternatively, when using NavHostFragment make sure to swap it with " +
+                    "DynamicNavHostFragment. This will take care of setting the default " +
+                    "progress destination for you."
+        }
+        val progressDestination = progressDestinationSupplier.invoke()
+        dynamicNavGraph.addDestination(progressDestination)
+        dynamicNavGraph.progressDestination = progressDestination.id
+        return progressDestination.id
+    }
+
+    override fun onSaveState(): Bundle? {
+        // Return a non-null Bundle to get a callback to onRestoreState
+        return Bundle.EMPTY
+    }
+
+    override fun onRestoreState(savedState: Bundle) {
+        super.onRestoreState(savedState)
+        val iterator = destinationsWithoutDefaultProgressDestination.iterator()
+        while (iterator.hasNext()) {
+            val dynamicNavGraph = iterator.next()
+            installDefaultProgressDestination(dynamicNavGraph)
+            iterator.remove()
+        }
+    }
+
+    /**
      * The [NavGraph] for dynamic features.
      */
     class DynamicNavGraph(
-        navGraphNavigator: Navigator<out NavGraph>,
+        /**
+         * @hide
+         */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        internal val navGraphNavigator: DynamicGraphNavigator,
         /**
          * @hide
          */
@@ -178,6 +212,10 @@ class DynamicGraphNavigator(
                 moduleName = getString(R.styleable.DynamicGraphNavigator_moduleName)
                 progressDestination = getResourceId(
                     R.styleable.DynamicGraphNavigator_progressDestination, 0)
+                if (progressDestination == 0) {
+                    navGraphNavigator.destinationsWithoutDefaultProgressDestination
+                        .add(this@DynamicNavGraph)
+                }
             }
         }
     }

@@ -33,7 +33,7 @@ package androidx.navigation.dynamicfeatures {
   }
 
   public static final class DynamicGraphNavigator.DynamicNavGraph extends androidx.navigation.NavGraph {
-    ctor public DynamicGraphNavigator.DynamicNavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph> navGraphNavigator, internal androidx.navigation.NavigatorProvider navigatorProvider);
+    ctor public DynamicGraphNavigator.DynamicNavGraph(internal androidx.navigation.dynamicfeatures.DynamicGraphNavigator navGraphNavigator, internal androidx.navigation.NavigatorProvider navigatorProvider);
     method public String? getModuleName();
     method public int getProgressDestination();
     method public void setModuleName(String? p);
