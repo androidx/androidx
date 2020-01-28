@@ -23,14 +23,10 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 /**
  * The data class which holds the set of parameters of the text layout computation.
@@ -107,12 +103,12 @@ data class TextLayoutResult internal constructor(
     /**
      * The distance from the top to the alphabetic baseline of the first line.
      */
-    val firstBaseline: IntPx = multiParagraph.firstBaseline.toIntPx()
+    val firstBaseline: Px = multiParagraph.firstBaseline.px
 
     /**
      * The distance from the top to the alphabetic baseline of the last line.
      */
-    val lastBaseline: IntPx = multiParagraph.lastBaseline.toIntPx()
+    val lastBaseline: Px = multiParagraph.lastBaseline.px
 
     /**
      * Returns true if the text is too tall and couldn't fit with given height.
@@ -200,7 +196,7 @@ data class TextLayoutResult internal constructor(
      * Returns the bounding box of the character for given character offset.
      *
      * @param offset a character offset
-     * @return a bounding box for the character.
+     * @return a bounding box for the character in pixels.
      */
     fun getBoundingBox(offset: Int): Rect = multiParagraph.getBoundingBox(offset)
 
@@ -216,5 +212,3 @@ data class TextLayoutResult internal constructor(
      */
     fun getWordBoundary(offset: Int): TextRange = multiParagraph.getWordBoundary(offset)
 }
-
-private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx

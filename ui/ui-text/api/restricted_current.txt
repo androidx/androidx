@@ -495,10 +495,10 @@ package androidx.ui.text {
     method public androidx.ui.geometry.Rect getBoundingBox(int offset);
     method public boolean getDidOverflowHeight();
     method public boolean getDidOverflowWidth();
-    method public androidx.ui.unit.IntPx getFirstBaseline();
+    method public androidx.ui.unit.Px getFirstBaseline();
     method public boolean getHasVisualOverflow();
     method public androidx.ui.unit.Px getHorizontalPosition(int offset, boolean usePrimaryDirection);
-    method public androidx.ui.unit.IntPx getLastBaseline();
+    method public androidx.ui.unit.Px getLastBaseline();
     method public androidx.ui.text.TextLayoutInput getLayoutInput();
     method public androidx.ui.unit.Px getLineBottom(int lineIndex);
     method public int getLineForOffset(int offset);
@@ -508,12 +508,9 @@ package androidx.ui.text {
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     property public final boolean didOverflowHeight;
     property public final boolean didOverflowWidth;
-    property public final androidx.ui.unit.IntPx firstBaseline;
+    property public final androidx.ui.unit.Px firstBaseline;
     property public final boolean hasVisualOverflow;
-    property public final androidx.ui.unit.IntPx lastBaseline;
-  }
-
-  public final class TextLayoutResultKt {
+    property public final androidx.ui.unit.Px lastBaseline;
   }
 
   public final class TextRange {
