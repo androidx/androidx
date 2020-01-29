@@ -849,7 +849,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
         fun minIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
@@ -858,7 +858,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
         fun minIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ): IntPx
@@ -867,7 +867,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
         fun maxIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
@@ -876,7 +876,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
         fun maxIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ): IntPx
@@ -884,25 +884,25 @@ class LayoutNode : ComponentNode(), Measurable {
 
     abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ) = error(error)
 
         override fun minIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ) = error(error)
 
         override fun maxIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ) = error(error)
 
         override fun maxIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ) = error(error)
@@ -921,6 +921,15 @@ class LayoutNode : ComponentNode(), Measurable {
             if (field != value) {
                 field = value
                 requestRemeasure()
+            }
+        }
+
+    var ambientLayoutDirection = LayoutDirection.Ltr
+        internal set(value) {
+            if (value != field) {
+                field = value
+                measureScope.layoutDirection = value
+                measureScope.ambientLayoutDirection = value
             }
         }
 

@@ -16,14 +16,13 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [LayoutResult], which should be returned by [layout]
  */
-abstract class MeasureScope : Density {
+abstract class MeasureScope : ModifierScope {
     /**
      * Interface holding the size and alignment lines of the measured layout, as well as the
      * children positioning logic.
@@ -67,6 +66,13 @@ abstract class MeasureScope : Density {
         override fun placeChildren(placementScope: Placeable.PlacementScope) =
             placementScope.placementBlock()
     }
+
+    // Value comes from the ambient. Needed to provide an API that allows to restore the
+    // modified layout direction to ambient's state.
+    override var ambientLayoutDirection = LayoutDirection.Ltr
+
+    // Stores the layout direction of the node that can be updated through the layout modifier.
+    override var layoutDirection = LayoutDirection.Ltr
 }
 
 /**
