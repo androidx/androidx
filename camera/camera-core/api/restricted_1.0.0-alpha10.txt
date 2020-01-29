@@ -216,7 +216,7 @@ package androidx.camera.core {
     method public androidx.camera.core.impl.ImageAnalysisConfig getConfig(androidx.camera.core.CameraInfo?);
   }
 
-  public class ImageCapture extends androidx.camera.core.UseCase {
+  public final class ImageCapture extends androidx.camera.core.UseCase {
     method @androidx.camera.core.ImageCapture.FlashMode public int getFlashMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
     method public void setFlashMode(@androidx.camera.core.ImageCapture.FlashMode int);
@@ -348,7 +348,7 @@ package androidx.camera.core {
     method public static float getDefaultPointSize();
   }
 
-  public class Preview extends androidx.camera.core.UseCase {
+  public final class Preview extends androidx.camera.core.UseCase {
     method @UiThread public androidx.camera.core.Preview.PreviewSurfaceProvider? getPreviewSurfaceProvider();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
     method @UiThread public void setPreviewSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.PreviewSurfaceProvider?);

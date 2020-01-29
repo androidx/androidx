@@ -138,7 +138,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * via an {@link ImageCapture.OnImageCapturedCallback}.
  */
 @SuppressWarnings("ClassCanBeStatic") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
-public class ImageCapture extends UseCase {
+public final class ImageCapture extends UseCase {
 
     /**
      * An unknown error occurred.
