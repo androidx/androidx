@@ -135,7 +135,8 @@ internal fun TextPaint.applySpanStyle(
     // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
     return SpanStyle(
-        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp) {
+        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp &&
+                    style.letterSpacing.value != 0f) {
             style.letterSpacing
         } else {
             TextUnit.Inherit
