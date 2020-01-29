@@ -24,10 +24,12 @@ import kotlinx.coroutines.Dispatchers
 
 abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     diffCallback: DiffUtil.ItemCallback<T>,
-    mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : RecyclerView.Adapter<VH>() {
     private val differ = AsyncPagingDataDiffer(
         mainDispatcher = mainDispatcher,
+        workerDispatcher = workerDispatcher,
         diffCallback = diffCallback,
         updateCallback = AdapterListUpdateCallback(this)
     )
