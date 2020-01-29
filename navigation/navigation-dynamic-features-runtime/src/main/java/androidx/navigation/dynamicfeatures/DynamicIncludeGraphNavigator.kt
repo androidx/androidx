@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.util.AttributeSet
 import androidx.core.content.withStyledAttributes
 import androidx.navigation.NavDestination
+import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
@@ -41,8 +42,12 @@ class DynamicIncludeGraphNavigator(
     private val installManager: DynamicInstallManager
 ) : Navigator<DynamicIncludeGraphNavigator.DynamicIncludeNavGraph>() {
 
+    private val createdDestinations = mutableListOf<DynamicIncludeNavGraph>()
+
     override fun createDestination(): DynamicIncludeNavGraph {
-        return DynamicIncludeNavGraph(this)
+        return DynamicIncludeNavGraph(this).also {
+            createdDestinations.add(it)
+        }
     }
 
     /**
@@ -60,35 +65,63 @@ class DynamicIncludeGraphNavigator(
 
         val moduleName = destination.moduleName
 
-        if (moduleName != null && installManager.needsInstall(moduleName)) {
-            return installManager.performInstall(destination, args, extras, moduleName)
+        return if (moduleName != null && installManager.needsInstall(moduleName)) {
+            installManager.performInstall(destination, args, extras, moduleName)
         } else {
-            val graphId = context.resources.getIdentifier(
-                destination.graphResourceName, "navigation",
-                destination.graphPackage)
-            if (graphId == 0) {
-                throw Resources.NotFoundException(
-                    "${destination.graphPackage}:navigation/${destination.graphResourceName}")
-            }
-            val includedNav = navInflater.inflate(graphId)
-            check(!(includedNav.id != 0 && includedNav.id != destination.id)) {
-                "The included <navigation>'s id is different from " +
-                        "the destination id. Either remove the <navigation> id or make them " +
-                        " match."
-            }
-            includedNav.id = destination.id
-            val outerNav = destination.parent
-                ?: throw IllegalStateException(
-                    "The destination ${destination.id} does not have a parent. " +
-                            "Make sure it is attached to a NavGraph.")
-            // no need to remove previous destination, id is used as key in map
-            outerNav.addDestination(includedNav)
+            val includedNav = replaceWithIncludedNav(destination)
             val navigator: Navigator<NavDestination> = navigatorProvider[includedNav.navigatorName]
-            return navigator.navigate(includedNav, args, navOptions, navigatorExtras)
+            navigator.navigate(includedNav, args, navOptions, navigatorExtras)
         }
     }
 
+    /**
+     * Replace the given [destination] with the included navigation graph it references.
+     *
+     * @return the newly inflated included navigation graph
+     */
+    private fun replaceWithIncludedNav(destination: DynamicIncludeNavGraph): NavGraph {
+        val graphId = context.resources.getIdentifier(
+            destination.graphResourceName, "navigation",
+            destination.graphPackage)
+        if (graphId == 0) {
+            throw Resources.NotFoundException(
+                "${destination.graphPackage}:navigation/${destination.graphResourceName}")
+        }
+        val includedNav = navInflater.inflate(graphId)
+        check(!(includedNav.id != 0 && includedNav.id != destination.id)) {
+            "The included <navigation>'s id is different from " +
+                    "the destination id. Either remove the <navigation> id or make them " +
+                    " match."
+        }
+        includedNav.id = destination.id
+        val outerNav = destination.parent
+            ?: throw IllegalStateException(
+                "The destination ${destination.id} does not have a parent. " +
+                        "Make sure it is attached to a NavGraph.")
+        // no need to remove previous destination, id is used as key in map
+        outerNav.addDestination(includedNav)
+        return includedNav
+    }
+
     override fun popBackStack() = true
+
+    override fun onSaveState(): Bundle? {
+        // Return a non-null Bundle to get a callback to onRestoreState
+        return Bundle.EMPTY
+    }
+
+    override fun onRestoreState(savedState: Bundle) {
+        super.onRestoreState(savedState)
+        val iterator = createdDestinations.iterator()
+        while (iterator.hasNext()) {
+            val dynamicNavGraph = iterator.next()
+            val moduleName = dynamicNavGraph.moduleName
+            if (moduleName == null || !installManager.needsInstall(moduleName)) {
+                replaceWithIncludedNav(dynamicNavGraph)
+            }
+            iterator.remove()
+        }
+    }
 
     /**
      * The graph for dynamic-include.
