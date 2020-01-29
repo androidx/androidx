@@ -21,7 +21,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.constrain
-import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -245,23 +244,7 @@ class TextDelegate(
      * the [TextDelegate] constructor or to the [text] property.
      */
     fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
-
-        val needClipping = textLayoutResult.hasVisualOverflow &&
-                textLayoutResult.layoutInput.overflow == TextOverflow.Clip
-        if (needClipping) {
-            val width = textLayoutResult.size.width.value.toFloat()
-            val height = textLayoutResult.size.height.value.toFloat()
-            val bounds = Rect.fromLTWH(0f, 0f, width, height)
-            canvas.save()
-            canvas.clipRect(bounds)
-        }
-        try {
-            textLayoutResult.multiParagraph.paint(canvas)
-        } finally {
-            if (needClipping) {
-                canvas.restore()
-            }
-        }
+        TextPainter.paint(canvas, textLayoutResult)
     }
 
     /**
@@ -284,17 +267,6 @@ class TextDelegate(
         if (start == end) return
         val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
         canvas.drawPath(selectionPath, Paint().apply { this.color = color })
-    }
-
-    /**
-     * Draws the cursor at the given character offset.
-     *
-     * @param offset the cursor offset in the text.
-     * @param canvas the target canvas.
-     */
-    fun paintCursor(offset: Int, canvas: Canvas, textLayoutResult: TextLayoutResult) {
-        val cursorRect = textLayoutResult.multiParagraph.getCursorRect(offset)
-        canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
     }
 }
 
