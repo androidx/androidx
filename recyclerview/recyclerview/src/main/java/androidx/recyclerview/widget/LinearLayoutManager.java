@@ -278,6 +278,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof SavedState) {
             mPendingSavedState = (SavedState) state;
+            if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+                mPendingSavedState.invalidateAnchor();
+            }
             requestLayout();
             if (DEBUG) {
                 Log.d(TAG, "loaded saved state");
