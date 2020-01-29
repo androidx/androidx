@@ -31,6 +31,8 @@ import androidx.ui.unit.withDensity
  */
 interface CornerSize {
     /**
+     * Converts the [CornerSize] to [Px].
+     *
      * @param shapeSize the size of the shape
      * @param density the current density of the screen.
      *
@@ -40,7 +42,8 @@ interface CornerSize {
 }
 
 /**
- * @size the corner size defined in [Dp].
+ * Creates [CornerSize] with provided size.
+ * @param size the corner size defined in [Dp].
  */
 fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
 
@@ -50,7 +53,8 @@ private data class DpCornerSize(private val size: Dp) : CornerSize {
 }
 
 /**
- * @size the corner size defined in [Px].
+ * Creates [CornerSize] with provided size.
+ * @param size the corner size defined in [Px].
  */
 fun CornerSize(size: Px): CornerSize = PxCornerSize(size)
 
@@ -59,14 +63,16 @@ private data class PxCornerSize(private val size: Px) : CornerSize {
 }
 
 /**
- * @percent the corner size defined in percents of the shape's smaller side.
+ * Creates [CornerSize] with provided size.
+ * @param percent the corner size defined in percents of the shape's smaller side.
  * Can't be negative or larger then 50 percents.
  */
 fun /*inline*/ CornerSize(@IntRange(from = 0, to = 50) percent: Int) =
     CornerSize(percent.toFloat())
 
 /**
- * @percent the corner size defined in float percents of the shape's smaller side.
+ * Creates [CornerSize] with provided size.
+ * @param percent the corner size defined in float percents of the shape's smaller side.
  * Can't be negative or larger then 50 percents.
  */
 fun CornerSize(@FloatRange(from = 0.0, to = 50.0) percent: Float): CornerSize =
