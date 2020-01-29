@@ -42,10 +42,12 @@ import java.util.List;
                 MigrationDb.Entity4.class},
         views = {MigrationDb.View1.class})
 public abstract class MigrationDb extends RoomDatabase {
-    static final int LATEST_VERSION = 11;
+    static final int LATEST_VERSION = 12;
     static final int MAX_VERSION = 1000;
     abstract MigrationDao dao();
-    @Entity(indices = {@Index(value = "name", unique = true)})
+    @Entity(indices = {
+            @Index(value = "name", unique = true),
+            @Index(value = "addedInV10", unique = false)})
     static class Entity1 {
         public static final String TABLE_NAME = "Entity1";
         @PrimaryKey
