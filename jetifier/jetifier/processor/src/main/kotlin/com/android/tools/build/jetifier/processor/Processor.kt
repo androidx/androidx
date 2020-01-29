@@ -376,8 +376,15 @@ class Processor private constructor(
 
         val newLibraries = mutableSetOf<Archive>()
         libraries.forEach {
-            val androidXScanner = AndroidXRefScanner(it).scan()
-            if (androidXScanner.androidXDetected) {
+            val androidXScanner = AndroidXRefScanner(it, context.config).scan()
+            if (androidXScanner.androidXDetected && androidXScanner.androidSupportDetected) {
+                Log.w(TAG, "Library '${it.relativePath}' contains references to both AndroidX and" +
+                        " old support library. This seems like the library is partially migrated." +
+                        " Jetifier will try to rewrite the library anyway.\n Example of androidX" +
+                        " reference: '${androidXScanner.androidXRefExample}'\n Example of" +
+                        " support library reference: '${androidXScanner.androidSupportRefExample}'")
+                newLibraries.add(it)
+            } else if (androidXScanner.androidXDetected) {
                 Log.i(TAG, "Library '${it.relativePath}' contains AndroidX reference and will be " +
                         "skipped.")
             } else {
