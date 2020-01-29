@@ -20,9 +20,12 @@ def includeProject(name, filePath) {
 
     def file
     if (filePath instanceof String) {
-        file = new File(filePath)
+        file = new File(rootDir, filePath)
     } else {
         file = filePath
+    }
+    if (!file.exists()) {
+        throw new Exception("Path " + file + " does not exist; cannot include project " + name)
     }
     project(name).projectDir = file
 }
@@ -40,6 +43,7 @@ includeProject(":compose:compose-ide-plugin", "../compose/compose-ide-plugin")
 includeProject(":compose:compose-runtime", "../compose/compose-runtime")
 includeProject(":compose:compose-runtime-benchmark", "../compose/compose-runtime/compose-runtime-benchmark")
 includeProject(":compose:compose-runtime:integration-tests:samples", "../compose/compose-runtime/integration-tests/samples")
+includeProject(":lint-checks", "../lint-checks")
 includeProject(":ui:integration-tests:benchmark", "integration-tests/benchmark")
 includeProject(":ui:integration-tests:demos", "integration-tests/demos")
 includeProject(":ui:integration-tests:test", "integration-tests/test")
