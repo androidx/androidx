@@ -107,7 +107,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun init(
@@ -199,7 +199,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     interface Callback {

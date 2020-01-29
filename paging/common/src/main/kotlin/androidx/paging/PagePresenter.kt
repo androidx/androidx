@@ -31,7 +31,7 @@ import androidx.paging.PageEvent.Insert.Companion.Refresh
  * events that should all be dispatched to the presentation layer at once - as part of the same
  * frame.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface PresenterCallback {
