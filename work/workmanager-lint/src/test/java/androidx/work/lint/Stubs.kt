@@ -16,6 +16,7 @@
 
 package androidx.work.lint
 
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 
@@ -46,6 +47,15 @@ object Stubs {
     )
         .indented().within("src")
 
+    val LISTENABLE_WORKER: TestFile = kotlin(
+        "androidx/work/ListenableWorker.kt",
+        """
+            package androidx.work
+
+            open class ListenableWorker
+        """
+    ).indented().within("src")
+
     val WORK_REQUEST: TestFile = kotlin(
         "androidx/work/WorkRequest.kt",
         """
@@ -64,12 +74,38 @@ object Stubs {
         """
     ).indented().within("src")
 
-    val PERIODIC_WORK_REQUEST: TestFile = kotlin(
-        "androidx/work/PeriodicWorkRequest.kt",
+    val PERIODIC_WORK_REQUEST: TestFile = java(
+        "androidx/work/PeriodicWorkRequest.java",
         """
-            package androidx.work
+            package androidx.work;
 
-            class PeriodicWorkRequest: WorkRequest()
+            import androidx.work.ListenableWorker;
+            import java.time.Duration;
+            import java.util.concurrent.TimeUnit;
+
+            class PeriodicWorkRequest extends WorkRequest {
+                static class Builder {
+                    public Builder(ListenableWorker worker, long interval, TimeUnit unit) {
+                        
+                    }
+                    public Builder(ListenableWorker worker, Duration duration) {
+                        
+                    }
+                    public Builder(
+                        ListenableWorker worker,
+                        long interval, TimeUnit intervalUnit, 
+                        long flex,
+                        TimeUnit flexUnits) {
+                        
+                    }
+                    public Builder(
+                        ListenableWorker worker,
+                        Duration intervalDuration,
+                        Duration flexDuration) {
+
+                    }
+                }
+            }
         """
     ).indented().within("src")
 
