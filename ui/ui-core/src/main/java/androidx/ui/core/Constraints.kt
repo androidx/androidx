@@ -44,6 +44,11 @@ import androidx.ui.unit.isFinite
  * with unbounded [Constraints], these children will fallback to size themselves to wrap their
  * content, instead of expanding to fill the available space (this is not always true
  * as it depends on the child layout model, but is a common behavior for core layout components).
+ *
+ * @param minWidth The minimum width of a layout satisfying the constraints.
+ * @param maxWidth The maximum width of a layout satisfying the constraints.
+ * @param minHeight The minimum height of a layout satisfying the constraints.
+ * @param maxHeight The maximum height of a layout satisfying the constraints.
  */
 @Immutable
 data class Constraints(
