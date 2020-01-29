@@ -180,25 +180,7 @@ class ChangeDetectionTest {
     }
 
     @Test
-    fun javaClass_androidXReferencesDetectionOn_archiveNotChanged() {
-        val inputFile =
-            File(javaClass.getResource("/changeDetectionTest/testPreference.class").file)
-        val inputFile2 =
-            File(javaClass.getResource("/classRewriteTest/ShareCompat.class").file)
-
-        testChange(
-            config = prefRewriteConfig,
-            files = listOf(
-                ArchiveFile(Paths.get("/", "preference.class"), inputFile.readBytes()),
-                ArchiveFile(Paths.get("/", "ShareCompat.class"), inputFile2.readBytes())
-            ),
-            areChangesExpected = false,
-            enableToSkipLibsWithAndroidXReferences = true
-        )
-    }
-
-    @Test
-    fun javaClass_androidXReferencesDetectionOff_archiveChanged() {
+    fun javaClass_referencesToBoth_androidXReferencesDetectionOn_archiveNotChanged() {
         val inputFile =
             File(javaClass.getResource("/changeDetectionTest/testPreference.class").file)
         val inputFile2 =
@@ -211,7 +193,37 @@ class ChangeDetectionTest {
                 ArchiveFile(Paths.get("/", "ShareCompat.class"), inputFile2.readBytes())
             ),
             areChangesExpected = true,
-            enableToSkipLibsWithAndroidXReferences = false
+            enableToSkipLibsWithAndroidXReferences = true
+        )
+    }
+
+    @Test
+    fun javaClass_referencesToAndroidXOnly_androidXReferencesDetectionOn_archiveNotChanged() {
+        val inputFile =
+            File(javaClass.getResource("/classRewriteTest/ShareCompat.class").file)
+
+        testChange(
+            config = prefRewriteConfig,
+            files = listOf(
+                ArchiveFile(Paths.get("/", "ShareCompat.class"), inputFile.readBytes())
+            ),
+            areChangesExpected = false,
+            enableToSkipLibsWithAndroidXReferences = true
+        )
+    }
+
+    @Test
+    fun javaClass_referencesToAndroidXOnly_androidXReferencesDetectionOff_archiveChanged() {
+        val inputFile =
+            File(javaClass.getResource("/classRewriteTest/ShareCompat.class").file)
+
+        testChange(
+            config = prefRewriteConfig,
+            files = listOf(
+                ArchiveFile(Paths.get("/", "ShareCompat.class"), inputFile.readBytes())
+            ),
+            areChangesExpected = false,
+            enableToSkipLibsWithAndroidXReferences = true
         )
     }
 

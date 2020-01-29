@@ -36,4 +36,19 @@ class ByteCodeTransformerTest {
             )
         )
     }
+
+    @Test(expected = InvalidByteCodeException::class)
+    fun malformedBytecode_androidXDetectionOn_shouldThrowException() {
+        val processor = Processor.createProcessor3(config = Config.EMPTY)
+        processor.transform2(
+            input = setOf(
+                FileMapping(
+                    File(javaClass
+                        .getResource("/malformedBytecodeTest/malformedBytecodeArchive.zip").file),
+                    File("test")
+                )
+            ),
+            skipLibsWithAndroidXReferences = true
+        )
+    }
 }
