@@ -19,17 +19,32 @@ package androidx.ui.core
 import androidx.ui.unit.IntPx
 
 /**
- * Defines a layout line that can be used by layout models to align and position layout children.
- * When a [Layout] or [ComplexLayout] provides a value for a particular [AlignmentLine], this can
- * be read by the parent of the layout after measuring, using the corresponding [Placeable]
- * instance. Also, the value will be automatically inherited by the parent which will offset
- * the value by the position of the child within itself.
+ * Defines an offset line that can be used by parent layouts to align and position their children.
+ * When a layout provides a value for a particular [AlignmentLine], this can be read by the
+ * parents of the layout after measuring, using the [Placeable.get] operator on the corresponding
+ * [Placeable] instance. Based on the position of the [AlignmentLine], the parents can then decide
+ * the positioning of the children.
+ *
+ * Note that when a layout provides a value for an [AlignmentLine], this will be automatically
+ * inherited by the layout's parent, which will offset the value by the position of the child
+ * within itself. This way, nested layout hierarchies are able to preserve the [AlignmentLine]s
+ * defined for deeply nested children, making it possible for non-direct parents to use these for
+ * positioning and alignment. When a layout inherits multiple values for the same [AlignmentLine]
+ * from different children, the position of the line within the layout will be computed by merging
+ * the children values using the provided [merger]. If a layout provides a value for an
+ * [AlignmentLine], this will always be the position of the line, regardless of the values
+ * provided by children for the same line.
  *
  * [AlignmentLine]s cannot be created directly, please create [VerticalAlignmentLine] or
  * [HorizontalAlignmentLine] instances instead.
  *
+ * @sample androidx.ui.core.samples.AlignmentLineSample
+ *
  * @see VerticalAlignmentLine
  * @see HorizontalAlignmentLine
+ *
+ * @param merger Defines the position of an alignment line inherited from more than one child.
+ * @param horizontal Whether the alignment line is horizontal or vertical.
  */
 sealed class AlignmentLine(
     internal val merger: (IntPx, IntPx) -> IntPx,
