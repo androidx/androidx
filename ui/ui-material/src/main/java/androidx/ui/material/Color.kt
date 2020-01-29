@@ -21,8 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
 import androidx.compose.mutableStateOf
 import androidx.compose.Providers
-import androidx.compose.ambientOf
 import androidx.compose.remember
+import androidx.compose.staticAmbientOf
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
 
@@ -310,4 +310,4 @@ internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composab
  *
  * To retrieve the current value of this ambient, use [MaterialTheme.colors].
  */
-internal val ColorAmbient = ambientOf { lightColorPalette() }
+internal val ColorAmbient = staticAmbientOf { lightColorPalette() }
