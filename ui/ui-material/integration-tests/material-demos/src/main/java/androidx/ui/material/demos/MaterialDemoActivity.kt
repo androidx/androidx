@@ -47,7 +47,7 @@ class CurrentColorPalette {
     var lightColors: ColorPalette = lightColorPalette()
     var darkColors: ColorPalette = darkColorPalette()
 
-    val colors get() = if (isSystemInDarkTheme()) darkColors else lightColors
+    @Composable val colors get() = if (isSystemInDarkTheme()) darkColors else lightColors
 }
 
 /**

@@ -340,7 +340,7 @@ package androidx.ui.core {
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
-    ctor public SemanticsComponentNode(androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration, int id);
+    ctor public SemanticsComponentNode(int id, androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration);
     method public int getId();
     method public androidx.ui.core.semantics.SemanticsNode getSemanticsNode();
     method public boolean hasSemanticsComponentNodeInTree$lintWithKotlin();

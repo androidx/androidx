@@ -2488,7 +2488,7 @@ class HitPathTrackerTest {
     // PointerInputNode -> SemanticsNode
     @Test
     fun removePointerInputNodesWithNoLayoutNodeDescendants_snInPin_pinRemoved() {
-        val semanticsNode = SemanticsComponentNode(SemanticsConfiguration(), 1)
+        val semanticsNode = SemanticsComponentNode(1, SemanticsConfiguration())
         val pointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, semanticsNode)
             cancelHandler = spy {}
@@ -2504,7 +2504,7 @@ class HitPathTrackerTest {
     // PointerInputNode A -> PointerInputNode B -> SemanticsNode
     @Test
     fun removePointerInputNodesWithNoLayoutNodeDescendants_smInPinInPin_removesAndCancelsCorrect() {
-        val semanticsNode = SemanticsComponentNode(SemanticsConfiguration(), 1)
+        val semanticsNode = SemanticsComponentNode(1, SemanticsConfiguration())
         val pointerInputNodeB = PointerInputNode().apply {
             emitInsertAt(0, semanticsNode)
             cancelHandler = spy {}

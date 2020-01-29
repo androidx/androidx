@@ -24,6 +24,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.PowerManager
 import androidx.annotation.RequiresApi
+import androidx.compose.Composable
 import androidx.compose.onActive
 import androidx.compose.remember
 import androidx.compose.state
@@ -53,6 +54,7 @@ import androidx.ui.core.ContextAmbient
  *
  * @return `true` if the system is considered to be in 'dark theme'.
  */
+@Composable
 fun isSystemInDarkTheme(): Boolean {
     return if (Build.VERSION.SDK_INT >= 29) {
         isSystemSetToDarkTheme()
@@ -67,6 +69,7 @@ fun isSystemInDarkTheme(): Boolean {
  *
  * @return `true` if the device is in power save mode
  */
+@Composable
 private fun isInPowerSaveMode(): Boolean {
     val context = ContextAmbient.current
     val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
