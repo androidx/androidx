@@ -133,7 +133,8 @@ fun Text(
             softWrap,
             overflow,
             maxLines,
-            density
+            density,
+            layoutDirection
         ) {
             TextDelegate(
                 text = text,
@@ -212,7 +213,8 @@ fun Text(
             softWrap,
             overflow,
             maxLines,
-            density
+            density,
+            layoutDirection
         ) {
             // if no SelectionContainer is added as parent selectionRegistrar will be null
             val id: Selectable? = selectionRegistrar?.let {
