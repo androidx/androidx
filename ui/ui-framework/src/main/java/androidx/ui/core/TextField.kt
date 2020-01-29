@@ -34,6 +34,7 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextFieldValue
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
@@ -51,7 +52,7 @@ import androidx.ui.unit.PxPosition
  *
  * This is the most simple TextField that observes only text update and have control only for the
  * text. If you want to change/observe the selection/cursor location, you can use TextField with
- * [EditorModel] object.
+ * [TextFieldValue] object.
  *
  * Note: Please be careful if you setting text other than the one passed to [onValueChange]
  * callback. Especially, it is not recommended to modify the text passed to [onValueChange]
@@ -60,10 +61,10 @@ import androidx.ui.unit.PxPosition
  * text will be cleared or committed, then software keyboard may go back to the default one.
  *
  * @param value The text to be shown in the [TextField]. If you want to specify cursor location or
- * selection range, use [TextField] with [EditorModel] instead.
+ * selection range, use [TextField] with [TextFieldValue] instead.
  * @param onValueChange Called when the input service updates the text. When the input service
  * update the text, this callback is called with the updated text. If you want to observe the cursor
- * location or selection range, use [TextField] with [EditorModel] instead.
+ * location or selection range, use [TextField] with [TextFieldValue] instead.
  * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
  * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
@@ -83,7 +84,7 @@ import androidx.ui.unit.PxPosition
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  *
  * @see PasswordTextField
- * @see EditorModel
+ * @see TextFieldValue
  * @see ImeAction
  * @see KeyboardType
  * @see VisualTransformation
@@ -136,21 +137,6 @@ fun TextField(
 }
 
 /**
- * A class holding information about the editing state.
- *
- * The input service updates text selection or cursor as well as text. You can observe and
- * control the selection, cursor and text altogether.
- *
- * @param text the text will be rendered in the [TextField].
- * @param selection the selection range. If the selection is collapsed, it represents cursor
- * location. Do not specify outside of the text buffer.
- */
-data class EditorModel(
-    val text: String = "",
-    val selection: TextRange = TextRange(0, 0)
-)
-
-/**
  * A user interface element for entering and modifying text.
  *
  * The TextField component renders an input and additional decorations set by input service
@@ -168,10 +154,10 @@ data class EditorModel(
  * to users, for example, any ongoing composition text will be cleared or committed, then software
  * keyboard may go back to the default one.
  *
- * @param value The [EditorModel] to be shown in the [TextField].
+ * @param value The [TextFieldValue] to be shown in the [TextField].
  * @param onValueChange Called when the input service updates the text, selection or cursor. When
  * the input service update the text, selection or cursor, this callback is called with the updated
- * [EditorModel]. If you want to observe the composition text, use [TextField] with
+ * [TextFieldValue]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
  * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
@@ -191,16 +177,16 @@ data class EditorModel(
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  *
- * @see EditorModel
+ * @see TextFieldValue
  * @see ImeAction
  * @see KeyboardType
  * @see VisualTransformation
  */
 @Composable
 fun TextField(
-    value: EditorModel,
+    value: TextFieldValue,
     modifier: Modifier = Modifier.None,
-    onValueChange: (EditorModel) -> Unit = {},
+    onValueChange: (TextFieldValue) -> Unit = {},
     textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -229,7 +215,7 @@ fun TextField(
             val prevState = fullModel.value
             fullModel.value = it
             if (prevState.text != it.text || prevState.selection != it.selection) {
-                onValueChange(EditorModel(it.text, it.selection))
+                onValueChange(TextFieldValue(it.text, it.selection))
             }
         },
         textStyle = textStyle,
@@ -267,10 +253,10 @@ fun TextField(
  * to users, for example, any ongoing composition text will be cleared or committed, then software
  * keyboard may go back to the default one.
  *
- * @param model The [EditorModel] to be shown in the [TextField].
+ * @param model The [TextFieldValue] to be shown in the [TextField].
  * @param onValueChange Called when the input service updates the text, selection or cursor. When
  * the input service update the text, selection or cursor, this callback is called with the updated
- * [EditorModel].
+ * [TextFieldValue].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
  * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
@@ -289,17 +275,17 @@ fun TextField(
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  *
- * @see EditorModel
+ * @see TextFieldValue
  * @see ImeAction
  * @see KeyboardType
  * @see VisualTransformation
  */
 @Composable
 fun TextField(
-    model: EditorModel,
+    model: TextFieldValue,
     compositionRange: TextRange?,
     modifier: Modifier = Modifier.None,
-    onValueChange: (EditorModel, TextRange?) -> Unit = { _, _ -> },
+    onValueChange: (TextFieldValue, TextRange?) -> Unit = { _, _ -> },
     textStyle: TextStyle? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -312,7 +298,7 @@ fun TextField(
     BaseTextField(
         value = InputState(model.text, model.selection, compositionRange),
         modifier = modifier,
-        onValueChange = { onValueChange(EditorModel(it.text, it.selection), it.composition) },
+        onValueChange = { onValueChange(TextFieldValue(it.text, it.selection), it.composition) },
         textStyle = textStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
