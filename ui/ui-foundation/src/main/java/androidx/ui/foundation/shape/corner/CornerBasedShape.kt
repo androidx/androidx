@@ -57,13 +57,13 @@ abstract class CornerBasedShape(
     }
 
     /**
+     * Creates [Outline] of this shape for the given [size].
+     *
      * @param size the size of the shape boundary.
      * @param topLeft the resolved size of the top left corner
      * @param topRight the resolved size for the top right corner
      * @param bottomRight the resolved size for the bottom left corner
      * @param bottomLeft the resolved size for the bottom right corner
-     *
-     * @return [Outline] of this shape for the given [size].
      */
     abstract fun createOutline(
         size: PxSize,

@@ -69,27 +69,31 @@ val CircleShape = RoundedCornerShape(50)
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
+ * @param corner [CornerSize] to apply.
  */
 /*inline*/ fun RoundedCornerShape(corner: CornerSize) =
     RoundedCornerShape(corner, corner, corner, corner)
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
+ * @param size Size in [Dp] to apply.
  */
 /*inline*/ fun RoundedCornerShape(size: Dp) = RoundedCornerShape(CornerSize(size))
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
+ * @param size Size in [Px] to apply.
  */
 /*inline*/ fun RoundedCornerShape(size: Px) = RoundedCornerShape(CornerSize(size))
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
+ * @param percent Size in percents to apply.
  */
 /*inline*/ fun RoundedCornerShape(percent: Int) = RoundedCornerShape(CornerSize(percent))
 
 /**
- * Creates [RoundedCornerShape] with sizes defined by [Dp].
+ * Creates [RoundedCornerShape] with sizes defined in [Dp].
  */
 /*inline*/ fun RoundedCornerShape(
     topLeft: Dp = 0.dp,
@@ -104,7 +108,7 @@ val CircleShape = RoundedCornerShape(50)
 )
 
 /**
- * Creates [RoundedCornerShape] with sizes defined by [Px].
+ * Creates [RoundedCornerShape] with sizes defined in [Px].
  */
 /*inline*/ fun RoundedCornerShape(
     topLeft: Px = 0.px,
@@ -119,7 +123,7 @@ val CircleShape = RoundedCornerShape(50)
 )
 
 /**
- * Creates [RoundedCornerShape] with sizes defined by percents of the shape's smaller side.
+ * Creates [RoundedCornerShape] with sizes defined in percents of the shape's smaller side.
  */
 /*inline*/ fun RoundedCornerShape(
     @IntRange(from = 0, to = 50) topLeftPercent: Int = 0,
