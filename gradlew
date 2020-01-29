@@ -100,9 +100,6 @@ else
 fi
 DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=$APP_HOME/../../prebuilts/fullsdk-$plat/platform-tools/api/api-versions.xml"
 
-# Temporary solution for custom, private lint rules https://issuetracker.google.com/issues/65248347
-# Gradle automatically invokes 'jar' task on 'buildSrc/' projects so this will always be available.
-export ANDROID_LINT_JARS="$OUT_DIR/buildSrc/lint-checks/build/libs/lint-checks.jar"
 # Tests for lint checks default to using sdk defined by this variable. This removes a lot of
 # setup from each lint module.
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"

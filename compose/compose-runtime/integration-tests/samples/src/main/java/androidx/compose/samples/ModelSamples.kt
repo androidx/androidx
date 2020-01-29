@@ -16,6 +16,7 @@
 
 package androidx.compose.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
@@ -23,6 +24,7 @@ import androidx.ui.core.TextField
 import androidx.ui.material.Button
 
 @Composable
+@Sampled
 fun modelSample() {
     @Model
     class LoginState(var username: String, var password: String) {
