@@ -122,7 +122,7 @@ abstract class PagedList<T : Any> internal constructor(
     /**
      * The [PagingSource] that provides data to this [PagedList].
      *
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val pagingSource: PagingSource<*, T>,
@@ -137,7 +137,7 @@ abstract class PagedList<T : Any> internal constructor(
     val config: Config
 ) : AbstractList<T>() {
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
@@ -158,7 +158,7 @@ abstract class PagedList<T : Any> internal constructor(
          * @return The newly created [PagedList], which will page in data from the [PagingSource] as
          * needed.
          *
-         * @hide
+         * @suppress
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -853,7 +853,7 @@ abstract class PagedList<T : Any> internal constructor(
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     abstract class LoadStateManager {
@@ -882,7 +882,7 @@ abstract class PagedList<T : Any> internal constructor(
         }
 
         /**
-         * @hide
+         * @suppress
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise.
         abstract fun onStateChanged(type: LoadType, state: LoadState)
@@ -895,7 +895,7 @@ abstract class PagedList<T : Any> internal constructor(
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
     fun getNullPaddedList(): NullPaddedList<T> = storage
@@ -907,7 +907,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * Used by list diffing to re-initialize loading near viewport.
      *
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun lastLoad(): Int = storage.lastLoadAroundIndex
@@ -973,13 +973,13 @@ abstract class PagedList<T : Any> internal constructor(
     abstract val isDetached: Boolean
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     abstract fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit)
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     abstract fun loadAroundInternal(index: Int)
@@ -1034,7 +1034,7 @@ abstract class PagedList<T : Any> internal constructor(
         get() = storage.positionOffset
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun setInitialLoadState(loadType: LoadType, loadState: LoadState) {
@@ -1056,7 +1056,7 @@ abstract class PagedList<T : Any> internal constructor(
     open fun retry() {}
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun setRetryCallback(refreshRetryCallback: Runnable?) {
@@ -1202,7 +1202,7 @@ abstract class PagedList<T : Any> internal constructor(
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun notifyChanged(position: Int, count: Int) {
@@ -1211,7 +1211,7 @@ abstract class PagedList<T : Any> internal constructor(
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun notifyRemoved(position: Int, count: Int) {

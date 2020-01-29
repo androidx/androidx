@@ -126,7 +126,7 @@ class BenchmarkRule : TestRule {
     internal // synthetic access
     var applied = false
 
-    /** @hide */
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     val scope = Scope()
 
