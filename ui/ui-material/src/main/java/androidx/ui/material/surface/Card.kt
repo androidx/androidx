@@ -29,6 +29,8 @@ import androidx.ui.unit.dp
 /**
  * Cards are [Surface]s that display content and actions on a single topic.
  *
+ * @sample androidx.ui.material.samples.CardSample
+ *
  * @param modifier Modifier to be applied to the layout of the card.
  * @param shape Defines the surface's shape as well its shadow. A shadow is only
  *  displayed if the [elevation] is greater than zero.
