@@ -253,7 +253,7 @@ val FirstBaseline = HorizontalAlignmentLine(::min)
  */
 val LastBaseline = HorizontalAlignmentLine(::max)
 
-internal val CurrentTextStyleAmbient = ambientOf { TextStyle() }
+internal val CurrentTextStyleAmbient = ambientOf(StructurallyEqual) { TextStyle() }
 
 /**
  * This component is used to set the current value of the Text style ambient. The given style will
