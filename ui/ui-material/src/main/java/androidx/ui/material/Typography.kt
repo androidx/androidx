@@ -16,7 +16,7 @@
 
 package androidx.ui.material
 
-import androidx.compose.ambientOf
+import androidx.compose.staticAmbientOf
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.sp
@@ -92,4 +92,4 @@ data class Typography(
  *
  * To access values within this ambient, use [MaterialTheme.typography].
  */
-internal val TypographyAmbient = ambientOf { Typography() }
+internal val TypographyAmbient = staticAmbientOf { Typography() }

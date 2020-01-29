@@ -20,11 +20,8 @@ import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.material.ColorPalette
-import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.integration.test.material.ImmutableColorPaletteTestCase
 import androidx.ui.integration.test.material.ObservableColorPaletteTestCase
-import androidx.ui.test.doFramesUntilNoChangesPending
-import androidx.ui.test.recomposeAssertHadChanges
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,40 +40,11 @@ class ColorPaletteBenchmark {
 
     @Test
     fun observablePalette_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecomposeForObservableTestCase {
-            ObservableColorPaletteTestCase()
-        }
+        benchmarkRule.toggleStateBenchmarkRecompose { ObservableColorPaletteTestCase() }
     }
 
     @Test
     fun immutablePalette_recompose() {
         benchmarkRule.toggleStateBenchmarkRecompose { ImmutableColorPaletteTestCase() }
-    }
-}
-
-/**
- *  Measures recomposition time for [ObservableColorPaletteTestCase]
- *
- * TODO: b/143769776
- * Currently changing a @Model value that causes another @Model value to change results in two
- * recompositions - so this method recomposes once for the initial @Model change, so we can
- * accurately benchmark the second recomposition which is the actual colour change we care about -
- * the initial recompose should be very small in scope as we are just changing local state to
- * trigger the colour change.
- */
-private fun ComposeBenchmarkRule.toggleStateBenchmarkRecomposeForObservableTestCase(
-    caseFactory: () -> ObservableColorPaletteTestCase
-) {
-    runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
-
-        measureRepeated {
-            runWithTimingDisabled {
-                getTestCase().toggleState()
-                recomposeAssertHadChanges()
-            }
-            recomposeAssertHadChanges()
-            assertNoPendingChanges()
-        }
     }
 }
