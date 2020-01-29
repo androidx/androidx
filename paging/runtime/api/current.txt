@@ -78,7 +78,7 @@ package androidx.paging {
   }
 
   public abstract class PagingDataAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
+    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
     method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public final suspend Object! collectFrom(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method protected T? getItem(int position);
