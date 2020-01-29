@@ -28,7 +28,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
-import androidx.ui.material.ripple.CurrentRippleTheme
+import androidx.ui.material.ripple.RippleThemeAmbient
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleEffectFactory
@@ -283,7 +283,7 @@ class RippleEffectTest {
             defaultColor,
             opacityCallback
         )
-        Providers(CurrentRippleTheme provides theme, children = children)
+        Providers(RippleThemeAmbient provides theme, children = children)
     }
 
     private fun testRippleEffect(
