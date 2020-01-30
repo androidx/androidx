@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.unit.IntPxSize
@@ -57,7 +57,7 @@ fun ScaleSlopExceededGestureDetector(
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded
 
-    PointerInputWrapper(
+    PointerInput(
         pointerInputHandler = recognizer.pointerInputHandler,
         cancelHandler = recognizer.cancelHandler,
         children = children

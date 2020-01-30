@@ -86,7 +86,7 @@ package androidx.ui.core {
   }
 
   public final class PointerInputWrapperKt {
-    method public static inline void PointerInputWrapper(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler, kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void PointerInput(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler, kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PopupKt {
