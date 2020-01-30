@@ -19,7 +19,7 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
 import androidx.ui.core.WithDensity
 import androidx.ui.core.gesture.LongPressGestureDetector
@@ -56,7 +56,7 @@ private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit
         TestTag(tag) {
             Semantics(container = true) {
                 LongPressGestureDetector(onLongPress = onLongPress) {
-                    PointerInputWrapper(
+                    PointerInput(
                         pointerInputHandler = recorder::onPointerInput,
                         cancelHandler = {}
                     ) {

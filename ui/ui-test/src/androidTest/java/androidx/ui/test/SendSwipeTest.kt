@@ -19,7 +19,7 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
@@ -59,7 +59,7 @@ class SendSwipeTest {
     fun Ui(alignment: Alignment) {
         Align(alignment = alignment) {
             Semantics(container = true, properties = { testTag = tag }) {
-                PointerInputWrapper(
+                PointerInput(
                     pointerInputHandler = recorder::onPointerInput,
                     cancelHandler = {}
                 ) {

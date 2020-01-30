@@ -21,7 +21,7 @@ import androidx.compose.remember
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.WithDensity
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
@@ -151,7 +151,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         val paint = remember { Paint().apply { color = Color.Yellow } }
         Align(alignment = Alignment.BottomRight) {
             Semantics(container = true, properties = { testTag = tag }) {
-                PointerInputWrapper(
+                PointerInput(
                     pointerInputHandler = recorder::onPointerInput,
                     cancelHandler = {}
                 ) {
