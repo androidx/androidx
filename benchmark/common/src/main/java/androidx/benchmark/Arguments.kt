@@ -39,9 +39,7 @@ internal object Arguments {
     val suppressedErrors: Set<String>
     val profilingMode: ProfilingMode
 
-    enum class ProfilingMode {
-        None, Sampled, Method
-    }
+    var error: String? = null
 
     val prefix = "androidx.benchmark."
 
@@ -49,20 +47,25 @@ internal object Arguments {
         getString(prefix + key, defaultValue)
 
     @SuppressLint("DefaultLocale")
-    private fun Bundle.getProfilingMode(): ProfilingMode {
+    private fun Bundle.getProfilingMode(outputIsEnabled: Boolean): ProfilingMode {
         val argumentName = "profiling.mode"
-        val argumentValue = getArgument(argumentName, "none")
-        return try {
-            ProfilingMode.valueOf(argumentValue.capitalize())
-        } catch (e: IllegalArgumentException) {
+        val argumentValue = getArgument(argumentName, ProfilingMode.None.toString())
+
+        val mode = ProfilingMode.getFromString(argumentValue)
+        if (mode == null) {
             val validOptions = ProfilingMode.values().joinToString()
-            throw IllegalArgumentException(
-                "Could not parse $prefix$argumentName=$argumentValue, must be one of:$validOptions",
-                e
-            )
+            error =
+                "Could not parse $prefix$argumentName=$argumentValue, must be one of: $validOptions"
+            return ProfilingMode.None
         }
+        if (mode.needsLibraryOutputDir() && !outputIsEnabled) {
+            error = "Output is not enabled, so cannot profile with mode $argumentValue"
+            return ProfilingMode.None
+        }
+        return mode
     }
 
+    // note: initialization may happen at any time
     init {
         val arguments = argumentSource ?: InstrumentationRegistry.getArguments()
 
@@ -82,7 +85,7 @@ internal object Arguments {
             .filter { it.isNotEmpty() }
             .toSet()
 
-        profilingMode = if (outputEnable) arguments.getProfilingMode() else ProfilingMode.None
+        profilingMode = arguments.getProfilingMode(outputEnable)
 
         val additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
         @Suppress("DEPRECATION") // Legacy code path for versions of agp older than 3.6
