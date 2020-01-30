@@ -223,7 +223,7 @@ fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
     fontWeight = style.fontWeight ?: FontWeight.Normal,
     fontStyle = style.fontStyle ?: FontStyle.Normal,
     fontSynthesis = style.fontSynthesis ?: FontSynthesis.All,
-    fontFamily = style.fontFamily ?: FontFamily.SansSerif,
+    fontFamily = style.fontFamily ?: FontFamily.Default,
     fontFeatureSettings = style.fontFeatureSettings ?: "",
     letterSpacing = if (style.letterSpacing.isInherit) {
         DefaultLetterSpacing

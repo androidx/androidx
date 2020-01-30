@@ -39,6 +39,7 @@ import androidx.ui.text.FontTestData.Companion.FONT_800_REGULAR
 import androidx.ui.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_900_REGULAR
 import androidx.ui.text.TestFontResourceLoader
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.font
 import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontMatcher
@@ -108,8 +109,8 @@ class TypefaceAdapterTest {
 
     @Test
     fun serifAndSansSerifPaintsDifferent() {
-        val typefaceSans = TypefaceAdapter().create(fontFamily("sans-serif"))
-        val typefaceSerif = TypefaceAdapter().create(fontFamily("serif"))
+        val typefaceSans = TypefaceAdapter().create(FontFamily.SansSerif)
+        val typefaceSerif = TypefaceAdapter().create(FontFamily.Serif)
 
         assertThat(typefaceSans).isNotNull()
         assertThat(typefaceSans).isNotNull()
@@ -364,7 +365,7 @@ class TypefaceAdapterTest {
 
     @Test
     fun resultsAreCached_withCustomTypeface() {
-        val fontFamily = fontFamily("sans-serif")
+        val fontFamily = FontFamily.SansSerif
         val fontWeight = FontWeight.Normal
         val fontStyle = FontStyle.Italic
 
@@ -379,10 +380,10 @@ class TypefaceAdapterTest {
     fun cacheCanHoldTwoResults() {
         val typefaceAdapter = TypefaceAdapter()
 
-        val serifTypeface = typefaceAdapter.create(fontFamily("serif"))
-        val otherSerifTypeface = typefaceAdapter.create(fontFamily("serif"))
-        val sansTypeface = typefaceAdapter.create(fontFamily("sans-serif"))
-        val otherSansTypeface = typefaceAdapter.create(fontFamily("sans-serif"))
+        val serifTypeface = typefaceAdapter.create(FontFamily.Serif)
+        val otherSerifTypeface = typefaceAdapter.create(FontFamily.Serif)
+        val sansTypeface = typefaceAdapter.create(FontFamily.SansSerif)
+        val otherSansTypeface = typefaceAdapter.create(FontFamily.SansSerif)
 
         assertThat(serifTypeface).isSameInstanceAs(otherSerifTypeface)
         assertThat(sansTypeface).isSameInstanceAs(otherSansTypeface)

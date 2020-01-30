@@ -32,6 +32,7 @@ import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
@@ -848,7 +849,7 @@ class AndroidParagraphTest {
     @Test
     fun testFontFamily_withGenericFamilyName() {
         val typefaceAdapter = spy(TypefaceAdapter())
-        val fontFamily = fontFamily("sans-serif")
+        val fontFamily = FontFamily.SansSerif
 
         val paragraph = simpleParagraph(
             text = "abc",

@@ -29,6 +29,7 @@ import androidx.ui.material.Typography
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.sp
@@ -47,10 +48,10 @@ fun MaterialThemeSample() {
     val colors = if (isSystemInDarkTheme()) darkColors else lightColors
 
     val typography = Typography(
-        h1 = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
+        h1 = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W100,
             fontSize = 96.sp),
-        button = TextStyle(fontFamily = fontFamily("RobotoCondensed"),
+        button = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W600,
             fontSize = 14.sp)
     )

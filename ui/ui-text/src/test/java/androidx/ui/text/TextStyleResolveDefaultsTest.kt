@@ -54,7 +54,7 @@ class TextStyleResolveDefaultsTest {
             assertThat(it.fontWeight).isEqualTo(FontWeight.Normal)
             assertThat(it.fontStyle).isEqualTo(FontStyle.Normal)
             assertThat(it.fontSynthesis).isEqualTo(FontSynthesis.All)
-            assertThat(it.fontFamily).isEqualTo(FontFamily.SansSerif)
+            assertThat(it.fontFamily).isEqualTo(FontFamily.Default)
             assertThat(it.fontFeatureSettings).isEqualTo("")
             assertThat(it.letterSpacing).isEqualTo(DefaultLetterSpacing)
             assertThat(it.baselineShift).isEqualTo(BaselineShift.None)
