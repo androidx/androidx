@@ -42,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -306,6 +307,7 @@ public class VideoCapture extends UseCase {
             return;
         }
 
+        CameraInternal boundCamera = getBoundCamera();
         String cameraId = getBoundCameraId();
         Size resolution = getAttachedSurfaceResolution(cameraId);
         try {
@@ -323,7 +325,7 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        CameraInfoInternal cameraInfoInternal = boundCamera.getCameraInfoInternal();
         int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
                 ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
 
