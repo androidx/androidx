@@ -1,0 +1,490 @@
+// Signature format: 3.0
+package androidx.ui.autofill {
+
+  public final class AndroidAutofillDebugUtilsKt {
+  }
+
+  public final class AndroidAutofillKt {
+  }
+
+}
+
+package androidx.ui.core {
+
+  public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.AndroidOwner androidx.ui.unit.DensityScope androidx.ui.core.SemanticsTreeProvider {
+    ctor public AndroidComposeView(android.content.Context context);
+    method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
+    method public androidx.ui.unit.IntPxPosition calculatePosition();
+    method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
+    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticNodes();
+    method public androidx.ui.autofill.Autofill? getAutofill();
+    method public androidx.ui.autofill.AutofillTree getAutofillTree();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();
+    method public androidx.ui.core.Constraints getConstraints();
+    method public androidx.ui.unit.Density getDensity();
+    method public androidx.ui.text.font.Font.ResourceLoader getFontLoader();
+    method public long getMeasureIteration();
+    method public androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? getRef();
+    method public androidx.ui.core.LayoutNode getRoot();
+    method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
+    method public boolean getShowLayoutBounds();
+    method public androidx.ui.input.TextInputService getTextInputService();
+    method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void onAttach(androidx.ui.core.ComponentNode node);
+    method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
+    method public void onInvalidate(androidx.ui.core.LayoutNode layoutNode);
+    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRepaintBoundaryParamsChange(androidx.ui.core.RepaintBoundaryNode repaintBoundaryNode);
+    method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
+    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void removeAndroidView(android.view.View view);
+    method public void sendEvent(android.view.MotionEvent event);
+    method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setConstraints(androidx.ui.core.Constraints p);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? value);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setShowLayoutBounds(boolean p);
+    property public final androidx.ui.autofill.Autofill? autofill;
+    property public final androidx.ui.autofill.AutofillTree autofillTree;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> configurationChangeObserver;
+    property public final androidx.ui.core.Constraints constraints;
+    property public androidx.ui.unit.Density density;
+    property public final androidx.ui.text.font.Font.ResourceLoader fontLoader;
+    property public long measureIteration;
+    property public final androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? ref;
+    property public final androidx.ui.core.LayoutNode root;
+    property public androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
+    property public boolean showLayoutBounds;
+    property public final androidx.ui.input.TextInputService textInputService;
+    field public static final androidx.ui.core.AndroidComposeView.Companion! Companion;
+  }
+
+  public static final class AndroidComposeView.Companion {
+    method public boolean getEnableExtraAssertions();
+    method public void setEnableExtraAssertions(boolean p);
+    property public final boolean enableExtraAssertions;
+  }
+
+  public interface AndroidOwner extends androidx.ui.core.Owner {
+    method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
+    method public void removeAndroidView(android.view.View view);
+  }
+
+  public final class AndroidOwnerKt {
+  }
+
+  public abstract sealed class ComponentNode implements androidx.compose.Emittable {
+    method public void attach(androidx.ui.core.Owner owner);
+    method public void detach();
+    method public void emitInsertAt(int index, androidx.compose.Emittable instance);
+    method public void emitMove(int from, int to, int count);
+    method public void emitRemoveAt(int index, int count);
+    method public final operator androidx.ui.core.ComponentNode get(int index);
+    method protected androidx.ui.core.LayoutNode? getContainingLayoutNode();
+    method public final int getCount();
+    method public final int getDepth();
+    method public final androidx.ui.core.Owner? getOwner();
+    method public final Object? getOwnerData();
+    method public final androidx.ui.core.ComponentNode? getParent();
+    method public androidx.ui.core.LayoutNode? getParentLayoutNode();
+    method public androidx.ui.core.RepaintBoundaryNode? getRepaintBoundary();
+    method public final void setDepth(int p);
+    method public final void setOwnerData(Object? p);
+    method public final inline void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    method public final inline void visitChildrenReverse(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property protected androidx.ui.core.LayoutNode? containingLayoutNode;
+    property public final int count;
+    property public final int depth;
+    property public final androidx.ui.core.Owner? owner;
+    property public final Object? ownerData;
+    property public final androidx.ui.core.ComponentNode? parent;
+    property public androidx.ui.core.LayoutNode? parentLayoutNode;
+    property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
+  }
+
+  public final class ComponentNodesKt {
+    method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
+    method public static androidx.ui.unit.PxPosition childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode child, androidx.ui.unit.PxPosition childLocal);
+    method public static androidx.ui.core.ComponentNode? findClosestParentNode(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,java.lang.Boolean> selector);
+    method public static androidx.ui.core.semantics.SemanticsNode? findClosestParentNode(androidx.ui.core.semantics.SemanticsNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> selector);
+    method public static androidx.ui.core.LayoutNode? findLastLayoutChild(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> block);
+    method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnChildPositionedKey();
+    method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnPositionedKey();
+    method public static androidx.ui.core.DataNodeKey<java.lang.Object> getParentDataKey();
+    method public static androidx.ui.unit.PxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.unit.PxPosition global, boolean withOwnerOffset = true);
+    method public static androidx.ui.unit.IntPxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.unit.IntPxPosition global, boolean withOwnerOffset = true);
+    method public static boolean hasNoLayoutDescendants(androidx.ui.core.ComponentNode);
+    method public static boolean isAttached(androidx.ui.core.ComponentNode);
+    method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.unit.PxPosition local, boolean withOwnerOffset = true);
+    method public static androidx.ui.unit.IntPxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.unit.IntPxPosition local, boolean withOwnerOffset = true);
+    method public static androidx.ui.unit.PxPosition positionRelativeToAncestor(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode ancestor);
+    method public static androidx.ui.unit.IntPxPosition positionRelativeToRoot(androidx.ui.core.LayoutNode);
+    method public static androidx.ui.core.Owner requireOwner(androidx.ui.core.ComponentNode);
+    method public static void visitLayoutChildren(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,kotlin.Unit> block);
+  }
+
+  public final class DataNode<T> extends androidx.ui.core.ComponentNode {
+    ctor public DataNode(androidx.ui.core.DataNodeKey<T> key, T! value);
+    method public androidx.ui.core.DataNodeKey<T> getKey();
+    method public T! getValue();
+    method public void setValue(T? p);
+  }
+
+  public final class DataNodeKey<T> {
+    ctor public DataNodeKey(String name);
+    method public String getName();
+  }
+
+  public final class DebugUtilsKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static String simpleIdentityToString(Object obj, String? name = null);
+  }
+
+  public final class DrawNode extends androidx.ui.core.ComponentNode {
+    ctor public DrawNode();
+    method public boolean getNeedsPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.unit.DensityScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaintWithChildren();
+    method public void invalidate();
+    method public void setNeedsPaint(boolean p);
+    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.unit.DensityScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
+    method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
+    property public final boolean needsPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.unit.DensityScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaintWithChildren;
+  }
+
+  public final class FocusNode extends androidx.ui.core.ComponentNode {
+    ctor public FocusNode();
+    method public boolean captureFocus();
+    method public boolean freeFocus();
+    method public androidx.ui.focus.FocusDetailedState getFocusState();
+    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getRecompose();
+    method public androidx.ui.core.Ref<androidx.ui.core.FocusNode>? getRef();
+    method public void requestFocus(boolean propagateFocus = true);
+    method public void setLayoutCoordinates(androidx.ui.core.LayoutCoordinates? p);
+    method public void setRecompose(kotlin.jvm.functions.Function0<kotlin.Unit> value);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.FocusNode>? value);
+    property public final androidx.ui.focus.FocusDetailedState focusState;
+    property public final androidx.ui.core.LayoutCoordinates? layoutCoordinates;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> recompose;
+    property public final androidx.ui.core.Ref<androidx.ui.core.FocusNode>? ref;
+  }
+
+  public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable {
+    ctor public LayoutNode();
+    method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.Density density);
+    method public boolean getAffectsParentSize();
+    method public androidx.ui.core.Constraints getConstraints();
+    method public androidx.ui.unit.IntPxPosition getContentPosition();
+    method public androidx.ui.unit.IntPxSize getContentSize();
+    method public androidx.ui.unit.IntPx getHeight();
+    method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
+    method public androidx.ui.core.LayoutNode.MeasureBlocks getMeasureBlocks();
+    method public androidx.ui.core.MeasureScope getMeasureScope();
+    method public androidx.ui.unit.IntPxPosition getModifiedPosition();
+    method public androidx.ui.unit.IntPxSize getModifiedSize();
+    method public androidx.ui.core.Modifier getModifier();
+    method public boolean getNeedsRelayout();
+    method public boolean getNeedsRemeasure();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.Owner,kotlin.Unit>? getOnAttach();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.Owner,kotlin.Unit>? getOnDetach();
+    method public Object? getParentData();
+    method public boolean getPositionedDuringMeasurePass();
+    method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
+    method public androidx.ui.unit.IntPx getWidth();
+    method public androidx.ui.unit.IntPx getX();
+    method public androidx.ui.unit.IntPx getY();
+    method public void ignoreModelReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public boolean isLayingOut();
+    method public boolean isMeasuring();
+    method public boolean isPlaced();
+    method public void layout();
+    method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.IntPx width);
+    method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.IntPx height);
+    method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
+    method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.IntPx width);
+    method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.IntPx height);
+    method public void onInvalidate();
+    method public void place(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
+    method public void requestRemeasure();
+    method public void setConstraints(androidx.ui.core.Constraints p);
+    method public void setMeasureBlocks(androidx.ui.core.LayoutNode.MeasureBlocks value);
+    method public void setModifier(androidx.ui.core.Modifier value);
+    method public void setOnAttach(kotlin.jvm.functions.Function1<? super androidx.ui.core.Owner,kotlin.Unit>? p);
+    method public void setOnDetach(kotlin.jvm.functions.Function1<? super androidx.ui.core.Owner,kotlin.Unit>? p);
+    method public void setPositionedDuringMeasurePass(boolean p);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
+    property public final boolean affectsParentSize;
+    property public final androidx.ui.core.Constraints constraints;
+    property protected androidx.ui.core.LayoutNode? containingLayoutNode;
+    property public final androidx.ui.unit.IntPxPosition contentPosition;
+    property public final androidx.ui.unit.IntPxSize contentSize;
+    property public final androidx.ui.unit.IntPx height;
+    property public final boolean isLayingOut;
+    property public final boolean isMeasuring;
+    property public final boolean isPlaced;
+    property public final java.util.List<androidx.ui.core.LayoutNode> layoutChildren;
+    property public final androidx.ui.core.LayoutNode.MeasureBlocks measureBlocks;
+    property public final androidx.ui.core.MeasureScope measureScope;
+    property public final androidx.ui.unit.IntPxPosition modifiedPosition;
+    property public final androidx.ui.unit.IntPxSize modifiedSize;
+    property public final androidx.ui.core.Modifier modifier;
+    property public final boolean needsRelayout;
+    property public final boolean needsRemeasure;
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Owner,kotlin.Unit>? onAttach;
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Owner,kotlin.Unit>? onDetach;
+    property public Object? parentData;
+    property public androidx.ui.core.LayoutNode? parentLayoutNode;
+    property public final boolean positionedDuringMeasurePass;
+    property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
+    property public final androidx.ui.unit.IntPx width;
+    property public final androidx.ui.unit.IntPx x;
+    property public final androidx.ui.unit.IntPx y;
+  }
+
+  public abstract static class LayoutNode.InnerMeasureScope extends androidx.ui.core.MeasureScope {
+    ctor public LayoutNode.InnerMeasureScope();
+    method public abstract androidx.ui.core.LayoutNode getLayoutNode();
+    property public abstract androidx.ui.core.LayoutNode layoutNode;
+  }
+
+  public static interface LayoutNode.MeasureBlocks {
+    method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope measureScope, java.util.List<? extends androidx.ui.core.Measurable> measurables, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+  }
+
+  public abstract static class LayoutNode.NoIntrinsicsMeasureBlocks implements androidx.ui.core.LayoutNode.MeasureBlocks {
+    ctor public LayoutNode.NoIntrinsicsMeasureBlocks(String error);
+    method public Void maxIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public Void maxIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public Void minIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public Void minIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+  }
+
+  public final class LayoutNodeWrapperKt {
+  }
+
+  public final class ModelObserver {
+    ctor public ModelObserver(kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> commitExecutor);
+    method public void clear(Object target);
+    method public void enableModelUpdatesObserving(boolean enabled);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public kotlin.jvm.functions.Function2<java.util.Set<?>,androidx.compose.frames.Frame,kotlin.Unit> getFrameCommitObserver();
+    method public <T> void observeReads(T target, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onCommit, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void pauseObservingReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final kotlin.jvm.functions.Function2<java.util.Set<?>,androidx.compose.frames.Frame,kotlin.Unit> frameCommitObserver;
+  }
+
+  public interface Owner {
+    method public androidx.ui.unit.IntPxPosition calculatePosition();
+    method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
+    method public androidx.ui.unit.Density getDensity();
+    method public long getMeasureIteration();
+    method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
+    method public boolean getShowLayoutBounds();
+    method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void onAttach(androidx.ui.core.ComponentNode node);
+    method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
+    method public void onInvalidate(androidx.ui.core.LayoutNode layoutNode);
+    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRepaintBoundaryParamsChange(androidx.ui.core.RepaintBoundaryNode repaintBoundaryNode);
+    method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
+    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    property public abstract androidx.ui.unit.Density density;
+    property public abstract long measureIteration;
+    property public abstract androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
+    property public abstract boolean showLayoutBounds;
+  }
+
+  public final class PointerInputNode extends androidx.ui.core.ComponentNode {
+    ctor public PointerInputNode();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getCancelHandler();
+    method public kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> getPointerInputHandler();
+    method public void setCancelHandler(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setPointerInputHandler(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> p);
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler;
+    property public final kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
+  }
+
+  public final class Ref<T> {
+    ctor public Ref();
+    method public T? getValue();
+    method public void setValue(T? p);
+    property public final T? value;
+  }
+
+  public final class RepaintBoundaryNode extends androidx.ui.core.ComponentNode {
+    ctor public RepaintBoundaryNode(String? name);
+    method public boolean getClipToShape();
+    method public androidx.ui.unit.Dp getElevation();
+    method public String? getName();
+    method public float getOpacity();
+    method public androidx.ui.graphics.Shape? getShape();
+    method public void setClipToShape(boolean value);
+    method public void setElevation(androidx.ui.unit.Dp value);
+    method public void setOpacity(float value);
+    method public void setShape(androidx.ui.graphics.Shape? value);
+    property public final boolean clipToShape;
+    property public final androidx.ui.unit.Dp elevation;
+    property public final float opacity;
+    property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
+    property public final androidx.ui.graphics.Shape? shape;
+  }
+
+  public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
+    ctor public SemanticsComponentNode(androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration, int id);
+    method public int getId();
+    method public androidx.ui.core.semantics.SemanticsNode getSemanticsNode();
+    method public boolean hasSemanticsComponentNodeInTree$lintWithKotlin();
+    method public void invalidateSemanticsComponentNode$lintWithKotlin();
+    property public final androidx.ui.core.semantics.SemanticsNode semanticsNode;
+  }
+
+  public final class SemanticsTreeNodeImplKt {
+  }
+
+  public interface SemanticsTreeProvider {
+    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticNodes();
+    method public void sendEvent(android.view.MotionEvent event);
+  }
+
+}
+
+package androidx.ui.core.focus {
+
+  public final class FocusNodeUtilsKt {
+    method public static void initializeFocusState(androidx.ui.core.FocusNode);
+  }
+
+}
+
+package androidx.ui.core.pointerinput {
+
+  public final class MotionEventAdapter {
+    ctor public MotionEventAdapter();
+  }
+
+  public final class PointerInputEventData {
+    ctor public PointerInputEventData(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData pointerInputData);
+    method public androidx.ui.core.PointerId component1();
+    method public androidx.ui.core.PointerInputData component2();
+    method public androidx.ui.core.pointerinput.PointerInputEventData copy(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData pointerInputData);
+    method public androidx.ui.core.PointerId getId();
+    method public androidx.ui.core.PointerInputData getPointerInputData();
+  }
+
+  public final class PointerInputEventProcessorKt {
+  }
+
+}
+
+package androidx.ui.core.semantics {
+
+  public final class SemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.ui.semantics.SemanticsPropertyKey<?>,?>> kotlin.jvm.internal.markers.KMappedMarker androidx.ui.semantics.SemanticsPropertyReceiver {
+    ctor public SemanticsConfiguration();
+    method public operator <T> boolean contains(androidx.ui.semantics.SemanticsPropertyKey<T> key);
+    method public androidx.ui.core.semantics.SemanticsConfiguration copy();
+    method public operator <T> T! get(androidx.ui.semantics.SemanticsPropertyKey<T> key);
+    method public <T> T! getOrElse(androidx.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public <T> T? getOrElseNullable(androidx.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public boolean isEmpty();
+    method public boolean isMergingSemanticsOfDescendants();
+    method public boolean isSemanticBoundary();
+    method public java.util.Iterator<java.util.Map.Entry<androidx.ui.semantics.SemanticsPropertyKey<?>,java.lang.Object>> iterator();
+    method public <T> void set(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? value);
+    method public void setMergingSemanticsOfDescendants(boolean value);
+    method public void setSemanticBoundary(boolean value);
+    property public final boolean isEmpty;
+    property public final boolean isMergingSemanticsOfDescendants;
+    property public final boolean isSemanticBoundary;
+  }
+
+  public final class SemanticsConfigurationKt {
+    method public static <T> T? getOrNull(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.semantics.SemanticsPropertyKey<T> key);
+  }
+
+  public final class SemanticsHintOverrides {
+    ctor public SemanticsHintOverrides(String? onTapHint, String? onLongPressHint);
+    method public String? component1();
+    method public String? component2();
+    method public androidx.ui.core.semantics.SemanticsHintOverrides copy(String? onTapHint, String? onLongPressHint);
+    method public String? getOnLongPressHint();
+    method public String? getOnTapHint();
+    method public boolean isNotEmpty();
+    property public final boolean isNotEmpty;
+  }
+
+  public final class SemanticsNode {
+    ctor public SemanticsNode(androidx.ui.core.semantics.SemanticsConfiguration unmergedConfig, androidx.ui.core.SemanticsComponentNode componentNode);
+    method public boolean getAttached();
+    method public androidx.ui.unit.PxBounds getBoundsInRoot();
+    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getChildren();
+    method public androidx.ui.core.ComponentNode getComponentNode();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getConfig();
+    method public androidx.ui.unit.PxBounds getGlobalBounds();
+    method public boolean getHasChildren();
+    method public int getId();
+    method public androidx.ui.core.semantics.SemanticsNode? getParent();
+    method public androidx.ui.unit.IntPxSize getSize();
+    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getUnmergedChildren();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getUnmergedConfig();
+    method public boolean isSemanticBoundary();
+    method public void setComponentNode(androidx.ui.core.ComponentNode p);
+    method public void setParent(androidx.ui.core.semantics.SemanticsNode? p);
+    property public final boolean attached;
+    property public final androidx.ui.unit.PxBounds boundsInRoot;
+    property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> children;
+    property public final androidx.ui.core.semantics.SemanticsConfiguration config;
+    property public final androidx.ui.unit.PxBounds globalBounds;
+    property public final boolean hasChildren;
+    property public final boolean isSemanticBoundary;
+    property public final androidx.ui.core.semantics.SemanticsNode? parent;
+    property public final androidx.ui.unit.IntPxSize size;
+    property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> unmergedChildren;
+    property public final androidx.ui.core.semantics.SemanticsConfiguration unmergedConfig;
+    field public static final androidx.ui.core.semantics.SemanticsNode.Companion! Companion;
+  }
+
+  public static final class SemanticsNode.Companion {
+    method public int generateNewId();
+  }
+
+  public final class SemanticsNodeKt {
+  }
+
+  public final class SemanticsOwner {
+    ctor public SemanticsOwner(androidx.ui.core.ComponentNode rootNode);
+    method public androidx.ui.core.semantics.SemanticsNode getRootSemanticsNode();
+    property public final androidx.ui.core.semantics.SemanticsNode rootSemanticsNode;
+  }
+
+}
+
+package androidx.ui.input {
+
+  public final class InputStateKt {
+  }
+
+  public final class RecordingInputConnectionKt {
+  }
+
+}
+
+package androidx.ui.temputils {
+
+  public final class CoroutineUtilsKt {
+    method public static kotlinx.coroutines.Job delay(androidx.ui.unit.Duration duration, kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+}
+
