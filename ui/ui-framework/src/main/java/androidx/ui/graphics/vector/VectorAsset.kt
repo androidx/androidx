@@ -26,8 +26,6 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.unit.Dp
 
-sealed class VectorNode
-
 /**
  * Vector graphics object that is generated as a result of [VectorAssetBuilder]]
  * It can be composed and rendered by passing it as an argument to [DrawVector]
@@ -67,12 +65,14 @@ data class VectorAsset internal constructor(
     val root: VectorGroup
 )
 
+sealed class VectorNode
+
 /**
  * Defines a group of paths or subgroups, plus transformation information.
  * The transformations are defined in the same coordinates as the viewport.
  * The transformations are applied in the order of scale, rotate then translate.
  */
-data class VectorGroup(
+class VectorGroup(
     /**
      * Name of the corresponding group
      */
@@ -142,6 +142,40 @@ data class VectorGroup(
 
             override fun next(): VectorNode = it.next()
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as VectorGroup
+
+        if (name != other.name) return false
+        if (rotation != other.rotation) return false
+        if (pivotX != other.pivotX) return false
+        if (pivotY != other.pivotY) return false
+        if (scaleX != other.scaleX) return false
+        if (scaleY != other.scaleY) return false
+        if (translationX != other.translationX) return false
+        if (translationY != other.translationY) return false
+        if (clipPathData != other.clipPathData) return false
+        if (children != other.children) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + rotation.hashCode()
+        result = 31 * result + pivotX.hashCode()
+        result = 31 * result + pivotY.hashCode()
+        result = 31 * result + scaleX.hashCode()
+        result = 31 * result + scaleY.hashCode()
+        result = 31 * result + translationX.hashCode()
+        result = 31 * result + translationY.hashCode()
+        result = 31 * result + clipPathData.hashCode()
+        result = 31 * result + children.hashCode()
+        return result
     }
 }
 

@@ -376,7 +376,6 @@ package androidx.ui.graphics.vector {
     ctor public VectorAssetBuilder(String name, androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth, float viewportHeight);
     method public androidx.ui.graphics.vector.VectorAssetBuilder addPath(java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
     method public androidx.ui.graphics.vector.VectorAsset build();
-    method public void ensureNotConsumed();
     method public androidx.ui.unit.Dp getDefaultHeight();
     method public androidx.ui.unit.Dp getDefaultWidth();
     method public String getName();
@@ -384,6 +383,11 @@ package androidx.ui.graphics.vector {
     method public float getViewportWidth();
     method public androidx.ui.graphics.vector.VectorAssetBuilder popGroup();
     method public androidx.ui.graphics.vector.VectorAssetBuilder pushGroup(String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath);
+  }
+
+  public final class VectorAssetBuilderKt {
+    method public static androidx.ui.graphics.vector.VectorAssetBuilder group(androidx.ui.graphics.vector.VectorAssetBuilder, String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.VectorAssetBuilder,kotlin.Unit> block);
+    method public static androidx.ui.graphics.vector.VectorAssetBuilder path(androidx.ui.graphics.vector.VectorAssetBuilder, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.PathBuilder,kotlin.Unit> pathBuilder);
   }
 
   public final class VectorAssetKt {
@@ -400,16 +404,6 @@ package androidx.ui.graphics.vector {
   public final class VectorGroup extends androidx.ui.graphics.vector.VectorNode implements java.lang.Iterable<androidx.ui.graphics.vector.VectorNode> kotlin.jvm.internal.markers.KMappedMarker {
     ctor public VectorGroup(String name, float rotation, float pivotX, float pivotY, float scaleX, float scaleY, float translationX, float translationY, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData);
     ctor public VectorGroup();
-    method public String component1();
-    method public float component2();
-    method public float component3();
-    method public float component4();
-    method public float component5();
-    method public float component6();
-    method public float component7();
-    method public float component8();
-    method public java.util.List<androidx.ui.graphics.vector.PathNode> component9();
-    method public androidx.ui.graphics.vector.VectorGroup copy(String name, float rotation, float pivotX, float pivotY, float scaleX, float scaleY, float translationX, float translationY, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData);
     method public operator androidx.ui.graphics.vector.VectorNode get(int index);
     method public java.util.List<androidx.ui.graphics.vector.PathNode> getClipPathData();
     method public String getName();
