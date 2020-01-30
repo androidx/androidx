@@ -87,7 +87,7 @@ import java.util.ArrayList;
  *
  * <p>Layout animations and transitions are disabled for FragmentContainerView for APIs above 17.
  * Otherwise, Animations should be done through
- * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. IfanimateLayoutChanges is
+ * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. If animateLayoutChanges is
  * set to <code>true</code> or {@link #setLayoutTransition(LayoutTransition)} is called directly an
  * {@link UnsupportedOperationException} will be thrown.
  *
