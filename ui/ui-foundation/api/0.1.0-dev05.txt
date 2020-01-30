@@ -8,13 +8,17 @@ package androidx.ui.foundation {
     method public static androidx.ui.core.DrawModifier background(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Brush brush);
   }
 
-  public final class Border implements androidx.ui.core.DrawModifier {
-    method public void draw(androidx.ui.unit.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size);
+  public final class Border {
+    ctor public Border(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
+    method public androidx.ui.unit.Dp component1();
+    method public androidx.ui.graphics.Brush component2();
+    method public androidx.ui.foundation.Border copy(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
+    method public androidx.ui.graphics.Brush getBrush();
+    method public androidx.ui.unit.Dp getSize();
   }
 
   public final class BorderKt {
-    method public static androidx.ui.foundation.Border Border(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp width, androidx.ui.graphics.Color color);
-    method public static androidx.ui.foundation.Border Border(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp width, androidx.ui.graphics.Brush brush);
+    method public static androidx.ui.foundation.Border Border(androidx.ui.unit.Dp size, androidx.ui.graphics.Color color);
   }
 
   public final class BoxKt {
@@ -47,17 +51,27 @@ package androidx.ui.foundation {
     method public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class DrawBorder implements androidx.ui.core.DrawModifier {
+    method public void draw(androidx.ui.unit.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size);
+  }
+
+  public final class DrawBorderKt {
+    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
+  }
+
   public final class DrawBordersReceiver {
-    method public void all(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void allHorizontal(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void allVertical(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void bottom(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void horizontal(int row, kotlin.ranges.IntRange columns = 0 <other> columnCount, androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void left(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void outer(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void right(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void top(androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
-    method public void vertical(int column, kotlin.ranges.IntRange rows = 0 <other> rowCount, androidx.ui.unit.Dp borderWidth = defaultBorderWidth, androidx.ui.graphics.Brush borderBrush = defaultBorderBrush);
+    method public void all(androidx.ui.foundation.Border border = defaultBorder);
+    method public void allHorizontal(androidx.ui.foundation.Border border = defaultBorder);
+    method public void allVertical(androidx.ui.foundation.Border border = defaultBorder);
+    method public void bottom(androidx.ui.foundation.Border border = defaultBorder);
+    method public void horizontal(int row, kotlin.ranges.IntRange columns = 0 <other> columnCount, androidx.ui.foundation.Border border = defaultBorder);
+    method public void left(androidx.ui.foundation.Border border = defaultBorder);
+    method public void outer(androidx.ui.foundation.Border border = defaultBorder);
+    method public void right(androidx.ui.foundation.Border border = defaultBorder);
+    method public void top(androidx.ui.foundation.Border border = defaultBorder);
+    method public void vertical(int column, kotlin.ranges.IntRange rows = 0 <other> rowCount, androidx.ui.foundation.Border border = defaultBorder);
   }
 
   public final class ImageKt {
@@ -102,7 +116,7 @@ package androidx.ui.foundation {
   }
 
   public final class TableBordersKt {
-    method public static void drawBorders(androidx.ui.layout.TableChildren, androidx.ui.unit.Dp defaultBorderWidth = Dp.Hairline, androidx.ui.graphics.Brush defaultBorderBrush = androidx.ui.graphics.SolidColor(Color.Black), kotlin.jvm.functions.Function1<? super androidx.ui.foundation.DrawBordersReceiver,kotlin.Unit> block);
+    method public static void drawBorders(androidx.ui.layout.TableChildren, androidx.ui.foundation.Border defaultBorder = Border(Color.Black, Dp.Hairline), kotlin.jvm.functions.Function1<? super androidx.ui.foundation.DrawBordersReceiver,kotlin.Unit> block);
   }
 
   public interface ValueHolder<T> {

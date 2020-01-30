@@ -20,7 +20,9 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.TileMode
@@ -30,10 +32,10 @@ import androidx.ui.unit.px
 
 @Composable
 @Sampled
-fun BorderSampleWithColor() {
+fun BorderSample() {
     Text(
-        "Text with border",
-        modifier = Border(shape = CircleShape, width = 2.dp, color = Color.Red) +
+        "Text with  square border",
+        modifier = DrawBorder(color = Color.Magenta, size = 4.dp) +
                 LayoutPadding(10.dp)
     )
 }
@@ -48,8 +50,18 @@ fun BorderSampleWithBrush() {
         tileMode = TileMode.Repeated
     )
     Text(
-        "Text with border",
-        modifier = Border(shape = CircleShape, width = 2.dp, brush = gradientBrush) +
+        "Text with gradient border",
+        modifier = DrawBorder(size = 2.dp, brush = gradientBrush, shape = CircleShape) +
+                LayoutPadding(10.dp)
+    )
+}
+
+@Composable
+@Sampled
+fun BorderSampleWithDataClass() {
+    Text(
+        "Text with gradient border",
+        modifier = DrawBorder(shape = CutCornerShape(8.dp), border = Border(2.dp, Color.Blue)) +
                 LayoutPadding(10.dp)
     )
 }

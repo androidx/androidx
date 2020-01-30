@@ -24,15 +24,14 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Text
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -306,8 +305,7 @@ internal data class HeaderRowInfo(
  * @param dataRowHeight The height of each row (excluding the header row).
  * @param headerRowHeight The height of the header row.
  * @param cellSpacing The padding to apply around each cell.
- * @param borderWidth The border size to be used for the table borders.
- * @param borderBrush The brush to paint table borders with
+ * @param border [Border] class that specifies border appearance, such as size or color.
  * @param selectedColor The color used to indicate selected rows.
  * @param pagination Contains the pagination configuration. To disable pagination, set this to null.
  * @param sorting Contains the sorting configuration. To disable sorting, set this to null.
@@ -319,8 +317,7 @@ fun DataTable(
     dataRowHeight: Dp = DataRowHeight,
     headerRowHeight: Dp = HeaderRowHeight,
     cellSpacing: EdgeInsets = CellSpacing,
-    borderWidth: Dp = BorderWidth,
-    borderBrush: Brush = SolidColor(BorderColor),
+    border: Border = Border(color = BorderColor, size = BorderWidth),
     selectedColor: Color = MaterialTheme.colors().primary.copy(alpha = 0.08f),
     pagination: DataTablePagination? = null,
     sorting: DataTableSorting? = null,
@@ -359,7 +356,7 @@ fun DataTable(
             }
         ) {
             // Table borders
-            drawBorders(defaultBorderWidth = borderWidth, defaultBorderBrush = borderBrush) {
+            drawBorders(defaultBorder = border) {
                 allHorizontal()
             }
 

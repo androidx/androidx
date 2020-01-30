@@ -24,10 +24,10 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
-import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
@@ -75,9 +75,7 @@ import kotlin.math.ln
  * @param contentColor The preferred content color provided by this Surface to its children.
  * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
  * the theme, this will keep the same value set above this Surface.
- * @param borderWidth width of the border of the Surface (if it exists)
- * @param borderBrush brush to paint the border with. If null, there will be no border, no matter
- * the borderWidth
+ * @param border Optional border to draw on top of the surface
  * @param elevation The z-coordinate at which to place this surface. This controls
  * the size of the shadow below the surface.
  */
@@ -87,14 +85,13 @@ fun Surface(
     shape: Shape = RectangleShape,
     color: Color = MaterialTheme.colors().surface,
     contentColor: Color = contentColorFor(color),
-    borderWidth: Dp = 0.dp,
-    borderBrush: Brush? = null,
+    border: Border? = null,
     elevation: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
-    val border =
-        if (borderBrush != null) Border(shape, borderWidth, borderBrush) else Modifier.None
-    SurfaceLayout(modifier + border) {
+    val borderModifier =
+        if (border != null) DrawBorder(border, shape) else Modifier.None
+    SurfaceLayout(modifier + borderModifier) {
         if (elevation > 0.dp) {
             DrawShadow(shape = shape, elevation = elevation)
         }

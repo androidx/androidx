@@ -19,9 +19,9 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.core.ComposeView
 import androidx.ui.core.Text
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.material.MaterialTheme
@@ -37,8 +37,7 @@ fun RippleDemo() {
             Padding(padding = 50.dp) {
                 Card(
                     shape = RoundedCornerShape(100.px),
-                    borderWidth = 1.dp,
-                    borderBrush = SolidColor(Color(0x80000000))
+                    border = Border(1.dp, Color(0x80000000))
                 ) {
                     Ripple(bounded = true) {
                         Container(expanded = true) {

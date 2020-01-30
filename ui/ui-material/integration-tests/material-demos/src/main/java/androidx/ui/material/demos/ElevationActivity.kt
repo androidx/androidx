@@ -18,11 +18,11 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
@@ -59,8 +59,7 @@ private fun ElevatedCard(elevation: Dp) {
     Card(
         LayoutPadding(left = 10.dp, right = 10.dp, top = 20.dp, bottom = 20.dp),
         shape = RoundedCornerShape(4.dp),
-        borderBrush = if (elevation == 0.dp) SolidColor(Color.Gray) else null,
-        borderWidth = 1.dp,
+        border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
         Ripple(bounded = true) {

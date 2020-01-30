@@ -19,8 +19,9 @@ package androidx.ui.foundation.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.setContent
+import androidx.ui.foundation.samples.BorderSample
 import androidx.ui.foundation.samples.BorderSampleWithBrush
-import androidx.ui.foundation.samples.BorderSampleWithColor
+import androidx.ui.foundation.samples.BorderSampleWithDataClass
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
@@ -33,9 +34,11 @@ class DrawModifiersActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContent {
             Column(LayoutPadding(10.dp)) {
-                BorderSampleWithColor()
-                Spacer(LayoutHeight(50.dp))
+                BorderSample()
+                Spacer(LayoutHeight(30.dp))
                 BorderSampleWithBrush()
+                Spacer(LayoutHeight(30.dp))
+                BorderSampleWithDataClass()
             }
         }
     }
