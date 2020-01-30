@@ -456,12 +456,6 @@ package androidx.ui.graphics {
     method public androidx.ui.unit.Px getBlurRadius();
     method public androidx.ui.graphics.Color getColor();
     method public androidx.ui.geometry.Offset getOffset();
-    field public static final androidx.ui.graphics.Shadow.Companion! Companion;
-  }
-
-  public static final class Shadow.Companion {
-    method public androidx.ui.graphics.Shadow getNone();
-    property public final androidx.ui.graphics.Shadow None;
   }
 
   public final class ShadowKt {
