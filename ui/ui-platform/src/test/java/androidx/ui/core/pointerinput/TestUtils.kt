@@ -83,7 +83,7 @@ internal fun PointerInputEventData(
     down: Boolean
 ): PointerInputEventData {
     val pointerInputData = PointerInputData(uptime, position, down)
-    return PointerInputEventData(PointerId(id, Uptime.Boot), pointerInputData)
+    return PointerInputEventData(PointerId(id.toLong()), pointerInputData)
 }
 
 internal fun PointerInputEvent(

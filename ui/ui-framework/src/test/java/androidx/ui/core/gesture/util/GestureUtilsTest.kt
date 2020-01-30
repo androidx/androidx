@@ -33,7 +33,7 @@ class GestureUtilsTest {
     fun anyPointersInBounds_1Up_returnsFalse() {
         assertThat(
             listOf(
-                down(x = 0f, y = 0f).up(100.milliseconds)
+                down(0, x = 0f, y = 0f).up(100.milliseconds)
             )
                 .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
         ).isFalse()
@@ -43,10 +43,10 @@ class GestureUtilsTest {
     fun anyPointersInBounds_4OutOfBounds_returnsFalse() {
         assertThat(
             listOf(
-                down(x = -1f, y = 0f),
-                down(x = 1f, y = 0f),
-                down(x = 0f, y = -1f),
-                down(x = 0f, y = 1f)
+                down(0, x = -1f, y = 0f),
+                down(1, x = 1f, y = 0f),
+                down(2, x = 0f, y = -1f),
+                down(3, x = 0f, y = 1f)
             )
                 .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
         ).isFalse()
@@ -55,7 +55,7 @@ class GestureUtilsTest {
     @Test
     fun anyPointersInBounds_1InBounds_returnsTrue() {
         assertThat(
-            listOf(down(x = 0f, y = 0f))
+            listOf(down(0, x = 0f, y = 0f))
                 .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
         ).isTrue()
     }
@@ -64,11 +64,11 @@ class GestureUtilsTest {
     fun anyPointersInBounds_5OneInBounds_returnsTrue() {
         assertThat(
             listOf(
-                down(x = 0f, y = 0f),
-                down(x = -1f, y = 0f),
-                down(x = 1f, y = 0f),
-                down(x = 0f, y = -1f),
-                down(x = 0f, y = 1f)
+                down(0, x = 0f, y = 0f),
+                down(1, x = -1f, y = 0f),
+                down(2, x = 1f, y = 0f),
+                down(3, x = 0f, y = -1f),
+                down(4, x = 0f, y = 1f)
             )
                 .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
         ).isTrue()

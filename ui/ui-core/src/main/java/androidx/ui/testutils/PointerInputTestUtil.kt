@@ -30,13 +30,13 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 
 fun down(
-    id: Int = 0,
+    id: Long,
     duration: Duration = Duration.Zero,
     x: Float = 0f,
     y: Float = 0f
 ): PointerInputChange =
     PointerInputChange(
-        PointerId(id, Uptime.Boot + duration),
+        PointerId(id),
         PointerInputData(Uptime.Boot + duration, PxPosition(x.px, y.px), true),
         PointerInputData(null, null, false),
         ConsumedData(PxPosition.Origin, false)

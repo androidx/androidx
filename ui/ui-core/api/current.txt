@@ -248,8 +248,10 @@ package androidx.ui.core {
   }
 
   public final class PointerId {
-    ctor public PointerId(int id, androidx.ui.unit.Uptime creationTime);
-    method public androidx.ui.core.PointerId copy(int id, androidx.ui.unit.Uptime creationTime);
+    ctor public PointerId(long value);
+    method public long component1();
+    method public androidx.ui.core.PointerId copy(long value);
+    method public long getValue();
   }
 
   public final class PointerInputChange {
@@ -357,7 +359,7 @@ package androidx.ui.testutils {
 
   public final class PointerInputTestUtilKt {
     method public static androidx.ui.core.PointerInputChange consume(androidx.ui.core.PointerInputChange, float dx = 0f, float dy = 0f, boolean downChange = false);
-    method public static androidx.ui.core.PointerInputChange down(int id = 0, androidx.ui.unit.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
+    method public static androidx.ui.core.PointerInputChange down(long id, androidx.ui.unit.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
     method public static androidx.ui.core.PointerInputChange invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChanges, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange![] pointerInputChanges, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static androidx.ui.core.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChange, androidx.ui.core.PointerEventPass pointerEventPass, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));

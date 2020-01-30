@@ -36,6 +36,8 @@ import java.lang.IllegalStateException
  */
 class MotionEventAdapter {
 
+    private var nextId = 0L
+
     @VisibleForTesting
     internal val intIdToPointerIdMap: MutableMap<Int, PointerId> = mutableMapOf()
 
@@ -99,10 +101,7 @@ class MotionEventAdapter {
         val pointerId =
             when (index) {
                 downIndex ->
-                    PointerId(
-                        pointerIdInt,
-                        Uptime(motionEvent.eventTime * NanosecondsPerMillisecond)
-                    ).also {
+                    PointerId(nextId++).also {
                         intIdToPointerIdMap[pointerIdInt] = it
                     }
                 upIndex ->

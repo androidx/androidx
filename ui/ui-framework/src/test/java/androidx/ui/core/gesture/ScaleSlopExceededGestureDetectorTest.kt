@@ -54,7 +54,7 @@ class ScaleSlopExceededGestureDetectorTest {
 
     @Test
     fun onPointerInputChanges_1PointerMoves10TimesScaleSlopInXAndY_onTouchSlopExceededNotCalled() {
-        var pointer = down()
+        var pointer = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
         pointer = pointer.moveBy(

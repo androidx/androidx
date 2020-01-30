@@ -115,19 +115,19 @@ class PointerInputEventProcessorTest {
 
         val expectedChanges = arrayOf(
             PointerInputChange(
-                id = PointerId(8712, Uptime.Boot),
+                id = PointerId(8712),
                 current = PointerInputData(Uptime.Boot + 3.milliseconds, offset, true),
                 previous = PointerInputData(null, null, false),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
-                id = PointerId(8712, Uptime.Boot),
+                id = PointerId(8712),
                 current = PointerInputData(Uptime.Boot + 11.milliseconds, offset2, true),
                 previous = PointerInputData(Uptime.Boot + 3.milliseconds, offset, true),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
-                id = PointerId(8712, Uptime.Boot),
+                id = PointerId(8712),
                 current = PointerInputData(Uptime.Boot + 13.milliseconds, offset2, false),
                 previous = PointerInputData(Uptime.Boot + 11.milliseconds, offset2, true),
                 consumed = ConsumedData()
@@ -178,7 +178,7 @@ class PointerInputEventProcessorTest {
 
         val expectedChanges = Array(4) { index ->
             PointerInputChange(
-                id = PointerId(index, Uptime.Boot),
+                id = PointerId(index.toLong()),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
                     offsets[index] - childOffset,
@@ -364,7 +364,7 @@ class PointerInputEventProcessorTest {
         // Arrange
 
         val input = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
                 PxPosition(100.px, 0.px),
@@ -374,7 +374,7 @@ class PointerInputEventProcessorTest {
             consumed = ConsumedData(positionChange = PxPosition(0.px, 0.px))
         )
         val output = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
                 PxPosition(100.px, 0.px),
@@ -520,7 +520,7 @@ class PointerInputEventProcessorTest {
 
         val expectedPointerInputChanges = arrayOf(
             PointerInputChange(
-                id = PointerId(0, Uptime.Boot),
+                id = PointerId(0),
                 current = PointerInputData(
                     Uptime.Boot + 7.milliseconds,
                     offset - additionalOffset,
@@ -530,7 +530,7 @@ class PointerInputEventProcessorTest {
                 consumed = ConsumedData()
             ),
             PointerInputChange(
-                id = PointerId(0, Uptime.Boot),
+                id = PointerId(0),
                 current = PointerInputData(
                     Uptime.Boot + 7.milliseconds,
                     offset - middleOffset - additionalOffset,
@@ -540,7 +540,7 @@ class PointerInputEventProcessorTest {
                 consumed = ConsumedData()
             ),
             PointerInputChange(
-                id = PointerId(0, Uptime.Boot),
+                id = PointerId(0),
                 current = PointerInputData(
                     Uptime.Boot + 7.milliseconds,
                     offset - middleOffset - childOffset - additionalOffset,
@@ -622,13 +622,13 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange1 = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 5.milliseconds, offset1, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
-            id = PointerId(1, Uptime.Boot),
+            id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
                 offset2 - PxPosition(50.px, 50.px),
@@ -720,13 +720,13 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange1 = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 5.milliseconds, offset1, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
-            id = PointerId(1, Uptime.Boot),
+            id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
                 offset2 - PxPosition(50.px, 50.px),
@@ -736,7 +736,7 @@ class PointerInputEventProcessorTest {
             consumed = ConsumedData()
         )
         val expectedChange3 = PointerInputChange(
-            id = PointerId(2, Uptime.Boot),
+            id = PointerId(2),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
                 offset3 - PxPosition(100.px, 100.px),
@@ -817,13 +817,13 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange1 = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 7.milliseconds, offset1, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
-            id = PointerId(1, Uptime.Boot),
+            id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 7.milliseconds,
                 offset2 - PxPosition(25.px, 50.px),
@@ -833,7 +833,7 @@ class PointerInputEventProcessorTest {
             consumed = ConsumedData()
         )
         val expectedChange3 = PointerInputChange(
-            id = PointerId(2, Uptime.Boot),
+            id = PointerId(2),
             current = PointerInputData(Uptime.Boot + 7.milliseconds, offset3, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
@@ -911,13 +911,13 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange1 = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 11.milliseconds, offset1, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
-            id = PointerId(1, Uptime.Boot),
+            id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 11.milliseconds,
                 offset2 - PxPosition(50.px, 25.px),
@@ -927,7 +927,7 @@ class PointerInputEventProcessorTest {
             consumed = ConsumedData()
         )
         val expectedChange3 = PointerInputChange(
-            id = PointerId(2, Uptime.Boot),
+            id = PointerId(2),
             current = PointerInputData(Uptime.Boot + 11.milliseconds, offset3, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
@@ -1034,7 +1034,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges =
             (offsetsThatHit.indices).map {
                 PointerInputChange(
-                    id = PointerId(it, Uptime.Boot),
+                    id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
                         offsetsThatHit[it] - PxPosition(100.px, 100.px),
@@ -1131,7 +1131,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges =
             (offsetsThatHit.indices).map {
                 PointerInputChange(
-                    id = PointerId(it, Uptime.Boot),
+                    id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
                         offsetsThatHit[it] - PxPosition(100.px, 100.px),
@@ -1242,7 +1242,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges =
             (offsetsThatHit.indices).map {
                 PointerInputChange(
-                    id = PointerId(it, Uptime.Boot),
+                    id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
                         PxPosition(
@@ -1345,7 +1345,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges =
             (offsetsThatHit.indices).map {
                 PointerInputChange(
-                    id = PointerId(it, Uptime.Boot),
+                    id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
                         offsetsThatHit[it] - PxPosition(50.px, 50.px),
@@ -1442,7 +1442,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges =
             (offsetsThatHit.indices).map {
                 PointerInputChange(
-                    id = PointerId(it, Uptime.Boot),
+                    id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
                         offsetsThatHit[it] - PxPosition(100.px, 100.px),
@@ -1526,7 +1526,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges =
             (offsetsThatHit.indices).map {
                 PointerInputChange(
-                    id = PointerId(it, Uptime.Boot),
+                    id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
                         offsetsThatHit[it] - PxPosition(1.px, 1.px),
@@ -1576,7 +1576,7 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 7.milliseconds,
                 offset1 - PxPosition(25.px, 50.px),
@@ -1647,7 +1647,7 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 7.milliseconds,
                 offset1 - PxPosition(1.px + 2.px + 3.px + 4.px, 5.px + 6.px + 7.px + 8.px),
@@ -1719,7 +1719,7 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange1 = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 3.milliseconds,
                 offset1 - PxPosition(
@@ -1733,7 +1733,7 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedChange2 = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 3.milliseconds,
                 offset1 - PxPosition(3.px + 4.px + 5.px, 8.px + 9.px + 10.px),
@@ -1934,7 +1934,7 @@ class PointerInputEventProcessorTest {
 
         val expectedChange =
             PointerInputChange(
-                id = PointerId(7, Uptime.Boot),
+                id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
                     PxPosition(250.px, 250.px),
@@ -2009,7 +2009,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges1 =
             listOf(
                 PointerInputChange(
-                    id = PointerId(7, Uptime.Boot),
+                    id = PointerId(7),
                     current = PointerInputData(
                         Uptime.Boot + 5.milliseconds,
                         PxPosition(200.px, 200.px),
@@ -2023,7 +2023,7 @@ class PointerInputEventProcessorTest {
         val expectedChanges2 =
             listOf(
                 PointerInputChange(
-                    id = PointerId(7, Uptime.Boot),
+                    id = PointerId(7),
                     current = PointerInputData(
                         Uptime.Boot + 10.milliseconds,
                         PxPosition(200.px, 200.px),
@@ -2037,7 +2037,7 @@ class PointerInputEventProcessorTest {
                     consumed = ConsumedData()
                 ),
                 PointerInputChange(
-                    id = PointerId(9, Uptime.Boot),
+                    id = PointerId(9),
                     current = PointerInputData(
                         Uptime.Boot + 10.milliseconds,
                         PxPosition(300.px, 300.px),
@@ -2120,7 +2120,7 @@ class PointerInputEventProcessorTest {
 
         val expectedChange1 =
             PointerInputChange(
-                id = PointerId(7, Uptime.Boot),
+                id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
                     PxPosition(100.px, 100.px),
@@ -2132,7 +2132,7 @@ class PointerInputEventProcessorTest {
 
         val expectedChange2 =
             PointerInputChange(
-                id = PointerId(9, Uptime.Boot),
+                id = PointerId(9),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
                     PxPosition(100.px, 100.px),
@@ -2207,7 +2207,7 @@ class PointerInputEventProcessorTest {
 
         val expectedDown =
             PointerInputChange(
-                id = PointerId(7, Uptime.Boot),
+                id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
                     PxPosition(200.px, 200.px),
@@ -2219,7 +2219,7 @@ class PointerInputEventProcessorTest {
 
         val expectedMove =
             PointerInputChange(
-                id = PointerId(7, Uptime.Boot),
+                id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 10.milliseconds,
                     PxPosition(300.px, 300.px),
@@ -2286,7 +2286,7 @@ class PointerInputEventProcessorTest {
 
         val expectedDown =
             PointerInputChange(
-                id = PointerId(7, Uptime.Boot),
+                id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
                     PxPosition(200.px, 200.px),
@@ -2349,7 +2349,7 @@ class PointerInputEventProcessorTest {
 
         val expectedDown1 =
             PointerInputChange(
-                id = PointerId(7, Uptime.Boot),
+                id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
                     PxPosition(200.px, 200.px),
@@ -2361,7 +2361,7 @@ class PointerInputEventProcessorTest {
 
         val expectedDown2 =
             PointerInputChange(
-                id = PointerId(7, Uptime.Boot),
+                id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 10.milliseconds,
                     PxPosition(200.px, 200.px),
@@ -2427,14 +2427,14 @@ class PointerInputEventProcessorTest {
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
 
         val expectedDownChange = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
         val expectedUpChange = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 11.milliseconds, null, false),
             previous = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
             consumed = ConsumedData()
@@ -2520,14 +2520,14 @@ class PointerInputEventProcessorTest {
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
 
         val expectedDownChange = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
             previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
         val expectedUpChange = PointerInputChange(
-            id = PointerId(0, Uptime.Boot),
+            id = PointerId(0),
             current = PointerInputData(Uptime.Boot + 11.milliseconds, null, false),
             previous = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
             consumed = ConsumedData()
