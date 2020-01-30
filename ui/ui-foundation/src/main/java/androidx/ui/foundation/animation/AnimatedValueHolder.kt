@@ -34,7 +34,12 @@ import androidx.ui.foundation.gestures.Draggable
 class AnimatedValueHolder(initial: Float) : ValueHolder<Float> {
 
     @Suppress("DEPRECATION")
-    val animatedFloat = AnimatedFloat(ListeneableValueHolder(initial, { value = it }))
+    val animatedFloat = object : AnimatedFloat() {
+        val holder = ListeneableValueHolder(initial, { this@AnimatedValueHolder.value = it })
+        override var value: Float
+            set(value) = holder.onValueChanged(value)
+            get() = holder.current
+    }
 
     /**
      * Sets up the bounds that this value should be constrained to.

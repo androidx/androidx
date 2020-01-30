@@ -48,7 +48,7 @@ class TypeConverterTest {
     }
 
     private fun <V : AnimationVector> verifyV2VConverter(value: V) {
-        val converter = AnimatedVectorValue(value, ManualAnimationClock(0L)).typeConverter
+        val converter = AnimatedVector(value, ManualAnimationClock(0L)).typeConverter
         assertEquals(converter.convertFromVector(value), converter.convertToVector(value))
     }
 

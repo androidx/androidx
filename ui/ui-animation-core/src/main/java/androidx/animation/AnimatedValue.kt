@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.animation.AnimationEndReason.BoundReached
 import androidx.animation.AnimationEndReason.Interrupted
 import androidx.animation.AnimationEndReason.TargetReached
+
 /**
  * This is the base class for [AnimatedValue]. It contains all the functionality of AnimatedValue.
  * It is intended to be used as a base class for the other classes (such as [AnimatedFloat] to build
@@ -29,39 +30,21 @@ import androidx.animation.AnimationEndReason.TargetReached
  * the target changes as the animation is in-flight, the animation is expected to make a continuous
  * transition to the new target.
  *
- * @param valueHolder A value holder whose value gets updated by [BaseAnimatedValue] on every
- *                    animation frame.
  * @param typeConverter A two way type converter that converts from value to [AnimationVector1D],
  *                      [AnimationVector2D], [AnimationVector3D], or [AnimationVector4D], and vice
  *                      versa.
  * @param clock An animation clock observable controlling the progression of the animated value
  */
 sealed class BaseAnimatedValue<T, V : AnimationVector>(
-    private val valueHolder: ValueHolder<T>,
     internal val typeConverter: TwoWayConverter<T, V>,
     private val clock: AnimationClockObservable
 ) {
 
     /**
-     * Creates a [BaseAnimatedValue] instance that starts at the given value, and uses the given
-     * value interpolator
-     *
-     * @param initVal Initial value of the [BaseAnimatedValue]
-     */
-    constructor(
-        initVal: T,
-        typeConverter: TwoWayConverter<T, V>,
-        clock: AnimationClockObservable
-    ) : this(ValueHolder(initVal), typeConverter, clock)
-
-    /**
      * Current value of the animation.
      */
-    var value: T
-        internal set(newVal) {
-            valueHolder.value = newVal
-        }
-        get() = valueHolder.value
+    abstract var value: T
+        protected set
 
     /**
      * Indicates whether the animation is running.
@@ -73,8 +56,26 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
      * The target of the current animation. This target will not be the same as the value of the
      * animation, until the animation finishes un-interrupted.
      */
-    var targetValue: T = valueHolder.value
-        internal set
+    var targetValue: T
+        get() {
+            if (_targetBackingField != null) {
+                return _targetBackingField!!
+            } else {
+                return value
+            }
+        }
+        internal set(newTarget) {
+            _targetBackingField = newTarget
+        }
+
+    // TODO: remove the backing field when b/148422703 is fixed
+    private var _targetBackingField: T? = null
+        get() {
+            if (field == null) {
+                field = value
+            }
+            return field
+        }
 
     /**
      * Velocity of the animation. The velocity will be of [AnimationVector1D], [AnimationVector2D],
@@ -282,23 +283,13 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
  * transition AnimatedValue from its current value (i.e. value at the point of interruption) to the
  * new target. This ensures that the value change is always continuous.
  *
- * @param valueHolder A value holder whose value field will be updated during animations
  */
-class AnimatedValue<T, V : AnimationVector>(
-    valueHolder: ValueHolder<T>,
+abstract class AnimatedValue<T, V : AnimationVector>(
     typeConverter: TwoWayConverter<T, V>,
     clock: AnimationClockObservable
-) : BaseAnimatedValue<T, V>(valueHolder, typeConverter, clock) {
+) : BaseAnimatedValue<T, V>(typeConverter, clock) {
     val velocity: V
         get() = velocityVector
-}
-
-// TODO class description
-class AnimatedVectorValue<V : AnimationVector>(
-    valueHolder: ValueHolder<V>,
-    clock: AnimationClockObservable
-) : BaseAnimatedValue<V, V>(valueHolder, valueHolder.value.createPassThroughConverter(), clock) {
-    constructor(initVal: V, clock: AnimationClockObservable) : this(ValueHolder(initVal), clock)
 }
 
 /**
@@ -307,18 +298,14 @@ class AnimatedVectorValue<V : AnimationVector>(
  * animation will consider itself finished when it reaches the upper or lower bound, even when the
  * velocity is non-zero.
  *
- * @param valueHolder A value holder of Float type whose value field will be updated during
- *                    animations
  * @param clock An animation clock observable controlling the progression of the animated value
  */
-class AnimatedFloat(
-    valueHolder: ValueHolder<Float>,
+abstract class AnimatedFloat(
     clock: AnimationClockObservable
-) : BaseAnimatedValue<Float, AnimationVector1D>(valueHolder, FloatToVectorConverter, clock) {
-    constructor(initVal: Float, clock: AnimationClockObservable) : this(ValueHolder(initVal), clock)
+) : BaseAnimatedValue<Float, AnimationVector1D>(FloatToVectorConverter, clock) {
 
     @Deprecated("This method is to support existing APIs not providing clocks.")
-    constructor(valueHolder: ValueHolder<Float>) : this(valueHolder, DefaultAnimationClock())
+    constructor() : this(DefaultAnimationClock())
 
     /**
      * Lower bound of the animation value. When animations reach this lower bound, it will
@@ -466,3 +453,58 @@ fun AnimatedFloat.fling(
 }
 
 private const val Unset: Long = -1
+
+/**
+ * Factory method for creating an [AnimatedValue] object, and initialize the value field to
+ * [initVal].
+ *
+ * @param initVal Initial value to initialize the animation to.
+ * @param typeConverter Converter for converting value type [T] to [AnimationVector], and vice versa
+ * @param clock The animation clock used to drive the animation.
+ */
+fun <T, V : AnimationVector> AnimatedValue(
+    initVal: T,
+    typeConverter: TwoWayConverter<T, V>,
+    clock: AnimationClockObservable
+): AnimatedValue<T, V> =
+    AnimatedValueImpl(initVal, typeConverter, clock)
+
+/**
+ * Factory method for creating an [AnimatedVector] object, and initialize the value field to
+ * [initVal].
+ *
+ * @param initVal Initial value to initialize the animation to.
+ * @param clock The animation clock used to drive the animation.
+ */
+fun <V : AnimationVector> AnimatedVector(
+    initVal: V,
+    clock: AnimationClockObservable
+): AnimatedValue<V, V> =
+    AnimatedValueImpl(initVal, initVal.createPassThroughConverter(), clock)
+
+/**
+ * Factory method for creating an [AnimatedFloat] object, and initialize the value field to
+ * [initVal].
+ *
+ * @param initVal Initial value to initialize the animation to.
+ * @param clock The animation clock used to drive the animation.
+ */
+fun AnimatedFloat(initVal: Float, clock: AnimationClockObservable): AnimatedFloat =
+    AnimatedFloatImpl(initVal, clock)
+
+// Private impl for AnimatedValue
+private class AnimatedValueImpl<T, V : AnimationVector>(
+    initVal: T,
+    typeConverter: TwoWayConverter<T, V>,
+    clock: AnimationClockObservable
+) : AnimatedValue<T, V>(typeConverter, clock) {
+    override var value: T = initVal
+}
+
+// Private impl for AnimatedFloat
+private class AnimatedFloatImpl(
+    initVal: Float,
+    clock: AnimationClockObservable
+) : AnimatedFloat(clock) {
+    override var value: Float = initVal
+}
