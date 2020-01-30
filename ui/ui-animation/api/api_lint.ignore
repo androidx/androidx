@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AutoBoxing: androidx.ui.animation.AnimatedFloatModel#getValue():
+    Must avoid boxed primitives (`java.lang.Float`)
