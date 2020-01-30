@@ -193,7 +193,7 @@ public final class ImageAnalysis extends UseCase {
                         getImageFormat(),
                         imageQueueDepth);
 
-        tryUpdateRelativeRotation(cameraId);
+        tryUpdateRelativeRotation();
 
         mImageAnalysisAbstractAnalyzer.open();
         imageReaderProxy.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
@@ -308,7 +308,7 @@ public final class ImageAnalysis extends UseCase {
             // Old
             // configuration lens facing should match new configuration.
             try {
-                tryUpdateRelativeRotation(getBoundCameraId());
+                tryUpdateRelativeRotation();
             } catch (Exception e) {
                 // Likely don't yet have permissions. This is expected if this method is called
                 // before
@@ -409,9 +409,9 @@ public final class ImageAnalysis extends UseCase {
         return suggestedResolutionMap;
     }
 
-    private void tryUpdateRelativeRotation(String cameraId) {
+    private void tryUpdateRelativeRotation() {
         ImageOutputConfig config = (ImageOutputConfig) getUseCaseConfig();
-        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        CameraInfoInternal cameraInfoInternal = getBoundCamera().getCameraInfoInternal();
         mImageAnalysisAbstractAnalyzer.setRelativeRotation(
                 cameraInfoInternal.getSensorRotationDegrees(
                         config.getTargetRotation(Surface.ROTATION_0)));
