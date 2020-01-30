@@ -21,7 +21,7 @@ import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
@@ -58,7 +58,7 @@ fun DoubleTapGestureDetector(
     val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
     recognizer.onDoubleTap = onDoubleTap
 
-    PointerInputWrapper(
+    PointerInput(
         pointerInputHandler = recognizer.pointerInputHandler,
         cancelHandler = recognizer.cancelHandler,
         children = children

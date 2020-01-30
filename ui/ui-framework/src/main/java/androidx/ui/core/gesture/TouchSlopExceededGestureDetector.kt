@@ -21,13 +21,11 @@ import androidx.compose.remember
 import androidx.ui.core.Direction
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.positionChange
-import androidx.ui.core.PointerInputWrapper
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.PointerId
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -57,7 +55,7 @@ fun TouchSlopExceededGestureDetector(
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded
 
-    PointerInputWrapper(
+    PointerInput(
         pointerInputHandler = recognizer.pointerInputHandler,
         cancelHandler = recognizer.cancelHandler,
         children = children

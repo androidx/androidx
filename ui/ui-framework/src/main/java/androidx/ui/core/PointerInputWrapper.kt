@@ -17,9 +17,32 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 
-// TODO: Rename
+/**
+ * [PointerInput] is the compose ui core component for receiving and interacting with pointer input.
+ *
+ * Pointer input includes all user input related to 2d positioning on the screen.  This includes
+ * (but is not necessarily limited to) fingers touching the screen, a mouse moving across the
+ * screen, and stylus input.
+ *
+ * [PointerInput] takes the virtual size of all of it's descendant [Layout] nodes and when a pointer
+ * comes in contact with the screen, hit testing is automatically done using that virtual size.
+ *
+ * [pointerInputHandler] is invoked when pointers that have hit tested positive change.
+ *
+ * [cancelHandler] is invoked to notify the handler that no more calls to pointerInputHandler will
+ * be made, until at least new pointers exist.  This can occur for a few reasons:
+ * 1. Android dispatches ACTION_CANCEL to [AndroidComposeView.onTouchEvent].
+ * 2. The PointerInputNode has been removed from the compose hierarchy.
+ * 3. The PointerInputNode no longer has any descendant [LayoutNode]s and therefore does not
+ * know what region of the screen it should virtually exist in.
+ *
+ * @param pointerInputHandler Invoked when pointers that have hit this [PointerInput] change.
+ * @param cancelHandler Invoked when a cancellation event occurs.
+ * @param children The children composable that will be composed as a child, or children, of this
+ * [PointerInput].
+ */
 @Composable
-inline fun PointerInputWrapper(
+inline fun PointerInput(
     noinline pointerInputHandler: PointerInputHandler,
     noinline cancelHandler: () -> Unit,
     crossinline children: @Composable() () -> Unit
