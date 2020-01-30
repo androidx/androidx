@@ -62,7 +62,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
 
     @NonNull
     @Override
-    public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
+    public Preview.SurfaceProvider getSurfaceProvider() {
         return (resolution, surfaceReleaseFuture) -> {
             mResolution = resolution;
             initInternal();

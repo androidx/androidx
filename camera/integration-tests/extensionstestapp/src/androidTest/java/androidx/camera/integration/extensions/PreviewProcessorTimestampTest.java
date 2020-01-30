@@ -247,7 +247,7 @@ public class PreviewProcessorTimestampTest {
         Preview preview = mPreviewBuilder.build();
 
         // To set the update listener and Preview will change to active state.
-        preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
+        preview.setSurfaceProvider(createSurfaceTextureProvider(
                 new SurfaceTextureProvider.SurfaceTextureCallback() {
                     @Override
                     public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,

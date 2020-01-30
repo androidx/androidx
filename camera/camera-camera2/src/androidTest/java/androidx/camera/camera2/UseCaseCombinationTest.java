@@ -117,7 +117,7 @@ public final class UseCaseCombinationTest {
         initPreview();
         initImageCapture();
         mInstrumentation.runOnMainSync(() -> {
-            mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
+            mPreview.setSurfaceProvider(createSurfaceTextureProvider(
                     new SurfaceTextureProvider.SurfaceTextureCallback() {
                         boolean mIsSurfaceTextureReleased = false;
                         Object mIsSurfaceTextureReleasedLock = new Object();

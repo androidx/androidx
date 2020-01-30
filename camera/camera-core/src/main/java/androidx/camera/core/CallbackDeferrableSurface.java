@@ -31,7 +31,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * A {@link DeferrableSurface} wraps around user provided {@link Preview.PreviewSurfaceProvider}
+ * A {@link DeferrableSurface} wraps around user provided {@link Preview.SurfaceProvider}
  * and {@link Executor}.
  */
 final class CallbackDeferrableSurface extends DeferrableSurface implements SurfaceHolder {
@@ -44,13 +44,13 @@ final class CallbackDeferrableSurface extends DeferrableSurface implements Surfa
     private Executor mCallbackExecutor;
 
     CallbackDeferrableSurface(@NonNull Size resolution, @NonNull Executor callbackExecutor,
-            @NonNull Preview.PreviewSurfaceProvider previewSurfaceProvider) {
+            @NonNull Preview.SurfaceProvider surfaceProvider) {
         mCallbackExecutor = callbackExecutor;
         // Re-wrap user's ListenableFuture with user's executor.
         mSurfaceFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     callbackExecutor.execute(() -> Futures.propagate(
-                            previewSurfaceProvider.provideSurface(resolution,
+                            surfaceProvider.provideSurface(resolution,
                                     CallbackToFutureAdapter.getFuture(
                                             cancellationCompleter -> {
                                                 mCancellationCompleter = cancellationCompleter;

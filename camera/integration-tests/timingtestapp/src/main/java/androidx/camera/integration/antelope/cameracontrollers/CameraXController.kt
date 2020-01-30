@@ -101,34 +101,33 @@ internal fun cameraXOpenCamera(
 
         // Set preview to observe the surface texture
         activity.runOnUiThread {
-            previewUseCase.previewSurfaceProvider =
-                Preview.PreviewSurfaceProvider { resolution, surfaceReleaseFuture ->
-                    // Create the SurfaceTexture and Surface
-                    val surfaceTexture = SurfaceTexture(0)
-                    surfaceTexture.setDefaultBufferSize(resolution.width, resolution.height)
-                    surfaceTexture.detachFromGLContext()
-                    val surface = Surface(surfaceTexture)
+            previewUseCase.setSurfaceProvider { resolution, surfaceReleaseFuture ->
+                // Create the SurfaceTexture and Surface
+                val surfaceTexture = SurfaceTexture(0)
+                surfaceTexture.setDefaultBufferSize(resolution.width, resolution.height)
+                surfaceTexture.detachFromGLContext()
+                val surface = Surface(surfaceTexture)
 
-                    // Attach the SurfaceTexture on the TextureView
-                    if (!isCameraSurfaceTextureReleased(surfaceTexture)) {
-                        val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
-                        viewGroup.removeView(params.cameraXPreviewTexture)
-                        viewGroup.addView(params.cameraXPreviewTexture)
-                        params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
-                    }
-
-                    // Release the SurfaceTexture and Surface once camera is done with it
-                    surfaceReleaseFuture.addListener(
-                        Runnable {
-                            surface.release()
-                            surfaceTexture.release()
-                        },
-                        CameraXExecutors.directExecutor()
-                    )
-
-                    // Surface provided to camera for producing buffers into
-                    Futures.immediateFuture(surface)
+                // Attach the SurfaceTexture on the TextureView
+                if (!isCameraSurfaceTextureReleased(surfaceTexture)) {
+                    val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
+                    viewGroup.removeView(params.cameraXPreviewTexture)
+                    viewGroup.addView(params.cameraXPreviewTexture)
+                    params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
                 }
+
+                // Release the SurfaceTexture and Surface once camera is done with it
+                surfaceReleaseFuture.addListener(
+                    Runnable {
+                        surface.release()
+                        surfaceTexture.release()
+                    },
+                    CameraXExecutors.directExecutor()
+                )
+
+                // Surface provided to camera for producing buffers into
+                Futures.immediateFuture(surface)
+            }
         }
 
         // TODO: As of 0.3.0 CameraX can only use front and back cameras.

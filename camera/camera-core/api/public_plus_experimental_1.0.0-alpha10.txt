@@ -216,10 +216,9 @@ package androidx.camera.core {
   }
 
   public final class Preview extends androidx.camera.core.UseCase {
-    method @UiThread public androidx.camera.core.Preview.PreviewSurfaceProvider? getPreviewSurfaceProvider();
     method public int getTargetRotation();
-    method @UiThread public void setPreviewSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.PreviewSurfaceProvider?);
-    method @UiThread public void setPreviewSurfaceProvider(androidx.camera.core.Preview.PreviewSurfaceProvider?);
+    method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
+    method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
   }
 
   public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview> {
@@ -231,7 +230,7 @@ package androidx.camera.core {
     method public androidx.camera.core.Preview.Builder setTargetRotation(int);
   }
 
-  public static interface Preview.PreviewSurfaceProvider {
+  public static interface Preview.SurfaceProvider {
     method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> provideSurface(android.util.Size, com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>);
   }
 

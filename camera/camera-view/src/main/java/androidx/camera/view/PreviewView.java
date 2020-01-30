@@ -153,12 +153,12 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Gets the {@link Preview.PreviewSurfaceProvider} to be used with
-     * {@link Preview#setPreviewSurfaceProvider(Executor, Preview.PreviewSurfaceProvider)}.
+     * Gets the {@link Preview.SurfaceProvider} to be used with
+     * {@link Preview#setSurfaceProvider(Executor, Preview.SurfaceProvider)}.
      */
     @NonNull
-    public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
-        return mImplementation.getPreviewSurfaceProvider();
+    public Preview.SurfaceProvider getPreviewSurfaceProvider() {
+        return mImplementation.getSurfaceProvider();
     }
 
     /**
@@ -174,10 +174,10 @@ public class PreviewView extends FrameLayout {
         void init(@NonNull FrameLayout parent);
 
         /**
-         * Gets the {@link Preview.PreviewSurfaceProvider} to be used with {@link Preview}.
+         * Gets the {@link Preview.SurfaceProvider} to be used with {@link Preview}.
          */
         @NonNull
-        Preview.PreviewSurfaceProvider getPreviewSurfaceProvider();
+        Preview.SurfaceProvider getSurfaceProvider();
 
         /**
          *  Notifies that the display properties have changed.
