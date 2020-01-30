@@ -218,7 +218,7 @@ function tryToDiagnosePossibleDaemonFailure() {
     if [ -n "$DIST_DIR" ]; then
       cp -r "$GRADLE_USER_HOME/daemon" "$DIST_DIR/gradle-daemon"
       # TODO (146217083): consider removing this after the Gradle daemons stop occasionally dying
-      echo "Current java processes: '$(ps -ef | grep java)'"
+      echo "Current java processes: '$(ps -eF | grep java)'"
     fi
   fi
 }
