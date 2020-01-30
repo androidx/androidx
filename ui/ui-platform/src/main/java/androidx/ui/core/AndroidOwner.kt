@@ -1330,8 +1330,6 @@ private class OutlineResolver(private val density: Density) {
         if (hasElevation) {
             if (path.isConvex) {
                 cachedOutline.setConvexPath(path)
-            } else {
-                throw IllegalStateException("Only convex paths can be used for drawing the shadow!")
             }
         } else {
             cachedOutline.setEmpty()

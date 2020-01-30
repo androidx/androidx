@@ -57,7 +57,7 @@ fun TextTabs() {
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     Column {
         TabRow(items = titles, selectedIndex = state.value) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -73,7 +73,7 @@ fun IconTabs(image: Image) {
     val icons = listOf(image, image, image)
     Column {
         TabRow(items = icons, selectedIndex = state.value) { index, icon ->
-            Tab(icon = icon, selected = state.value == index) { state.value = index }
+            Tab(icon = icon, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -92,9 +92,9 @@ fun TextAndIconTabs(image: Image) {
     Column {
         TabRow(items = titlesAndIcons, selectedIndex = state.value) { index, data ->
             val (title, icon) = data
-            Tab(text = title, icon = icon, selected = state.value == index) {
+            Tab(text = title, icon = icon, selected = state.value == index, onSelected = {
                 state.value = index
-            }
+            })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -121,7 +121,7 @@ fun ScrollingTextTabs() {
     )
     Column {
         TabRow(items = titles, selectedIndex = state.value, scrollable = true) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -171,7 +171,7 @@ fun FancyIndicatorTabs() {
             selectedIndex = state.value,
             indicatorContainer = indicatorContainer
         ) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -197,7 +197,7 @@ fun FancyIndicatorContainerTabs() {
             selectedIndex = state.value,
             indicatorContainer = indicatorContainer
         ) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -233,7 +233,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
             indicatorContainer = indicatorContainer,
             scrollable = true
         ) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
