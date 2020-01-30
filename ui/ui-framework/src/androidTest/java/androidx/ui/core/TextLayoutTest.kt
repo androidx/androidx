@@ -21,6 +21,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.R
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
@@ -32,6 +33,10 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.withDensity
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -173,6 +178,24 @@ class TextLayoutTest {
             }
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testOnTextLayout() = withDensity(density) {
+        val layoutLatch = CountDownLatch(2)
+        val callback = mock<(TextLayoutResult) -> Unit>()
+        show {
+            val text = @Composable {
+                Text("aa", onTextLayout = callback)
+            }
+            Layout(text) { measurables, _ ->
+                measurables.first().measure(Constraints())
+                layoutLatch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        verify(callback, times(1)).invoke(any())
     }
 
     private fun show(composable: @Composable() () -> Unit) {
