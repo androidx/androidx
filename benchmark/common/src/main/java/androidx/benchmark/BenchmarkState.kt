@@ -24,7 +24,6 @@ import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.benchmark.Arguments.ProfilingMode
 import androidx.benchmark.Errors.PREFIX
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -214,23 +213,30 @@ class BenchmarkState {
     }
 
     private fun beginBenchmark() {
-        if (Arguments.profilingMode != ProfilingMode.None) {
-            val path = File(
-                Arguments.testOutputDir,
-                "$traceUniqueName-${Arguments.profilingMode}.trace"
-            ).absolutePath
+        when (Arguments.profilingMode) {
+            ProfilingMode.Sampled, ProfilingMode.Method -> {
+                val path = File(
+                    Arguments.testOutputDir,
+                    "$traceUniqueName-${Arguments.profilingMode}.trace"
+                ).absolutePath
 
-            Log.d(TAG, "Profiling output file: $path")
+                Log.d(TAG, "Profiling output file: $path")
 
-            val bufferSize = 16 * 1024 * 1024
-            if (Arguments.profilingMode == ProfilingMode.Sampled &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-            ) {
-                Debug.startMethodTracingSampling(path, bufferSize, 100)
-            } else {
-                Debug.startMethodTracing(path, bufferSize, 0)
+                val bufferSize = 16 * 1024 * 1024
+                if (Arguments.profilingMode == ProfilingMode.Sampled &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                ) {
+                    Debug.startMethodTracingSampling(path, bufferSize, 100)
+                } else {
+                    Debug.startMethodTracing(path, bufferSize, 0)
+                }
             }
+            ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
+                Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
+            }
+            else -> {}
         }
+
         maxIterations = OVERRIDE_ITERATIONS ?: computeIterationsFromWarmup()
         pausedDurationNs = 0
         iterationsRemaining = maxIterations
@@ -243,8 +249,14 @@ class BenchmarkState {
 
     private fun endBenchmark() {
         endTraceSection() // paired with start in beginBenchmark()
-        if (Arguments.profilingMode != ProfilingMode.None) {
-            Debug.stopMethodTracing()
+        when (Arguments.profilingMode) {
+            ProfilingMode.Sampled, ProfilingMode.Method -> {
+                Debug.stopMethodTracing()
+            }
+            ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
+                Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
+            }
+            else -> {}
         }
         ThreadPriority.resetBumpedThread()
         warmupManager.logInfo()
@@ -350,9 +362,7 @@ class BenchmarkState {
     internal fun keepRunningInternal(): Boolean {
         when (state) {
             NOT_STARTED -> {
-                if (Errors.UNSUPPRESSED_WARNING_MESSAGE != null) {
-                    throw AssertionError(Errors.UNSUPPRESSED_WARNING_MESSAGE)
-                }
+                Errors.throwIfError()
                 if (!firstBenchmark && Arguments.startupMode) {
                     throw AssertionError(
                         "Error - multiple benchmarks in startup mode. Only one " +
@@ -513,23 +523,29 @@ class BenchmarkState {
         private const val RUNNING = 2 // The benchmark is running.
         private const val FINISHED = 3 // The benchmark has stopped.
 
+        private const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
+
         // Values determined empirically.
         @VisibleForTesting
         internal val REPEAT_COUNT = when {
             Arguments.dryRunMode -> 1
+            Arguments.profilingMode == ProfilingMode.ConnectedAllocation -> 1
             Arguments.startupMode -> 10
             else -> 50
         }
-        private val OVERRIDE_ITERATIONS = when {
-            Arguments.dryRunMode || Arguments.startupMode -> 1
-            else -> null
-        }
+
+        private val OVERRIDE_ITERATIONS = if (
+            Arguments.dryRunMode ||
+            Arguments.startupMode ||
+            Arguments.profilingMode == ProfilingMode.ConnectedAllocation
+        ) 1 else null
+
         private val TARGET_TEST_DURATION_NS = when (Arguments.profilingMode) {
-            ProfilingMode.None -> TimeUnit.MICROSECONDS.toNanos(500)
+            ProfilingMode.None, ProfilingMode.Method -> TimeUnit.MICROSECONDS.toNanos(500)
             // longer measurements while profiling to ensure we have enough data
-            else -> TimeUnit.MILLISECONDS.toNanos(5)
+            else -> TimeUnit.MILLISECONDS.toNanos(20)
         }
-        private const val MAX_TEST_ITERATIONS = 1000000
+        private const val MAX_TEST_ITERATIONS = 1_000_000
         private const val MIN_TEST_ITERATIONS = 1
 
         private const val THROTTLE_MAX_RETRIES = 3
