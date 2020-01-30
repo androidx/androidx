@@ -27,5 +27,5 @@ mkdir -p "$DIST_DIR"
 cd "$SCRIPT_DIR/../../../.."
 
 # run gradle
-echoAndDo OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    "$@"
 echoAndDo OUT_DIR=out/ui DIST_DIR=$DIST_DIR/ui ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui "$@"
+echoAndDo OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    "$@"
