@@ -178,7 +178,7 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     /**
-     * Retrieve idling resource that waits for capture to complete (save or error).
+     * Retrieve idling resource that waits for view to display frames before proceeding.
      */
     @VisibleForTesting
     public void resetViewIdlingResource() {
