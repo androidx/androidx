@@ -494,6 +494,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! setRemoteInputHistory(CharSequence![]!);
     method public androidx.core.app.NotificationCompat.Builder! setShortcutId(String!);
     method public androidx.core.app.NotificationCompat.Builder! setShowWhen(boolean);
+    method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setSmallIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.Builder! setSmallIcon(int);
     method public androidx.core.app.NotificationCompat.Builder! setSmallIcon(int, int);
     method public androidx.core.app.NotificationCompat.Builder! setSortKey(String!);

@@ -41,6 +41,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -361,6 +362,18 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .getAllowGeneratedReplies());
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void testNotificationSmallIcon() {
+        Icon icon = Icon.createWithResource(mContext, R.drawable.notification_action_background);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, null);
+
+        builder.setSmallIcon(icon);
+
+        Notification notification = builder.build();
+
+        assertEquals(icon, notification.getSmallIcon());
+    }
 
     @SdkSuppress(maxSdkVersion = 16)
     @SmallTest
