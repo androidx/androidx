@@ -45,7 +45,7 @@ internal object Errors {
     private const val TAG = "Benchmark"
 
     val PREFIX: String
-    val UNSUPPRESSED_WARNING_MESSAGE: String?
+    private val UNSUPPRESSED_WARNING_MESSAGE: String?
     private var warningString: String? = null
 
     /**
@@ -87,12 +87,18 @@ internal object Errors {
             "/su/bin/su"
         ).any { File(it).exists() }
 
+    /**
+     * Note: initialization may not occur before entering BenchmarkState code, since we assert
+     * state (like activity presence) that only happens during benchmark run. For this reason, be
+     * _very_ careful about where this object is accessed.
+     */
     init {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val appInfo = context.applicationInfo
         var warningPrefix = ""
         var warningString = ""
-        if (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
+        if (!Arguments.profilingMode.requiresDebuggable() &&
+            (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)) {
             warningPrefix += "DEBUGGABLE_"
             warningString += """
                 |WARNING: Debuggable Benchmark
@@ -190,10 +196,10 @@ internal object Errors {
             """.trimMarginWrapNewlines()
         }
 
-        if (Arguments.profilingMode != Arguments.ProfilingMode.None) {
+        if (Arguments.profilingMode != ProfilingMode.None) {
             warningPrefix += "PROFILED_"
             warningString += """
-                |WARNING: Benchmark capturing profile information, results affected.
+                |WARNING: Profiling mode=${Arguments.profilingMode}, results will be affected.
             """.trimMarginWrapNewlines()
         }
 
@@ -228,6 +234,21 @@ internal object Errors {
             """.trimMargin()
         } else {
             null
+        }
+    }
+
+    /**
+     * We don't throw immediately when the error is detected, since this will result in an error
+     * deeply buried in a stack of intializer errors. Instead, they're deferred until this method
+     * call.
+     */
+    fun throwIfError() {
+        if (UNSUPPRESSED_WARNING_MESSAGE != null) {
+            throw AssertionError(UNSUPPRESSED_WARNING_MESSAGE)
+        }
+
+        if (Arguments.error != null) {
+            throw AssertionError(Arguments.error)
         }
     }
 }
