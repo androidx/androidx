@@ -316,6 +316,23 @@ public class Preview extends UseCase {
         attachToCamera(cameraId, createPipeline(cameraId, config, resolution).build());
     }
 
+    /**
+     * Returns the rotation that the intended target resolution is expressed in.
+     *
+     * <p>
+     * The rotation is set when constructing an {@link Preview} instance using
+     * {@link Preview.Builder#setTargetRotation(int)}. If not set, the target rotation defaults to
+     * the value of {@link Display#getRotation()} of the default display at the time the use case
+     * is created.
+     * </p>
+     *
+     * @return The rotation of the intended target.
+     */
+    @ImageOutputConfig.RotationValue
+    public int getTargetRotation() {
+        return ((PreviewConfig) getUseCaseConfig()).getTargetRotation();
+    }
+
     @NonNull
     @Override
     public String toString() {
