@@ -41,6 +41,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
@@ -55,9 +56,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
-
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -137,8 +135,9 @@ public final class PreviewTest {
     @Test
     public void surfaceProvider_isUsedAfterSetting() {
         Preview.SurfaceProvider surfaceProvider = mock(Preview.SurfaceProvider.class);
-        doAnswer(args -> Futures.immediateCancelledFuture()).when(surfaceProvider).provideSurface(
-                any(Size.class), any(ListenableFuture.class));
+        doAnswer(args -> ((SurfaceRequest) args.getArgument(0)).setWillNotComplete()).when(
+                surfaceProvider).onSurfaceRequested(
+                any(SurfaceRequest.class));
 
         mInstrumentation.runOnMainSync(() -> {
             Preview preview = mDefaultBuilder.build();
@@ -148,8 +147,8 @@ public final class PreviewTest {
             mLifecycleOwner.startAndResume();
         });
 
-        verify(surfaceProvider, timeout(3000)).provideSurface(any(Size.class),
-                any(ListenableFuture.class));
+        verify(surfaceProvider, timeout(3000)).onSurfaceRequested(
+                any(SurfaceRequest.class));
     }
 
     @Test

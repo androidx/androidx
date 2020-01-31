@@ -20,7 +20,6 @@ import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directEx
 
 import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -41,12 +40,10 @@ import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Executor;
-
 /**
  * A {@link DeferrableSurface} that does processing and outputs a {@link SurfaceTexture}.
  */
-final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder {
+final class ProcessingSurface extends DeferrableSurface {
     private static final String TAG = "ProcessingSurfaceTextur";
 
     // Synthetic Accessor
@@ -56,11 +53,12 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
     // Callback when Image is ready from InputImageReader.
     private final ImageReaderProxy.OnImageAvailableListener mTransformedListener =
             new ImageReaderProxy.OnImageAvailableListener() {
-                // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
                 @SuppressWarnings("GuardedBy")
                 @Override
                 public void onImageAvailable(@NonNull ImageReaderProxy reader) {
-                    imageIncoming(reader);
+                    synchronized (mLock) {
+                        imageIncoming(reader);
+                    }
                 }
             };
 
@@ -85,16 +83,6 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
     // Maximum number of images in the input ImageReader
     private static final int MAX_IMAGES = 2;
 
-    // The output SurfaceTexture
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
-    SurfaceTexture mSurfaceTexture;
-
-    // The Surface that is backed by mSurfaceTexture
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
-    Surface mSurfaceTextureSurface;
-
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final CaptureStage mCaptureStage;
 
@@ -104,11 +92,10 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
     final CaptureProcessor mCaptureProcessor;
 
     private final CameraCaptureCallback mCameraCaptureCallback;
-    private final CallbackDeferrableSurface mCallbackDeferrableSurface;
+    private final DeferrableSurface mOutputDeferrableSurface;
 
     /**
      * Create a {@link ProcessingSurface} with specific configurations.
-     *
      * @param width                     Width of the ImageReader
      * @param height                    Height of the ImageReader
      * @param format                    Image format
@@ -121,12 +108,12 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
      * @param captureStage              The {@link CaptureStage} includes the processing information
      * @param captureProcessor          The {@link CaptureProcessor} to be invoked when the
      *                                  Images are ready
-     * @param callbackDeferrableSurface the {@link CallbackDeferrableSurface} wrapping user
-     *                                  provided {@link Surface} and {@link Executor}
+     * @param outputSurface             The {@link DeferrableSurface} used as the output of
+     *                                  processing.
      */
     ProcessingSurface(int width, int height, int format, @Nullable Handler handler,
             @NonNull CaptureStage captureStage, @NonNull CaptureProcessor captureProcessor,
-            @NonNull CallbackDeferrableSurface callbackDeferrableSurface) {
+            @NonNull DeferrableSurface outputSurface) {
 
         mResolution = new Size(width, height);
 
@@ -137,8 +124,8 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
 
             if (looper == null) {
                 throw new IllegalStateException(
-                        "Creating a ProcessingSurfaceTexture requires a non-null Handler, or be "
-                                + "created on a thread with a Looper.");
+                        "Creating a ProcessingSurface requires a non-null Handler, or be created "
+                                + " on a thread with a Looper.");
             }
 
             mImageReaderHandler = new Handler(looper);
@@ -161,9 +148,9 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
         mCaptureStage = captureStage;
 
         // output
-        mCallbackDeferrableSurface = callbackDeferrableSurface;
+        mOutputDeferrableSurface = outputSurface;
 
-        Futures.addCallback(callbackDeferrableSurface.getSurface(),
+        Futures.addCallback(outputSurface.getSurface(),
                 new FutureCallback<Surface>() {
                     @Override
                     public void onSuccess(@Nullable Surface surface) {
@@ -178,6 +165,7 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
                     }
                 }, directExecutor());
 
+        getTerminationFuture().addListener(this::release, directExecutor());
     }
 
     @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
@@ -196,7 +184,7 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
     CameraCaptureCallback getCameraCaptureCallback() {
         synchronized (mLock) {
             if (mReleased) {
-                throw new IllegalStateException("ProcessingSurfaceTexture already released!");
+                throw new IllegalStateException("ProcessingSurface already released!");
             }
 
             return mCameraCaptureCallback;
@@ -206,55 +194,27 @@ final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder
     /**
      * Close the {@link ProcessingSurface}.
      *
-     * <p> After closing the ProcessingSurfaceTexture it should not be used again. A new instance
-     * should be created. This should only be called by the consumer thread.
+     * <p> After closing the ProcessingSurface it should not be used again. A new instance
+     * should be created.
+     *
+     * <p>This should only be called once the ProcessingSurface has been terminated, i.e., it's
+     * termination future retrieved via {@link #getTerminationFuture()}} has completed.
      */
-    @Override
-    public void release() {
+    private void release() {
         synchronized (mLock) {
             if (mReleased) {
                 return;
             }
-            if (mCallbackDeferrableSurface == null) {
-                mSurfaceTexture.release();
-                mSurfaceTexture = null;
-                mSurfaceTextureSurface.release();
-                mSurfaceTextureSurface = null;
-            } else {
-                mCallbackDeferrableSurface.release();
-            }
 
-            mReleased = true;
-
-            // Remove the previous listener so that if an image is queued it will not be processed.
-            mInputImageReader.setOnImageAvailableListener(
-                    new ImageReaderProxy.OnImageAvailableListener() {
-                        @Override
-                        public void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
-                            try (ImageProxy image = imageReaderProxy.acquireLatestImage()) {
-                                // Do nothing with image since simply emptying the queue
-                            } catch (IllegalStateException e) {
-                                // This might be thrown because mInputImageReader.close() might be
-                                // called on another thread. However, we can ignore because we are
-                                // simply emptying the queue.
-                            }
-                        }
-                    },
-                    AsyncTask.THREAD_POOL_EXECUTOR
-            );
-
-            // Need to wait for Surface has been detached before closing it
-            getTerminationFuture().addListener(this::closeInputs, directExecutor());
-            close();
-        }
-    }
-
-    // Inputs need to wait until DeferrableSurfaces are detached before closing
-    @SuppressWarnings("WeakerAccess")
-    void closeInputs() {
-        synchronized (mLock) {
+            // Since the ProcessingSurface DeferrableSurface has been terminated, it is safe to
+            // close the inputs.
             mInputImageReader.close();
             mInputSurface.release();
+
+            // Now that the inputs are closed, we can close the output surface.
+            mOutputDeferrableSurface.close();
+
+            mReleased = true;
         }
     }
 

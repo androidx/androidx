@@ -41,7 +41,6 @@ import androidx.camera.integration.antelope.TestType
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.concurrent.futures.await
 import androidx.lifecycle.LifecycleOwner
-import com.google.common.util.concurrent.Futures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -101,10 +100,11 @@ internal fun cameraXOpenCamera(
 
         // Set preview to observe the surface texture
         activity.runOnUiThread {
-            previewUseCase.setSurfaceProvider { resolution, surfaceReleaseFuture ->
+            previewUseCase.setSurfaceProvider { surfaceRequest ->
                 // Create the SurfaceTexture and Surface
                 val surfaceTexture = SurfaceTexture(0)
-                surfaceTexture.setDefaultBufferSize(resolution.width, resolution.height)
+                surfaceTexture.setDefaultBufferSize(surfaceRequest.resolution.width,
+                    surfaceRequest.resolution.height)
                 surfaceTexture.detachFromGLContext()
                 val surface = Surface(surfaceTexture)
 
@@ -116,17 +116,15 @@ internal fun cameraXOpenCamera(
                     params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
                 }
 
+                // Surface provided to camera for producing buffers into and
                 // Release the SurfaceTexture and Surface once camera is done with it
-                surfaceReleaseFuture.addListener(
+                surfaceRequest.setSurface(surface).addListener(
                     Runnable {
                         surface.release()
                         surfaceTexture.release()
                     },
                     CameraXExecutors.directExecutor()
                 )
-
-                // Surface provided to camera for producing buffers into
-                Futures.immediateFuture(surface)
             }
         }
 

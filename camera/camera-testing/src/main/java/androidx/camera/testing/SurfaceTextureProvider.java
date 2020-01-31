@@ -24,7 +24,6 @@ import android.view.TextureView;
 import androidx.annotation.NonNull;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.Futures;
 
 /**
  * This class creates implementations of PreviewSurfaceProvider that provide Surfaces that have been
@@ -67,18 +66,18 @@ public final class SurfaceTextureProvider {
     @NonNull
     public static Preview.SurfaceProvider createSurfaceTextureProvider(
             @NonNull SurfaceTextureCallback surfaceTextureCallback) {
-        return (resolution, safeToCancelFuture) -> {
+        return (surfaceRequest) -> {
             SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-            surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
-                    resolution.getHeight());
+            surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
+                    surfaceRequest.getResolution().getHeight());
             surfaceTexture.detachFromGLContext();
-            surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture, resolution);
+            surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture,
+                    surfaceRequest.getResolution());
             Surface surface = new Surface(surfaceTexture);
-            safeToCancelFuture.addListener(() -> {
+            surfaceRequest.setSurface(surface).addListener(() -> {
                 surface.release();
                 surfaceTextureCallback.onSafeToRelease(surfaceTexture);
             }, CameraXExecutors.directExecutor());
-            return Futures.immediateFuture(surface);
         };
     }
 
