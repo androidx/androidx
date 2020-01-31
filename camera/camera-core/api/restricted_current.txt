@@ -170,6 +170,9 @@ package androidx.camera.core {
 
   public final class ImageAnalysis extends androidx.camera.core.UseCase {
     method public void clearAnalyzer();
+    method @androidx.camera.core.ImageAnalysis.BackpressureStrategy public int getBackpressureStrategy();
+    method public int getImageQueueDepth();
+    method public int getTargetRotation();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);

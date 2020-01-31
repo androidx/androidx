@@ -100,6 +100,9 @@ package androidx.camera.core {
 
   public final class ImageAnalysis extends androidx.camera.core.UseCase {
     method public void clearAnalyzer();
+    method public int getBackpressureStrategy();
+    method public int getImageQueueDepth();
+    method public int getTargetRotation();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
     field public static final int STRATEGY_BLOCK_PRODUCER = 1; // 0x1
