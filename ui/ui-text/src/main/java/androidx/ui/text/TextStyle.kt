@@ -16,7 +16,9 @@
 
 package androidx.ui.text
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.Immutable
+import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.font.FontFamily
@@ -30,6 +32,16 @@ import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.TextUnit
+import androidx.ui.unit.sp
+
+/** The default font size if none is specified. */
+private val DefaultFontSize = 14.sp
+private val DefaultLetterSpacing = 0.sp
+private val DefaultBackgroundColor = Color.Transparent
+// FIXME: Introduce TextUnit.Original for representing "do not change the original result". Need to
+// distinguish from Inherit.
+private val DefaultLineHeight = TextUnit.Inherit
+private val DefaultColor = Color.Black
 
 /**
  * Styling configuration for a `Text`.
@@ -168,6 +180,13 @@ data class TextStyle(
             paragraphStyle = toParagraphStyle().merge(other)
         )
     }
+
+    companion object {
+        /**
+         * Constant for no text style.
+         */
+        val Empty = TextStyle()
+    }
 }
 
 /**
@@ -188,4 +207,53 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
         spanStyle = lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction),
         paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction)
     )
+}
+
+/**
+ * Fills missing values in TextStyle with default values and resolve TextDirectionAlgorithm.
+ *
+ * This function will fill all null or [TextUnit.Inherit] field with actual values.
+ * @param style a text style to be resolved
+ * @param direction a layout direction to be used for resolving text layout direction algorithm
+ * @return resolved text style.
+ */
+fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
+    color = style.color ?: DefaultColor,
+    fontSize = if (style.fontSize == TextUnit.Inherit) DefaultFontSize else style.fontSize,
+    fontWeight = style.fontWeight ?: FontWeight.Normal,
+    fontStyle = style.fontStyle ?: FontStyle.Normal,
+    fontSynthesis = style.fontSynthesis ?: FontSynthesis.All,
+    fontFamily = style.fontFamily ?: FontFamily.SansSerif,
+    fontFeatureSettings = style.fontFeatureSettings ?: "",
+    letterSpacing = if (style.letterSpacing.isInherit) {
+        DefaultLetterSpacing
+    } else {
+        style.letterSpacing
+    },
+    baselineShift = style.baselineShift ?: BaselineShift.None,
+    textGeometricTransform = style.textGeometricTransform ?: TextGeometricTransform.None,
+    localeList = style.localeList ?: LocaleList.current,
+    background = style.background ?: DefaultBackgroundColor,
+    textDecoration = style.textDecoration ?: TextDecoration.None,
+    shadow = style.shadow ?: Shadow.None,
+    textAlign = style.textAlign ?: TextAlign.Start,
+    textDirectionAlgorithm = resolveTextDirectionAlgorithm(direction, style.textDirectionAlgorithm),
+    lineHeight = if (style.lineHeight.isInherit) DefaultLineHeight else style.lineHeight,
+    textIndent = style.textIndent ?: TextIndent.None
+)
+
+/**
+ * If [textDirectionAlgorithm] is null returns a [TextDirectionAlgorithm] based on
+ * [layoutDirection].
+ */
+@VisibleForTesting
+internal fun resolveTextDirectionAlgorithm(
+    layoutDirection: LayoutDirection,
+    textDirectionAlgorithm: TextDirectionAlgorithm?
+): TextDirectionAlgorithm {
+    return textDirectionAlgorithm
+        ?: when (layoutDirection) {
+            LayoutDirection.Ltr -> TextDirectionAlgorithm.ContentOrLtr
+            LayoutDirection.Rtl -> TextDirectionAlgorithm.ContentOrRtl
+        }
 }

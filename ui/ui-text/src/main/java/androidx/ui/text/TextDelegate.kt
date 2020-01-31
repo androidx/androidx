@@ -26,47 +26,12 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.TextUnit
 import androidx.ui.unit.ceil
 import androidx.ui.unit.px
-import androidx.ui.unit.sp
-
-/** The default font size if none is specified. */
-private val DefaultFontSize: TextUnit = 14.sp
-
-/**
- * Resolve text style to be able to pass to underlying paragraphs.
- *
- * We need to pass non-null font size to underlying paragraph.
- */
-private fun resolveTextStyle(style: TextStyle?, layoutDirection: LayoutDirection): TextStyle {
-    val textDirectionAlgorithm = style?.textDirectionAlgorithm
-        ?: resolveTextDirectionAlgorithm(layoutDirection, null)
-
-    val fontSize = when (style?.fontSize) {
-        null -> DefaultFontSize
-        TextUnit.Inherit -> DefaultFontSize
-        else -> style.fontSize
-    }
-
-    return when {
-        style == null -> TextStyle(
-            fontSize = fontSize,
-            textDirectionAlgorithm = textDirectionAlgorithm
-        )
-        style.textDirectionAlgorithm != textDirectionAlgorithm ||
-        style.fontSize != fontSize -> style.copy(
-            fontSize = fontSize,
-            textDirectionAlgorithm = textDirectionAlgorithm
-        )
-        else -> style
-    }
-}
 
 /**
  * An object that paints text onto a [Canvas].
@@ -108,7 +73,7 @@ private fun resolveTextStyle(style: TextStyle?, layoutDirection: LayoutDirection
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextDelegate(
     val text: AnnotatedString,
-    style: TextStyle? = null,
+    style: TextStyle,
     val maxLines: Int = Int.MAX_VALUE,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
@@ -117,7 +82,7 @@ class TextDelegate(
     val resourceLoader: Font.ResourceLoader
 ) {
 
-    val style: TextStyle = resolveTextStyle(style, layoutDirection)
+    val style: TextStyle = resolveDefaults(style, layoutDirection)
 
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
@@ -268,20 +233,4 @@ class TextDelegate(
         val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
         canvas.drawPath(selectionPath, Paint().apply { this.color = color })
     }
-}
-
-/**
- * If [textDirectionAlgorithm] is null returns a [TextDirectionAlgorithm] based on
- * [layoutDirection].
- */
-@VisibleForTesting
-internal fun resolveTextDirectionAlgorithm(
-    layoutDirection: LayoutDirection,
-    textDirectionAlgorithm: TextDirectionAlgorithm?
-): TextDirectionAlgorithm {
-    return textDirectionAlgorithm
-        ?: when (layoutDirection) {
-            LayoutDirection.Ltr -> TextDirectionAlgorithm.ContentOrLtr
-            LayoutDirection.Rtl -> TextDirectionAlgorithm.ContentOrRtl
-        }
 }
