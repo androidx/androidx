@@ -25,7 +25,7 @@ import androidx.compose.Compose
 import androidx.test.filters.MediumTest
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
 import androidx.ui.core.WithDensity
 import androidx.ui.core.changedToUp
@@ -109,7 +109,7 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
             for (i in first..last) {
                 TestTag(tag = "$tag$i") {
                     Semantics(container = true) {
-                        PointerInputWrapper(
+                        PointerInput(
                             pointerInputHandler = { changes, pass, _ ->
                                 if (pass == PointerEventPass.InitialDown) {
                                     changes.filter { it.changedToUp() }.forEach {
