@@ -22,7 +22,7 @@ dependencies {
     // treats this as local jar and package it inside the aar.
     api files(configurations.repackage)
 
-    api(project(":core:core"))
+    api("androidx.core:core:1.3.0-alpha01")
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
