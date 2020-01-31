@@ -66,7 +66,9 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             Center {
                 TestTag(tag = "myButton") {
-                    Button(onClick = {}, text = "myButton")
+                    Button(onClick = {}) {
+                        Text("myButton")
+                    }
                 }
             }
         }
@@ -80,7 +82,7 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             Center {
                 TestTag(tag = "myButton") {
-                    Button(text = "myButton")
+                    Button { Text("myButton") }
                 }
             }
         }
@@ -101,7 +103,9 @@ class ButtonTest {
 
         composeTestRule.setMaterialContent {
             Center {
-                Button(onClick = onClick, text = text)
+                Button(onClick = onClick) {
+                    Text(text)
+                }
             }
         }
 
@@ -128,7 +132,9 @@ class ButtonTest {
             }
             Center {
                 TestTag(tag = tag) {
-                    Button(onClick = onClick, text = "Hello")
+                    Button(onClick = onClick) {
+                        Text("Hello")
+                    }
                 }
             }
         }
@@ -165,10 +171,14 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             Column {
                 TestTag(tag = button1Tag) {
-                    Button(onClick = button1OnClick, text = text)
+                    Button(onClick = button1OnClick) {
+                        Text(text)
+                    }
                 }
                 TestTag(tag = button2Tag) {
-                    Button(onClick = button2OnClick, text = text)
+                    Button(onClick = button2OnClick) {
+                        Text(text)
+                    }
                 }
             }
         }
@@ -199,7 +209,9 @@ class ButtonTest {
         }
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Button(onClick = {}, text = "Test button")
+                Button(onClick = {}) {
+                    Text("Test button")
+                }
             }
             .assertHeightEqualsTo(36.dp)
     }
@@ -224,7 +236,7 @@ class ButtonTest {
     @Test
     fun buttonTest_ContainedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
-            Button(onClick = {}, style = ContainedButtonStyle()) {
+            Button(onClick = {}) {
                 val style = MaterialTheme.typography().button
                     .copy(color = MaterialTheme.colors().onPrimary)
                 assertThat(currentTextStyle()).isEqualTo(style)
@@ -235,7 +247,7 @@ class ButtonTest {
     @Test
     fun buttonTest_OutlinedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
-            Button(onClick = {}, style = OutlinedButtonStyle()) {
+            OutlinedButton(onClick = {}) {
                 val style = MaterialTheme.typography().button
                     .copy(color = MaterialTheme.colors().primary)
                 assertThat(currentTextStyle()).isEqualTo(style)
@@ -246,7 +258,7 @@ class ButtonTest {
     @Test
     fun buttonTest_TextButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
-            Button(onClick = {}, style = OutlinedButtonStyle()) {
+            TextButton(onClick = {}) {
                 val style = MaterialTheme.typography().button
                     .copy(color = MaterialTheme.colors().primary)
                 assertThat(currentTextStyle()).isEqualTo(style)
@@ -256,31 +268,34 @@ class ButtonTest {
 
     @Test
     fun buttonTest_ContainedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) {
-            ContainedButtonStyle()
+        assertLeftPaddingIs(16.dp) { children ->
+            Button(onClick = {}, children = children)
         }
     }
 
     @Test
     fun buttonTest_OutlinedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) {
-            OutlinedButtonStyle()
+        assertLeftPaddingIs(16.dp) { children ->
+            OutlinedButton(onClick = {}, children = children)
         }
     }
 
     @Test
     fun buttonTest_TextButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(8.dp) {
-            TextButtonStyle()
+        assertLeftPaddingIs(8.dp) { children ->
+            TextButton(onClick = {}, children = children)
         }
     }
 
-    private fun assertLeftPaddingIs(padding: Dp, style: @Composable() () -> ButtonStyle) {
+    private fun assertLeftPaddingIs(
+        padding: Dp,
+        button: @Composable() (@Composable() () -> Unit) -> Unit
+    ) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
             Wrap {
-                Button(onClick = {}, style = style()) {
+                button {
                     OnPositioned {
                         parentCoordinates = it
                     }

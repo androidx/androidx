@@ -45,14 +45,18 @@ fun SideBySideAlertDialogSample() {
                         " which presents the details regarding the Dialog's purpose.")
             },
             confirmButton = {
-                Button("Confirm", onClick = {
+                Button(onClick = {
                     openDialog.value = false
-                })
+                }) {
+                    Text("Confirm")
+                }
             },
             dismissButton = {
-                Button("Dismiss", onClick = {
+                Button(onClick = {
                     openDialog.value = false
-                })
+                }) {
+                    Text("Dismiss")
+                }
             },
             buttonLayout = AlertDialogButtonLayout.SideBySide
         )
@@ -79,14 +83,18 @@ fun StackedAlertDialogSample() {
                         " which presents the details regarding the Dialog's purpose.")
             },
             confirmButton = {
-                Button("Long Confirm Button", onClick = {
+                Button(onClick = {
                     openDialog.value = false
-                })
+                }) {
+                    Text("Long Confirm Button")
+                }
             },
             dismissButton = {
-                Button("Long Dismiss Button", onClick = {
+                Button(onClick = {
                     openDialog.value = false
-                })
+                }) {
+                    Text("Long Dismiss Button")
+                }
             },
             buttonLayout = AlertDialogButtonLayout.Stacked
         )
@@ -112,7 +120,9 @@ fun CustomAlertDialogSample() {
             },
             buttons = {
                 Row(arrangement = Arrangement.Center) {
-                    Button("Button", onClick = { openDialog.value = false })
+                    Button(onClick = { openDialog.value = false }) {
+                        Text("Button")
+                    }
                 }
             }
         )

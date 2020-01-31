@@ -19,6 +19,7 @@ package androidx.ui.test
 import android.app.Activity
 import android.os.Bundle
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.layout.Stack
 import androidx.ui.material.Button
@@ -37,7 +38,9 @@ class CustomActivity : Activity() {
         setContent {
             MaterialTheme {
                 Stack {
-                    Button(text = "Hello")
+                    Button {
+                        Text("Hello")
+                    }
                 }
             }
         }

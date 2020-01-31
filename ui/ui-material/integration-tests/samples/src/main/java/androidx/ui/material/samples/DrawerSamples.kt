@@ -84,9 +84,9 @@ private fun YourDrawerContent(onStateChange: (DrawerState) -> Unit) {
         Column(LayoutHeight.Fill) {
             Text(text = "Drawer Content")
             Spacer(LayoutHeight(20.dp))
-            Button(
-                text = "Close Drawer",
-                onClick = { onStateChange(DrawerState.Closed) })
+            Button(onClick = { onStateChange(DrawerState.Closed) }) {
+                Text("Close Drawer")
+            }
         }
     }
 }
@@ -97,10 +97,9 @@ private fun YourAppContent(text: String, onDrawerStateChange: (DrawerState) -> U
         Column(LayoutHeight.Fill) {
             Text(text = text)
             Spacer(LayoutHeight(20.dp))
-            Button(
-                text = "Click to open",
-                onClick = { onDrawerStateChange(DrawerState.Opened) }
-            )
+            Button(onClick = { onDrawerStateChange(DrawerState.Opened) }) {
+                Text("Click to open")
+            }
         }
     }
 }

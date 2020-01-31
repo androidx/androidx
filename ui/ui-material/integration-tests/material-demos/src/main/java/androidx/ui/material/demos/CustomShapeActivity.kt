@@ -26,8 +26,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
-import androidx.ui.material.Button
-import androidx.ui.material.OutlinedButtonStyle
+import androidx.ui.material.OutlinedButton
 import androidx.ui.unit.dp
 
 class CustomShapeActivity : MaterialDemoActivity() {
@@ -40,13 +39,11 @@ class CustomShapeActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
         Wrap(Alignment.Center) {
-            Button(
+            OutlinedButton(
                 onClick = {},
-                style = OutlinedButtonStyle(
-                    shape = TriangleShape,
-                    backgroundColor = Color.Cyan,
-                    border = Border(size = 1.dp, color = Color.DarkGray)
-                )
+                shape = TriangleShape,
+                backgroundColor = Color.Cyan,
+                border = Border(size = 1.dp, color = Color.DarkGray)
             ) {
                 Spacer(LayoutSize(100.dp, 100.dp))
             }

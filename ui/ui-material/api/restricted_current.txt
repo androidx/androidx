@@ -33,28 +33,9 @@ package androidx.ui.material {
   }
 
   public final class ButtonKt {
-    method public static void Button(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Button(String text, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle());
-    method public static androidx.ui.material.ButtonStyle ContainedButtonStyle(androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.graphics.Shape shape = button, androidx.ui.unit.Dp elevation = 2.dp);
-    method public static androidx.ui.material.ButtonStyle OutlinedButtonStyle(androidx.ui.foundation.Border border = Border(1.dp, MaterialTheme.colors().onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.graphics.Shape shape = button, androidx.ui.unit.Dp elevation = 0.dp);
-    method public static androidx.ui.material.ButtonStyle TextButtonStyle(androidx.ui.graphics.Shape shape = button, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary);
-  }
-
-  public final class ButtonStyle {
-    ctor public ButtonStyle(androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Color contentColor, androidx.ui.graphics.Shape shape, androidx.ui.foundation.Border? border, androidx.ui.unit.Dp elevation, androidx.ui.layout.EdgeInsets paddings);
-    method public androidx.ui.graphics.Color component1();
-    method public androidx.ui.graphics.Color component2();
-    method public androidx.ui.graphics.Shape component3();
-    method public androidx.ui.foundation.Border? component4();
-    method public androidx.ui.unit.Dp component5();
-    method public androidx.ui.layout.EdgeInsets component6();
-    method public androidx.ui.material.ButtonStyle copy(androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Color contentColor, androidx.ui.graphics.Shape shape, androidx.ui.foundation.Border? border, androidx.ui.unit.Dp elevation, androidx.ui.layout.EdgeInsets paddings);
-    method public androidx.ui.graphics.Color getBackgroundColor();
-    method public androidx.ui.foundation.Border? getBorder();
-    method public androidx.ui.graphics.Color getContentColor();
-    method public androidx.ui.unit.Dp getElevation();
-    method public androidx.ui.layout.EdgeInsets getPaddings();
-    method public androidx.ui.graphics.Shape getShape();
+    method public static void Button(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 2.dp, androidx.ui.layout.EdgeInsets paddings = ButtonPaddings, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void OutlinedButton(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors().onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.layout.EdgeInsets paddings = ButtonPaddings, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void TextButton(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color backgroundColor = Color.Transparent, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.layout.EdgeInsets paddings = TextButtonPaddings, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class CheckboxKt {
