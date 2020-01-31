@@ -19,9 +19,9 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
+import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.compose.remember
-import androidx.compose.state
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.selection.TextSelectionDelegate
@@ -33,8 +33,10 @@ import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
@@ -112,11 +114,6 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     require(maxLines > 0) { "maxLines should be greater than 0" }
-    // States
-    // The selection range for this Composable, used by selection
-    val selectionRange = state<TextRange?> { null }
-    // The last layout coordinates recorded for this Composable, used by selection
-    val layoutCoordinates = state<LayoutCoordinates?> { null }
 
     // Ambients
     // selection registrar, if no SelectionContainer is added ambient value will be null
@@ -127,41 +124,44 @@ fun Text(
     val themeStyle = CurrentTextStyleAmbient.current
 
     val mergedStyle = themeStyle.merge(style)
+    val state = remember {
+        TextState(
+            TextDelegate(
+                text = text,
+                style = mergedStyle,
+                density = density,
+                softWrap = softWrap,
+                resourceLoader = resourceLoader,
+                layoutDirection = layoutDirection,
+                overflow = overflow,
+                maxLines = maxLines
+            )
+        )
+    }
+    state.textDelegate = updateTextDelegate(
+        current = state.textDelegate,
+        text = text,
+        style = mergedStyle,
+        density = density,
+        softWrap = softWrap,
+        resourceLoader = resourceLoader,
+        layoutDirection = layoutDirection,
+        overflow = overflow,
+        maxLines = maxLines
+    )
 
     Semantics(
         properties = {
             accessibilityLabel = text.text
         }
     ) {
-        val textDelegate = remember(
-            text,
-            mergedStyle,
-            softWrap,
-            overflow,
-            maxLines,
-            density,
-            layoutDirection
-        ) {
-            TextDelegate(
-                text = text,
-                style = mergedStyle,
-                softWrap = softWrap,
-                overflow = overflow,
-                maxLines = maxLines,
-                density = density,
-                layoutDirection = layoutDirection,
-                resourceLoader = resourceLoader
-            )
-        }
-        val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-
         val children = @Composable {
             // Get the layout coordinates of the text composable. This is for hit test of
             // cross-composable selection.
             OnPositioned(
                 onPositioned = {
-                    val oldLayoutCoordinates = layoutCoordinates.value
-                    layoutCoordinates.value = it
+                    val oldLayoutCoordinates = state.layoutCoordinates
+                    state.layoutCoordinates = it
 
                     if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
                         it.isAttached
@@ -182,13 +182,13 @@ fun Text(
                 }
             )
             Draw { canvas, _ ->
-                layoutResultState.value?.let { layoutResult ->
-                    selectionRange.value?.let {
-                        textDelegate.paintBackground(
+                state.layoutResult?.let { layoutResult ->
+                    state.selectionRange?.let {
+                        state.textDelegate.paintBackground(
                             it.min, it.max, DefaultSelectionColor, canvas, layoutResult
                         )
                     }
-                    textDelegate.paint(canvas, layoutResult)
+                    state.textDelegate.paint(canvas, layoutResult)
                 }
             }
         }
@@ -196,27 +196,28 @@ fun Text(
             children = children,
             modifier = modifier,
             minIntrinsicWidthMeasureBlock = { _, _ ->
-                textDelegate.layoutIntrinsics()
-                textDelegate.minIntrinsicWidth
+                state.textDelegate.layoutIntrinsics()
+                state.textDelegate.minIntrinsicWidth
             },
             minIntrinsicHeightMeasureBlock = { _, width ->
                 // given the width constraint, determine the min height
-                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
+                state.textDelegate
+                    .layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
             },
             maxIntrinsicWidthMeasureBlock = { _, _ ->
-                textDelegate.layoutIntrinsics()
-                textDelegate.maxIntrinsicWidth
+                state.textDelegate.layoutIntrinsics()
+                state.textDelegate.maxIntrinsicWidth
             },
             maxIntrinsicHeightMeasureBlock = { _, width ->
-                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
+                state.textDelegate
+                    .layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
             }
         ) { _, constraints ->
-
-            val layoutResult = textDelegate.layout(constraints, layoutResultState.value)
-            if (layoutResultState.value != layoutResult) {
+            val layoutResult = state.textDelegate.layout(constraints, state.layoutResult)
+            if (state.layoutResult != layoutResult) {
                 onTextLayout(layoutResult)
             }
-            layoutResultState.value = layoutResult
+            state.layoutResult = layoutResult
 
             layout(
                 layoutResult.size.width,
@@ -238,22 +239,14 @@ fun Text(
             ) {}
         }
 
-        onCommit(
-            text,
-            mergedStyle,
-            softWrap,
-            overflow,
-            maxLines,
-            density,
-            layoutDirection
-        ) {
+        onCommit(selectionRegistrar) {
             // if no SelectionContainer is added as parent selectionRegistrar will be null
             val id: Selectable? = selectionRegistrar?.let {
                 selectionRegistrar.subscribe(
                     TextSelectionDelegate(
-                        selectionRangeState = selectionRange,
-                        layoutCoordinatesState = layoutCoordinates,
-                        textLayoutResultState = layoutResultState
+                        selectionRangeUpdate = { state.selectionRange = it },
+                        coordinatesCallback = { state.layoutCoordinates },
+                        layoutResultCallback = { state.layoutResult }
                     )
                 )
             }
@@ -298,3 +291,56 @@ fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Uni
  */
 @Composable
 fun currentTextStyle(): TextStyle = CurrentTextStyleAmbient.current
+
+private class TextState(
+    var textDelegate: TextDelegate
+) {
+    /**
+     * The current selection range, used by selection.
+     * This should be a state as every time we update the value during the selection we
+     * need to redraw it. @Model observation during onDraw callback will make it work.
+      */
+    var selectionRange by mutableStateOf<TextRange?>(null, StructurallyEqual)
+    /** The last layout coordinates for the Text's layout, used by selection */
+    var layoutCoordinates: LayoutCoordinates? = null
+    /** The latest TextLayoutResult calculated in the measure block */
+    var layoutResult: TextLayoutResult? = null
+}
+
+/**
+ * Returns the [TextDelegate] passed as a [current] param if the input didn't change
+ * otherwise creates a new [TextDelegate].
+ */
+internal fun updateTextDelegate(
+    current: TextDelegate,
+    text: AnnotatedString,
+    style: TextStyle,
+    density: Density,
+    resourceLoader: Font.ResourceLoader,
+    layoutDirection: LayoutDirection,
+    softWrap: Boolean = true,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
+): TextDelegate {
+    return if (current.text != text ||
+        current.style != style ||
+        current.softWrap != softWrap ||
+        current.overflow != overflow ||
+        current.maxLines != maxLines ||
+        current.density != density ||
+        current.layoutDirection != layoutDirection
+    ) {
+        TextDelegate(
+            text = text,
+            style = style,
+            softWrap = softWrap,
+            overflow = overflow,
+            maxLines = maxLines,
+            density = density,
+            layoutDirection = layoutDirection,
+            resourceLoader = resourceLoader
+        )
+    } else {
+        current
+    }
+}
