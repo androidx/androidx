@@ -469,6 +469,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         final int maxVolume = 100;
         final int currentVolume = 45;
 
+        final AtomicReference<MediaController.PlaybackInfo> infoOut = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
@@ -485,6 +486,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                         && volumeControlType == info.getControlType()
                         && maxVolume == info.getMaxVolume()
                         && currentVolume == info.getCurrentVolume()) {
+                    infoOut.set(info);
                     latch.countDown();
                 }
             }
@@ -492,6 +494,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         mController = createController(mSession.getSessionToken(), true, callback);
         mSession.setPlaybackToRemote(volumeControlType, maxVolume, currentVolume);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(infoOut.get(), mController.getPlaybackInfo());
     }
 
     @Test
@@ -507,6 +510,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         final int maxVolume = mAudioManager.getStreamMaxVolume(testLocalStreamType);
         final int currentVolume = mAudioManager.getStreamVolume(testLocalStreamType);
 
+        final AtomicReference<MediaController.PlaybackInfo> infoOut = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
@@ -517,12 +521,14 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                 assertEquals(RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE, info.getControlType());
                 assertEquals(maxVolume, info.getMaxVolume());
                 assertEquals(currentVolume, info.getCurrentVolume());
+                infoOut.set(info);
                 latch.countDown();
             }
         };
         mController = createController(mSession.getSessionToken(), true, callback);
         mSession.setPlaybackToLocal(testLocalStreamType);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(infoOut.get(), mController.getPlaybackInfo());
     }
 
     @Test

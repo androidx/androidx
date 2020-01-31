@@ -1320,16 +1320,18 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         }
 
         @Override
-        public void onAudioInfoChanged(final MediaControllerCompat.PlaybackInfo info) {
+        public void onAudioInfoChanged(final MediaControllerCompat.PlaybackInfo infoCompat) {
+            final PlaybackInfo info = MediaUtils.toPlaybackInfo2(infoCompat);
             synchronized (mLock) {
                 if (mClosed || !mConnected) {
                     return;
                 }
+                mPlaybackInfo = info;
             }
             mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
                 @Override
                 public void run(@NonNull ControllerCallback callback) {
-                    callback.onPlaybackInfoChanged(mInstance, MediaUtils.toPlaybackInfo2(info));
+                    callback.onPlaybackInfoChanged(mInstance, info);
                 }
             });
         }
