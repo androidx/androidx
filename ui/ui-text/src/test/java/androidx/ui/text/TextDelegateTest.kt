@@ -36,7 +36,6 @@ class TextDelegateTest() {
     fun `constructor with default values`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -51,7 +50,6 @@ class TextDelegateTest() {
         val text = AnnotatedString("Hello")
         val textDelegate = TextDelegate(
             text = text,
-            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -66,7 +64,6 @@ class TextDelegateTest() {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
             maxLines = maxLines,
             density = density,
             resourceLoader = resourceLoader,
@@ -82,7 +79,6 @@ class TextDelegateTest() {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
             overflow = overflow,
             density = density,
             resourceLoader = resourceLoader,
@@ -96,7 +92,6 @@ class TextDelegateTest() {
     fun `minIntrinsicWidth without layout assertion should fail`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr)
@@ -108,7 +103,6 @@ class TextDelegateTest() {
     fun `maxIntrinsicWidth without layout assertion should fail`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr)

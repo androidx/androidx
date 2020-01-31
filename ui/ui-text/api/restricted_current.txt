@@ -458,6 +458,9 @@ package androidx.ui.text {
     method public static String toUpperCase(String, androidx.ui.text.LocaleList localeList);
   }
 
+  public final class TextDelegateKt {
+  }
+
   public final class TextLayoutHelperKt {
   }
 
@@ -586,17 +589,10 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.ParagraphStyle other);
     method public androidx.ui.text.ParagraphStyle toParagraphStyle();
     method public androidx.ui.text.SpanStyle toSpanStyle();
-    field public static final androidx.ui.text.TextStyle.Companion! Companion;
-  }
-
-  public static final class TextStyle.Companion {
-    method public androidx.ui.text.TextStyle getEmpty();
-    property public final androidx.ui.text.TextStyle Empty;
   }
 
   public final class TextStyleKt {
     method public static androidx.ui.text.TextStyle lerp(androidx.ui.text.TextStyle start, androidx.ui.text.TextStyle stop, float fraction);
-    method public static androidx.ui.text.TextStyle resolveDefaults(androidx.ui.text.TextStyle style, androidx.ui.core.LayoutDirection direction);
   }
 
 }
@@ -752,10 +748,8 @@ package androidx.ui.text.style {
   }
 
   public static final class BaselineShift.Companion {
-    method public androidx.ui.text.style.BaselineShift getNone();
     method public androidx.ui.text.style.BaselineShift getSubscript();
     method public androidx.ui.text.style.BaselineShift getSuperscript();
-    property public final androidx.ui.text.style.BaselineShift None;
     property public final androidx.ui.text.style.BaselineShift Subscript;
     property public final androidx.ui.text.style.BaselineShift Superscript;
   }
@@ -829,12 +823,6 @@ package androidx.ui.text.style {
     method public androidx.ui.text.style.TextIndent copy(androidx.ui.unit.TextUnit firstLine, androidx.ui.unit.TextUnit restLine);
     method public androidx.ui.unit.TextUnit getFirstLine();
     method public androidx.ui.unit.TextUnit getRestLine();
-    field public static final androidx.ui.text.style.TextIndent.Companion! Companion;
-  }
-
-  public static final class TextIndent.Companion {
-    method public androidx.ui.text.style.TextIndent getNone();
-    property public final androidx.ui.text.style.TextIndent None;
   }
 
   public final class TextIndentKt {

@@ -30,14 +30,7 @@ data class Shadow(
     val color: Color = Color(0xFF000000),
     val offset: Offset = Offset.zero,
     val blurRadius: Px = 0.px
-) {
-    companion object {
-        /**
-         * Constant for no shadow.
-         */
-        val None = Shadow()
-    }
-}
+)
 
 /**
  * Linearly interpolate two [Shadow]s.
