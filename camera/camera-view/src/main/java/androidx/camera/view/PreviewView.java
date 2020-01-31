@@ -18,6 +18,7 @@ package androidx.camera.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
@@ -37,9 +38,25 @@ import java.util.concurrent.Executor;
  */
 public class PreviewView extends FrameLayout {
 
-    private Implementation mImplementation;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Implementation mImplementation;
 
     private ImplementationMode mImplementationMode;
+
+    private final DisplayManager.DisplayListener mDisplayListener =
+            new DisplayManager.DisplayListener() {
+        @Override
+        public void onDisplayAdded(int displayId) {
+        }
+
+        @Override
+        public void onDisplayRemoved(int displayId) {
+        }
+        @Override
+        public void onDisplayChanged(int displayId) {
+            mImplementation.onDisplayChanged();
+        }
+    };
 
     public PreviewView(@NonNull Context context) {
         this(context, null);
@@ -73,6 +90,26 @@ public class PreviewView extends FrameLayout {
             attributes.recycle();
         }
         setUp();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        final DisplayManager displayManager =
+                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
+        if (displayManager != null) {
+            displayManager.registerDisplayListener(mDisplayListener, getHandler());
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        final DisplayManager displayManager =
+                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
+        if (displayManager != null) {
+            displayManager.unregisterDisplayListener(mDisplayListener);
+        }
     }
 
     private void setUp() {
@@ -141,6 +178,14 @@ public class PreviewView extends FrameLayout {
          */
         @NonNull
         Preview.PreviewSurfaceProvider getPreviewSurfaceProvider();
+
+        /**
+         *  Notifies that the display properties have changed.
+         *
+         *  <p>Implementation might need to adjust transform by latest display properties such as
+         *  display orientation in order to show the preview correctly.
+         */
+        void onDisplayChanged();
     }
 
     /**

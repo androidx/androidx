@@ -86,6 +86,15 @@ public class TextureViewImplementation implements PreviewView.Implementation {
         };
     }
 
+    @Override
+    public void onDisplayChanged() {
+        if (mParent == null || mTextureView == null || mResolution == null) {
+            return;
+        }
+
+        correctPreviewForCenterCrop(mParent, mTextureView, mResolution);
+    }
+
     private void initInternal() {
         mTextureView = new TextureView(mParent.getContext());
         mTextureView.setLayoutParams(
