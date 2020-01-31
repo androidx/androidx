@@ -265,7 +265,7 @@ package androidx.media2.session {
     method public int onSkipForward(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo);
   }
 
-  @RequiresApi(28) public final class MediaSessionManager {
+  public final class MediaSessionManager {
     method public static androidx.media2.session.MediaSessionManager getInstance(android.content.Context);
     method public java.util.Set<androidx.media2.session.SessionToken!> getSessionServiceTokens();
   }
