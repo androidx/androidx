@@ -21,14 +21,20 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 
 object Stubs {
-    val WORK_MANAGER_CONFIGURATION_PROVIDER: TestFile = kotlin(
-        "androidx/work/Configuration.kt",
+    val WORK_MANAGER_CONFIGURATION_PROVIDER: TestFile = java(
+        "androidx/work/Configuration.java",
         """
-                 package androidx.work
+                 package androidx.work;
+
                  class Configuration {
-                   interface Provider {
-                     fun getWorkManagerConfiguration(): Configuration
-                   }
+                    static class Builder {
+                        void setJobSchedulerJobIdRange(int minId, int maxId) {
+
+                        }
+                    }
+                    interface Provider {
+                        Configuration getWorkManagerConfiguration();
+                    }
                  }
             """
     )
@@ -115,6 +121,17 @@ object Stubs {
             package android.app
 
             class Notification {
+            }
+        """
+    ).indented().within("src")
+
+    val JOB_SERVICE: TestFile = kotlin(
+        "android/app/job/JobService.kt",
+        """
+            package android.app.job
+
+            open class JobService {
+
             }
         """
     ).indented().within("src")
