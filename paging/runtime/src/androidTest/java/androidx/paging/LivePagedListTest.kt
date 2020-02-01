@@ -62,6 +62,7 @@ class LivePagedListTest {
 
     @Test
     fun toLiveData_pagingSourcePageSize() {
+        @Suppress("DEPRECATION")
         val livePagedList = pagingSourceFactory.toLiveData(24)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)

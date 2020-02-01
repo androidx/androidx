@@ -48,6 +48,7 @@ public class PagedListItemViewModel extends ViewModel {
                 }
             };
 
+    @SuppressWarnings("deprecation")
     private LiveData<PagedList<Item>> mLivePagedList =
             new LivePagedListBuilder<>(mFactory, 10).build();
 
