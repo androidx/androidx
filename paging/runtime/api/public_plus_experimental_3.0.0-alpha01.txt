@@ -62,18 +62,18 @@ package androidx.paging {
   public final class NullPaddedListDiffHelperKt {
   }
 
-  public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
-    ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
-    method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method public androidx.paging.PagedList<T>? getCurrentList();
-    method protected T? getItem(int position);
-    method public int getItemCount();
+  @Deprecated public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
+    ctor @Deprecated protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
+    ctor @Deprecated protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
+    method @Deprecated public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method @Deprecated public androidx.paging.PagedList<T>? getCurrentList();
+    method @Deprecated protected T? getItem(int position);
+    method @Deprecated public int getItemCount();
     method @Deprecated public void onCurrentListChanged(androidx.paging.PagedList<T>? currentList);
-    method public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
-    method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method public void submitList(androidx.paging.PagedList<T>? pagedList);
-    method public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
+    method @Deprecated public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
+    method @Deprecated public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList);
+    method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
     property public androidx.paging.PagedList<T>? currentList;
   }
 

@@ -104,6 +104,13 @@ import androidx.recyclerview.widget.RecyclerView
  * @param T Type of the PagedLists this Adapter will receive.
  * @param VH A class that extends ViewHolder that will be used by the adapter.
  */
+@Deprecated(
+    message = "PagedListAdapter is deprecated and has been replaced by PagingDataAdapter",
+    replaceWith = ReplaceWith(
+        "PagingDataAdapter",
+        "androidx.paging.PagingDataAdapter"
+    )
+)
 abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH> {
     internal val differ: AsyncPagedListDiffer<T>
     private val listener = { previousList: PagedList<T>?, currentList: PagedList<T>? ->
