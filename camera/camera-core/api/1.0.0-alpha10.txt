@@ -213,6 +213,7 @@ package androidx.camera.core {
 
   public final class Preview extends androidx.camera.core.UseCase {
     method @UiThread public androidx.camera.core.Preview.PreviewSurfaceProvider? getPreviewSurfaceProvider();
+    method public int getTargetRotation();
     method @UiThread public void setPreviewSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.PreviewSurfaceProvider?);
     method @UiThread public void setPreviewSurfaceProvider(androidx.camera.core.Preview.PreviewSurfaceProvider?);
   }
