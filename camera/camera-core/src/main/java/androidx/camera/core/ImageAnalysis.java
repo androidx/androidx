@@ -321,6 +321,25 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
+     * Returns the rotation of the intended target for images.
+     *
+     * <p>
+     * The rotation can be set when constructing an {@link ImageAnalysis} instance using
+     * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
+     * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation defaults to
+     * the value of {@link Display#getRotation()} of the default display at the time the use case
+     * is created.
+     * </p>
+     *
+     * @return The rotation of the intended target for images.
+     * @see ImageAnalysis#setTargetRotation(int)
+     */
+    @RotationValue
+    public int getTargetRotation() {
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getTargetRotation();
+    }
+
+    /**
      * Sets an analyzer to receive and analyze images.
      *
      * <p>Setting an analyzer will signal to the camera that it should begin sending data. The
@@ -345,6 +364,42 @@ public final class ImageAnalysis extends UseCase {
             }
             mSubscribedAnalyzer = analyzer;
         }
+    }
+
+    /**
+     * Returns the mode with which images are acquired from the {@linkplain ImageReader image
+     * producer}.
+     *
+     * <p>
+     * The backpressure strategy is set when constructing an {@link ImageAnalysis} instance using
+     * {@link ImageAnalysis.Builder#setBackpressureStrategy(int)}. If not set, it defaults to
+     * {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}.
+     * </p>
+     *
+     * @return The backpressure strategy applied to the image producer.
+     * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
+     */
+    @BackpressureStrategy
+    public int getBackpressureStrategy() {
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getBackpressureStrategy();
+    }
+
+    /**
+     * Returns the number of images available to the camera pipeline, including the image being
+     * analyzed, for the {@link #STRATEGY_BLOCK_PRODUCER} backpressure mode.
+     *
+     * <p>
+     * The image queue depth is set when constructing an {@link ImageAnalysis} instance using
+     * {@link ImageAnalysis.Builder#setImageQueueDepth(int)}. If not set, and this option is used
+     * by the backpressure strategy, the default will be a queue depth of 6 images.
+     * </p>
+     *
+     * @return The image queue depth for the {@link #STRATEGY_BLOCK_PRODUCER} backpressure mode.
+     * @see ImageAnalysis.Builder#setImageQueueDepth(int)
+     * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
+     */
+    public int getImageQueueDepth() {
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getImageQueueDepth();
     }
 
     @Override
@@ -476,8 +531,7 @@ public final class ImageAnalysis extends UseCase {
          * {@link androidx.camera.camera2} implementation additional detail can be found in
          * {@link android.hardware.camera2.CameraDevice} documentation.
          *
-         * @param image           The image to analyze
-
+         * @param image The image to analyze
          * @see android.media.Image#getTimestamp()
          * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          */
