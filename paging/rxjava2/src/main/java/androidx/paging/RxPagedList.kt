@@ -39,24 +39,44 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
 }
 
 /**
- * Constructs a `Observable<PagedList>` from this `DataSource.Factory`, convenience for
+ * Constructs a `Observable<PagedList>` from this [DataSource.Factory], convenience for
  * [RxPagedListBuilder].
  *
- * The returned `Observable` will already be subscribed on the `fetchScheduler`, and will perform
- * all loading on that scheduler. It will already be observed on `notifyScheduler`, and will
- * dispatch new PagedLists, as well as their updates to that scheduler.
+ * The returned [Observable] will already be subscribed on the [fetchScheduler], and will perform
+ * all loading on that scheduler. It will already be observed on [notifyScheduler], and will
+ * dispatch new [PagedList]s, as well as their updates to that scheduler.
  *
  * @param config Paging configuration.
- * @param initialLoadKey Initial load key passed to the first PagedList/DataSource.
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [DataSource].
  * @param boundaryCallback The boundary callback for listening to PagedList load state.
- * @param notifyScheduler Scheduler that receives PagedList updates, and where [PagedList.Callback]
- * calls are dispatched. Generally, this is the UI/main thread.
- * @param fetchScheduler Scheduler used to fetch from DataSources, generally a background
+ * @param notifyScheduler [Scheduler] that receives [PagedList] updates, and where
+ * [PagedList.Callback] calls are dispatched. Generally, this is the UI / main thread.
+ * @param fetchScheduler [Scheduler] used to fetch from [DataSource]s, generally a background
  * thread pool for e.g. I/O or network loading.
  *
  * @see RxPagedListBuilder
  * @see toFlowable
  */
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """PagingDataObservable(
+            PagingConfig(
+                config.pageSize,
+                config.prefetchDistance,
+                config.enablePlaceholders,
+                config.initialLoadSizeHint,
+                config.maxSize
+            ),
+            initialLoadKey,
+            this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
+        )""",
+        "androidx.paging.PagingDataObservable",
+        "androidx.paging.PagingConfig",
+        "kotlinx.coroutines.rx2.asCoroutineDispatcher",
+        "kotlinx.coroutines.Dispatchers"
+    )
+)
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
@@ -75,24 +95,38 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
 }
 
 /**
- * Constructs a `Observable<PagedList>` from this `DataSource.Factory`, convenience for
+ * Constructs a `Observable<PagedList>` from this [DataSource.Factory], convenience for
  * [RxPagedListBuilder].
  *
- * The returned `Observable` will already be subscribed on the `fetchScheduler`, and will perform
- * all loading on that scheduler. It will already be observed on `notifyScheduler`, and will
- * dispatch new PagedLists, as well as their updates to that scheduler.
+ * The returned [Observable] will already be subscribed on the [fetchScheduler], and will perform
+ * all loading on that scheduler. It will already be observed on [notifyScheduler], and will
+ * dispatch new [PagedList]s, as well as their updates to that scheduler.
  *
  * @param pageSize Size of pages to load.
- * @param initialLoadKey Initial load key passed to the first PagedList/DataSource.
- * @param boundaryCallback The boundary callback for listening to PagedList load state.
- * @param notifyScheduler Scheduler that receives PagedList updates, and where [PagedList.Callback]
- * calls are dispatched. Generally, this is the UI/main thread.
- * @param fetchScheduler Scheduler used to fetch from DataSources, generally a background
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [DataSource].
+ * @param boundaryCallback The boundary callback for listening to [PagedList] load state.
+ * @param notifyScheduler [Scheduler] that receives [PagedList] updates, and where
+ * [PagedList.Callback] calls are dispatched. Generally, this is the UI / main thread.
+ * @param fetchScheduler [Scheduler] used to fetch from [DataSource]s, generally a background
  * thread pool for e.g. I/O or network loading.
  *
  * @see RxPagedListBuilder
  * @see toFlowable
  */
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """PagingDataObservable(
+            PagingConfig(pageSize),
+            initialLoadKey,
+            this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
+        )""",
+        "androidx.paging.PagingDataObservable",
+        "androidx.paging.PagingConfig",
+        "kotlinx.coroutines.rx2.asCoroutineDispatcher",
+        "kotlinx.coroutines.Dispatchers"
+    )
+)
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     pageSize: Int,
     initialLoadKey: Key? = null,
@@ -111,25 +145,45 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
 }
 
 /**
- * Constructs a `Flowable<PagedList>`, from this `DataSource.Factory`, convenience for
+ * Constructs a `Flowable<PagedList>`, from this [DataSource.Factory], convenience for
  * [RxPagedListBuilder].
  *
- * The returned `Flowable` will already be subscribed on the `fetchScheduler`, and will perform
- * all loading on that scheduler. It will already be observed on `notifyScheduler`, and will
- * dispatch new PagedLists, as well as their updates to that scheduler.
+ * The returned [Flowable] will already be subscribed on the [fetchScheduler], and will perform
+ * all loading on that scheduler. It will already be observed on [notifyScheduler], and will
+ * dispatch new [PagedList]s, as well as their updates to that scheduler.
  *
  * @param config Paging configuration.
- * @param initialLoadKey Initial load key passed to the first PagedList/DataSource.
- * @param boundaryCallback The boundary callback for listening to PagedList load state.
- * @param notifyScheduler Scheduler that receives PagedList updates, and where [PagedList.Callback]
- * calls are dispatched. Generally, this is the UI/main thread.
- * @param fetchScheduler Scheduler used to fetch from DataSources, generally a background
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [DataSource].
+ * @param boundaryCallback The boundary callback for listening to [PagedList] load state.
+ * @param notifyScheduler [Scheduler] that receives [PagedList] updates, and where
+ * [PagedList.Callback] calls are dispatched. Generally, this is the UI / main thread.
+ * @param fetchScheduler [Scheduler] used to fetch from [DataSource]s, generally a background
  * thread pool for e.g. I/O or network loading.
- * @param backpressureStrategy BackpressureStrategy for the Flowable to use.
+ * @param backpressureStrategy [BackpressureStrategy] for the [Flowable] to use.
  *
  * @see RxPagedListBuilder
  * @see toObservable
  */
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """PagingDataFlowable(
+            PagingConfig(
+                config.pageSize,
+                config.prefetchDistance,
+                config.enablePlaceholders,
+                config.initialLoadSizeHint,
+                config.maxSize
+            ),
+            initialLoadKey,
+            this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
+        )""",
+        "androidx.paging.PagingDataFlowable",
+        "androidx.paging.PagingConfig",
+        "kotlinx.coroutines.rx2.asCoroutineDispatcher",
+        "kotlinx.coroutines.Dispatchers"
+    )
+)
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
@@ -149,25 +203,39 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
 }
 
 /**
- * Constructs a `Flowable<PagedList>`, from this `DataSource.Factory`, convenience for
+ * Constructs a `Flowable<PagedList>`, from this [DataSource.Factory], convenience for
  * [RxPagedListBuilder].
  *
- * The returned `Flowable` will already be subscribed on the `fetchScheduler`, and will perform
- * all loading on that scheduler. It will already be observed on `notifyScheduler`, and will
- * dispatch new PagedLists, as well as their updates to that scheduler.
+ * The returned [Flowable] will already be subscribed on the [fetchScheduler], and will perform
+ * all loading on that scheduler. It will already be observed on [notifyScheduler], and will
+ * dispatch new [PagedList]s, as well as their updates to that scheduler.
  *
  * @param pageSize Page size.
- * @param initialLoadKey Initial load key passed to the first PagedList/DataSource.
- * @param boundaryCallback The boundary callback for listening to PagedList load state.
- * @param notifyScheduler Scheduler that receives PagedList updates, and where [PagedList.Callback]
- * calls are dispatched. Generally, this is the UI/main thread.
- * @param fetchScheduler Scheduler used to fetch from DataSources, generally a background
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [DataSource].
+ * @param boundaryCallback The boundary callback for listening to [PagedList] load state.
+ * @param notifyScheduler [Scheduler] that receives [PagedList] updates, and where
+ * [PagedList.Callback] calls are dispatched. Generally, this is the UI / main thread.
+ * @param fetchScheduler [Scheduler] used to fetch from [DataSource]s, generally a background
  * thread pool for e.g. I/O or network loading.
- * @param backpressureStrategy BackpressureStrategy for the Flowable to use.
+ * @param backpressureStrategy [BackpressureStrategy] for the [Flowable] to use.
  *
  * @see RxPagedListBuilder
  * @see toObservable
  */
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """PagingDataFlowable(
+            PagingConfig(pageSize),
+            initialLoadKey,
+            this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
+        )""",
+        "androidx.paging.PagingDataFlowable",
+        "androidx.paging.PagingConfig",
+        "kotlinx.coroutines.rx2.asCoroutineDispatcher",
+        "kotlinx.coroutines.Dispatchers"
+    )
+)
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     pageSize: Int,
     initialLoadKey: Key? = null,
