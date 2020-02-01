@@ -104,6 +104,7 @@ class SelectionManagerDragTest {
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.onSelectionChange = spyLambda
         selectionManager.selection = selection
+        selectionManager.hapticFeedBack = mock()
     }
 
     @Test
@@ -209,7 +210,8 @@ class SelectionManagerDragTest {
                 startPosition = position,
                 endPosition = position,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = true
+                longPress = true,
+                previousSelection = fakeInitialSelection
             )
     }
 }

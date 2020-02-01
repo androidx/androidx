@@ -17,15 +17,19 @@
 package androidx.ui.core.selection
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,27 +47,57 @@ class SelectionManagerTest {
     private val startCoordinates = PxPosition(3.px, 30.px)
     private val endCoordinates = PxPosition(3.px, 600.px)
 
+    private val fakeSelection =
+        Selection(
+            start = Selection.AnchorInfo(
+                coordinates = startCoordinates,
+                direction = TextDirection.Ltr,
+                offset = 0,
+                layoutCoordinates = startLayoutCoordinates
+            ),
+            end = Selection.AnchorInfo(
+                coordinates = endCoordinates,
+                direction = TextDirection.Ltr,
+                offset = 5,
+                layoutCoordinates = endLayoutCoordinates
+            )
+        )
+
+    private val hapticFeedback = mock<HapticFeedback>()
+
     @Before
     fun setup() {
         val containerLayoutCoordinates = mock<LayoutCoordinates>()
         selectionRegistrar.subscribe(selectable)
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
+        selectionManager.hapticFeedBack = hapticFeedback
     }
 
     @Test
     fun mergeSelections_single_selectable_calls_getSelection_once() {
         selectionManager.mergeSelections(
             startPosition = startCoordinates,
-            endPosition = endCoordinates
+            endPosition = endCoordinates,
+            previousSelection = fakeSelection
         )
+
+        val fakeNewSelection = mock<Selection>()
+
+        whenever(selectable.getSelection(any(), any(), any(), any(), any(), any()))
+            .thenReturn(fakeNewSelection)
 
         verify(selectable, times(1))
             .getSelection(
                 startPosition = startCoordinates,
                 endPosition = endCoordinates,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = false
+                longPress = false,
+                previousSelection = fakeSelection
             )
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test
@@ -73,7 +107,8 @@ class SelectionManagerTest {
 
         selectionManager.mergeSelections(
             startPosition = startCoordinates,
-            endPosition = endCoordinates
+            endPosition = endCoordinates,
+            previousSelection = fakeSelection
         )
 
         verify(selectable, times(1))
@@ -81,34 +116,43 @@ class SelectionManagerTest {
                 startPosition = startCoordinates,
                 endPosition = endCoordinates,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = false
+                longPress = false,
+                previousSelection = fakeSelection
             )
         verify(selectable_another, times(1))
             .getSelection(
                 startPosition = startCoordinates,
                 endPosition = endCoordinates,
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = false
+                longPress = false,
+                previousSelection = fakeSelection
             )
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun mergeSelections_selection_does_not_change_hapticFeedBack_Not_triggered() {
+        val selection: Selection? = mock()
+        whenever(selectable.getSelection(any(), any(), any(), any(), any(), any()))
+            .thenReturn(selection)
+
+        selectionManager.mergeSelections(
+            startPosition = startCoordinates,
+            endPosition = endCoordinates,
+            previousSelection = selection
+        )
+
+        verify(
+            hapticFeedback,
+            times(0)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test
     fun cancel_selection_calls_getSelection_selection_becomes_null() {
-        val fakeSelection =
-            Selection(
-                start = Selection.AnchorInfo(
-                    coordinates = startCoordinates,
-                    direction = TextDirection.Ltr,
-                    offset = 0,
-                    layoutCoordinates = startLayoutCoordinates
-                ),
-                end = Selection.AnchorInfo(
-                    coordinates = endCoordinates,
-                    direction = TextDirection.Ltr,
-                    offset = 5,
-                    layoutCoordinates = endLayoutCoordinates
-                )
-            )
         var selection: Selection? = fakeSelection
         val lambda: (Selection?) -> Unit = { selection = it }
         val spyLambda = spy(lambda)
@@ -122,9 +166,14 @@ class SelectionManagerTest {
                 startPosition = PxPosition((-1).px, (-1).px),
                 endPosition = PxPosition((-1).px, (-1).px),
                 containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
-                longPress = false
+                longPress = false,
+                previousSelection = fakeSelection
             )
         assertThat(selection).isNull()
         verify(spyLambda, times(1)).invoke(null)
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 }

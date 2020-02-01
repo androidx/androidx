@@ -42,6 +42,8 @@ import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
+import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
+import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.semantics.SemanticsNode
@@ -703,6 +705,12 @@ class AndroidComposeView constructor(context: Context) :
     val textInputService = TextInputService(textInputServiceAndroid)
 
     val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
+
+    /**
+     * Provide haptic feedback to the user. Use the Android version of haptic feedback.
+     */
+    val hapticFeedBack: HapticFeedback =
+        AndroidHapticFeedback(this)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
 

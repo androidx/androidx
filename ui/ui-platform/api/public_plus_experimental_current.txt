@@ -23,6 +23,7 @@ package androidx.ui.core {
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.unit.Density getDensity();
     method public androidx.ui.text.font.Font.ResourceLoader getFontLoader();
+    method public androidx.ui.core.hapticfeedback.HapticFeedback getHapticFeedBack();
     method public long getMeasureIteration();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
@@ -53,6 +54,7 @@ package androidx.ui.core {
     property public final androidx.ui.core.Constraints constraints;
     property public androidx.ui.unit.Density density;
     property public final androidx.ui.text.font.Font.ResourceLoader fontLoader;
+    property public final androidx.ui.core.hapticfeedback.HapticFeedback hapticFeedBack;
     property public long measureIteration;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? ref;
     property public final androidx.ui.core.LayoutNode root;
@@ -362,6 +364,19 @@ package androidx.ui.core.focus {
 
   public final class FocusNodeUtilsKt {
     method public static void initializeFocusState(androidx.ui.core.FocusNode);
+  }
+
+}
+
+package androidx.ui.core.hapticfeedback {
+
+  public interface HapticFeedback {
+    method public void performHapticFeedback(androidx.ui.core.hapticfeedback.HapticFeedbackType hapticFeedbackType);
+  }
+
+  public enum HapticFeedbackType {
+    enum_constant public static final androidx.ui.core.hapticfeedback.HapticFeedbackType LongPress;
+    enum_constant public static final androidx.ui.core.hapticfeedback.HapticFeedbackType TextHandleMove;
   }
 
 }
