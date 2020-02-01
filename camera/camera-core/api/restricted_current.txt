@@ -217,7 +217,9 @@ package androidx.camera.core {
   }
 
   public final class ImageCapture extends androidx.camera.core.UseCase {
+    method @androidx.camera.core.ImageCapture.CaptureMode public int getCaptureMode();
     method @androidx.camera.core.ImageCapture.FlashMode public int getFlashMode();
+    method public int getTargetRotation();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
     method public void setFlashMode(@androidx.camera.core.ImageCapture.FlashMode int);
     method public void setTargetAspectRatioCustom(android.util.Rational);
