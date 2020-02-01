@@ -30,6 +30,7 @@ class WorkManagerIssueRegistry : IssueRegistry() {
         InvalidPeriodicWorkRequestIntervalDetector.ISSUE,
         PeriodicEnqueueIssueDetector.ISSUE,
         RemoveWorkManagerInitializerDetector.ISSUE,
-        SpecifyForegroundServiceTypeIssueDetector.ISSUE
+        SpecifyForegroundServiceTypeIssueDetector.ISSUE,
+        SpecifyJobSchedulerIdRangeIssueDetector.ISSUE
     )
 }
