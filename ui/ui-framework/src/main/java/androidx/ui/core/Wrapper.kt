@@ -40,6 +40,7 @@ import androidx.compose.onPreCommit
 import androidx.compose.staticAmbientOf
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
+import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
@@ -191,6 +192,7 @@ private fun WrapWithAmbients(
         FocusManagerAmbient provides focusManager,
         TextInputServiceAmbient provides composeView.textInputService,
         FontLoaderAmbient provides composeView.fontLoader,
+        HapticFeedBackAmbient provides composeView.hapticFeedBack,
         AutofillTreeAmbient provides composeView.autofillTree,
         ConfigurationAmbient provides context.applicationContext.resources.configuration,
         AndroidComposeViewAmbient provides composeView,
@@ -225,6 +227,11 @@ val TextInputServiceAmbient = staticAmbientOf<TextInputService?>()
 val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 
 val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
+
+/**
+ * The ambient to provide haptic feedback to the user.
+ */
+val HapticFeedBackAmbient = staticAmbientOf<HapticFeedback>()
 
 /**
  * Aambient to get a [Density] object from an internal [DensityAmbient].
