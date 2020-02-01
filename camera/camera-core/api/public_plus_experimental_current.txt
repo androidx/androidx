@@ -120,7 +120,9 @@ package androidx.camera.core {
   }
 
   public final class ImageCapture extends androidx.camera.core.UseCase {
+    method public int getCaptureMode();
     method public int getFlashMode();
+    method public int getTargetRotation();
     method public void setFlashMode(int);
     method public void setTargetAspectRatioCustom(android.util.Rational);
     method public void setTargetRotation(int);

@@ -500,6 +500,24 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Returns the desired rotation of the output image.
+     *
+     * <p>The rotation can be set prior to constructing an ImageCapture using
+     * {@link ImageCapture.Builder#setTargetRotation(int)} or dynamically by calling
+     * {@link ImageCapture#setTargetRotation(int)}. The rotation of an image taken is determined
+     * by the rotation value set at the time image capture is initiated, such as when calling
+     * {@link #takePicture(Executor, OnImageCapturedCallback)}.
+     *
+     * <p>If no target rotation is set by the application, it is set to the value of
+     * {@link Display#getRotation()} of the default display at the time the use case is
+     * created.
+     */
+    @RotationValue
+    public int getTargetRotation() {
+        return ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation();
+    }
+
+    /**
      * Sets the desired rotation of the output image.
      *
      * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and the
@@ -541,6 +559,18 @@ public final class ImageCapture extends UseCase {
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
+    }
+
+    /**
+     * Returns the set capture mode.
+     *
+     * <p>This is set when constructing an ImageCapture using
+     * {@link ImageCapture.Builder#setCaptureMode(int)}. This is static for an instance of
+     * ImageCapture.
+     */
+    @CaptureMode
+    public int getCaptureMode() {
+        return mCaptureMode;
     }
 
     /**
