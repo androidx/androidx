@@ -20,6 +20,10 @@ import android.content.Context
 import android.view.View
 import android.view.View.MeasureSpec.AT_MOST
 import android.view.ViewGroup
+import androidx.recyclerview.widget.MergeAdapter.Config.Builder
+import androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS
+import androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS
+import androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.SHARED_STABLE_IDS
 import androidx.recyclerview.widget.MergeAdapterSubject.Companion.assertThat
 import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Changed
 import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.DataSetChanged
@@ -789,14 +793,6 @@ class MergeAdapterTest {
         }
     }
 
-    @Test(
-        expected = IllegalArgumentException::class
-    )
-    fun stableIdTest() {
-        val merge = MergeAdapter()
-        merge.setHasStableIds(true)
-    }
-
     @Test
     fun stateRestrorationTest_callingPublicMerthodIsIgnored() {
         val adapter = NestedTestAdapter(3).also {
@@ -916,7 +912,6 @@ class MergeAdapterTest {
         """.trimIndent()
 
         val excludedMethods = setOf(
-            "getItemId([int]) : long",
             "registerAdapterDataObserver(" +
                     "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
             "unregisterAdapterDataObserver(" +
@@ -962,7 +957,7 @@ class MergeAdapterTest {
             pos % 3
         }
         val merge = MergeAdapter(
-            MergeAdapter.Config.Builder()
+            Builder()
                 .setIsolateViewTypes(false)
                 .build(), adapter1, adapter2
         )
@@ -991,7 +986,7 @@ class MergeAdapterTest {
             item.id
         }
         val merge = MergeAdapter(
-            MergeAdapter.Config.Builder()
+            Builder()
                 .setIsolateViewTypes(false)
                 .build(), adapter1, adapter2
         )
@@ -1009,12 +1004,134 @@ class MergeAdapterTest {
             .verifyBoundTo(adapter2, 2)
     }
 
+    @Test
+    fun stableIds_noStableId() {
+        val mergeAdapter = MergeAdapter(
+            Builder().setStableIdMode(NO_STABLE_IDS).build()
+        )
+        assertThat(mergeAdapter).doesNotHaveStableIds()
+        // accept adapters with stable ids
+        assertThat(mergeAdapter.addAdapter(PositionAsIdsNestedTestAdapter(10))).isTrue()
+    }
+
+    @Test
+    fun stableIds_isolated_addAdapterWithoutStableId() {
+        val mergeAdapter = MergeAdapter(
+            Builder().setStableIdMode(ISOLATED_STABLE_IDS).build()
+        )
+        assertThat(mergeAdapter).hasStableIds()
+        assertThat(mergeAdapter).throwsException {
+            it.addAdapter(NestedTestAdapter(10).also { nested ->
+                nested.setHasStableIds(false)
+            })
+        }.hasMessageThat().contains(
+            "All sub adapters must have stable ids when stable id mode" +
+                    " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
+        )
+    }
+
+    @Test
+    fun stableIds_shared_addAdapterWithoutStableId() {
+        val mergeAdapter = MergeAdapter(
+            Builder().setStableIdMode(SHARED_STABLE_IDS).build()
+        )
+        assertThat(mergeAdapter).hasStableIds()
+        assertThat(mergeAdapter).throwsException {
+            it.addAdapter(NestedTestAdapter(10).also { nested ->
+                nested.setHasStableIds(false)
+            })
+        }.hasMessageThat().contains(
+            "All sub adapters must have stable ids when stable id mode" +
+                    " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
+        )
+    }
+
+    @Test
+    fun stableIds_isolated() {
+        val mergeAdapter = MergeAdapter(
+            Builder().setStableIdMode(ISOLATED_STABLE_IDS).build()
+        )
+        assertThat(mergeAdapter).hasStableIds()
+        val adapter1 = PositionAsIdsNestedTestAdapter(10)
+        val adapter2 = PositionAsIdsNestedTestAdapter(10)
+        mergeAdapter.addAdapter(adapter1)
+        mergeAdapter.addAdapter(adapter2)
+        assertThat(mergeAdapter).hasItemIds((0..19))
+        // call again, ensure we are not popping up new ids
+        assertThat(mergeAdapter).hasItemIds((0..19))
+        mergeAdapter.removeAdapter(adapter1)
+        assertThat(mergeAdapter).hasItemIds((10..19))
+
+        val adapter3 = PositionAsIdsNestedTestAdapter(5)
+        mergeAdapter.addAdapter(adapter3)
+        assertThat(mergeAdapter).hasItemIds((10..24))
+
+        // add in between
+        val adapter4 = PositionAsIdsNestedTestAdapter(5)
+        mergeAdapter.addAdapter(1, adapter4)
+        assertThat(mergeAdapter).hasItemIds(
+            (10..19) + (25..29) + (20..24)
+        )
+    }
+
+    @Test
+    fun stableIds_shared() {
+        val mergeAdapter = MergeAdapter(
+            Builder().setStableIdMode(SHARED_STABLE_IDS).build()
+        )
+        assertThat(mergeAdapter).hasStableIds()
+        val adapter1 = UniqueItemIdsNestedTestAdapter(10)
+        val adapter2 = UniqueItemIdsNestedTestAdapter(10)
+        mergeAdapter.addAdapter(adapter1)
+        mergeAdapter.addAdapter(adapter2)
+        assertThat(mergeAdapter).hasItemIds(adapter1.itemIds() + adapter2.itemIds())
+        // call again, ensure we are not popping up new ids
+        assertThat(mergeAdapter).hasItemIds(adapter1.itemIds() + adapter2.itemIds())
+        mergeAdapter.removeAdapter(adapter1)
+        assertThat(mergeAdapter).hasItemIds(adapter2.itemIds())
+
+        val adapter3 = UniqueItemIdsNestedTestAdapter(5)
+        mergeAdapter.addAdapter(adapter3)
+        assertThat(mergeAdapter).hasItemIds(adapter2.itemIds() + adapter3.itemIds())
+
+        // add in between
+        val adapter4 = UniqueItemIdsNestedTestAdapter(5)
+        mergeAdapter.addAdapter(1, adapter4)
+        assertThat(mergeAdapter).hasItemIds(
+            adapter2.itemIds() + adapter4.itemIds() + adapter3.itemIds()
+        )
+    }
+
     private var itemCounter = 0
     private fun produceItem(): TestItem = (itemCounter++).let {
         TestItem(id = it, value = it)
     }
 
-    internal inner class NestedTestAdapter(
+    internal open inner class PositionAsIdsNestedTestAdapter(count: Int) :
+        NestedTestAdapter(count) {
+        init {
+            setHasStableIds(true)
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+    }
+
+    internal open inner class UniqueItemIdsNestedTestAdapter(count: Int) :
+        NestedTestAdapter(count) {
+        init {
+            setHasStableIds(true)
+        }
+
+        override fun getItemId(position: Int): Long {
+            return items[position].id.toLong()
+        }
+
+        fun itemIds() = items.map { it.id }
+    }
+
+    internal open inner class NestedTestAdapter(
         count: Int = 0,
         val getLayoutParams: ((MergeAdapterViewHolder) -> LayoutParams)? = null,
         val itemTypeLookup: ((TestItem, position: Int) -> Int)? = null
@@ -1025,7 +1142,7 @@ class MergeAdapterTest {
         private var attachedRecyclerViews = mutableListOf<RecyclerView>()
         private var observers = mutableListOf<RecyclerView.AdapterDataObserver>()
 
-        private val items = mutableListOf<TestItem>().also { list ->
+        val items = mutableListOf<TestItem>().also { list ->
             repeat(count) {
                 list.add(produceItem())
             }
