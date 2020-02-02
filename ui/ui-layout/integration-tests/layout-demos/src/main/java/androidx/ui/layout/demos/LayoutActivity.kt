@@ -24,8 +24,8 @@ import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
@@ -106,7 +106,7 @@ fun LayoutDemo() {
             }
             Spacer(LayoutWidth(24.dp))
             Stack(LayoutHeight(ExampleSize) + DrawBackground(color = lightGrey)) {
-                Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.Bottom) {
                     PurpleSquare()
                     CyanSquare()
                 }
