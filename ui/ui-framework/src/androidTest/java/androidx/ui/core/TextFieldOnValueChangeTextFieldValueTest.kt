@@ -32,6 +32,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.sendClick
+import androidx.ui.text.TextFieldValue
 import androidx.ui.text.TextRange
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
@@ -41,6 +42,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.clearInvocations
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -52,11 +54,11 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class TextFieldOnValueChangeFullEditorModelTest {
+class TextFieldOnValueChangeTextFieldValueTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    val onValueChange: (EditorModel, TextRange?) -> Unit = mock()
+    val onValueChange: (TextFieldValue) -> Unit = mock()
 
     lateinit var onEditCommandCallback: (List<EditOperation>) -> Unit
 
@@ -79,15 +81,12 @@ class TextFieldOnValueChangeFullEditorModelTest {
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
-                    val model = state { EditorModel("abcde", TextRange(0, 0)) }
-                    val composition = state<TextRange?> { null }
+                    val state = state { TextFieldValue("abcde", TextRange(0, 0)) }
                     TextField(
-                        model = model.value,
-                        compositionRange = composition.value,
-                        onValueChange = { newModel, newComposition ->
-                            model.value = newModel
-                            composition.value = newComposition
-                            onValueChange(newModel, newComposition)
+                        value = state.value,
+                        onValueChange = {
+                            state.value = it
+                            onValueChange(it)
                         })
                 }
             }
@@ -110,14 +109,15 @@ class TextFieldOnValueChangeFullEditorModelTest {
             assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
             onEditCommandCallback = onEditCommandCaptor.firstValue
             assertThat(onEditCommandCallback).isNotNull()
-
             clearInvocations(onValueChange)
         }
     }
 
     private fun performEditOperation(op: EditOperation) {
         arrayOf(listOf(op)).forEach {
-            composeTestRule.runOnUiThread { onEditCommandCallback(it) }
+            composeTestRule.runOnUiThread {
+                onEditCommandCallback(it)
+            }
         }
     }
 
@@ -126,37 +126,35 @@ class TextFieldOnValueChangeFullEditorModelTest {
         // Committing text should be reported as value change
         performEditOperation(CommitTextEditOp("ABCDE", 1))
         composeTestRule.runOnIdleCompose {
-            verify(onValueChange, times(1)).invoke(
-                eq(EditorModel("ABCDEabcde", TextRange(5, 5))), eq(null))
+            verify(onValueChange, times(1))
+                .invoke(eq(TextFieldValue("ABCDEabcde", TextRange(5, 5))))
         }
     }
 
     @Test
-    fun setComposingRegion_onValueChange_call_once() {
-        // Composition conversion is not counted as a value change in InputState text field.
+    fun setComposingRegion_onValueChange_never_call() {
+        // Composition conversion is not counted as a value change in EditorModel text field.
         performEditOperation(SetComposingRegionEditOp(0, 5))
         composeTestRule.runOnIdleCompose {
-            verify(onValueChange, times(1)).invoke(
-                eq(EditorModel("abcde", TextRange(0, 0))), eq(TextRange(0, 5)))
+            verify(onValueChange, never()).invoke(any())
         }
     }
 
     @Test
-    fun setCompsingText_onValueChange_call_once() {
+    fun setComposingText_onValueChange_call_once() {
         performEditOperation(SetComposingTextEditOp("ABCDE", 1))
         composeTestRule.runOnIdleCompose {
-            verify(onValueChange, times(1)).invoke(
-                eq(EditorModel("ABCDEabcde", TextRange(5, 5))), eq(TextRange(0, 5)))
+            verify(onValueChange, times(1))
+                .invoke(eq(TextFieldValue("ABCDEabcde", TextRange(5, 5))))
         }
     }
 
     @Test
     fun setSelection_onValueChange_call_once() {
-        // Selection change is a part of value-change in InputState text field
+        // Selection change is a part of value-change in EditorModel text field
         performEditOperation(SetSelectionEditOp(1, 1))
         composeTestRule.runOnIdleCompose {
-            verify(onValueChange, times(1)).invoke(
-                eq(EditorModel("abcde", TextRange(1, 1))), eq(null))
+            verify(onValueChange, times(1)).invoke(eq(TextFieldValue("abcde", TextRange(1, 1))))
         }
     }
 
@@ -164,27 +162,21 @@ class TextFieldOnValueChangeFullEditorModelTest {
     fun clearComposition_onValueChange_call_once() {
         performEditOperation(SetComposingTextEditOp("ABCDE", 1))
         composeTestRule.runOnIdleCompose {
-            verify(onValueChange, times(1)).invoke(
-                eq(EditorModel("ABCDEabcde", TextRange(5, 5))), eq(TextRange(0, 5)))
-
-            // Finishing composition change is not counted as a value change in InputState text
-            // field.
-            clearInvocations(onValueChange)
+            verify(onValueChange, times(1))
+                .invoke(eq(TextFieldValue("ABCDEabcde", TextRange(5, 5))))
         }
 
+        // Finishing composition change is not counted as a value change in EditorModel text field.
+        clearInvocations(onValueChange)
         performEditOperation(FinishComposingTextEditOp())
-        composeTestRule.runOnIdleCompose {
-            verify(onValueChange, times(1)).invoke(
-                eq(EditorModel("ABCDEabcde", TextRange(5, 5))), eq(null))
-        }
+        composeTestRule.runOnIdleCompose { verify(onValueChange, never()).invoke(any()) }
     }
 
     @Test
     fun deleteSurroundingText_onValueChange_call_once() {
         performEditOperation(DeleteSurroundingTextEditOp(0, 1))
         composeTestRule.runOnIdleCompose {
-            verify(onValueChange, times(1)).invoke(
-                eq(EditorModel("bcde", TextRange(0, 0))), eq(null))
+            verify(onValueChange, times(1)).invoke(eq(TextFieldValue("bcde", TextRange(0, 0))))
         }
     }
 }
