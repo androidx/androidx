@@ -78,4 +78,20 @@ class UseKtExperimentalFromJava {
         LocationProviderKt locationProvider = new LocationProviderKt();
         return dateProvider.getDate() + locationProvider.getLocation();
     }
+
+    /**
+     * Regression test for issue reported in b/140637106, which passes here but fails in Studio.
+     */
+    void regressionTestStaticUsage() {
+        TimeProviderKt.getTimeStatically();
+        TimeProviderKt.Companion.getTimeStatically();
+    }
+
+    /**
+     * Regression test for issue reported in b/140637106, which passes here but fails in Studio.
+     */
+    void regressionTestInlineUsage() {
+        new TimeProviderKt().getTime();
+        new TimeProviderKt().getTimeJava();
+    }
 }
