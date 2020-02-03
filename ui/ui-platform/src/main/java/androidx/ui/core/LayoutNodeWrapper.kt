@@ -288,7 +288,11 @@ internal class ModifiedLayoutNode(
     override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
         var lineValue = layoutNode.measureScope.modifyAlignmentLine(line, wrapped[line])
         if (lineValue != null) {
-            lineValue += if (line.horizontal) wrapped.position.y else wrapped.position.x
+            lineValue += if (line is HorizontalAlignmentLine) {
+                wrapped.position.y
+            } else {
+                wrapped.position.x
+            }
         }
         lineValue
     }

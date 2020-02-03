@@ -32,8 +32,7 @@ import androidx.ui.unit.IntPx
  * @see HorizontalAlignmentLine
  */
 sealed class AlignmentLine(
-    internal val merger: (IntPx, IntPx) -> IntPx,
-    val horizontal: Boolean
+    internal val merger: (IntPx, IntPx) -> IntPx
 )
 
 /**
@@ -46,11 +45,11 @@ fun AlignmentLine.merge(position1: IntPx, position2: IntPx) = merger(position1, 
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-class VerticalAlignmentLine(merger: (IntPx, IntPx) -> IntPx) : AlignmentLine(merger, false)
+class VerticalAlignmentLine(merger: (IntPx, IntPx) -> IntPx) : AlignmentLine(merger)
 
 /**
  * A horizontal [AlignmentLine].
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-class HorizontalAlignmentLine(merger: (IntPx, IntPx) -> IntPx) : AlignmentLine(merger, true)
+class HorizontalAlignmentLine(merger: (IntPx, IntPx) -> IntPx) : AlignmentLine(merger)
