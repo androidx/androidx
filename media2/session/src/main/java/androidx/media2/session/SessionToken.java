@@ -305,8 +305,6 @@ public final class SessionToken implements VersionedParcelable {
                     // media2 token inside of the compat token.
                     compatToken.setSession2Token(resultToken);
 
-                    // TODO(b/130282718): From android Q, use fwk controller#getSessionInfo
-                    // and create a new Session2Token with it.
                     notifySessionTokenCreated(executor, listener, compatToken, resultToken);
                     quitHandlerThread(thread);
                 }
