@@ -94,6 +94,7 @@ fun SelectionContainer(
     }
 }
 
+@Composable
 private fun addHandles(
     manager: SelectionManager,
     selection: Selection?,

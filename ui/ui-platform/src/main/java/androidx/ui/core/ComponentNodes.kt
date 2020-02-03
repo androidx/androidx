@@ -1408,8 +1408,8 @@ private class InvalidatingProperty<T>(private var value: T) :
 }
 
 class SemanticsComponentNode(
-    semanticsConfiguration: SemanticsConfiguration,
-    val id: Int
+    val id: Int,
+    semanticsConfiguration: SemanticsConfiguration
 ) : ComponentNode() {
     private var localSemanticsConfiguration: SemanticsConfiguration
             by InvalidatingProperty(semanticsConfiguration)

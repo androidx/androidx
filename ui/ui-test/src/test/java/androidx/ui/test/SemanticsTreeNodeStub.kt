@@ -25,7 +25,7 @@ private var stubId = 2
 fun SemanticsTreeNodeStub(data: SemanticsConfiguration): SemanticsNode {
     // TODO: Find a better way to stub this stuff, this just bridges the old SemanticsTreeNode
     //  system to use SemanticsNodes
-    val stubSemanticsComponentNode = SemanticsComponentNode(data, stubId++)
+    val stubSemanticsComponentNode = SemanticsComponentNode(stubId++, data)
     val stubLayoutNode = LayoutNode()
     stubSemanticsComponentNode.emitInsertAt(0, stubLayoutNode)
     return SemanticsNode(data, stubSemanticsComponentNode)
