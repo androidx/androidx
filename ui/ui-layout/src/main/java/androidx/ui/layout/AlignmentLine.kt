@@ -19,6 +19,7 @@ package androidx.ui.layout
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -146,3 +147,5 @@ fun CenterAlignmentLine(alignmentLine: AlignmentLine, children: @Composable() ()
         }
     }
 }
+
+private val AlignmentLine.horizontal: Boolean get() = this is HorizontalAlignmentLine

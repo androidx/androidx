@@ -1259,7 +1259,7 @@ class LayoutNode : ComponentNode(), Measurable {
                     child.alignmentLines.entries.forEach { (childLine, linePosition) ->
                         val offset = child.contentPosition
                         val linePositionInContainer = linePosition +
-                                if (childLine.horizontal) offset.y else offset.x
+                                if (childLine is HorizontalAlignmentLine) offset.y else offset.x
                         // If the line was already provided by a previous child, merge the values.
                         alignmentLines[childLine] = if (childLine in alignmentLines) {
                             childLine.merge(
