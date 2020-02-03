@@ -533,9 +533,7 @@ public final class Camera2CameraControlTest {
 
     @Test
     public void cancelFocusAndMetering_cancelAfProperly() throws InterruptedException {
-        assumeTrue(getMaxAfRegionCount() > 0 || getMaxAeRegionCount() > 0
-                || getMaxAwbRegionCount() > 0);
-
+        assumeTrue(getMaxAfRegionCount() > 0);
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1.0f,
                 1.0f);
         FocusMeteringAction action = new FocusMeteringAction.Builder(factory.createPoint(0, 0))
