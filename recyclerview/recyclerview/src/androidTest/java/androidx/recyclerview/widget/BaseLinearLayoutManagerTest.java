@@ -345,7 +345,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         }
     }
 
-    static class Config implements Cloneable {
+    public static class Config implements Cloneable {
 
         static final int DEFAULT_ITEM_COUNT = 250;
 
