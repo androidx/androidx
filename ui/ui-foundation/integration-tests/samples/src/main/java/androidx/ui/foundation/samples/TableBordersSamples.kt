@@ -18,10 +18,10 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.drawBorders
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Table
@@ -33,8 +33,7 @@ fun TableWithBorders() {
     Padding(10.dp) {
         Table(columns = 8) {
             drawBorders(
-                defaultBorderBrush = SolidColor(Color.Red),
-                defaultBorderWidth = 2.dp
+                defaultBorder = Border(color = Color.Red, size = 2.dp)
             ) {
                 outer()
                 vertical(column = 2, rows = 0 until 8)

@@ -27,8 +27,9 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.ambientDensity
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
@@ -275,7 +276,7 @@ fun FancyIndicator(color: Color) {
     // Color is passed in as a parameter [color]
     Stack(
         LayoutPadding(5.dp) + LayoutSize.Fill +
-                Border(RoundedCornerShape(5.dp), 2.dp, color)
+                DrawBorder(Border(2.dp, color), RoundedCornerShape(5.dp))
     ) {}
 }
 

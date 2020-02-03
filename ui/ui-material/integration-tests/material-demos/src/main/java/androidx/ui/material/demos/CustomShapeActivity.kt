@@ -20,9 +20,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Wrap
@@ -45,8 +45,7 @@ class CustomShapeActivity : MaterialDemoActivity() {
                 style = OutlinedButtonStyle(
                     shape = TriangleShape,
                     backgroundColor = Color.Cyan,
-                    borderWidth = 1.dp,
-                    borderBrush = SolidColor(Color.DarkGray)
+                    border = Border(size = 1.dp, color = Color.DarkGray)
                 )
             ) {
                 Spacer(LayoutSize(100.dp, 100.dp))
