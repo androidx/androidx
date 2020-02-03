@@ -504,7 +504,7 @@ public class MigrationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
+    @SdkSuppress(minSdkVersion = 23)
     public void missingAddedIndex() throws IOException {
         SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 11);
         database.close();
@@ -525,7 +525,7 @@ public class MigrationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
+    @SdkSuppress(minSdkVersion = 23)
     public void missingAddedIndex_viaMigrationTesting() throws IOException {
         SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 11);
         database.close();
