@@ -41,7 +41,7 @@ import java.util.Collections;
  * TODO(b/147116534): Add documentation about UI templating.
  */
 @SuppressLint("TopLevelBuilder")
-@RequiresApi(api = Build.VERSION_CODES.R)
+@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
 public class InlinePresentationBuilder {
 
     private static final String TAG = "InlinePresentationBuilder";

@@ -41,10 +41,9 @@ import androidx.annotation.RequiresApi;
 import java.util.List;
 
 /**
- * Helper class for rendering {@link Slice} as an Inline
- * Suggestion.
+ * Helper class for rendering {@link Slice} as an Inline Suggestion.
  */
-@RequiresApi(api = Build.VERSION_CODES.R)
+@RequiresApi(api = Build.VERSION_CODES.Q) // TODO(b/147116534): Update to R.
 public class InlinePresentationRenderer {
 
     private static final String TAG = "InlinePresentationRenderer";
