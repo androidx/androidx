@@ -27,6 +27,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -43,6 +44,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 /**
  * This class implements a custom AlertDialog that prompts the user for fingerprint authentication.
@@ -61,7 +65,7 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     /**
      * Error/help message will show for this amount of time, unless
-     * {@link Utils#shouldAlwaysHideFingerprintDialogInstantly(String)} is true.
+     * {@link DeviceConfig#shouldHideFingerprintDialog(Context, String)}} is true.
      *
      * <p>For error messages, the dialog will also be dismissed after this amount of time. Error
      * messages will be propagated back to the application via AuthenticationCallback
@@ -81,7 +85,7 @@ public class FingerprintDialogFragment extends DialogFragment {
     static final int MSG_DISMISS_DIALOG_AUTHENTICATED = 5;
     // The amount of time required that this fragment be displayed for in order that
     // we show an error message on top of the UI.
-    static final int DISPLAYED_FOR_500_MS = 6;
+    static final int MSG_DISPLAYED_FOR_500_MS = 6;
 
     // States for icon animation
     private static final int STATE_NONE = 0;
@@ -97,35 +101,97 @@ public class FingerprintDialogFragment extends DialogFragment {
         return fragment;
     }
 
-    final class H extends Handler {
+    private static final class MessageHandler extends Handler {
+        private WeakReference<FingerprintDialogFragment> mFragmentReference;
+
+        @Nullable
+        private ArrayList<Message> mQueuedMessages;
+
+        private MessageHandler(FingerprintDialogFragment fragment) {
+            mFragmentReference = new WeakReference<>(fragment);
+        }
+
         @Override
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(@NonNull Message msg) {
+            FingerprintDialogFragment fragment = mFragmentReference.get();
+            sendOrQueue(msg, fragment);
+        }
+
+        /**
+         * Attaches a {@link FingerprintDialogFragment} to this {@link Handler}, sending any queued
+         * messages.
+         * @param fragment The fragment instance that should begin handling messages.
+         */
+        private void setFragment(FingerprintDialogFragment fragment) {
+            mFragmentReference.clear();
+            mFragmentReference = new WeakReference<>(fragment);
+            sendAllQueued(fragment);
+        }
+
+        /**
+         * Passes a {@link Message} to the attached fragment or queues it for later handling.
+         * @param msg The {@link Message} to be handled.
+         * @param fragment The {@link FingerprintDialogFragment} that will handle the message if it
+         *                 is non-null.
+         */
+        private void sendOrQueue(
+                @NonNull Message msg, @Nullable FingerprintDialogFragment fragment) {
+            if (fragment == null) {
+                if (mQueuedMessages == null) {
+                    mQueuedMessages = new ArrayList<>();
+                }
+                mQueuedMessages.add(msg);
+            } else {
+                sendMessage(msg, fragment);
+            }
+        }
+
+        /**
+         * Sends all queued messages to a {@link FingerprintDialogFragment} to be handled.
+         * @param fragment The {@link FingerprintDialogFragment} fragment that should handled all
+         *                 queued messages.
+         */
+        private void sendAllQueued(@NonNull FingerprintDialogFragment fragment) {
+            if (mQueuedMessages != null) {
+                for (Message msg : mQueuedMessages) {
+                    sendMessage(msg, fragment);
+                }
+                mQueuedMessages = null;
+            }
+        }
+
+        /**
+         * Sends a single {@link Message} to a {@link FingerprintDialogFragment} to be handled.
+         * @param msg The {@link Message} to be handled.
+         * @param fragment The {@link FingerprintDialogFragment} fragment that should handle msg.
+         */
+        private void sendMessage(Message msg, @NonNull FingerprintDialogFragment fragment) {
             switch (msg.what) {
                 case MSG_SHOW_HELP:
-                    handleShowHelp((CharSequence) msg.obj);
+                    fragment.handleShowHelp((CharSequence) msg.obj);
                     break;
                 case MSG_SHOW_ERROR:
-                    handleShowError((CharSequence) msg.obj);
+                    fragment.handleShowError((CharSequence) msg.obj);
                     break;
                 case MSG_DISMISS_DIALOG_ERROR:
-                    handleDismissDialogError((CharSequence) msg.obj);
+                    fragment.handleDismissDialogError((CharSequence) msg.obj);
                     break;
                 case MSG_DISMISS_DIALOG_AUTHENTICATED:
-                    dismissSafely();
+                    fragment.dismissSafely();
                     break;
                 case MSG_RESET_MESSAGE:
-                    handleResetMessage();
+                    fragment.handleResetMessage();
                     break;
-                case DISPLAYED_FOR_500_MS:
-                    final Context context = getContext();
-                    mDismissInstantly = context != null
+                case MSG_DISPLAYED_FOR_500_MS: {
+                    final Context context = fragment.getContext();
+                    fragment.mDismissInstantly = context != null
                             && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL);
                     break;
+                }
             }
         }
     }
 
-    private H mHandler = new H();
     private Bundle mBundle;
     private int mErrorColor;
     private int mTextColor;
@@ -134,6 +200,9 @@ public class FingerprintDialogFragment extends DialogFragment {
     private TextView mErrorText;
 
     private Context mContext;
+
+    @Nullable
+    private MessageHandler mHandler;
 
     /**
      * This flag is used to control the instant dismissal of the dialog fragment. In the case where
@@ -244,6 +313,7 @@ public class FingerprintDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getContext();
+        getHandler().setFragment(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mErrorColor = getThemedColorFor(android.R.attr.colorError);
@@ -264,7 +334,7 @@ public class FingerprintDialogFragment extends DialogFragment {
     public void onPause() {
         super.onPause();
         // Remove everything since the fragment is going away.
-        mHandler.removeCallbacksAndMessages(null);
+        getHandler().removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -311,7 +381,11 @@ public class FingerprintDialogFragment extends DialogFragment {
      * @return The handler; the handler is used by FingerprintHelperFragment to notify the UI of
      * changes from Fingerprint callbacks.
      */
-    Handler getHandler() {
+    @NonNull
+    MessageHandler getHandler() {
+        if (mHandler == null) {
+            mHandler = new MessageHandler(this);
+        }
         return mHandler;
     }
 
@@ -402,7 +476,7 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     private void handleShowHelp(CharSequence msg) {
         updateFingerprintIcon(STATE_FINGERPRINT_ERROR);
-        mHandler.removeMessages(MSG_RESET_MESSAGE);
+        getHandler().removeMessages(MSG_RESET_MESSAGE);
 
         // May be null if we're intentionally suppressing the dialog.
         if (mErrorText != null) {
@@ -411,13 +485,13 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
 
         // Reset the text after a delay
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_RESET_MESSAGE),
+        getHandler().sendMessageDelayed(getHandler().obtainMessage(MSG_RESET_MESSAGE),
                 MESSAGE_DISPLAY_TIME_MS);
     }
 
     private void handleShowError(CharSequence msg) {
         updateFingerprintIcon(STATE_FINGERPRINT_ERROR);
-        mHandler.removeMessages(MSG_RESET_MESSAGE);
+        getHandler().removeMessages(MSG_RESET_MESSAGE);
 
         // May be null if we're intentionally suppressing the dialog.
         if (mErrorText != null) {
@@ -426,7 +500,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
 
         // Dismiss the dialog after a delay
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_DISMISS_DIALOG_ERROR),
+        getHandler().sendMessageDelayed(getHandler().obtainMessage(MSG_DISMISS_DIALOG_ERROR),
                 getHideDialogDelay(mContext));
     }
 
@@ -441,7 +515,7 @@ public class FingerprintDialogFragment extends DialogFragment {
             }
         }
 
-        mHandler.postDelayed(new Runnable() {
+        getHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 FingerprintDialogFragment.this.dismissSafely();
