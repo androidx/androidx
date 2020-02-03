@@ -43,5 +43,17 @@ package androidx.autofill {
     field public static final String AUTOFILL_HINT_USERNAME = "username";
   }
 
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public class InlinePresentationBuilder {
+    ctor public InlinePresentationBuilder(CharSequence);
+    method public android.app.slice.Slice build();
+    method public androidx.autofill.InlinePresentationBuilder setEndIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.InlinePresentationBuilder setStartIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.InlinePresentationBuilder setSubtitle(CharSequence);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public class InlinePresentationRenderer {
+    method public static android.view.View renderSlice(android.content.Context, android.app.slice.Slice);
+  }
+
 }
 
