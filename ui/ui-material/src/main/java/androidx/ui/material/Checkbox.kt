@@ -31,8 +31,9 @@ import androidx.ui.foundation.selection.TriStateToggleable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
+import androidx.ui.geometry.outerRect
 import androidx.ui.geometry.shrink
-import androidx.ui.geometry.withRadius
+import androidx.ui.graphics.ClipOp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
@@ -117,15 +118,18 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
     val definition = remember(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }
+    val checkboxPaint = remember { Paint() }
     Transition(definition = definition, toState = value) { state ->
         Canvas(modifier = LayoutSize(CheckboxSize)) {
             drawBox(
                 color = state[BoxColorProp],
-                innerRadiusFraction = state[InnerRadiusFractionProp]
+                innerRadiusFraction = state[InnerRadiusFractionProp],
+                paint = checkboxPaint
             )
             drawCheck(
                 checkFraction = state[CheckFractionProp],
-                crossCenterGravitation = state[CenterGravitationForCheck]
+                crossCenterGravitation = state[CenterGravitationForCheck],
+                paint = checkboxPaint
             )
         }
     }
@@ -133,42 +137,67 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
 
 private fun CanvasScope.drawBox(
     color: Color,
-    innerRadiusFraction: Float
+    innerRadiusFraction: Float,
+    paint: Paint
 ) {
-    val paint = Paint()
-    paint.strokeWidth = StrokeWidth.toPx().value
+    val strokeWidth = StrokeWidth.toPx().value
+    val halfStrokeWidth = strokeWidth / 2.0f
+    paint.style = PaintingStyle.stroke
+    paint.strokeWidth = strokeWidth
     paint.isAntiAlias = true
     paint.color = color
 
     val checkboxSize = size.width.value
 
     val outer = RRect(
-        0f,
-        0f,
-        checkboxSize,
-        checkboxSize,
+        halfStrokeWidth,
+        halfStrokeWidth,
+        checkboxSize - halfStrokeWidth,
+        checkboxSize - halfStrokeWidth,
         Radius.circular(RadiusSize.toPx().value)
     )
 
-    val shrinkTo = calcMiddleValue(
-        paint.strokeWidth,
-        outer.width / 2,
-        innerRadiusFraction
-    )
-    val innerSquared = outer.shrink(shrinkTo)
-    val squareMultiplier = innerRadiusFraction * innerRadiusFraction
+    // Determine whether or not we need to offset the inset by a pixel
+    // to ensure that there is no gap between the outer stroked round rect
+    // and the inner rect.
+    val offset = (halfStrokeWidth - halfStrokeWidth.toInt()) + 0.5f
 
     // TODO(malkov): this radius formula is not in material spec
-    val inner = innerSquared
-        .withRadius(Radius.circular(innerSquared.width * squareMultiplier))
-    drawDoubleRoundRect(outer, inner, paint)
+
+    val outerRadius = RadiusSize.toPx().value
+
+    // If the inner region is to be filled such that it is larger than the outer stroke size
+    // then create a difference clip to draw the stroke outside of the rectangular region
+    // to be drawn within the interior rectangle. This is done to ensure that pixels do
+    // not overlap which might cause unexpected blending if the target color has some
+    // opacity. If the inner region is not to be drawn or will occupy a smaller width than
+    // the outer stroke then just draw the outer stroke
+    val innerStrokeWidth = innerRadiusFraction * checkboxSize / 2
+    if (innerStrokeWidth > strokeWidth) {
+        val clipRect = outer.shrink(strokeWidth / 2 - offset).outerRect()
+        save()
+        clipRect(clipRect, ClipOp.difference)
+        drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, outerRadius,
+            outerRadius, paint)
+        restore()
+
+        save()
+        clipRect(clipRect)
+        paint.strokeWidth = innerStrokeWidth
+        val innerHalfStrokeWidth = paint.strokeWidth / 2
+        drawRect(outer.shrink(innerHalfStrokeWidth - offset).outerRect(), paint)
+        restore()
+    } else {
+        drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, outerRadius,
+            outerRadius, paint)
+    }
 }
 
 private fun CanvasScope.drawCheck(
     checkFraction: Float,
-    crossCenterGravitation: Float
+    crossCenterGravitation: Float,
+    paint: Paint
 ) {
-    val paint = Paint()
     paint.isAntiAlias = true
     paint.style = PaintingStyle.stroke
     paint.strokeCap = StrokeCap.square
