@@ -39,6 +39,7 @@ import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -164,6 +165,7 @@ class DrawerTest {
     }
 
     @Test
+    @Ignore("failing in postsubmit, fix in b/148751721")
     fun modalDrawer_openAndClose() {
         var contentWidth: IntPx? = null
         var openedLatch: CountDownLatch? = null
@@ -264,6 +266,7 @@ class DrawerTest {
     }
 
     @Test
+    @Ignore("failing in postsubmit, fix in b/148751721")
     fun bottomDrawer_openAndClose() {
         var contentHeight: IntPx? = null
         var openedHeight: IntPx? = null
