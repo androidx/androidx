@@ -36,23 +36,21 @@ package androidx.ui.material {
     method public static void Button(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Button(String text, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle());
     method public static androidx.ui.material.ButtonStyle ContainedButtonStyle(androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.graphics.Shape shape = button, androidx.ui.unit.Dp elevation = 2.dp);
-    method public static androidx.ui.material.ButtonStyle OutlinedButtonStyle(androidx.ui.unit.Dp borderWidth = 1.dp, androidx.ui.graphics.Brush borderBrush = androidx.ui.graphics.SolidColor(MaterialTheme.colors().onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.graphics.Shape shape = button, androidx.ui.unit.Dp elevation = 0.dp);
+    method public static androidx.ui.material.ButtonStyle OutlinedButtonStyle(androidx.ui.foundation.Border border = Border(1.dp, MaterialTheme.colors().onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.graphics.Shape shape = button, androidx.ui.unit.Dp elevation = 0.dp);
     method public static androidx.ui.material.ButtonStyle TextButtonStyle(androidx.ui.graphics.Shape shape = button, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary);
   }
 
   public final class ButtonStyle {
-    ctor public ButtonStyle(androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Color contentColor, androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp borderWidth, androidx.ui.graphics.Brush? borderBrush, androidx.ui.unit.Dp elevation, androidx.ui.layout.EdgeInsets paddings);
+    ctor public ButtonStyle(androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Color contentColor, androidx.ui.graphics.Shape shape, androidx.ui.foundation.Border? border, androidx.ui.unit.Dp elevation, androidx.ui.layout.EdgeInsets paddings);
     method public androidx.ui.graphics.Color component1();
     method public androidx.ui.graphics.Color component2();
     method public androidx.ui.graphics.Shape component3();
-    method public androidx.ui.unit.Dp component4();
-    method public androidx.ui.graphics.Brush? component5();
-    method public androidx.ui.unit.Dp component6();
-    method public androidx.ui.layout.EdgeInsets component7();
-    method public androidx.ui.material.ButtonStyle copy(androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Color contentColor, androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp borderWidth, androidx.ui.graphics.Brush? borderBrush, androidx.ui.unit.Dp elevation, androidx.ui.layout.EdgeInsets paddings);
+    method public androidx.ui.foundation.Border? component4();
+    method public androidx.ui.unit.Dp component5();
+    method public androidx.ui.layout.EdgeInsets component6();
+    method public androidx.ui.material.ButtonStyle copy(androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Color contentColor, androidx.ui.graphics.Shape shape, androidx.ui.foundation.Border? border, androidx.ui.unit.Dp elevation, androidx.ui.layout.EdgeInsets paddings);
     method public androidx.ui.graphics.Color getBackgroundColor();
-    method public androidx.ui.graphics.Brush? getBorderBrush();
-    method public androidx.ui.unit.Dp getBorderWidth();
+    method public androidx.ui.foundation.Border? getBorder();
     method public androidx.ui.graphics.Color getContentColor();
     method public androidx.ui.unit.Dp getElevation();
     method public androidx.ui.layout.EdgeInsets getPaddings();
@@ -108,7 +106,7 @@ package androidx.ui.material {
   }
 
   public final class DataTableKt {
-    method public static void DataTable(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> numeric = { false }, androidx.ui.unit.Dp dataRowHeight = androidx.ui.material.DataTableKt.DataRowHeight, androidx.ui.unit.Dp headerRowHeight = androidx.ui.material.DataTableKt.HeaderRowHeight, androidx.ui.layout.EdgeInsets cellSpacing = androidx.ui.material.DataTableKt.CellSpacing, androidx.ui.unit.Dp borderWidth = androidx.ui.material.DataTableKt.BorderWidth, androidx.ui.graphics.Brush borderBrush = androidx.ui.graphics.SolidColor(androidx.ui.material.DataTableKt.BorderColor), androidx.ui.graphics.Color selectedColor = MaterialTheme.colors().primary.copy(0.08), androidx.ui.material.DataTablePagination? pagination = null, androidx.ui.material.DataTableSorting? sorting = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.DataTableChildren,kotlin.Unit> block);
+    method public static void DataTable(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> numeric = { false }, androidx.ui.unit.Dp dataRowHeight = androidx.ui.material.DataTableKt.DataRowHeight, androidx.ui.unit.Dp headerRowHeight = androidx.ui.material.DataTableKt.HeaderRowHeight, androidx.ui.layout.EdgeInsets cellSpacing = androidx.ui.material.DataTableKt.CellSpacing, androidx.ui.foundation.Border border = Border(BorderColor, BorderWidth), androidx.ui.graphics.Color selectedColor = MaterialTheme.colors().primary.copy(0.08), androidx.ui.material.DataTablePagination? pagination = null, androidx.ui.material.DataTableSorting? sorting = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.DataTableChildren,kotlin.Unit> block);
     method public static androidx.ui.material.DataTablePagination DefaultDataTablePagination(int initialPage = 0, int initialRowsPerPage, java.util.List<java.lang.Integer> availableRowsPerPage);
     method public static androidx.ui.material.DataTableSorting DefaultDataTableSorting(Integer? initialColumn = null, boolean initialAscending = true, java.util.Set<java.lang.Integer> sortableColumns, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> onSortRequest);
   }
@@ -390,11 +388,11 @@ package androidx.ui.material.ripple {
 package androidx.ui.material.surface {
 
   public final class CardKt {
-    method public static void Card(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = card, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp borderWidth = 0.dp, androidx.ui.graphics.Brush? borderBrush = null, androidx.ui.unit.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Card(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = card, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class SurfaceKt {
-    method public static void Surface(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = RectangleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp borderWidth = 0.dp, androidx.ui.graphics.Brush? borderBrush = null, androidx.ui.unit.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Surface(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = RectangleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

@@ -71,7 +71,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
                             background(shape, Color.Blue) +
-                            Border(shape, 10.px.toDp(), Color.Red)
+                            DrawBorder(Border(10.px.toDp(), Color.Red), shape)
 
                 ) {}
             }
@@ -96,7 +96,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
                             background(shape, Color.Blue) +
-                            Border(shape, 10.px.toDp(), SolidColor(Color.Red))
+                            DrawBorder(Border(10.px.toDp(), SolidColor(Color.Red)), shape)
                 ) {}
             }
         }
