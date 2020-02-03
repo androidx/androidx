@@ -512,6 +512,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
+        addActiveDelegate(this);
+
         mCreated = true;
     }
 
@@ -653,15 +655,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // This will apply day/night if the time has changed, it will also call through to
         // setupAutoNightModeIfNeeded()
         applyDayNight();
-
-        markStarted(this);
     }
 
     @Override
     public void onStop() {
         mStarted = false;
-
-        markStopped(this);
 
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -718,8 +716,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onDestroy() {
-        // There are cases where onStop is not called on all API levels. We make sure here.
-        markStopped(this);
+        removeActiveDelegate(this);
 
         if (mInvalidatePanelMenuPosted) {
             mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);
@@ -2441,11 +2438,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 && !activityHandlingUiMode
                 && mBaseContextAttached
                 && (sCanReturnDifferentContext || mCreated)
-                && mHost instanceof Activity) {
-            // If we're an attached Activity, we can recreate to apply if we can use the
+                && mHost instanceof Activity
+                && !((Activity) mHost).isChild()) {
+            // If we're an attached, standalone Activity, we can recreate() to apply using the
             // attachBaseContext() + createConfigurationContext() code path.
-            // If we can't use createConfigurationContext(), we need to use updateConfiguration()
-            // before we're 'created' (below)
+            // Else, we need to use updateConfiguration() before we're 'created' (below)
             if (DEBUG) {
                 Log.d(TAG, "updateForNightMode. Recreating Activity");
             }
