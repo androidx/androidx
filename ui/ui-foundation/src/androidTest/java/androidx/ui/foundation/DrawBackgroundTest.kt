@@ -45,7 +45,7 @@ import org.junit.runners.JUnit4
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4::class)
-class BackgroundTest {
+class DrawBackgroundTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -59,12 +59,12 @@ class BackgroundTest {
                 Container(
                     width = 40.px.toDp(),
                     height = 40.px.toDp(),
-                    modifier = background(Color.Magenta)
+                    modifier = DrawBackground(Color.Magenta)
                 ) {
                     Container(
                         width = 20.px.toDp(),
                         height = 20.px.toDp(),
-                        modifier = LayoutPadding(10.px.toDp()) + background(Color.White)
+                        modifier = LayoutPadding(10.px.toDp()) + DrawBackground(Color.White)
                     ) {}
                 }
             }
@@ -76,7 +76,8 @@ class BackgroundTest {
             shape = RectangleShape,
             shapeSizeX = 20.px,
             shapeSizeY = 20.px,
-            shapeColor = Color.White)
+            shapeColor = Color.White
+        )
     }
 
     @Test
@@ -86,16 +87,13 @@ class BackgroundTest {
                 Container(
                     width = 40.px.toDp(),
                     height = 40.px.toDp(),
-                    modifier = background(Color.Magenta)
+                    modifier = DrawBackground(Color.Magenta)
                 ) {
                     Container(
                         width = 20.px.toDp(),
                         height = 20.px.toDp(),
-                        modifier = LayoutPadding(10.px.toDp()) + background(
-                            SolidColor(
-                                Color.White
-                            )
-                        )
+                        modifier = LayoutPadding(10.px.toDp()) +
+                                DrawBackground(SolidColor(Color.White))
                     ) {}
                 }
             }
@@ -107,7 +105,8 @@ class BackgroundTest {
             shape = RectangleShape,
             shapeSizeX = 20.px,
             shapeSizeY = 20.px,
-            shapeColor = Color.White)
+            shapeColor = Color.White
+        )
     }
 
     @Test
@@ -117,8 +116,8 @@ class BackgroundTest {
                 Container(
                     width = 40.px.toDp(),
                     height = 40.px.toDp(),
-                    modifier = background(Color.Magenta) +
-                            background(shape = CircleShape, color = Color.White)
+                    modifier = DrawBackground(Color.Magenta) +
+                            DrawBackground(shape = CircleShape, color = Color.White)
                 ) {}
             }
         }
@@ -127,7 +126,8 @@ class BackgroundTest {
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = CircleShape,
-            shapeColor = Color.White)
+            shapeColor = Color.White
+        )
     }
 
     @Test
@@ -137,7 +137,7 @@ class BackgroundTest {
                 Container(
                     width = 40.px.toDp(),
                     height = 40.px.toDp(),
-                    modifier = background(Color.Magenta) + background(
+                    modifier = DrawBackground(Color.Magenta) + DrawBackground(
                         shape = CircleShape,
                         brush = SolidColor(Color.White)
                     )
@@ -149,7 +149,8 @@ class BackgroundTest {
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = CircleShape,
-            shapeColor = Color.White)
+            shapeColor = Color.White
+        )
     }
 
     @Composable

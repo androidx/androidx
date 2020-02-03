@@ -70,7 +70,7 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 Stack(
                     modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
-                            background(shape, Color.Blue) +
+                            DrawBackground(Color.Blue, shape) +
                             DrawBorder(Border(10.px.toDp(), Color.Red), shape)
 
                 ) {}
@@ -95,7 +95,7 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 Stack(
                     modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
-                            background(shape, Color.Blue) +
+                            DrawBackground(Color.Blue, shape) +
                             DrawBorder(Border(10.px.toDp(), SolidColor(Color.Red)), shape)
                 ) {}
             }

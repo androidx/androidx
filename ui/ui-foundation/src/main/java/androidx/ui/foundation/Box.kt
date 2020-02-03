@@ -83,7 +83,7 @@ fun Box(
         if (backgroundColor == Color.Transparent) {
             Modifier.None
         } else {
-            background(shape, backgroundColor)
+            DrawBackground(backgroundColor, shape)
         }
     // TODO(malkov): support ContentColor prorogation (b/148129218)
     // TODO(popam): there should be no custom layout, use Column instead (b/148809177)
