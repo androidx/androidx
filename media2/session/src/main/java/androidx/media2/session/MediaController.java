@@ -221,25 +221,16 @@ public class MediaController implements AutoCloseable {
         }
         mPrimaryCallback = callback;
         mPrimaryCallbackExecutor = executor;
-        SessionToken.createSessionToken(context, token, executor,
-                new SessionToken.OnSessionTokenCreatedListener() {
-                    @Override
-                    public void onSessionTokenCreated(MediaSessionCompat.Token token,
-                            SessionToken token2) {
-                        synchronized (mLock) {
-                            if (!mClosed) {
-                                mImpl = createImpl(context, token2, connectionHints);
-                            } else {
-                                notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
-                                    @Override
-                                    public void run(@NonNull ControllerCallback callback) {
-                                        callback.onDisconnected(MediaController.this);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                });
+        SessionToken.createSessionToken(context, token, (compatToken, sessionToken) -> {
+            synchronized (mLock) {
+                if (!mClosed) {
+                    mImpl = createImpl(context, sessionToken, connectionHints);
+                } else {
+                    notifyAllControllerCallbacks(
+                            cb -> cb.onDisconnected(MediaController.this));
+                }
+            }
+        });
     }
 
     MediaControllerImpl createImpl(@NonNull Context context, @NonNull SessionToken token,

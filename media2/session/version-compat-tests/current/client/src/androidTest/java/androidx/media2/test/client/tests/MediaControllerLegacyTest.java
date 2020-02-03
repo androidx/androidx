@@ -54,6 +54,7 @@ import androidx.media2.session.SessionResult;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSessionCompat;
 import androidx.media2.test.common.MockActivity;
+import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.filters.MediumTest;
 
@@ -687,5 +688,13 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         mController = createController(mSession.getSessionToken(), true, callback);
         mSession.setCaptioningEnabled(true);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testConstructorWithoutCallback() throws InterruptedException {
+        MediaController controller = new MediaController.Builder(mContext)
+                .setSessionCompatToken(mSession.getSessionToken())
+                .build();
+        PollingCheck.waitFor(TIMEOUT_MS, () -> controller.isConnected());
     }
 }
