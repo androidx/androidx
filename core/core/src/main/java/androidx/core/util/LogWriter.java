@@ -16,7 +16,7 @@
 
 package androidx.core.util;
 
-import static androidx.annotation.RestrictTo.Scope.TESTS;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.util.Log;
 
@@ -28,7 +28,7 @@ import java.io.Writer;
  * @hide
  * @deprecated Copied to use sites. Do not use.
  */
-@RestrictTo(TESTS) // Prevent new users.
+@RestrictTo(LIBRARY)
 @Deprecated
 public class LogWriter extends Writer {
     private final String mTag;
