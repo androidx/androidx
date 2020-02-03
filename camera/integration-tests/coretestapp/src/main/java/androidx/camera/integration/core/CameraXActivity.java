@@ -27,6 +27,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -78,6 +79,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -120,6 +127,7 @@ public class CameraXActivity extends AppCompatActivity
     private Preview mPreview;
     private ImageAnalysis mImageAnalysis;
     private ImageCapture mImageCapture;
+    private ExecutorService mImageCaptureExecutorService;
     private VideoCapture mVideoCapture;
     private Camera mCamera;
     @ImageCapture.CaptureMode
@@ -136,6 +144,7 @@ public class CameraXActivity extends AppCompatActivity
     @SuppressWarnings("WeakerAccess")
     SurfaceRequest mSurfaceRequest;
 
+    SessionImagesUriSet mSessionImagesUriSet = new SessionImagesUriSet();
 
     // Espresso testing variables
     private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
@@ -188,6 +197,14 @@ public class CameraXActivity extends AppCompatActivity
         mViewIdlingResource.increment();
     }
 
+    /**
+     * Delete images that were taking during this session so far.
+     * May leak images if pending captures not completed.
+     */
+    @VisibleForTesting
+    public void deleteSessionImages() {
+        mSessionImagesUriSet.deleteAllUris();
+    }
 
     /**
      * Creates a view finder use case.
@@ -470,6 +487,7 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableImageCapture() {
+        mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
         mImageCapture = new ImageCapture.Builder()
                 .setCaptureMode(mCaptureMode)
                 .setTargetName("ImageCapture")
@@ -502,7 +520,7 @@ public class CameraXActivity extends AppCompatActivity
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                         contentValues).build();
                         mImageCapture.takePicture(outputFileOptions,
-                                ContextCompat.getMainExecutor(CameraXActivity.this),
+                                mImageCaptureExecutorService,
                                 new ImageCapture.OnImageSavedCallback() {
                                     @Override
                                     public void onImageSaved(
@@ -527,6 +545,10 @@ public class CameraXActivity extends AppCompatActivity
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         });
+                                        if (mSessionImagesUriSet != null) {
+                                            mSessionImagesUriSet.add(
+                                                    outputFileResults.getSavedUri());
+                                        }
                                     }
 
                                     @Override
@@ -563,6 +585,8 @@ public class CameraXActivity extends AppCompatActivity
 
     void disableImageCapture() {
         mCameraProvider.unbind(mImageCapture);
+        // Shutdown capture executor, callbacks rejected on executor will be caught by camerax-core.
+        mImageCaptureExecutorService.shutdown();
 
         mImageCapture = null;
         Button button = this.findViewById(R.id.Picture);
@@ -1031,6 +1055,28 @@ public class CameraXActivity extends AppCompatActivity
             button.setBackgroundColor(Color.RED);
         }
         return null;
+    }
+
+    private class SessionImagesUriSet {
+        private final Set<Uri> mSessionImages;
+
+        SessionImagesUriSet() {
+            mSessionImages = Collections.synchronizedSet(new HashSet<>());
+        }
+
+        public void add(@NonNull Uri uri) {
+            mSessionImages.add(uri);
+        }
+
+        public void deleteAllUris() {
+            synchronized (mSessionImages) {
+                Iterator<Uri> it = mSessionImages.iterator();
+                while (it.hasNext()) {
+                    getContentResolver().delete(it.next(), null, null);
+                    it.remove();
+                }
+            }
+        }
     }
 
     Preview getPreview() {
