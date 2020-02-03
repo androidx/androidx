@@ -461,6 +461,16 @@ package androidx.ui.text {
   public final class TextDelegateKt {
   }
 
+  public final class TextFieldValue {
+    ctor public TextFieldValue(String text, androidx.ui.text.TextRange selection);
+    ctor public TextFieldValue();
+    method public String component1();
+    method public androidx.ui.text.TextRange component2();
+    method public androidx.ui.text.TextFieldValue copy(String text, androidx.ui.text.TextRange selection);
+    method public androidx.ui.text.TextRange getSelection();
+    method public String getText();
+  }
+
   public final class TextLayoutHelperKt {
   }
 
