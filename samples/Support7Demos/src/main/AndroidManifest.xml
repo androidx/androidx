@@ -141,6 +141,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".view.SystemUIModes"
+            android:label="Views/System UI Visibility/System UI Modes"
+            android:enabled="@bool/atLeastJellyBeanMR2"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <!-- Action Bar Samples -->
         <activity android:name=".app.ActionBarMechanics"
                 android:label="@string/action_bar_mechanics"
