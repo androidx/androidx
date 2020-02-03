@@ -29,7 +29,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-common:2.1.0")
     api(GUAVA_LISTENABLE_FUTURE)
     api(project(":camera:camera-core"))
-    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.core:core:1.2.0")
     annotationProcessor(AUTO_VALUE)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
