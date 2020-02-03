@@ -44,6 +44,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -199,8 +200,6 @@ public class FingerprintDialogFragment extends DialogFragment {
     private ImageView mFingerprintIcon;
     private TextView mErrorText;
 
-    private Context mContext;
-
     @Nullable
     private MessageHandler mHandler;
 
@@ -312,13 +311,15 @@ public class FingerprintDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext = getContext();
         getHandler().setFragment(this);
 
+        final Context context = getContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mErrorColor = getThemedColorFor(android.R.attr.colorError);
         } else {
-            mErrorColor = ContextCompat.getColor(mContext, R.color.biometric_error_color);
+            mErrorColor = context != null
+                    ? ContextCompat.getColor(context, R.color.biometric_error_color)
+                    : 0;
         }
         mTextColor = getThemedColorFor(android.R.attr.textColorSecondary);
     }
@@ -353,8 +354,14 @@ public class FingerprintDialogFragment extends DialogFragment {
     }
 
     private int getThemedColorFor(int attr) {
+        final Context context = getContext();
+        final FragmentActivity activity = getActivity();
+        if (context == null || activity == null) {
+            return 0;
+        }
+
         TypedValue tv = new TypedValue();
-        Resources.Theme theme = mContext.getTheme();
+        Resources.Theme theme = context.getTheme();
         theme.resolveAttribute(attr, tv, true /* resolveRefs */);
         TypedArray arr = getActivity().obtainStyledAttributes(tv.data, new int[] {attr});
 
@@ -428,8 +435,12 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private Drawable getAnimationForTransition(int oldState, int newState) {
-        int iconRes;
+        final Context context = getContext();
+        if (context == null) {
+            return null;
+        }
 
+        int iconRes;
         if (oldState == STATE_NONE && newState == STATE_FINGERPRINT) {
             iconRes = R.drawable.fingerprint_dialog_fp_to_error;
         } else if (oldState == STATE_FINGERPRINT && newState == STATE_FINGERPRINT_ERROR) {
@@ -443,7 +454,8 @@ public class FingerprintDialogFragment extends DialogFragment {
         } else {
             return null;
         }
-        return mContext.getDrawable(iconRes);
+
+        return ContextCompat.getDrawable(context, iconRes);
     }
 
     private void updateFingerprintIcon(int newState) {
@@ -501,7 +513,7 @@ public class FingerprintDialogFragment extends DialogFragment {
 
         // Dismiss the dialog after a delay
         getHandler().sendMessageDelayed(getHandler().obtainMessage(MSG_DISMISS_DIALOG_ERROR),
-                getHideDialogDelay(mContext));
+                getHideDialogDelay(getContext()));
     }
 
     private void dismissAfterDelay(CharSequence msg) {
@@ -520,7 +532,7 @@ public class FingerprintDialogFragment extends DialogFragment {
             public void run() {
                 FingerprintDialogFragment.this.dismissSafely();
             }
-        }, getHideDialogDelay(mContext));
+        }, getHideDialogDelay(getContext()));
     }
 
     private void handleDismissDialogError(CharSequence msg) {
@@ -540,7 +552,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         // May be null if we're intentionally suppressing the dialog.
         if (mErrorText != null) {
             mErrorText.setTextColor(mTextColor);
-            mErrorText.setText(mContext.getString(R.string.fingerprint_dialog_touch_sensor));
+            mErrorText.setText(getString(R.string.fingerprint_dialog_touch_sensor));
         }
     }
 }
