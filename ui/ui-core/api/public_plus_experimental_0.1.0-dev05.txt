@@ -51,7 +51,6 @@ package androidx.ui.core {
   }
 
   public abstract sealed class AlignmentLine {
-    method public final boolean getHorizontal();
   }
 
   public final class AlignmentLineKt {
