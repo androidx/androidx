@@ -1813,8 +1813,8 @@ class PointerInputEventProcessorTest {
     fun process_downOnPointerInputNodeWrappingSemanticsNodeWrappingLayoutNode_downReceived() {
         val semanticsComponentNode: SemanticsComponentNode =
             SemanticsComponentNode(
-                SemanticsConfiguration(),
-                1
+                1,
+                SemanticsConfiguration()
             ).apply {
                 emitInsertAt(0, LayoutNode(0, 0, 100, 100))
             }
@@ -1865,7 +1865,7 @@ class PointerInputEventProcessorTest {
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(
                 0,
-                SemanticsComponentNode(SemanticsConfiguration(), 1)
+                SemanticsComponentNode(1, SemanticsConfiguration())
             )
             pointerInputHandler = spy(MyPointerInputHandler())
         }
