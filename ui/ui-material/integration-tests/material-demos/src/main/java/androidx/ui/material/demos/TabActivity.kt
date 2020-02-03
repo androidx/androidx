@@ -18,6 +18,7 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
@@ -26,7 +27,6 @@ import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
 import androidx.ui.material.Button
-import androidx.ui.material.ContainedButtonStyle
 import androidx.ui.material.samples.FancyIndicatorContainerTabs
 import androidx.ui.material.samples.FancyIndicatorTabs
 import androidx.ui.material.samples.FancyTabs
@@ -59,12 +59,13 @@ class TabActivity : MaterialDemoActivity() {
             }
             Button(
                 modifier = LayoutGravity.Center,
-                style = ContainedButtonStyle(backgroundColor = Color.Cyan),
-                text = buttonText,
                 onClick = {
                     showingSimple.value = !showingSimple.value
-                }
-            )
+                },
+                backgroundColor = Color.Cyan
+            ) {
+                Text(buttonText)
+            }
             Spacer(LayoutHeight(50.dp))
         }
     }

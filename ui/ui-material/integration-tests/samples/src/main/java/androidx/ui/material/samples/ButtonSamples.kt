@@ -19,41 +19,30 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.graphics.Color
 import androidx.ui.material.Button
-import androidx.ui.material.OutlinedButtonStyle
-import androidx.ui.material.TextButtonStyle
-import androidx.ui.text.TextStyle
+import androidx.ui.material.OutlinedButton
+import androidx.ui.material.TextButton
 
 @Sampled
 @Composable
-fun OutlinedButtonSample(onClick: () -> Unit) {
-    Button(text = "Outlined Button", onClick = onClick, style = OutlinedButtonStyle())
-}
-
-@Sampled
-@Composable
-fun ContainedButtonSample(onClick: () -> Unit) {
-    // ContainedButtonStyle is the default style.
-    Button(text = "Contained Button", onClick = onClick)
-}
-
-@Sampled
-@Composable
-fun TextButtonSample(onClick: () -> Unit) {
-    Button(text = "Text Button", onClick = onClick, style = TextButtonStyle())
-}
-
-@Sampled
-@Composable
-fun ButtonSample(onClick: () -> Unit) {
-    Button(onClick = onClick) {
-        Text(text = "Custom text style", style = TextStyle(color = Color.Green))
+fun ButtonSample() {
+    Button(onClick = { /* Do something! */ }) {
+        Text("Button")
     }
 }
 
 @Sampled
 @Composable
-fun ButtonWithTextSample(onClick: () -> Unit) {
-    Button(text = "Button", onClick = onClick)
+fun OutlinedButtonSample() {
+    OutlinedButton(onClick = { /* Do something! */ }) {
+        Text("Outlined Button")
+    }
+}
+
+@Sampled
+@Composable
+fun TextButtonSample() {
+    TextButton(onClick = { /* Do something! */ }) {
+        Text("Text Button")
+    }
 }

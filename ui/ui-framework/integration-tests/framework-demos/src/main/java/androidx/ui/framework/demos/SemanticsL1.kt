@@ -194,12 +194,12 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
         actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
     Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography().h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-        Button(
-            text = "Primary",
-            onClick = { primary?.invoke(ActionCaller.Accessibility) })
-        Button(text = "Secondary", onClick = {
-            secondary?.invoke(ActionCaller.Accessibility)
-        })
+        Button(onClick = { primary?.invoke(ActionCaller.Accessibility) }) {
+            Text("Primary")
+        }
+        Button(onClick = { secondary?.invoke(ActionCaller.Accessibility) }) {
+            Text("Secondary")
+        }
     }
 }
 
@@ -213,9 +213,9 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
         style = MaterialTheme.typography().h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         actions.forEach {
-            Button(
-                text = it.phrase,
-                onClick = { it.invoke(ActionCaller.Accessibility) })
+            Button(onClick = { it.invoke(ActionCaller.Accessibility) }) {
+                Text(it.phrase)
+            }
         }
     }
 }
@@ -229,12 +229,12 @@ private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>
     val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
     Text(text = "Assistant Actions", style = MaterialTheme.typography().h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-        Button(
-            text = "Negative",
-            onClick = { negative?.invoke(ActionCaller.Assistant) })
-        Button(
-            text = "Positive",
-            onClick = { positive?.invoke(ActionCaller.Assistant) })
+        Button(onClick = { negative?.invoke(ActionCaller.Assistant) }) {
+            Text("Negative")
+        }
+        Button(onClick = { positive?.invoke(ActionCaller.Assistant) }) {
+            Text("Positive")
+        }
     }
 }
 
@@ -253,12 +253,12 @@ private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = s
         actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
     Text(text = "Actions using Parameters", style = MaterialTheme.typography().h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-        Button(
-            text = "IntAction",
-            onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) })
-        Button(
-            text = "VoidAction",
-            onClick = { unitAction?.invoke(param = Unit) })
+        Button(onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) }) {
+            Text("IntAction")
+        }
+        Button(onClick = { unitAction?.invoke(param = Unit) }) {
+            Text("VoidAction")
+        }
     }
 }
 
@@ -277,12 +277,14 @@ private fun Collapsable(children: @Composable() () -> Unit) {
     val collapsedState = state { CollapseMode.Collapsed }
 
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-        Button(text = "Show/Hide Actions", onClick = {
+        Button(onClick = {
             collapsedState.value = when (collapsedState.value) {
                 CollapseMode.Collapsed -> CollapseMode.Visible
                 CollapseMode.Visible -> CollapseMode.Collapsed
             }
-        })
+        }) {
+            Text("Show/Hide Actions")
+        }
     }
 
     if (collapsedState.value == CollapseMode.Visible) {

@@ -38,11 +38,7 @@ import androidx.compose.Stable
  * parameter's value in the composable function's implementation, keeping [Modifier.None] as the
  * default parameter value. For example:
  *
- *     @Composable fun Foo(modifier: Modifier = Modifier.None) {
- *         Column(modifier + defaultFooModifier) {
- *             // ...
- *         }
- *     }
+ * @sample androidx.ui.core.samples.ModifierParameterSample
  *
  * The pattern above allows default modifiers to still be applied as part of the chain
  * if a caller also supplies unrelated modifiers.
@@ -52,17 +48,7 @@ import androidx.compose.Stable
  * and behavior. Subcomponent modifiers should be grouped together and follow the parent
  * composable's modifier. For example:
  *
- *     @Composable fun ButtonBar(
- *         onOk: () -> Unit,
- *         onCancel: () -> Unit,
- *         modifier: Modifier = Modifier.None,
- *         buttonModifier: Modifier = Modifier.None
- *     ) {
- *         Row(modifier) {
- *             Button("Cancel", buttonModifier, onClick = onCancel)
- *             Button("Ok", buttonModifier, onClick = onOk)
- *         }
- *     }
+ * @sample androidx.ui.core.samples.SubcomponentModifierSample
  */
 @Stable
 interface Modifier {

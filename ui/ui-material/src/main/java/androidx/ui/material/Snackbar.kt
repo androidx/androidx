@@ -72,14 +72,13 @@ fun Snackbar(
     val actionSlot: @Composable() (() -> Unit)? =
         if (actionText != null) {
             @Composable {
-                Button(
-                    text = actionText,
+                TextButton(
                     onClick = onActionClick,
-                    style = TextButtonStyle(
-                        // TODO: remove this when primary light variant is figured out
-                        contentColor = makePrimaryVariantLight(MaterialTheme.colors().primary)
-                    )
-                )
+                    // TODO: remove this when primary light variant is figured out
+                    contentColor = makePrimaryVariantLight(MaterialTheme.colors().primary)
+                ) {
+                    Text(actionText)
+                }
             }
         } else {
             null

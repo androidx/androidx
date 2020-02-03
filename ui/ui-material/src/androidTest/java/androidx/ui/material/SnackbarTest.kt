@@ -120,7 +120,7 @@ class SnackbarTest {
                     },
                     action = {
                         OnChildPositioned(onPositioned = { buttonCoords = it }) {
-                            Button(style = TextButtonStyle(), onClick = {}) {
+                            TextButton(onClick = {}) {
                                 OnChildPositioned(onPositioned = { buttonTextCoords = it }) {
                                     Text("Undo")
                                 }
@@ -210,7 +210,9 @@ class SnackbarTest {
                     },
                     action = {
                         OnChildPositioned(onPositioned = { buttonCoords = it }) {
-                            Button(text = "Undo", style = TextButtonStyle(), onClick = {})
+                            TextButton(onClick = {}) {
+                                Text("Undo")
+                            }
                         }
                     }
                 )
@@ -264,7 +266,9 @@ class SnackbarTest {
                     },
                     action = {
                         OnChildPositioned(onPositioned = { buttonCoords = it }) {
-                            Button(text = "Undo", style = TextButtonStyle(), onClick = {})
+                            TextButton(onClick = {}) {
+                                Text("Undo")
+                            }
                         }
                     },
                     actionOnNewLine = true

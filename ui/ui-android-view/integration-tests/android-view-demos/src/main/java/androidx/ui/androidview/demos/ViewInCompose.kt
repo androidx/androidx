@@ -72,17 +72,18 @@ class ViewInCompose : Activity() {
                 FrameLayout {
                     ColoredSquareView(size = 200, color = Color.Cyan, ref = squareRef)
                 }
-                Button(
-                    text = "Increase size of Android view",
-                    onClick = { squareRef.value!!.size += 50 }
-                )
+                Button(onClick = { squareRef.value!!.size += 50 }) {
+                    Text("Increase size of Android view")
+                }
                 val colorIndex = state { 0 }
-                Button(text = "Change color of Android view", onClick = {
+                Button(onClick = {
                     colorIndex.value = (colorIndex.value + 1) % 4
                     squareRef.value!!.color = arrayOf(
                         Color.Blue, Color.LightGray, Color.Yellow, Color.Cyan
                     )[colorIndex.value]
-                })
+                }) {
+                    Text("Change color of Android view")
+                }
 
                 // Inflate AndroidView from XML and change it in callback post inflation.
                 AndroidView(R.layout.test_layout) { view ->

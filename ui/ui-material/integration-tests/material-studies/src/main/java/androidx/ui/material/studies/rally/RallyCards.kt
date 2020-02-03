@@ -33,10 +33,9 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
-import androidx.ui.material.Button
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TextButtonStyle
+import androidx.ui.material.TextButton
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
 import androidx.ui.unit.dp
@@ -69,7 +68,9 @@ fun RallyAlertCard() {
                             arrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = "Alerts", style = MaterialTheme.typography().subtitle2)
-                            Button(text = "See All", onClick = { }, style = TextButtonStyle())
+                            TextButton(onClick = { }) {
+                                Text("See All")
+                            }
                         }
                     }
                 }
@@ -91,7 +92,9 @@ fun RallyAlertCard() {
                             // TODO: icons still don't work
 //                            <vectorResource res=context.resources
 //                                resId=androidx.ui.material.studies.R.drawable.sort_icon/>
-                            Button(text = "Sort", onClick = { }, style = TextButtonStyle())
+                            TextButton(onClick = { }) {
+                                Text("Sort")
+                            }
                         }
                     }
                 }
@@ -134,7 +137,9 @@ fun RallyAccountsOverviewCard() {
                     color = Color(0xFF37EFBA)
                 )
                 RallyDivider()
-                Button(text = "See All", style = TextButtonStyle())
+                TextButton(onClick = { }) {
+                    Text("See All")
+                }
             }
         }
     }
@@ -263,7 +268,9 @@ fun RallyBillsOverviewCard() {
                     color = Color(0xFF37EFBA)
                 )
                 RallyDivider()
-                Button(text = "See All", style = TextButtonStyle())
+                TextButton(onClick = { }) {
+                    Text("See All")
+                }
             }
         }
     }
