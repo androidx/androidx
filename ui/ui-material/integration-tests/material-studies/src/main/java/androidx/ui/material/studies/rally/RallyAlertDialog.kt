@@ -24,10 +24,9 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.AlertDialog
-import androidx.ui.material.Button
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TextButtonStyle
+import androidx.ui.material.TextButton
 import androidx.ui.unit.dp
 
 @Composable
@@ -41,18 +40,19 @@ fun RallyAlertDialog(
             onCloseRequest = onDismiss,
             text = { Text(bodyText) },
             buttons = {
-                val style = TextButtonStyle(RectangleShape).copy(paddings = EdgeInsets(16.dp))
                 Column {
                     Divider(
                         LayoutPadding(left = 12.dp, right = 12.dp),
                         color = MaterialTheme.colors().onSurface.copy(alpha = 0.2f)
                     )
-                    Button(
-                        text = buttonText,
+                    TextButton(
                         onClick = onDismiss,
-                        style = style,
+                        shape = RectangleShape,
+                        paddings = EdgeInsets(16.dp),
                         modifier = LayoutWidth.Fill
-                    )
+                    ) {
+                        Text(buttonText)
+                    }
                 }
             }
         )

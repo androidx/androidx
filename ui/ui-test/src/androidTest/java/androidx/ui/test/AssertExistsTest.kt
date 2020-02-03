@@ -46,7 +46,9 @@ class AssertExistsTest {
                     val (showText, toggle) = state { true }
                     Column {
                         TestTag("MyButton") {
-                            Button(text = "Toggle", onClick = { toggle(!showText) })
+                            Button(onClick = { toggle(!showText) }) {
+                                Text("Toggle")
+                            }
                         }
                         if (showText) {
                             Semantics(container = true) {
