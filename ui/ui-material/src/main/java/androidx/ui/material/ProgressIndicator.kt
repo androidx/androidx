@@ -27,21 +27,20 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Draw
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
-import androidx.ui.layout.Wrap
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
 import androidx.ui.graphics.vectormath.degrees
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Wrap
+import androidx.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -59,16 +58,14 @@ fun LinearProgressIndicator(
 ) {
     DeterminateProgressIndicator(progress = progress) {
         Wrap {
-            Container(width = LinearIndicatorWidth, height = StrokeWidth) {
-                val paint = paint(color, StrokeCap.butt)
-                val backgroundPaint = paint(
-                    color.copy(alpha = BackgroundOpacity),
-                    StrokeCap.butt
-                )
-                Draw { canvas, parentSize ->
-                    drawLinearIndicatorBackground(canvas, parentSize, backgroundPaint)
-                    drawLinearIndicator(canvas, parentSize, 0f, progress, paint)
-                }
+            val paint = paint(color, StrokeCap.butt)
+            val backgroundPaint = paint(
+                color.copy(alpha = BackgroundOpacity),
+                StrokeCap.butt
+            )
+            Canvas(LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
+                drawLinearIndicatorBackground(backgroundPaint)
+                drawLinearIndicator(0f, progress, paint)
             }
         }
     }
@@ -83,54 +80,40 @@ fun LinearProgressIndicator(
 @Composable
 fun LinearProgressIndicator(color: Color = MaterialTheme.colors().primary) {
     Wrap {
-        Container(width = LinearIndicatorWidth, height = StrokeWidth) {
+        Transition(
+            definition = LinearIndeterminateTransition,
+            initState = 0,
+            toState = 1
+        ) { state ->
+            val firstLineHead = state[FirstLineHeadProp]
+            val firstLineTail = state[FirstLineTailProp]
+            val secondLineHead = state[SecondLineHeadProp]
+            val secondLineTail = state[SecondLineTailProp]
             val paint = paint(color, StrokeCap.butt)
             val backgroundPaint = paint(
                 color.copy(alpha = BackgroundOpacity),
                 StrokeCap.butt
             )
-            Transition(definition = LinearIndeterminateTransition, initState = 0, toState = 1) {
-                    state ->
-                val firstLineHead = state[FirstLineHeadProp]
-                val firstLineTail = state[FirstLineTailProp]
-                val secondLineHead = state[SecondLineHeadProp]
-                val secondLineTail = state[SecondLineTailProp]
-
-                Draw { canvas, parentSize ->
-                    drawLinearIndicatorBackground(canvas, parentSize, backgroundPaint)
-                    if (firstLineHead - firstLineTail > 0) {
-                        drawLinearIndicator(
-                            canvas,
-                            parentSize,
-                            firstLineHead,
-                            firstLineTail,
-                            paint
-                        )
-                    }
-                    if ((secondLineHead - secondLineTail) > 0) {
-                        drawLinearIndicator(
-                            canvas,
-                            parentSize,
-                            secondLineHead,
-                            secondLineTail,
-                            paint
-                        )
-                    }
+            Canvas(LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
+                drawLinearIndicatorBackground(backgroundPaint)
+                if (firstLineHead - firstLineTail > 0) {
+                    drawLinearIndicator(firstLineHead, firstLineTail, paint)
+                }
+                if ((secondLineHead - secondLineTail) > 0) {
+                    drawLinearIndicator(secondLineHead, secondLineTail, paint)
                 }
             }
         }
     }
 }
 
-private fun drawLinearIndicator(
-    canvas: Canvas,
-    parentSize: PxSize,
+private fun CanvasScope.drawLinearIndicator(
     startFraction: Float,
     endFraction: Float,
     paint: Paint
 ) {
-    val width = parentSize.width.value
-    val height = parentSize.height.value
+    val width = size.width.value
+    val height = size.height.value
     // Start drawing from the vertical center of the stroke
     val yOffset = height / 2
 
@@ -138,14 +121,11 @@ private fun drawLinearIndicator(
     val barEnd = endFraction * width
 
     // Progress line
-    canvas.drawLine(Offset(barStart, yOffset), Offset(barEnd, yOffset), paint)
+    drawLine(Offset(barStart, yOffset), Offset(barEnd, yOffset), paint)
 }
 
-private fun drawLinearIndicatorBackground(
-    canvas: Canvas,
-    parentSize: PxSize,
-    paint: Paint
-) = drawLinearIndicator(canvas, parentSize, 0f, 1f, paint)
+private fun CanvasScope.drawLinearIndicatorBackground(paint: Paint) =
+    drawLinearIndicator(0f, 1f, paint)
 
 /**
  * A determinate circular progress indicator that represents progress by drawing an arc ranging from
@@ -160,20 +140,17 @@ fun CircularProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
     color: Color = MaterialTheme.colors().primary
 ) {
-    DeterminateProgressIndicator(progress = progress) {
-        CircularIndicatorContainer {
+    Wrap {
+        DeterminateProgressIndicator(progress = progress) {
             val paint = paint(color, StrokeCap.butt)
-            Draw { canvas, parentSize ->
+            Canvas(
+                modifier = LayoutPadding(CircularIndicatorPadding) +
+                        LayoutSize(CircularIndicatorDiameter)
+            ) {
                 // Start at 12 O'clock
                 val startAngle = 270f
                 val sweep = progress * 360f
-                drawDeterminateCircularIndicator(
-                    canvas,
-                    parentSize,
-                    startAngle,
-                    sweep,
-                    paint
-                )
+                drawDeterminateCircularIndicator(startAngle, sweep, paint)
             }
         }
     }
@@ -187,10 +164,13 @@ fun CircularProgressIndicator(
  */
 @Composable
 fun CircularProgressIndicator(color: Color = MaterialTheme.colors().primary) {
-    CircularIndicatorContainer {
+    Wrap {
         val paint = paint(color, StrokeCap.square)
-        Transition(definition = CircularIndeterminateTransition, initState = 0, toState = 1) {
-                state ->
+        Transition(
+            definition = CircularIndeterminateTransition,
+            initState = 0,
+            toState = 1
+        ) { state ->
             val currentRotation = state[IterationProp]
             val baseRotation = state[BaseRotationProp]
 
@@ -205,27 +185,18 @@ fun CircularProgressIndicator(color: Color = MaterialTheme.colors().primary) {
             startAngle += StartAngleOffset + currentRotationAngleOffset
             startAngle += baseRotation
 
-            Draw { canvas, parentSize ->
-                drawIndeterminateCircularIndicator(
-                    canvas,
-                    parentSize,
-                    startAngle,
-                    sweep,
-                    paint
-                )
+            Canvas(
+                modifier = LayoutPadding(CircularIndicatorPadding) +
+                        LayoutSize(CircularIndicatorDiameter)
+            ) {
+                drawIndeterminateCircularIndicator(startAngle, sweep, paint)
             }
         }
     }
 }
 
-private fun drawCircularIndicator(
-    canvas: Canvas,
-    parentSize: PxSize,
-    startAngle: Float,
-    sweep: Float,
-    paint: Paint
-) {
-    val diameter = parentSize.width.value
+private fun CanvasScope.drawCircularIndicator(startAngle: Float, sweep: Float, paint: Paint) {
+    val diameter = size.width.value
     // To draw this circle we need a rect with edges that line up with the midpoint of the stroke.
     // To do this we need to remove half the stroke width from the total diameter for both sides.
     val diameterOffset = paint.strokeWidth / 2
@@ -237,22 +208,16 @@ private fun drawCircularIndicator(
     val bottom = diameter - diameterOffset
 
     val rect = Rect.fromLTRB(left, top, right, bottom)
-    canvas.drawArc(rect, startAngle, sweep, false, paint)
+    drawArc(rect, startAngle, sweep, false, paint)
 }
 
-private fun drawDeterminateCircularIndicator(
-    canvas: Canvas,
-    parentSize: PxSize,
+private fun CanvasScope.drawDeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     paint: Paint
-) {
-    drawCircularIndicator(canvas, parentSize, startAngle, sweep, paint)
-}
+) = drawCircularIndicator(startAngle, sweep, paint)
 
-private fun drawIndeterminateCircularIndicator(
-    canvas: Canvas,
-    parentSize: PxSize,
+private fun CanvasScope.drawIndeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     paint: Paint
@@ -270,20 +235,7 @@ private fun drawIndeterminateCircularIndicator(
     // the stroke caps get added on both ends and we draw the correct minimum length arc
     val adjustedSweep = max(sweep, 0.1f)
 
-    drawCircularIndicator(canvas, parentSize, adjustedStartAngle, adjustedSweep, paint)
-}
-
-@Composable
-private fun CircularIndicatorContainer(children: @Composable() () -> Unit) {
-    Wrap {
-        Padding(CircularIndicatorPadding) {
-            Container(
-                width = CircularIndicatorDiameter,
-                height = CircularIndicatorDiameter,
-                children = children
-            )
-        }
-    }
+    drawCircularIndicator(adjustedStartAngle, adjustedSweep, paint)
 }
 
 // Combined indicator Material specs

@@ -25,6 +25,15 @@ package androidx.ui.foundation {
     method public static void Box(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.EdgeInsets padding = null(0.dp), androidx.ui.core.Alignment gravity = ContentGravity.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class CanvasKt {
+    method public static void Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.CanvasScope,kotlin.Unit> onCanvas);
+  }
+
+  public interface CanvasScope extends androidx.ui.graphics.Canvas androidx.ui.unit.Density {
+    method public androidx.ui.unit.PxSize getSize();
+    property public abstract androidx.ui.unit.PxSize size;
+  }
+
   public final class ClickableKt {
     method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, String? onClickLabel = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }

@@ -22,20 +22,21 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
 import androidx.ui.core.Text
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.shift
 import androidx.ui.geometry.shrink
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
@@ -43,9 +44,7 @@ import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 /**
@@ -135,7 +134,8 @@ class RadioGroupScope internal constructor() {
                 Ripple(bounded = true) {
                     MutuallyExclusiveSetItem(
                         selected = selected,
-                        onClick = { if (!selected) onSelect() }, children = children)
+                        onClick = { if (!selected) onSelect() }, children = children
+                    )
                 }
             }
         }
@@ -202,18 +202,18 @@ fun RadioButton(
                 selected = selected, onClick = { if (!selected) onSelect?.invoke() }
             ) {
                 Padding(padding = RadioButtonPadding) {
-                    Container(width = RadioButtonSize, height = RadioButtonSize) {
-                        val unselectedColor =
-                            MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
-                        val definition = remember(color, unselectedColor) {
-                            generateTransitionDefinition(color, unselectedColor)
-                        }
-                        Transition(definition = definition, toState = selected) { state ->
-                            DrawRadioButton(
-                                color = state[ColorProp],
-                                outerRadius = state[OuterRadiusProp],
-                                innerRadius = state[InnerRadiusProp],
-                                gap = state[GapProp]
+                    val unselectedColor =
+                        MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
+                    val definition = remember(color, unselectedColor) {
+                        generateTransitionDefinition(color, unselectedColor)
+                    }
+                    Transition(definition = definition, toState = selected) { state ->
+                        Canvas(modifier = LayoutSize(RadioButtonSize)) {
+                            drawRadio(
+                                state[ColorProp],
+                                state[OuterRadiusProp],
+                                state[InnerRadiusProp],
+                                state[GapProp]
                             )
                         }
                     }
@@ -223,16 +223,7 @@ fun RadioButton(
     }
 }
 
-@Composable
-private fun DrawRadioButton(color: Color, outerRadius: Dp, innerRadius: Dp, gap: Dp) {
-    Draw { canvas, parentSize ->
-        drawRadio(canvas, parentSize, color, outerRadius, innerRadius, gap)
-    }
-}
-
-private fun Density.drawRadio(
-    canvas: Canvas,
-    parentSize: PxSize,
+private fun CanvasScope.drawRadio(
     color: Color,
     outerRadius: Dp,
     innerRadius: Dp,
@@ -244,8 +235,8 @@ private fun Density.drawRadio(
     p.style = PaintingStyle.fill
 
     // TODO(malkov): currently Radio gravity is always CENTER but we need to be flexible
-    val centerW = parentSize.width.value / 2
-    val centerH = parentSize.height.value / 2
+    val centerW = size.width.value / 2
+    val centerH = size.height.value / 2
     val outerPx = outerRadius.toPx().value
     val innerPx = innerRadius.toPx().value
 
@@ -260,13 +251,13 @@ private fun Density.drawRadio(
 
     if (gap == 0.dp) {
         val inner = outer.shrink(outerPx - innerPx)
-        canvas.drawDoubleRoundRect(outer, inner, p)
+        drawDoubleRoundRect(outer, inner, p)
     } else {
         val inner = outer.shrink(RadioStrokeWidth.toPx().value)
-        canvas.drawDoubleRoundRect(outer, inner, p)
+        drawDoubleRoundRect(outer, inner, p)
         val radioOuter = inner.shrink(gap.toPx().value)
         val radioInner = outer.shrink(outerPx - innerPx)
-        canvas.drawDoubleRoundRect(radioOuter, radioInner, p)
+        drawDoubleRoundRect(radioOuter, radioInner, p)
     }
 }
 
