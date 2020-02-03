@@ -854,11 +854,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             // If that is the case, offset it back to 0 so that we use these pre-layout children.
             if (!state.isPreLayout() && supportsPredictiveItemAnimations()) {
                 // validate this child is at least partially visible. if not, offset it to start
-                final boolean notVisible =
-                        mOrientationHelper.getDecoratedStart(referenceChild) >= mOrientationHelper
-                                .getEndAfterPadding()
-                                || mOrientationHelper.getDecoratedEnd(referenceChild)
-                                < mOrientationHelper.getStartAfterPadding();
+                final boolean notVisible = mOrientationHelper.getDecoratedStart(referenceChild)
+                        >= mOrientationHelper.getEndAfterPadding()
+                        || mOrientationHelper.getDecoratedEnd(referenceChild)
+                        <= mOrientationHelper.getStartAfterPadding();
                 if (notVisible) {
                     anchorInfo.mCoordinate = anchorInfo.mLayoutFromEnd
                             ? mOrientationHelper.getEndAfterPadding()
@@ -1870,7 +1869,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                         invalidMatch = view; // removed item, least preferred
                     }
                 } else if (mOrientationHelper.getDecoratedStart(view) >= boundsEnd
-                        || mOrientationHelper.getDecoratedEnd(view) < boundsStart) {
+                        || mOrientationHelper.getDecoratedEnd(view) <= boundsStart) {
                     if (outOfBoundsMatch == null) {
                         outOfBoundsMatch = view; // item is not visible, less preferred
                     }
