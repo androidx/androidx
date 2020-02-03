@@ -41,6 +41,7 @@ def main():
     if BUILD_INFO in things_to_merge:
         mergeAggregateBuildInfoFiles()
         mergeBuildInfoFolders()
+    if LIBRARY_METRICS in things_to_merge: mergeLibraryMetrics()
 
 def parse_arguments():
     things_to_merge = []
@@ -105,5 +106,8 @@ def mergeAggregateBuildInfoFiles() :
 
 def mergeBuildInfoFolders(): # -a = all in directory. -u = overwrite older (in case androidx build hasn't been run in a while)
     run_command("cp -au ui/build-info/. build-info/")
+
+def mergeLibraryMetrics():
+    run_command("cp -au ui/librarymetrics/. librarymetrics/")
 
 if __name__ == "__main__": main()
