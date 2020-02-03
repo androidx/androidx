@@ -88,6 +88,11 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
         return mPreviewSurfaceProvider;
     }
 
+    @Override
+    public void onDisplayChanged() {
+
+    }
+
     /**
      * The {@link SurfaceHolder.Callback} on mSurfaceView.
      *
