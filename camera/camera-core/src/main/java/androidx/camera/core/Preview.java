@@ -89,7 +89,7 @@ import java.util.concurrent.Executor;
  * A use case that provides a camera preview stream for displaying on-screen.
  *
  * <p>The preview stream is connected to the {@link Surface} provided via
- * {@link PreviewSurfaceProvider}. The application decides how the {@link Surface} is shown,
+ * {@link SurfaceProvider}. The application decides how the {@link Surface} is shown,
  * and is responsible for managing the {@link Surface} lifecycle after providing it.
  *
  * <p> To display the preview with the correct orientation, app needs to take different actions
@@ -144,7 +144,7 @@ public final class Preview extends UseCase {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
-    PreviewSurfaceProvider mPreviewSurfaceProvider;
+    SurfaceProvider mSurfaceProvider;
     @SuppressWarnings("WeakerAccess") /* Synthetic Accessor */
     @Nullable
     Executor mPreviewSurfaceProviderExecutor;
@@ -177,7 +177,7 @@ public final class Preview extends UseCase {
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
         final CallbackDeferrableSurface callbackDeferrableSurface = new CallbackDeferrableSurface(
                 resolution, mPreviewSurfaceProviderExecutor,
-                mPreviewSurfaceProvider);
+                mSurfaceProvider);
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
             // TODO: To allow user to use an Executor for the processing.
@@ -247,38 +247,23 @@ public final class Preview extends UseCase {
     }
 
     /**
-     * Gets {@link PreviewSurfaceProvider}
-     *
-     * <p> Setting the callback will signal to the camera that the use case is ready to receive
-     * data.
-     *
-     * @return the last set callback or {@code null} if no listener is set
-     */
-    @UiThread
-    @Nullable
-    public PreviewSurfaceProvider getPreviewSurfaceProvider() {
-        Threads.checkMainThread();
-        return mPreviewSurfaceProvider;
-    }
-
-    /**
-     * Sets a {@link PreviewSurfaceProvider} to provide Surface for Preview.
+     * Sets a {@link SurfaceProvider} to provide Surface for Preview.
      *
      * <p> Setting the provider will signal to the camera that the use case is ready to receive
      * data.
      *
      * @param executor               on which the previewSurfaceProvider will be triggered.
-     * @param previewSurfaceProvider PreviewSurfaceProvider that provides a Preview.
+     * @param surfaceProvider PreviewSurfaceProvider that provides a Preview.
      */
     @UiThread
-    public void setPreviewSurfaceProvider(@NonNull Executor executor,
-            @Nullable PreviewSurfaceProvider previewSurfaceProvider) {
+    public void setSurfaceProvider(@NonNull Executor executor,
+            @Nullable SurfaceProvider surfaceProvider) {
         Threads.checkMainThread();
-        if (previewSurfaceProvider == null) {
-            mPreviewSurfaceProvider = null;
+        if (surfaceProvider == null) {
+            mSurfaceProvider = null;
             notifyInactive();
         } else {
-            mPreviewSurfaceProvider = previewSurfaceProvider;
+            mSurfaceProvider = surfaceProvider;
             mPreviewSurfaceProviderExecutor = executor;
             notifyActive();
             if (mLatestResolution != null) {
@@ -289,24 +274,24 @@ public final class Preview extends UseCase {
     }
 
     /**
-     * Sets a {@link PreviewSurfaceProvider} to provide Surface for Preview.
+     * Sets a {@link SurfaceProvider} to provide Surface for Preview.
      *
      * <p> Setting the provider will signal to the camera that the use case is ready to receive
      * data. The provider will be triggered on main thread.
      *
-     * @param previewSurfaceProvider PreviewSurfaceProvider that provides a Preview.
+     * @param surfaceProvider PreviewSurfaceProvider that provides a Preview.
      */
     @UiThread
-    public void setPreviewSurfaceProvider(@Nullable PreviewSurfaceProvider previewSurfaceProvider) {
-        setPreviewSurfaceProvider(CameraXExecutors.mainThreadExecutor(), previewSurfaceProvider);
+    public void setSurfaceProvider(@Nullable SurfaceProvider surfaceProvider) {
+        setSurfaceProvider(CameraXExecutors.mainThreadExecutor(), surfaceProvider);
     }
 
     /**
-     * Checks if {@link PreviewSurfaceProvider} is set by the user.
+     * Checks if {@link SurfaceProvider} is set by the user.
      */
     @SuppressWarnings("WeakerAccess")
     boolean isPreviewSurfaceProviderSet() {
-        return mPreviewSurfaceProvider != null && mPreviewSurfaceProviderExecutor != null;
+        return mSurfaceProvider != null && mPreviewSurfaceProviderExecutor != null;
     }
 
 
@@ -436,9 +421,9 @@ public final class Preview extends UseCase {
      * will be called by CameraX when it needs a Surface for Preview. It also signals when the
      * Surface is no longer in use by CameraX.
      *
-     * @see Preview#setPreviewSurfaceProvider(Executor, PreviewSurfaceProvider)
+     * @see Preview#setSurfaceProvider(Executor, SurfaceProvider)
      */
-    public interface PreviewSurfaceProvider {
+    public interface SurfaceProvider {
 
         /**
          * Provides preview output Surface with the given resolution.
@@ -689,7 +674,7 @@ public final class Preview extends UseCase {
          * <p>This method will remove any value set by setTargetAspectRatio().
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link Preview.PreviewSurfaceProvider#provideSurface(Size, ListenableFuture)}.
+         * {@link SurfaceProvider#provideSurface(Size, ListenableFuture)}.
          *
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
@@ -719,7 +704,7 @@ public final class Preview extends UseCase {
          * Application code should check the resulting output's resolution.
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link Preview.PreviewSurfaceProvider#provideSurface(Size, ListenableFuture)}.
+         * {@link SurfaceProvider#provideSurface(Size, ListenableFuture)}.
          *
          * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
          * priority.

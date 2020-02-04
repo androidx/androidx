@@ -46,8 +46,8 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
     final CompleterWithSizeCallback mCompleterWithSizeCallback =
             new CompleterWithSizeCallback();
 
-    private Preview.PreviewSurfaceProvider mPreviewSurfaceProvider =
-            new Preview.PreviewSurfaceProvider() {
+    private Preview.SurfaceProvider mSurfaceProvider =
+            new Preview.SurfaceProvider() {
                 @NonNull
                 @Override
                 public ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
@@ -84,8 +84,8 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
      */
     @NonNull
     @Override
-    public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
-        return mPreviewSurfaceProvider;
+    public Preview.SurfaceProvider getSurfaceProvider() {
+        return mSurfaceProvider;
     }
 
     @Override

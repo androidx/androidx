@@ -226,7 +226,7 @@ public class CameraXActivity extends AppCompatActivity
                 .build();
         Log.d(TAG, "enablePreview");
 
-        mPreview.setPreviewSurfaceProvider(
+        mPreview.setSurfaceProvider(
                 (resolution, surfaceReleaseFuture) -> {
                     mResolution = resolution;
                     mSurfaceReleaseFuture = surfaceReleaseFuture;

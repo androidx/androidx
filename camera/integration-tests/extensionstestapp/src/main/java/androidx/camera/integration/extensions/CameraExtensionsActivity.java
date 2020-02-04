@@ -160,7 +160,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
 
         mPreview = builder.build();
-        mPreview.setPreviewSurfaceProvider(mPreviewView.getPreviewSurfaceProvider());
+        mPreview.setSurfaceProvider(mPreviewView.getPreviewSurfaceProvider());
     }
 
     enum ImageCaptureType {

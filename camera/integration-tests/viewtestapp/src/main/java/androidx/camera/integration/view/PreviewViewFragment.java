@@ -123,7 +123,7 @@ public class PreviewViewFragment extends Fragment {
                 .setTargetName("Preview")
                 .build();
 
-        preview.setPreviewSurfaceProvider(mPreviewView.getPreviewSurfaceProvider());
+        preview.setSurfaceProvider(mPreviewView.getPreviewSurfaceProvider());
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mCurrentLensFacing).build();

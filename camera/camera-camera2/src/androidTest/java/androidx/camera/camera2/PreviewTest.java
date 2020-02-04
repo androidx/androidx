@@ -22,7 +22,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.app.Instrumentation;
@@ -38,7 +42,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraControlInternal;
-import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -46,14 +49,15 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.core.util.Preconditions;
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -75,20 +79,19 @@ public final class PreviewTest {
             Manifest.permission.CAMERA);
 
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
-    private static final Preview.PreviewSurfaceProvider MOCK_PREVIEW_SURFACE_PROVIDER =
-            mock(Preview.PreviewSurfaceProvider.class);
+    private static final Preview.SurfaceProvider MOCK_PREVIEW_SURFACE_PROVIDER =
+            mock(Preview.SurfaceProvider.class);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private Preview.Builder mDefaultBuilder;
 
     private CameraSelector mCameraSelector;
-    private String mCameraId;
     private FakeLifecycleOwner mLifecycleOwner;
     private Size mPreviewResolution;
     private Semaphore mSurfaceFutureSemaphore;
     private Semaphore mSaveToReleaseSemaphore;
-    private Preview.PreviewSurfaceProvider mPreviewSurfaceProviderWithFrameAvailableListener =
+    private Preview.SurfaceProvider mSurfaceProviderWithFrameAvailableListener =
             createSurfaceTextureProvider(new SurfaceTextureProvider.SurfaceTextureCallback() {
                 @Override
                 public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
@@ -112,16 +115,6 @@ public final class PreviewTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig).get();
-        CameraFactory cameraFactory = Preconditions.checkNotNull(
-                cameraXConfig.getCameraFactoryProvider(/*valueIfMissing=*/ null))
-                .newInstance(context);
-        try {
-            mCameraId = cameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing " + CameraSelector.LENS_FACING_BACK,
-                    e);
-        }
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig(null));
@@ -142,20 +135,21 @@ public final class PreviewTest {
     }
 
     @Test
-    @UiThreadTest
-    public void getAndSetPreviewSurfaceProvider() {
-        Preview preview = mDefaultBuilder.build();
-        preview.setPreviewSurfaceProvider(MOCK_PREVIEW_SURFACE_PROVIDER);
-        assertThat(preview.getPreviewSurfaceProvider()).isEqualTo(MOCK_PREVIEW_SURFACE_PROVIDER);
-    }
+    public void surfaceProvider_isUsedAfterSetting() {
+        Preview.SurfaceProvider surfaceProvider = mock(Preview.SurfaceProvider.class);
+        doAnswer(args -> Futures.immediateCancelledFuture()).when(surfaceProvider).provideSurface(
+                any(Size.class), any(ListenableFuture.class));
 
-    @Test
-    @UiThreadTest
-    public void removePreviewSurfaceProvider() {
-        Preview preview = mDefaultBuilder.build();
-        preview.setPreviewSurfaceProvider(MOCK_PREVIEW_SURFACE_PROVIDER);
-        preview.setPreviewSurfaceProvider(null);
-        assertThat(preview.getPreviewSurfaceProvider()).isNull();
+        mInstrumentation.runOnMainSync(() -> {
+            Preview preview = mDefaultBuilder.build();
+            preview.setSurfaceProvider(surfaceProvider);
+
+            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
+            mLifecycleOwner.startAndResume();
+        });
+
+        verify(surfaceProvider, timeout(3000)).provideSurface(any(Size.class),
+                any(ListenableFuture.class));
     }
 
     @Test
@@ -165,8 +159,8 @@ public final class PreviewTest {
 
         // Act.
         mInstrumentation.runOnMainSync(() -> {
-            preview.setPreviewSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
-                    mPreviewSurfaceProviderWithFrameAvailableListener);
+            preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
+                    mSurfaceProviderWithFrameAvailableListener);
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
         });
 
@@ -187,7 +181,7 @@ public final class PreviewTest {
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
             Preview preview = mDefaultBuilder.build();
-            preview.setPreviewSurfaceProvider(mPreviewSurfaceProviderWithFrameAvailableListener);
+            preview.setSurfaceProvider(mSurfaceProviderWithFrameAvailableListener);
 
             // Act.
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
@@ -207,7 +201,7 @@ public final class PreviewTest {
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
 
             // Act.
-            preview.setPreviewSurfaceProvider(mPreviewSurfaceProviderWithFrameAvailableListener);
+            preview.setSurfaceProvider(mSurfaceProviderWithFrameAvailableListener);
             mLifecycleOwner.startAndResume();
         });
 
@@ -237,8 +231,8 @@ public final class PreviewTest {
                     isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
             mInstrumentation.runOnMainSync(() -> {
-                preview.setPreviewSurfaceProvider(
-                        mPreviewSurfaceProviderWithFrameAvailableListener);
+                preview.setSurfaceProvider(
+                        mSurfaceProviderWithFrameAvailableListener);
                 CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
                         lensFacing).build();
                 CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview);

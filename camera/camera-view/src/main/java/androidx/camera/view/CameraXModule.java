@@ -115,7 +115,7 @@ final class CameraXModule {
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        mPreview.setPreviewSurfaceProvider(null);
+                        mPreview.setSurfaceProvider(null);
                     }
                 }
             };
@@ -243,7 +243,7 @@ final class CameraXModule {
         mPreviewBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
         mPreview = mPreviewBuilder.build();
-        mPreview.setPreviewSurfaceProvider((resolution, safeToCancelFuture) -> {
+        mPreview.setSurfaceProvider((resolution, safeToCancelFuture) -> {
             // The PreviewSurfaceProvider#createSurfaceFuture() might come asynchronously.
             // It cannot guarantee the callback time, so we store the resolution result in
             // the listenableFuture.
