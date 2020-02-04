@@ -54,6 +54,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -84,6 +85,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private static final float FLOAT_TOLERANCE = .0001f;
     private static final int INVALID_SHUFFLE_MODE = -1000;
     private static final int INVALID_REPEAT_MODE = -1000;
+    private static final String TEST_PLAYLIST_GENRE = "GENRE_TEST";
 
     private Object mPlayerCbArg1;
     private Object mPlayerCbArg2;
@@ -1999,6 +2001,56 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 assertFutureSuccess(mPlayer.seekTo(duration));
             }
         }
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testOnPlaylistChangedCalledAfterSetMediaItem() throws Exception {
+        List<MediaItem> playlist = createPlaylist(3);
+        MediaMetadata playlistMetadata = new MediaMetadata.Builder()
+                .putText(MediaMetadata.METADATA_KEY_GENRE, TEST_PLAYLIST_GENRE)
+                .build();
+        int listSize = playlist.size();
+
+        TestUtils.Monitor onPlaylistChangedMonitor = new TestUtils.Monitor();
+        mPlayer.registerPlayerCallback(mExecutor, new MediaPlayer.PlayerCallback() {
+            public void onPlaylistChanged(SessionPlayer player, List<MediaItem> list,
+                    MediaMetadata metadata) {
+                switch (onPlaylistChangedMonitor.getNumSignal()) {
+                    case 0:
+                        assertEquals(listSize, list.size());
+                        for (int i = 0; i < listSize; i++) {
+                            assertEquals(playlist.get(i), list.get(i));
+                        }
+                        assertEquals(TEST_PLAYLIST_GENRE,
+                                metadata.getText(MediaMetadata.METADATA_KEY_GENRE));
+                        break;
+                    case 1:
+                        assertNull(list);
+                        assertNull(metadata);
+                        break;
+                }
+                onPlaylistChangedMonitor.signal();
+            }
+        });
+
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, playlistMetadata));
+        assertEquals(1, onPlaylistChangedMonitor.waitForCountedSignals(1, WAIT_TIME_MS));
+        List<MediaItem> playerPlaylist = mPlayer.getPlaylist();
+        assertEquals(listSize, playerPlaylist.size());
+        for (int i = 0; i < listSize; i++) {
+            assertEquals(playlist.get(i), playerPlaylist.get(i));
+        }
+        assertEquals(TEST_PLAYLIST_GENRE,
+                mPlayer.getPlaylistMetadata().getText(MediaMetadata.METADATA_KEY_GENRE));
+        assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
+
+        assertFutureSuccess(mPlayer.setMediaItem(playlist.get(0)));
+        assertEquals(2, onPlaylistChangedMonitor.waitForCountedSignals(2, WAIT_TIME_MS));
+        assertNull(mPlayer.getPlaylist());
+        assertNull(mPlayer.getPlaylistMetadata());
+        assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
     }
 
     private MediaItem createMediaItem() throws Exception {
