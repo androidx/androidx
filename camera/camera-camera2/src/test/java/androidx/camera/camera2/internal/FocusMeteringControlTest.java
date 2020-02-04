@@ -24,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.fail;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -60,7 +59,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
@@ -450,9 +448,8 @@ public class FocusMeteringControlTest {
     public void customFovAdjusted() {
         // 16:9 to 4:3
         ImageAnalysis imageAnalysis = Mockito.mock(ImageAnalysis.class);
-        when(imageAnalysis.getAttachedSurfaceResolution(any())).thenReturn(
+        when(imageAnalysis.getAttachedSurfaceResolution()).thenReturn(
                 new Size(1920, 1080));
-        when(imageAnalysis.getAttachedCameraIds()).thenReturn(Sets.newHashSet(CAMERA0_ID));
 
         SurfaceOrientedMeteringPointFactory factory =
                 new SurfaceOrientedMeteringPointFactory(1.0f, 1.0f, imageAnalysis);

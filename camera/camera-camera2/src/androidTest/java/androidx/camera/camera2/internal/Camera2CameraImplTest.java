@@ -22,7 +22,6 @@ import static junit.framework.TestCase.assertTrue;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -365,14 +364,14 @@ public final class Camera2CameraImplTest {
 
         UseCase useCase1 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+        DeferrableSurface surface1 = useCase1.getSessionConfig().getSurfaces().get(0);
 
         unblockHandler();
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
 
         changeUseCaseSurface(useCase1);
         mCamera2CameraImpl.onUseCaseReset(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+        DeferrableSurface surface2 = useCase1.getSessionConfig().getSurfaces().get(0);
 
         // Wait for camera to be released to ensure it has finished closing
         ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
@@ -402,7 +401,7 @@ public final class Camera2CameraImplTest {
         CameraCaptureCallback captureCallback = mock(CameraCaptureCallback.class);
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
         captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        captureConfigBuilder.addSurface(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
+        captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
         mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
@@ -439,7 +438,7 @@ public final class Camera2CameraImplTest {
         CameraCaptureCallback captureCallback = mock(CameraCaptureCallback.class);
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
         captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        captureConfigBuilder.addSurface(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
+        captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
         mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
@@ -634,9 +633,7 @@ public final class Camera2CameraImplTest {
                         CameraSelector.LENS_FACING_BACK).build();
         TestUseCase testUseCase = new TestUseCase(configBuilder.getUseCaseConfig(), selector,
                 mMockOnImageAvailableListener);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, new Size(640, 480));
-        testUseCase.updateSuggestedResolution(suggestedResolutionMap);
+        testUseCase.updateSuggestedResolution(new Size(640, 480));
         mFakeUseCases.add(testUseCase);
         return testUseCase;
     }
@@ -654,8 +651,8 @@ public final class Camera2CameraImplTest {
         Handler uiThreadHandler = new Handler(Looper.getMainLooper());
         HandlerUtil.waitForLooperToIdle(uiThreadHandler);
 
-        verify(useCase1, times(1)).onStateOnline(eq(mCameraId));
-        verify(useCase2, times(1)).onStateOnline(eq(mCameraId));
+        verify(useCase1, times(1)).onStateOnline();
+        verify(useCase2, times(1)).onStateOnline();
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1, useCase2));
     }
@@ -675,9 +672,9 @@ public final class Camera2CameraImplTest {
         Handler uiThreadHandler = new Handler(Looper.getMainLooper());
         HandlerUtil.waitForLooperToIdle(uiThreadHandler);
 
-        verify(useCase1, times(1)).onStateOffline(eq(mCameraId));
-        verify(useCase2, times(1)).onStateOffline(eq(mCameraId));
-        verify(useCase3, times(0)).onStateOffline(eq(mCameraId));
+        verify(useCase1, times(1)).onStateOffline();
+        verify(useCase2, times(1)).onStateOffline();
+        verify(useCase3, times(0)).onStateOffline();
     }
 
     private boolean isCameraControlActive(Camera2CameraControl camera2CameraControl) {
@@ -728,13 +725,11 @@ public final class Camera2CameraImplTest {
     }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
-        return useCase.getSessionConfig(mCameraId).getSurfaces().get(0);
+        return useCase.getSessionConfig().getSurfaces().get(0);
     }
 
     private void changeUseCaseSurface(UseCase useCase) {
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, new Size(640, 480));
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        useCase.updateSuggestedResolution(new Size(640, 480));
     }
 
     private void waitForCameraClose(Camera2CameraImpl camera2CameraImpl)
@@ -780,15 +775,13 @@ public final class Camera2CameraImplTest {
             mImageAvailableListener = listener;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
-            Map<String, Size> suggestedResolutionMap = new HashMap<>();
             Integer lensFacing =
                     cameraSelector.getLensFacing() == null ? CameraSelector.LENS_FACING_BACK :
                             cameraSelector.getLensFacing();
             mCameraId = getCameraIdForLensFacingUnchecked(lensFacing);
             onBind(new FakeCamera(mCameraId, null,
                     new FakeCameraInfoInternal(mCameraId, 0, lensFacing)));
-            suggestedResolutionMap.put(mCameraId, new Size(640, 480));
-            updateSuggestedResolution(suggestedResolutionMap);
+            updateSuggestedResolution(new Size(640, 480));
         }
 
         public void close() {
@@ -815,9 +808,8 @@ public final class Camera2CameraImplTest {
 
         @Override
         @NonNull
-        protected Map<String, Size> onSuggestedResolutionUpdated(
-                @NonNull Map<String, Size> suggestedResolutionMap) {
-            Size resolution = suggestedResolutionMap.get(mCameraId);
+        protected Size onSuggestedResolutionUpdated(
+                @NonNull Size suggestedResolution) {
             SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -826,8 +818,8 @@ public final class Camera2CameraImplTest {
             }
             ImageReader imageReader =
                     ImageReader.newInstance(
-                            resolution.getWidth(),
-                            resolution.getHeight(),
+                            suggestedResolution.getWidth(),
+                            suggestedResolution.getHeight(),
                             ImageFormat.YUV_420_888, /*maxImages*/
                             2);
             imageReader.setOnImageAvailableListener(mImageAvailableListener, mHandler);
@@ -839,8 +831,8 @@ public final class Camera2CameraImplTest {
             }, CameraXExecutors.directExecutor());
             builder.addSurface(mDeferrableSurface);
 
-            attachToCamera(mCameraId, builder.build());
-            return suggestedResolutionMap;
+            attachToCamera(builder.build());
+            return suggestedResolution;
         }
     }
 

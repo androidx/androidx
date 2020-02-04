@@ -85,7 +85,6 @@ import androidx.core.util.Consumer;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -240,7 +239,7 @@ public final class Preview extends UseCase {
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
 
-                    attachToCamera(cameraId, sessionConfigBuilder.build());
+                    attachToCamera(sessionConfigBuilder.build());
                     notifyReset();
                 }
             }
@@ -335,7 +334,7 @@ public final class Preview extends UseCase {
 
     private void updateConfigAndOutput(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
-        attachToCamera(cameraId, createPipeline(cameraId, config, resolution).build());
+        attachToCamera(createPipeline(cameraId, config, resolution).build());
     }
 
     /**
@@ -438,17 +437,13 @@ public final class Preview extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
-        String cameraId = getBoundCameraId();
-        Size resolution = suggestedResolutionMap.get(cameraId);
-        if (resolution == null) {
-            throw new IllegalArgumentException(
-                    "Suggested resolution map missing resolution for camera " + cameraId);
-        }
-        mLatestResolution = resolution;
-        updateConfigAndOutput(cameraId, (PreviewConfig) getUseCaseConfig(), resolution);
-        return suggestedResolutionMap;
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        mLatestResolution = suggestedResolution;
+
+        updateConfigAndOutput(getBoundCameraId(), (PreviewConfig) getUseCaseConfig(),
+                mLatestResolution);
+
+        return mLatestResolution;
     }
 
     /**

@@ -741,39 +741,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Set&lt;String> getAttachedCameraIds() {"
-        errorLine2="           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="203"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void attachToCamera(String cameraId, SessionConfig sessionConfig) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="216"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void attachToCamera(String cameraId, SessionConfig sessionConfig) {"
-        errorLine2="                                                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="216"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final void attachCameraControl(String cameraId, CameraControlInternal cameraControl) {"
         errorLine2="                                          ~~~~~~">
         <location
@@ -796,78 +763,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SessionConfig getSessionConfig(String cameraId) {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="269"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SessionConfig getSessionConfig(String cameraId) {"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="269"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public UseCaseConfig&lt;?> getUseCaseConfig() {"
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
             line="407"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Size getAttachedSurfaceResolution(String cameraId) {"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="432"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Size getAttachedSurfaceResolution(String cameraId) {"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="432"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void updateSuggestedResolution(Map&lt;String, Size> suggestedResolutionMap) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="445"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onCameraControlReady(String cameraId) {"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="482"
-            column="41"/>
     </issue>
 
     <issue

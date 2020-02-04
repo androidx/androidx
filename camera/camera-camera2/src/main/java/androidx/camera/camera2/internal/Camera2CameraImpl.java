@@ -533,9 +533,16 @@ final class Camera2CameraImpl implements CameraInternal {
             Log.d(TAG, "Use case " + useCase + " ACTIVE for camera "
                     + mCameraInfoInternal.getCameraId());
 
-            mUseCaseAttachState.setUseCaseActive(useCase);
-            mUseCaseAttachState.updateUseCase(useCase);
-            updateCaptureSessionConfig();
+            // TODO(b/150208070)Race condition where onUseCaseActive can bee called, even after a
+            //  UseCase has been unbound. The try-catch is to retain existing behavior where an
+            //  unbound UseCase is silently ignored.
+            try {
+                mUseCaseAttachState.setUseCaseActive(useCase);
+                mUseCaseAttachState.updateUseCase(useCase);
+                updateCaptureSessionConfig();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "Failed to set already detached use case active");
+            }
         });
     }
 
@@ -623,8 +630,15 @@ final class Camera2CameraImpl implements CameraInternal {
         String cameraId = mCameraInfoInternal.getCameraId();
         for (UseCase useCase : toAdd) {
             if (!mUseCaseAttachState.isUseCaseOnline(useCase)) {
-                useCasesChangedToOnline.add(useCase);
-                mUseCaseAttachState.setUseCaseOnline(useCase);
+                // TODO(b/150208070)Race condition where onUseCaseActive can bee called, even after
+                //  a UseCase has been unbound. The try-catch is to retain existing behavior
+                //  where an unbound UseCase is silently ignored.
+                try {
+                    mUseCaseAttachState.setUseCaseOnline(useCase);
+                    useCasesChangedToOnline.add(useCase);
+                } catch (NullPointerException e) {
+                    Log.e(TAG, "Failed to set already detached use case online");
+                }
             }
         }
 
@@ -653,7 +667,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private void notifyStateOnlineToUseCases(List<UseCase> useCases) {
         CameraXExecutors.mainThreadExecutor().execute(() -> {
             for (UseCase useCase : useCases) {
-                useCase.onStateOnline(mCameraInfoInternal.getCameraId());
+                useCase.onStateOnline();
             }
         });
     }
@@ -661,7 +675,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private void notifyStateOfflineToUseCases(List<UseCase> useCases) {
         CameraXExecutors.mainThreadExecutor().execute(() -> {
             for (UseCase useCase : useCases) {
-                useCase.onStateOffline(mCameraInfoInternal.getCameraId());
+                useCase.onStateOffline();
             }
         });
     }
@@ -670,8 +684,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
-                Size resolution = useCase.getAttachedSurfaceResolution(
-                        mCameraInfoInternal.getCameraId());
+                Size resolution = useCase.getAttachedSurfaceResolution();
                 Rational aspectRatio = new Rational(resolution.getWidth(), resolution.getHeight());
                 mCameraControlInternal.setPreviewAspectRatio(aspectRatio);
                 return;
@@ -873,8 +886,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @ExecutedBy("mExecutor")
     UseCase findUseCaseForSurface(@NonNull DeferrableSurface surface) {
         for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
-            SessionConfig sessionConfig = useCase.getSessionConfig(
-                    mCameraInfoInternal.getCameraId());
+            SessionConfig sessionConfig = useCase.getSessionConfig();
             if (sessionConfig.getSurfaces().contains(surface)) {
                 return useCase;
             }
@@ -886,8 +898,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void postSurfaceClosedError(@NonNull UseCase useCase) {
         Executor executor = CameraXExecutors.mainThreadExecutor();
-        SessionConfig sessionConfigError = useCase.getSessionConfig(
-                mCameraInfoInternal.getCameraId());
+        SessionConfig sessionConfigError = useCase.getSessionConfig();
         List<SessionConfig.ErrorListener> errorListeners =
                 sessionConfigError.getErrorListeners();
         if (!errorListeners.isEmpty()) {
@@ -951,8 +962,7 @@ final class Camera2CameraImpl implements CameraInternal {
         Collection<UseCase> activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
 
         for (UseCase useCase : activeUseCases) {
-            SessionConfig sessionConfig = useCase.getSessionConfig(
-                    mCameraInfoInternal.getCameraId());
+            SessionConfig sessionConfig = useCase.getSessionConfig();
             // Query the repeating surfaces attached to this use case, then add them to the builder.
             List<DeferrableSurface> surfaces =
                     sessionConfig.getRepeatingCaptureConfig().getSurfaces();

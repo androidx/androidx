@@ -35,10 +35,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfig.Builder;
 import androidx.core.util.Preconditions;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -56,24 +53,14 @@ public abstract class UseCase {
      */
     private final Set<StateChangeCallback> mStateChangeCallbacks = new HashSet<>();
 
-    /**
-     * A map of camera id and CameraControlInternal. A CameraControlInternal will be attached
-     * into the usecase after usecase is bound to lifecycle. It is used for controlling
-     * zoom/focus/flash/triggering Af or AE.
-     */
-    private final Map<String, CameraControlInternal> mAttachedCameraControlMap = new HashMap<>();
-
-    /**
-     * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the {@link
-     * SessionConfig} that have been attached to this UseCase
-     */
-    private final Map<String, SessionConfig> mAttachedCameraIdToSessionConfigMap = new HashMap<>();
+    // The currently attached session config
+    private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the surface
      * resolution that have been attached to this UseCase
      */
-    private final Map<String, Size> mAttachedSurfaceResolutionMap = new HashMap<>();
+    private Size mAttachedResolution;
 
     private State mState = State.INACTIVE;
 
@@ -200,29 +187,13 @@ public abstract class UseCase {
     }
 
     /**
-     * Get the names of the cameras which are attached to this use case.
-     *
-     * <p>The names will correspond to those of the camera as defined by {@link
-     * android.hardware.camera2.CameraManager}.
+     * Sets the {@link SessionConfig} that will be used by the currently bound {@link Camera}.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public Set<String> getAttachedCameraIds() {
-        return mAttachedCameraIdToSessionConfigMap.keySet();
-    }
-
-    /**
-     * Attaches the UseCase to a {@link android.hardware.camera2.CameraDevice} with the
-     * corresponding name.
-     *
-     * @param cameraId The name of the camera as defined by {@link
-     *                 android.hardware.camera2.CameraManager#getCameraIdList()}.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void attachToCamera(String cameraId, SessionConfig sessionConfig) {
-        mAttachedCameraIdToSessionConfigMap.put(cameraId, sessionConfig);
+    protected void attachToCamera(@NonNull SessionConfig sessionConfig) {
+        mAttachedSessionConfig = sessionConfig;
     }
 
     /**
@@ -241,15 +212,17 @@ public abstract class UseCase {
      *
      * @hide
      */
+    // TODO(b/147698557) Remove after refactoring binding to camera, since the camera control should
+    //  already be available after the camera has been bound.
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public final void attachCameraControl(String cameraId, CameraControlInternal cameraControl) {
-        mAttachedCameraControlMap.put(cameraId, cameraControl);
-        onCameraControlReady(cameraId);
+    public final void attachCameraControl() {
+        onCameraControlReady();
     }
 
     /** Detach a CameraControlInternal from this use case. */
-    final void detachCameraControl(String cameraId) {
-        mAttachedCameraControlMap.remove(cameraId);
+    // TODO(b/147698557) Remove after refactoring binding to camera, since the camera control should
+    //  already be detached after the camera has been unbound.
+    final void detachCameraControl() {
     }
 
     /**
@@ -266,21 +239,13 @@ public abstract class UseCase {
     }
 
     /**
-     * Get the {@link SessionConfig} for the specified camera id.
-     *
-     * @param cameraId the id of the camera as referred to be {@link
-     *                 android.hardware.camera2.CameraManager}
-     * @throws IllegalArgumentException if no camera with the specified cameraId is attached
+     * Get the current {@link SessionConfig}.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public SessionConfig getSessionConfig(String cameraId) {
-        SessionConfig sessionConfig = mAttachedCameraIdToSessionConfigMap.get(cameraId);
-        if (sessionConfig == null) {
-            throw new IllegalArgumentException("Invalid camera: " + cameraId);
-        } else {
-            return sessionConfig;
-        }
+    @Nullable
+    public SessionConfig getSessionConfig() {
+        return mAttachedSessionConfig;
     }
 
     /**
@@ -435,30 +400,23 @@ public abstract class UseCase {
     /**
      * Retrieves the currently attached surface resolution.
      *
-     * @param cameraId the camera id for the desired surface.
      * @return the currently attached surface resolution for the given camera id.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public Size getAttachedSurfaceResolution(String cameraId) {
-        return mAttachedSurfaceResolutionMap.get(cameraId);
+    @Nullable
+    public Size getAttachedSurfaceResolution() {
+        return mAttachedResolution;
     }
 
     /**
-     * Offers suggested resolutions.
-     *
-     * <p>The keys of suggestedResolutionMap should only be cameraIds that are valid for this use
-     * case.
+     * Offers suggested resolution for the UseCase.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void updateSuggestedResolution(Map<String, Size> suggestedResolutionMap) {
-        Map<String, Size> resolutionMap = onSuggestedResolutionUpdated(suggestedResolutionMap);
-
-        for (Entry<String, Size> entry : resolutionMap.entrySet()) {
-            mAttachedSurfaceResolutionMap.put(entry.getKey(), entry.getValue());
-        }
+    public void updateSuggestedResolution(@NonNull Size suggestedResolution) {
+        mAttachedResolution = onSuggestedResolutionUpdated(suggestedResolution);
     }
 
     /**
@@ -468,19 +426,16 @@ public abstract class UseCase {
      * <p>Override to create necessary objects like {@link android.media.ImageReader} depending
      * on the resolution.
      *
-     * @param suggestedResolutionMap A map of the names of the {@link
-     *                               android.hardware.camera2.CameraDevice} to the suggested
-     *                               resolution that depends on camera
+     * @param suggestedResolution The suggested resolution that depends on camera
      *                               device capability and what and how many use cases will be
      *                               bound.
-     * @return The map with the resolutions that finally used to create the SessionConfig to
+     * @return The resolution that finally used to create the SessionConfig to
      * attach to the camera device.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected abstract Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap);
+    protected abstract Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution);
 
     /**
      * Called when CameraControlInternal is attached into the UseCase. UseCase may need to
@@ -490,7 +445,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void onCameraControlReady(String cameraId) {
+    protected void onCameraControlReady() {
     }
 
     /**
@@ -517,7 +472,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onStateOnline(@NonNull String cameraId) {
+    public void onStateOnline() {
     }
 
     /**
@@ -526,7 +481,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onStateOffline(@NonNull String cameraId) {
+    public void onStateOffline() {
     }
 
     /**
@@ -535,12 +490,14 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected CameraControlInternal getCameraControl(String cameraId) {
-        CameraControlInternal cameraControl = mAttachedCameraControlMap.get(cameraId);
-        if (cameraControl == null) {
-            return CameraControlInternal.DEFAULT_EMPTY_INSTANCE;
+    @NonNull
+    protected CameraControlInternal getCameraControl() {
+        synchronized (mBoundCameraLock) {
+            if (mBoundCamera == null) {
+                return CameraControlInternal.DEFAULT_EMPTY_INSTANCE;
+            }
+            return mBoundCamera.getCameraControlInternal();
         }
-        return cameraControl;
     }
 
     /**

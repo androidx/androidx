@@ -25,8 +25,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 
-import java.util.Map;
-
 /**
  * A fake {@link UseCase}.
  */
@@ -67,9 +65,8 @@ public class FakeUseCase extends UseCase {
 
     @Override
     @NonNull
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
-        return suggestedResolutionMap;
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        return suggestedResolution;
     }
 
     /**
