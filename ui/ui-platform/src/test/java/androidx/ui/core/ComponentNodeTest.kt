@@ -477,7 +477,7 @@ class ComponentNodeTest {
         val expectedY = globalPosition.y - y0.toPx() - y1.toPx()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
-        val result = node1.globalToLocal(globalPosition)
+        val result = node1.coordinates.globalToLocal(globalPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -496,13 +496,13 @@ class ComponentNodeTest {
         node0.place(x0, y0)
         node1.place(x1, y1)
 
-        val globalPosition = IntPxPosition(250.ipx, 300.ipx)
+        val globalPosition = PxPosition(250.ipx, 300.ipx)
 
         val expectedX = globalPosition.x - x0 - x1
         val expectedY = globalPosition.y - y0 - y1
-        val expectedPosition = IntPxPosition(expectedX, expectedY)
+        val expectedPosition = PxPosition(expectedX, expectedY)
 
-        val result = node1.globalToLocal(globalPosition)
+        val result = node1.coordinates.globalToLocal(globalPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -527,7 +527,7 @@ class ComponentNodeTest {
         val expectedY = localPosition.y + y0.toPx() + y1.toPx()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
-        val result = node1.localToGlobal(localPosition)
+        val result = node1.coordinates.localToGlobal(localPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -546,13 +546,13 @@ class ComponentNodeTest {
         node0.place(x0, y0)
         node1.place(x1, y1)
 
-        val localPosition = IntPxPosition(5.ipx, 15.ipx)
+        val localPosition = PxPosition(5.ipx, 15.ipx)
 
         val expectedX = localPosition.x + x0 + x1
         val expectedY = localPosition.y + y0 + y1
-        val expectedPosition = IntPxPosition(expectedX, expectedY)
+        val expectedPosition = PxPosition(expectedX, expectedY)
 
-        val result = node1.localToGlobal(localPosition)
+        val result = node1.coordinates.localToGlobal(localPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -563,7 +563,7 @@ class ComponentNodeTest {
         node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
         node.place(100.ipx, 10.ipx)
 
-        val result = node.localToGlobal(PxPosition.Origin)
+        val result = node.coordinates.localToGlobal(PxPosition.Origin)
 
         assertEquals(PxPosition(120.px, 30.px), result)
     }
@@ -574,9 +574,9 @@ class ComponentNodeTest {
         node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
         node.place(100.ipx, 10.ipx)
 
-        val result = node.localToGlobal(IntPxPosition.Origin)
+        val result = node.coordinates.localToGlobal(PxPosition.Origin)
 
-        assertEquals(IntPxPosition(120.ipx, 30.ipx), result)
+        assertEquals(PxPosition(120.ipx, 30.ipx), result)
     }
 
     @Test
@@ -597,7 +597,7 @@ class ComponentNodeTest {
         val expectedY = localPosition.y + y1.toPx()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
-        val result = node0.childToLocal(node1, localPosition)
+        val result = node0.coordinates.childToLocal(node1.coordinates, localPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -613,7 +613,7 @@ class ComponentNodeTest {
 
         thrown.expect(IllegalStateException::class.java)
 
-        node2.childToLocal(node1, PxPosition(5.px, 15.px))
+        node2.coordinates.childToLocal(node1.coordinates, PxPosition(5.px, 15.px))
     }
 
     @Test
@@ -626,7 +626,7 @@ class ComponentNodeTest {
 
         thrown.expect(IllegalStateException::class.java)
 
-        node1.childToLocal(node0, PxPosition(5.px, 15.px))
+        node1.coordinates.childToLocal(node0.coordinates, PxPosition(5.px, 15.px))
     }
 
     @Test
@@ -635,7 +635,7 @@ class ComponentNodeTest {
         node.attach(mockOwner())
         val position = PxPosition(5.px, 15.px)
 
-        val result = node.childToLocal(node, position)
+        val result = node.coordinates.childToLocal(node.coordinates, position)
 
         assertEquals(position, result)
     }
@@ -643,14 +643,15 @@ class ComponentNodeTest {
     @Test
     fun testPositionRelativeToRoot() {
         val parent = LayoutNode()
+        parent.attach(mockOwner())
         val child = LayoutNode()
         parent.emitInsertAt(0, child)
         parent.place(-100.ipx, 10.ipx)
         child.place(50.ipx, 80.ipx)
 
-        val actual = child.positionRelativeToRoot()
+        val actual = child.coordinates.positionInRoot
 
-        assertEquals(IntPxPosition(-50.ipx, 90.ipx), actual)
+        assertEquals(PxPosition(-50.ipx, 90.ipx), actual)
     }
 
     @Test
@@ -661,9 +662,9 @@ class ComponentNodeTest {
         parent.emitInsertAt(0, child)
         child.place(50.ipx, 80.ipx)
 
-        val actual = child.positionRelativeToRoot()
+        val actual = child.coordinates.positionInRoot
 
-        assertEquals(IntPxPosition(50.ipx, 80.ipx), actual)
+        assertEquals(PxPosition(50.ipx, 80.ipx), actual)
     }
 
     @Test
@@ -675,7 +676,7 @@ class ComponentNodeTest {
         parent.place(-100.ipx, 10.ipx)
         child.place(50.ipx, 80.ipx)
 
-        val actual = child.positionRelativeToAncestor(parent)
+        val actual = parent.coordinates.childToLocal(child.coordinates, PxPosition.Origin)
 
         assertEquals(PxPosition(50.px, 80.px), actual)
     }
@@ -692,7 +693,7 @@ class ComponentNodeTest {
         parent.place(23.ipx, -13.ipx)
         child.place(-3.ipx, 11.ipx)
 
-        val actual = child.positionRelativeToAncestor(grandParent)
+        val actual = grandParent.coordinates.childToLocal(child.coordinates, PxPosition.Origin)
 
         assertEquals(PxPosition(20.px, -2.px), actual)
     }
@@ -765,6 +766,39 @@ class ComponentNodeTest {
         pointerInputNode.emitInsertAt(0, DrawNode())
         pointerInputNode.emitRemoveAt(0, 2)
         assertEquals(0, pointerInputNode.count)
+    }
+
+    // The layout coordinates of a LayoutNode should be attached when
+    // the layout node is attached.
+    @Test
+    fun coordinatesAttachedWhenLayoutNodeAttached() {
+        val layoutNode = LayoutNode()
+        val drawModifier = draw { _, _ -> }
+        layoutNode.modifier = drawModifier
+        assertFalse(layoutNode.coordinates.isAttached)
+        assertFalse(layoutNode.coordinates.isAttached)
+        layoutNode.attach(mockOwner())
+        assertTrue(layoutNode.coordinates.isAttached)
+        assertTrue(layoutNode.coordinates.isAttached)
+        layoutNode.detach()
+        assertFalse(layoutNode.coordinates.isAttached)
+        assertFalse(layoutNode.coordinates.isAttached)
+    }
+
+    // The LayoutNodeWrapper should be detached when it has been replaced
+    @Test
+    fun layoutNodeWrapperAttachedWhenLayoutNodeAttached() {
+        val layoutNode = LayoutNode()
+        val drawModifier = draw { _, _ -> }
+        layoutNode.modifier = drawModifier
+        val layoutNodeWrapper = layoutNode.layoutNodeWrapper
+        assertFalse(layoutNodeWrapper.isAttached)
+        layoutNode.attach(mockOwner())
+        assertTrue(layoutNodeWrapper.isAttached)
+        layoutNode.modifier = draw { _, _ -> }
+        assertFalse(layoutNodeWrapper.isAttached)
+        assertTrue(layoutNode.coordinates.isAttached)
+        assertTrue(layoutNode.coordinates.isAttached)
     }
 
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {

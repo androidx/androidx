@@ -108,21 +108,14 @@ package androidx.ui.core {
 
   public final class ComponentNodesKt {
     method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
-    method public static androidx.ui.unit.PxPosition childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode child, androidx.ui.unit.PxPosition childLocal);
     method public static androidx.ui.core.ComponentNode? findClosestParentNode(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,java.lang.Boolean> selector);
     method public static androidx.ui.core.semantics.SemanticsNode? findClosestParentNode(androidx.ui.core.semantics.SemanticsNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> selector);
     method public static androidx.ui.core.LayoutNode? findLastLayoutChild(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> block);
     method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnChildPositionedKey();
     method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnPositionedKey();
     method public static androidx.ui.core.DataNodeKey<java.lang.Object> getParentDataKey();
-    method public static androidx.ui.unit.PxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.unit.PxPosition global, boolean withOwnerOffset = true);
-    method public static androidx.ui.unit.IntPxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.unit.IntPxPosition global, boolean withOwnerOffset = true);
     method public static boolean hasNoLayoutDescendants(androidx.ui.core.ComponentNode);
     method public static boolean isAttached(androidx.ui.core.ComponentNode);
-    method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.unit.PxPosition local, boolean withOwnerOffset = true);
-    method public static androidx.ui.unit.IntPxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.unit.IntPxPosition local, boolean withOwnerOffset = true);
-    method public static androidx.ui.unit.PxPosition positionRelativeToAncestor(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode ancestor);
-    method public static androidx.ui.unit.IntPxPosition positionRelativeToRoot(androidx.ui.core.LayoutNode);
     method public static androidx.ui.core.Owner requireOwner(androidx.ui.core.ComponentNode);
     method public static void visitLayoutChildren(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,kotlin.Unit> block);
   }
@@ -178,15 +171,13 @@ package androidx.ui.core {
     ctor public LayoutNode();
     method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.Density density);
     method public boolean getAffectsParentSize();
+    method public androidx.ui.unit.IntPx? getAlignmentLine(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.Constraints getConstraints();
-    method public androidx.ui.unit.IntPxPosition getContentPosition();
-    method public androidx.ui.unit.IntPxSize getContentSize();
+    method public androidx.ui.core.LayoutCoordinates getCoordinates();
     method public androidx.ui.unit.IntPx getHeight();
     method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
     method public androidx.ui.core.LayoutNode.MeasureBlocks getMeasureBlocks();
     method public androidx.ui.core.MeasureScope getMeasureScope();
-    method public androidx.ui.unit.IntPxPosition getModifiedPosition();
-    method public androidx.ui.unit.IntPxSize getModifiedSize();
     method public androidx.ui.core.Modifier getModifier();
     method public boolean getNeedsRelayout();
     method public boolean getNeedsRemeasure();
@@ -196,8 +187,6 @@ package androidx.ui.core {
     method public boolean getPositionedDuringMeasurePass();
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
     method public androidx.ui.unit.IntPx getWidth();
-    method public androidx.ui.unit.IntPx getX();
-    method public androidx.ui.unit.IntPx getY();
     method public void ignoreModelReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean isLayingOut();
     method public boolean isMeasuring();
@@ -221,8 +210,7 @@ package androidx.ui.core {
     property public final boolean affectsParentSize;
     property public final androidx.ui.core.Constraints constraints;
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
-    property public final androidx.ui.unit.IntPxPosition contentPosition;
-    property public final androidx.ui.unit.IntPxSize contentSize;
+    property public final androidx.ui.core.LayoutCoordinates coordinates;
     property public final androidx.ui.unit.IntPx height;
     property public final boolean isLayingOut;
     property public final boolean isMeasuring;
@@ -230,8 +218,6 @@ package androidx.ui.core {
     property public final java.util.List<androidx.ui.core.LayoutNode> layoutChildren;
     property public final androidx.ui.core.LayoutNode.MeasureBlocks measureBlocks;
     property public final androidx.ui.core.MeasureScope measureScope;
-    property public final androidx.ui.unit.IntPxPosition modifiedPosition;
-    property public final androidx.ui.unit.IntPxSize modifiedSize;
     property public final androidx.ui.core.Modifier modifier;
     property public final boolean needsRelayout;
     property public final boolean needsRemeasure;
@@ -242,8 +228,6 @@ package androidx.ui.core {
     property public final boolean positionedDuringMeasurePass;
     property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
     property public final androidx.ui.unit.IntPx width;
-    property public final androidx.ui.unit.IntPx x;
-    property public final androidx.ui.unit.IntPx y;
   }
 
   public abstract static class LayoutNode.InnerMeasureScope extends androidx.ui.core.MeasureScope {

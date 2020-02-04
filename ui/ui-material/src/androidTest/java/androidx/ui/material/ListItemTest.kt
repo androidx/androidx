@@ -641,7 +641,7 @@ class ListItemTest {
     ) {
         OnChildPositioned(
             { coordinates ->
-                coords.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                coords.value = coordinates.localToGlobal(PxPosition.Origin)
                 baseline.value = coordinates[FirstBaseline]?.toPx()?.let {
                     it + coords.value!!.y
                 }

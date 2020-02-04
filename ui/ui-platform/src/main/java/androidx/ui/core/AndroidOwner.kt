@@ -67,7 +67,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.px
-import androidx.ui.unit.toPxSize
 import androidx.ui.unit.withDensity
 
 import org.jetbrains.annotations.TestOnly
@@ -493,8 +492,11 @@ class AndroidComposeView constructor(context: Context) :
             }
             if (!repaintBoundaryChanges.isEmpty()) {
                 repaintBoundaryChanges.forEach { node ->
-                    val parentSize = node.parentLayoutNode!!.contentSize
-                    node.container.setSize(parentSize.width.value, parentSize.height.value)
+                    val parentNode = node.parentLayoutNode!!
+                    node.container.setSize(
+                        parentNode.innerLayoutNodeWrapper.width.value,
+                        parentNode.innerLayoutNodeWrapper.height.value
+                    )
                 }
                 repaintBoundaryChanges.clear()
             }
@@ -613,7 +615,7 @@ class AndroidComposeView constructor(context: Context) :
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         measureAndLayout()
         val uiCanvas = Canvas(canvas)
-        val parentSize = root.contentSize.toPxSize()
+        val parentSize = PxSize(root.width, root.height)
         modelObserver.observeReads(Unit, onCommitAffectingRootDraw) {
             root.visitChildren { callDraw(uiCanvas, it, parentSize) }
         }
@@ -634,7 +636,10 @@ class AndroidComposeView constructor(context: Context) :
         repaintBoundaryNode: RepaintBoundaryNode
     ) {
         val layoutNode = repaintBoundaryNode.parentLayoutNode!!
-        val parentSize = layoutNode.contentSize.toPxSize()
+        val parentSize = PxSize(
+            layoutNode.innerLayoutNodeWrapper.width,
+            layoutNode.innerLayoutNodeWrapper.height
+        )
         val uiCanvas = Canvas(canvas)
         observeDrawModelReads(repaintBoundaryNode) {
             repaintBoundaryNode.visitChildren { child ->

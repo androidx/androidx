@@ -19,7 +19,6 @@ package androidx.ui.test
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.RepaintBoundaryNode
 import androidx.ui.core.findClosestParentNode
-import androidx.ui.core.localToGlobal
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
@@ -336,7 +335,7 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
  * [LayoutNode].
  */
 private fun LayoutNode.contains(rectangle: PxBounds): Boolean {
-    val globalPositionTopLeft = localToGlobal(PxPosition(0.px, 0.px))
+    val globalPositionTopLeft = coordinates.localToGlobal(PxPosition(0.px, 0.px))
     // TODO: This method generates a lot of objects when it could compare primitives
 
     val rect = Rect.fromLTWH(

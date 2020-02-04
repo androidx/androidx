@@ -18,7 +18,6 @@ package androidx.ui.test
 
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.findLastLayoutChild
-import androidx.ui.core.localToGlobal
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
@@ -65,7 +64,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
             "No Layout Node found!"
         )
 
-    val position = layoutNode.localToGlobal(PxPosition(0.px, 0.px))
+    val position = layoutNode.coordinates.localToGlobal(PxPosition(0.px, 0.px))
 
     semanticsTreeInteraction.performAction {
         scrollableSemanticsNode.config[SemanticsActions.ScrollTo].action(

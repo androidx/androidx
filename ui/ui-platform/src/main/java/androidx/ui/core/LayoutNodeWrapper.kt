@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.ui.core
 
 import androidx.ui.geometry.Rect
@@ -26,17 +28,22 @@ import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.round
+import androidx.ui.unit.toPx
+import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
 
-internal val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
+private val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
 
 /**
  * Measurable and Placeable type that has a position.
  */
 internal sealed class LayoutNodeWrapper(
     internal val layoutNode: LayoutNode
-) : Placeable(), Measurable {
+) : Placeable(), Measurable, LayoutCoordinates {
     protected open val wrapped: LayoutNodeWrapper? = null
+    internal var wrappedBy: LayoutNodeWrapper? = null
     var position = IntPxPosition.Origin
 
     private var dirtySize: Boolean = false
@@ -47,15 +54,16 @@ internal sealed class LayoutNodeWrapper(
             field = value
         }
 
-    /**
-     * Calculate and set the content position based on the given offset and any internal
-     * positioning.
-     */
-    abstract fun calculateContentPosition(offset: IntPxPosition)
+    override val parentCoordinates: LayoutCoordinates?
+        get() {
+            check(isAttached) { ExpectAttachedLayoutCoordinates }
+            return wrappedBy
+        }
 
     /**
      * Assigns a layout size to this [LayoutNodeWrapper] given the assigned innermost size
-     * from the call to [MeasureScope.layout]. Assigns and returns the modified size.
+     * from the call to [MeasureScope.layout].
+     * @return The size after adjusting for the modifier.
      */
     abstract fun layoutSize(innermostSize: IntPxSize): IntPxSize
 
@@ -76,6 +84,88 @@ internal sealed class LayoutNodeWrapper(
      * Draws the content of the LayoutNode
      */
     abstract fun draw(canvas: Canvas, density: Density)
+
+    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
+        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        check(child.isAttached) { "Child $child is not attached!" }
+        var wrapper = child as LayoutNodeWrapper
+        var position = childLocal
+        while (wrapper !== this) {
+            position = wrapper.toParentPosition(position)
+
+            val parent = wrapper.wrappedBy
+            check(parent != null) {
+                "childToLocal: child parameter is not a child of the LayoutCoordinates"
+            }
+            wrapper = parent
+        }
+        return position
+    }
+
+    override fun globalToLocal(global: PxPosition): PxPosition {
+        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        val wrapper = wrappedBy ?: return fromParentPosition(
+            global - layoutNode.requireOwner().calculatePosition().toPxPosition()
+        )
+        return fromParentPosition(wrapper.globalToLocal(global))
+    }
+
+    override fun localToGlobal(local: PxPosition): PxPosition {
+        return localToRoot(local) + layoutNode.requireOwner().calculatePosition()
+    }
+
+    override fun localToRoot(local: PxPosition): PxPosition {
+        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        var wrapper: LayoutNodeWrapper? = this
+        var position = local
+        while (wrapper != null) {
+            position = wrapper.toParentPosition(position)
+            wrapper = wrapper.wrappedBy
+        }
+        return position
+    }
+
+    protected inline fun withPositionTranslation(canvas: Canvas, block: (Canvas) -> Unit) {
+        val x = position.x.value.toFloat()
+        val y = position.y.value.toFloat()
+        canvas.translate(x, y)
+        block(canvas)
+        canvas.translate(-x, -y)
+    }
+
+    /**
+     * Converts [position] in the local coordinate system to a [PxPosition] in the
+     * [parentCoordinates] coordinate system.
+     */
+    open fun toParentPosition(position: PxPosition): PxPosition = position + this.position
+
+    /**
+     * Converts [position] in the [parentCoordinates] coordinate system to a [PxPosition] in the
+     * local coordinate system.
+     */
+    open fun fromParentPosition(position: PxPosition): PxPosition = position - this.position
+
+    protected fun drawBorder(canvas: Canvas, paint: Paint) {
+        val rect = Rect(
+            left = 0.5f,
+            top = 0.5f,
+            right = size.width.value.toFloat() - 0.5f,
+            bottom = size.height.value.toFloat() - 0.5f
+        )
+        canvas.drawRect(rect, paint)
+    }
+
+    /**
+     * Detaches the LayoutNodeWrapper and its wrapped LayoutNodeWrapper from an active LayoutNode.
+     * This will be called whenever the modifier chain is replaced and the LayoutNodeWrappers
+     * are recreated.
+     */
+    abstract fun detach()
+
+    internal companion object {
+        const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
+                "when isAttached is true"
+    }
 }
 
 /**
@@ -84,13 +174,36 @@ internal sealed class LayoutNodeWrapper(
 internal sealed class DelegatingLayoutNodeWrapper(
     override val wrapped: LayoutNodeWrapper
 ) : LayoutNodeWrapper(wrapped.layoutNode) {
-    override fun calculateContentPosition(offset: IntPxPosition) =
-        wrapped.calculateContentPosition(position + offset)
+    override val providedAlignmentLines: Set<AlignmentLine>
+        get() = wrapped.providedAlignmentLines
 
-    override fun layoutSize(innermostSize: IntPxSize) = wrapped.layoutSize(innermostSize)
-    override fun draw(canvas: Canvas, density: Density) = wrapped.draw(canvas, density)
-    override fun get(line: AlignmentLine): IntPx? = wrapped[line]
-    override fun place(position: IntPxPosition) = wrapped.place(position)
+    private var _isAttached = true
+    override val isAttached: Boolean
+        get() = _isAttached && layoutNode.isAttached()
+
+    init {
+        wrapped.wrappedBy = this
+    }
+
+    override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
+        size = wrapped.layoutSize(innermostSize)
+        return size
+    }
+    override fun draw(canvas: Canvas, density: Density) {
+        withPositionTranslation(canvas) {
+            wrapped.draw(canvas, density)
+        }
+    }
+    override fun get(line: AlignmentLine): IntPx? {
+        val value = wrapped[line] ?: return null
+        val px = value.toPx()
+        val pos = wrapped.toParentPosition(PxPosition(px, px))
+        return if (line is HorizontalAlignmentLine) pos.y.round() else pos.y.round()
+    }
+    override fun place(position: IntPxPosition) {
+        this.position = position
+        wrapped.place(IntPxPosition.Origin)
+    }
     override fun measure(constraints: Constraints): Placeable {
         wrapped.measure(constraints)
         return this
@@ -101,11 +214,21 @@ internal sealed class DelegatingLayoutNodeWrapper(
     override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
     override fun maxIntrinsicHeight(width: IntPx) = wrapped.maxIntrinsicHeight(width)
     override val parentData: Any? get() = wrapped.parentData
+
+    override fun detach() {
+        _isAttached = false
+        wrapped.detach()
+    }
 }
 
 internal class InnerPlaceable(
     layoutNode: LayoutNode
 ) : LayoutNodeWrapper(layoutNode), DensityScope {
+    override val providedAlignmentLines: Set<AlignmentLine>
+        get() = layoutNode.providedAlignmentLines.keys
+    override val isAttached: Boolean
+        get() = layoutNode.isAttached()
+
     override fun measure(constraints: Constraints): Placeable {
         val layoutResult = layoutNode.measureBlocks.measure(
                 layoutNode.measureScope,
@@ -149,10 +272,9 @@ internal class InnerPlaceable(
 
     override fun place(position: IntPxPosition) {
         layoutNode.isPlaced = true
+        val wasMoved = position != this.position
         this.position = position
-        val oldContentPosition = layoutNode.contentPosition
-        layoutNode.layoutNodeWrapper.calculateContentPosition(IntPxPosition.Origin)
-        if (oldContentPosition != layoutNode.contentPosition) {
+        if (wasMoved) {
             layoutNode.owner?.onPositionChange(layoutNode)
         }
         layoutNode.layout()
@@ -169,27 +291,19 @@ internal class InnerPlaceable(
         return layoutNode.calculateAlignmentLines()[line]
     }
 
-    override fun calculateContentPosition(offset: IntPxPosition) {
-        layoutNode.contentPosition = position + offset
+    override fun draw(canvas: Canvas, density: Density) {
+        withPositionTranslation(canvas) {
+            val owner = layoutNode.requireOwner()
+            val sizePx = size.toPxSize()
+            layoutNode.children.forEach { child -> owner.callDraw(canvas, child, sizePx) }
+            if (owner.showLayoutBounds) {
+                drawBorder(canvas, innerBoundsPaint)
+            }
+        }
     }
 
-    override fun draw(canvas: Canvas, density: Density) {
-        val x = position.x.value.toFloat()
-        val y = position.y.value.toFloat()
-        canvas.translate(x, y)
-        val owner = layoutNode.requireOwner()
-        val sizePx = size.toPxSize()
-        layoutNode.children.forEach { child -> owner.callDraw(canvas, child, sizePx) }
-        if (owner.showLayoutBounds) {
-            val rect = Rect(
-                left = 0.5f,
-                top = 0.5f,
-                right = size.width.value.toFloat() - 0.5f,
-                bottom = size.height.value.toFloat() - 0.5f
-            )
-            canvas.drawRect(rect, innerBoundsPaint)
-        }
-        canvas.translate(-x, -y)
+    override fun detach() {
+        // Do nothing. InnerPlaceable only is detached when the LayoutNode is detached.
     }
 
     internal companion object {
@@ -213,12 +327,6 @@ internal class ModifiedParentDataNode(
              */
             layoutNode.parentDataNode?.value
                 ?: layoutNode.measureScope.modifyParentData(wrapped.parentData)
-        }
-
-    override var size: IntPxSize
-        get() = if (super.size == Unmeasured) wrapped.size else super.size
-        set(value) {
-            super.size = value
         }
 }
 
@@ -286,15 +394,7 @@ internal class ModifiedLayoutNode(
     }
 
     override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
-        var lineValue = layoutNode.measureScope.modifyAlignmentLine(line, wrapped[line])
-        if (lineValue != null) {
-            lineValue += if (line is HorizontalAlignmentLine) {
-                wrapped.position.y
-            } else {
-                wrapped.position.x
-            }
-        }
-        lineValue
+        return layoutNode.measureScope.modifyAlignmentLine(line, super.get(line))
     }
 
     override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
@@ -304,25 +404,13 @@ internal class ModifiedLayoutNode(
         }
     }
 
-    override fun calculateContentPosition(offset: IntPxPosition) {
-        wrapped.calculateContentPosition(position + offset)
-    }
-
     override fun draw(canvas: Canvas, density: Density) {
-        val x = position.x.value.toFloat()
-        val y = position.y.value.toFloat()
-        canvas.translate(x, y)
-        wrapped.draw(canvas, density)
-        if (layoutNode.requireOwner().showLayoutBounds) {
-            val rect = Rect(
-                left = 0.5f,
-                top = 0.5f,
-                right = size.width.value.toFloat() - 0.5f,
-                bottom = size.height.value.toFloat() - 0.5f
-            )
-            canvas.drawRect(rect, modifierBoundsPaint)
+        withPositionTranslation(canvas) {
+            wrapped.draw(canvas, density)
+            if (layoutNode.requireOwner().showLayoutBounds) {
+                drawBorder(canvas, modifierBoundsPaint)
+            }
         }
-        canvas.translate(-x, -y)
     }
 
     internal companion object {
@@ -341,26 +429,15 @@ internal class ModifiedDrawNode(
     private var density: Density? = null
     private var canvas: Canvas? = null
 
-    override var size: IntPxSize
-        get() = wrapped.size
-        set(_) = error("Cannot set the size of a draw modifier")
-
-    override fun place(position: IntPxPosition) {
-        this.position = position
-        wrapped.place(IntPxPosition.Origin)
-    }
-
     override fun draw(canvas: Canvas, density: Density) {
-        val x = position.x.value.toFloat()
-        val y = position.y.value.toFloat()
-        canvas.translate(x, y)
-        this.density = density
-        this.canvas = canvas
-        val pxSize = size.toPxSize()
-        drawModifier.draw(density, this, canvas, pxSize)
-        this.density = null
-        this.canvas = null
-        canvas.translate(-x, -y)
+        withPositionTranslation(canvas) {
+            this.density = density
+            this.canvas = canvas
+            val pxSize = size.toPxSize()
+            drawModifier.draw(density, this, canvas, pxSize)
+            this.density = null
+            this.canvas = null
+        }
     }
 
     // This is the implementation of drawContent()

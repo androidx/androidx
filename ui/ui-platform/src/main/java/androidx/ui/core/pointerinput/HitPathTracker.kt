@@ -23,13 +23,14 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.hasNoLayoutDescendants
 import androidx.ui.core.isAttached
-import androidx.ui.core.positionRelativeToRoot
+import androidx.ui.core.positionInRoot
 import androidx.ui.core.visitLayoutChildren
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * Organizes pointers and the [PointerInputNode]s that they hit into a hierarchy such that
@@ -235,9 +236,9 @@ internal open class NodeParent {
             var maxX = Int.MIN_VALUE
             var maxY = Int.MIN_VALUE
             child.pointerInputNode.visitLayoutChildren { layoutChild ->
-                val globalPosition = layoutChild.positionRelativeToRoot()
-                val x = globalPosition.x.value + additionalPointerOffset.x.value
-                val y = globalPosition.y.value + additionalPointerOffset.y.value
+                val globalPosition = layoutChild.coordinates.positionInRoot
+                val x = (globalPosition.x.value + additionalPointerOffset.x.value).roundToInt()
+                val y = (globalPosition.y.value + additionalPointerOffset.y.value).roundToInt()
                 minX = min(minX, x)
                 minY = min(minY, y)
                 maxX = max(maxX, x + layoutChild.width.value)

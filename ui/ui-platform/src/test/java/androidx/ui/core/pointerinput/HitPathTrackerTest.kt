@@ -3031,6 +3031,7 @@ class HitPathTrackerTest {
             emitInsertAt(0, parentLayoutNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
+        compositionRoot.emitInsertAt(0, parentPointerInputNode)
 
         hitResult.addHitPath(
             PointerId(3, Uptime.Boot),
@@ -3236,6 +3237,8 @@ class HitPathTrackerTest {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
 
+        compositionRoot.emitInsertAt(0, parentPointerInputNode)
+
         hitResult.addHitPath(
             PointerId(3, Uptime.Boot),
             listOf(parentPointerInputNode, childPointerInputNode)
@@ -3354,6 +3357,9 @@ class HitPathTrackerTest {
             emitInsertAt(0, parentLayoutNode2)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
+
+        compositionRoot.emitInsertAt(0, parentPointerInputNode1)
+        compositionRoot.emitInsertAt(1, parentPointerInputNode2)
 
         hitResult.addHitPath(
             PointerId(3, Uptime.Boot),
@@ -3510,6 +3516,8 @@ class HitPathTrackerTest {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
 
+        compositionRoot.emitInsertAt(0, parentPointerInputNode)
+
         hitResult.addHitPath(
             PointerId(3, Uptime.Boot),
             listOf(parentPointerInputNode, childPointerInputNode1)
@@ -3644,6 +3652,8 @@ class HitPathTrackerTest {
             emitInsertAt(0, parentLayoutNode2)
         }
 
+        compositionRoot.emitInsertAt(0, parentLayoutNode1)
+
         hitResult.addHitPath(PointerId(3, Uptime.Boot), listOf(pointerInputNode))
 
         val additionalOffset = IntPxPosition(29.ipx, 31.ipx)
@@ -3727,6 +3737,8 @@ class HitPathTrackerTest {
         val parentLayoutNode1 = LayoutNode(parentOffset1, parentSize1).apply {
             emitInsertAt(0, parentLayoutNode2)
         }
+
+        compositionRoot.emitInsertAt(0, parentLayoutNode1)
 
         hitResult.addHitPath(
             PointerId(3, Uptime.Boot),
@@ -3851,6 +3863,8 @@ class HitPathTrackerTest {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
 
+        compositionRoot.emitInsertAt(0, pointerInputNode)
+
         hitResult.addHitPath(PointerId(3, Uptime.Boot), listOf(pointerInputNode))
 
         // Act
@@ -3902,6 +3916,8 @@ class HitPathTrackerTest {
             })
             pointerInputHandler = spy(MyPointerInputHandler())
         }
+
+        compositionRoot.emitInsertAt(0, pointerInputNode)
 
         hitResult.addHitPath(PointerId(3, Uptime.Boot), listOf(pointerInputNode))
 
