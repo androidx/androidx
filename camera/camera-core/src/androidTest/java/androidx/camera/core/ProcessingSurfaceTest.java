@@ -64,7 +64,7 @@ public final class ProcessingSurfaceTest {
     private static final int FORMAT = ImageFormat.YUV_420_888;
     private static final CallbackDeferrableSurface NO_OP_CALLBACK_DEFERRABLE_SURFACE =
             new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
-                    new Preview.PreviewSurfaceProvider() {
+                    new Preview.SurfaceProvider() {
                 @NonNull
                 @Override
                 public ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
@@ -150,7 +150,7 @@ public final class ProcessingSurfaceTest {
         // Create ProcessingSurface with user Surface.
         ProcessingSurface processingSurface = createProcessingSurface(
                 new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
-                        new Preview.PreviewSurfaceProvider() {
+                        new Preview.SurfaceProvider() {
                             @NonNull
                             @Override
                             public ListenableFuture<Surface> provideSurface(

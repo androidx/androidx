@@ -354,11 +354,10 @@ package androidx.camera.core {
   }
 
   public final class Preview extends androidx.camera.core.UseCase {
-    method @UiThread public androidx.camera.core.Preview.PreviewSurfaceProvider? getPreviewSurfaceProvider();
     method public int getTargetRotation();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
-    method @UiThread public void setPreviewSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.PreviewSurfaceProvider?);
-    method @UiThread public void setPreviewSurfaceProvider(androidx.camera.core.Preview.PreviewSurfaceProvider?);
+    method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
+    method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Preview.Defaults! DEFAULT_CONFIG;
   }
 
@@ -394,7 +393,7 @@ package androidx.camera.core {
     method public androidx.camera.core.impl.PreviewConfig getConfig(androidx.camera.core.CameraInfo?);
   }
 
-  public static interface Preview.PreviewSurfaceProvider {
+  public static interface Preview.SurfaceProvider {
     method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> provideSurface(android.util.Size, com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>);
   }
 

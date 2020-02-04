@@ -35,11 +35,11 @@ public final class SurfaceTextureProvider {
     }
 
     /**
-     * Creates a {@link Preview.PreviewSurfaceProvider} that is backed by a {@link SurfaceTexture}.
+     * Creates a {@link Preview.SurfaceProvider} that is backed by a {@link SurfaceTexture}.
      *
-     * <p>This is a convenience method for creating a {@link Preview.PreviewSurfaceProvider}
+     * <p>This is a convenience method for creating a {@link Preview.SurfaceProvider}
      * whose {@link Surface} is backed by a {@link SurfaceTexture}. The returned
-     * {@link Preview.PreviewSurfaceProvider} is responsible for creating the
+     * {@link Preview.SurfaceProvider} is responsible for creating the
      * {@link SurfaceTexture}. The {@link SurfaceTexture} may not be safe to use with
      * {@link TextureView}
      * Example:
@@ -61,11 +61,11 @@ public final class SurfaceTextureProvider {
      *
      * @param surfaceTextureCallback callback called when the SurfaceTexture is ready to be
      *                               set/released.
-     * @return a {@link Preview.PreviewSurfaceProvider} to be used with
-     * {@link Preview#setPreviewSurfaceProvider(Preview.PreviewSurfaceProvider)}.
+     * @return a {@link Preview.SurfaceProvider} to be used with
+     * {@link Preview#setSurfaceProvider(Preview.SurfaceProvider)}.
      */
     @NonNull
-    public static Preview.PreviewSurfaceProvider createSurfaceTextureProvider(
+    public static Preview.SurfaceProvider createSurfaceTextureProvider(
             @NonNull SurfaceTextureCallback surfaceTextureCallback) {
         return (resolution, safeToCancelFuture) -> {
             SurfaceTexture surfaceTexture = new SurfaceTexture(0);

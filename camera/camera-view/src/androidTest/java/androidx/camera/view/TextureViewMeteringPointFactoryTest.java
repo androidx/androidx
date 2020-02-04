@@ -207,7 +207,7 @@ public class TextureViewMeteringPointFactoryTest {
             throws InterruptedException {
         Preview preview = new Preview.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
-            preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
+            preview.setSurfaceProvider(createSurfaceTextureProvider(
                     new SurfaceTextureProvider.SurfaceTextureCallback() {
                         @Override
                         public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,

@@ -76,7 +76,7 @@ public class TextureViewImplementationTest {
     @LargeTest
     @Test(expected = TimeoutException.class)
     public void doNotProvideSurface_ifSurfaceTextureNotAvailableYet() throws Exception {
-        mImplementation.getPreviewSurfaceProvider()
+        mImplementation.getSurfaceProvider()
                 .provideSurface(ANY_SIZE, getSurfaceSafeToReleaseFuture())
                 .get(2, TimeUnit.SECONDS);
     }
@@ -84,7 +84,7 @@ public class TextureViewImplementationTest {
     @Test
     public void provideSurface_ifSurfaceTextureAvailable() throws Exception {
         final ListenableFuture<Surface> surfaceListenableFuture =
-                mImplementation.getPreviewSurfaceProvider()
+                mImplementation.getSurfaceProvider()
                         .provideSurface(ANY_SIZE, getSurfaceSafeToReleaseFuture());
 
         mImplementation.mTextureView
@@ -100,7 +100,7 @@ public class TextureViewImplementationTest {
     public void doNotDestroySurface_whenSurfaceTextureBeingDestroyed_andCameraUsingSurface()
             throws Exception {
         final ListenableFuture<Surface> surfaceListenableFuture =
-                mImplementation.getPreviewSurfaceProvider()
+                mImplementation.getSurfaceProvider()
                         .provideSurface(ANY_SIZE, getSurfaceSafeToReleaseFuture());
 
         final TextureView.SurfaceTextureListener surfaceTextureListener =
@@ -118,7 +118,7 @@ public class TextureViewImplementationTest {
     public void destroySurface_whenSurfaceTextureBeingDestroyed_andCameraNotUsingSurface()
             throws Exception {
         final ListenableFuture<Surface> surfaceListenableFuture =
-                mImplementation.getPreviewSurfaceProvider()
+                mImplementation.getSurfaceProvider()
                         .provideSurface(ANY_SIZE, getSurfaceSafeToReleaseFuture());
 
         final TextureView.SurfaceTextureListener surfaceTextureListener =
@@ -141,7 +141,7 @@ public class TextureViewImplementationTest {
     public void releaseSurfaceTexture_afterSurfaceTextureDestroyed_andCameraNoLongerUsingSurface_1()
             throws Exception {
         final ListenableFuture<Surface> surfaceListenableFuture =
-                mImplementation.getPreviewSurfaceProvider()
+                mImplementation.getSurfaceProvider()
                         .provideSurface(ANY_SIZE, getSurfaceSafeToReleaseFuture());
 
         final TextureView.SurfaceTextureListener surfaceTextureListener =
@@ -165,7 +165,7 @@ public class TextureViewImplementationTest {
     public void releaseSurfaceTexture_afterSurfaceTextureDestroyed_andCameraNoLongerUsingSurface_2()
             throws Exception {
         final ListenableFuture<Surface> surfaceListenableFuture =
-                mImplementation.getPreviewSurfaceProvider()
+                mImplementation.getSurfaceProvider()
                         .provideSurface(ANY_SIZE, getSurfaceSafeToReleaseFuture());
 
         final TextureView.SurfaceTextureListener surfaceTextureListener =
@@ -188,7 +188,7 @@ public class TextureViewImplementationTest {
     @LargeTest
     public void nullSurfaceCompleterAndSurfaceReleaseFuture_whenSurfaceProviderCancelled()
             throws Exception {
-        mImplementation.getPreviewSurfaceProvider()
+        mImplementation.getSurfaceProvider()
                 .provideSurface(ANY_SIZE, getSurfaceSafeToReleaseFuture())
                 .cancel(true);
 
@@ -201,7 +201,7 @@ public class TextureViewImplementationTest {
 
     @Test
     public void releaseSurface_whenSurfaceTextureDestroyed_andCameraSurfaceRequestIsCancelled() {
-        mImplementation.getPreviewSurfaceProvider().provideSurface(ANY_SIZE,
+        mImplementation.getSurfaceProvider().provideSurface(ANY_SIZE,
                 getSurfaceSafeToReleaseFuture());
         mSurfaceSafeToReleaseCompleter.setCancelled();
 
@@ -220,13 +220,13 @@ public class TextureViewImplementationTest {
 
     @Test
     public void keepOnlyLatestTextureView_whenGetSurfaceProviderCalledMultipleTimes() {
-        mImplementation.getPreviewSurfaceProvider().provideSurface(ANY_SIZE,
+        mImplementation.getSurfaceProvider().provideSurface(ANY_SIZE,
                 getSurfaceSafeToReleaseFuture());
 
         assertThat(mParent.getChildAt(0)).isInstanceOf(TextureView.class);
         final TextureView textureView1 = (TextureView) mParent.getChildAt(0);
 
-        mImplementation.getPreviewSurfaceProvider().provideSurface(ANY_SIZE,
+        mImplementation.getSurfaceProvider().provideSurface(ANY_SIZE,
                 getSurfaceSafeToReleaseFuture());
 
         assertThat(mParent.getChildAt(0)).isInstanceOf(TextureView.class);
