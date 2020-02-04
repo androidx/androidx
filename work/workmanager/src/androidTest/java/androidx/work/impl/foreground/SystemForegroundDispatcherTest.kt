@@ -39,7 +39,6 @@ import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
-import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -107,9 +106,14 @@ class SystemForegroundDispatcherTest {
     @Test
     fun testStartForeground_noInteractions_workSpecHasNoConstraints() {
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
-        val intent = createStartForegroundIntent(context, request.stringId)
+        val intent = createStartForegroundIntent(context, request.stringId, metadata)
         dispatcher.onStartCommand(intent)
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(notificationId), eq(0), any<Notification>())
         verifyZeroInteractions(tracker)
     }
 
@@ -120,16 +124,21 @@ class SystemForegroundDispatcherTest {
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
-
-        val intent = createStartForegroundIntent(context, request.stringId)
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
+        val intent = createStartForegroundIntent(context, request.stringId, metadata)
         dispatcher.onStartCommand(intent)
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(notificationId), eq(0), any<Notification>())
         verify(tracker, times(1)).replace(setOf(request.workSpec))
     }
 
     @Test
     fun testStopForeground() {
-        val intent = createStopForegroundIntent(context)
-        dispatcher.onStartCommand(intent)
+        // The Foreground Service now calls handleStop() directly without the need for an
+        // additional startService().
+        dispatcher.handleStop()
         verify(dispatcherCallback, times(1)).stop()
     }
 
@@ -284,8 +293,10 @@ class SystemForegroundDispatcherTest {
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
-
-        val intent = createStartForegroundIntent(context, request.stringId)
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
+        val intent = createStartForegroundIntent(context, request.stringId, metadata)
         dispatcher.onStartCommand(intent)
         verify(tracker, times(1)).replace(setOf(request.workSpec))
         dispatcher.onAllConstraintsNotMet(listOf(request.workSpec.id))
@@ -299,8 +310,10 @@ class SystemForegroundDispatcherTest {
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
-
-        val intent = createStartForegroundIntent(context, request.stringId)
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
+        val intent = createStartForegroundIntent(context, request.stringId, metadata)
         dispatcher.onStartCommand(intent)
         verify(tracker, times(1)).replace(setOf(request.workSpec))
         val stopIntent = createCancelWorkIntent(context, request.stringId)

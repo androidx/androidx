@@ -73,7 +73,7 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
                     if (!future.isCancelled()) {
                         String workSpecId = id.toString();
                         // startForeground() is idempotent
-                        mForegroundProcessor.startForeground(workSpecId);
+                        mForegroundProcessor.startForeground(workSpecId, foregroundInfo);
                         Intent intent = createNotifyIntent(context, workSpecId, foregroundInfo);
                         context.startService(intent);
                     }

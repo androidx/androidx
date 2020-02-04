@@ -16,7 +16,6 @@
 package androidx.work.impl;
 
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent;
-import static androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,9 +26,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.work.Configuration;
+import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.foreground.ForegroundProcessor;
+import androidx.work.impl.foreground.SystemForegroundService;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -143,7 +144,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     }
 
     @Override
-    public void startForeground(@NonNull String workSpecId) {
+    public void startForeground(@NonNull String workSpecId, @NonNull ForegroundInfo info) {
         synchronized (mLock) {
             Logger.get().info(TAG, String.format("Moving WorkSpec (%s) to the foreground",
                     workSpecId));
@@ -154,7 +155,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     mForegroundLock.acquire();
                 }
                 mForegroundWorkMap.put(workSpecId, wrapper);
-                Intent intent = createStartForegroundIntent(mAppContext, workSpecId);
+                Intent intent = createStartForegroundIntent(mAppContext, workSpecId, info);
                 ContextCompat.startForegroundService(mAppContext, intent);
             }
         }
@@ -297,10 +298,15 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             boolean hasForegroundWork = !mForegroundWorkMap.isEmpty();
             if (!hasForegroundWork) {
-                Logger.get().debug(TAG,
-                        "No more foreground work. Stopping SystemForegroundService");
-                Intent intent = createStopForegroundIntent(mAppContext);
-                mAppContext.startService(intent);
+                final SystemForegroundService instance = SystemForegroundService.getInstance();
+                if (instance != null) {
+                    Logger.get().debug(TAG,
+                            "No more foreground work. Stopping SystemForegroundService");
+                    instance.stopForegroundService();
+                } else {
+                    Logger.get().debug(TAG,
+                            "No more foreground work. SystemForegroundService is already stopped");
+                }
                 // Release wake lock if there is no more pending work.
                 if (mForegroundLock != null) {
                     mForegroundLock.release();

@@ -41,16 +41,21 @@ public class SystemForegroundService extends LifecycleService implements
 
     private static final String TAG = Logger.tagWithPrefix("SystemFgService");
 
-    private SystemForegroundDispatcher mDispatcher;
+    @Nullable
+    private static SystemForegroundService sForegroundService = null;
+
     private Handler mHandler;
     private boolean mIsShutdown;
 
+    // Synthetic access
+    SystemForegroundDispatcher mDispatcher;
     // Synthetic access
     NotificationManager mNotificationManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        sForegroundService = this;
         initializeDispatcher();
     }
 
@@ -92,6 +97,19 @@ public class SystemForegroundService extends LifecycleService implements
         mDispatcher.setCallback(this);
     }
 
+    /**
+     * Stops the foreground {@link Service} by asking {@link SystemForegroundDispatcher} to
+     * handle a stop request.
+     */
+    public void stopForegroundService() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mDispatcher.handleStop();
+            }
+        });
+    }
+
     @MainThread
     @Override
     public void stop() {
@@ -102,6 +120,7 @@ public class SystemForegroundService extends LifecycleService implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
         }
+        sForegroundService = null;
         stopSelf();
     }
 
@@ -141,5 +160,13 @@ public class SystemForegroundService extends LifecycleService implements
                 mNotificationManager.cancel(notificationId);
             }
         });
+    }
+
+    /**
+     * @return The current instance of {@link SystemForegroundService}.
+     */
+    @Nullable
+    public static SystemForegroundService getInstance() {
+        return sForegroundService;
     }
 }
