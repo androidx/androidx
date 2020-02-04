@@ -55,6 +55,7 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -75,6 +76,7 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -98,6 +100,7 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -159,6 +162,7 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -213,6 +217,7 @@ class TextDelegateIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -277,6 +282,7 @@ class TextDelegateIntegrationTest {
             val selectionColor = Color(0x66AABB33)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -318,6 +324,7 @@ class TextDelegateIntegrationTest {
     fun multiParagraphIntrinsics_isReused() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = "abc"),
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -347,6 +354,7 @@ class TextDelegateIntegrationTest {
     fun TextLayoutInput_reLayout_withDifferentHeight() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = "Hello World!"),
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -368,6 +376,7 @@ class TextDelegateIntegrationTest {
     fun TextLayoutResult_reLayout_withDifferentHeight() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = "Hello World!"),
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr

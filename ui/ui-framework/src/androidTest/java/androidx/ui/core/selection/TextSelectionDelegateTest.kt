@@ -29,6 +29,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
+import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
@@ -1584,6 +1585,7 @@ class TextSelectionDelegateTest {
         val annotatedString = AnnotatedString(text, spanStyle)
         return TextDelegate(
             text = annotatedString,
+            style = TextStyle(),
             density = density,
             layoutDirection = LayoutDirection.Ltr,
             resourceLoader = resourceLoader
