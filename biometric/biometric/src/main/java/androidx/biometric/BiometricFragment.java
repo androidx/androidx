@@ -290,13 +290,12 @@ public class BiometricFragment extends Fragment {
                 builder.setDeviceCredentialAllowed(allowDeviceCredential);
             }
 
-            if (allowDeviceCredential) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && allowDeviceCredential) {
                 mStartRespectingCancel = false;
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        // Hack almost over 9000, ignore cancel signal if it's within the first
-                        // quarter second.
+                        // Ignore cancel signal if it's within the first quarter second.
                         mStartRespectingCancel = true;
                     }
                 }, 250 /* ms */);

@@ -499,12 +499,12 @@ public class BiometricPrompt implements BiometricConstants {
             }
 
             if (canUseBiometricFragment() && mBiometricFragment != null) {
-                // TODO(b/123378871): Fix behavior in R and remove this workaround.
                 // Ignore the first onPause if isDeviceCredentialAllowed is true, since
                 // the Q implementation launches ConfirmDeviceCredentialActivity, which puts
                 // the client app onPause. Implementations prior to Q instead launch
                 // DeviceCredentialHandlerActivity, resulting in the same problem.
-                if (mBiometricFragment.isDeviceCredentialAllowed()) {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
+                        && mBiometricFragment.isDeviceCredentialAllowed()) {
                     if (!mPausedOnce) {
                         mPausedOnce = true;
                     } else {
