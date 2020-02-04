@@ -48,8 +48,8 @@ class ColorStateListLoadingDetector : Detector(), SourceCodeScanner {
             (node.valueArgumentCount == 1)
         ) {
             val message = if (context.mainProject.minSdkVersion.featureLevel > 23)
-                "Use ContextCompat.getColorStateList()" else
-                "Use AppCompatResources.getColorStateList()"
+                "Use `ContextCompat.getColorStateList()`" else
+                "Use `AppCompatResources.getColorStateList()`"
             context.report(
                 NOT_USING_COMPAT_LOADING,
                 context.getLocation(node),

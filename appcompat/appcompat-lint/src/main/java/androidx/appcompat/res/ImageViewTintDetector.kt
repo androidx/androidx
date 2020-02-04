@@ -31,8 +31,8 @@ class ImageViewTintDetector : LayoutDetector() {
     companion object {
         internal val USING_ANDROID_TINT: Issue = Issue.create(
             "UseAppTint",
-            "`app:tint` attribute should be used on ImageView",
-            "ImageView uses android:tint instead of app:tint",
+            "`app:tint` attribute should be used on `ImageView`",
+            "`ImageView` uses android:tint instead of `app:tint`",
             Category.CORRECTNESS,
             1,
             Severity.ERROR,
@@ -53,7 +53,7 @@ class ImageViewTintDetector : LayoutDetector() {
             USING_ANDROID_TINT,
             element,
             context.getLocation(element.getAttributeNodeNS(SdkConstants.ANDROID_URI, "tint")),
-            "Must use 'app:tint' instead of 'android:tint'.",
+            "Must use `app:tint` instead of `android:tint`",
             LintFix.create().composite(
                 LintFix.create().set(
                     SdkConstants.AUTO_URI, "tint",
