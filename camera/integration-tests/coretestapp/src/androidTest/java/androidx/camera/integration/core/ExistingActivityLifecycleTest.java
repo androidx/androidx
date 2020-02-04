@@ -90,7 +90,7 @@ public final class ExistingActivityLifecycleTest {
         checkForViewIdle(ActivityScenario.launch(CameraXActivity.class))
                 .moveToState(Lifecycle.State.DESTROYED);
         // Launch new activity and check for view idle.
-        checkForViewIdle(ActivityScenario.launch(CameraXActivity.class));
+        checkForViewIdle(ActivityScenario.launch(CameraXActivity.class)).close();
     }
 
     // Check if Preview screen is updated or not, after Stop-Resume lifecycle.
@@ -113,7 +113,7 @@ public final class ExistingActivityLifecycleTest {
         activityScenario.onActivity(activity -> {
             activity.resetViewIdlingResource();
         });
-        checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
+        checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED)).close();
     }
 
     // Check if Preview screen is updated or not, after toggling camera, then a Destroy-Create
@@ -136,7 +136,7 @@ public final class ExistingActivityLifecycleTest {
         activityScenario.onActivity(activity -> {
             activity.resetViewIdlingResource();
         });
-        checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
+        checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED)).close();
     }
 
     // Check if Preview screen is updated or not, after rotate device, and Stop-Resume lifecycle.
@@ -162,7 +162,7 @@ public final class ExistingActivityLifecycleTest {
         });
         activityScenario.moveToState(Lifecycle.State.RESUMED);
 
-        checkForViewIdle(activityScenario);
+        checkForViewIdle(activityScenario).close();
     }
 
     private ActivityScenario<CameraXActivity>
