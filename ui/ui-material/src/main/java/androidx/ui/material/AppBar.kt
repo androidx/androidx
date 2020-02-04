@@ -51,6 +51,7 @@ import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
+import androidx.ui.material.surface.primarySurface
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
@@ -74,17 +75,25 @@ import kotlin.math.sqrt
  * @sample androidx.ui.material.samples.SimpleTopAppBarNavIcon
  *
  * @param title The title to be displayed in the center of the TopAppBar
- * @param color An optional color for the TopAppBar
+ * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
+ * @param contentColor The preferred content color provided by this TopAppBar to its children.
+ * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
+ * the theme, this will keep the same value set above this TopAppBar.
+ * @param elevation the elevation of this TopAppBar.
  * @param navigationIcon The navigation icon displayed at the start of the TopAppBar
  */
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
-    color: Color = MaterialTheme.colors().primary,
+    color: Color = MaterialTheme.colors().primarySurface,
+    contentColor: Color = contentColorFor(color),
+    elevation: Dp = TopAppBarElevation,
     navigationIcon: @Composable() (() -> Unit)? = null
 ) {
     BaseTopAppBar(
         color = color,
+        contentColor = contentColor,
+        elevation = elevation,
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
@@ -104,7 +113,11 @@ fun TopAppBar(
  * @sample androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
  *
  * @param title The title to be displayed in the center of the TopAppBar
- * @param color An optional color for the TopAppBar
+ * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
+ * @param contentColor The preferred content color provided by this TopAppBar to its children.
+ * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
+ * the theme, this will keep the same value set above this TopAppBar.
+ * @param elevation the elevation of this TopAppBar.
  * @param navigationIcon The navigation icon displayed at the start of the TopAppBar
  * @param actionData A list of data representing the actions to be displayed at the end of
  * the TopAppBar. Any remaining actions that do not fit on the TopAppBar should typically be
@@ -121,13 +134,17 @@ fun TopAppBar(
 fun <T> TopAppBar(
     title: @Composable() () -> Unit,
     actionData: List<T>,
-    color: Color = MaterialTheme.colors().primary,
+    color: Color = MaterialTheme.colors().primarySurface,
+    contentColor: Color = contentColorFor(color),
+    elevation: Dp = TopAppBarElevation,
     navigationIcon: @Composable() (() -> Unit)? = null,
     action: @Composable() (T) -> Unit
     // TODO: support overflow menu here with the remainder of the list
 ) {
     BaseTopAppBar(
         color = color,
+        contentColor = contentColor,
+        elevation = elevation,
         startContent = navigationIcon,
         title = {
             // Text color comes from the underlying Surface
@@ -139,12 +156,14 @@ fun <T> TopAppBar(
 
 @Composable
 private fun BaseTopAppBar(
-    color: Color = MaterialTheme.colors().primary,
+    color: Color,
+    contentColor: Color,
+    elevation: Dp,
     startContent: @Composable() (() -> Unit)?,
     title: @Composable() () -> Unit,
     endContent: @Composable() (() -> Unit)?
 ) {
-    BaseAppBar(color, TopAppBarElevation, RectangleShape) {
+    BaseAppBar(color, contentColor, elevation, RectangleShape) {
         Row(arrangement = Arrangement.SpaceBetween) {
             // We only want to reserve space here if we have some start content
             if (startContent != null) {
@@ -251,7 +270,10 @@ object BottomAppBar {
  *
  * @sample androidx.ui.material.samples.SimpleBottomAppBarNoFab
  *
- * @param color An optional color for the BottomAppBar
+ * @param color The background color for the BottomAppBar. Use [Color.Transparent] to have no color.
+ * @param contentColor The preferred content color provided by this BottomAppBar to its children.
+ * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
+ * the theme, this will keep the same value set above this BottomAppBar.
  * @param navigationIcon The navigation icon displayed in the BottomAppBar. Note that if
  * [fabConfiguration] has fabPosition [FabDockedPosition.End], this parameter must be null /
  * not set.
@@ -275,7 +297,8 @@ object BottomAppBar {
  */
 @Composable
 fun <T> BottomAppBar(
-    color: Color = MaterialTheme.colors().primary,
+    color: Color = MaterialTheme.colors().primarySurface,
+    contentColor: Color = contentColorFor(color),
     navigationIcon: @Composable() (() -> Unit)? = null,
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
@@ -292,6 +315,7 @@ fun <T> BottomAppBar(
     if (fabConfiguration == null) {
         BaseBottomAppBar(
             color = color,
+            contentColor = contentColor,
             startContent = navigationIcon,
             endContent = getActions(actionData, MaxIconsInBottomAppBarNoFab, action),
             shape = RectangleShape
@@ -310,12 +334,14 @@ fun <T> BottomAppBar(
         when (fabConfiguration.fabDockedPosition) {
             FabDockedPosition.End -> BaseBottomAppBar(
                 color = color,
+                contentColor = contentColor,
                 startContent = getActions(actionData, MaxIconsInBottomAppBarEndFab, action),
                 endContent = null,
                 shape = shape
             )
             FabDockedPosition.Center -> BaseBottomAppBar(
                 color = color,
+                contentColor = contentColor,
                 startContent = navigationIcon,
                 endContent = getActions(actionData, MaxIconsInBottomAppBarCenterFab, action),
                 shape = shape
@@ -555,11 +581,12 @@ internal fun calculateRoundedEdgeIntercept(
 @Composable
 private fun BaseBottomAppBar(
     color: Color,
+    contentColor: Color,
     shape: Shape,
     startContent: @Composable() (() -> Unit)?,
     endContent: @Composable() (() -> Unit)?
 ) {
-    BaseAppBar(color, BottomAppBarElevation, shape) {
+    BaseAppBar(color, contentColor, BottomAppBarElevation, shape) {
         Padding(top = AppBarPadding, bottom = AppBarPadding) {
             Row(LayoutSize.Fill, arrangement = Arrangement.SpaceBetween) {
                 // Using wrap so that even if startContent is null or emits no layout nodes,
@@ -582,11 +609,12 @@ private fun BaseBottomAppBar(
 @Composable
 private fun BaseAppBar(
     color: Color,
+    contentColor: Color,
     elevation: Dp,
     shape: Shape,
     children: @Composable() () -> Unit
 ) {
-    Surface(color = color, elevation = elevation, shape = shape) {
+    Surface(color = color, contentColor = contentColor, elevation = elevation, shape = shape) {
         Container(
             height = AppBarHeight,
             expanded = true,
@@ -667,9 +695,9 @@ private val AppBarPadding = 16.dp
 private val AppBarTitleStartPadding = 72.dp - AppBarPadding
 private val AppBarTitleBaselineOffset = 20.sp
 
-// TODO: should this have elevation? Spec says 8.dp but since shadows aren't shown on the top it
-//  isn't really visible
-private val BottomAppBarElevation = 0.dp
+private val BottomAppBarElevation = 8.dp
+// TODO: clarify elevation in surface mapping - spec says 0.dp but it appears to have an
+//  elevation overlay applied in dark theme examples.
 private val TopAppBarElevation = 4.dp
 
 // The gap on all sides between the FAB and the cutout

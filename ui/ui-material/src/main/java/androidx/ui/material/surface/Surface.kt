@@ -104,6 +104,17 @@ fun Surface(
 }
 
 /**
+ * primarySurface represents the background color of components that are [ColorPalette.primary]
+ * in light theme, and [ColorPalette.surface] in dark theme, such as [androidx.ui.material.TabRow]
+ * and [androidx.ui.material.TopAppBar]. This is to reduce brightness of large surfaces in dark
+ * theme, aiding contrast and readability. See
+ * [Dark Theme](https://material.io/design/color/dark-theme.html#custom-application).
+ *
+ * @return [ColorPalette.primary] if in light theme, else [ColorPalette.surface]
+ */
+val ColorPalette.primarySurface: Color get() = if (isLight) primary else surface
+
+/**
  * A simple layout which just reserves a space for a [Surface].
  * It positions the only child in the left top corner.
  */
