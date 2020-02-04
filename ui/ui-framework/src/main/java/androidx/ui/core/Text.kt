@@ -61,6 +61,7 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
  */
 @Composable
 fun Text(
@@ -69,7 +70,8 @@ fun Text(
     style: TextStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int = DefaultMaxLines
+    maxLines: Int = DefaultMaxLines,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     Text(
         text = AnnotatedString(text),
@@ -77,7 +79,8 @@ fun Text(
         style = style,
         softWrap = softWrap,
         overflow = overflow,
-        maxLines = maxLines
+        maxLines = maxLines,
+        onTextLayout = onTextLayout
     )
 }
 
@@ -95,6 +98,7 @@ fun Text(
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
  */
 @Composable
 fun Text(
@@ -103,7 +107,8 @@ fun Text(
     style: TextStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int = DefaultMaxLines
+    maxLines: Int = DefaultMaxLines,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     require(maxLines > 0) { "maxLines should be greater than 0" }
     // States
@@ -185,6 +190,9 @@ fun Text(
         ) { _, constraints ->
 
             val layoutResult = textDelegate.layout(constraints, layoutResultState.value)
+            if (layoutResultState.value != layoutResult) {
+                onTextLayout(layoutResult)
+            }
             layoutResultState.value = layoutResult
 
             layout(
