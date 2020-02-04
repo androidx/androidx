@@ -112,6 +112,30 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun textOverflow_exceedMaxLines_singleParagraph() {
+        val text = createAnnotatedString("a\nb")
+        val paragraph = simpleMultiParagraph(text = text, maxLines = 1)
+
+        assertThat(paragraph.paragraphInfoList[0].paragraph.didExceedMaxLines).isTrue()
+    }
+
+    @Test
+    fun textOverflow_exceedMaxLinesInMiddle_multiParagraph() {
+        val text = createAnnotatedString("a\nb", "a\nb")
+        val paragraph = simpleMultiParagraph(text = text, maxLines = 3)
+
+        assertThat(paragraph.paragraphInfoList[1].paragraph.didExceedMaxLines).isTrue()
+    }
+
+    @Test
+    fun textOverflow_exceedMaxLinesInGap_multiParagraph() {
+        val text = createAnnotatedString("a\nb", "a")
+        val paragraph = simpleMultiParagraph(text = text, maxLines = 2)
+
+        assertThat(paragraph.paragraphInfoList.size).isEqualTo(1)
+    }
+
+    @Test
     fun getPathForRange() {
         withDensity(defaultDensity) {
             val text = createAnnotatedString("ab", "c", "de")
