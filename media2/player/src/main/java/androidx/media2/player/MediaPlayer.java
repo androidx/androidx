@@ -1063,11 +1063,14 @@ public final class MediaPlayer extends SessionPlayer {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 synchronized (mPlaylistLock) {
                     mPlaylist.clear();
+                    mPlaylistMetadata = null;
                     mShuffledList.clear();
                     mCurPlaylistItem = item;
                     mNextPlaylistItem = null;
                     mCurrentShuffleIdx = END_OF_PLAYLIST;
                 }
+                notifySessionPlayerCallback(
+                        callback -> callback.onPlaylistChanged(MediaPlayer.this, null, null));
                 futures.addAll(setMediaItemsInternal(item, null));
                 return futures;
             }
@@ -1128,12 +1131,8 @@ public final class MediaPlayer extends SessionPlayer {
                     curItem = mCurPlaylistItem;
                     nextItem = mNextPlaylistItem;
                 }
-                notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                    @Override
-                    public void callCallback(
-                            SessionPlayer.PlayerCallback callback) {
-                        callback.onPlaylistChanged(MediaPlayer.this, playlist, metadata);
-                    }
+                notifySessionPlayerCallback(callback -> {
+                    callback.onPlaylistChanged(MediaPlayer.this, playlist, metadata);
                 });
                 if (curItem != null) {
                     return setMediaItemsInternal(curItem, nextItem);
