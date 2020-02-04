@@ -26,10 +26,8 @@ plugins {
 }
 
 dependencies {
-    // TODO: change to alpha02 after release
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.appcompat:appcompat:1.1.0")
-    // TODO: change to alpha05 after release
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.fragment:fragment:1.1.0")
