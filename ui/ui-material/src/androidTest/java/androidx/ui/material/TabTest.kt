@@ -128,9 +128,11 @@ class TabTest {
                             selectedIndex = state,
                             indicatorContainer = indicatorContainer
                         ) { index, text ->
-                            Tab(text = text, selected = state == index) {
-                                setState(index)
-                            }
+                            Tab(
+                                text = text,
+                                selected = state == index,
+                                onSelected = { setState(index) }
+                            )
                         }
                     }
                 }
@@ -198,9 +200,11 @@ class TabTest {
                         selectedIndex = state,
                         indicatorContainer = indicatorContainer
                     ) { index, text ->
-                        Tab(text = text, selected = state == index) {
-                            setState(index)
-                        }
+                        Tab(
+                            text = text,
+                            selected = state == index,
+                            onSelected = { setState(index) }
+                        )
                     }
                 }
             }

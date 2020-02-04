@@ -50,9 +50,9 @@ class RallyActivity : Activity() {
             var currentScreen by state { RallyScreenState.Overview }
             Scaffold(appBar = {
                 TabRow(allScreens, selectedIndex = currentScreen.ordinal) { i, screen ->
-                    Tab(text = screen.name, selected = currentScreen.ordinal == i) {
+                    Tab(text = screen.name, selected = currentScreen.ordinal == i, onSelected = {
                         currentScreen = screen
-                    }
+                    })
                 }
             }) {
                 currentScreen.body()
