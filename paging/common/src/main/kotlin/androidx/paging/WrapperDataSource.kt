@@ -57,8 +57,8 @@ internal open class WrapperDataSource<Key : Any, ValueFrom : Any, ValueTo : Any>
         if (keyMap != null) {
             synchronized(keyMap) {
                 for (i in dest.indices) {
-                    keyMap[dest[i]] =
-                        (this.source as ItemKeyedDataSource).getKey(source[i])
+                    @Suppress("DEPRECATION")
+                    keyMap[dest[i]] = (this.source as ItemKeyedDataSource).getKey(source[i])
                 }
             }
         }
