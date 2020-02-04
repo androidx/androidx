@@ -156,13 +156,14 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
 
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
         mInstrumentation.waitForIdleSync();
+
         assertTrue("onPanelClosed called", mActivity.wasOnPanelClosedCalled());
     }
 
     @Test
     @MediumTest
     @FlakyTest
-    public void testBackPressWithEmptyMenuFinishesActivity() throws InterruptedException {
+    public void testBackPressWithEmptyMenuHandledByActivity() throws InterruptedException {
         repopulateWithEmptyMenu();
 
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
@@ -171,7 +172,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
         mInstrumentation.waitForIdleSync();
 
-        assertTrue(mActivity.isFinishing());
+        assertTrue("onBackPressed called", mActivity.wasOnBackPressedCalled());
     }
 
     @Test
