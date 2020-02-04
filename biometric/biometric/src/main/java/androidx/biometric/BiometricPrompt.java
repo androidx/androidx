@@ -776,7 +776,7 @@ public class BiometricPrompt implements BiometricConstants {
             mFingerprintHelperFragment.setCryptoObject(crypto);
             fingerprintDialogHandler.sendMessageDelayed(
                     fingerprintDialogHandler.obtainMessage(
-                            FingerprintDialogFragment.DISPLAYED_FOR_500_MS), DELAY_MILLIS);
+                            FingerprintDialogFragment.MSG_DISPLAYED_FOR_500_MS), DELAY_MILLIS);
 
             if (fingerprintHelperFragment == null) {
                 // If the fragment hasn't been added before, add it. It will also start the
