@@ -46,7 +46,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * Represents an ongoing {@link MediaSession} or a {@link MediaSessionService}.
@@ -258,16 +257,13 @@ public final class SessionToken implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY)
     public static void createSessionToken(@NonNull final Context context,
-            @NonNull final MediaSessionCompat.Token compatToken, @NonNull final Executor executor,
+            @NonNull final MediaSessionCompat.Token compatToken,
             @NonNull final OnSessionTokenCreatedListener listener) {
         if (context == null) {
             throw new NullPointerException("context shouldn't be null");
         }
         if (compatToken == null) {
             throw new NullPointerException("compatToken shouldn't be null");
-        }
-        if (executor == null) {
-            throw new NullPointerException("executor shouldn't be null");
         }
         if (listener == null) {
             throw new NullPointerException("listener shouldn't be null");
@@ -276,7 +272,7 @@ public final class SessionToken implements VersionedParcelable {
         // If the compat token already has the SessionToken in itself, just notify with that token.
         VersionedParcelable token2 = compatToken.getSession2Token();
         if (token2 instanceof SessionToken) {
-            notifySessionTokenCreated(executor, listener, compatToken, (SessionToken) token2);
+            listener.onSessionTokenCreated(compatToken, (SessionToken) token2);
             return;
         }
 
@@ -305,7 +301,7 @@ public final class SessionToken implements VersionedParcelable {
                     // media2 token inside of the compat token.
                     compatToken.setSession2Token(resultToken);
 
-                    notifySessionTokenCreated(executor, listener, compatToken, resultToken);
+                    listener.onSessionTokenCreated(compatToken, resultToken);
                     quitHandlerThread(thread);
                 }
             }
@@ -335,7 +331,7 @@ public final class SessionToken implements VersionedParcelable {
                         compatToken.setSession2Token(resultToken);
                     }
 
-                    notifySessionTokenCreated(executor, listener, compatToken, resultToken);
+                    listener.onSessionTokenCreated(compatToken, resultToken);
                     quitHandlerThread(thread);
                 }
             }
@@ -345,18 +341,6 @@ public final class SessionToken implements VersionedParcelable {
             Message msg = handler.obtainMessage(MSG_SEND_TOKEN2_FOR_LEGACY_SESSION, callback);
             handler.sendMessageDelayed(msg, WAIT_TIME_MS_FOR_SESSION_READY);
         }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static void notifySessionTokenCreated(final Executor executor,
-            final OnSessionTokenCreatedListener listener, final MediaSessionCompat.Token token,
-            final SessionToken token2) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                listener.onSessionTokenCreated(token, token2);
-            }
-        });
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -418,10 +402,10 @@ public final class SessionToken implements VersionedParcelable {
         /**
          * Called when SessionToken object is created.
          *
-         * @param token the compat token used for creating {@code token2}
-         * @param token2 the created SessionToken object
+         * @param compatToken the compat token used for creating {@code token2}
+         * @param sessionToken the created SessionToken object
          */
-        void onSessionTokenCreated(MediaSessionCompat.Token token, SessionToken token2);
+        void onSessionTokenCreated(MediaSessionCompat.Token compatToken, SessionToken sessionToken);
     }
 
     interface SessionTokenImpl extends VersionedParcelable {
