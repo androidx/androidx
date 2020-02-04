@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler
+package androidx.serialization
 
+import androidx.serialization.compiler.codegen.CodeGenEnvironment
+import androidx.serialization.compiler.processing.steps.EnumProcessingStep
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
-import com.google.common.collect.ImmutableList
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 import javax.annotation.processing.Processor
 import javax.lang.model.SourceVersion
 
 /**
- * Generates the common runtime components needed to support message serializers.
+ * Parses and validates Serialization schema and generates message serializers and service binders.
  */
 @AutoService(Processor::class)
-@IncrementalAnnotationProcessor(AGGREGATING)
-class RuntimeProcessor : BasicAnnotationProcessor() {
-    override fun initSteps(): List<ProcessingStep> = ImmutableList.of()
+@IncrementalAnnotationProcessor(ISOLATING)
+class SerializationProcessor : BasicAnnotationProcessor() {
+    override fun initSteps(): List<ProcessingStep> {
+        val codeGenEnv = CodeGenEnvironment(processingEnv, this::class.qualifiedName)
+        return listOf(
+            EnumProcessingStep(processingEnv, codeGenEnv)
+        )
+    }
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 }

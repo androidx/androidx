@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler
+package androidx.serialization
 
 import com.google.testing.compile.Compilation
 import com.google.testing.compile.CompilationSubject.assertThat
@@ -23,8 +23,8 @@ import com.google.testing.compile.JavaFileObjects
 import org.junit.Test
 import javax.tools.JavaFileObject
 
-/** Unit tests for [SchemaProcessor]. */
-class SchemaProcessorTest {
+/** Unit tests for [SerializationProcessor]. */
+class SerializationProcessorTest {
     @Test
     fun testSucceedsWithoutWarnings() {
         val testClass = JavaFileObjects.forSourceString("Test", "public class Test {}")
@@ -32,6 +32,6 @@ class SchemaProcessorTest {
     }
 
     private fun compile(vararg sources: JavaFileObject): Compilation {
-        return javac().withProcessors(SchemaProcessor()).compile(*sources)
+        return javac().withProcessors(SerializationProcessor()).compile(*sources)
     }
 }
