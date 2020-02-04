@@ -115,8 +115,8 @@ package androidx.ui.core {
 
   public final class TextKt {
     method public static void CurrentTextStyleProvider(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647);
-    method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647);
+    method public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
     method public static androidx.ui.text.TextStyle currentTextStyle();
     method public static androidx.ui.core.HorizontalAlignmentLine getFirstBaseline();
     method public static androidx.ui.core.HorizontalAlignmentLine getLastBaseline();
