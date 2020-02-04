@@ -53,6 +53,7 @@ class TextLayoutResultIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -74,6 +75,7 @@ class TextLayoutResultIntegrationTest {
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -93,6 +95,7 @@ class TextLayoutResultIntegrationTest {
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -108,6 +111,7 @@ class TextLayoutResultIntegrationTest {
     fun layout_build_layoutResult() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = "Hello"),
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -128,6 +132,7 @@ class TextLayoutResultIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = annotatedString,
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -153,6 +158,7 @@ class TextLayoutResultIntegrationTest {
 
             val textDelegate = TextDelegate(
                 text = annotatedString,
+                style = TextStyle.Empty,
                 density = density,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
@@ -174,6 +180,7 @@ class TextLayoutResultIntegrationTest {
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr

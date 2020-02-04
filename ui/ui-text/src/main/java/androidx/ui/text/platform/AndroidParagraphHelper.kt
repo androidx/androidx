@@ -41,6 +41,7 @@ import androidx.text.style.LineHeightSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
+import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.TextUnitType
@@ -54,6 +55,7 @@ import androidx.ui.text.SpanStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
@@ -135,13 +137,22 @@ internal fun TextPaint.applySpanStyle(
     // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
     return SpanStyle(
-        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp) {
+        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp &&
+                    style.letterSpacing.value != 0f) {
             style.letterSpacing
         } else {
             TextUnit.Inherit
         },
-        background = style.background,
-        baselineShift = style.baselineShift
+        background = if (style.background == Color.Transparent) {
+            null // No need to add transparent background for default text style.
+        } else {
+            style.background
+        },
+        baselineShift = if (style.baselineShift == BaselineShift.None) {
+            null
+        } else {
+            style.baselineShift
+        }
     )
 }
 
