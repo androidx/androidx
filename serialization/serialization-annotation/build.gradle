@@ -18,7 +18,6 @@ import static androidx.build.dependencies.DependenciesKt.*
 
 import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -35,6 +34,6 @@ androidx {
     publish = Publish.NONE
     compilationTarget = CompilationTarget.HOST
     mavenGroup = LibraryGroups.SERIALIZATION
-    inceptionYear = "2019"
+    inceptionYear = "2020"
     description = "Annotations for AndroidX Serialization"
 }
