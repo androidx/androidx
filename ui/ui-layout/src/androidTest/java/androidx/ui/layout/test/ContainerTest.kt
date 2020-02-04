@@ -330,10 +330,15 @@ class ContainerTest : LayoutTest() {
         val edgeInsets = EdgeInsets(padding)
 
         var childCoordinates: LayoutCoordinates? = null
-        val latch = CountDownLatch(1)
+        var parentCoordinates: LayoutCoordinates? = null
+        val latch = CountDownLatch(2)
         show {
             Wrap {
                 Container(width = containerSize, height = containerSize, padding = edgeInsets) {
+                    OnPositioned { coordinates ->
+                        parentCoordinates = coordinates
+                        latch.countDown()
+                    }
                     OnChildPositioned(onPositioned = { coordinates ->
                         childCoordinates = coordinates
                         latch.countDown()
@@ -347,11 +352,9 @@ class ContainerTest : LayoutTest() {
 
         val centeringOffset = padding.toIntPx() +
                 (containerSize.toIntPx() - padding.toIntPx() * 2 - childSize.toIntPx()) / 2
-        val lockedChildCoord = childCoordinates!!
-        val childPosition = lockedChildCoord.parentCoordinates!!
-            .childToLocal(lockedChildCoord, PxPosition.Origin)
+        val childPosition = parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
         assertEquals(PxPosition(centeringOffset, centeringOffset), childPosition)
-        assertEquals(IntPxSize(childSize.toIntPx(), childSize.toIntPx()), lockedChildCoord.size)
+        assertEquals(IntPxSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
     }
 
     @Test

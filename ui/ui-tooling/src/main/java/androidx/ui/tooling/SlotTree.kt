@@ -24,7 +24,9 @@ import androidx.compose.joinedKeyRight
 import androidx.compose.keySourceInfoOf
 import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
+import androidx.ui.core.isAttached
 import androidx.ui.unit.PxBounds
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.unit.px
@@ -138,10 +140,20 @@ private fun SlotReader.getGroup(): Group {
 }
 
 private fun boundsOfLayoutNode(node: LayoutNode): PxBounds {
-    val position = node.contentPosition
-    val size = node.contentSize
-    val left = position.x.toPx()
-    val top = position.y.toPx()
+    if (!node.isAttached()) {
+        return PxBounds(
+            left = 0.px,
+            top = 0.px,
+            right = node.width.toPx(),
+            bottom = node.height.toPx()
+        )
+    }
+    val position = node.coordinates.parentCoordinates!!.childToLocal(
+        node.coordinates, PxPosition.Origin
+    )
+    val size = node.coordinates.size
+    val left = position.x
+    val top = position.y
     val right = left + size.width.toPx()
     val bottom = top + size.height.toPx()
     return PxBounds(left = left, top = top, right = right, bottom = bottom)

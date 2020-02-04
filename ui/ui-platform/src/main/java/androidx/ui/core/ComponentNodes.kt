@@ -36,12 +36,11 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toPx
+import androidx.ui.unit.round
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -251,6 +250,17 @@ sealed class ComponentNode : Emittable {
 
         instance.parent = this
         children.add(index, instance)
+
+        val containingLayout = containingLayoutNode
+        if (containingLayout != null) {
+            if (instance is LayoutNode) {
+                instance.layoutNodeWrapper.wrappedBy = containingLayout.innerLayoutNodeWrapper
+            } else {
+                visitLayoutChildren {
+                    it.layoutNodeWrapper.wrappedBy = containingLayout.innerLayoutNodeWrapper
+                }
+            }
+        }
 
         val owner = this.owner
         if (owner != null) {
@@ -796,8 +806,7 @@ class DrawNode : ComponentNode() {
  * Backing node for Layout component.
  *
  * Measuring a [LayoutNode] as a [Measurable] will measure the node's content as adjusted by
- * [modifier]. All layout state such as [modifiedSize] and [modifiedPosition] also reflect
- * the modified state of the node.
+ * [modifier].
  */
 class LayoutNode : ComponentNode(), Measurable {
     interface MeasureBlocks {
@@ -917,12 +926,12 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The measured width of this layout and all of its [modifier]s. Shortcut for `size.width`.
      */
-    val width: IntPx get() = modifiedSize.width
+    val width: IntPx get() = layoutNodeWrapper.width
 
     /**
      * The measured height of this layout and all of its [modifier]s. Shortcut for `size.height`.
      */
-    val height: IntPx get() = modifiedSize.height
+    val height: IntPx get() = layoutNodeWrapper.height
 
     /**
      * The alignment lines of this layout, inherited + intrinsic
@@ -933,37 +942,6 @@ class LayoutNode : ComponentNode(), Measurable {
      * The alignment lines provided by this layout at the last measurement
      */
     internal val providedAlignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
-
-    /**
-     * The measured size of this layout and all of its [modifier]s.
-     */
-    val modifiedSize: IntPxSize get() = layoutNodeWrapper.size
-
-    /**
-     * The horizontal position of this layout and all of its [modifier]s within its parent.
-     */
-    val x: IntPx get() = modifiedPosition.x
-
-    /**
-     * The vertical position of this layout and all of its [modifier]s within its parent.
-     */
-    val y: IntPx get() = modifiedPosition.y
-
-    /**
-     * The position of this layout and all of its [modifier] within its parent.
-     */
-    val modifiedPosition: IntPxPosition get() = layoutNodeWrapper.position
-
-    /**
-     * The position of the inner layout node content
-     */
-    var contentPosition: IntPxPosition = IntPxPosition.Origin
-        internal set
-
-    /**
-     * The size of the inner layout node content
-     */
-    val contentSize: IntPxSize get() = innerLayoutNodeWrapper.size
 
     /**
      * Whether or not this has been placed in the hierarchy.
@@ -1120,7 +1098,7 @@ class LayoutNode : ComponentNode(), Measurable {
             return field
         }
 
-    private val innerLayoutNodeWrapper: LayoutNodeWrapper = InnerPlaceable(this)
+    internal val innerLayoutNodeWrapper: LayoutNodeWrapper = InnerPlaceable(this)
     internal var layoutNodeWrapper = innerLayoutNodeWrapper
 
     /**
@@ -1150,11 +1128,21 @@ class LayoutNode : ComponentNode(), Measurable {
             // this is if no wrapping actually occurs above because no LayoutModifiers are
             // present in the modifier chain.
             if (oldPlaceable != layoutNodeWrapper) {
+                oldPlaceable.detach()
                 requestRemeasure()
+            }
+            val containing = parentLayoutNode
+            if (containing != null) {
+                layoutNodeWrapper.wrappedBy = containing.innerLayoutNodeWrapper
             }
         }
 
-    internal val coordinates: LayoutCoordinates = LayoutNodeCoordinates(this)
+    /**
+     * Coordinates of just the contents of the LayoutNode, after being affected by all modifiers.
+     */
+    // TODO(mount): remove this
+    val coordinates: LayoutCoordinates
+        get() = innerLayoutNodeWrapper
 
     override fun attach(owner: Owner) {
         super.attach(owner)
@@ -1229,6 +1217,22 @@ class LayoutNode : ComponentNode(), Measurable {
 
     fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
 
+    /**
+     * Returns the alignment line value for a given alignment line without affecting whether
+     * the flag for whether the alignment line was read.
+     */
+    fun getAlignmentLine(line: AlignmentLine): IntPx? {
+        val linePos = alignmentLines[line] ?: return null
+        var pos = PxPosition(linePos, linePos)
+        var wrapper = innerLayoutNodeWrapper
+        while (wrapper != layoutNodeWrapper) {
+            pos = wrapper.toParentPosition(pos)
+            wrapper = wrapper.wrappedBy!!
+        }
+        pos = wrapper.toParentPosition(pos)
+        return if (line is HorizontalAlignmentLine) pos.y.round() else pos.x.round()
+    }
+
     fun layout() {
         if (needsRelayout) {
             needsRelayout = false
@@ -1256,10 +1260,8 @@ class LayoutNode : ComponentNode(), Measurable {
                 alignmentLines.clear()
                 layoutChildren.forEach { child ->
                     if (!child.isPlaced) return@forEach
-                    child.alignmentLines.entries.forEach { (childLine, linePosition) ->
-                        val offset = child.contentPosition
-                        val linePositionInContainer = linePosition +
-                                if (childLine is HorizontalAlignmentLine) offset.y else offset.x
+                    child.alignmentLines.keys.forEach { childLine ->
+                        val linePositionInContainer = child.getAlignmentLine(childLine)!!
                         // If the line was already provided by a previous child, merge the values.
                         alignmentLines[childLine] = if (childLine in alignmentLines) {
                             childLine.merge(
@@ -1595,147 +1597,6 @@ class Ref<T> {
 }
 
 /**
- * Converts a [PxPosition] relative to a global context into a [PxPosition] that is relative
- * to this [LayoutNode].
- *
- * If [withOwnerOffset] is true (which is the default), the [global] parameter is interpreted as
- * being a position relative to the application window. Otherwise, the [global] parameter is
- * interpreted to be relative to the root of the compose context.
- */
-fun LayoutNode.globalToLocal(global: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
-    var x: Px = global.x
-    var y: Px = global.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x -= pos.x.toPx()
-        y -= pos.y.toPx()
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x -= ownerPosition.x
-        y -= ownerPosition.y
-    }
-    return PxPosition(x, y)
-}
-
-/**
- * Converts an [PxPosition] that is relative to this [LayoutNode] into one that is relative to
- * a more global context.
- *
- * If [withOwnerOffset] is true (which is the default), the return value will be relative to the
- * application window.  Otherwise, the location is relative to the root of the compose context.
- */
-fun LayoutNode.localToGlobal(local: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
-    var x: Px = local.x
-    var y: Px = local.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x += pos.x.toPx()
-        y += pos.y.toPx()
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x += ownerPosition.x
-        y += ownerPosition.y
-    }
-    return PxPosition(x, y)
-}
-
-/**
- * Converts a [IntPxPosition] relative to a global context into a [IntPxPosition] that is relative
- * to this [LayoutNode].
- *
- * If [withOwnerOffset] is true (which is the default), the [global] parameter is interpreted as
- * being a position relative to the application window. Otherwise, the [global] parameter is
- * interpreted to be relative to the root of the compose context.
- */
-fun LayoutNode.globalToLocal(global: IntPxPosition, withOwnerOffset: Boolean = true):
-        IntPxPosition {
-    var x: IntPx = global.x
-    var y: IntPx = global.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x -= pos.x
-        y -= pos.y
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x -= ownerPosition.x
-        y -= ownerPosition.y
-    }
-    return IntPxPosition(x, y)
-}
-
-/**
- * Converts an [IntPxPosition] that is relative to this [LayoutNode] into one that is relative to
- * a more global context.
- *
- * If [withOwnerOffset] is true (which is the default), the return value will be relative to the
- * app window.  Otherwise, the location is relative to the root of the compose context.
- */
-fun LayoutNode.localToGlobal(local: IntPxPosition, withOwnerOffset: Boolean = true): IntPxPosition {
-    var x: IntPx = local.x
-    var y: IntPx = local.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x += pos.x
-        y += pos.y
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x += ownerPosition.x
-        y += ownerPosition.y
-    }
-    return IntPxPosition(x, y)
-}
-
-/**
- * Converts a child LayoutNode position into a local position within this LayoutNode.
- */
-fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPosition {
-    require(child.isAttached()) { "Child $child is not attached!" }
-    if (child === this) {
-        return childLocal
-    }
-    var x: Px = childLocal.x
-    var y: Px = childLocal.y
-    var node: LayoutNode? = child
-    while (true) {
-        checkNotNull(node) {
-            "Current layout is not an ancestor of the provided child layout"
-        }
-        val pos = node.contentPosition
-        x += pos.x.toPx()
-        y += pos.y.toPx()
-        node = node.parentLayoutNode
-        if (node === this) {
-            // found the node
-            break
-        }
-    }
-    return PxPosition(x, y)
-}
-
-/**
- * Calculates the position of this [LayoutNode] relative to the root of the ui tree.
- */
-fun LayoutNode.positionRelativeToRoot() = localToGlobal(IntPxPosition.Origin, false)
-
-/**
- * Calculates the position of this [LayoutNode] relative to the provided ancestor.
- */
-fun LayoutNode.positionRelativeToAncestor(ancestor: LayoutNode) =
-    ancestor.childToLocal(this, PxPosition.Origin)
-
-/**
  * Executes [block] on first level of [LayoutNode] descendants of this ComponentNode.
  */
 fun ComponentNode.visitLayoutChildren(block: (LayoutNode) -> Unit) {
@@ -1876,36 +1737,3 @@ val OnPositionedKey = DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnPositi
  */
 val OnChildPositionedKey =
     DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
-
-/**
- * A LayoutCoordinates implementation based on LayoutNode.
- */
-private class LayoutNodeCoordinates(
-    private val layoutNode: LayoutNode
-) : LayoutCoordinates {
-
-    override val size get() = layoutNode.contentSize
-
-    override val providedAlignmentLines get() = layoutNode.providedAlignmentLines.keys
-
-    override val parentCoordinates get() = layoutNode.parentLayoutNode?.coordinates
-
-    override val isAttached: Boolean get() = layoutNode.isAttached()
-
-    override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
-
-    override fun localToGlobal(local: PxPosition) = layoutNode.localToGlobal(local)
-
-    override fun localToRoot(local: PxPosition) = layoutNode.localToGlobal(local, false)
-
-    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
-        if (child !is LayoutNodeCoordinates) {
-            throw IllegalArgumentException("Incorrect child provided.")
-        }
-        return layoutNode.childToLocal(child.layoutNode, childLocal)
-    }
-
-    override fun get(line: AlignmentLine): IntPx? {
-        return layoutNode.providedAlignmentLines[line]
-    }
-}
