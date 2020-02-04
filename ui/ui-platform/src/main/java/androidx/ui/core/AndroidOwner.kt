@@ -1332,10 +1332,8 @@ private class OutlineResolver(private val density: Density) {
 
     private fun updateCacheWithPath(composePath: Path) {
         val path = composePath.toFrameworkPath()
-        if (hasElevation) {
-            if (path.isConvex) {
-                cachedOutline.setConvexPath(path)
-            }
+        if (hasElevation && path.isConvex) {
+            cachedOutline.setConvexPath(path)
         } else {
             cachedOutline.setEmpty()
         }
