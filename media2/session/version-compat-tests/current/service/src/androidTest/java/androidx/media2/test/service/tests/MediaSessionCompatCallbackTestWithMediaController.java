@@ -115,14 +115,10 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<SessionToken> sessionToken2 = new AtomicReference<>();
         SessionToken.createSessionToken(mContext, mSession.getSessionToken(),
-                sHandlerExecutor, new SessionToken.OnSessionTokenCreatedListener() {
-                    @Override
-                    public void onSessionTokenCreated(
-                            MediaSessionCompat.Token token, SessionToken token2) {
-                        assertTrue(token2.isLegacySession());
-                        sessionToken2.set(token2);
-                        latch.countDown();
-                    }
+                (compatToken, sessionToken) -> {
+                    assertTrue(sessionToken.isLegacySession());
+                    sessionToken2.set(sessionToken);
+                    latch.countDown();
                 });
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         return createRemoteController(sessionToken2.get(), true, null);
