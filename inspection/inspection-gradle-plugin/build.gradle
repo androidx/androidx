@@ -37,6 +37,7 @@ dependencies {
     implementation(AGP_STABLE)
     implementation(KOTLIN_STDLIB)
     implementation("gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8")
+    implementation("org.anarres.jarjar:jarjar-gradle:1.0.1")
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation gradleTestKit()

@@ -19,6 +19,7 @@ package androidx.inspection.gradle
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.LibraryVariant
+import org.anarres.gradle.plugin.jarjar.JarjarTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -30,7 +31,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
-import java.util.Locale
 
 abstract class DexInspectorTask : DefaultTask() {
     @get:InputFile
@@ -58,6 +58,7 @@ abstract class DexInspectorTask : DefaultTask() {
     }
 }
 
+// variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
 fun Project.registerUnzipTask(variant: LibraryVariant): TaskProvider<Copy> {
     return tasks.register(variant.taskName("unpackInspectorAAR"), Copy::class.java) {
@@ -67,26 +68,18 @@ fun Project.registerUnzipTask(variant: LibraryVariant): TaskProvider<Copy> {
     }
 }
 
+// variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
 fun Project.registerDexInspectorTask(
     variant: BaseVariant,
     extension: BaseExtension,
-    zipTask: TaskProvider<Copy>
+    jarJar: TaskProvider<JarjarTask>
 ) {
     tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.setDx(extension.sdkDirectory, extension.buildToolsVersion)
-        it.jars.from(zipTask.get().destinationDir)
-        it.jars.from(variant.runtimeConfiguration)
+        it.jars.from(jarJar.get().destinationPath)
         val out = File(taskWorkingDir(variant, "dexedInspector"), "${project.name}.jar")
         it.outputFile.set(out)
-        it.dependsOn(zipTask)
+        it.dependsOn(jarJar)
     }
-}
-
-@ExperimentalStdlibApi
-private fun BaseVariant.taskName(baseName: String) = "$baseName${name.capitalize(Locale.ENGLISH)}"
-
-private fun Project.taskWorkingDir(variant: BaseVariant, baseName: String): File {
-    val inspectionDir = File(project.buildDir, "androidx_inspection")
-    return File(File(inspectionDir, baseName), variant.dirName)
 }

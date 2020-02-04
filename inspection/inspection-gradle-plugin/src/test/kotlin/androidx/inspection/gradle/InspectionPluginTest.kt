@@ -76,7 +76,7 @@ class InspectionPluginTest {
         assertTrue { artifact.exists() }
         assertDeclaredInDex(artifact, "Ltest/inspector/TestInspector;")
         assertDeclaredInDex(artifact, "Ltest/inspector/TestInspectorProtocol;")
-        assertDeclaredInDex(artifact, "Lcom/google/protobuf/ByteString;")
+        assertDeclaredInDex(artifact, "Ldeps/test/inspector/com/google/protobuf/ByteString;")
     }
 
     // rely that classes should have a constructor and it is declared in class itself
