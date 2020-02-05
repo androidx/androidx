@@ -43,6 +43,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @link ListenableFuture} returned by {@link #getTerminationFuture()}.
  */
 public abstract class DeferrableSurface {
+
+    /**
+     * The exception that is returned by the ListenableFuture of {@link #getSurface()} if the
+     * deferrable surface is unable to produce a {@link Surface}.
+     */
+    public static final class SurfaceUnavailableException extends Exception {
+        public SurfaceUnavailableException(@NonNull String message) {
+            super(message);
+        }
+    }
+
     /**
      * The exception that is returned by the ListenableFuture of {@link #getSurface()} if the
      * {@link Surface} backing the DeferrableSurface has already been closed.

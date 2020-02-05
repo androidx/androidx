@@ -33,11 +33,10 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -53,7 +52,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
     SurfaceTexture mSurfaceTexture;
     private Size mResolution;
     ListenableFuture<Void> mSurfaceReleaseFuture;
-    CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
+    SurfaceRequest mSurfaceRequest;
 
     @Override
     public void init(@NonNull FrameLayout parent) {
@@ -63,26 +62,23 @@ public class TextureViewImplementation implements PreviewView.Implementation {
     @NonNull
     @Override
     public Preview.SurfaceProvider getSurfaceProvider() {
-        return (resolution, surfaceReleaseFuture) -> {
-            mResolution = resolution;
+        return (surfaceRequest) -> {
+            mResolution = surfaceRequest.getResolution();
             initInternal();
-            mSurfaceReleaseFuture = surfaceReleaseFuture;
+            if (mSurfaceRequest != null) {
+                mSurfaceRequest.setWillNotComplete();
+            }
 
-            return CallbackToFutureAdapter.getFuture(
-                    (CallbackToFutureAdapter.Resolver<Surface>) completer -> {
-                        if (mSurfaceCompleter != null) {
-                            mSurfaceCompleter.setCancelled();
-                        }
-
-                        completer.addCancellationListener(() -> {
-                            Preconditions.checkState(mSurfaceCompleter == completer);
-                            mSurfaceCompleter = null;
+            mSurfaceRequest = surfaceRequest;
+            surfaceRequest.addRequestCancellationListener(
+                    ContextCompat.getMainExecutor(mTextureView.getContext()), () -> {
+                        if (mSurfaceRequest != null && mSurfaceRequest == surfaceRequest) {
+                            mSurfaceRequest = null;
                             mSurfaceReleaseFuture = null;
-                        }, ContextCompat.getMainExecutor(mTextureView.getContext()));
-                        mSurfaceCompleter = completer;
-                        tryToProvidePreviewSurface();
-                        return "provide preview surface";
+                        }
                     });
+
+            tryToProvidePreviewSurface();
         };
     }
 
@@ -116,7 +112,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
 
             /**
              * If a surface has been provided to the camera (meaning
-             * {@link TextureViewImplementation#mSurfaceCompleter} is null), but the camera
+             * {@link TextureViewImplementation#mSurfaceRequest} is null), but the camera
              * is still using it (meaning {@link TextureViewImplementation#mSurfaceReleaseFuture} is
              * not null), a listener must be added to
              * {@link TextureViewImplementation#mSurfaceReleaseFuture} to ensure the surface
@@ -128,7 +124,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
             @Override
             public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
                 mSurfaceTexture = null;
-                if (mSurfaceCompleter == null && mSurfaceReleaseFuture != null) {
+                if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
                     Futures.addCallback(mSurfaceReleaseFuture, new FutureCallback<Void>() {
                         @Override
                         public void onSuccess(@Nullable Void result) {
@@ -137,8 +133,12 @@ public class TextureViewImplementation implements PreviewView.Implementation {
 
                         @Override
                         public void onFailure(Throwable t) {
-                            throw new IllegalStateException("SurfaceReleaseFuture should never "
-                                    + "fail. Did it get completed by GC?", t);
+                            if (t instanceof SurfaceRequest.RequestCancelledException) {
+                                surfaceTexture.release();
+                            } else {
+                                throw new IllegalStateException("SurfaceReleaseFuture did not "
+                                        + "complete nicely.", t);
+                            }
                         }
                     }, ContextCompat.getMainExecutor(mTextureView.getContext()));
                     return false;
@@ -169,14 +169,15 @@ public class TextureViewImplementation implements PreviewView.Implementation {
           - The surfaceCompleter has been set (after CallbackToFutureAdapter
           .Resolver#attachCompleter is invoked).
          */
-        if (mResolution == null || mSurfaceTexture == null || mSurfaceCompleter == null) {
+        if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
             return;
         }
 
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
 
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceReleaseFuture;
+        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.setSurface(surface);
+        mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             surface.release();
             if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
@@ -184,8 +185,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
             }
         }, ContextCompat.getMainExecutor(mTextureView.getContext()));
 
-        mSurfaceCompleter.set(surface);
-        mSurfaceCompleter = null;
+        mSurfaceRequest = null;
 
         correctPreviewForCenterCrop(mParent, mTextureView, mResolution);
     }
