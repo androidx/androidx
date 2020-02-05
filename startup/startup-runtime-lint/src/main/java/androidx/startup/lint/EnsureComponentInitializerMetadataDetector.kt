@@ -22,16 +22,21 @@ import com.android.SdkConstants.ANDROID_URI
 import com.android.SdkConstants.ATTR_NAME
 import com.android.SdkConstants.ATTR_VALUE
 import com.android.tools.lint.detector.api.Category
+import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UClassLiteralExpression
+import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.w3c.dom.Element
 import java.util.EnumSet
 
@@ -40,8 +45,11 @@ import java.util.EnumSet
  * entry in the `AndroidManifest.xml`.
  */
 class EnsureComponentInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScanner {
-    // Keeps track of all the declared components
-    private val components = mutableSetOf<String>()
+    // all declared components
+    private val components = mutableMapOf<UClass, Location>()
+    // all reachable components
+    // Synthetic access
+    val reachable = mutableSetOf<String>()
 
     companion object {
         private const val DESCRIPTION = "Every ComponentInitializer needs to be accompanied by a " +
@@ -76,14 +84,26 @@ class EnsureComponentInitializerMetadataDetector : Detector(), SourceCodeScanner
             return
         }
 
-        if (!declaration.isInterface && declaration.qualifiedName !in components) {
+        if (!declaration.isInterface) {
             val location = context.getLocation(declaration.javaPsi)
-            context.report(
-                issue = ISSUE,
-                location = location,
-                message = DESCRIPTION
-            )
+            components[declaration] = location
         }
+
+        // Check every dependencies() method for reachable ComponentInitializer's
+        val method = declaration.methods.first {
+            it.name == "dependencies" && it.parameterList.isEmpty
+        }
+        val visitor = object : AbstractUastVisitor() {
+            override fun visitClassLiteralExpression(node: UClassLiteralExpression): Boolean {
+                val qualifiedName = (node.type as? PsiClassReferenceType)?.resolve()?.qualifiedName
+                if (qualifiedName != null) {
+                    reachable += qualifiedName
+                }
+                return true
+            }
+        }
+
+        method.accept(visitor)
     }
 
     override fun visitElement(context: XmlContext, element: Element) {
@@ -93,7 +113,15 @@ class EnsureComponentInitializerMetadataDetector : Detector(), SourceCodeScanner
         // There does not seem to be a way to evaluate resources defined in the manifest.
         // Figure out if there is a better way.
         if (value == "androidx.startup" || value == "@string/androidx_startup") {
-            components.add(name)
+            reachable += name
+        }
+    }
+
+    override fun afterCheckRootProject(context: Context) {
+        for ((declaration, location) in components) {
+            if (declaration.qualifiedName !in reachable) {
+                context.report(issue = ISSUE, location = location, message = DESCRIPTION)
+            }
         }
     }
 }
