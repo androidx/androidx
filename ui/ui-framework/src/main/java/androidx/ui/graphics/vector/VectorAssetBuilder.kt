@@ -30,7 +30,7 @@ import java.util.Stack
  * internally in a VectorAsset before it is composed through [DrawVector]
  * The generated VectorAsset is recommended to be memoized across composition calls to avoid
  * doing redundant work
- **/
+ */
 class VectorAssetBuilder(
 
     /**
@@ -60,7 +60,6 @@ class VectorAssetBuilder(
      */
     val viewportHeight: Float
 ) {
-
     private val nodes = Stack<VectorGroup>()
 
     private var root = VectorGroup()
@@ -75,6 +74,17 @@ class VectorAssetBuilder(
 
     /**
      * Create a new group and push it to the front of the stack of VectorAsset nodes
+     *
+     * @param name the name of the group
+     * @param rotate the rotation of the group in degrees
+     * @param pivotX the x coordinate of the pivot point to rotate or scale the group
+     * @param pivotY the y coordinate of the pivot point to rotate or scale the group
+     * @param scaleX the scale factor in the X-axis to apply to the group
+     * @param scaleY the scale factor in the Y-axis to apply to the group
+     * @param translationX the translation in virtual pixels to apply along the x-axis
+     * @param translationY the translation in virtual pixels to apply along the y-axis
+     * @param clipPathData the path information used to clip the content within the group
+     *
      * @return This VectorAssetBuilder instance as a convenience for chaining calls
      */
     fun pushGroup(
@@ -119,6 +129,18 @@ class VectorAssetBuilder(
     /**
      * Add a path to the VectorAsset graphic. This represents a leaf node in the VectorAsset graphics
      * tree structure
+     *
+     * @param pathData path information to render the shape of the path
+     * @param name the name of the path
+     * @param fill specifies the [Brush] used to fill the path
+     * @param fillAlpha the alpha to fill the path
+     * @param stroke specifies the [Brush] used to fill the stroke
+     * @param strokeAlpha the alpha to stroke the path
+     * @param strokeLineWidth the width of the line to stroke the path
+     * @param strokeLineCap specifies the linecap for a stroked path
+     * @param strokeLineJoin specifies the linejoin for a stroked path
+     * @param strokeLineMiter specifies the miter limit for a stroked path
+     *
      * @return This VectorAssetBuilder instance as a convenience for chaining calls
      */
     fun addPath(
@@ -154,7 +176,7 @@ class VectorAssetBuilder(
     /**
      * Construct a VectorAsset. This concludes the creation process of a VectorAsset graphic
      * This builder cannot be re-used to create additional VectorAsset instances
-     * @return Thew newly created VectorAsset instance
+     * @return The newly created VectorAsset instance
      */
     fun build(): VectorAsset {
         ensureNotConsumed()
@@ -167,23 +189,100 @@ class VectorAssetBuilder(
             root
         )
 
-        // reset state in case this builder is used again
-        nodes.clear()
-        root = VectorGroup()
-        nodes.add(root)
-
         isConsumed = true
 
         return vectorImage
     }
 
     /**
-     * Throws IllegalStateException if the VectorAssetBuilder is already been consumed
+     * Throws IllegalStateException if the VectorAssetBuilder has already been consumed
      */
-    fun ensureNotConsumed() {
-        if (isConsumed) {
-            throw IllegalStateException("VectorAssetBuilder is single use, create " +
-                    "a new instance to create a new VectorAsset")
+    private fun ensureNotConsumed() {
+        check(!isConsumed) {
+            "VectorAssetBuilder is single use, create a new instance to create a new VectorAsset"
         }
     }
+}
+
+/**
+ * DSL extension for adding a [VectorPath] to [this].
+ *
+ * See [VectorAssetBuilder.addPath] for the corresponding builder function.
+ *
+ * @param name the name for this path
+ * @param fill specifies the [Brush] used to fill the path
+ * @param fillAlpha the alpha to fill the path
+ * @param stroke specifies the [Brush] used to fill the stroke
+ * @param strokeAlpha the alpha to stroke the path
+ * @param strokeLineWidth the width of the line to stroke the path
+ * @param strokeLineCap specifies the linecap for a stroked path
+ * @param strokeLineJoin specifies the linejoin for a stroked path
+ * @param strokeLineMiter specifies the miter limit for a stroked path
+ * @param pathBuilder [PathBuilder] lambda for adding [PathNode]s to this path.
+ */
+fun VectorAssetBuilder.path(
+    name: String = DefaultPathName,
+    fill: Brush? = null,
+    fillAlpha: Float = DefaultAlpha,
+    stroke: Brush? = null,
+    strokeAlpha: Float = DefaultAlpha,
+    strokeLineWidth: Float = DefaultStrokeLineWidth,
+    strokeLineCap: StrokeCap = DefaultStrokeLineCap,
+    strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
+    strokeLineMiter: Float = DefaultStrokeLineMiter,
+    pathBuilder: PathBuilder.() -> Unit
+) = addPath(
+    PathData(pathBuilder),
+    name,
+    fill,
+    fillAlpha,
+    stroke,
+    strokeAlpha,
+    strokeLineWidth,
+    strokeLineCap,
+    strokeLineJoin,
+    strokeLineMiter
+)
+
+/**
+ * DSL extension for adding a [VectorGroup] to [this].
+ *
+ * See [VectorAssetBuilder.pushGroup] for the corresponding builder function.
+ *
+ * @param name the name of the group
+ * @param rotate the rotation of the group in degrees
+ * @param pivotX the x coordinate of the pivot point to rotate or scale the group
+ * @param pivotY the y coordinate of the pivot point to rotate or scale the group
+ * @param scaleX the scale factor in the X-axis to apply to the group
+ * @param scaleY the scale factor in the Y-axis to apply to the group
+ * @param translationX the translation in virtual pixels to apply along the x-axis
+ * @param translationY the translation in virtual pixels to apply along the y-axis
+ * @param clipPathData the path information used to clip the content within the group
+ * @param block builder lambda to add children to this group
+ */
+fun VectorAssetBuilder.group(
+    name: String = DefaultGroupName,
+    rotate: Float = DefaultRotation,
+    pivotX: Float = DefaultPivotX,
+    pivotY: Float = DefaultPivotY,
+    scaleX: Float = DefaultScaleX,
+    scaleY: Float = DefaultScaleY,
+    translationX: Float = DefaultTranslationX,
+    translationY: Float = DefaultTranslationY,
+    clipPathData: List<PathNode> = EmptyPath,
+    block: VectorAssetBuilder.() -> Unit
+) = apply {
+    pushGroup(
+        name,
+        rotate,
+        pivotX,
+        pivotY,
+        scaleX,
+        scaleY,
+        translationX,
+        translationY,
+        clipPathData
+    )
+    block()
+    popGroup()
 }
