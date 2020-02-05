@@ -30,13 +30,19 @@ import android.view.ViewGroup;
 
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
+import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 @MediumTest
 public class TransitionManagerTest extends BaseTest {
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     private Scene[] mScenes = new Scene[2];
 
