@@ -43,7 +43,7 @@ import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -230,7 +230,7 @@ private fun DrawRadioButton(color: Color, outerRadius: Dp, innerRadius: Dp, gap:
     }
 }
 
-private fun DensityScope.drawRadio(
+private fun Density.drawRadio(
     canvas: Canvas,
     parentSize: PxSize,
     color: Color,

@@ -34,7 +34,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +45,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class IntrinsicTest : LayoutTest() {
     @Test
-    fun testMinIntrinsicWidth() = withDensity(density) {
+    fun testMinIntrinsicWidth() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val minIntrinsicWidthSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -77,7 +76,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMinIntrinsicHeight() = withDensity(density) {
+    fun testMinIntrinsicHeight() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val minIntrinsicHeightSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -108,7 +107,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicWidth() = withDensity(density) {
+    fun testMaxIntrinsicWidth() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val maxIntrinsicWidthSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -139,7 +138,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicHeight() = withDensity(density) {
+    fun testMaxIntrinsicHeight() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val maxIntrinsicHeightSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -170,7 +169,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMinIntrinsicWidth_respectsIncomingMaxConstraints() = withDensity(density) {
+    fun testMinIntrinsicWidth_respectsIncomingMaxConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val minIntrinsicWidthSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -203,7 +202,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMinIntrinsicWidth_respectsIncomingMinConstraints() = withDensity(density) {
+    fun testMinIntrinsicWidth_respectsIncomingMinConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val minIntrinsicWidthSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -236,7 +235,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMinIntrinsicHeight_respectsMaxIncomingConstraints() = withDensity(density) {
+    fun testMinIntrinsicHeight_respectsMaxIncomingConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val minIntrinsicHeightSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -269,7 +268,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMinIntrinsicHeight_respectsMinIncomingConstraints() = withDensity(density) {
+    fun testMinIntrinsicHeight_respectsMinIncomingConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val minIntrinsicHeightSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -302,7 +301,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicWidth_respectsMaxIncomingConstraints() = withDensity(density) {
+    fun testMaxIntrinsicWidth_respectsMaxIncomingConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val maxIntrinsicWidthSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -335,7 +334,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicWidth_respectsMinIncomingConstraints() = withDensity(density) {
+    fun testMaxIntrinsicWidth_respectsMinIncomingConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val maxIntrinsicWidthSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -368,7 +367,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicHeight_respectsMaxIncomingConstraints() = withDensity(density) {
+    fun testMaxIntrinsicHeight_respectsMaxIncomingConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val maxIntrinsicHeightSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -401,7 +400,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicHeight_respectsMinIncomingConstraints() = withDensity(density) {
+    fun testMaxIntrinsicHeight_respectsMinIncomingConstraints() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val maxIntrinsicHeightSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -434,7 +433,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMinIntrinsicWidth_intrinsicMeasurements() = withDensity(density) {
+    fun testMinIntrinsicWidth_intrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             MinIntrinsicWidth {
                 FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }
@@ -448,7 +447,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMinIntrinsicHeight_intrinsicMeasurements() = withDensity(density) {
+    fun testMinIntrinsicHeight_intrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             MinIntrinsicHeight {
                 FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }
@@ -462,7 +461,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicWidth_intrinsicMeasurements() = withDensity(density) {
+    fun testMaxIntrinsicWidth_intrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             MaxIntrinsicWidth {
                 FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }
@@ -476,7 +475,7 @@ class IntrinsicTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxIntrinsicHeight_intrinsicMeasurements() = withDensity(density) {
+    fun testMaxIntrinsicHeight_intrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             MaxIntrinsicHeight {
                 FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }

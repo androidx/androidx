@@ -28,7 +28,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +39,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class AspectRatioModifierTest : LayoutTest() {
     @Test
-    fun testAspectRatioModifier_intrinsicDimensions() = withDensity(density) {
+    fun testAspectRatioModifier_intrinsicDimensions() = with(density) {
         testIntrinsics(@Composable {
             Container(modifier = LayoutAspectRatio(2f), width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->

@@ -38,7 +38,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.toPxSize
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -52,7 +51,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class AspectRatioTest : LayoutTest() {
     @Test
-    fun testAspectRatio_placesChild() = withDensity(density) {
+    fun testAspectRatio_placesChild() = with(density) {
         val positionedLatch = CountDownLatch(1)
         val containerSize = Ref<PxSize>()
         val containerPosition = Ref<PxPosition>()
@@ -79,7 +78,7 @@ class AspectRatioTest : LayoutTest() {
     }
 
     @Test
-    fun testAspectRatio_withNoChild() = withDensity(density) {
+    fun testAspectRatio_withNoChild() = with(density) {
         val sizeDp = 10.dp
         val sizePx = 10.dp.toIntPx()
 
@@ -113,7 +112,7 @@ class AspectRatioTest : LayoutTest() {
     }
 
     @Test
-    fun testAspectRatio_sizesCorrectly() = withDensity(density) {
+    fun testAspectRatio_sizesCorrectly() = with(density) {
         assertEquals(IntPxSize(30.ipx, 30.ipx), getSize(1f, Constraints(maxWidth = 30.ipx)))
         assertEquals(IntPxSize(30.ipx, 15.ipx), getSize(2f, Constraints(maxWidth = 30.ipx)))
         assertEquals(
@@ -135,7 +134,7 @@ class AspectRatioTest : LayoutTest() {
     }
 
     @Test
-    fun testAspectRatio_intrinsicDimensions() = withDensity(density) {
+    fun testAspectRatio_intrinsicDimensions() = with(density) {
         testIntrinsics(@Composable {
             AspectRatio(2f) {
                 Container(width = 30.dp, height = 40.dp) { }

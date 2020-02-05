@@ -24,7 +24,6 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.core.TestTag
 import androidx.ui.unit.ipx
-import androidx.ui.unit.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
@@ -155,7 +154,7 @@ class BitmapCapturingTest {
     }
 
     private fun composeCheckerboard() {
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             composeTestRule.setContent {
                 Container(alignment = Alignment.TopLeft) {
 

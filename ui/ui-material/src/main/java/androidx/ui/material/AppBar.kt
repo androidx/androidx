@@ -19,9 +19,9 @@ import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Text
-import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.shape.RectangleShape
@@ -62,7 +62,6 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPxSize
-import androidx.ui.unit.withDensity
 import kotlin.math.sqrt
 
 /**
@@ -178,7 +177,7 @@ private fun BaseTopAppBar(
             Container(LayoutFlexible(1f) + LayoutAlign.BottomLeft) {
                 AlignmentLineOffset(
                     alignmentLine = LastBaseline,
-                    after = withDensity(ambientDensity()) { AppBarTitleBaselineOffset.toDp() }
+                    after = with(DensityAmbient.current) { AppBarTitleBaselineOffset.toDp() }
                 ) {
                     Semantics(container = true) {
                         // TODO: AlignmentLineOffset requires a child, so in case title() is
@@ -380,7 +379,7 @@ private data class BottomAppBarCutoutShape(
      */
     private fun Path.addCutoutShape(density: Density) {
         // The gap on all sides between the FAB and the cutout
-        val cutoutOffset = withDensity(density) { BottomAppBarCutoutOffset.toPx() }
+        val cutoutOffset = with(density) { BottomAppBarCutoutOffset.toPx() }
 
         val cutoutSize = PxSize(
             width = fabSize.width + (cutoutOffset * 2),
@@ -400,7 +399,7 @@ private data class BottomAppBarCutoutShape(
 
         // TODO: consider exposing the custom cutout shape instead of just replacing circle shapes?
         if (cutoutShape == CircleShape) {
-            val edgeRadius = withDensity(density) { BottomAppBarRoundedEdgeRadius.toPx().value }
+            val edgeRadius = with(density) { BottomAppBarRoundedEdgeRadius.toPx().value }
             // TODO: possibly support providing a custom vertical offset?
             addRoundedEdges(cutoutStartX, cutoutEndX, cutoutRadius, edgeRadius, 0f)
         }

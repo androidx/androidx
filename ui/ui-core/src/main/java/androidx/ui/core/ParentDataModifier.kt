@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 
 /**
  * A [Modifier.Element] that changes the way a UI component is measured and laid out.
@@ -25,5 +25,5 @@ interface ParentDataModifier : Modifier.Element {
     /**
      * Provides a parentData given the [parentData] already provided through the modifier's chain.
      */
-    fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
+    fun Density.modifyParentData(parentData: Any?): Any? = parentData
 }

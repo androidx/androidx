@@ -33,7 +33,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +45,7 @@ import java.util.concurrent.TimeUnit
 class PaddingTest : LayoutTest() {
 
     @Test
-    fun testPadding_IsApplied() = withDensity(density) {
+    fun testPadding_IsApplied() = with(density) {
         val padding = 10.dp
         testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
             Padding(padding = EdgeInsets(padding), children = child)
@@ -54,7 +53,7 @@ class PaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPadding_overloadAll_IsApplied() = withDensity(density) {
+    fun testPadding_overloadAll_IsApplied() = with(density) {
         val padding = 10.dp
         testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
             Padding(padding = padding, children = child)
@@ -62,7 +61,7 @@ class PaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPadding_overloadSides_IsApplied() = withDensity(density) {
+    fun testPadding_overloadSides_IsApplied() = with(density) {
         val padding = 10.dp
         testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
             Padding(left = padding, top = padding, right = padding, bottom = padding, children =
@@ -100,7 +99,7 @@ class PaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPadding_withInsufficientSpace() = withDensity(density) {
+    fun testPadding_withInsufficientSpace() = with(density) {
         val padding = 30.dp
         testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
             Padding(padding = EdgeInsets(padding), children = child)
@@ -108,7 +107,7 @@ class PaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPadding_overloadAll_withInsufficientSpace() = withDensity(density) {
+    fun testPadding_overloadAll_withInsufficientSpace() = with(density) {
         val padding = 30.dp
         testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
             Padding(padding = padding, children = child)
@@ -116,7 +115,7 @@ class PaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPadding_overloadSides_withInsufficientSpace() = withDensity(density) {
+    fun testPadding_overloadSides_withInsufficientSpace() = with(density) {
         val padding = 30.dp
         testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
             Padding(left = 30.dp, right = 30.dp, top = 30.dp, bottom = 30.dp, children = child)
@@ -126,7 +125,7 @@ class PaddingTest : LayoutTest() {
     private fun testPaddingIsAppliedImplementation(
         padding: Dp,
         paddingContainer: @Composable() (@Composable() () -> Unit) -> Unit
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
         val paddingPx = padding.toIntPx()
@@ -172,7 +171,7 @@ class PaddingTest : LayoutTest() {
         right: Dp,
         bottom: Dp,
         paddingContainer: @Composable() ((@Composable() () -> Unit) -> Unit)
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -224,7 +223,7 @@ class PaddingTest : LayoutTest() {
         padding: Dp,
         paddingContainer: @Composable() ((@Composable() () -> Unit) -> Unit)
     ) =
-        withDensity(density) {
+        with(density) {
             val sizeDp = 50.dp
             val size = sizeDp.toIntPx()
             val paddingPx = padding.toIntPx()
@@ -261,7 +260,7 @@ class PaddingTest : LayoutTest() {
         }
 
     @Test
-    fun testPadding_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testPadding_hasCorrectIntrinsicMeasurements() = with(density) {
 
         val padding = 100.ipx.toDp()
 

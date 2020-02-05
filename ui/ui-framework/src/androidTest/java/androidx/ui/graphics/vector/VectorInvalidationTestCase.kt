@@ -19,8 +19,8 @@ package androidx.ui.graphics.vector
 import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
-import androidx.ui.core.WithDensity
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.framework.test.R
 import androidx.ui.geometry.Rect
@@ -46,7 +46,7 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
         vectorState = state
 
         val vectorAsset = loadVectorResource(state.value)
-        WithDensity {
+        with(DensityAmbient.current) {
             vectorAsset.resource.resource?.let {
                 val width = it.defaultWidth
                 vectorSize = width.toIntPx().value

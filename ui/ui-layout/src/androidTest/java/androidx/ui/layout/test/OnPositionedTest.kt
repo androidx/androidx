@@ -40,7 +40,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertTrue
@@ -55,7 +54,7 @@ import java.util.concurrent.TimeUnit
 class OnPositionedTest : LayoutTest() {
 
     @Test
-    fun simplePadding() = withDensity(density) {
+    fun simplePadding() = with(density) {
         val paddingLeftPx = 100.px
         val paddingTopPx = 120.px
         var realLeft: Px? = null
@@ -80,7 +79,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
-    fun simplePaddingWithChildPositioned() = withDensity(density) {
+    fun simplePaddingWithChildPositioned() = with(density) {
         val paddingLeftPx = 100.px
         val paddingTopPx = 120.px
         var realLeft: Px? = null
@@ -105,7 +104,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
-    fun nestedLayoutCoordinates() = withDensity(density) {
+    fun nestedLayoutCoordinates() = with(density) {
         val firstPaddingPx = 10.px
         val secondPaddingPx = 20.px
         val thirdPaddingPx = 30.px
@@ -144,7 +143,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
-    fun childPositionedForTwoContainers() = withDensity(density) {
+    fun childPositionedForTwoContainers() = with(density) {
         val size = 100.px
         val sizeDp = size.toDp()
         var firstCoordinates: LayoutCoordinates? = null
@@ -174,7 +173,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
-    fun globalCoordinatesAreInActivityCoordinates() = withDensity(density) {
+    fun globalCoordinatesAreInActivityCoordinates() = with(density) {
         val padding = 30
         val localPosition = PxPosition.Origin
         val globalPosition = PxPosition(padding.ipx, padding.ipx)
@@ -206,7 +205,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
-    fun justAddedOnPositionedCallbackFiredWithoutLayoutChanges() = withDensity(density) {
+    fun justAddedOnPositionedCallbackFiredWithoutLayoutChanges() = with(density) {
         val needCallback = NeedCallback(false)
 
         val positionedLatch = CountDownLatch(1)
@@ -249,7 +248,7 @@ class OnPositionedTest : LayoutTest() {
         activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
 
         positionedLatch.await(1, TimeUnit.SECONDS)
-        withDensity(density) {
+        with(density) {
             assertThat(realLeft).isEqualTo(40.dp.toPx())
         }
     }
@@ -284,7 +283,7 @@ class OnPositionedTest : LayoutTest() {
         activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
 
         positionedLatch.await(1, TimeUnit.SECONDS)
-        withDensity(density) {
+        with(density) {
             assertThat(realLeft).isEqualTo(40.dp.toPx())
         }
     }

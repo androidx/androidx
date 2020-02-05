@@ -35,7 +35,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -92,7 +91,7 @@ class SnackbarTest {
             .assertWidthEqualsTo(300.dp)
         assertThat(textCoords).isNotNull()
         textCoords?.let {
-            withDensity(composeTestRule.density) {
+            with(composeTestRule.density) {
                 assertThat(it[FirstBaseline]).isNotEqualTo(IntPx.Zero)
                 assertThat(it[FirstBaseline])
                     .isEqualTo(it[LastBaseline])
@@ -147,7 +146,7 @@ class SnackbarTest {
             localButtonTextCoords != null &&
             localSnackCoords != null
         ) {
-            withDensity(composeTestRule.density) {
+            with(composeTestRule.density) {
                 val buttonTextPos =
                     localSnackCoords.childToLocal(localButtonTextCoords, PxPosition.Origin)
                 assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
@@ -182,7 +181,7 @@ class SnackbarTest {
             .assertWidthEqualsTo(300.dp)
         assertThat(textCoords).isNotNull()
         textCoords?.let {
-            withDensity(composeTestRule.density) {
+            with(composeTestRule.density) {
                 assertThat(it[FirstBaseline]).isNotEqualTo(IntPx.Zero)
                 assertThat(it[LastBaseline]).isNotEqualTo(IntPx.Zero)
                 assertThat(it[FirstBaseline]).isNotEqualTo(it[LastBaseline])
@@ -229,7 +228,7 @@ class SnackbarTest {
         val localSnackCoords = snackCoords
 
         if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
-            withDensity(composeTestRule.density) {
+            with(composeTestRule.density) {
                 val buttonPositionInSnack =
                     localSnackCoords.childToLocal(localButtonCoords, PxPosition.Origin)
                 val buttonCenter =
@@ -283,7 +282,7 @@ class SnackbarTest {
         val localSnackCoords = snackCoords
 
         if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
-            withDensity(composeTestRule.density) {
+            with(composeTestRule.density) {
                 val buttonPositionInSnack =
                     localSnackCoords.childToLocal(localButtonCoords, PxPosition.Origin)
                 val textPositionInSnack =

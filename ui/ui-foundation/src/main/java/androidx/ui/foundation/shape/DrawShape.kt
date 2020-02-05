@@ -53,7 +53,7 @@ fun DrawShape(shape: Shape, brush: Brush) {
             brush.applyTo(paint)
             lastParentSize = parentSize
             val outline =
-                lastOutline ?: shape.createOutline(parentSize, density).also { lastOutline = it }
+                lastOutline ?: shape.createOutline(parentSize, this).also { lastOutline = it }
             canvas.drawOutline(outline, paint)
         }
     }

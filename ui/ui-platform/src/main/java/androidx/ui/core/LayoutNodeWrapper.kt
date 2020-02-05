@@ -24,7 +24,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -223,7 +222,7 @@ internal sealed class DelegatingLayoutNodeWrapper(
 
 internal class InnerPlaceable(
     layoutNode: LayoutNode
-) : LayoutNodeWrapper(layoutNode), DensityScope {
+) : LayoutNodeWrapper(layoutNode), Density by layoutNode.measureScope {
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = layoutNode.providedAlignmentLines.keys
     override val isAttached: Boolean
@@ -279,8 +278,6 @@ internal class InnerPlaceable(
         }
         layoutNode.layout()
     }
-
-    override val density: Density get() = layoutNode.measureScope.density
 
     override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
         size = innermostSize

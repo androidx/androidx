@@ -58,7 +58,6 @@ import androidx.ui.unit.min
 import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -74,7 +73,7 @@ import java.util.concurrent.TimeUnit
 class FlexTest : LayoutTest() {
     // region Size and position tests for Row and Column
     @Test
-    fun testRow() = withDensity(density) {
+    fun testRow() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -117,7 +116,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withFlexibleChildren() = withDensity(density) {
+    fun testRow_withFlexibleChildren() = with(density) {
         val width = 50.dp
         val height = 80.dp
         val childrenHeight = height.toIntPx()
@@ -165,7 +164,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withLooselyFlexibleChildren() = withDensity(density) {
+    fun testRow_withLooselyFlexibleChildren() = with(density) {
         val width = 50.dp
         val childrenWidth = width.toIntPx()
         val height = 80.dp
@@ -215,7 +214,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn() = withDensity(density) {
+    fun testColumn() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -257,7 +256,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withFlexibleChildren() = withDensity(density) {
+    fun testColumn_withFlexibleChildren() = with(density) {
         val width = 80.dp
         val childrenWidth = width.toIntPx()
         val height = 50.dp
@@ -303,7 +302,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withLooselyFlexibleChildren() = withDensity(density) {
+    fun testColumn_withLooselyFlexibleChildren() = with(density) {
         val width = 80.dp
         val childrenWidth = width.toIntPx()
         val height = 50.dp
@@ -346,7 +345,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = withDensity(density) {
+    fun testRow_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = with(density) {
         val expectedRowWidth = 11.ipx
         val leftPadding = 1.px
         var rowWidth = 0.ipx
@@ -385,7 +384,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_isNotLargerThanItsChildren_becauseOfRoundings() = withDensity(density) {
+    fun testRow_isNotLargerThanItsChildren_becauseOfRoundings() = with(density) {
         val expectedRowWidth = 8.ipx
         val leftPadding = 1.px
         var rowWidth = 0.ipx
@@ -432,7 +431,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_isNotLargetThanItsChildren_becauseOfRoundings() = withDensity(density) {
+    fun testColumn_isNotLargetThanItsChildren_becauseOfRoundings() = with(density) {
         val expectedColumnHeight = 8.ipx
         val topPadding = 1.px
         var columnHeight = 0.ipx
@@ -479,7 +478,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = withDensity(density) {
+    fun testColumn_doesNotPlaceChildrenOutOfBounds_becauseOfRoundings() = with(density) {
         val expectedColumnHeight = 11.ipx
         val topPadding = 1.px
         var columnHeight = 0.ipx
@@ -521,7 +520,7 @@ class FlexTest : LayoutTest() {
 
     // region Cross axis alignment tests in Row
     @Test
-    fun testRow_withStretchCrossAxisAlignment() = withDensity(density) {
+    fun testRow_withStretchCrossAxisAlignment() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -568,7 +567,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withGravityModifier() = withDensity(density) {
+    fun testRow_withGravityModifier() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -622,7 +621,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withRelativeToSiblingsModifier() = withDensity(density) {
+    fun testRow_withRelativeToSiblingsModifier() = with(density) {
         val baseline1Dp = 30.dp
         val baseline1 = baseline1Dp.toIntPx()
         val baseline2Dp = 25.dp
@@ -712,7 +711,7 @@ class FlexTest : LayoutTest() {
 
     // region Cross axis alignment tests in Column
     @Test
-    fun testColumn_withStretchCrossAxisAlignment() = withDensity(density) {
+    fun testColumn_withStretchCrossAxisAlignment() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -757,7 +756,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withGravityModifier() = withDensity(density) {
+    fun testColumn_withGravityModifier() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -811,7 +810,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withRelativeToSiblingsModifier() = withDensity(density) {
+    fun testColumn_withRelativeToSiblingsModifier() = with(density) {
         val sizeDp = 40.dp
         val size = sizeDp.toIntPx()
         val firstBaseline1Dp = 20.dp
@@ -896,7 +895,7 @@ class FlexTest : LayoutTest() {
 
     // region Size tests in Row
     @Test
-    fun testRow_expandedWidth_withExpandedModifier() = withDensity(density) {
+    fun testRow_expandedWidth_withExpandedModifier() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -926,7 +925,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_wrappedWidth_withNoFlexibleChildren() = withDensity(density) {
+    fun testRow_wrappedWidth_withNoFlexibleChildren() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -956,7 +955,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_expandedWidth_withFlexibleChildren() = withDensity(density) {
+    fun testRow_expandedWidth_withFlexibleChildren() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -986,7 +985,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withMaxCrossAxisSize() = withDensity(density) {
+    fun testRow_withMaxCrossAxisSize() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -1016,7 +1015,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withMinCrossAxisSize() = withDensity(density) {
+    fun testRow_withMinCrossAxisSize() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -1046,7 +1045,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withExpandedModifier_respectsMaxWidthConstraint() = withDensity(density) {
+    fun testRow_withExpandedModifier_respectsMaxWidthConstraint() = with(density) {
         val sizeDp = 50.dp
         val rowWidthDp = 250.dp
 
@@ -1079,7 +1078,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withFlexibleChildren_respectsMaxWidthConstraint() = withDensity(density) {
+    fun testRow_withFlexibleChildren_respectsMaxWidthConstraint() = with(density) {
         val sizeDp = 50.dp
         val rowWidthDp = 250.dp
 
@@ -1112,7 +1111,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withInflexibleChildren_respectsMinWidthConstraint() = withDensity(density) {
+    fun testRow_withInflexibleChildren_respectsMinWidthConstraint() = with(density) {
         val sizeDp = 50.dp
         val rowWidthDp = 250.dp
 
@@ -1145,7 +1144,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withMaxCrossAxisSize_respectsMaxHeightConstraint() = withDensity(density) {
+    fun testRow_withMaxCrossAxisSize_respectsMaxHeightConstraint() = with(density) {
         val sizeDp = 50.dp
         val rowHeightDp = 250.dp
 
@@ -1178,7 +1177,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withMinCrossAxisSize_respectsMinHeightConstraint() = withDensity(density) {
+    fun testRow_withMinCrossAxisSize_respectsMinHeightConstraint() = with(density) {
         val sizeDp = 50.dp
         val rowHeightDp = 150.dp
 
@@ -1212,7 +1211,7 @@ class FlexTest : LayoutTest() {
 
     @Test @Ignore("Wrap is not supported when there are flexible children. " +
             "Should use maxWidth(.Infinity) modifier when it is available")
-    fun testRow_withMinMainAxisSize() = withDensity(density) {
+    fun testRow_withMinMainAxisSize() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
         val rowWidthDp = 250.dp
@@ -1256,7 +1255,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_measuresChildrenCorrectly_whenMeasuredWithInfiniteWidth() = withDensity(density) {
+    fun testRow_measuresChildrenCorrectly_whenMeasuredWithInfiniteWidth() = with(density) {
         val rowMinWidth = 100.dp
         val inflexibleChildWidth = 30.dp
         val latch = CountDownLatch(1)
@@ -1292,7 +1291,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_measuresInflexibleChildrenCorrectly() = withDensity(density) {
+    fun testRow_measuresInflexibleChildrenCorrectly() = with(density) {
         val availableWidth = 100.dp
         val childWidth = 50.dp
         val availableHeight = 200.dp
@@ -1340,7 +1339,7 @@ class FlexTest : LayoutTest() {
 
     // region Size tests in Column
     @Test
-    fun testColumn_expandedHeight_withExpandedModifier() = withDensity(density) {
+    fun testColumn_expandedHeight_withExpandedModifier() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -1370,7 +1369,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_wrappedHeight_withNoFlexibleChildren() = withDensity(density) {
+    fun testColumn_wrappedHeight_withNoFlexibleChildren() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -1400,7 +1399,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_expandedHeight_withFlexibleChildren() = withDensity(density) {
+    fun testColumn_expandedHeight_withFlexibleChildren() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -1430,7 +1429,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withMaxCrossAxisSize() = withDensity(density) {
+    fun testColumn_withMaxCrossAxisSize() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -1460,7 +1459,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withMinCrossAxisSize() = withDensity(density) {
+    fun testColumn_withMinCrossAxisSize() = with(density) {
         val sizeDp = 50.dp
 
         val drawLatch = CountDownLatch(1)
@@ -1490,7 +1489,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withExpandedModifier_respectsMaxHeightConstraint() = withDensity(density) {
+    fun testColumn_withExpandedModifier_respectsMaxHeightConstraint() = with(density) {
         val sizeDp = 50.dp
         val columnHeightDp = 250.dp
 
@@ -1523,7 +1522,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withFlexibleChildren_respectsMaxHeightConstraint() = withDensity(density) {
+    fun testColumn_withFlexibleChildren_respectsMaxHeightConstraint() = with(density) {
         val sizeDp = 50.dp
         val columnHeightDp = 250.dp
 
@@ -1556,7 +1555,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withInflexibleChildren_respectsMinHeightConstraint() = withDensity(density) {
+    fun testColumn_withInflexibleChildren_respectsMinHeightConstraint() = with(density) {
         val sizeDp = 50.dp
         val columnHeightDp = 250.dp
 
@@ -1589,7 +1588,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withMaxCrossAxisSize_respectsMaxWidthConstraint() = withDensity(density) {
+    fun testColumn_withMaxCrossAxisSize_respectsMaxWidthConstraint() = with(density) {
         val sizeDp = 50.dp
         val columnWidthDp = 250.dp
 
@@ -1622,7 +1621,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withMinCrossAxisSize_respectsMinWidthConstraint() = withDensity(density) {
+    fun testColumn_withMinCrossAxisSize_respectsMinWidthConstraint() = with(density) {
         val sizeDp = 50.dp
         val columnWidthDp = 150.dp
 
@@ -1656,7 +1655,7 @@ class FlexTest : LayoutTest() {
 
     @Test @Ignore("Wrap is not supported when there are flexible children. " +
             "Should use maxHeight(IntPx.Infinity) modifier when it is available")
-    fun testColumn_withMinMainAxisSize() = withDensity(density) {
+    fun testColumn_withMinMainAxisSize() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
         val columnHeightDp = 250.dp
@@ -1701,7 +1700,7 @@ class FlexTest : LayoutTest() {
 
     @Test
     fun testColumn_measuresChildrenCorrectly_whenMeasuredWithInfiniteHeight() =
-        withDensity(density) {
+        with(density) {
         val columnMinHeight = 100.dp
         val inflexibleChildHeight = 30.dp
         val latch = CountDownLatch(1)
@@ -1736,7 +1735,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_measuresInflexibleChildrenCorrectly() = withDensity(density) {
+    fun testColumn_measuresInflexibleChildrenCorrectly() = with(density) {
         val availableWidth = 100.dp
         val childWidth = 50.dp
         val availableHeight = 200.dp
@@ -1784,7 +1783,7 @@ class FlexTest : LayoutTest() {
 
     // region Main axis alignment tests in Row
     @Test
-    fun testRow_withBeginArrangement() = withDensity(density) {
+    fun testRow_withBeginArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -1825,7 +1824,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withEndArrangement() = withDensity(density) {
+    fun testRow_withEndArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -1866,7 +1865,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withCenterArrangement() = withDensity(density) {
+    fun testRow_withCenterArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -1908,7 +1907,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceEvenlyArrangement() = withDensity(density) {
+    fun testRow_withSpaceEvenlyArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -1950,7 +1949,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceBetweenArrangement() = withDensity(density) {
+    fun testRow_withSpaceBetweenArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -1992,7 +1991,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceAroundArrangement() = withDensity(density) {
+    fun testRow_withSpaceAroundArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2034,7 +2033,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withCustomArrangement() = withDensity(density) {
+    fun testRow_withCustomArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2081,7 +2080,7 @@ class FlexTest : LayoutTest() {
 
     // region Main axis alignment tests in Column
     @Test
-    fun testColumn_withStartArrangement() = withDensity(density) {
+    fun testColumn_withStartArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2122,7 +2121,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withEndArrangement() = withDensity(density) {
+    fun testColumn_withEndArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2163,7 +2162,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withCenterArrangement() = withDensity(density) {
+    fun testColumn_withCenterArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2205,7 +2204,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withSpaceEvenlyArrangement() = withDensity(density) {
+    fun testColumn_withSpaceEvenlyArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2247,7 +2246,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withSpaceBetweenArrangement() = withDensity(density) {
+    fun testColumn_withSpaceBetweenArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2289,7 +2288,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withSpaceAroundArrangement() = withDensity(density) {
+    fun testColumn_withSpaceAroundArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2337,7 +2336,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withCustomArrangement() = withDensity(density) {
+    fun testColumn_withCustomArrangement() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -2382,7 +2381,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_doesNotUseMinConstraintsOnChildren() = withDensity(density) {
+    fun testRow_doesNotUseMinConstraintsOnChildren() = with(density) {
         val sizeDp = 50.dp
         val childSizeDp = 30.dp
         val childSize = childSizeDp.toIntPx()
@@ -2411,7 +2410,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_doesNotUseMinConstraintsOnChildren() = withDensity(density) {
+    fun testColumn_doesNotUseMinConstraintsOnChildren() = with(density) {
         val sizeDp = 50.dp
         val childSizeDp = 30.dp
         val childSize = childSizeDp.toIntPx()
@@ -2442,7 +2441,7 @@ class FlexTest : LayoutTest() {
 
     // region Intrinsic measurement tests
     @Test
-    fun testRow_withInflexibleChildren_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testRow_withInflexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Row {
                 Container(LayoutAspectRatio(2f)) { }
@@ -2524,7 +2523,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withFlexibleChildren_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testRow_withFlexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Row {
                 ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), LayoutFlexible(3f)) { }
@@ -2670,7 +2669,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withInflexibleChildren_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testColumn_withInflexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Column {
                 Container(LayoutAspectRatio(2f)) { }
@@ -2747,7 +2746,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withFlexibleChildren_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testColumn_withFlexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Column {
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), LayoutFlexible(3f)) { }
@@ -2894,7 +2893,7 @@ class FlexTest : LayoutTest() {
 
     // region Modifiers specific tests
     @Test
-    fun testFlexModifiersChain_leftMostWins() = withDensity(density) {
+    fun testFlexModifiersChain_leftMostWins() = with(density) {
         val positionedLatch = CountDownLatch(1)
         val containerHeight = Ref<IntPx>()
         val columnHeight = 24.ipx
@@ -2922,7 +2921,7 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRelativeToSiblingsModifiersChain_leftMostWins() = withDensity(density) {
+    fun testRelativeToSiblingsModifiersChain_leftMostWins() = with(density) {
         val positionedLatch = CountDownLatch(1)
         val containerSize = Ref<IntPxSize>()
         val containerPosition = Ref<PxPosition>()

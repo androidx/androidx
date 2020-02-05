@@ -27,6 +27,7 @@ import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
@@ -37,7 +38,6 @@ import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.Text
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.tag
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.HorizontalScroller
@@ -66,7 +66,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.max
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
@@ -207,7 +206,7 @@ private fun ScrollableTabRow(
     tabs: @Composable() () -> Unit,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
 ) {
-    val edgeOffset = withDensity(ambientDensity()) { ScrollableTabRowEdgeOffset.toIntPx() }
+    val edgeOffset = with(DensityAmbient.current) { ScrollableTabRowEdgeOffset.toIntPx() }
 
     // TODO: unfortunate 1f lag as we need to first calculate tab positions before drawing the
     // indicator container
@@ -384,13 +383,13 @@ object TabRow {
     ) {
         // TODO: should we animate the width of the indicator as it moves between tabs of different
         // sizes inside a scrollable tab row?
-        val currentTabWidth = withDensity(ambientDensity()) {
+        val currentTabWidth = with(DensityAmbient.current) {
             tabPositions[selectedIndex].width.toDp()
         }
 
         Container(expanded = true, alignment = Alignment.BottomLeft) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
-                Padding(left = withDensity(ambientDensity()) { indicatorOffset.toDp() }) {
+                Padding(left = with(DensityAmbient.current) { indicatorOffset.toDp() }) {
                     Container(width = currentTabWidth, children = indicator)
                 }
             }

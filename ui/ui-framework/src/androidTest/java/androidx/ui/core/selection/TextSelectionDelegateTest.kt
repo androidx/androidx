@@ -42,7 +42,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
@@ -65,157 +64,151 @@ class TextSelectionDelegateTest {
 
     @Test
     fun getTextSelectionInfo_long_press_select_word_ltr() {
-        withDensity(defaultDensity) {
-            val text = "hello world\n"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+        val text = "hello world\n"
+        val fontSize = 20.sp
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx().value }
 
-            val textLayoutResult = simpleTextLayout(
-                text = text,
-                fontSize = fontSize,
-                density = defaultDensity
+        val textLayoutResult = simpleTextLayout(
+            text = text,
+            fontSize = fontSize,
+            density = defaultDensity
+        )
+
+        val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
+        val end = start
+
+        // Act.
+        val textSelectionInfo = getTextSelectionInfo(
+            textLayoutResult = textLayoutResult,
+            selectionCoordinates = Pair(start, end),
+            layoutCoordinates = mock(),
+            wordBasedSelection = true
+        )
+
+        // Assert.
+        assertThat(textSelectionInfo).isNotNull()
+
+        assertThat(textSelectionInfo?.start).isNotNull()
+        textSelectionInfo?.start?.let {
+            assertThat(it.coordinates).isEqualTo(
+                PxPosition(0.px, fontSizeInPx.px)
             )
+            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.layoutCoordinates).isNotNull()
+            assertThat(it.offset).isEqualTo(0)
+        }
 
-            val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
-            val end = start
-
-            // Act.
-            val textSelectionInfo = getTextSelectionInfo(
-                textLayoutResult = textLayoutResult,
-                selectionCoordinates = Pair(start, end),
-                layoutCoordinates = mock(),
-                wordBasedSelection = true
+        assertThat(textSelectionInfo?.end).isNotNull()
+        textSelectionInfo?.end?.let {
+            assertThat(it.coordinates).isEqualTo(
+                PxPosition(("hello".length * fontSizeInPx).px, fontSizeInPx.px)
             )
-
-            // Assert.
-            assertThat(textSelectionInfo).isNotNull()
-
-            assertThat(textSelectionInfo?.start).isNotNull()
-            textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(0.px, fontSizeInPx.px)
-                )
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
-                assertThat(it.offset).isEqualTo(0)
-            }
-
-            assertThat(textSelectionInfo?.end).isNotNull()
-            textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(("hello".length * fontSizeInPx).px, fontSizeInPx.px)
-                )
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
-                assertThat(it.offset).isEqualTo("hello".length)
-            }
+            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.layoutCoordinates).isNotNull()
+            assertThat(it.offset).isEqualTo("hello".length)
         }
     }
 
     @Test
     fun getTextSelectionInfo_long_press_select_word_rtl() {
-        withDensity(defaultDensity) {
-            val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+        val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
+        val fontSize = 20.sp
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx().value }
 
-            val textLayoutResult = simpleTextLayout(
-                text = text,
-                fontSize = fontSize,
-                density = defaultDensity
+        val textLayoutResult = simpleTextLayout(
+            text = text,
+            fontSize = fontSize,
+            density = defaultDensity
+        )
+
+        val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
+        val end = start
+
+        // Act.
+        val textSelectionInfo = getTextSelectionInfo(
+            textLayoutResult = textLayoutResult,
+            selectionCoordinates = Pair(start, end),
+            layoutCoordinates = mock(),
+            wordBasedSelection = true
+        )
+
+        // Assert.
+        assertThat(textSelectionInfo).isNotNull()
+
+        assertThat(textSelectionInfo?.start).isNotNull()
+        textSelectionInfo?.start?.let {
+            assertThat(it.coordinates).isEqualTo(
+                PxPosition(("\u05D3\u05D4\u05D5".length * fontSizeInPx).px, fontSizeInPx.px)
             )
+            assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+            assertThat(it.layoutCoordinates).isNotNull()
+            assertThat(it.offset).isEqualTo(text.indexOf("\u05D3"))
+        }
 
-            val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
-            val end = start
-
-            // Act.
-            val textSelectionInfo = getTextSelectionInfo(
-                textLayoutResult = textLayoutResult,
-                selectionCoordinates = Pair(start, end),
-                layoutCoordinates = mock(),
-                wordBasedSelection = true
+        assertThat(textSelectionInfo?.end).isNotNull()
+        textSelectionInfo?.end?.let {
+            assertThat(it.coordinates).isEqualTo(
+                PxPosition(0.px, fontSizeInPx.px)
             )
-
-            // Assert.
-            assertThat(textSelectionInfo).isNotNull()
-
-            assertThat(textSelectionInfo?.start).isNotNull()
-            textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(("\u05D3\u05D4\u05D5".length * fontSizeInPx).px, fontSizeInPx.px)
-                )
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
-                assertThat(it.offset).isEqualTo(text.indexOf("\u05D3"))
-            }
-
-            assertThat(textSelectionInfo?.end).isNotNull()
-            textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(0.px, fontSizeInPx.px)
-                )
-                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
-                assertThat(it.offset).isEqualTo(text.indexOf("\u05D5") + 1)
-            }
+            assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+            assertThat(it.layoutCoordinates).isNotNull()
+            assertThat(it.offset).isEqualTo(text.indexOf("\u05D5") + 1)
         }
     }
 
     @Test
     fun getTextSelectionInfo_long_press_drag_handle_not_cross_select_word() {
-        withDensity(defaultDensity) {
-            val text = "hello world"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+        val text = "hello world"
+        val fontSize = 20.sp
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx().value }
 
-            val textLayoutResult = simpleTextLayout(
-                text = text,
-                fontSize = fontSize,
-                density = defaultDensity
+        val textLayoutResult = simpleTextLayout(
+            text = text,
+            fontSize = fontSize,
+            density = defaultDensity
+        )
+
+        val rawStartOffset = text.indexOf('e')
+        val rawEndOffset = text.indexOf('r')
+        val start = PxPosition((fontSizeInPx * rawStartOffset).px, (fontSizeInPx / 2).px)
+        val end = PxPosition((fontSizeInPx * rawEndOffset).px, (fontSizeInPx / 2).px)
+
+        // Act.
+        val textSelectionInfo = getTextSelectionInfo(
+            textLayoutResult = textLayoutResult,
+            selectionCoordinates = Pair(start, end),
+            layoutCoordinates = mock(),
+            wordBasedSelection = true
+        )
+
+        // Assert.
+        assertThat(textSelectionInfo).isNotNull()
+
+        assertThat(textSelectionInfo?.start).isNotNull()
+        textSelectionInfo?.start?.let {
+            assertThat(it.coordinates).isEqualTo(
+                PxPosition(0.px, fontSizeInPx.px)
             )
-
-            val rawStartOffset = text.indexOf('e')
-            val rawEndOffset = text.indexOf('r')
-            val start = PxPosition((fontSizeInPx * rawStartOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * rawEndOffset).px, (fontSizeInPx / 2).px)
-
-            // Act.
-            val textSelectionInfo = getTextSelectionInfo(
-                textLayoutResult = textLayoutResult,
-                selectionCoordinates = Pair(start, end),
-                layoutCoordinates = mock(),
-                wordBasedSelection = true
-            )
-
-            // Assert.
-            assertThat(textSelectionInfo).isNotNull()
-
-            assertThat(textSelectionInfo?.start).isNotNull()
-            textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(0.px, fontSizeInPx.px)
-                )
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
-                assertThat(it.offset).isEqualTo(0)
-            }
-
-            assertThat(textSelectionInfo?.end).isNotNull()
-            textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((text.length * fontSizeInPx).px, fontSizeInPx.px)
-                )
-                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
-                assertThat(it.offset).isEqualTo(text.length)
-            }
-            assertThat(textSelectionInfo?.handlesCrossed).isFalse()
+            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.layoutCoordinates).isNotNull()
+            assertThat(it.offset).isEqualTo(0)
         }
+
+        assertThat(textSelectionInfo?.end).isNotNull()
+        textSelectionInfo?.end?.let {
+            assertThat(it.coordinates).isEqualTo(
+                PxPosition((text.length * fontSizeInPx).px, fontSizeInPx.px)
+            )
+            assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+            assertThat(it.layoutCoordinates).isNotNull()
+            assertThat(it.offset).isEqualTo(text.length)
+        }
+        assertThat(textSelectionInfo?.handlesCrossed).isFalse()
     }
 
     @Test
     fun getTextSelectionInfo_long_press_drag_handle_cross_select_word() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -267,7 +260,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun getTextSelectionInfo_drag_select_range_ltr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -319,7 +312,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun getTextSelectionInfo_drag_select_range_rtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -380,7 +373,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun getTextSelectionInfo_drag_select_range_bidi() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "Hello"
             val textRtl = "\u05D0\u05D1\u05D2\u05D3\u05D4"
             val text = textLtr + textRtl
@@ -443,7 +436,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_single_widget_handles_crossed_ltr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -492,7 +485,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_single_widget_handles_crossed_rtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -548,7 +541,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_single_widget_handles_crossed_bidi() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLtr = "Hello"
             val textRtl = "\u05D0\u05D1\u05D2\u05D3\u05D4"
             val text = textLtr + textRtl
@@ -609,7 +602,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_ltr_drag_endHandle() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -673,7 +666,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_rtl_drag_endHandle() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -749,7 +742,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_not_crossed() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -814,7 +807,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_crossed() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -879,7 +872,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_not_crossed_bounded() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -930,7 +923,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_crossed_bounded() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -981,7 +974,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_not_crossed_boundary() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1034,7 +1027,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_crossed_boundary() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1085,7 +1078,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_crossed() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1150,7 +1143,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_not_crossed_bounded() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1201,7 +1194,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_crossed_bounded() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1252,7 +1245,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_not_crossed_boundary() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1305,7 +1298,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_crossed_boundary() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1358,7 +1351,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_cross_widget_not_contain_start() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1406,7 +1399,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_cross_widget_not_contain_end() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1455,7 +1448,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_cross_widget_not_contain_start_handles_crossed() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1505,7 +1498,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_cross_widget_not_contain_end_handles_crossed() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1555,7 +1548,7 @@ class TextSelectionDelegateTest {
 
     @Test
     fun testTextSelectionProcessor_not_selected() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
             val textLayoutResult = simpleTextLayout(

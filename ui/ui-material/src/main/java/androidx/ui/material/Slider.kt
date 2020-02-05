@@ -24,10 +24,10 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.foundation.animation.AnimatedValueHolder
 import androidx.ui.foundation.animation.FlingConfig
@@ -54,7 +54,6 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import androidx.ui.unit.toRect
-import androidx.ui.unit.withDensity
 import androidx.ui.util.lerp
 import kotlin.math.abs
 
@@ -210,7 +209,7 @@ fun Slider(
 
 @Composable
 private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pressed: Boolean) {
-    val widthDp = withDensity(ambientDensity()) {
+    val widthDp = with(DensityAmbient.current) {
         width.px.toDp()
     }
     Semantics(container = true, properties = { accessibilityValue = "${position.value}" }) {

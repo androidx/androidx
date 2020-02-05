@@ -31,7 +31,6 @@ import androidx.ui.text.matchers.assertThat
 import androidx.ui.unit.Density
 import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +47,7 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun minIntrinsicWidth_getter() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val text = "Hello"
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
@@ -56,7 +55,7 @@ class TextDelegateIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -69,7 +68,7 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun maxIntrinsicWidth_getter() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val text = "Hello"
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
@@ -77,7 +76,7 @@ class TextDelegateIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -91,7 +90,7 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun testBackgroundPaint_paint_wrap_multiLines() {
-        withDensity(density) {
+        with(density) {
             // Setup test.
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -101,7 +100,7 @@ class TextDelegateIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -151,7 +150,7 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun testBackgroundPaint_paint_with_default_color() {
-        withDensity(density) {
+        with(density) {
             // Setup test.
             val selectionStart = 0
             val selectionEnd = 3
@@ -163,7 +162,7 @@ class TextDelegateIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -203,7 +202,7 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun testBackgroundPaint_paint_with_default_color_bidi() {
-        withDensity(density) {
+        with(density) {
             // Setup test.
             val textLTR = "Hello"
             // From right to left: שלום
@@ -218,7 +217,7 @@ class TextDelegateIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -270,7 +269,7 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun testBackgroundPaint_paint_with_customized_color() {
-        withDensity(density) {
+        with(density) {
             // Setup test.
             val selectionStart = 0
             val selectionEnd = 3
@@ -283,7 +282,7 @@ class TextDelegateIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )

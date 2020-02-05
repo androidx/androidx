@@ -24,7 +24,6 @@ import androidx.compose.FrameManager
 import androidx.compose.compositionReference
 import androidx.compose.remember
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -87,25 +86,25 @@ import androidx.ui.unit.min
             constraints: Constraints
         ) = measureScope.measureBlock(measurables, constraints)
         override fun minIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = densityScope.minIntrinsicWidthMeasureBlock(measurables, h)
+        ) = density.minIntrinsicWidthMeasureBlock(measurables, h)
         override fun minIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = densityScope.minIntrinsicHeightMeasureBlock(measurables, w)
+        ) = density.minIntrinsicHeightMeasureBlock(measurables, w)
         override fun maxIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = densityScope.maxIntrinsicWidthMeasureBlock(measurables, h)
+        ) = density.maxIntrinsicWidthMeasureBlock(measurables, h)
         override fun maxIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = densityScope.maxIntrinsicHeightMeasureBlock(measurables, w)
+        ) = density.maxIntrinsicHeightMeasureBlock(measurables, w)
     }
     Layout(children, measureBlocks, modifier)
 }
@@ -235,8 +234,8 @@ internal class DefaultIntrinsicMeasurable(
  */
 @PublishedApi
 internal class IntrinsicsMeasureScope(
-    override val density: Density
-) : MeasureScope() {
+    density: Density
+) : MeasureScope(), Density by density {
     // TODO(popam): clean this up and prevent measuring inside intrinsics
 }
 
@@ -252,25 +251,25 @@ internal class IntrinsicsMeasureScope(
             constraints: Constraints
         ) = measureScope.measureBlock(measurables, constraints)
         override fun minIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = densityScope.MeasuringMinIntrinsicWidth(measureBlock, measurables, h)
+        ) = density.MeasuringMinIntrinsicWidth(measureBlock, measurables, h)
         override fun minIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = densityScope.MeasuringMinIntrinsicHeight(measureBlock, measurables, w)
+        ) = density.MeasuringMinIntrinsicHeight(measureBlock, measurables, w)
         override fun maxIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = densityScope.MeasuringMaxIntrinsicWidth(measureBlock, measurables, h)
+        ) = density.MeasuringMaxIntrinsicWidth(measureBlock, measurables, h)
         override fun maxIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = densityScope.MeasuringMaxIntrinsicHeight(measureBlock, measurables, w)
+        ) = density.MeasuringMaxIntrinsicHeight(measureBlock, measurables, w)
 
         override fun toString(): String {
             // this calls simpleIdentityToString on measureBlock because it is typically a lambda,
@@ -286,7 +285,7 @@ internal class IntrinsicsMeasureScope(
  * Default implementation for the min intrinsic width of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun DensityScope.MeasuringMinIntrinsicWidth(
+private inline fun Density.MeasuringMinIntrinsicWidth(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
     h: IntPx
@@ -295,7 +294,7 @@ private inline fun DensityScope.MeasuringMinIntrinsicWidth(
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
-    val layoutReceiver = IntrinsicsMeasureScope(density)
+    val layoutReceiver = IntrinsicsMeasureScope(this)
     val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
     return layoutResult.width
 }
@@ -304,7 +303,7 @@ private inline fun DensityScope.MeasuringMinIntrinsicWidth(
  * Default implementation for the min intrinsic width of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun DensityScope.MeasuringMinIntrinsicHeight(
+private inline fun Density.MeasuringMinIntrinsicHeight(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
     w: IntPx
@@ -313,7 +312,7 @@ private inline fun DensityScope.MeasuringMinIntrinsicHeight(
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)
-    val layoutReceiver = IntrinsicsMeasureScope(density)
+    val layoutReceiver = IntrinsicsMeasureScope(this)
     val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
     return layoutResult.height
 }
@@ -322,7 +321,7 @@ private inline fun DensityScope.MeasuringMinIntrinsicHeight(
  * Default implementation for the max intrinsic width of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun DensityScope.MeasuringMaxIntrinsicWidth(
+private inline fun Density.MeasuringMaxIntrinsicWidth(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
     h: IntPx
@@ -331,7 +330,7 @@ private inline fun DensityScope.MeasuringMaxIntrinsicWidth(
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
-    val layoutReceiver = IntrinsicsMeasureScope(density)
+    val layoutReceiver = IntrinsicsMeasureScope(this)
     val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
     return layoutResult.width
 }
@@ -340,7 +339,7 @@ private inline fun DensityScope.MeasuringMaxIntrinsicWidth(
  * Default implementation for the max intrinsic height of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun DensityScope.MeasuringMaxIntrinsicHeight(
+private inline fun Density.MeasuringMaxIntrinsicHeight(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
     w: IntPx
@@ -349,7 +348,7 @@ private inline fun DensityScope.MeasuringMaxIntrinsicHeight(
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)
-    val layoutReceiver = IntrinsicsMeasureScope(density)
+    val layoutReceiver = IntrinsicsMeasureScope(this)
     val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
     return layoutResult.height
 }

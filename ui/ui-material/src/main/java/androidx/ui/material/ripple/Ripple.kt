@@ -21,10 +21,10 @@ import androidx.compose.Recompose
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
@@ -58,7 +58,7 @@ fun Ripple(
     enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
-    val density = ambientDensity()
+    val density = DensityAmbient.current
     val state = remember { RippleState() }
     val theme = RippleThemeAmbient.current
 

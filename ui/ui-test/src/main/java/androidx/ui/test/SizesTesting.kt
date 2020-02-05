@@ -18,13 +18,11 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
@@ -86,7 +84,7 @@ fun ComposeTestRule.setContentAndCollectSizes(
 
 /**
  * Small utility class to provide convenient assertion for width and height for some [PxSize].
- * It also provides [DensityScope] while asserting.
+ * It also provides [Density] while asserting.
  *
  * @see ComposeTestRule.setContentAndCollectSizes
  */
@@ -99,24 +97,24 @@ class CollectedSizes(private val size: PxSize, private val density: Density) {
 
     fun assertIsSquareWithSize(expectedSize: Dp) = assertIsSquareWithSize { expectedSize.toIntPx() }
 
-    fun assertWidthEqualsTo(expectedWidthPx: DensityScope.() -> IntPx): CollectedSizes {
-        val widthPx = withDensity(density) {
+    fun assertWidthEqualsTo(expectedWidthPx: Density.() -> IntPx): CollectedSizes {
+        val widthPx = with(density) {
             expectedWidthPx()
         }
         assertSize(size.width.round(), widthPx)
         return this
     }
 
-    fun assertHeightEqualsTo(expectedHeightPx: DensityScope.() -> IntPx): CollectedSizes {
-        val heightPx = withDensity(density) {
+    fun assertHeightEqualsTo(expectedHeightPx: Density.() -> IntPx): CollectedSizes {
+        val heightPx = with(density) {
             expectedHeightPx()
         }
         assertSize(size.height.round(), heightPx)
         return this
     }
 
-    fun assertIsSquareWithSize(expectedSquarePx: DensityScope.() -> IntPx): CollectedSizes {
-        val squarePx = withDensity(density) {
+    fun assertIsSquareWithSize(expectedSquarePx: Density.() -> IntPx): CollectedSizes {
+        val squarePx = with(density) {
             expectedSquarePx()
         }
         assertSize(size.width.round(), squarePx)

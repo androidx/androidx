@@ -35,7 +35,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +48,7 @@ import kotlin.math.pow
 @RunWith(JUnit4::class)
 class TableTest : LayoutTest() {
     @Test
-    fun testTable() = withDensity(density) {
+    fun testTable() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -111,7 +110,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_flex() = withDensity(density) {
+    fun testTable_withColumnWidth_flex() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -178,7 +177,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_wrap() = withDensity(density) {
+    fun testTable_withColumnWidth_wrap() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -236,7 +235,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_wrap_flexible() = withDensity(density) {
+    fun testTable_withColumnWidth_wrap_flexible() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -307,7 +306,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_minIntrinsic() = withDensity(density) {
+    fun testTable_withColumnWidth_minIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -368,7 +367,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_maxIntrinsic() = withDensity(density) {
+    fun testTable_withColumnWidth_maxIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -429,7 +428,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_fixed() = withDensity(density) {
+    fun testTable_withColumnWidth_fixed() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -490,7 +489,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_fraction() = withDensity(density) {
+    fun testTable_withColumnWidth_fraction() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -556,7 +555,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_min() = withDensity(density) {
+    fun testTable_withColumnWidth_min() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -631,7 +630,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_max() = withDensity(density) {
+    fun testTable_withColumnWidth_max() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -706,7 +705,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_min_oneWrap() = withDensity(density) {
+    fun testTable_withColumnWidth_min_oneWrap() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -771,7 +770,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_max_oneWrap() = withDensity(density) {
+    fun testTable_withColumnWidth_max_oneWrap() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -836,7 +835,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_min_twoWraps() = withDensity(density) {
+    fun testTable_withColumnWidth_min_twoWraps() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -896,7 +895,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_max_twoWraps() = withDensity(density) {
+    fun testTable_withColumnWidth_max_twoWraps() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -956,7 +955,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_custom() = withDensity(density) {
+    fun testTable_withColumnWidth_custom() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1029,7 +1028,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withDifferentRowHeights() = withDensity(density) {
+    fun testTable_withDifferentRowHeights() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1096,7 +1095,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withDifferentColumnWidths() = withDensity(density) {
+    fun testTable_withDifferentColumnWidths() = with(density) {
         val rows = 8
         val columns = 5
 
@@ -1207,7 +1206,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withDecorations() = withDensity(density) {
+    fun testTable_withDecorations() = with(density) {
         val rows = 8
         val columns = 8
         val decorations = 3
@@ -1297,7 +1296,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_flex() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_flex() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1342,7 +1341,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_wrap() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_wrap() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1387,7 +1386,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_wrap_flexible() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_wrap_flexible() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1432,7 +1431,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_minIntrinsic() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_minIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1477,7 +1476,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_maxIntrinsic() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_maxIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1522,7 +1521,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_fixed() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_fixed() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1569,7 +1568,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_fraction() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_fraction() = with(density) {
         val rows = 8
         val columns = 8
 

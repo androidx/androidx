@@ -28,8 +28,8 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.Transition
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Offset
@@ -38,7 +38,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 
 class StateBasedRippleAnimation : Activity() {
 
@@ -57,7 +56,7 @@ fun StateBasedRippleDemo() {
 
 @Composable
 fun RippleRect() {
-    val radius = withDensity(ambientDensity()) { TargetRadius.toPx() }
+    val radius = with(DensityAmbient.current) { TargetRadius.toPx() }
     val toState = state { ButtonStatus.Initial }
     val rippleTransDef = remember { createTransDef(radius.value) }
     val onPress: (PxPosition) -> Unit = { position ->

@@ -35,7 +35,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -65,7 +64,7 @@ class LayoutPaddingTest : LayoutTest() {
      * available for both content and padding.
      */
     @Test
-    fun paddingAllAppliedToChild() = withDensity(density) {
+    fun paddingAllAppliedToChild() = with(density) {
         val padding = 10.dp
         testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
             TestBox(modifier = LayoutPadding(padding), body = child)
@@ -102,7 +101,7 @@ class LayoutPaddingTest : LayoutTest() {
      * unwilling to satisfy.
      */
     @Test
-    fun insufficientSpaceAvailable() = withDensity(density) {
+    fun insufficientSpaceAvailable() = with(density) {
         val padding = 30.dp
         testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
             TestBox(modifier = LayoutPadding(padding), body = child)
@@ -110,7 +109,7 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     @Test
-    fun intrinsicMeasurements() = withDensity(density) {
+    fun intrinsicMeasurements() = with(density) {
         val padding = 100.ipx.toDp()
 
         val latch = CountDownLatch(1)
@@ -171,7 +170,7 @@ class LayoutPaddingTest : LayoutTest() {
     private fun testPaddingIsAppliedImplementation(
         padding: Dp,
         paddingContainer: @Composable() (@Composable() () -> Unit) -> Unit
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
         val paddingPx = padding.toIntPx()
@@ -217,7 +216,7 @@ class LayoutPaddingTest : LayoutTest() {
         right: Dp,
         bottom: Dp,
         paddingContainer: @Composable() ((@Composable() () -> Unit) -> Unit)
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -268,7 +267,7 @@ class LayoutPaddingTest : LayoutTest() {
     private fun testPaddingWithInsufficientSpaceImplementation(
         padding: Dp,
         paddingContainer: @Composable() (@Composable() () -> Unit) -> Unit
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
         val paddingPx = padding.toIntPx()

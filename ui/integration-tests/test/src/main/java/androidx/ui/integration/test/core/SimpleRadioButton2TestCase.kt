@@ -18,7 +18,6 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.ui.core.Draw
-import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.shape.DrawShape
@@ -35,7 +34,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 
 class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
@@ -44,9 +42,8 @@ class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
             // code below was replaced by DrawBorder but we still need it
             // in order to have honest benchmark here
             val borderModifier = DrawBorder(Border(1.dp, Color.Cyan), CircleShape)
-            val density = ambientDensity()
             Draw { canvas, size ->
-                borderModifier.draw(density, {}, canvas, size)
+                borderModifier.draw(this, {}, canvas, size)
             }
             val padding = (48.dp - getInnerSize().value) / 2
             DrawShape(PaddingShape(padding, CircleShape), Color.Cyan)
@@ -56,7 +53,7 @@ class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
 
 private data class PaddingShape(val padding: Dp, val shape: Shape) : Shape {
     override fun createOutline(size: PxSize, density: Density): Outline {
-        val twoPaddings = withDensity(density) { (padding * 2).toPx() }
+        val twoPaddings = with(density) { (padding * 2).toPx() }
         val sizeMinusPaddings = PxSize(size.width - twoPaddings, size.height - twoPaddings)
         val rawResult = shape.createOutline(sizeMinusPaddings, density)
         return rawResult.offset(twoPaddings / 2)

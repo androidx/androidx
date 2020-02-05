@@ -42,7 +42,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -55,7 +54,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class ContainerTest : LayoutTest() {
     @Test
-    fun testContainer_wrapsChild() = withDensity(density) {
+    fun testContainer_wrapsChild() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -79,7 +78,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_appliesPaddingToChild() = withDensity(density) {
+    fun testContainer_appliesPaddingToChild() = with(density) {
         val paddingDp = 20.dp
         val padding = paddingDp.toIntPx()
         val sizeDp = 50.dp
@@ -116,7 +115,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_passesConstraintsToChild() = withDensity(density) {
+    fun testContainer_passesConstraintsToChild() = with(density) {
         val sizeDp = 100.dp
         val childWidthDp = 20.dp
         val childWidth = childWidthDp.toIntPx()
@@ -178,7 +177,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_fillsAvailableSpace_whenSizeIsMax() = withDensity(density) {
+    fun testContainer_fillsAvailableSpace_whenSizeIsMax() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -223,7 +222,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_respectsIncomingMinConstraints() = withDensity(density) {
+    fun testContainer_respectsIncomingMinConstraints() = with(density) {
         // Start with an even number of IntPx to avoid rounding issues due to different DPI
         // I.e, if we fix Dp instead, it's possible that when we convert to Px, sizeDp can round
         // down but sizeDp * 2 can round up, causing a 1 pixel test error.
@@ -267,7 +266,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_hasTheRightSize_withPaddingAndNoChildren() = withDensity(density) {
+    fun testContainer_hasTheRightSize_withPaddingAndNoChildren() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -289,7 +288,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_correctlyAppliesNonSymmetricPadding() = withDensity(density) {
+    fun testContainer_correctlyAppliesNonSymmetricPadding() = with(density) {
         val childSizeDp = 50.dp
         val paddingLeft = 8.dp
         val paddingTop = 7.dp
@@ -323,7 +322,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_contentSmallerThanPaddingIsCentered() = withDensity(density) {
+    fun testContainer_contentSmallerThanPaddingIsCentered() = with(density) {
         val containerSize = 50.dp
         val padding = 10.dp
         val childSize = 5.dp

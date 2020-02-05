@@ -39,7 +39,6 @@ import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -159,7 +158,7 @@ class TabTest {
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
         composeTestRule.runOnIdleCompose {
-            withDensity(composeTestRule.density) {
+            with(composeTestRule.density) {
                 val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
                 val expectedPositionX = tabRowWidth / 2
                 assertThat(indicatorPositionX).isEqualTo(expectedPositionX.toPx())

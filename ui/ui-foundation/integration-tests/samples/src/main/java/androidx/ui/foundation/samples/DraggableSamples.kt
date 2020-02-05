@@ -19,7 +19,7 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.ambientDensity
+import androidx.ui.core.DensityAmbient
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.animatedDragValue
@@ -31,14 +31,13 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 
 @Sampled
 @Composable
 fun DraggableSample() {
     val max = 300.dp
     val min = 0.dp
-    val (minPx, maxPx) = withDensity(ambientDensity()) {
+    val (minPx, maxPx) = with(DensityAmbient.current) {
         min.toPx().value to max.toPx().value
     }
     val position = animatedDragValue(0f, minPx, maxPx)
@@ -48,7 +47,7 @@ fun DraggableSample() {
         dragDirection = DragDirection.Horizontal
     ) {
         // dragValue is the current value in progress of dragging
-        val draggedDp = withDensity(ambientDensity()) {
+        val draggedDp = with(DensityAmbient.current) {
             position.value.toDp()
         }
         val squareSize = 50.dp
@@ -69,7 +68,7 @@ fun DraggableSample() {
 fun AnchoredDraggableSample() {
     val max = 300.dp
     val min = 0.dp
-    val (minPx, maxPx) = withDensity(ambientDensity()) {
+    val (minPx, maxPx) = with(DensityAmbient.current) {
         min.toPx().value to max.toPx().value
     }
     // define anchors and related animation controller
@@ -83,9 +82,7 @@ fun AnchoredDraggableSample() {
         dragDirection = DragDirection.Horizontal,
         onDragStopped = { position.fling(flingConfig, it) }
     ) {
-        val draggedDp = withDensity(ambientDensity()) {
-            position.value.toDp()
-        }
+        val draggedDp = with(DensityAmbient.current) { position.value.toDp() }
         val squareSize = 50.dp
 
         // Draw a seekbar-like widget that has a black background

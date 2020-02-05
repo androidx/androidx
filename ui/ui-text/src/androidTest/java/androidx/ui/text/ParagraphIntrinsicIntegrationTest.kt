@@ -23,7 +23,6 @@ import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,16 +37,14 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun maxIntrinsicWidth_empty_string_is_zero() {
-        withDensity(defaultDensity) {
-            val paragraphIntrinsics = paragraphIntrinsics(text = "")
+        val paragraphIntrinsics = paragraphIntrinsics(text = "")
 
-            assertThat(paragraphIntrinsics.maxIntrinsicWidth).isZero()
-        }
+        assertThat(paragraphIntrinsics.maxIntrinsicWidth).isZero()
     }
 
     @Test
     fun maxIntrinsicWidth_with_rtl_string() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
 
@@ -63,7 +60,7 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun maxIntrinsicWidth_with_ltr_string() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
 
@@ -78,7 +75,7 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun maxIntrinsicWidth_with_line_feed() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\nabc"
             val fontSize = 50.sp
             val paragraphIntrinsics = paragraphIntrinsics(
@@ -93,7 +90,7 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun maxInstrinsicWidth_withStyledText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a bb ccc"
             val fontSize = 12.sp
             val styledFontSize = 24.sp
@@ -118,16 +115,14 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun minIntrinsicWidth_empty_string_is_zero() {
-        withDensity(defaultDensity) {
-            val paragraphIntrinsics = paragraphIntrinsics(text = "")
+        val paragraphIntrinsics = paragraphIntrinsics(text = "")
 
-            assertThat(paragraphIntrinsics.minIntrinsicWidth).isZero()
-        }
+        assertThat(paragraphIntrinsics.minIntrinsicWidth).isZero()
     }
 
     @Test
     fun minIntrinsicWidth_with_rtl_string() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
 
@@ -143,7 +138,7 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun minIntrinsicWidth_with_ltr_string() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
 
@@ -159,7 +154,7 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun minInstrinsicWidth_returns_longest_word_width() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             // create words with length 1, 2, 3... 50; and append all with space.
             val maxWordLength = 50
             val text = (1..maxWordLength).fold("") { string, next ->
@@ -179,7 +174,7 @@ class ParagraphIntrinsicIntegrationTest {
 
     @Test
     fun minInstrinsicWidth_withStyledText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a bb ccc"
             val fontSize = 12.sp
             val styledFontSize = 24.sp

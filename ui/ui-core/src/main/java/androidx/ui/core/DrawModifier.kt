@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.PxSize
 
 /**
@@ -37,11 +36,11 @@ interface DrawModifier : Modifier.Element {
  * Creates a [DrawModifier] that calls [onDraw] before the contents of the layout.
  */
 fun draw(
-    onDraw: DensityScope.(canvas: Canvas, size: PxSize) -> Unit
-): DrawModifier = object : DrawModifier, DensityScope {
+    onDraw: Density.(canvas: Canvas, size: PxSize) -> Unit
+): DrawModifier = object : DrawModifier, Density {
     private var _density: Density? = null
-    override val density: Density
-        get() = _density!!
+    override val density: Float get() = _density!!.density
+    override val fontScale: Float get() = _density!!.fontScale
 
     override fun draw(
         density: Density,
@@ -69,8 +68,8 @@ fun drawWithContent(
     onDraw: DrawReceiver.(canvas: Canvas, size: PxSize) -> Unit
 ): DrawModifier = object : DrawModifier, DrawReceiver {
     private var _density: Density? = null
-    override val density: Density
-        get() = _density!!
+    override val density: Float get() = _density!!.density
+    override val fontScale: Float get() = _density!!.fontScale
     private var drawContentFunction: (() -> Unit)? = null
 
     override fun draw(

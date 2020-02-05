@@ -31,7 +31,6 @@ import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
@@ -774,7 +773,7 @@ class DrawNode : ComponentNode() {
             invalidate()
         }
 
-    var onPaint: (DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
+    var onPaint: (Density.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
         set(value) {
             field = value
             invalidate()
@@ -824,7 +823,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
         fun minIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
@@ -833,7 +832,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
         fun minIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ): IntPx
@@ -842,7 +841,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
         fun maxIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
@@ -851,7 +850,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
         fun maxIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ): IntPx
@@ -859,25 +858,25 @@ class LayoutNode : ComponentNode(), Measurable {
 
     abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ) = error(error)
 
         override fun minIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ) = error(error)
 
         override fun maxIntrinsicWidth(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ) = error(error)
 
         override fun maxIntrinsicHeight(
-            densityScope: DensityScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ) = error(error)
@@ -902,9 +901,13 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The scope used to run the [MeasureBlocks.measure] [MeasureBlock].
      */
-    val measureScope: MeasureScope = object : InnerMeasureScope() {
-        override val density: Density
+    val measureScope: MeasureScope = object : InnerMeasureScope(), Density {
+        private val ownerDensity: Density
             get() = owner?.density ?: Density(1f)
+        override val density: Float
+            get() = ownerDensity.density
+        override val fontScale: Float
+            get() = ownerDensity.fontScale
         override val layoutNode: LayoutNode = this@LayoutNode
     }
 

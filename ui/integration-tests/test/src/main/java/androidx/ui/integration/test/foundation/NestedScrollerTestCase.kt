@@ -19,8 +19,8 @@ package androidx.ui.integration.test.foundation
 import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Text
-import androidx.ui.core.WithDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
@@ -76,7 +76,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
         val content = @Composable {
             Row(LayoutWidth.Fill) {
                 repeat(6) {
-                    WithDensity {
+                    with(DensityAmbient.current) {
                         Column(LayoutHeight.Fill) {
                             val color = remember {
                                 val red = Random.nextInt(256)

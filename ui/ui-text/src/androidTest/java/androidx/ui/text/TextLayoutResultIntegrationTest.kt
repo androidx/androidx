@@ -29,7 +29,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +45,7 @@ class TextLayoutResultIntegrationTest {
 
     @Test
     fun width_getter() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val text = "Hello"
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
@@ -54,7 +53,7 @@ class TextLayoutResultIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -88,7 +87,7 @@ class TextLayoutResultIntegrationTest {
 
     @Test
     fun height_getter() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val text = "hello"
@@ -96,7 +95,7 @@ class TextLayoutResultIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -146,7 +145,7 @@ class TextLayoutResultIntegrationTest {
 
     @Test
     fun getPositionForOffset_other_Character() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val characterIndex = 2 // Start from 0.
             val text = "Hello"
@@ -159,7 +158,7 @@ class TextLayoutResultIntegrationTest {
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Empty,
-                density = density,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )

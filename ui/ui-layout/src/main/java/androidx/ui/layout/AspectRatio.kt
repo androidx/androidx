@@ -23,7 +23,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.satisfiedBy
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -55,7 +55,7 @@ data class LayoutAspectRatio(
         require(aspectRatio > 0) { "aspectRatio $aspectRatio must be > 0" }
     }
 
-    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+    override fun Density.modifyConstraints(constraints: Constraints): Constraints {
         val size = constraints.findSizeWith(aspectRatio)
         return if (size != null)
             Constraints.fixed(size.width, size.height)
@@ -63,22 +63,22 @@ data class LayoutAspectRatio(
             constraints
     }
 
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+    override fun Density.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
         return if (height == IntPx.Infinity) measurable.minIntrinsicWidth(height)
         else height * aspectRatio
     }
 
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+    override fun Density.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
         return if (height == IntPx.Infinity) measurable.maxIntrinsicWidth(height)
         else height * aspectRatio
     }
 
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+    override fun Density.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
         return if (width == IntPx.Infinity) measurable.minIntrinsicHeight(width)
         else width / aspectRatio
     }
 
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+    override fun Density.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
         return if (width == IntPx.Infinity) measurable.maxIntrinsicHeight(width)
         else width / aspectRatio
     }

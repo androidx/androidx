@@ -19,10 +19,10 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
-import androidx.ui.core.WithDensity
 import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
@@ -57,7 +57,7 @@ private fun Ui(onDoubleTap: (PxPosition) -> Unit, onPointerInput: PointerInputHa
             Semantics(container = true) {
                 DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {
                     PointerInput(pointerInputHandler = onPointerInput, cancelHandler = {}) {
-                        WithDensity {
+                        with(DensityAmbient.current) {
                             Container(width = width.toDp(), height = height.toDp()) {
                                 DrawShape(RectangleShape, Color.Yellow)
                             }

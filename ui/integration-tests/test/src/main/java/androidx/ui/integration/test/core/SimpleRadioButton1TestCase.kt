@@ -18,7 +18,6 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.ui.core.Draw
-import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.shape.DrawShape
@@ -34,9 +33,8 @@ class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
             // code below was replaced by DrawBorder but we still need it
             // in order to have honest benchmark here
             val borderModifier = DrawBorder(Border(1.dp, Color.Cyan), CircleShape)
-            val density = ambientDensity()
             Draw { canvas, size ->
-                borderModifier.draw(density, {}, canvas, size)
+                borderModifier.draw(this, {}, canvas, size)
             }
             val innerSize = getInnerSize().value
             Container(width = innerSize, height = innerSize) {
