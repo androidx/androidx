@@ -419,18 +419,17 @@ public final class SessionCommand implements VersionedParcelable {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Volume commands (i.e. commands to {@link AudioManager} or {@link RouteMediaPlayer})
+    // Volume commands (i.e. commands to {@link AudioManager} or {@link RemoteSessionPlayer})
     ////////////////////////////////////////////////////////////////////////////////////////////////
     static final ArrayMap<Integer, List<Range>> VERSION_VOLUME_COMMANDS_MAP = new ArrayMap<>();
 
     /**
      * Command code for {@link MediaController#setVolumeTo(int, int)}.
      * <p>
-     * <p>
      * If the session doesn't reject the request through the
      * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)},
      * command would adjust the device volume. It would send to the player directly only if it's
-     * remote player. See RouteMediaPlayer for a remote player.
+     * a {@link RemoteSessionPlayer}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
@@ -442,7 +441,7 @@ public final class SessionCommand implements VersionedParcelable {
      * If the session doesn't reject the request through the
      * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)},
      * command would adjust the device volume. It would send to the player directly only if it's
-     * remote player. See RouteMediaPlayer for a remote player.
+     * a {@link RemoteSessionPlayer}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
