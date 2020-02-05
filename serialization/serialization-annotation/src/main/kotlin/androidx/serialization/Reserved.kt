@@ -16,7 +16,7 @@
 
 package androidx.serialization
 
-import kotlin.annotation.AnnotationRetention.BINARY
+import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.CLASS
 
 /**
@@ -38,7 +38,7 @@ import kotlin.annotation.AnnotationTarget.CLASS
  * @property names Message field, enum value, or service action names to reserve.
  * @property idRanges Ranges of IDs to reserve in bulk.
  */
-@Retention(BINARY)
+@Retention(SOURCE)
 @Target(CLASS)
 annotation class Reserved(
     vararg val ids: Int = [],
@@ -58,7 +58,7 @@ annotation class Reserved(
      * @property from First ID to reserve, inclusive.
      * @property to Last ID to reserve, inclusive.
      */
-    @Retention(BINARY)
+    @Retention(SOURCE)
     @Target(allowedTargets = [])
     annotation class IdRange(val from: Int, val to: Int)
 }
