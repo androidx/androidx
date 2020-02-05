@@ -786,5 +786,4 @@ public final class Camera2CameraControlTest {
 
         fail();
     }
-
 }
