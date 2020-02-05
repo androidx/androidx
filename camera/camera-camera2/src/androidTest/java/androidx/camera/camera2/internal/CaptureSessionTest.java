@@ -187,6 +187,53 @@ public final class CaptureSessionTest {
     }
 
     @Test
+    public void openCaptureSessionWithClosedSurfaceFails() {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
+
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        DeferrableSurface surface = mTestParameters0.mSessionConfig.getSurfaces().get(0);
+        surface.close();
+
+        FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
+
+        Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
+                mCameraDeviceHolder.get()), mockFutureCallback,
+                CameraXExecutors.mainThreadExecutor());
+
+        verify(mockFutureCallback, timeout(3000)).onFailure(any(Throwable.class));
+    }
+
+    @Test
+    public void captureSessionIncreasesSurfaceUseCountAfterOpen_andDecreasesAfterRelease() {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
+
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        DeferrableSurface surface = mTestParameters0.mSessionConfig.getSurfaces().get(0);
+        int useCountBeforeOpen = surface.getUseCount();
+
+        FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
+
+        Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
+                mCameraDeviceHolder.get()), mockFutureCallback,
+                CameraXExecutors.mainThreadExecutor());
+
+        verify(mockFutureCallback, timeout(3000)).onSuccess(any());
+        int useCountAfterOpen = surface.getUseCount();
+
+        reset(mockFutureCallback);
+
+        captureSession.close();
+        Futures.addCallback(captureSession.release(false), mockFutureCallback,
+                CameraXExecutors.mainThreadExecutor());
+
+        verify(mockFutureCallback, timeout(3000)).onSuccess(any());
+        int useCountAfterRelease = surface.getUseCount();
+
+        assertThat(useCountAfterOpen).isGreaterThan(useCountBeforeOpen);
+        assertThat(useCountAfterRelease).isEqualTo(useCountBeforeOpen);
+    }
+
+    @Test
     public void openCaptureSessionWithOptionOverride() throws InterruptedException {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
 

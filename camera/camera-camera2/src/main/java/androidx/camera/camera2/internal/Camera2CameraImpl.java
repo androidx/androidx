@@ -26,14 +26,15 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
@@ -46,7 +47,6 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.camera.core.impl.Observable;
@@ -71,6 +71,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
@@ -91,10 +92,10 @@ final class Camera2CameraImpl implements CameraInternal {
     private static final String TAG = "Camera";
     private static final int ERROR_NONE = 0;
 
-    private final Object mAttachedUseCaseLock = new Object();
-
-    /** Map of the use cases to the information on their state. */
-    @GuardedBy("mAttachedUseCaseLock")
+    /**
+     * Map of the use cases to the information on their state. Should only be accessed on the
+     * camera's executor.
+     */
     private final UseCaseAttachState mUseCaseAttachState;
 
     /** Handle to the camera service. */
@@ -138,10 +139,6 @@ final class Camera2CameraImpl implements CameraInternal {
     /** The session configuration of camera control. */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
-
-    private final Object mPendingLock = new Object();
-    @GuardedBy("mPendingLock")
-    private final List<UseCase> mPendingForAddOnline = new ArrayList<>();
 
     // Used to debug number of requests to release camera
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -320,7 +317,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 mCameraDevice);
         Futures.addCallback(openDummyCaptureSession, new FutureCallback<Void>() {
             @Override
-            @WorkerThread
+            @ExecutedBy("mExecutor")
             public void onSuccess(@Nullable Void result) {
                 closeStaleCaptureSessions(dummySession);
 
@@ -329,6 +326,7 @@ final class Camera2CameraImpl implements CameraInternal {
             }
 
             @Override
+            @ExecutedBy("mExecutor")
             public void onFailure(Throwable t) {
                 Log.d(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
                         + " due to " + t.getMessage());
@@ -340,6 +338,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mExecutor")
     void releaseDummySession(CaptureSession dummySession, Runnable closeAndCleanupRunner) {
         // Config complete and remove the dummySession from the mConfiguringForClose map
         // after resetCaptureSession and before release the dummySession.
@@ -354,6 +353,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @WorkerThread
     boolean isSessionCloseComplete() {
         return mReleasedCaptureSessions.isEmpty() && mConfiguringForClose.isEmpty();
     }
@@ -361,6 +361,7 @@ final class Camera2CameraImpl implements CameraInternal {
     // This will notify futures of completion.
     // Should only be called once the camera device is actually closed.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @WorkerThread
     void finishClose() {
         Preconditions.checkState(mState == InternalState.RELEASING
                 || mState == InternalState.CLOSING);
@@ -581,11 +582,8 @@ final class Camera2CameraImpl implements CameraInternal {
         Log.d(TAG,
                 "Use case " + useCase + " ACTIVE for camera " + mCameraInfoInternal.getCameraId());
 
-        synchronized (mAttachedUseCaseLock) {
-            reattachUseCaseSurfaces(useCase);
-            mUseCaseAttachState.setUseCaseActive(useCase);
-            mUseCaseAttachState.updateUseCase(useCase);
-        }
+        mUseCaseAttachState.setUseCaseActive(useCase);
+        mUseCaseAttachState.updateUseCase(useCase);
         updateCaptureSessionConfig();
     }
 
@@ -604,9 +602,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         Log.d(TAG, "Use case " + useCase + " INACTIVE for camera "
                 + mCameraInfoInternal.getCameraId());
-        synchronized (mAttachedUseCaseLock) {
-            mUseCaseAttachState.setUseCaseInactive(useCase);
-        }
+        mUseCaseAttachState.setUseCaseInactive(useCase);
 
         updateCaptureSessionConfig();
     }
@@ -626,10 +622,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         Log.d(TAG,
                 "Use case " + useCase + " UPDATED for camera " + mCameraInfoInternal.getCameraId());
-        synchronized (mAttachedUseCaseLock) {
-            reattachUseCaseSurfaces(useCase);
-            mUseCaseAttachState.updateUseCase(useCase);
-        }
+        mUseCaseAttachState.updateUseCase(useCase);
 
         updateCaptureSessionConfig();
     }
@@ -648,47 +641,33 @@ final class Camera2CameraImpl implements CameraInternal {
 
         Log.d(TAG,
                 "Use case " + useCase + " RESET for camera " + mCameraInfoInternal.getCameraId());
-        synchronized (mAttachedUseCaseLock) {
-            reattachUseCaseSurfaces(useCase);
-            mUseCaseAttachState.updateUseCase(useCase);
-        }
+        mUseCaseAttachState.updateUseCase(useCase);
 
         resetCaptureSession(/*abortInFlightCaptures=*/false);
         updateCaptureSessionConfig();
         openCaptureSession();
     }
 
-    // Re-attaches use case's surfaces if surfaces are changed when use case is online.
-    @GuardedBy("mAttachedUseCaseLock")
-    private void reattachUseCaseSurfaces(UseCase useCase) {
-        // if use case is offline, then DeferrableSurface attaching will happen when the use
-        // case is addOnlineUsecase()'d.   So here we don't need to do the attaching.
-        if (!isUseCaseOnline(useCase)) {
-            return;
-        }
-        SessionConfig sessionConfig = mUseCaseAttachState.getUseCaseSessionConfig(useCase);
-        SessionConfig newSessionConfig = useCase.getSessionConfig(
-                mCameraInfoInternal.getCameraId());
-
-        List<DeferrableSurface> currentSurfaces = sessionConfig.getSurfaces();
-        List<DeferrableSurface> newSurfaces = newSessionConfig.getSurfaces();
-
-        // Increment use count of surfaces in the new session config. If this fails then a new
-        // surface has already been closed and we can notify the surface of an error. If this
-        // succeeds, then we can decrement the use count of the old surfaces which will only leave
-        // the new surfaces and remaining surfaces with a net-positive use count. Surfaces which
-        // no longer remain should have their use-count decremented and they may be safely
-        // terminated.
-        if (DeferrableSurfaces.tryIncrementAll(newSurfaces)) {
-            DeferrableSurfaces.decrementAll(currentSurfaces);
-        } else {
-            postSurfaceClosedError(useCase);
-        }
-    }
-
-    public boolean isUseCaseOnline(UseCase useCase) {
-        synchronized (mAttachedUseCaseLock) {
-            return mUseCaseAttachState.isUseCaseOnline(useCase);
+    /**
+     * Returns whether the provided {@link UseCase} is considered online.
+     *
+     * <p>This method should only be used by tests. This will post to the Camera's thread and
+     * block until completion.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    boolean isUseCaseOnline(@NonNull UseCase useCase) {
+        try {
+            return CallbackToFutureAdapter.<Boolean>getFuture(completer -> {
+                if (!mHandler.post(
+                        () -> completer.set(mUseCaseAttachState.isUseCaseOnline(useCase)))) {
+                    completer.setException(new RuntimeException("Unable to check if use case is "
+                            + "online. Camera handler shut down."));
+                }
+                return "isUseCaseOnline";
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Unable to check if use case is online.", e);
         }
     }
 
@@ -697,70 +676,33 @@ final class Camera2CameraImpl implements CameraInternal {
      * capture requests from the use case.
      */
     @Override
-    public void addOnlineUseCase(@NonNull final Collection<UseCase> useCases) {
-        if (useCases.isEmpty()) {
-            return;
-        }
-
-        // Attaches the surfaces of use case to the Camera (prevent from surface abandon crash)
-        // addOnlineUseCase could be called with duplicate use case, so we need to filter out
-        // use cases that are either pending for addOnline or are already online.
-        // It's ok for two thread to run here, since it‘ll do nothing if use case is already
-        // pending.
-        Set<UseCase> validUseCases = new HashSet<>(useCases);
-        String cameraId = mCameraInfoInternal.getCameraId();
-        synchronized (mPendingLock) {
-            for (UseCase useCase : useCases) {
-                boolean isOnline = isUseCaseOnline(useCase);
-                if (mPendingForAddOnline.contains(useCase) || isOnline) {
-                    continue;
-                }
-
-                SessionConfig sessionConfig = useCase.getSessionConfig(cameraId);
-                List<DeferrableSurface> useCaseSurfaces = sessionConfig.getSurfaces();
-                if (DeferrableSurfaces.tryIncrementAll(useCaseSurfaces)) {
-                    mPendingForAddOnline.add(useCase);
-                } else {
-                    // Failed to increment use count for use case. Post error for this use case.
-                    validUseCases.remove(useCase);
-                    postSurfaceClosedError(useCase);
-                }
-            }
-        }
-
-        // CameraControl is active when there are any online use cases.
-        if (!validUseCases.isEmpty()) {
+    public void addOnlineUseCase(@NonNull Collection<UseCase> useCases) {
+        if (!useCases.isEmpty()) {
             mCameraControlInternal.setActive(true);
-        } else {
-            // No valid use cases, so no need to continue.
-            return;
+            mHandler.post(() -> tryAddOnlineUseCases(useCases));
         }
+    }
 
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.addOnlineUseCase(validUseCases);
-                }
-            });
-            return;
-        }
-
-        Log.d(TAG, "Use cases " + validUseCases + " ONLINE for camera "
-                + mCameraInfoInternal.getCameraId());
+    // Attempts to make use cases online if they are not already online.
+    @ExecutedBy("mHandler")
+    private void tryAddOnlineUseCases(@NonNull Collection<UseCase> toAdd) {
+        // Figure out which use cases are not already online and add them.
         List<UseCase> useCasesChangedToOnline = new ArrayList<>();
-        synchronized (mAttachedUseCaseLock) {
-            for (UseCase useCase : validUseCases) {
-                if (!isUseCaseOnline(useCase)) {
-                    mUseCaseAttachState.setUseCaseOnline(useCase);
-                    useCasesChangedToOnline.add(useCase);
-                }
+        String cameraId = mCameraInfoInternal.getCameraId();
+        for (UseCase useCase : toAdd) {
+            if (!mUseCaseAttachState.isUseCaseOnline(useCase)) {
+                useCasesChangedToOnline.add(useCase);
+                mUseCaseAttachState.setUseCaseOnline(useCase);
             }
         }
 
-        synchronized (mPendingLock) {
-            mPendingForAddOnline.removeAll(validUseCases);
+        if (useCasesChangedToOnline.isEmpty()) {
+            return;
         }
+
+        Log.d(TAG, "Use cases [" + TextUtils.join(", ", useCasesChangedToOnline)
+                + "] now ONLINE for camera "
+                + cameraId);
 
         notifyStateOnlineToUseCases(useCasesChangedToOnline);
 
@@ -773,7 +715,7 @@ final class Camera2CameraImpl implements CameraInternal {
             open();
         }
 
-        updateCameraControlPreviewAspectRatio(validUseCases);
+        updateCameraControlPreviewAspectRatio(useCasesChangedToOnline);
     }
 
     private void notifyStateOnlineToUseCases(List<UseCase> useCases) {
@@ -792,6 +734,7 @@ final class Camera2CameraImpl implements CameraInternal {
         });
     }
 
+    @ExecutedBy("mHandler")
     private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
@@ -804,6 +747,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
+    @ExecutedBy("mHandler")
     private void clearCameraControlPreviewAspectRatio(Collection<UseCase> removedUseCases) {
         for (UseCase useCase : removedUseCases) {
             if (useCase instanceof Preview) {
@@ -818,55 +762,47 @@ final class Camera2CameraImpl implements CameraInternal {
      * handle capture requests from the use case.
      */
     @Override
-    public void removeOnlineUseCase(@NonNull final Collection<UseCase> useCases) {
-        if (useCases.isEmpty()) {
-            return;
+    public void removeOnlineUseCase(@NonNull Collection<UseCase> useCases) {
+        if (!useCases.isEmpty()) {
+            mHandler.post(() -> tryRemoveOnlineUseCases(useCases));
         }
+    }
 
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.removeOnlineUseCase(useCases);
-                }
-            });
-            return;
-        }
-
-        Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera "
-                + mCameraInfoInternal.getCameraId());
-        clearCameraControlPreviewAspectRatio(useCases);
-        synchronized (mAttachedUseCaseLock) {
-            List<UseCase> useCasesChangedToOffline = new ArrayList<>();
-            for (UseCase useCase : useCases) {
-                if (mUseCaseAttachState.isUseCaseOnline(useCase)) {
-                    useCasesChangedToOffline.add(useCase);
-                }
+    // Attempts to make use cases offline if they are online.
+    @ExecutedBy("mHandler")
+    private void tryRemoveOnlineUseCases(@NonNull Collection<UseCase> toRemove) {
+        List<UseCase> useCasesChangedToOffline = new ArrayList<>();
+        for (UseCase useCase : toRemove) {
+            if (mUseCaseAttachState.isUseCaseOnline(useCase)) {
                 mUseCaseAttachState.setUseCaseOffline(useCase);
-            }
-
-            String cameraId = mCameraInfoInternal.getCameraId();
-            for (UseCase detach : useCasesChangedToOffline) {
-                DeferrableSurfaces.decrementAll(detach.getSessionConfig(cameraId).getSurfaces());
-            }
-
-            notifyStateOfflineToUseCases(useCasesChangedToOffline);
-
-            if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
-                mCameraControlInternal.setActive(false);
-                resetCaptureSession(/*abortInFlightCaptures=*/false);
-                close();
-                return;
+                useCasesChangedToOffline.add(useCase);
             }
         }
 
-        updateCaptureSessionConfig();
-        resetCaptureSession(/*abortInFlightCaptures=*/false);
-
-        if (mState == InternalState.OPENED) {
-            openCaptureSession();
+        if (useCasesChangedToOffline.isEmpty()) {
+            return;
         }
 
+        Log.d(TAG, "Use cases [" + TextUtils.join(", ", useCasesChangedToOffline)
+                + "] now OFFLINE for camera "
+                + mCameraInfoInternal.getCameraId());
+        clearCameraControlPreviewAspectRatio(useCasesChangedToOffline);
+
+        notifyStateOfflineToUseCases(useCasesChangedToOffline);
+
+        boolean allUseCasesOffline = mUseCaseAttachState.getOnlineUseCases().isEmpty();
+        if (allUseCasesOffline) {
+            mCameraControlInternal.setActive(false);
+            resetCaptureSession(/*abortInFlightCaptures=*/false);
+            close();
+        } else {
+            updateCaptureSessionConfig();
+            resetCaptureSession(/*abortInFlightCaptures=*/false);
+
+            if (mState == InternalState.OPENED) {
+                openCaptureSession();
+            }
+        }
     }
 
     /** Returns an interface to retrieve characteristics of the camera. */
@@ -880,6 +816,7 @@ final class Camera2CameraImpl implements CameraInternal {
     // TODO(b/124268878): Handle SecurityException and require permission in manifest.
     @SuppressLint("MissingPermission")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @WorkerThread
     void openCameraDevice() {
         // Check that we have an available camera to open here before attempting
         // to open the camera again.
@@ -911,10 +848,7 @@ final class Camera2CameraImpl implements CameraInternal {
     // TODO(b/115747543): mExecutor currently wraps mHandler, so this
     // handles mExecutor and mHandler. Replace with mExecutor once mHandler is removed.
     void updateCaptureSessionConfig() {
-        ValidatingBuilder validatingBuilder;
-        synchronized (mAttachedUseCaseLock) {
-            validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
-        }
+        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
 
         if (validatingBuilder.isValid()) {
             // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able
@@ -932,13 +866,11 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>The previously opened session will be safely disposed of before the new session opened.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @WorkerThread
     void openCaptureSession() {
         Preconditions.checkState(mState == InternalState.OPENED);
 
-        ValidatingBuilder validatingBuilder;
-        synchronized (mAttachedUseCaseLock) {
-            validatingBuilder = mUseCaseAttachState.getOnlineBuilder();
-        }
+        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getOnlineBuilder();
         if (!validatingBuilder.isValid()) {
             Log.d(TAG, "Unable to create capture session due to conflicting configurations");
             return;
@@ -949,12 +881,13 @@ final class Camera2CameraImpl implements CameraInternal {
                 mCameraDevice);
         Futures.addCallback(openCaptureSession, new FutureCallback<Void>() {
             @Override
-            @WorkerThread
+            @ExecutedBy("mExecutor")
             public void onSuccess(@Nullable Void result) {
                 closeStaleCaptureSessions(captureSession);
             }
 
             @Override
+            @ExecutedBy("mExecutor")
             public void onFailure(Throwable t) {
                 if (t instanceof CameraAccessException) {
                     Log.d(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
@@ -1004,21 +937,22 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
+    @ExecutedBy("mExecutor")
     UseCase findUseCaseForSurface(@NonNull DeferrableSurface surface) {
-        synchronized (mAttachedUseCaseLock) {
-            for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
-                SessionConfig sessionConfig = useCase.getSessionConfig(
-                        mCameraInfoInternal.getCameraId());
-                if (sessionConfig.getSurfaces().contains(surface)) {
-                    return useCase;
-                }
+        for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
+            SessionConfig sessionConfig = useCase.getSessionConfig(
+                    mCameraInfoInternal.getCameraId());
+            if (sessionConfig.getSurfaces().contains(surface)) {
+                return useCase;
             }
         }
 
         return null;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void postSurfaceClosedError(@NonNull UseCase useCase) {
         Executor executor = CameraXExecutors.mainThreadExecutor();
         SessionConfig sessionConfigError = useCase.getSessionConfig(
@@ -1061,17 +995,16 @@ final class Camera2CameraImpl implements CameraInternal {
         releaseSession(oldCaptureSession, /*abortInFlightCaptures=*/abortInFlightCaptures);
     }
 
+    @WorkerThread
     private CameraDevice.StateCallback createDeviceStateCallback() {
-        synchronized (mAttachedUseCaseLock) {
-            SessionConfig config = mUseCaseAttachState.getOnlineBuilder().build();
+        SessionConfig config = mUseCaseAttachState.getOnlineBuilder().build();
 
-            List<CameraDevice.StateCallback> configuredStateCallbacks =
-                    config.getDeviceStateCallbacks();
-            List<CameraDevice.StateCallback> allStateCallbacks =
-                    new ArrayList<>(configuredStateCallbacks);
-            allStateCallbacks.add(mStateCallback);
-            return CameraDeviceStateCallbacks.createComboCallback(allStateCallbacks);
-        }
+        List<CameraDevice.StateCallback> configuredStateCallbacks =
+                config.getDeviceStateCallbacks();
+        List<CameraDevice.StateCallback> allStateCallbacks =
+                new ArrayList<>(configuredStateCallbacks);
+        allStateCallbacks.add(mStateCallback);
+        return CameraDeviceStateCallbacks.createComboCallback(allStateCallbacks);
     }
 
     /**
@@ -1081,16 +1014,14 @@ final class Camera2CameraImpl implements CameraInternal {
      * @param captureConfigBuilder the configuration builder to attach repeating surfaces.
      * @return true if repeating surfaces have been successfully attached, otherwise false.
      */
+    @ExecutedBy("mExecutor")
     private boolean checkAndAttachRepeatingSurface(CaptureConfig.Builder captureConfigBuilder) {
         if (!captureConfigBuilder.getSurfaces().isEmpty()) {
             Log.w(TAG, "The capture config builder already has surface inside.");
             return false;
         }
 
-        Collection<UseCase> activeUseCases;
-        synchronized (mAttachedUseCaseLock) {
-            activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
-        }
+        Collection<UseCase> activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
 
         for (UseCase useCase : activeUseCases) {
             SessionConfig sessionConfig = useCase.getSessionConfig(
@@ -1234,6 +1165,7 @@ final class Camera2CameraImpl implements CameraInternal {
         RELEASED
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     void setState(InternalState state) {
         Log.d(TAG, "Transitioning camera internal state: " + mState + " --> " + state);
@@ -1266,7 +1198,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    String getErrorMessage(int errorCode) {
+    static String getErrorMessage(int errorCode) {
         switch (errorCode) {
             case ERROR_NONE:
                 return "ERROR_NONE";
@@ -1288,6 +1220,7 @@ final class Camera2CameraImpl implements CameraInternal {
     final class StateCallback extends CameraDevice.StateCallback {
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onOpened(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onOpened(): " + cameraDevice.getId());
             mCameraDevice = cameraDevice;
@@ -1316,6 +1249,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onClosed(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onClosed(): " + cameraDevice.getId());
             Preconditions.checkState(mCameraDevice == null,
@@ -1335,6 +1269,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onDisconnected(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onDisconnected(): " + cameraDevice.getId());
 
@@ -1353,6 +1288,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onError(@NonNull CameraDevice cameraDevice, int error) {
             // onError could be called before onOpened if there is an error opening the camera
             // during initialization, so keep track of it here.
@@ -1381,6 +1317,7 @@ final class Camera2CameraImpl implements CameraInternal {
             }
         }
 
+        @ExecutedBy("mExecutor")
         private void handleErrorOnOpen(@NonNull CameraDevice cameraDevice, int error) {
             Preconditions.checkState(
                     mState == InternalState.OPENING || mState == InternalState.OPENED
@@ -1410,7 +1347,7 @@ final class Camera2CameraImpl implements CameraInternal {
             }
         }
 
-
+        @ExecutedBy("mExecutor")
         private void reopenCameraAfterError() {
             // After an error, we must close the current camera device before we can open a new
             // one. To accomplish this, we will close the current camera and wait for the
@@ -1466,6 +1403,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onCameraAvailable(@NonNull String cameraId) {
             if (!mCameraId.equals(cameraId)) {
                 // Ignore availability for other cameras
@@ -1480,6 +1418,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onCameraUnavailable(@NonNull String cameraId) {
             if (!mCameraId.equals(cameraId)) {
                 // Ignore availability for other cameras
@@ -1491,6 +1430,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onNewData(@Nullable Integer value) {
             Preconditions.checkNotNull(value);
             if (value != mNumAvailableCameras) {
@@ -1503,6 +1443,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         @Override
+        @ExecutedBy("mExecutor")
         public void onError(@NonNull Throwable t) {
             // No errors expected from available cameras yet. May need to be handled in the future.
         }
@@ -1510,6 +1451,7 @@ final class Camera2CameraImpl implements CameraInternal {
         /**
          * True if a camera is potentially available.
          */
+        @ExecutedBy("mExecutor")
         boolean isCameraAvailable() {
             return mCameraAvailable && mNumAvailableCameras > 0;
         }
