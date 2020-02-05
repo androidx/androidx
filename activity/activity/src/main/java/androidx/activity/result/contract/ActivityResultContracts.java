@@ -16,21 +16,27 @@
 
 package androidx.activity.result.contract;
 
-import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.ACTION_REQUEST_PERMISSIONS;
-import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.EXTRA_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.EXTRA_PERMISSION_GRANT_RESULTS;
 
+import static java.util.Collections.emptyMap;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Process;
 import android.provider.MediaStore;
 
 import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
+import androidx.core.content.ContextCompat;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,13 +61,14 @@ public class ActivityResultContracts {
 
         @NonNull
         @Override
-        public Intent createIntent(@NonNull Intent input) {
+        public Intent createIntent(@NonNull Context context, @NonNull Intent input) {
             return input;
         }
 
         @NonNull
         @Override
-        public ActivityResult parseResult(int resultCode, @Nullable Intent intent) {
+        public ActivityResult parseResult(
+                int resultCode, @Nullable Intent intent) {
             return new ActivityResult(resultCode, intent);
         }
     }
@@ -108,25 +115,54 @@ public class ActivityResultContracts {
 
         @NonNull
         @Override
-        public Intent createIntent(@NonNull String[] input) {
-            return new Intent(ACTION_REQUEST_PERMISSIONS).putExtra(EXTRA_PERMISSIONS, input);
+        public Intent createIntent(@NonNull Context context, @NonNull String[] input) {
+            return createIntent(input);
+        }
+
+        @Override
+        public @Nullable SynchronousResult<Map<String, Boolean>> getSynchronousResult(
+                @NonNull Context context, @Nullable String[] input) {
+
+            if (input == null || input.length == 0) {
+                return new SynchronousResult<Map<String, Boolean>>(Collections.<String, Boolean>emptyMap());
+            }
+
+            Map<String, Boolean> grantState = new ArrayMap<>();
+            boolean allGranted = true;
+            for (String permission : input) {
+                boolean granted = ContextCompat.checkSelfPermission(context, permission)
+                        == PackageManager.PERMISSION_GRANTED;
+                grantState.put(permission, granted);
+                if (!granted) allGranted = false;
+            }
+
+            if (allGranted) {
+                return new SynchronousResult<Map<String, Boolean>>(grantState);
+            }
+            return null;
         }
 
         @NonNull
         @Override
-        public Map<String, Boolean> parseResult(int resultCode, @Nullable Intent intent) {
-            if (resultCode != Activity.RESULT_OK) return Collections.emptyMap();
-            if (intent == null) return Collections.emptyMap();
+        public Map<String, Boolean> parseResult(int resultCode,
+                @Nullable Intent intent) {
+            if (resultCode != Activity.RESULT_OK) return emptyMap();
+            if (intent == null) return emptyMap();
 
             String[] permissions = intent.getStringArrayExtra(EXTRA_PERMISSIONS);
             int[] grantResults = intent.getIntArrayExtra(EXTRA_PERMISSION_GRANT_RESULTS);
-            if (grantResults == null || permissions == null) return Collections.emptyMap();
+            if (grantResults == null || permissions == null) return emptyMap();
 
             Map<String, Boolean> result = new HashMap<String, Boolean>();
             for (int i = 0, size = permissions.length; i < size; i++) {
                 result.put(permissions[i], grantResults[i] == PackageManager.PERMISSION_GRANTED);
             }
             return result;
+        }
+
+        @NonNull
+        static Intent createIntent(@NonNull String[] input) {
+            return new Intent(ACTION_REQUEST_PERMISSIONS).putExtra(EXTRA_PERMISSIONS, input);
         }
     }
 
@@ -137,7 +173,7 @@ public class ActivityResultContracts {
 
         @NonNull
         @Override
-        public Intent createIntent(@NonNull String input) {
+        public Intent createIntent(@NonNull Context context, @NonNull String input) {
             return new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:" + input));
         }
 
@@ -155,9 +191,8 @@ public class ActivityResultContracts {
 
         @NonNull
         @Override
-        public Intent createIntent(@NonNull String input) {
-            return new Intent(ACTION_REQUEST_PERMISSIONS)
-                    .putExtra(EXTRA_PERMISSIONS, new String[] { input });
+        public Intent createIntent(@NonNull Context context, @NonNull String input) {
+            return RequestPermissions.createIntent(new String[] { input });
         }
 
         @NonNull
@@ -169,6 +204,20 @@ public class ActivityResultContracts {
             if (grantResults == null) return false;
             return grantResults[0] == PackageManager.PERMISSION_GRANTED;
         }
+
+        @Override
+        public @Nullable SynchronousResult<Boolean> getSynchronousResult(
+                @NonNull Context context, @Nullable String input) {
+            if (input == null) {
+                return new SynchronousResult<Boolean>(false);
+            } else if (ContextCompat.checkSelfPermission(context, input)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return new SynchronousResult<Boolean>(true);
+            } else {
+                // proceed with permission request
+                return null;
+            }
+        }
     }
 
     /**
@@ -179,7 +228,7 @@ public class ActivityResultContracts {
 
         @NonNull
         @Override
-        public Intent createIntent(@Nullable Void input) {
+        public Intent createIntent(@NonNull Context context, @Nullable Void input) {
             return new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         }
 
