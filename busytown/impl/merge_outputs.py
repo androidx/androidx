@@ -44,20 +44,16 @@ def main():
 
 def parse_arguments():
     things_to_merge = []
-    dist_dir = "out/dist"
     for arg in sys.argv:
         if any(arg.endswith(SKIPPED_SUFFIX) for SKIPPED_SUFFIX in SKIPPED_ARG_SUFFIXES): continue
         elif arg in MERGE_COMMANDS:
             things_to_merge.append(arg)
-        elif "dist_dir" in arg.lower():
-            dist_dir = arg.split("=")[1]
-            dist_dir = remove_suffix(dist_dir, '/')
-            dist_dir = remove_suffix(dist_dir, '/ui')
         elif any(help_keyword in arg for help_keyword in HELP_SYNTAX_LIST):
             usage()
         else:
             print("ERROR:", arg, "is an invalid keyword")
             usage()
+    dist_dir = os.environ['DIST_DIR'] if 'DIST_DIR' in os.environ else "out/dist"
     return things_to_merge, dist_dir
 
 def move_to_dist_dir(dist_dir):
