@@ -52,6 +52,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
@@ -133,7 +134,7 @@ public class CameraXActivity extends AppCompatActivity
     @SuppressWarnings("WeakerAccess")
     ListenableFuture<Void> mSurfaceReleaseFuture;
     @SuppressWarnings("WeakerAccess")
-    CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
+    SurfaceRequest mSurfaceRequest;
 
 
     // Espresso testing variables
@@ -227,21 +228,21 @@ public class CameraXActivity extends AppCompatActivity
         Log.d(TAG, "enablePreview");
 
         mPreview.setSurfaceProvider(
-                (resolution, surfaceReleaseFuture) -> {
-                    mResolution = resolution;
-                    mSurfaceReleaseFuture = surfaceReleaseFuture;
+                (surfaceRequest) -> {
+                    mResolution = surfaceRequest.getResolution();
 
-                    return CallbackToFutureAdapter.getFuture(
-                            completer -> {
-                                completer.addCancellationListener(() -> {
-                                    Preconditions.checkState(mSurfaceCompleter == completer);
-                                    mSurfaceCompleter = null;
+                    if (mSurfaceRequest != null) {
+                        mSurfaceRequest.setWillNotComplete();
+                    }
+                    mSurfaceRequest = surfaceRequest;
+                    mSurfaceRequest.addRequestCancellationListener(
+                            ContextCompat.getMainExecutor(mTextureView.getContext()), () -> {
+                                if (mSurfaceRequest != null && mSurfaceRequest == surfaceRequest) {
+                                    mSurfaceRequest = null;
                                     mSurfaceReleaseFuture = null;
-                                }, ContextCompat.getMainExecutor(mTextureView.getContext()));
-                                mSurfaceCompleter = completer;
-                                tryToProvidePreviewSurface();
-                                return "provide preview surface";
+                                }
                             });
+                    tryToProvidePreviewSurface();
                 });
 
         resetViewIdlingResource();
@@ -753,7 +754,7 @@ public class CameraXActivity extends AppCompatActivity
 
             /**
              * If a surface has been provided to the camera (meaning
-             * {@link CameraXActivity#mSurfaceCompleter} is null), but the camera
+             * {@link CameraXActivity#mSurfaceRequest} is null), but the camera
              * is still using it (meaning {@link CameraXActivity#mSurfaceReleaseFuture} is
              * not null), a listener must be added to
              * {@link CameraXActivity#mSurfaceReleaseFuture} to ensure the surface
@@ -765,7 +766,7 @@ public class CameraXActivity extends AppCompatActivity
             @Override
             public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
                 mSurfaceTexture = null;
-                if (mSurfaceCompleter == null && mSurfaceReleaseFuture != null) {
+                if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
                     mSurfaceReleaseFuture.addListener(surfaceTexture::release,
                             ContextCompat.getMainExecutor(mTextureView.getContext()));
                     return false;
@@ -843,23 +844,22 @@ public class CameraXActivity extends AppCompatActivity
           - The surfaceCompleter has been set (after CallbackToFutureAdapter
           .Resolver#attachCompleter is invoked).
          */
-        if (mResolution == null || mSurfaceTexture == null || mSurfaceCompleter == null) {
+        if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
             return;
         }
 
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
 
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceReleaseFuture;
+        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.setSurface(surface);
+        mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             surface.release();
             if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
                 mSurfaceReleaseFuture = null;
             }
         }, ContextCompat.getMainExecutor(mTextureView.getContext()));
-
-        mSurfaceCompleter.set(surface);
-        mSurfaceCompleter = null;
+        mSurfaceRequest = null;
 
         transformPreview(mResolution);
     }

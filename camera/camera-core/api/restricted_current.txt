@@ -394,13 +394,25 @@ package androidx.camera.core {
   }
 
   public static interface Preview.SurfaceProvider {
-    method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> provideSurface(android.util.Size, com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>);
+    method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
   }
 
   public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public SurfaceOrientedMeteringPointFactory(float, float);
     ctor public SurfaceOrientedMeteringPointFactory(float, float, androidx.camera.core.UseCase);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected android.graphics.PointF convertPoint(float, float);
+  }
+
+  public final class SurfaceRequest {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SurfaceRequest(android.util.Size);
+    method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.DeferrableSurface getDeferrableSurface();
+    method public android.util.Size getResolution();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setSurface(android.view.Surface);
+    method public boolean setWillNotComplete();
+  }
+
+  public static final class SurfaceRequest.RequestCancelledException extends java.lang.RuntimeException {
   }
 
   public class TorchState {

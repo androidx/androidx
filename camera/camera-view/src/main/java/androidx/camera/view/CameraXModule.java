@@ -243,23 +243,22 @@ final class CameraXModule {
         mPreviewBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
         mPreview = mPreviewBuilder.build();
-        mPreview.setSurfaceProvider((resolution, safeToCancelFuture) -> {
+        mPreview.setSurfaceProvider(surfaceRequest -> {
             // The PreviewSurfaceProvider#createSurfaceFuture() might come asynchronously.
             // It cannot guarantee the callback time, so we store the resolution result in
             // the listenableFuture.
+            Size resolution = surfaceRequest.getResolution();
             mResolutionUpdateCompleter.set(resolution);
             // Create SurfaceTexture and Surface.
             SurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(0, resolution);
-            surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
-                    resolution.getHeight());
+            surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
             surfaceTexture.detachFromGLContext();
             CameraXModule.this.setSurfaceTexture(surfaceTexture);
             Surface surface = new Surface(surfaceTexture);
-            safeToCancelFuture.addListener(() -> {
+            surfaceRequest.setSurface(surface).addListener(() -> {
                 surface.release();
                 surfaceTexture.release();
             }, CameraXExecutors.directExecutor());
-            return Futures.immediateFuture(surface);
         });
 
         CameraSelector cameraSelector =
