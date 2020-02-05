@@ -26,6 +26,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.lang.java.JavaLanguage
 import org.jetbrains.uast.UClass
 import java.util.EnumSet
 
@@ -61,19 +62,31 @@ class ComponentInitializerConstructorDetector : Detector(), SourceCodeScanner {
             return
         }
 
-        if (!declaration.isInterface) {
-            for (constructor in declaration.constructors) {
-                if (!constructor.hasParameters()) {
-                    // Found a no argument constructor.
-                    return
-                }
-            }
-            val location = context.getLocation(declaration.javaPsi)
-            context.report(
-                issue = ISSUE,
-                location = location,
-                message = DESCRIPTION
-            )
+        if (declaration.isInterface) {
+            return
         }
+
+        // isJava() is available in the latest Lint APIs but not the LINT_MIN API
+        val isJava = declaration.javaPsi.language == JavaLanguage.INSTANCE
+
+        if (isJava && declaration.constructors.isEmpty()) {
+            // Java classes have a default no-arg constructor
+            return
+        }
+
+        for (constructor in declaration.constructors) {
+            if (!constructor.hasParameters()) {
+                // Found a no argument constructor.
+                return
+            }
+        }
+
+        // Did not find any no-arg constructors
+        val location = context.getLocation(declaration.javaPsi)
+        context.report(
+            issue = ISSUE,
+            location = location,
+            message = DESCRIPTION
+        )
     }
 }

@@ -18,18 +18,32 @@ package androidx.startup.lint
 
 import androidx.startup.lint.Stubs.COMPONENT_INITIALIZER
 import androidx.startup.lint.Stubs.TEST_COMPONENT
+import androidx.startup.lint.Stubs.TEST_COMPONENT_JAVA
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
 class ComponentInitializerConstructorTest {
+
     @Test
     fun testSuccessWhenNoArgumentConstructorIsPresent() {
         lint()
             .files(
                 COMPONENT_INITIALIZER,
                 TEST_COMPONENT
+            )
+            .issues(ComponentInitializerConstructorDetector.ISSUE)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testSuccessWhenNoArgumentConstructorIsPresentJava() {
+        lint()
+            .files(
+                COMPONENT_INITIALIZER,
+                TEST_COMPONENT_JAVA
             )
             .issues(ComponentInitializerConstructorDetector.ISSUE)
             .run()
