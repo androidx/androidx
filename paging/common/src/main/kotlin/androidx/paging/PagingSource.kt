@@ -35,82 +35,92 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
     )
 
 /**
- * Base class for an abstraction of pageable static data from some source, where loading pages data
- * is typically an expensive operation. Some examples of common [PagingSource]s might be from network
- * or from a database.
+ * Base class for an abstraction of pageable static data from some source, where loading pages
+ * of data is typically an expensive operation. Some examples of common [PagingSource]s might be
+ * from network or from a database.
  *
- * This class was designed with the intent of being used as input into a [PagedList], which queries
- * snapshots of pages of data from a [PagingSource]. A [PagedList] can grow as it loads more data,
- * but the data loaded cannot be updated. If the underlying data set is modified, a new [PagedList]
- * must be created to represent the new data.
+ * An instance of a [PagingSource] is used to load pages of data for an instance of [PagingData].
+ *
+ * A [PagingData] can grow as it loads more data, but the data loaded cannot be updated. If the
+ * underlying data set is modified, a new [PagingSource] / [PagingData] pair must be created to
+ * represent an updated snapshot of the data.
  *
  * <h4>Loading Pages</h4>
  *
- * [PagedList] queries data from its [PagingSource] in response to loading hints.
- * [androidx.paging.PagedListAdapter] calls [PagedList.loadAround] to load content as the user
- * scrolls in a `RecyclerView`.
+ * [PagingData] queries data from its [PagingSource] in response to loading hints generated as
+ * the user scrolls in a `RecyclerView`.
  *
- * To control how and when a [PagedList] queries data from its [PagingSource], see
- * [PagedList.Config]. The [Config][PagedList.Config] object defines things like load sizes and
- * prefetch distance.
+ * To control how and when a [PagingData] queries data from its [PagingSource], see [PagingConfig],
+ * which defines behavior such as [PagingConfig.pageSize] and [PagingConfig.prefetchDistance].
  *
- * <h4>Updating Paged Data</h4>
+ * <h4>Updating Data</h4>
  *
- * A [PagedList] is a snapshot of the data set. A new [PagedList] must be created if an update
- * occurs, such as a reorder, insert, delete, or content update occurs. A [PagingSource] must detect
- * that it cannot continue loading its snapshot (for instance, when Database query notices a table
- * being invalidated), and call [invalidate]. Then a new [PagedList] would be created to represent
- * data from the new state of the database query.
- *
- * To page in data that doesn't update, you can create a single [PagingSource], and pass it to a
- * single [PagedList]. For example, loading from network when the network's paging API doesn't
- * provide updates.
- *
- * If you have granular update signals, such as a network API signaling an update to a single
- * item in the list, it's recommended to load data from network into memory. Then present that
- * data to the [PagedList] via a [PagingSource] that wraps an in-memory snapshot. Each time the
- * in-memory copy changes, invalidate the [PagingSource], and a new [PagedList] wrapping the new
- * state of the snapshot can be created.
+ * A [PagingSource] / [PagingData] pair is a snapshot of the data set. A new [PagingData] /
+ * [PagingData] must be created if an update occurs, such as a reorder, insert, delete, or content
+ * update occurs. A [PagingSource] must detect that it cannot continue loading its snapshot
+ * (for instance, when Database query notices a table being invalidated), and call [invalidate].
+ * Then a new [PagingSource] / [PagingData] pair would be created to represent data from the new
+ * state of the database query.
  *
  * @param Key Type for unique identifier for items loaded from [PagingSource]. E.g., [Int] to
- * represent an item's position in a [PagingSource] that is keyed by item position. Note that this is
- * distinct from e.g. Room's `<Value> Value type loaded by the [PagingSource].
+ * represent an item's position in a [PagingSource] that is keyed by item position. Note that this
+ * is distinct from e.g. Room's `<Value>` type loaded by the [PagingSource].
  * @param Value Type of data loaded in by this [PagingSource]. E.g., the type of data that will be
- * passed to a [PagedList] to be displayed in a `RecyclerView`
+ * passed to a [androidx.paging.PagingDataAdapter] to be displayed in a `RecyclerView`.
  */
 @Suppress("KDocUnresolvedReference")
 abstract class PagingSource<Key : Any, Value : Any> {
 
     /**
-     * Params for generic load request on a [PagingSource].
+     * Params for a load request on a [PagingSource] from [PagingSource.load].
      */
     data class LoadParams<Key : Any>(
         /**
-         * [LoadType], for different behavior, e.g. only count initial load
+         * [LoadType] of this load request.
+         *
+         * May be one of the following values:
+         * * [LoadType.REFRESH] - initial load or a refresh triggered by [invalidate].
+         * * [LoadType.START] - load a page of data to be prepended to the start of the list.
+         * * [LoadType.END] - load a page of data to be appended to the end of the list.
          */
         val loadType: LoadType,
         /**
-         * Key for the page to be loaded
+         * Key for the page to be loaded.
          */
         val key: Key?,
         /**
-         * Number of items to load
+         * Requested number of items to load.
+         *
+         * Note: It is valid for [PagingSource.load] to return a [LoadResult] that has a different
+         * number of items than the requested load size.
          */
         val loadSize: Int,
         /**
-         * Whether placeholders are enabled - if false, can skip counting
+         * From [PagingConfig.enablePlaceholders], true if placeholders are enabled and the load
+         * request for this [LoadParams] should populate [LoadResult.Page.itemsBefore] and
+         * [LoadResult.Page.itemsAfter] if possible.
          */
         val placeholdersEnabled: Boolean,
+        /**
+         * From [PagingConfig.pageSize], the configured page size.
+         */
         val pageSize: Int
     )
 
+    /**
+     * Result of a load request from [PagingSource.load].
+     */
     sealed class LoadResult<Key : Any, Value : Any> {
+        /**
+         * Recoverable error used to update [LoadState] in a [PagingData] that may be retried via
+         * [PagingDataDiffer.retry].
+         */
         data class Error<Key : Any, Value : Any>(
             val throwable: Throwable
         ) : LoadResult<Key, Value>()
 
         /**
-         * Success result object for [PagingSource.load]
+         * Success result object for [PagingSource.load].
          */
         data class Page<Key : Any, Value : Any>(
             /**
@@ -118,11 +128,11 @@ abstract class PagingSource<Key : Any, Value : Any> {
              */
             val data: List<Value>,
             /**
-             * Key for previous page.
+             * Key for previous page if more data can be loaded in that direction, null otherwise.
              */
             val prevKey: Key?,
             /**
-             * Key for next page.
+             * Key for next page if more data can be loaded in that direction, null otherwise.
              */
             val nextKey: Key?,
             /**
@@ -159,20 +169,25 @@ abstract class PagingSource<Key : Any, Value : Any> {
     }
 
     /**
-     * Request a refresh key from the Source, given a Page and internal position within the page.
+     * Request a refresh key given the current [PagingState] of the associated [PagingData] used to
+     * present loaded data from this [PagingSource].
      *
-     * If the user's viewport is (approximately) centered around the `N`th item in a page, the
-     * page and `N` will be passed as [indexInPage]. This key will be passed into the initial
-     * load that occurs during refresh.
+     * The [Key] returned by this method is used to populate the [LoadParams.key] for load requests
+     * of type [LoadType.REFRESH].
      *
-     * For example, if items are loaded based on position, and keys are positions, the source
+     * For example, if items are loaded based on position, and keys are positions, [getRefreshKey]
      * should return the position of the item.
      *
      * Alternately, if items contain a key used to load, get the key from the item in the page at
-     * index [indexInPage].
+     * index [PagingState.anchorPosition].
      *
      * If this operation cannot be supported (generally, because keys cannot be reused across
      * refresh) return `null` - this is the default behavior.
+     *
+     * Note: This method is guaranteed to only be called if the initial load succeeds and the
+     * list of loaded pages is not empty. In the case where a refresh is triggered before the
+     * initial load succeeds or it errors out, the initial key passed into the creation of the
+     * [PagingData] stream (typically from [PagingDataFlow]) will be used.
      */
     open fun getRefreshKey(state: PagingState<Key, Value>): Key? = null
 
@@ -191,10 +206,10 @@ abstract class PagingSource<Key : Any, Value : Any> {
      *
      * This method is idempotent. i.e., If [invalidate] has already been called, subsequent calls to
      * this method should have no effect.
-     *
-     * TODO(b/137971356): Investigate making this not open when able to remove [LegacyPagingSource].
      */
     open fun invalidate() {
+        // TODO(b/137971356): Investigate making this not open when able to remove
+        //  LegacyPagingSource.
         if (_invalid.compareAndSet(false, true)) {
             onInvalidatedCallbacks.forEach { it.invoke() }
         }
