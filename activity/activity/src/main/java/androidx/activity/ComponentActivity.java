@@ -18,7 +18,14 @@ package androidx.activity;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.ACTION_REQUEST_PERMISSIONS;
+import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.EXTRA_PERMISSIONS;
+import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.EXTRA_PERMISSION_GRANT_RESULTS;
+
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -26,6 +33,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -47,6 +59,10 @@ import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Base class for activities that enables composition of higher level components.
  * <p>
@@ -59,7 +75,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewModelStoreOwner,
         HasDefaultViewModelProviderFactory,
         SavedStateRegistryOwner,
-        OnBackPressedDispatcherOwner {
+        OnBackPressedDispatcherOwner,
+        ActivityResultCaller {
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -94,6 +111,42 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @LayoutRes
     private int mContentLayoutId;
+
+    private final AtomicInteger mNextLocalRequestCode = new AtomicInteger();
+
+    private ActivityResultRegistry mActivityResultRegistry = new ActivityResultRegistry() {
+
+        @Override
+        public <I, O> void invoke(
+                final int requestCode,
+                @NonNull ActivityResultContract<I, O> contract,
+                I input) {
+            Intent intent = contract.createIntent(input);
+            if (ACTION_REQUEST_PERMISSIONS.equals(intent.getAction())) {
+                String[] permissions = intent.getStringArrayExtra(EXTRA_PERMISSIONS);
+
+                if (SDK_INT < Build.VERSION_CODES.M || permissions == null) {
+                    return;
+                }
+
+                List<String> nonGrantedPermissions = new ArrayList<>();
+                for (String permission : permissions) {
+                    if (checkPermission(permission,
+                            android.os.Process.myPid(), android.os.Process.myUid())
+                            != PackageManager.PERMISSION_GRANTED) {
+                        nonGrantedPermissions.add(permission);
+                    }
+                }
+
+                if (!nonGrantedPermissions.isEmpty()) {
+                    requestPermissions(nonGrantedPermissions.toArray(
+                            new String[nonGrantedPermissions.size()]), requestCode);
+                }
+            } else {
+                ComponentActivity.this.startActivityForResult(intent, requestCode);
+            }
+        }
+    };
 
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
@@ -167,6 +220,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSavedStateRegistryController.performRestore(savedInstanceState);
+        mActivityResultRegistry.onRestoreInstanceState(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
@@ -182,6 +236,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
         super.onSaveInstanceState(outState);
         mSavedStateRegistryController.performSave(outState);
+        mActivityResultRegistry.onSaveInstanceState(outState);
     }
 
     /**
@@ -381,5 +436,54 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public final SavedStateRegistry getSavedStateRegistry() {
         return mSavedStateRegistryController.getSavedStateRegistry();
+    }
+
+    @CallSuper
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (!mActivityResultRegistry.dispatchResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @CallSuper
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        if (!mActivityResultRegistry.dispatchResult(requestCode, Activity.RESULT_OK, new Intent()
+                .putExtra(EXTRA_PERMISSIONS, permissions)
+                .putExtra(EXTRA_PERMISSION_GRANT_RESULTS, grantResults))) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(
+            @NonNull final ActivityResultContract<I, O> contract,
+            @NonNull final ActivityResultRegistry registry,
+            @NonNull final ActivityResultCallback<O> callback) {
+        return registry.registerActivityResultCallback(
+                "activity_rq#" + mNextLocalRequestCode.getAndIncrement(), this, contract, callback);
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(
+            @NonNull ActivityResultContract<I, O> contract,
+            @NonNull ActivityResultCallback<O> callback) {
+        return prepareCall(contract, mActivityResultRegistry, callback);
+    }
+
+    /**
+     * Get the {@link ActivityResultRegistry} associated with this activity.
+     *
+     * @return the {@link ActivityResultRegistry}
+     */
+    @NonNull
+    public ActivityResultRegistry getActivityResultRegistry() {
+        return mActivityResultRegistry;
     }
 }

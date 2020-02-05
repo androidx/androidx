@@ -754,10 +754,12 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @see #requestPermissions(String[], int)
      */
+    @CallSuper
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         mFragments.noteStateNotSaved();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         int index = (requestCode >> 16) & 0xffff;
         if (index != 0) {
             index--;

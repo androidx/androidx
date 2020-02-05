@@ -26,7 +26,7 @@ package androidx.fragment.app {
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements android.content.ComponentCallbacks androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
+  public class Fragment implements androidx.activity.result.ActivityResultCaller android.content.ComponentCallbacks androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
     ctor @ContentView public Fragment(@LayoutRes int);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
@@ -118,6 +118,8 @@ package androidx.fragment.app {
     method @CallSuper @MainThread public void onViewStateRestored(android.os.Bundle?);
     method public void postponeEnterTransition();
     method public final void postponeEnterTransition(long, java.util.concurrent.TimeUnit);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> prepareCall(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> prepareCall(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public void registerForContextMenu(android.view.View);
     method public final void requestPermissions(String![], int);
     method public final androidx.fragment.app.FragmentActivity requireActivity();
