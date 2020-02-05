@@ -14,23 +14,9 @@ package androidx.ui.unit {
     method public androidx.ui.unit.Dp getTop();
   }
 
-  public final class Density {
-    ctor public Density(float density, float fontScale);
-    method public float component1();
-    method public float component2();
-    method public androidx.ui.unit.Density copy(float density, float fontScale);
+  public interface Density {
     method public float getDensity();
     method public float getFontScale();
-  }
-
-  public final class DensityKt {
-    method public static androidx.ui.unit.Density Density(android.content.Context context);
-    method public static androidx.ui.unit.DensityScope DensityScope(androidx.ui.unit.Density density);
-    method public static inline <R> R! withDensity(androidx.ui.unit.Density density, kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,? extends R> block);
-  }
-
-  public interface DensityScope {
-    method public androidx.ui.unit.Density getDensity();
     method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.TextUnit);
     method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.Px);
     method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.IntPx);
@@ -47,7 +33,13 @@ package androidx.ui.unit {
     method public default androidx.ui.unit.TextUnit toSp(androidx.ui.unit.IntPx);
     method public default androidx.ui.unit.TextUnit toSp(float);
     method public default androidx.ui.unit.TextUnit toSp(int);
-    property public abstract androidx.ui.unit.Density density;
+    property public abstract float density;
+    property public abstract float fontScale;
+  }
+
+  public final class DensityKt {
+    method public static androidx.ui.unit.Density Density(android.content.Context context);
+    method public static androidx.ui.unit.Density Density(float density, float fontScale = 1f);
   }
 
   public final class Dp implements java.lang.Comparable<androidx.ui.unit.Dp> {

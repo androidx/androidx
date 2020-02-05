@@ -31,7 +31,6 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -45,12 +44,11 @@ import androidx.ui.unit.milliseconds
 import androidx.ui.unit.toOffset
 import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toRect
-import androidx.ui.unit.withDensity
 
 internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f
 
-internal fun DensityScope.getRippleTargetRadius(size: PxSize) =
+internal fun Density.getRippleTargetRadius(size: PxSize) =
     PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx()
 
 /**
@@ -117,7 +115,7 @@ private class DefaultRippleEffect(
     init {
         val surfaceSize = coordinates.size.toPxSize()
         val startRadius = getRippleStartRadius(surfaceSize)
-        val targetRadius = withDensity(density) {
+        val targetRadius = with(density) {
             radius?.toPx() ?: getRippleTargetRadius(surfaceSize)
         }
 

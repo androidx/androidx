@@ -32,7 +32,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.withDensity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,7 +92,7 @@ class ElevationOverlayTest(private val elevation: Dp, private val expectedOverla
     }
 
     private fun setupSurfaceForTesting(elevation: Dp, colorPalette: ColorPalette) {
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             composeTestRule.setContent {
                 MaterialTheme(colorPalette) {
                     Container {

@@ -112,11 +112,11 @@ package androidx.ui.core {
   }
 
   public final class DrawModifierKt {
-    method public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.DensityScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
     method public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
   }
 
-  public interface DrawReceiver extends androidx.ui.unit.DensityScope {
+  public interface DrawReceiver extends androidx.ui.unit.Density {
     method public void drawChildren();
   }
 
@@ -165,21 +165,21 @@ package androidx.ui.core {
   }
 
   public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
-    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.DensityScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.DensityScope, androidx.ui.core.Constraints constraints);
-    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.DensityScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.DensityScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints);
+    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
   }
 
-  public abstract class MeasureScope implements androidx.ui.unit.DensityScope {
+  public abstract class MeasureScope implements androidx.ui.unit.Density {
     ctor public MeasureScope();
     method public final androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
   }
@@ -216,7 +216,7 @@ package androidx.ui.core {
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
-    method public default Object? modifyParentData(androidx.ui.unit.DensityScope, Object? parentData);
+    method public default Object? modifyParentData(androidx.ui.unit.Density, Object? parentData);
   }
 
   public abstract class Placeable {

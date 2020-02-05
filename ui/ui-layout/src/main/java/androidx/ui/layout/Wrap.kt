@@ -21,7 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -66,10 +66,10 @@ fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () ->
  * size itself to min incoming constraints and place its content in the center.
  */
 val LayoutWrapped: LayoutModifier = object : LayoutModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints) =
+    override fun Density.modifyConstraints(constraints: Constraints) =
         constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
 
-    override fun DensityScope.modifySize(
+    override fun Density.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ): IntPxSize {
@@ -78,7 +78,7 @@ val LayoutWrapped: LayoutModifier = object : LayoutModifier {
         return IntPxSize(width, height)
     }
 
-    override fun DensityScope.modifyPosition(
+    override fun Density.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ): IntPxPosition {

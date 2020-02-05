@@ -120,7 +120,7 @@ fun Text(
     // Ambients
     // selection registrar, if no SelectionContainer is added ambient value will be null
     val selectionRegistrar = SelectionRegistrarAmbient.current
-    val density = ambientDensity()
+    val density = DensityAmbient.current
     val resourceLoader = FontLoaderAmbient.current
     val layoutDirection = LayoutDirectionAmbient.current
     val themeStyle = CurrentTextStyleAmbient.current

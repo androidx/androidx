@@ -22,6 +22,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Providers
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.hapticfeedback.HapticFeedback
@@ -31,7 +32,6 @@ import androidx.ui.core.gesture.MotionEvent
 import androidx.ui.core.gesture.PointerCoords
 import androidx.ui.core.gesture.PointerProperties
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
-import androidx.ui.core.test.ValueModel
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
@@ -40,7 +40,6 @@ import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -73,112 +72,104 @@ class SelectionContainerTest {
 
     private lateinit var gestureCountDownLatch: CountDownLatch
 
-    private val selection = ValueModel<Selection?>(null)
+    private val selection = mutableStateOf<Selection?>(null)
     private val fontSize = 10.sp
 
     private val hapticFeedback = mock<HapticFeedback>()
 
     @Before
     fun setup() {
-        withDensity(composeTestRule.density) {
-            composeTestRule.setContent {
-                Providers(
-                    HapticFeedBackAmbient provides hapticFeedback
-                ) {
-                    SelectionContainer(
-                        selection = selection.value,
-                        onSelectionChange = {
-                            selection.value = it
-                            gestureCountDownLatch.countDown()
-                        }
-                    ) {
-                        Text(
-                            textContent,
-                            style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
-                        )
+        composeTestRule.setContent {
+            Providers(
+                HapticFeedBackAmbient provides hapticFeedback
+            ) {
+                SelectionContainer(
+                    selection = selection.value,
+                    onSelectionChange = {
+                        selection.value = it
+                        gestureCountDownLatch.countDown()
                     }
+                ) {
+                    Text(
+                        textContent,
+                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    )
                 }
             }
-            view = activity.findViewById<ViewGroup>(R.id.content)
         }
+        view = activity.findViewById<ViewGroup>(R.id.content)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 27)
     fun press_to_cancel() {
-        withDensity(composeTestRule.density) {
-            // Setup. Long press to create a selection.
-            // A reasonable number.
-            val position = 50.px
-            longPress(x = position.value, y = position.value)
-            composeTestRule.runOnIdleCompose {
-                assertThat(selection.value).isNotNull()
-            }
+        // Setup. Long press to create a selection.
+        // A reasonable number.
+        val position = 50.px
+        longPress(x = position.value, y = position.value)
+        composeTestRule.runOnIdleCompose {
+            assertThat(selection.value).isNotNull()
+        }
 
-            // Act.
-            press(x = position.value, y = position.value)
+        // Act.
+        press(x = position.value, y = position.value)
 
-            // Assert.
-            composeTestRule.runOnIdleCompose {
-                assertThat(selection.value).isNull()
-                verify(
-                    hapticFeedback,
-                    times(2)
-                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
+        // Assert.
+        composeTestRule.runOnIdleCompose {
+            assertThat(selection.value).isNull()
+            verify(
+                hapticFeedback,
+                times(2)
+            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
     }
 
     @Test
     fun long_press_select_a_word() {
-        withDensity(composeTestRule.density) {
-            // Setup.
-            val characterSize = fontSize.toPx().value
+        // Setup.
+        val characterSize = with(composeTestRule.density) { fontSize.toPx().value }
 
-            // Act.
-            longPress(
-                x = textContent.indexOf('m') * characterSize,
-                y = 0.5f * characterSize
-            )
+        // Act.
+        longPress(
+            x = textContent.indexOf('m') * characterSize,
+            y = 0.5f * characterSize
+        )
 
-            // Assert. Should select "Demo".
-            composeTestRule.runOnIdleCompose {
-                assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
-                assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
-                verify(
-                    hapticFeedback,
-                    times(1)
-                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
+        // Assert. Should select "Demo".
+        composeTestRule.runOnIdleCompose {
+            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
+            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
+            verify(
+                hapticFeedback,
+                times(1)
+            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 27)
     fun long_press_and_drag_select_text_range() {
-        withDensity(composeTestRule.density) {
-            // Setup. Want to selection "Dem".
-            val startOffset = textContent.indexOf('D')
-            val endOffset = textContent.indexOf('m') + 1
-            val characterSize = fontSize.toPx().value
+        // Setup. Want to selection "Dem".
+        val startOffset = textContent.indexOf('D')
+        val endOffset = textContent.indexOf('m') + 1
+        val characterSize = with(composeTestRule.density) { fontSize.toPx().value }
 
-            // Act.
-            longPressAndDrag(
-                startX = startOffset * characterSize,
-                startY = 0.5f * characterSize,
-                endX = endOffset * characterSize,
-                endY = 0.5f * characterSize
-            )
+        // Act.
+        longPressAndDrag(
+            startX = startOffset * characterSize,
+            startY = 0.5f * characterSize,
+            endX = endOffset * characterSize,
+            endY = 0.5f * characterSize
+        )
 
-            // Assert.
-            composeTestRule.runOnIdleCompose {
-                assertThat(selection.value!!.start.offset).isEqualTo(startOffset)
-                assertThat(selection.value!!.end.offset).isEqualTo("Text Demo".length)
-                verify(
-                    hapticFeedback,
-                    times(1)
-                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
+        // Assert.
+        composeTestRule.runOnIdleCompose {
+            assertThat(selection.value!!.start.offset).isEqualTo(startOffset)
+            assertThat(selection.value!!.end.offset).isEqualTo("Text Demo".length)
+            verify(
+                hapticFeedback,
+                times(1)
+            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
     }
 

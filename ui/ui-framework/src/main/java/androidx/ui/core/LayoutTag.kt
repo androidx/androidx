@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 
 /**
  * A [ParentDataModifier] which tags the target with the given [tag]. The provided tag
@@ -29,7 +29,7 @@ import androidx.ui.unit.DensityScope
  */
 @Immutable
 data class LayoutTag(override val tag: Any) : ParentDataModifier, LayoutTagParentData {
-    override fun DensityScope.modifyParentData(parentData: Any?): Any? {
+    override fun Density.modifyParentData(parentData: Any?): Any? {
         return this@LayoutTag
     }
 }

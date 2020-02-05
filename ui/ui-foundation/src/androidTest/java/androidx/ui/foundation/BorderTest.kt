@@ -21,9 +21,9 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 
 import androidx.ui.core.TestTag
-import androidx.ui.core.WithDensity
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
@@ -39,7 +39,7 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.px
 import org.junit.Rule
 import org.junit.Test
@@ -114,12 +114,12 @@ class BorderTest(val shape: Shape) {
     }
 
     @Composable
-    fun SemanticParent(children: @Composable DensityScope.() -> Unit) {
+    fun SemanticParent(children: @Composable Density.() -> Unit) {
         Align(Alignment.TopLeft) {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
                     Container {
-                        WithDensity(children)
+                        DensityAmbient.current.children()
                     }
                 }
             }

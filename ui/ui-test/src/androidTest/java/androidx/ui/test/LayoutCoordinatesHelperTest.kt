@@ -18,9 +18,9 @@ package androidx.ui.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.WithDensity
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
@@ -76,7 +76,7 @@ class LayoutCoordinatesHelperTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
-            WithDensity {
+            with(DensityAmbient.current) {
                 Container(LayoutWidth(40.ipx.toDp())) {
                     Column(LayoutWidth(20.ipx.toDp())) {
                         OnPositioned { coordinates ->

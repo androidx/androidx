@@ -32,7 +32,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
@@ -63,7 +62,7 @@ class PopupTest {
     // TODO(b/140215440): Some tests are calling the OnChildPosition method inside the Popup too
     //  many times
     private fun createPopupWithAlignmentRule(alignment: Alignment, measureLatch: CountDownLatch) {
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             val popupWidthDp = popupSize.width.toDp()
             val popupHeightDp = popupSize.height.toDp()
             val parentWidthDp = parentSize.width.toDp()
@@ -134,10 +133,10 @@ class PopupTest {
 
     @Test
     fun popup_hasActualSize() {
-        val popupWidthDp = withDensity(composeTestRule.density) {
+        val popupWidthDp = with(composeTestRule.density) {
             popupSize.width.toDp()
         }
-        val popupHeightDp = withDensity(composeTestRule.density) {
+        val popupHeightDp = with(composeTestRule.density) {
             popupSize.height.toDp()
         }
 

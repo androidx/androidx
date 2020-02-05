@@ -83,6 +83,7 @@ includeProject(":ui:ui-text:integration-tests:ui-text-demos", "ui-text/integrati
 includeProject(":ui:ui-text:integration-tests:ui-text-samples", "ui-text/integration-tests/samples")
 includeProject(":ui:ui-tooling", "ui-tooling")
 includeProject(":ui:ui-unit", "ui-unit")
+includeProject(":ui:ui-unit:integration-tests:samples", "ui-unit/integration-tests/samples")
 includeProject(":ui:ui-util", "ui-util")
 includeProject(":ui:ui-vector", "ui-vector")
 

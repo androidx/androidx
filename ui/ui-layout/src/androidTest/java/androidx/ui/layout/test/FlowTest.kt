@@ -32,7 +32,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -45,7 +44,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class FlowTest : LayoutTest() {
     @Test
-    fun testFlowRow() = withDensity(density) {
+    fun testFlowRow() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -99,7 +98,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisSize_wrap() = withDensity(density) {
+    fun testFlowRow_withMainAxisSize_wrap() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -153,7 +152,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisSize_expand() = withDensity(density) {
+    fun testFlowRow_withMainAxisSize_expand() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -207,7 +206,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisAlignment_center() = withDensity(density) {
+    fun testFlowRow_withMainAxisAlignment_center() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -264,7 +263,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisAlignment_start() = withDensity(density) {
+    fun testFlowRow_withMainAxisAlignment_start() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -321,7 +320,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisAlignment_end() = withDensity(density) {
+    fun testFlowRow_withMainAxisAlignment_end() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -378,7 +377,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisAlignment_spaceEvenly() = withDensity(density) {
+    fun testFlowRow_withMainAxisAlignment_spaceEvenly() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -438,7 +437,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisAlignment_spaceBetween() = withDensity(density) {
+    fun testFlowRow_withMainAxisAlignment_spaceBetween() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -498,7 +497,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisAlignment_spaceAround() = withDensity(density) {
+    fun testFlowRow_withMainAxisAlignment_spaceAround() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -558,7 +557,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withLastLineMainAxisAlignment_justify_center() = withDensity(density) {
+    fun testFlowRow_withLastLineMainAxisAlignment_justify_center() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -623,7 +622,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withLastLineMainAxisAlignment_justify_start() = withDensity(density) {
+    fun testFlowRow_withLastLineMainAxisAlignment_justify_start() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -688,7 +687,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withLastLineMainAxisAlignment_justify_end() = withDensity(density) {
+    fun testFlowRow_withLastLineMainAxisAlignment_justify_end() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -753,7 +752,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withMainAxisSpacing() = withDensity(density) {
+    fun testFlowRow_withMainAxisSpacing() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -809,7 +808,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withCrossAxisAlignment_center() = withDensity(density) {
+    fun testFlowRow_withCrossAxisAlignment_center() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -872,7 +871,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withCrossAxisAlignment_start() = withDensity(density) {
+    fun testFlowRow_withCrossAxisAlignment_start() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -932,7 +931,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withCrossAxisAlignment_end() = withDensity(density) {
+    fun testFlowRow_withCrossAxisAlignment_end() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -995,7 +994,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowRow_withCrossAxisSpacing() = withDensity(density) {
+    fun testFlowRow_withCrossAxisSpacing() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1051,7 +1050,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn() = withDensity(density) {
+    fun testFlowColumn() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1105,7 +1104,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisSize_wrap() = withDensity(density) {
+    fun testFlowColumn_withMainAxisSize_wrap() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1159,7 +1158,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisSize_expand() = withDensity(density) {
+    fun testFlowColumn_withMainAxisSize_expand() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1213,7 +1212,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisAlignment_center() = withDensity(density) {
+    fun testFlowColumn_withMainAxisAlignment_center() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1270,7 +1269,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisAlignment_start() = withDensity(density) {
+    fun testFlowColumn_withMainAxisAlignment_start() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1327,7 +1326,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisAlignment_end() = withDensity(density) {
+    fun testFlowColumn_withMainAxisAlignment_end() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1384,7 +1383,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisAlignment_spaceEvenly() = withDensity(density) {
+    fun testFlowColumn_withMainAxisAlignment_spaceEvenly() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1444,7 +1443,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisAlignment_spaceBetween() = withDensity(density) {
+    fun testFlowColumn_withMainAxisAlignment_spaceBetween() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1504,7 +1503,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisAlignment_spaceAround() = withDensity(density) {
+    fun testFlowColumn_withMainAxisAlignment_spaceAround() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1564,7 +1563,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withLastLineMainAxisAlignment_justify_center() = withDensity(density) {
+    fun testFlowColumn_withLastLineMainAxisAlignment_justify_center() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1629,7 +1628,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withLastLineMainAxisAlignment_justify_start() = withDensity(density) {
+    fun testFlowColumn_withLastLineMainAxisAlignment_justify_start() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1694,7 +1693,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withLastLineMainAxisAlignment_justify_end() = withDensity(density) {
+    fun testFlowColumn_withLastLineMainAxisAlignment_justify_end() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1759,7 +1758,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withMainAxisSpacing() = withDensity(density) {
+    fun testFlowColumn_withMainAxisSpacing() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1815,7 +1814,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withCrossAxisAlignment_center() = withDensity(density) {
+    fun testFlowColumn_withCrossAxisAlignment_center() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1878,7 +1877,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withCrossAxisAlignment_start() = withDensity(density) {
+    fun testFlowColumn_withCrossAxisAlignment_start() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1935,7 +1934,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withCrossAxisAlignment_end() = withDensity(density) {
+    fun testFlowColumn_withCrossAxisAlignment_end() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()
@@ -1998,7 +1997,7 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
-    fun testFlowColumn_withCrossAxisSpacing() = withDensity(density) {
+    fun testFlowColumn_withCrossAxisSpacing() = with(density) {
         val numberOfSquares = 15
         val size = 48.ipx
         val sizeDp = size.toDp()

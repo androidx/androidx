@@ -23,7 +23,7 @@ import androidx.ui.test.BigTestConstraints
 import androidx.ui.test.CollectedSizes
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.setContentAndGetPixelSize
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 
 fun ComposeTestRule.setMaterialContent(composable: @Composable() () -> Unit) {
@@ -33,9 +33,9 @@ fun ComposeTestRule.setMaterialContent(composable: @Composable() () -> Unit) {
         }
     }
 }
-fun <T> ComposeTestRule.runOnIdleComposeWithDensity(action: DensityScope.() -> T): T {
+fun <T> ComposeTestRule.runOnIdleComposeWithDensity(action: Density.() -> T): T {
     return runOnIdleCompose {
-        DensityScope(density).action()
+        density.action()
     }
 }
 fun ComposeTestRule.setMaterialContentAndCollectSizes(

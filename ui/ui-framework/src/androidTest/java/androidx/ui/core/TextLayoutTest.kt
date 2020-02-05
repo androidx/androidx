@@ -32,7 +32,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -68,7 +67,7 @@ class TextLayoutTest {
     }
 
     @Test
-    fun testTextLayout() = withDensity(density) {
+    fun testTextLayout() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
@@ -96,7 +95,7 @@ class TextLayoutTest {
     }
 
     @Test
-    fun testTextLayout_intrinsicMeasurements() = withDensity(density) {
+    fun testTextLayout_intrinsicMeasurements() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
@@ -154,7 +153,7 @@ class TextLayoutTest {
     }
 
     @Test
-    fun testTextLayout_providesBaselines() = withDensity(density) {
+    fun testTextLayout_providesBaselines() = with(density) {
         val layoutLatch = CountDownLatch(2)
         show {
             val text = @Composable {
@@ -181,7 +180,7 @@ class TextLayoutTest {
     }
 
     @Test
-    fun testOnTextLayout() = withDensity(density) {
+    fun testOnTextLayout() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val callback = mock<(TextLayoutResult) -> Unit>()
         show {

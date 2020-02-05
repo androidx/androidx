@@ -44,7 +44,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.em
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -69,7 +68,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun empty_string() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
             val text = ""
@@ -92,7 +91,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun single_line_default_values() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
 
@@ -119,7 +118,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun line_break_default_values() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
 
@@ -152,7 +151,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun newline_default_values() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
 
@@ -183,7 +182,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun newline_and_line_break_default_values() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
 
@@ -215,7 +214,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getOffsetForPosition_ltr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -237,7 +236,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getOffsetForPosition_rtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -259,7 +258,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getOffsetForPosition_ltr_multiline() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val firstLine = "abc"
             val secondLine = "def"
             val text = firstLine + secondLine
@@ -285,7 +284,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getOffsetForPosition_rtl_multiline() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val firstLine = "\u05D0\u05D1\u05D2"
             val secondLine = "\u05D3\u05D4\u05D5"
             val text = firstLine + secondLine
@@ -311,7 +310,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getOffsetForPosition_ltr_width_outOfBounds() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -335,7 +334,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getOffsetForPosition_ltr_height_outOfBounds() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -359,7 +358,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBoundingBox_ltr_singleLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -382,7 +381,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBoundingBox_ltr_multiLines() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val firstLine = "abc"
             val secondLine = "def"
             val text = firstLine + secondLine
@@ -409,7 +408,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBoundingBox_ltr_textPosition_negative() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -431,7 +430,7 @@ class ParagraphIntegrationTest {
     @Test(expected = java.lang.IndexOutOfBoundsException::class)
     @SdkSuppress(minSdkVersion = 26)
     fun getBoundingBox_ltr_textPosition_larger_than_length_throw_exception() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -448,7 +447,7 @@ class ParagraphIntegrationTest {
 
     @Test(expected = java.lang.AssertionError::class)
     fun getCursorRect_larger_than_length_throw_exception() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -464,7 +463,7 @@ class ParagraphIntegrationTest {
 
     @Test(expected = java.lang.AssertionError::class)
     fun getCursorRect_negative_throw_exception() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -480,7 +479,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getCursorRect_ltr_singleLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -507,7 +506,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getCursorRect_ltr_multiLines() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcdef"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -546,7 +545,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getCursorRect_ltr_newLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\ndef"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -579,7 +578,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getCursorRect_ltr_newLine_last_char() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -612,7 +611,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getCursorRect_rtl_singleLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -638,7 +637,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getCursorRect_rtl_multiLines() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -677,7 +676,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getCursorRect_rtl_newLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -712,7 +711,7 @@ class ParagraphIntegrationTest {
     @Test
     @SdkSuppress(minSdkVersion = 23)
     fun getCursorRect_rtl_newLine_last_char() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -746,7 +745,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_ltr_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -765,7 +764,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_rtl_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -785,7 +784,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -815,7 +814,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_ltr_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -842,7 +841,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_rtl_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -870,7 +869,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -903,7 +902,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -935,7 +934,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_ltr_newLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -954,7 +953,7 @@ class ParagraphIntegrationTest {
     // The behavior of getPrimaryHorizontal on API 19 to API 22 was wrong. Suppress this test.
     @SdkSuppress(minSdkVersion = 23)
     fun getHorizontalPositionForOffset_primary_rtl_newLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -971,7 +970,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_ltr_newLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -992,7 +991,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_primary_rtl_newLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1012,7 +1011,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_ltr_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1031,7 +1030,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_rtl_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1051,7 +1050,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_Bidi_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1078,7 +1077,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_ltr_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1106,7 +1105,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_rtl_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1133,7 +1132,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_Bidi_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1166,7 +1165,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_Bidi_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1199,7 +1198,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_ltr_newLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1218,7 +1217,7 @@ class ParagraphIntegrationTest {
     @SdkSuppress(minSdkVersion = 23)
     // The behavior of getSecondaryHorizontal on API 19 to API 22 was wrong. Suppress this test.
     fun getHorizontalPositionForOffset_notPrimary_rtl_newLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1235,7 +1234,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_ltr_newLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1256,7 +1255,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getHorizontalPositionForOffset_notPrimary_rtl_newLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1276,7 +1275,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getParagraphDirection_ltr_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1295,7 +1294,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getParagraphDirection_ltr_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1317,7 +1316,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getParagraphDirection_rtl_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1336,7 +1335,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getParagraphDirection_rtl_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1358,7 +1357,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getParagraphDirection_Bidi_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1379,7 +1378,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getParagraphDirection_Bidi_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1403,7 +1402,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getParagraphDirection_Bidi_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1427,7 +1426,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection_ltr_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1446,7 +1445,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection_ltr_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1468,7 +1467,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection_rtl_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1487,7 +1486,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection_rtl_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1510,7 +1509,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection_Bidi_singleLine_textDirectionDefault() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1535,7 +1534,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection_Bidi_singleLine_textDirectionLtr() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1563,7 +1562,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getBidiRunDirection_Bidi_singleLine_textDirectionRtl() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
@@ -1591,7 +1590,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun locale_withCJK_shouldNotDrawSame() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u82B1"
             val fontSize = 10.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1647,7 +1646,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun maxLines_withMaxLineSmallerThanTextLines_clipHeight() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1666,7 +1665,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun maxLines_withMaxLineSmallerThanTextLines_haveCorrectBaselines() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1688,7 +1687,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun maxLines_withMaxLineEqualsTextLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1706,7 +1705,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun maxLines_withMaxLineGreaterThanTextLines() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1726,7 +1725,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun maxLines_paintDifferently() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1804,7 +1803,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun didExceedMaxLines_withMaxLinesSmallerThanTextLines_withLineWrap_returnsTrue() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "aa"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1835,7 +1834,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun didExceedMaxLines_withMaxLinesGreaterThanTextLines_withLineWrap_returnsFalse() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "aa"
             val maxLines = 3
             val fontSize = 50.sp
@@ -1854,7 +1853,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_defaultValue_alignsStart() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLTR = "aa"
             val textRTL = "\u05D0\u05D0"
             val fontSize = 20.sp
@@ -1882,7 +1881,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_whenAlignLeft_returnsZeroForGetLineLeft() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val texts = listOf("aa", "\u05D0\u05D0")
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1905,7 +1904,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_whenAlignRight_returnsLayoutWidthForGetLineRight() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val texts = listOf("aa", "\u05D0\u05D0")
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1929,7 +1928,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_whenAlignCenter_textIsCentered() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val texts = listOf("aa", "\u05D0\u05D0")
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1954,7 +1953,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_whenAlignStart_withLTR_returnsZeroForGetLineLeft() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "aa"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1975,7 +1974,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_whenAlignEnd_withLTR_returnsLayoutWidthForGetLineRight() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "aa"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -1996,7 +1995,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_whenAlignStart_withRTL_returnsLayoutWidthForGetLineRight() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D0"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2017,7 +2016,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textAlign_whenAlignEnd_withRTL_returnsZeroForGetLineLeft() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0\u05D0"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2042,7 +2041,7 @@ class ParagraphIntegrationTest {
     // We have to test justification above API 28 because of this bug b/68009059, where devices
     // before API 28 may have an extra space at the end of line.
     fun textAlign_whenAlignJustify_justifies() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a a a"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2066,7 +2065,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textDirection_whenLTR_dotIsOnRight() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a.."
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2090,7 +2089,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textDirection_whenRTL_dotIsOnLeft() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a.."
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2114,7 +2113,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textDirection_whenDefault_withoutStrongChar_directionIsLTR() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "..."
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2137,7 +2136,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textDirection_whenDefault_withFirstStrongCharLTR_directionIsLTR() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a\u05D0."
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2160,7 +2159,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textDirection_whenDefault_withFirstStrongCharRTL_directionIsRTL() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u05D0a."
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2181,7 +2180,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun getLineBottom() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "aaa\nbbb"
 
             val fontSize = 50.sp
@@ -2198,7 +2197,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun lineHeight_inSp() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcdefgh"
             val fontSize = 20f
             // Make the layout 4 lines
@@ -2227,7 +2226,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun lineHeight_InEm() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcdefgh"
             val fontSize = 20f
             // Make the layout 4 lines
@@ -2254,7 +2253,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setFontSizeOnWholeText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2276,7 +2275,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setFontSizeOnPartOfText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2303,7 +2302,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_seFontSizeTwice_lastOneOverwrite() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2333,7 +2332,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_fontSizeScale() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2353,7 +2352,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_fontSizeScaleNested() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2379,7 +2378,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_fontSizeScaleWithFontSizeFirst() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val paragraphFontSize = 20.sp
 
@@ -2406,7 +2405,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_fontSizeScaleWithFontSizeSecond() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val paragraphFontSize = 20.sp
 
@@ -2432,7 +2431,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_fontSizeScaleWithFontSizeNested() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val paragraphFontSize = 20.sp
 
@@ -2463,7 +2462,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inEm_OnWholeText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2486,7 +2485,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inSp_OnWholeText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2509,7 +2508,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacingOnPartText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2532,7 +2531,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacingTwice_lastOneOverwrite() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2562,7 +2561,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inEm_withFontSize() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2594,7 +2593,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inEm_withScaleX() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2625,7 +2624,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inSp_withFontSize() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2658,7 +2657,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inSp_withScaleX() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2690,7 +2689,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inSp_after_inEm() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20f
 
@@ -2720,7 +2719,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_setLetterSpacing_inEm_after_inSp() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20f
 
@@ -2749,7 +2748,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textIndent_inSp_onSingleLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2775,7 +2774,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textIndent_inSp_onFirstLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcdef"
             val fontSize = 20f
             val indent = 15f
@@ -2798,7 +2797,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textIndent_inSp_onRestLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20f
             val indent = 20f
@@ -2821,7 +2820,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textIndent_inEm_onSingleLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 20f
             val indent = 1.5f
@@ -2841,7 +2840,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textIndent_inEm_onFirstLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcdef"
             val fontSize = 20f
             val indent = 1.5f
@@ -2865,7 +2864,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun textIndent_inEm_onRestLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcdef"
             val fontSize = 20f
             val indent = 1.5f
@@ -2889,7 +2888,7 @@ class ParagraphIntegrationTest {
     }
     @Test
     fun testAnnotatedString_fontFamily_changesMeasurement() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "ad"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2918,7 +2917,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_fontFeature_turnOffKern() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "AaAa"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2945,7 +2944,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testAnnotatedString_shadow() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -2978,7 +2977,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testDefaultSpanStyle_setColor() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
             val fontSize = 100.sp
@@ -3007,7 +3006,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testDefaultSpanStyle_setLetterSpacing() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
             val fontSize = 100.sp
@@ -3029,7 +3028,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_singleLine() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3063,7 +3062,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_multiLines() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc\nabc"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3107,7 +3106,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_Bidi() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val textLTR = "Hello"
             val textRTL = "שלום"
             val text = textLTR + textRTL
@@ -3186,7 +3185,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_Surrogate_Pair_Start_Middle_Second_Character_Selected() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\uD834\uDD1E\uD834\uDD1F"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3212,7 +3211,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_Surrogate_Pair_End_Middle_Second_Character_Selected() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\uD834\uDD1E\uD834\uDD1F"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3238,7 +3237,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_Surrogate_Pair_Start_Middle_End_Same_Character_Returns_Line_Segment() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\uD834\uDD1E\uD834\uDD1F"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3264,7 +3263,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_Emoji_Sequence() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u1F600\u1F603\u1F604\u1F606"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3298,7 +3297,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_Unicode_200D_Return_Line_Segment() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u200D"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3325,7 +3324,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun testGetPathForRange_Unicode_2066_Return_Line_Segment() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "\u2066"
             val fontSize = 20f.sp
             val fontSizeInPx = fontSize.toPx().value
@@ -3412,7 +3411,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun minInstrinsicWidth_includes_white_space() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 12.sp
             val text = "b "
             val paragraph = simpleParagraph(
@@ -3427,7 +3426,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun minInstrinsicWidth_returns_longest_word_width() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             // create words with length 1, 2, 3... 50; and append all with space.
             val maxWordLength = 50
             val text = (1..maxWordLength).fold("") { string, next ->
@@ -3447,7 +3446,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun minInstrinsicWidth_withStyledText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "a bb ccc"
             val fontSize = 12.sp
             val styledFontSize = fontSize * 2
@@ -3498,7 +3497,7 @@ class ParagraphIntegrationTest {
 
     @Test
     fun createParagraph_with_ParagraphIntrinsics() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 14.sp
             val fontSizeInPx = fontSize.toPx().value

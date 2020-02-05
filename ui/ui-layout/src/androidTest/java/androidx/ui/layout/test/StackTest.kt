@@ -35,7 +35,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +46,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class StackTest : LayoutTest() {
     @Test
-    fun testStack() = withDensity(density) {
+    fun testStack() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -93,7 +92,7 @@ class StackTest : LayoutTest() {
     }
 
     @Test
-    fun testStack_withMultipleAlignedChildren() = withDensity(density) {
+    fun testStack_withMultipleAlignedChildren() = with(density) {
         val size = 250.ipx
         val sizeDp = size.toDp()
         val doubleSizeDp = sizeDp * 2
@@ -144,7 +143,7 @@ class StackTest : LayoutTest() {
     }
 
     @Test
-    fun testStack_withStretchChildren() = withDensity(density) {
+    fun testStack_withStretchChildren() = with(density) {
         val size = 250.ipx
         val sizeDp = size.toDp()
         val halfSizeDp = sizeDp / 2
@@ -244,7 +243,7 @@ class StackTest : LayoutTest() {
     }
 
     @Test
-    fun testStack_expanded() = withDensity(density) {
+    fun testStack_expanded() = with(density) {
         val size = 250.ipx
         val sizeDp = size.toDp()
         val halfSize = 125.ipx
@@ -295,7 +294,7 @@ class StackTest : LayoutTest() {
     }
 
     @Test
-    fun testStack_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testStack_hasCorrectIntrinsicMeasurements() = with(density) {
         val testWidth = 90.ipx.toDp()
         val testHeight = 80.ipx.toDp()
 
@@ -338,7 +337,7 @@ class StackTest : LayoutTest() {
     }
 
     @Test
-    fun testStack_hasCorrectIntrinsicMeasurements_withNoAlignedChildren() = withDensity(density) {
+    fun testStack_hasCorrectIntrinsicMeasurements_withNoAlignedChildren() = with(density) {
         testIntrinsics(@Composable {
             Stack {
                 ConstrainedBox(

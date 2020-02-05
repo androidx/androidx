@@ -11,7 +11,7 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.AndroidOwner androidx.ui.unit.DensityScope androidx.ui.core.SemanticsTreeProvider {
+  public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.AndroidOwner androidx.ui.core.SemanticsTreeProvider {
     ctor public AndroidComposeView(android.content.Context context);
     method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
     method public androidx.ui.unit.IntPxPosition calculatePosition();
@@ -140,14 +140,14 @@ package androidx.ui.core {
   public final class DrawNode extends androidx.ui.core.ComponentNode {
     ctor public DrawNode();
     method public boolean getNeedsPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.unit.DensityScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.unit.Density,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaint();
     method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaintWithChildren();
     method public void invalidate();
     method public void setNeedsPaint(boolean p);
-    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.unit.DensityScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
+    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
     method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
     property public final boolean needsPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.unit.DensityScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.unit.Density,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaint;
     property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
@@ -239,19 +239,19 @@ package androidx.ui.core {
   }
 
   public static interface LayoutNode.MeasureBlocks {
-    method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
     method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope measureScope, java.util.List<? extends androidx.ui.core.Measurable> measurables, androidx.ui.core.Constraints constraints);
-    method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
   }
 
   public abstract static class LayoutNode.NoIntrinsicsMeasureBlocks implements androidx.ui.core.LayoutNode.MeasureBlocks {
     ctor public LayoutNode.NoIntrinsicsMeasureBlocks(String error);
-    method public Void maxIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public Void maxIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
-    method public Void minIntrinsicHeight(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public Void minIntrinsicWidth(androidx.ui.unit.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public Void maxIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public Void maxIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public Void minIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public Void minIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
   }
 
   public final class LayoutNodeWrapperKt {

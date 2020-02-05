@@ -48,7 +48,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.em
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -75,7 +74,7 @@ class AndroidParagraphTest {
 
     @Test
     fun draw_with_newline_and_line_break_default_values() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 50.sp
             for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
                 val paragraphAndroid = simpleParagraph(
@@ -233,7 +232,7 @@ class AndroidParagraphTest {
 
     @Test
     fun testAnnotatedString_setFontSizeOnWholeText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val paragraphWidth = text.length * fontSize.toPx().value
@@ -251,7 +250,7 @@ class AndroidParagraphTest {
 
     @Test
     fun testAnnotatedString_setFontSizeOnPartText() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val paragraphWidth = text.length * fontSize.toPx().value
@@ -269,7 +268,7 @@ class AndroidParagraphTest {
 
     @Test
     fun testAnnotatedString_setFontSizeTwice_lastOneOverwrite() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeOverwrite = 30.sp
@@ -898,7 +897,7 @@ class AndroidParagraphTest {
 
     @Test
     fun testEllipsis_withMaxLineEqualsNull_doesNotEllipsis() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 20.sp
             val paragraphWidth = (text.length - 1) * fontSize.toPx().value
@@ -920,7 +919,7 @@ class AndroidParagraphTest {
 
     @Test
     fun testEllipsis_withMaxLinesLessThanTextLines_doesEllipsis() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abcde"
             val fontSize = 100.sp
             // Note that on API 21, if the next line only contains 1 character, ellipsis won't work
@@ -942,7 +941,7 @@ class AndroidParagraphTest {
 
     @Test
     fun testEllipsis_withMaxLinesMoreThanTextLines_doesNotEllipsis() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val text = "abc"
             val fontSize = 100.sp
             val paragraphWidth = (text.length - 1) * fontSize.toPx().value
@@ -966,7 +965,7 @@ class AndroidParagraphTest {
 
     @Test
     fun testSpanStyle_fontSize_appliedOnTextPaint() {
-        withDensity(defaultDensity) {
+        with(defaultDensity) {
             val fontSize = 100.sp
             val paragraph = simpleParagraph(
                 text = "",

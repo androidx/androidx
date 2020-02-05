@@ -40,7 +40,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 
 /**
  * State for [Scaffold] composable component.
@@ -260,7 +259,7 @@ private fun ScaffoldContent(
     content: @Composable() (Modifier) -> Unit
 ) {
     ScaffoldSlot(modifier) {
-        val bottomSpace = withDensity(DensityAmbient.current) {
+        val bottomSpace = with(DensityAmbient.current) {
             scaffoldState.bottomBarSize?.height?.toDp() ?: 0.dp
         }
         content(LayoutPadding(bottom = bottomSpace))

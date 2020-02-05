@@ -61,7 +61,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -285,7 +284,7 @@ class ScrollerTest {
         rowHeight: IntPx = defaultCellSize
     ) {
         // We assume that the height of the device is more than 45 px
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             composeTestRule.setContent {
                 Align(alignment = Alignment.TopLeft) {
                     TestTag(scrollerTag) {
@@ -322,7 +321,7 @@ class ScrollerTest {
         columnWidth: IntPx = defaultCellSize
     ) {
         // We assume that the height of the device is more than 45 px
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             composeTestRule.setContent {
                 Align(alignment = Alignment.TopLeft) {
                     TestTag(scrollerTag) {

@@ -24,7 +24,6 @@ import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.minDimension
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 
 /**
  * Defines size of a corner in [Px]. For example for rounded shape it can be a corner radius.
@@ -49,7 +48,7 @@ fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
 
 private data class DpCornerSize(private val size: Dp) : CornerSize {
     override fun toPx(shapeSize: PxSize, density: Density) =
-        withDensity(density) { size.toPx() }
+        with(density) { size.toPx() }
 }
 
 /**

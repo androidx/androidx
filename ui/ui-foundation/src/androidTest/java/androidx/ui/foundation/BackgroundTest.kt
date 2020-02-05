@@ -21,8 +21,8 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
-import androidx.ui.core.WithDensity
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -35,7 +35,7 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.px
 import org.junit.Rule
 import org.junit.Test
@@ -153,11 +153,11 @@ class BackgroundTest {
     }
 
     @Composable
-    private fun OuterJunk(children: @Composable DensityScope.() -> Unit) {
+    private fun OuterJunk(children: @Composable Density.() -> Unit) {
         Align(Alignment.TopLeft) {
             TestTag(contentTag) {
                 Semantics(container = true) {
-                    WithDensity(children)
+                    DensityAmbient.current.children()
                 }
             }
         }

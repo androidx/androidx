@@ -18,14 +18,13 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInput
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
-import androidx.ui.unit.withDensity
 import kotlin.math.absoluteValue
 
 // TODO(b/143877464): Implement a "can scale in / can scale out" check so that scale slop is only
@@ -52,7 +51,7 @@ fun ScaleSlopExceededGestureDetector(
     onScaleSlopExceeded: () -> Unit,
     children: @Composable() () -> Unit
 ) {
-    val scaleSlop = withDensity(ambientDensity()) { ScaleSlop.toPx() }
+    val scaleSlop = with(DensityAmbient.current) { ScaleSlop.toPx() }
     val recognizer = remember { ScaleSlopExceededGestureRecognizer(scaleSlop) }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded

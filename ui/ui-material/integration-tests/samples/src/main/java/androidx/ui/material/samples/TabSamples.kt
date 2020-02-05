@@ -25,8 +25,8 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Text
-import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.DrawBorder
@@ -48,7 +48,6 @@ import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 
 @Sampled
 @Composable
@@ -326,8 +325,9 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Padding to set the 'offset'
     Container(expanded = true, alignment = Alignment.BottomLeft) {
         Transition(transitionDefinition, selectedIndex) { state ->
-            val offset = withDensity(ambientDensity()) { state[indicatorStart].toDp() }
-            val width = withDensity(ambientDensity()) {
+            val density = DensityAmbient.current
+            val offset = with(density) { state[indicatorStart].toDp() }
+            val width = with(density) {
                 (state[indicatorEnd] - state[indicatorStart]).toDp()
             }
             Padding(left = offset) {

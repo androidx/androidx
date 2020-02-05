@@ -26,8 +26,8 @@ import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.Transition
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
-import androidx.ui.core.ambientDensity
 import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
@@ -41,7 +41,6 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 import androidx.ui.graphics.vectormath.degrees
 import kotlin.math.abs
 import kotlin.math.max
@@ -472,9 +471,9 @@ private val CircularIndeterminateTransition = transitionDefinition {
 
 @Composable
 private fun paint(color: Color, strokeCap: StrokeCap): Paint {
-    val density = ambientDensity()
+    val density = DensityAmbient.current
     val basePaint = remember {
-        withDensity(density) {
+        with(density) {
             Paint().apply {
                 isAntiAlias = true
                 style = PaintingStyle.stroke

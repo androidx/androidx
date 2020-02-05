@@ -35,7 +35,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.withDensity
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +49,7 @@ class ExpandedModifierTest : LayoutTest() {
     private val Height = 100.dp
 
     @Test
-    fun testExpandedModifier_correctSize() = withDensity(density) {
+    fun testExpandedModifier_correctSize() = with(density) {
         val displayMetrics = Resources.getSystem().displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
@@ -74,7 +73,7 @@ class ExpandedModifierTest : LayoutTest() {
     }
 
     @Test
-    fun testExpandedModifier_noChangeIntrinsicMeasurements() = withDensity(density) {
+    fun testExpandedModifier_noChangeIntrinsicMeasurements() = with(density) {
         verifyIntrinsicMeasurements(LayoutWidth.Fill)
         verifyIntrinsicMeasurements(LayoutHeight.Fill)
         verifyIntrinsicMeasurements(LayoutSize.Fill)
@@ -107,7 +106,7 @@ class ExpandedModifierTest : LayoutTest() {
         return size.value!!
     }
 
-    private fun verifyIntrinsicMeasurements(expandedModifier: Modifier) = withDensity(density) {
+    private fun verifyIntrinsicMeasurements(expandedModifier: Modifier) = with(density) {
         // intrinsic measurements do not change with the ExpandedModifier
         testIntrinsics(@Composable {
             Container(

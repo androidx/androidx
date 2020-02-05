@@ -22,7 +22,7 @@ import androidx.annotation.DimenRes
 import androidx.annotation.IntegerRes
 import androidx.compose.Composable
 import androidx.ui.core.ContextAmbient
-import androidx.ui.core.ambientDensity
+import androidx.ui.core.DensityAmbient
 import androidx.ui.unit.Dp
 
 /**
@@ -70,7 +70,7 @@ fun booleanResource(@BoolRes id: Int): Boolean {
 @Composable
 fun dimensionResource(@DimenRes id: Int): Dp {
     val context = ContextAmbient.current
-    val density = ambientDensity()
+    val density = DensityAmbient.current
     val pxValue = context.resources.getDimension(id)
     return Dp(pxValue / density.density)
 }

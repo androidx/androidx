@@ -20,12 +20,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.withDensity
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -59,7 +58,7 @@ class ScaleGestureDetectorTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                touchSlop = withDensity(ambientDensity()) { TouchSlop.toIntPx() }
+                touchSlop = with(DensityAmbient.current) { TouchSlop.toIntPx() }
                 ScaleGestureDetector(scaleObserver) {
                     Layout(
                         measureBlock = { _, _ ->

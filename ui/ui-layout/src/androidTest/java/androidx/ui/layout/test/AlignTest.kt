@@ -36,7 +36,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +47,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class AlignTest : LayoutTest() {
     @Test
-    fun testAlign() = withDensity(density) {
+    fun testAlign() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -88,7 +87,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test2DAlignedModifier() = withDensity(density) {
+    fun test2DAlignedModifier() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -128,7 +127,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test1DAlignedModifier() = withDensity(density) {
+    fun test1DAlignedModifier() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -165,7 +164,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlign_wrapsContent_whenMeasuredWithInfiniteConstraints() = withDensity(density) {
+    fun testAlign_wrapsContent_whenMeasuredWithInfiniteConstraints() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -212,7 +211,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignedModifier_wrapsContent_whenMeasuredWithInfiniteConstraints() = withDensity(
+    fun testAlignedModifier_wrapsContent_whenMeasuredWithInfiniteConstraints() = with(
         density
     ) {
         val sizeDp = 50.dp
@@ -291,7 +290,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlign_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testAlign_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Align(alignment = Alignment.TopLeft) {
                 Container(LayoutAspectRatio(2f)) { }
@@ -313,7 +312,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test2DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun test2DAlignedModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutAlign.TopLeft + LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -340,7 +339,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutAlign.CenterVertically + LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -368,7 +367,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlign_hasCorrectIntrinsicMeasurements_whenNoChildren() = withDensity(density) {
+    fun testAlign_hasCorrectIntrinsicMeasurements_whenNoChildren() = with(density) {
         testIntrinsics(@Composable {
             Align(alignment = Alignment.TopLeft) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -384,7 +383,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlign_alignsCorrectly_whenOddDimensions_endAligned() = withDensity(density) {
+    fun testAlign_alignsCorrectly_whenOddDimensions_endAligned() = with(density) {
         // Given a 100 x 100 pixel container, we want to make sure that when aligning a 1 x 1 pixel
         // child to both ends (bottom, and right) we correctly position children at the last
         // possible pixel, and avoid rounding issues. Previously we first centered the coordinates,
@@ -443,7 +442,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignedModifier_alignsCorrectly_whenOddDimensions_endAligned() = withDensity(density) {
+    fun testAlignedModifier_alignsCorrectly_whenOddDimensions_endAligned() = with(density) {
         // Given a 100 x 100 pixel container, we want to make sure that when aligning a 1 x 1 pixel
         // child to both ends (bottom, and right) we correctly position children at the last
         // possible pixel, and avoid rounding issues. Previously we first centered the coordinates,

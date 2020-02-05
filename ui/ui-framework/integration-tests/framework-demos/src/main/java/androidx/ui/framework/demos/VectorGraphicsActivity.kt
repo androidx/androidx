@@ -19,9 +19,9 @@ package androidx.ui.framework.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
+import androidx.ui.core.DensityAmbient
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
-import androidx.ui.core.WithDensity
 import androidx.ui.unit.dp
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
@@ -50,7 +50,7 @@ class VectorGraphicsActivity : Activity() {
         setContent {
             Column {
                 val vectorAsset = loadVectorResource(R.drawable.ic_crane)
-                WithDensity {
+                with(DensityAmbient.current) {
                     vectorAsset.resource.resource?.let {
                         Center {
                             Container(width = 200.dp, height = 100.dp) {

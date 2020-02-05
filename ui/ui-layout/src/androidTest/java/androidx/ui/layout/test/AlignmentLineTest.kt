@@ -34,7 +34,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +45,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class AlignmentLineTest : LayoutTest() {
     @Test
-    fun testAlignmentLineOffset_vertical() = withDensity(density) {
+    fun testAlignmentLineOffset_vertical() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = VerticalAlignmentLine(::min)
         val beforeDp = 20.px.toDp()
@@ -85,7 +84,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignmentLineOffset_horizontal() = withDensity(density) {
+    fun testAlignmentLineOffset_horizontal() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = HorizontalAlignmentLine(::min)
         val beforeDp = 20.px.toDp()
@@ -121,7 +120,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignmentLineOffset_vertical_withSmallOffsets() = withDensity(density) {
+    fun testAlignmentLineOffset_vertical_withSmallOffsets() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = VerticalAlignmentLine(::min)
         val beforeDp = 5.px.toDp()
@@ -153,7 +152,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignmentLineOffset_horizontal_withSmallOffsets() = withDensity(density) {
+    fun testAlignmentLineOffset_horizontal_withSmallOffsets() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = HorizontalAlignmentLine(::min)
         val beforeDp = 5.px.toDp()
@@ -185,7 +184,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignmentLineOffset_vertical_withInsufficientSpace() = withDensity(density) {
+    fun testAlignmentLineOffset_vertical_withInsufficientSpace() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = VerticalAlignmentLine(::min)
         val maxWidth = 30.px.toDp()
@@ -225,7 +224,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignmentLineOffset_horizontal_withInsufficientSpace() = withDensity(density) {
+    fun testAlignmentLineOffset_horizontal_withInsufficientSpace() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = HorizontalAlignmentLine(::min)
         val maxHeight = 30.px.toDp()
@@ -265,7 +264,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignmentLineOffset_vertical_keepsCrossAxisMinConstraints() = withDensity(density) {
+    fun testAlignmentLineOffset_vertical_keepsCrossAxisMinConstraints() = with(density) {
         val testLine = VerticalAlignmentLine(::min)
         val latch = CountDownLatch(1)
         val minHeight = 10.dp
@@ -285,7 +284,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignmentLineOffset_horizontal_keepsCrossAxisMinConstraints() = withDensity(density) {
+    fun testAlignmentLineOffset_horizontal_keepsCrossAxisMinConstraints() = with(density) {
         val testLine = HorizontalAlignmentLine(::min)
         val latch = CountDownLatch(1)
         val minWidth = 10.dp
@@ -305,7 +304,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testCenterAlignmentLine_vertical_keepsCrossAxisMinConstraints() = withDensity(density) {
+    fun testCenterAlignmentLine_vertical_keepsCrossAxisMinConstraints() = with(density) {
         val testLine = VerticalAlignmentLine(::min)
         val latch = CountDownLatch(1)
         val minHeight = 10.dp
@@ -325,7 +324,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testCenterAlignmentLine_horizontal_keepsCrossAxisMinConstraints() = withDensity(density) {
+    fun testCenterAlignmentLine_horizontal_keepsCrossAxisMinConstraints() = with(density) {
         val testLine = HorizontalAlignmentLine(::min)
         val latch = CountDownLatch(1)
         val minWidth = 10.dp
@@ -345,7 +344,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testCenterAlignmentLine_vertical_withInfiniteWidth() = withDensity(density) {
+    fun testCenterAlignmentLine_vertical_withInfiniteWidth() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = VerticalAlignmentLine(::min)
         val childWidth = 30.dp
@@ -389,7 +388,7 @@ class AlignmentLineTest : LayoutTest() {
     }
 
     @Test
-    fun testCenterAlignmentLine_horizontal_withInfiniteHeight() = withDensity(density) {
+    fun testCenterAlignmentLine_horizontal_withInfiniteHeight() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = HorizontalAlignmentLine(::min)
         val childWidth = 30.dp

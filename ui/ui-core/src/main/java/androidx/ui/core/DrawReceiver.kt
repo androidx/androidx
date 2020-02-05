@@ -15,7 +15,7 @@
  */
 package androidx.ui.core
 
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 
 /**
  * Receiver scope for [Draw] lambda that allows ordering the child drawing between
@@ -23,7 +23,7 @@ import androidx.ui.unit.DensityScope
  * a [Canvas] should be modified for the children. [DrawReceiver] is the receiver scope for
  * the `onPaint` to give access to [drawChildren].
  */
-interface DrawReceiver : DensityScope {
+interface DrawReceiver : Density {
     /**
      * Causes child drawing operations to run during the `onPaint` lambda.
      */

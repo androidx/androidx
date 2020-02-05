@@ -46,7 +46,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.TextUnitType
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import androidx.ui.graphics.toArgb
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Locale
@@ -71,7 +70,7 @@ internal fun TextPaint.applySpanStyle(
 ): SpanStyle {
 
     when (style.fontSize.type) {
-        TextUnitType.Sp -> withDensity(density) {
+        TextUnitType.Sp -> with(density) {
             textSize = style.fontSize.toPx().value
         }
         TextUnitType.Em -> {
@@ -173,7 +172,7 @@ internal fun createStyledText(
     val deferredSpans = mutableListOf<Triple<Any, Int, Int>>()
 
     when (lineHeight.type) {
-        TextUnitType.Sp -> withDensity(density) {
+        TextUnitType.Sp -> with(density) {
             spannableString.setSpan(
                 LineHeightSpan(ceil(lineHeight.toPx().value).toInt()),
                 0,
@@ -195,7 +194,7 @@ internal fun createStyledText(
     textIndent?.let { indent ->
         if (indent.firstLine == 0.sp && indent.restLine == 0.sp) return@let
         if (indent.firstLine.isInherit || indent.restLine.isInherit) return@let
-        withDensity(density) {
+        with(density) {
             val firstLine = when (indent.firstLine.type) {
                 TextUnitType.Sp -> indent.firstLine.toPx().value
                 TextUnitType.Em -> indent.firstLine.value * contextFontSize
@@ -265,7 +264,7 @@ internal fun createStyledText(
         }
 
         when (style.fontSize.type) {
-            TextUnitType.Sp -> withDensity(density) {
+            TextUnitType.Sp -> with(density) {
                 spannableString.setSpan(
                     AbsoluteSizeSpan(style.fontSize.toPx().value.roundToInt(), true),
                     start,
@@ -325,7 +324,7 @@ internal fun createStyledText(
         }
 
         when (style.letterSpacing.type) {
-            TextUnitType.Sp -> withDensity(density) {
+            TextUnitType.Sp -> with(density) {
                 deferredSpans.add(
                     Triple(LetterSpacingSpanPx(style.letterSpacing.toPx().value), start, end)
                 )
