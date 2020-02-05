@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # The default FragmentFactory creates Fragment instances using reflection
--if public class ** implements androidx.fragment.app.Fragment
--keep public class ** implements androidx.fragment.app.Fragment {
+-if public class ** extends androidx.fragment.app.Fragment
+-keep public class ** extends androidx.fragment.app.Fragment {
     public <init>();
 }
