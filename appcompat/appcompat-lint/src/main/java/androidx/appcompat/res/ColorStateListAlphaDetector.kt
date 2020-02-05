@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
 import org.w3c.dom.Element
 
+@Suppress("UnstableApiUsage")
 class ColorStateListAlphaDetector : Detector(), XmlScanner {
     companion object {
         internal val NOT_USING_ANDROID_ALPHA: Issue = Issue.create(

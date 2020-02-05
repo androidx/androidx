@@ -27,6 +27,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
 
+@Suppress("UnstableApiUsage")
 class ColorStateListLoadingDetector : Detector(), SourceCodeScanner {
     companion object {
         internal val NOT_USING_COMPAT_LOADING: Issue = Issue.create(

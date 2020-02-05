@@ -27,6 +27,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.XmlContext
 import org.w3c.dom.Element
 
+@Suppress("UnstableApiUsage")
 class ImageViewTintDetector : LayoutDetector() {
     companion object {
         internal val USING_ANDROID_TINT: Issue = Issue.create(
