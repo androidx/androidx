@@ -75,6 +75,14 @@
         <activity android:name="androidx.core.app.FrameMetricsActivity"/>
         <activity android:name="androidx.core.app.FrameMetricsSubActivity"/>
 
+        <activity
+            android:name="androidx.core.view.WindowCompatActivity"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity
+            android:name="androidx.core.view.WindowInsetsCompatActivity"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="moocow"
