@@ -141,49 +141,55 @@ class MultiParagraph(
     /** The total number of lines in the text. */
     val lineCount: Int
 
-    private val paragraphInfoList: List<ParagraphInfo>
+    /* This is internal for testing purpose. */
+    internal val paragraphInfoList: List<ParagraphInfo>
 
     init {
-        // create sub paragraphs and layouts
-        this.paragraphInfoList = intrinsics.infoList.map {
-            ParagraphInfo(
-                paragraph = Paragraph(
-                    it.intrinsics,
-                    maxLines,
-                    ellipsis,
-                    constraints
-                ),
-                startIndex = it.startIndex,
-                endIndex = it.endIndex
-            )
-        }
-
-        // final layout
-        var didExceedMaxLines = false
-        var currentLineCount = 0
         var currentHeight = 0f
+        var currentLineCount = 0
+        var didExceedMaxLines = false
 
-        for ((index, paragraphInfo) in paragraphInfoList.withIndex()) {
-            val paragraph = paragraphInfo.paragraph
+        // create sub paragraphs and layouts
+        val paragraphInfoList = mutableListOf<ParagraphInfo>()
+        for ((index, paragraphInfo) in intrinsics.infoList.withIndex()) {
+            val paragraph = Paragraph(
+                paragraphInfo.intrinsics,
+                maxLines - currentLineCount,
+                ellipsis,
+                constraints
+            )
 
-            paragraphInfo.startLineIndex = currentLineCount
-            paragraphInfo.endLineIndex = currentLineCount + paragraph.lineCount
-            currentLineCount = paragraphInfo.endLineIndex
+            val paragraphTop = currentHeight
+            val paragraphBottom = currentHeight + paragraph.height
+            currentHeight = paragraphBottom
 
-            paragraphInfo.top = currentHeight.px
-            paragraphInfo.bottom = (currentHeight + paragraph.height).px
-            currentHeight += paragraph.height
+            val startLineIndex = currentLineCount
+            val endLineIndex = startLineIndex + paragraph.lineCount
+            currentLineCount = endLineIndex
+
+            paragraphInfoList.add(
+                ParagraphInfo(
+                    paragraph = paragraph,
+                    startIndex = paragraphInfo.startIndex,
+                    endIndex = paragraphInfo.endIndex,
+                    startLineIndex = startLineIndex,
+                    endLineIndex = endLineIndex,
+                    top = paragraphTop.px,
+                    bottom = paragraphBottom.px
+                )
+            )
 
             if (paragraph.didExceedMaxLines ||
-                (currentLineCount == maxLines && index != this.paragraphInfoList.lastIndex)
-            ) {
+                (endLineIndex == maxLines && index != intrinsics.infoList.lastIndex)) {
                 didExceedMaxLines = true
                 break
             }
         }
-        this.didExceedMaxLines = didExceedMaxLines
-        this.lineCount = currentLineCount
+
         this.height = currentHeight
+        this.lineCount = currentLineCount
+        this.didExceedMaxLines = didExceedMaxLines
+        this.paragraphInfoList = paragraphInfoList
         this.width = constraints.width
     }
 
