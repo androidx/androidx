@@ -55,6 +55,7 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    testOptions.unitTests.includeAndroidResources = true
 }
 androidx {
     name = "Jetpack Camera View Library"
