@@ -67,6 +67,10 @@ package androidx.ui.core {
     method public static inline void Opacity(@FloatRange(from=0.0, to=1.0) float opacity, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class PainterModifierKt {
+    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+  }
+
   public final class ParentDataKt {
     method public static inline void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }

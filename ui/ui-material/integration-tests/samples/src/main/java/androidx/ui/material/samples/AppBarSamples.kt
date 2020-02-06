@@ -19,6 +19,7 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Image
 import androidx.ui.material.AppBarIcon
@@ -34,7 +35,7 @@ fun SimpleTopAppBarNavIcon(getMyNavigationImage: () -> Image) {
 
     TopAppBar(
         title = { Text("Simple TopAppBar") },
-        navigationIcon = { AppBarIcon(someNavigationImage) { /* doSomething() */ } }
+        navigationIcon = { AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething() */ } }
     )
 }
 
@@ -48,7 +49,7 @@ fun SimpleTopAppBarNavIconWithActions(
     val someNavigationImage: Image = getMyNavigationImage()
 
     val navigationIcon: @Composable() () -> Unit = {
-        AppBarIcon(someNavigationImage) { /* doSomething()*/ }
+        AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething()*/ }
     }
     val actionData = listOf(someActionImage, someActionImage)
 
@@ -57,7 +58,7 @@ fun SimpleTopAppBarNavIconWithActions(
         navigationIcon = navigationIcon,
         actionData = actionData
     ) { actionImage ->
-        AppBarIcon(actionImage) { /* doSomething()*/ }
+        AppBarIcon(ImagePainter(actionImage)) { /* doSomething()*/ }
     }
 }
 
@@ -68,7 +69,7 @@ fun SimpleBottomAppBarNoFab(getMyActionImage: () -> Image, getMyNavigationImage:
     val someNavigationImage: Image = getMyNavigationImage()
 
     val navigationIcon: @Composable() () -> Unit = {
-        AppBarIcon(someNavigationImage) { /* doSomething()*/ }
+        AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething()*/ }
     }
     val actionData = listOf(someActionImage, someActionImage)
 
@@ -76,7 +77,7 @@ fun SimpleBottomAppBarNoFab(getMyActionImage: () -> Image, getMyNavigationImage:
         navigationIcon = navigationIcon,
         actionData = actionData
     ) { actionImage ->
-        AppBarIcon(actionImage) { /* doSomething()*/ }
+        AppBarIcon(ImagePainter(actionImage)) { /* doSomething()*/ }
     }
 }
 
@@ -93,7 +94,7 @@ fun SimpleBottomAppBarCutoutWithScaffold(getMyActionImage: () -> Image) {
                 cutoutShape = fabShape,
                 actionData = actionData
             ) { actionImage ->
-                AppBarIcon(actionImage) { /* doSomething()*/ }
+                AppBarIcon(ImagePainter(actionImage)) { /* doSomething()*/ }
             }
         },
         floatingActionButton = {

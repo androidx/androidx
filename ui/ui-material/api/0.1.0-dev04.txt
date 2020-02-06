@@ -12,7 +12,7 @@ package androidx.ui.material {
   }
 
   public final class AppBarKt {
-    method public static void AppBarIcon(androidx.ui.graphics.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static void AppBarIcon(androidx.ui.graphics.painter.Painter icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method public static <T> void BottomAppBar(androidx.ui.graphics.Color color = MaterialTheme.colors().primary, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, androidx.ui.graphics.Shape? cutoutShape = null, java.util.List<? extends T> actionData = emptyList(), kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
     method public static void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null);
     method public static <T> void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, java.util.List<? extends T> actionData, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action);

@@ -482,7 +482,9 @@ package androidx.ui.unit {
   }
 
   public static final class PxSize.Companion {
+    method public androidx.ui.unit.PxSize getUnspecifiedSize();
     method public androidx.ui.unit.PxSize getZero();
+    property public final androidx.ui.unit.PxSize UnspecifiedSize;
     property public final androidx.ui.unit.PxSize Zero;
   }
 

@@ -29,6 +29,7 @@ import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.AppBarIcon
@@ -62,7 +63,7 @@ fun SimpleScaffoldWithTopBar(navigationImage: Image) {
             TopAppBar(
                 title = { Text("Simple Scaffold Screen") },
                 navigationIcon = {
-                    AppBarIcon(navigationImage, onClick = {
+                    AppBarIcon(ImagePainter(navigationImage), onClick = {
                         scaffoldState.drawerState = DrawerState.Opened
                     })
                 }
@@ -127,7 +128,7 @@ fun ScaffoldWithBottomBarAndCutout(navigationImage: Image) {
                 fabConfiguration = fabConfiguraion,
                 cutoutShape = fabShape,
                 navigationIcon = {
-                    AppBarIcon(navigationImage) {
+                    AppBarIcon(ImagePainter(navigationImage)) {
                         scaffoldState.drawerState = DrawerState.Opened
                     }
                 }
