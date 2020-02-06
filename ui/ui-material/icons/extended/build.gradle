@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -29,54 +28,34 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose:compose-compiler")
-
     implementation(KOTLIN_STDLIB)
 
-    api "androidx.annotation:annotation:1.1.0"
-
-    api project(":compose:compose-runtime")
-    implementation project(":ui:ui-util")
-    api project(":ui:ui-core")
-    api project(":ui:ui-foundation")
     api project(":ui:ui-material-icons-core")
-    api project(":ui:ui-text")
 
-    implementation project(":ui:ui-framework")
-    implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-animation")
-    implementation project(":ui:ui-vector")
-
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(TRUTH)
-    testImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
-    }
-
-    androidTestImplementation project(":ui:ui-material:integration-tests:samples")
+    androidTestImplementation project(":ui:ui-layout")
     androidTestImplementation project(":ui:ui-platform")
     androidTestImplementation project(":ui:ui-test")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
+    androidTestImplementation(KOTLIN_REFLECT)
     androidTestImplementation(TRUTH)
 }
 
+android.buildTypes.all {
+    // Jacoco hangs intermittently due to the large number of files
+    testCoverageEnabled = false
+}
+
 androidx {
-    name = "Androidx Material"
+    name = "AndroidX Extended Material Icons"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
-    inceptionYear = "2018"
-    description = "AndroidX Material"
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        useIR = true
-    }
+    // This module has a large number (5000+) of generated source files and so doc generation /
+    // API tracking will simply take too long
+    toolingProject = true
+    inceptionYear = "2020"
+    description = "AndroidX Extended Material Icons"
 }
