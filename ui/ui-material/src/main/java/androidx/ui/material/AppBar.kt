@@ -678,12 +678,14 @@ private fun <T> AppBarActions(
  */
 @Composable
 fun AppBarIcon(icon: Painter, onClick: () -> Unit) {
-    Ripple(bounded = false) {
-        Clickable(onClick = onClick) {
-            Container(
-                modifier = icon.toModifier(),
-                width = ActionIconDiameter,
-                height = ActionIconDiameter) {
+    Container(width = ActionIconDiameter, height = ActionIconDiameter) {
+        Ripple(bounded = false) {
+            Clickable(onClick = onClick) {
+                Container(
+                    modifier = icon.toModifier(),
+                    width = ActionIconDiameter,
+                    height = ActionIconDiameter) {
+                }
             }
         }
     }
