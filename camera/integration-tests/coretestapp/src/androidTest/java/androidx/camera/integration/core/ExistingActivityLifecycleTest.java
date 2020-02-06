@@ -86,34 +86,39 @@ public final class ExistingActivityLifecycleTest {
     // Check if Preview screen is updated or not, after Destroy-Create lifecycle.
     @Test
     public void checkPreviewUpdatedAfterDestroyRecreate() {
-        // Launch activity, check for view idle, then destroy it.
-        checkForViewIdle(ActivityScenario.launch(CameraXActivity.class))
-                .moveToState(Lifecycle.State.DESTROYED);
-        // Launch new activity and check for view idle.
-        checkForViewIdle(ActivityScenario.launch(CameraXActivity.class)).close();
+        // Launch activity.
+        try (ActivityScenario<CameraXActivity> activityScenario =
+                     ActivityScenario.launch(CameraXActivity.class)) {
+            // Check for view idle, then destroy it.
+            checkForViewIdle(activityScenario);
+            // Launch new activity and check for view idle.
+            checkForViewIdle(activityScenario.recreate());
+        }
     }
 
     // Check if Preview screen is updated or not, after Stop-Resume lifecycle.
     @Test
     public void checkPreviewUpdatedAfterStopResume() {
-        // Launch activity check for view idle.
-        ActivityScenario<CameraXActivity> activityScenario =
-                checkForViewIdle(ActivityScenario.launch(CameraXActivity.class));
+        // Launch activity.
+        try (ActivityScenario<CameraXActivity> activityScenario =
+                     ActivityScenario.launch(CameraXActivity.class)) {
+            // Check view gets to idle.
+            checkForViewIdle(activityScenario);
+            // Go through pause/resume then check again for view to get frames then idle.
+            activityScenario.moveToState(Lifecycle.State.CREATED);
+            activityScenario.onActivity(activity -> {
+                activity.resetViewIdlingResource();
+            });
+            checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
 
-        // Go through pause/resume then check again for view to get frames then idle.
-        activityScenario.moveToState(Lifecycle.State.CREATED);
-        activityScenario.onActivity(activity -> {
-            activity.resetViewIdlingResource();
-        });
-        checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
-
-        // Go through pause/resume then check again for view to get frames then idle, the
-        // second pass is used to protect against previous observed issues.
-        activityScenario.moveToState(Lifecycle.State.CREATED);
-        activityScenario.onActivity(activity -> {
-            activity.resetViewIdlingResource();
-        });
-        checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED)).close();
+            // Go through pause/resume then check again for view to get frames then idle, the
+            // second pass is used to protect against previous observed issues.
+            activityScenario.moveToState(Lifecycle.State.CREATED);
+            activityScenario.onActivity(activity -> {
+                activity.resetViewIdlingResource();
+            });
+            checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
+        }
     }
 
     // Check if Preview screen is updated or not, after toggling camera, then a Destroy-Create
@@ -122,47 +127,50 @@ public final class ExistingActivityLifecycleTest {
     public void checkPreviewUpdatedAfterToggleCameraAndStopResume() {
         // check have front camera
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
-        ActivityScenario<CameraXActivity> activityScenario =
-                ActivityScenario.launch(CameraXActivity.class);
-        activityScenario.onActivity(activity -> {
-            IdlingRegistry.getInstance().register(activity.getViewIdlingResource());
-        });
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
-        // Switch camera.
-        onView(withId(R.id.direction_toggle)).perform(click());
+        try (ActivityScenario<CameraXActivity> activityScenario =
+                ActivityScenario.launch(CameraXActivity.class)) {
+            activityScenario.onActivity(activity -> {
+                IdlingRegistry.getInstance().register(activity.getViewIdlingResource());
+            });
+            onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+            // Switch camera.
+            onView(withId(R.id.direction_toggle)).perform(click());
 
-        // Go through pause/resume then check again for view to get frames then idle.
-        activityScenario.moveToState(Lifecycle.State.CREATED);
-        activityScenario.onActivity(activity -> {
-            activity.resetViewIdlingResource();
-        });
-        checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED)).close();
+            // Go through pause/resume then check again for view to get frames then idle.
+            activityScenario.moveToState(Lifecycle.State.CREATED);
+            activityScenario.onActivity(activity -> {
+                activity.resetViewIdlingResource();
+            });
+            checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
+        }
     }
 
     // Check if Preview screen is updated or not, after rotate device, and Stop-Resume lifecycle.
     @Test
     public void checkPreviewUpdatedAfterRotateDeviceAndStopResume() {
-        // Launch activity, and check it gets to view idle.
-        ActivityScenario<CameraXActivity> activityScenario =
-                checkForViewIdle(ActivityScenario.launch(CameraXActivity.class));
+        // Launch activity.
+        try (ActivityScenario<CameraXActivity> activityScenario =
+                checkForViewIdle(ActivityScenario.launch(CameraXActivity.class))) {
+            // Check view gets to idle.
+            checkForViewIdle(activityScenario);
+            // Rotate to Landscape and the activity will be recreated.
+            activityScenario.onActivity(activity -> {
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            });
+            // Get idling from the re-created activity.
+            activityScenario.onActivity(activity -> {
+                activity.resetViewIdlingResource();
+            });
+            checkForViewIdle(activityScenario);
 
-        // Rotate to Landscape and the activity will be recreated.
-        activityScenario.onActivity(activity -> {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        });
-        // Get idling from the re-created activity.
-        activityScenario.onActivity(activity -> {
-            activity.resetViewIdlingResource();
-        });
-        checkForViewIdle(activityScenario);
+            activityScenario.moveToState(Lifecycle.State.CREATED);
+            activityScenario.onActivity(activity -> {
+                activity.resetViewIdlingResource();
+            });
+            activityScenario.moveToState(Lifecycle.State.RESUMED);
 
-        activityScenario.moveToState(Lifecycle.State.CREATED);
-        activityScenario.onActivity(activity -> {
-            activity.resetViewIdlingResource();
-        });
-        activityScenario.moveToState(Lifecycle.State.RESUMED);
-
-        checkForViewIdle(activityScenario).close();
+            checkForViewIdle(activityScenario);
+        }
     }
 
     private ActivityScenario<CameraXActivity>
