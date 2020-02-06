@@ -359,36 +359,6 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
-    public void onlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount()
-            throws ExecutionException, InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        DeferrableSurface surface1 = spy(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        changeUseCaseSurface(useCase1);
-        mCamera2CameraImpl.onUseCaseUpdated(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        // Wait for camera to be released to ensure it has finished closing
-        ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
-        releaseFuture.get();
-
-        assertThat(surface1).isNotEqualTo(surface2);
-
-        // Old surface was removed from Camera
-        assertThat(surface1.getUseCount()).isEqualTo(0);
-        // New surface is still in Camera
-        assertThat(surface2.getUseCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-    }
-
-    @Test
     public void onlineUseCase_changeSurface_onUseCaseReset_correctAttachCount()
             throws ExecutionException, InterruptedException {
         blockHandler();
@@ -410,83 +380,13 @@ public final class Camera2CameraImplTest {
 
         assertThat(surface1).isNotEqualTo(surface2);
 
-        // Old surface was removed from Camera
+        // Old surface is decremented when CameraCaptueSession is closed by new
+        // CameraCaptureSession.
         assertThat(surface1.getUseCount()).isEqualTo(0);
-        // New surface is still in Camera
-        assertThat(surface2.getUseCount()).isEqualTo(1);
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-    }
-
-    @Test
-    public void onlineUseCase_changeSurface_onUseCaseActive_correctAttachCount()
-            throws ExecutionException, InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        changeUseCaseSurface(useCase1);
-        mCamera2CameraImpl.onUseCaseActive(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        // Wait for camera to be released to ensure it has finished closing
-        ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
-        releaseFuture.get();
-
-        assertThat(surface1).isNotEqualTo(surface2);
-
-        // Old surface was removed from Camera
-        assertThat(surface1.getUseCount()).isEqualTo(0);
-        // New surface is still in Camera
-        assertThat(surface2.getUseCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-    }
-
-
-    @Test
-    public void offlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount()
-            throws ExecutionException, InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        UseCase useCase2 = createUseCase();
-        // useCase1 is offline.
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase2));
-
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        changeUseCaseSurface(useCase1);
-        mCamera2CameraImpl.onUseCaseUpdated(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        assertThat(surface1).isNotEqualTo(surface2);
-
-        // No attachment because useCase1 is offline.
-        assertThat(surface1.getUseCount()).isEqualTo(0);
+        // New surface is decremented when CameraCaptueSession is closed by
+        // mCamera2CameraImpl.release()
         assertThat(surface2.getUseCount()).isEqualTo(0);
-
-        // make useCase1 online
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-
-        // Wait for camera to be released to ensure it has finished closing
-        ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
-        releaseFuture.get();
-
-        // only surface2 is attached.
-        assertThat(surface1.getUseCount()).isEqualTo(0);
-        assertThat(surface2.getUseCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1, useCase2));
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
     }
 
     @Test
