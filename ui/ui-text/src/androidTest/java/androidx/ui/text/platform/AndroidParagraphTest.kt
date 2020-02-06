@@ -37,7 +37,6 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.text.font.fontFamily
 import androidx.ui.text.matchers.assertThat
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextAlign
@@ -1212,6 +1211,7 @@ class AndroidParagraphTest {
         return AndroidParagraph(
             text = text,
             spanStyles = spanStyles,
+            placeholders = listOf(),
             typefaceAdapter = typefaceAdapter,
             style = TextStyle(
                 textAlign = textAlign,

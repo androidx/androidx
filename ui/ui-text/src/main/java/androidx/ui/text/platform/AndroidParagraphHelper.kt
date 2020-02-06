@@ -38,6 +38,7 @@ import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpanEm
 import androidx.text.style.LetterSpacingSpanPx
 import androidx.text.style.LineHeightSpan
+import androidx.text.style.PlaceholderSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
@@ -50,6 +51,8 @@ import androidx.ui.graphics.toArgb
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Locale
 import androidx.ui.text.LocaleList
+import androidx.ui.text.Placeholder
+import androidx.ui.text.PlaceholderVerticalAlign
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -161,6 +164,7 @@ internal fun createStyledText(
     lineHeight: TextUnit,
     textIndent: TextIndent?,
     spanStyles: List<AnnotatedString.Item<SpanStyle>>,
+    placeholders: List<AnnotatedString.Item<Placeholder>>,
     density: Density,
     typefaceAdapter: TypefaceAdapter
 ): CharSequence {
@@ -370,6 +374,23 @@ internal fun createStyledText(
     for ((span, start, end) in deferredSpans) {
         spannableString.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
+    for ((placeholder, start, end) in placeholders) {
+        with(placeholder) {
+            spannableString.setSpan(
+                PlaceholderSpan(
+                    width = width.value,
+                    widthUnit = width.spanUnit,
+                    height = height.value,
+                    heightUnit = height.spanUnit,
+                    pxPerSp = density.fontScale * density.density,
+                    verticalAlign = placeholderVerticalAlign.spanVerticalAlign
+                ),
+                start,
+                end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
     return spannableString
 }
 
@@ -409,3 +430,26 @@ private fun Locale.toJavaLocale(): JavaLocale = (platformLocale as AndroidLocale
 @RequiresApi(api = 24)
 private fun LocaleList.toAndroidLocaleList(): AndroidLocaleList =
     AndroidLocaleList(*map { it.toJavaLocale() }.toTypedArray())
+
+/** Helper function that converts [TextUnit.type] to the unit in [PlaceholderSpan]. */
+internal val TextUnit.spanUnit: Int
+    get() = when (type) {
+        TextUnitType.Sp -> PlaceholderSpan.UNIT_SP
+        TextUnitType.Em -> PlaceholderSpan.UNIT_EM
+        TextUnitType.Inherit -> PlaceholderSpan.UNIT_INHERIT
+    }
+
+/**
+ * Helper function that converts [PlaceholderVerticalAlign] to the verticalAlign in
+ * [PlaceholderSpan].
+ */
+internal val PlaceholderVerticalAlign.spanVerticalAlign: Int
+    get() = when (this) {
+        PlaceholderVerticalAlign.AboveBaseline -> PlaceholderSpan.ALIGN_ABOVE_BASELINE
+        PlaceholderVerticalAlign.Top -> PlaceholderSpan.ALIGN_TOP
+        PlaceholderVerticalAlign.Bottom -> PlaceholderSpan.ALIGN_BOTTOM
+        PlaceholderVerticalAlign.Center -> PlaceholderSpan.ALIGN_CENTER
+        PlaceholderVerticalAlign.TextTop -> PlaceholderSpan.ALIGN_TEXT_TOP
+        PlaceholderVerticalAlign.TextBottom -> PlaceholderSpan.ALIGN_TEXT_BOTTOM
+        PlaceholderVerticalAlign.TextCenter -> PlaceholderSpan.ALIGN_TEXT_CENTER
+    }

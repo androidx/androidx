@@ -94,6 +94,13 @@ interface Paragraph {
      */
     val lineCount: Int
 
+    /**
+     * The bounding boxes reserved for the input placeholders in this Paragraphs. Their locations
+     * are relative to this Paragraph's coordinate. The order of this list corresponds to that of
+     * input placeholders.
+     */
+    val placeholderRects: List<Rect>
+
     /** Returns path that enclose the given text range. */
     fun getPathForRange(start: Int, end: Int): Path
 
@@ -210,6 +217,8 @@ interface Paragraph {
  * @param text the text to be laid out
  * @param style the [TextStyle] to be applied to the whole text
  * @param spanStyles [SpanStyle]s to be applied to parts of text
+ * @param placeholders a list of placeholder metrics which tells [Paragraph] where should
+ * be left blank to leave space for inline elements.
  * @param maxLines the maximum number of lines that the text can have
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  * @param constraints how wide the text is allowed to be
@@ -222,6 +231,7 @@ interface Paragraph {
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
+    placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
     constraints: ParagraphConstraints,
@@ -232,6 +242,7 @@ interface Paragraph {
         text = text,
         style = style,
         spanStyles = spanStyles,
+        placeholders = placeholders,
         maxLines = maxLines,
         ellipsis = ellipsis,
         constraints = constraints,
