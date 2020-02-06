@@ -24,8 +24,8 @@ DO_ANDROIDX, DO_COMPOSE, DO_BOTH, DO_DRY_RUN = "doAndroidx", "doCompose", "doBot
 BUILD_COMMANDS = [DO_ANDROIDX, DO_COMPOSE, DO_BOTH]
 DEFAULT = "DEFAULT"
 
-SOURCE_JARS, EXECUTION_DATA, BUILD_INFO = "mergeSourceJars", "mergeExecutionData", "mergeBuildInfo"
-MERGE_COMMANDS = [SOURCE_JARS, EXECUTION_DATA, BUILD_INFO]
+SOURCE_JARS, EXECUTION_DATA, BUILD_INFO, LIBRARY_METRICS = "mergeSourceJars", "mergeExecutionData", "mergeBuildInfo", "mergeLibraryMetrics"
+MERGE_COMMANDS = [SOURCE_JARS, EXECUTION_DATA, BUILD_INFO, LIBRARY_METRICS]
 
 # utility function to allow running these scripts from any directory with paths relative to androidx-master-dev/
 def move_to_base_dir(print_pwd=True):
