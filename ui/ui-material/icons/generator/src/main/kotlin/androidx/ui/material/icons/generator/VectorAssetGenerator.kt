@@ -59,7 +59,7 @@ class VectorAssetGenerator(
                 .receiver(iconTheme.className)
                 .delegate(materialIconDelegate())
                 .build()
-        ).indent("    ").build()
+        ).setIndent().build()
     }
 
     /**

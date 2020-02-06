@@ -43,7 +43,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.javaGetter
 
 const val ProgrammaticTestTag = "programmatic"
@@ -99,9 +98,6 @@ class IconComparisonTest {
         }
     }
 }
-
-// TODO: b/146212531 Temporary stub until generation code merges
-private val AllIcons = listOf<Pair<KProperty0<VectorAsset>, String>>()
 
 /**
  * @return the [VectorAsset] matching the drawable with [this] name.

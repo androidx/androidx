@@ -26,6 +26,9 @@ plugins {
 }
 
 dependencies {
+    implementation gradleApi()
+
+    implementation(AGP_STABLE)
     implementation(GUAVA)
     implementation(KOTLIN_STDLIB)
     implementation(KOTLINPOET)
