@@ -32,9 +32,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
@@ -278,6 +278,7 @@ public final class CameraX {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @SuppressWarnings({"lambdaLast", "unused"})
     @NonNull
     public static Camera bindToLifecycle(
@@ -315,7 +316,7 @@ public final class CameraX {
             CameraSelector selector = useCase.getUseCaseConfig().getCameraSelector(null);
             if (selector != null) {
                 for (CameraFilter filter : selector.getCameraFilterSet()) {
-                    selectorBuilder.appendFilter(filter);
+                    selectorBuilder.addCameraFilter(filter);
                 }
             }
         }

@@ -25,11 +25,13 @@ import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureBundle;
@@ -60,6 +62,7 @@ public abstract class ImageCaptureExtender {
     private EffectMode mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
             EffectMode effectMode) {
         mBuilder = builder;
@@ -83,10 +86,11 @@ public abstract class ImageCaptureExtender {
      * Returns the camera specified with the given camera selector and this extension, null if
      * there's no available can be found.
      */
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
-        extensionCameraSelectorBuilder.appendFilter(mExtensionCameraFilter);
+        extensionCameraSelectorBuilder.addCameraFilter(mExtensionCameraFilter);
 
         return CameraUtil.getCameraIdUnchecked(extensionCameraSelectorBuilder.build());
     }
@@ -107,6 +111,7 @@ public abstract class ImageCaptureExtender {
      * @param cameraSelector The selector used to determine the camera for which to enable
      *                       extensions.
      */
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         String cameraId = getCameraWithExtension(cameraSelector);
         if (cameraId == null) {
@@ -120,10 +125,10 @@ public abstract class ImageCaptureExtender {
         CameraSelector originalSelector = mBuilder.getUseCaseConfig().getCameraSelector(null);
         if (originalSelector == null) {
             mBuilder.setCameraSelector(
-                    new CameraSelector.Builder().appendFilter(mExtensionCameraFilter).build());
+                    new CameraSelector.Builder().addCameraFilter(mExtensionCameraFilter).build());
         } else {
             mBuilder.setCameraSelector(CameraSelector.Builder.fromSelector(
-                    originalSelector).appendFilter(mExtensionCameraFilter).build());
+                    originalSelector).addCameraFilter(mExtensionCameraFilter).build());
         }
 
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);
