@@ -16,19 +16,23 @@
 
 package androidx.autofill;
 
+import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_ACTION;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_END_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_START_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_SUBTITLE;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_TITLE;
 
+import android.app.PendingIntent;
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.List;
@@ -44,14 +49,18 @@ import java.util.List;
  * Helper class for rendering {@link Slice} as an Inline Suggestion.
  */
 @RequiresApi(api = Build.VERSION_CODES.Q) // TODO(b/147116534): Update to R.
-public class InlinePresentationRenderer {
+public final class InlinePresentationRenderer {
 
-    private static final String TAG = "InlinePresentationRenderer";
+    private static final String TAG = "InlineRenderer";
 
     /**
      * Renders an {@link Slice} into an Inline Suggestion as a {@link View}.
      */
-    public static @NonNull View renderSlice(@NonNull Context context, @NonNull Slice slice) {
+    @NonNull
+    public static View renderSlice(@NonNull Context context, @NonNull Slice slice,
+            @Nullable String style) {
+        context = InlineSuggestionThemeUtils.getContextThemeWrapper(context, style);
+
         final LayoutInflater inflater = LayoutInflater.from(context);
         final ViewGroup suggestionView =
                 (ViewGroup) inflater.inflate(R.layout.autofill_inline_suggestion, null);
@@ -67,7 +76,9 @@ public class InlinePresentationRenderer {
 
         boolean hasStartIcon = false;
         boolean hasEndIcon = false;
+        boolean hasTitle = false;
         boolean hasSubtitle = false;
+        PendingIntent action = null;
         final List<SliceItem> sliceItems = slice.getItems();
         for (int i = 0; i < sliceItems.size(); i++) {
             final SliceItem sliceItem = sliceItems.get(i);
@@ -88,6 +99,7 @@ public class InlinePresentationRenderer {
                 final String sliceText = sliceItem.getText().toString();
                 if (sliceHints.contains(HINT_INLINE_TITLE)) {
                     titleView.setText(sliceText);
+                    hasTitle = true;
                 } else if (sliceHints.contains(HINT_INLINE_SUBTITLE)) {
                     subtitleView.setText(sliceText);
                     hasSubtitle = true;
@@ -95,22 +107,36 @@ public class InlinePresentationRenderer {
                     throw new IllegalStateException("Unrecognized Text SliceItem in Inline "
                             + "Presentation");
                 }
+            } else if (sliceItem.getFormat().equals(FORMAT_ACTION) && sliceHints.contains(
+                    HINT_INLINE_ACTION)) {
+                action = sliceItem.getAction();
             }
         }
-        if (!hasStartIcon) {
-            startIconView.setVisibility(View.GONE);
+        if (hasStartIcon) {
+            startIconView.setVisibility(View.VISIBLE);
         }
-        if (!hasEndIcon) {
-            endIconView.setVisibility(View.GONE);
+        if (hasEndIcon) {
+            endIconView.setVisibility(View.VISIBLE);
         }
-        if (!hasSubtitle) {
-            subtitleView.setVisibility(View.GONE);
+        if (hasTitle) {
+            titleView.setVisibility(View.VISIBLE);
         }
-
+        if (hasSubtitle) {
+            subtitleView.setVisibility(View.VISIBLE);
+        }
+        if (action != null) {
+            PendingIntent actionCopy = action;
+            suggestionView.setOnClickListener(v -> {
+                try {
+                    actionCopy.send();
+                } catch (PendingIntent.CanceledException e) {
+                    Log.w(TAG, "Inline action canceled.");
+                }
+            });
+        }
         return suggestionView;
     }
 
     private InlinePresentationRenderer() {
-
     }
 }
