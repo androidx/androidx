@@ -19,6 +19,7 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.MeasureScope
+import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
@@ -38,8 +39,9 @@ import androidx.ui.unit.ipx
  * It also allows the setting of a [modifyBlock] which is also a [PointerInputHandler] and enables
  * the processing of incoming [PointerInputChange]s.
  */
-open class MyPointerInputHandler : PointerInputHandler {
+open class StubPointerInputHandler(
     var modifyBlock: PointerInputHandler? = null
+) : PointerInputHandler {
     override fun invoke(
         p1: List<PointerInputChange>,
         p2: PointerEventPass,
@@ -49,12 +51,13 @@ open class MyPointerInputHandler : PointerInputHandler {
     }
 }
 
-open class MyCancelHandler : () -> Unit {
+open class StubCancelHandler : () -> Unit {
     override fun invoke() {}
 }
 
-internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int) =
+internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier.None) =
     LayoutNode().apply {
+        this.modifier = modifier
         resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
         place(x.ipx, y.ipx)
     }

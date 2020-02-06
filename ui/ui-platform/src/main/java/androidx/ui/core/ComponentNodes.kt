@@ -19,6 +19,8 @@ import androidx.compose.Emittable
 import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
@@ -1175,6 +1177,9 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is ParentDataModifier) {
                     wrapper = ModifiedParentDataNode(wrapper, mod)
                 }
+                if (mod is PointerInputModifier) {
+                    wrapper = PointerInputDelegatingWrapper(wrapper, mod)
+                }
                 wrapper
             }
             // Optimize the case where the layout itself is not modified. A common reason for
@@ -1269,6 +1274,29 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
+
+    /**
+     * Carries out a hit test on the [PointerInputModifier]s associated with this [LayoutNode] and
+     * all [PointerInputModifier]s on all descendant [LayoutNode]s.
+     *
+     * If [pointerPositionRelativeToScreen] is within the bounds of any tested
+     * [PointerInputModifier]s, the [PointerInputModifier] is added to [hitPointerInputFilters]
+     * and true is returned.
+     *
+     * @param pointerPositionRelativeToScreen The tested pointer position, which is relative to
+     * the device screen.
+     * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
+     * added to if hit.
+     *
+     * @return True if any [PointerInputFilter]s were hit and thus added to
+     * [hitPointerInputFilters].
+     */
+    fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        return layoutNodeWrapper.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
+    }
 
     /**
      * Returns the alignment line value for a given alignment line without affecting whether
