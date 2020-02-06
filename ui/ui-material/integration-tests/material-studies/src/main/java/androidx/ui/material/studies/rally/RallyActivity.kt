@@ -26,9 +26,9 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Spacer
+import androidx.ui.material.Scaffold
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
-import androidx.ui.material.studies.Scaffold
 import androidx.ui.unit.dp
 
 /**
@@ -48,13 +48,19 @@ class RallyActivity : Activity() {
         RallyTheme {
             val allScreens = RallyScreenState.values().toList()
             var currentScreen by state { RallyScreenState.Overview }
-            Scaffold(appBar = {
-                TabRow(allScreens, selectedIndex = currentScreen.ordinal) { i, screen ->
-                    Tab(text = screen.name, selected = currentScreen.ordinal == i, onSelected = {
-                        currentScreen = screen
-                    })
+            Scaffold(
+                topAppBar = {
+                    TabRow(allScreens, selectedIndex = currentScreen.ordinal) { i, screen ->
+                        Tab(
+                            text = screen.name,
+                            selected = currentScreen.ordinal == i,
+                            onSelected = {
+                                currentScreen = screen
+                            }
+                        )
+                    }
                 }
-            }) {
+            ) {
                 currentScreen.body()
             }
         }
