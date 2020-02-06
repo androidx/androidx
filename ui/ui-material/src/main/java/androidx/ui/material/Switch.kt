@@ -16,11 +16,11 @@
 
 package androidx.ui.material
 
+import androidx.animation.AnimatedFloat
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
-import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.geometry.Offset
@@ -93,7 +93,7 @@ private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, 
 }
 
 @Composable
-private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbValue: ValueHolder<Float>) {
+private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbValue: AnimatedFloat) {
     val thumbColor = if (checked) checkedThumbColor else MaterialTheme.colors().surface
     val trackColor = if (checked) {
         checkedThumbColor.copy(alpha = CheckedTrackOpacity)

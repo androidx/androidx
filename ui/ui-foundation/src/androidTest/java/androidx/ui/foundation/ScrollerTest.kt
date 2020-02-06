@@ -17,6 +17,7 @@ package androidx.ui.foundation
 
 import android.os.Handler
 import android.os.Looper
+import androidx.animation.DefaultAnimationClock
 import androidx.animation.ExponentialDecay
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
@@ -54,12 +55,9 @@ import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.test.sendSwipeUp
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
@@ -79,9 +77,9 @@ class ScrollerTest {
 
     private val scrollerTag = "ScrollerTest"
 
-    private val defaultCrossAxisSize = 45.ipx
-    private val defaultMainAxisSize = 40.ipx
-    private val defaultCellSize = 5.ipx
+    private val defaultCrossAxisSize = 45
+    private val defaultMainAxisSize = 40
+    private val defaultCellSize = 5
 
     private val colors = listOf(
         Color(red = 0xFF, green = 0, blue = 0, alpha = 0xFF),
@@ -97,7 +95,7 @@ class ScrollerTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun verticalScroller_SmallContent() {
-        val height = 40.ipx
+        val height = 40
 
         composeVerticalScroller(height = height)
 
@@ -106,19 +104,22 @@ class ScrollerTest {
 
     @Test
     fun verticalScroller_SmallContent_Unscrollable() {
-        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = DefaultAnimationClock()
+        )
 
         composeVerticalScroller(scrollerPosition)
 
         composeTestRule.runOnIdleCompose {
-            assertTrue(scrollerPosition.maxPosition == 0.px)
+            assertTrue(scrollerPosition.maxPosition == 0f)
         }
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun verticalScroller_LargeContent_NoScroll() {
-        val height = 30.ipx
+        val height = 30
 
         composeVerticalScroller(height = height)
 
@@ -128,17 +129,20 @@ class ScrollerTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun verticalScroller_LargeContent_ScrollToEnd() {
-        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
-        val height = 30.ipx
-        val scrollDistance = 10.ipx
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = DefaultAnimationClock()
+        )
+        val height = 30
+        val scrollDistance = 10
 
         composeVerticalScroller(scrollerPosition, height = height)
 
         validateVerticalScroller(height = height)
 
         composeTestRule.runOnIdleCompose {
-            assertEquals(scrollDistance.toPx(), scrollerPosition.maxPosition)
-            scrollerPosition.scrollTo(scrollDistance.toPx())
+            assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
+            scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
         composeTestRule.runOnIdleCompose {} // Just so the block below is correct
@@ -148,7 +152,7 @@ class ScrollerTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun horizontalScroller_SmallContent() {
-        val width = 40.ipx
+        val width = 40
 
         composeHorizontalScroller(width = width)
 
@@ -158,7 +162,7 @@ class ScrollerTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun horizontalScroller_LargeContent_NoScroll() {
-        val width = 30.ipx
+        val width = 30
 
         composeHorizontalScroller(width = width)
 
@@ -168,18 +172,21 @@ class ScrollerTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun horizontalScroller_LargeContent_ScrollToEnd() {
-        val width = 30.ipx
-        val scrollDistance = 10.ipx
+        val width = 30
+        val scrollDistance = 10
 
-        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = DefaultAnimationClock()
+        )
 
         composeHorizontalScroller(scrollerPosition, width = width)
 
         validateHorizontalScroller(width = width)
 
         composeTestRule.runOnIdleCompose {
-            assertEquals(scrollDistance.toPx(), scrollerPosition.maxPosition)
-            scrollerPosition.scrollTo(scrollDistance.toPx())
+            assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
+            scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
         composeTestRule.runOnIdleCompose {} // Just so the block below is correct
@@ -251,12 +258,15 @@ class ScrollerTest {
         firstSwipe: GestureScope.() -> Unit,
         secondSwipe: GestureScope.() -> Unit
     ) {
-        val scrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = DefaultAnimationClock()
+        )
 
         createScrollableContent(isVertical, scrollerPosition = scrollerPosition)
 
         composeTestRule.runOnIdleCompose {
-            assertThat(scrollerPosition.value).isEqualTo(0.px)
+            assertThat(scrollerPosition.value).isEqualTo(0f)
         }
 
         findByTag(scrollerTag)
@@ -266,7 +276,7 @@ class ScrollerTest {
         val scrolledValue = composeTestRule.runOnIdleCompose {
             scrollerPosition.value
         }
-        assertThat(scrolledValue).isGreaterThan(0.px)
+        assertThat(scrolledValue).isGreaterThan(0f)
 
         findByTag(scrollerTag)
             .doGesture { secondSwipe() }
@@ -278,10 +288,13 @@ class ScrollerTest {
     }
 
     private fun composeVerticalScroller(
-        scrollerPosition: ScrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay())),
-        width: IntPx = defaultCrossAxisSize,
-        height: IntPx = defaultMainAxisSize,
-        rowHeight: IntPx = defaultCellSize
+        scrollerPosition: ScrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = DefaultAnimationClock()
+        ),
+        width: Int = defaultCrossAxisSize,
+        height: Int = defaultMainAxisSize,
+        rowHeight: Int = defaultCellSize
     ) {
         // We assume that the height of the device is more than 45 px
         with(composeTestRule.density) {
@@ -315,10 +328,13 @@ class ScrollerTest {
     }
 
     private fun composeHorizontalScroller(
-        scrollerPosition: ScrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay())),
-        width: IntPx = defaultMainAxisSize,
-        height: IntPx = defaultCrossAxisSize,
-        columnWidth: IntPx = defaultCellSize
+        scrollerPosition: ScrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = DefaultAnimationClock()
+        ),
+        width: Int = defaultMainAxisSize,
+        height: Int = defaultCrossAxisSize,
+        columnWidth: Int = defaultCellSize
     ) {
         // We assume that the height of the device is more than 45 px
         with(composeTestRule.density) {
@@ -353,30 +369,30 @@ class ScrollerTest {
 
     @RequiresApi(api = 26)
     private fun validateVerticalScroller(
-        offset: IntPx = 0.ipx,
-        width: IntPx = 45.ipx,
-        height: IntPx = 40.ipx,
-        rowHeight: IntPx = 5.ipx
+        offset: Int = 0,
+        width: Int = 45,
+        height: Int = 40,
+        rowHeight: Int = 5
     ) {
         findByTag(scrollerTag)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(width, height)) { pos ->
-                val colorIndex = (offset.value + pos.y.value) / rowHeight.value
+            .assertPixels(expectedSize = IntPxSize(width.ipx, height.ipx)) { pos ->
+                val colorIndex = (offset + pos.y.value) / rowHeight
                 colors[colorIndex]
             }
     }
 
     @RequiresApi(api = 26)
     private fun validateHorizontalScroller(
-        offset: IntPx = 0.ipx,
-        width: IntPx = 40.ipx,
-        height: IntPx = 45.ipx,
-        columnWidth: IntPx = 5.ipx
+        offset: Int = 0,
+        width: Int = 40,
+        height: Int = 45,
+        columnWidth: Int = 5
     ) {
         findByTag(scrollerTag)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(width, height)) { pos ->
-                val colorIndex = (offset.value + pos.x.value) / columnWidth.value
+            .assertPixels(expectedSize = IntPxSize(width.ipx, height.ipx)) { pos ->
+                val colorIndex = (offset + pos.x.value) / columnWidth
                 colors[colorIndex]
             }
     }
@@ -386,7 +402,10 @@ class ScrollerTest {
         itemCount: Int = 100,
         width: Dp = 100.dp,
         height: Dp = 100.dp,
-        scrollerPosition: ScrollerPosition = ScrollerPosition(FlingConfig(ExponentialDecay()))
+        scrollerPosition: ScrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = DefaultAnimationClock()
+        )
     ) {
         composeTestRule.setContent {
             val content = @Composable {
@@ -399,23 +418,23 @@ class ScrollerTest {
             Align(alignment = Alignment.TopLeft) {
                 Container(width = width, height = height) {
                     DrawShape(RectangleShape, Color.White)
-                        TestTag(scrollerTag) {
-                            Semantics(container = true) {
-                                if (isVertical) {
-                                    VerticalScroller(scrollerPosition) {
-                                        Column {
-                                            content()
-                                        }
+                    TestTag(scrollerTag) {
+                        Semantics(container = true) {
+                            if (isVertical) {
+                                VerticalScroller(scrollerPosition) {
+                                    Column {
+                                        content()
                                     }
-                                } else {
-                                    HorizontalScroller(scrollerPosition) {
-                                        Row {
-                                            content()
-                                        }
+                                }
+                            } else {
+                                HorizontalScroller(scrollerPosition) {
+                                    Row {
+                                        content()
                                     }
                                 }
                             }
                         }
+                    }
                 }
             }
         }
@@ -425,14 +444,14 @@ class ScrollerTest {
     private fun SemanticsNodeInteraction.awaitScrollAnimation(
         scroller: ScrollerPosition
     ): SemanticsNodeInteraction {
-        if (!scroller.holder.animatedFloat.isRunning) {
+        if (!scroller.animatedFloat.isRunning) {
             return this
         }
         val latch = CountDownLatch(1)
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {
             override fun run() {
-                if (scroller.holder.animatedFloat.isRunning) {
+                if (scroller.animatedFloat.isRunning) {
                     handler.post(this)
                 } else {
                     latch.countDown()

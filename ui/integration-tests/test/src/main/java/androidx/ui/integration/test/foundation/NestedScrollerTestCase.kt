@@ -67,7 +67,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     }
 
     override fun toggleState() {
-        scrollerPosition.scrollTo(if (scrollerPosition.value == 0.px) 10.px else 0.px)
+        scrollerPosition.scrollTo(if (scrollerPosition.value == 0f) 10f else 0f)
     }
 
     @Composable

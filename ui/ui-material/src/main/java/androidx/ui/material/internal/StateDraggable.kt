@@ -16,15 +16,16 @@
 
 package androidx.ui.material.internal
 
+import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.compose.onCommit
+import androidx.compose.remember
 import androidx.compose.state
-import androidx.ui.foundation.ValueHolder
+import androidx.ui.animation.animatedFloat
 import androidx.ui.foundation.animation.AnchorsFlingConfig
-import androidx.ui.foundation.animation.animatedDragValue
+import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
 
@@ -41,8 +42,8 @@ import androidx.ui.foundation.gestures.Draggable
  * this component performs rollback to the previous (correct) state.
  * 4. When new [state] is provided, component will be animated to state's anchor
  *
- * children of this composable will receive [ValueHolder] class from which
- * they can read current value when they need.
+ * children of this composable will receive [AnimatedFloat] class from which
+ * they can read current value when they need or manually animate.
  *
  * @param T type with which state is represented
  * @param state current state to represent Float value with
@@ -66,7 +67,7 @@ internal fun <T> StateDraggable(
     enabled: Boolean = true,
     minValue: Float = Float.MIN_VALUE,
     maxValue: Float = Float.MAX_VALUE,
-    children: @Composable() (ValueHolder<Float>) -> Unit
+    children: @Composable() (AnimatedFloat) -> Unit
 ) {
     val forceAnimationCheck = state { true }
 
@@ -82,16 +83,17 @@ internal fun <T> StateDraggable(
                 }
             }
         })
-    val position = animatedDragValue(currentValue, minValue, maxValue)
+    val position = animatedFloat(currentValue)
+    position.setBounds(minValue, maxValue)
 
     // This state is to force this component to be recomposed and trigger onCommit below
     // This is needed to stay in sync with drag state that caller side holds
     onCommit(currentValue, forceAnimationCheck.value) {
-        position.animatedFloat.animateTo(currentValue, animationBuilder)
+        position.animateTo(currentValue, animationBuilder)
     }
     Draggable(
         dragValue = position,
-        onDragValueChangeRequested = { position.animatedFloat.snapTo(it) },
+        onDragValueChangeRequested = { position.snapTo(it) },
         onDragStopped = { position.fling(flingConfig, it) },
         dragDirection = dragDirection,
         enabled = enabled

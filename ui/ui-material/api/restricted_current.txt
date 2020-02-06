@@ -241,7 +241,7 @@ package androidx.ui.material {
   }
 
   public final class SliderPosition {
-    ctor public SliderPosition(float initial, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, @IntRange(from=null) int steps);
+    ctor public SliderPosition(float initial, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, @IntRange(from=null) int steps, androidx.animation.AnimationClockObservable animatedClock);
     ctor public SliderPosition();
     method public float getValue();
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();

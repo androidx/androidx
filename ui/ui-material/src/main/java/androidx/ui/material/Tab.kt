@@ -64,6 +64,7 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
+import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 
@@ -331,14 +332,14 @@ private class ScrollableTabData(
         set(value) {
             if (field != value && !isTabFullyVisible(value)) {
                 val calculatedOffset = calculateTabOffset(value)
-                position.smoothScrollTo(calculatedOffset)
+                position.smoothScrollTo(calculatedOffset.value)
             }
             field = value
         }
 
     private fun isTabFullyVisible(index: Int): Boolean {
         val tabPosition = tabPositions[index]
-        val leftEdgeStart = position.value
+        val leftEdgeStart = position.value.px
         val leftEdgeVisible = leftEdgeStart <= tabPosition.left.toPx()
         val rightEdgeEnd = leftEdgeStart + visibleWidth
         val rightEdgeVisible = rightEdgeEnd >= tabPosition.right.toPx()
