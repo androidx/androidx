@@ -31,7 +31,7 @@ class IconParserTest {
 
     @Test
     fun parseVector() {
-        val icon = Icon("SimpleVector", "simple_vector", TestVector)
+        val icon = Icon("SimpleVector", "simple_vector", IconTheme.Filled, TestVector)
         val vector = IconParser(icon).parse()
 
         val nodes = vector.nodes

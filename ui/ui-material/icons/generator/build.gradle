@@ -27,6 +27,7 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
+    implementation(KOTLINPOET)
     implementation(XMLPULL)
     implementation(XPP3)
 
