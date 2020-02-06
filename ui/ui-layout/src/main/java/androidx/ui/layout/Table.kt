@@ -482,9 +482,22 @@ fun Table(
     var verticalOffsets by state { emptyArray<IntPx>() }
     var horizontalOffsets by state { emptyArray<IntPx>() }
 
+    // NOTE(lmr): It is required that we read from verticalOffsets/horizontalOffsets so that the
+    // entire Table composable gets recomposed every time they change. This used to work before
+    // without us explicitly reading them here because of a compiler bug, but now that the bug is
+    // fixed, this is needed. This type of pattern where we are observing the composition of the
+    // children of table implicitly and building up a list of composables is a bit error prone
+    // and will likely break again in the future when we move to multithreaded composition. I
+    // suggest we reevaluate the architecture of this composable.
+
+    @Suppress("UNUSED_EXPRESSION")
+    verticalOffsets
+    @Suppress("UNUSED_EXPRESSION")
+    horizontalOffsets
+
     val tableChildren: @Composable() () -> Unit = with(TableChildren()) {
-        apply(children)
-        val composable = @Composable {
+        apply(children);
+        @Composable {
             val needDecorations = tableDecorationsUnderlay.isNotEmpty() ||
                     tableDecorationsOverlay.isNotEmpty()
             val hasOffsets = verticalOffsets.isNotEmpty() && horizontalOffsets.isNotEmpty()
@@ -504,7 +517,6 @@ fun Table(
                 tableDecorationsOverlay.forEach { decorationsScope.it() }
             }
         }
-        composable
     }
 
     Layout(

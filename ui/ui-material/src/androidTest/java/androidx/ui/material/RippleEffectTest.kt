@@ -261,6 +261,7 @@ class RippleEffectTest {
         assertFalse(createdLatch.await(500, TimeUnit.MILLISECONDS))
     }
 
+    @Composable
     private fun RippleButton(size: Dp? = null, color: Color? = null, enabled: Boolean = true) {
         Ripple(bounded = false, color = color, enabled = enabled) {
             Clickable(onClick = {}) {
