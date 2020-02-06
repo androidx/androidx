@@ -46,6 +46,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Represents an ongoing {@link MediaSession} or a {@link MediaSessionService}.
@@ -248,6 +249,20 @@ public final class SessionToken implements VersionedParcelable {
     @RestrictTo(LIBRARY)
     public Object getBinder() {
         return mImpl.getBinder();
+    }
+
+    /**
+     * This method is needed to prevent a google internal build errors
+     * It will be removed once the build issue resolved.
+     * @hide
+     */
+     // TODO(b/148868593): remove this method.
+    @RestrictTo(LIBRARY)
+    public static void createSessionToken(@NonNull final Context context,
+            @NonNull final MediaSessionCompat.Token compatToken,
+            @Nullable final Executor executor,
+            @NonNull final OnSessionTokenCreatedListener listener) {
+        createSessionToken(context, compatToken, listener);
     }
 
     /**
