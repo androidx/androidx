@@ -40,14 +40,18 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.graphics.ImageFormat;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Rational;
@@ -103,6 +107,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -200,9 +205,6 @@ public final class ImageCapture extends UseCase {
     private static final String TAG = "ImageCapture";
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
     private static final int MAX_IMAGES = 2;
-    // Empty metadata object used as a placeholder for no user-supplied metadata.
-    // Should be initialized to all default values.
-    private static final Metadata EMPTY_METADATA = new Metadata();
 
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -479,8 +481,7 @@ public final class ImageCapture extends UseCase {
      * from {@link ImageCapture#takePicture(Executor, OnImageCapturedCallback)}.
      *
      * <p>This crops the saved image when calling
-     * {@link ImageCapture#takePicture(File, Executor, OnImageSavedCallback)} or
-     * {@link ImageCapture#takePicture(File, Metadata, Executor, OnImageSavedCallback)}.
+     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}
      *
      * <p>Cropping occurs around the center of the image and as though it were in the target
      * rotation.
@@ -594,47 +595,23 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Captures a new still image and saves to a file.
-     *
-     * <p>The listener's callback will be called only once for every invocation of this method.
-     *
-     * @param saveLocation       Location to store the newly captured image.
-     * @param executor           The executor in which the listener callback methods will be run.
-     * @param imageSavedCallback Callback to be called for the newly captured image.
-     */
-    // Maybe remove after https://issuetracker.google.com/135275901
-    // Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor` or streams
-    @SuppressLint({"LambdaLast", "StreamFiles"})
-    public void takePicture(@NonNull File saveLocation,
-            @NonNull Executor executor,
-            @NonNull OnImageSavedCallback imageSavedCallback) {
-        takePicture(saveLocation, EMPTY_METADATA, executor, imageSavedCallback);
-    }
-
-    /**
      * Captures a new still image and saves to a file along with application specified metadata.
      *
      * <p>The callback will be called only once for every invocation of this method.
      *
-     * <p>This function accepts metadata as a parameter from application code.  For JPEGs, this
-     * metadata will be included in the EXIF.
-     *
-     * @param saveLocation       Location to store the newly captured image.
-     * @param metadata           Metadata to be stored with the saved image. For JPEG this will
-     *                           be included in the EXIF.
+     * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
      */
     // Maybe remove after https://issuetracker.google.com/135275901
-    // Todo: b/145130873 - Methods accepting `File` should also accept `FileDescriptor` or streams
     @SuppressLint({"LambdaLast", "StreamFiles"})
     public void takePicture(
-            final @NonNull File saveLocation,
-            final @NonNull Metadata metadata, @NonNull Executor executor,
+            final @NonNull OutputFileOptions outputFileOptions,
+            final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             CameraXExecutors.mainThreadExecutor().execute(
-                    () -> takePicture(saveLocation, metadata, executor, imageSavedCallback));
+                    () -> takePicture(outputFileOptions, executor, imageSavedCallback));
             return;
         }
 
@@ -661,8 +638,8 @@ public final class ImageCapture extends UseCase {
         final ImageSaver.OnImageSavedCallback imageSavedCallbackWrapper =
                 new ImageSaver.OnImageSavedCallback() {
                     @Override
-                    public void onImageSaved(File file) {
-                        imageSavedCallback.onImageSaved();
+                    public void onImageSaved(@NonNull OutputFileResults outputFileResults) {
+                        imageSavedCallback.onImageSaved(outputFileResults);
                     }
 
                     @Override
@@ -692,11 +669,8 @@ public final class ImageCapture extends UseCase {
                         mIoExecutor.execute(
                                 new ImageSaver(
                                         image,
-                                        saveLocation,
+                                        outputFileOptions,
                                         image.getImageInfo().getRotationDegrees(),
-                                        metadata.isReversedHorizontal(),
-                                        metadata.isReversedVertical(),
-                                        metadata.getLocation(),
                                         executor,
                                         imageSavedCallbackWrapper));
                     }
@@ -1180,7 +1154,7 @@ public final class ImageCapture extends UseCase {
 
     /**
      * Initiates a set of captures that will be used to create the output of
-     * {@link #takePicture(File, Metadata, Executor, OnImageSavedCallback)} and its variants.
+     * {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)} and its variants.
      *
      * <p> This returns a {@link ListenableFuture} whose completion indicates that the
      * captures are finished. Before the future is complete, any modification to the camera state
@@ -1352,7 +1326,7 @@ public final class ImageCapture extends UseCase {
     /** Listener containing callbacks for image file I/O events. */
     public interface OnImageSavedCallback {
         /** Called when an image has been successfully saved. */
-        void onImageSaved();
+        void onImageSaved(@NonNull OutputFileResults outputFileResults);
 
         /**
          * Called when an error occurs while attempting to save an image.
@@ -1443,6 +1417,192 @@ public final class ImageCapture extends UseCase {
         @Override
         public ImageCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
             return DEFAULT_CONFIG;
+        }
+    }
+
+    /**
+     * Options for saving newly captured image.
+     *
+     * <p> this class is used to configure save location and metadata. Save location can be
+     * either a {@link File}, {@link MediaStore} or a {@link OutputStream}. The metadata will be
+     * stored with the saved image. For JPEG this will be included in the EXIF.
+     */
+    public static final class OutputFileOptions {
+
+        // Empty metadata object used as a placeholder for no user-supplied metadata.
+        // Should be initialized to all default values.
+        private static final Metadata EMPTY_METADATA = new Metadata();
+
+        @Nullable
+        private final File mFile;
+        @Nullable
+        private final ContentResolver mContentResolver;
+        @Nullable
+        private final Uri mSaveCollection;
+        @Nullable
+        private final ContentValues mContentValues;
+        @Nullable
+        private final OutputStream mOutputStream;
+        @NonNull
+        private final Metadata mMetadata;
+
+        OutputFileOptions(@Nullable File file,
+                @Nullable ContentResolver contentResolver,
+                @Nullable Uri saveCollection,
+                @Nullable ContentValues contentValues,
+                @Nullable OutputStream outputStream,
+                @Nullable Metadata metadata) {
+            mFile = file;
+            mContentResolver = contentResolver;
+            mSaveCollection = saveCollection;
+            mContentValues = contentValues;
+            mOutputStream = outputStream;
+            mMetadata = metadata == null ? EMPTY_METADATA : metadata;
+        }
+
+        @Nullable
+        File getFile() {
+            return mFile;
+        }
+
+        @Nullable
+        ContentResolver getContentResolver() {
+            return mContentResolver;
+        }
+
+        @Nullable
+        Uri getSaveCollection() {
+            return mSaveCollection;
+        }
+
+        @Nullable
+        ContentValues getContentValues() {
+            return mContentValues;
+        }
+
+        @Nullable
+        OutputStream getOutputStream() {
+            return mOutputStream;
+        }
+
+        @NonNull
+        Metadata getMetadata() {
+            return mMetadata;
+        }
+
+        /**
+         * Builder class for {@link OutputFileOptions}.
+         */
+        public static final class Builder {
+            @Nullable
+            private File mFile;
+            @Nullable
+            private ContentResolver mContentResolver;
+            @Nullable
+            private Uri mSaveCollection;
+            @Nullable
+            private ContentValues mContentValues;
+            @Nullable
+            private OutputStream mOutputStream;
+            @Nullable
+            private Metadata mMetadata;
+
+            /**
+             * Creates options to write captured image to a {@link File}.
+             *
+             * @param file save location of the image.
+             */
+            public Builder(@NonNull File file) {
+                mFile = file;
+            }
+
+            /**
+             * Creates options to write captured image to {@link MediaStore}.
+             *
+             * Example:
+             *
+             * <pre>{@code
+             *
+             * ContentValues contentValues = new ContentValues();
+             * contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "NEW_IMAGE");
+             * contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+             *
+             * ImageCapture.OutputFileOptions options = new ImageCapture.OutputFileOptions.Builder(
+             *         getContentResolver(),
+             *         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+             *         contentValues).build();
+             *
+             * }</pre>
+             *
+             * @param contentResolver to access {@link MediaStore}
+             * @param saveCollection  The URL of the table to insert into.
+             * @param contentValues   to be included in the created image file.
+             */
+            public Builder(@NonNull ContentResolver contentResolver,
+                    @NonNull Uri saveCollection,
+                    @NonNull ContentValues contentValues) {
+                mContentResolver = contentResolver;
+                mSaveCollection = saveCollection;
+                mContentValues = contentValues;
+            }
+
+            /**
+             * Creates options that write captured image to a {@link OutputStream}.
+             *
+             * @param outputStream save location of the image.
+             */
+            public Builder(@NonNull OutputStream outputStream) {
+                mOutputStream = outputStream;
+            }
+
+            /**
+             * Sets the metadata to be stored with the saved image.
+             *
+             * <p> For JPEG this will be included in the EXIF.
+             *
+             * @param metadata Metadata to be stored with the saved image. For JPEG this will
+             *                 be included in the EXIF.
+             */
+            @NonNull
+            public Builder setMetadata(@NonNull Metadata metadata) {
+                mMetadata = metadata;
+                return this;
+            }
+
+            /**
+             * Builds {@link OutputFileOptions}.
+             */
+            @NonNull
+            public OutputFileOptions build() {
+                return new OutputFileOptions(mFile, mContentResolver, mSaveCollection,
+                        mContentValues, mOutputStream, mMetadata);
+            }
+        }
+    }
+
+    /**
+     * Info about the saved image file.
+     */
+    public static class OutputFileResults {
+        @Nullable
+        private Uri mSavedUri;
+
+        OutputFileResults(@Nullable Uri savedUri) {
+            mSavedUri = savedUri;
+        }
+
+        /**
+         * Returns the {@link Uri} of the saved file.
+         *
+         * <p> This field is only returned if the {@link OutputFileOptions} is backed by
+         * {@link MediaStore} constructed with
+         *
+         * {@link androidx.camera.core.ImageCapture.OutputFileOptions.Builder
+         * #Builder(ContentResolver, Uri, ContentValues)}.
+         */
+        @Nullable
+        public Uri getSavedUri() {
+            return mSavedUri;
         }
     }
 
@@ -2138,8 +2298,7 @@ public final class ImageCapture extends UseCase {
          * Sets the default executor that will be used for IO tasks.
          *
          * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
-         * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
-         * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+         * {@link ImageCapture#takePicture(OutputFileOptions, Executor,
          * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
          * specifically for IO will be used instead.
          *
