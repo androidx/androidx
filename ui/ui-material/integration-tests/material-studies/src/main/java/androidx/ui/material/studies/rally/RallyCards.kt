@@ -36,6 +36,8 @@ import androidx.ui.layout.Stack
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Sort
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
 import androidx.ui.unit.dp
@@ -80,24 +82,17 @@ fun RallyAlertCard() {
                 color = MaterialTheme.colors().background,
                 height = 2.dp
             )
-            Ripple(bounded = true) {
-                Clickable(onClick = { openDialog.value = true }) {
-                    Container {
-                        Row(LayoutPadding(12.dp)) {
-                            Text(
-                                style = MaterialTheme.typography().body1,
-                                modifier = LayoutFlexible(1f),
-                                text = alertMessage
-                            )
-                            // TODO: icons still don't work
-//                            <vectorResource res=context.resources
-//                                resId=androidx.ui.material.studies.R.drawable.sort_icon/>
-                            TextButton(onClick = { }) {
-                                Text("Sort")
-                            }
-                        }
-                    }
-                }
+            Row(LayoutPadding(12.dp)) {
+                Text(
+                    style = MaterialTheme.typography().body1,
+                    modifier = LayoutFlexible(1f),
+                    text = alertMessage
+                )
+                RallyIconButton(
+                    vectorImage = Icons.Filled.Sort,
+                    onClick = {},
+                    modifier = LayoutGravity.Top
+                )
             }
         }
     }
