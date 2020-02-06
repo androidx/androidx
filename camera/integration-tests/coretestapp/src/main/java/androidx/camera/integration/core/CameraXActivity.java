@@ -20,6 +20,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
+import android.content.ContentValues;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -30,6 +31,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -72,11 +74,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.File;
 import java.math.BigDecimal;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -484,8 +482,6 @@ public class CameraXActivity extends AppCompatActivity
         }
 
         Button button = this.findViewById(R.id.Picture);
-        final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-        final File dir = this.getExternalFilesDir(null);
         button.setOnClickListener(
                 new View.OnClickListener() {
                     long mStartCaptureTime = 0;
@@ -495,14 +491,20 @@ public class CameraXActivity extends AppCompatActivity
                         mImageSavedIdlingResource.increment();
 
                         mStartCaptureTime = SystemClock.elapsedRealtime();
-                        final File saveFile = new File(dir,
-                                formatter.format(Calendar.getInstance().getTime()) + ".jpg");
-                        mImageCapture.takePicture(saveFile,
+                        ImageCapture.OutputFileOptions outputFileOptions =
+                                new ImageCapture.OutputFileOptions.Builder(
+                                        getContentResolver(),
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                        new ContentValues()).build();
+                        mImageCapture.takePicture(outputFileOptions,
                                 ContextCompat.getMainExecutor(CameraXActivity.this),
                                 new ImageCapture.OnImageSavedCallback() {
                                     @Override
-                                    public void onImageSaved() {
-                                        Log.d(TAG, "Saved image to " + saveFile);
+                                    public void onImageSaved(
+                                            @NonNull ImageCapture.OutputFileResults
+                                                    outputFileResults) {
+                                        Log.d(TAG, "Saved image to "
+                                                + outputFileResults.getSavedUri());
                                         try {
                                             mImageSavedIdlingResource.decrement();
                                         } catch (IllegalStateException e) {
@@ -552,7 +554,6 @@ public class CameraXActivity extends AppCompatActivity
                 rebindUseCases();
             }
         });
-
     }
 
     void disableImageCapture() {

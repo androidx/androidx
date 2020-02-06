@@ -30,6 +30,8 @@ import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.app.Instrumentation;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
@@ -39,6 +41,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
+import android.provider.MediaStore;
 import android.util.Size;
 import android.view.Surface;
 
@@ -90,7 +93,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,7 +111,7 @@ import java.util.concurrent.TimeUnit;
 public final class ImageCaptureTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+            Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
@@ -114,6 +119,7 @@ public final class ImageCaptureTest {
     private static final int BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK;
     private static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
+    private static final String CONTENT_URI_DISPLAY_NAME = "CONTENT_URI_DISPLAY_NAME";
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
@@ -123,6 +129,7 @@ public final class ImageCaptureTest {
     private String mCameraId;
     private FakeLifecycleOwner mLifecycleOwner;
     private Executor mMainExecutor;
+    private ContentResolver mContentResolver;
 
     private ImageCaptureConfig createNonRotatedConfiguration()
             throws CameraInfoUnavailableException {
@@ -177,6 +184,7 @@ public final class ImageCaptureTest {
         mLifecycleOwner = new FakeLifecycleOwner();
 
         mMainExecutor = ContextCompat.getMainExecutor(context);
+        mContentResolver = ApplicationProvider.getApplicationContext().getContentResolver();
     }
 
     @After
@@ -327,10 +335,62 @@ public final class ImageCaptureTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, mMainExecutor, callback);
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
+                mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved();
+        verify(callback, timeout(3000)).onImageSaved(any());
+    }
+
+    @Test
+    public void saveToUri() {
+        // Arrange.
+        ImageCapture useCase = mDefaultBuilder.build();
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, CONTENT_URI_DISPLAY_NAME);
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(
+                        mContentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        new ContentValues()).build();
+
+        // Act.
+        useCase.takePicture(outputFileOptions, mMainExecutor, callback);
+
+        // Assert: Wait for the signal that the image has been saved.
+        verify(callback, timeout(3000)).onImageSaved(any());
+    }
+
+    @Test
+    public void saveToOutputStream() throws IOException {
+        // Arrange.
+        ImageCapture useCase = mDefaultBuilder.build();
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        File saveLocation = File.createTempFile("test", ".jpg");
+        saveLocation.deleteOnExit();
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        try (OutputStream outputStream = new FileOutputStream(saveLocation)) {
+            // Act.
+            useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(
+                    outputStream).build(), mMainExecutor, callback);
+
+            // Assert: Wait for the signal that the image has been saved.
+            verify(callback, timeout(3000)).onImageSaved(any());
+        }
     }
 
     @Test
@@ -350,10 +410,12 @@ public final class ImageCaptureTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, mMainExecutor, callback);
+
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(
+                saveLocation).build(), mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved();
+        verify(callback, timeout(3000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -362,10 +424,11 @@ public final class ImageCaptureTest {
         saveLocationRotated90.deleteOnExit();
         OnImageSavedCallback callbackRotated90 = mock(OnImageSavedCallback.class);
         useCase.setTargetRotation(Surface.ROTATION_90);
-        useCase.takePicture(saveLocationRotated90, mMainExecutor, callbackRotated90);
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(
+                saveLocationRotated90).build(), mMainExecutor, callbackRotated90);
 
         // Wait for the signal that the image has been saved.
-        verify(callbackRotated90, timeout(3000)).onImageSaved();
+        verify(callbackRotated90, timeout(3000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exifRotated90 = Exif.createFromFile(saveLocationRotated90);
@@ -411,10 +474,13 @@ public final class ImageCaptureTest {
         Metadata metadata = new Metadata();
         metadata.setReversedHorizontal(true);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(
+                        saveLocation).setMetadata(metadata).build();
+        useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved();
+        verify(callback, timeout(3000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -440,10 +506,13 @@ public final class ImageCaptureTest {
         Metadata metadata = new Metadata();
         metadata.setReversedVertical(true);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(
+                        saveLocation).setMetadata(metadata).build();
+        useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved();
+        verify(callback, timeout(3000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -466,10 +535,13 @@ public final class ImageCaptureTest {
         Metadata metadata = new Metadata();
         metadata.setLocation(location);
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, metadata, mMainExecutor, callback);
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(
+                        saveLocation).setMetadata(metadata).build();
+        useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved();
+        verify(callback, timeout(3000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -491,12 +563,14 @@ public final class ImageCaptureTest {
         for (int i = 0; i < numImages; ++i) {
             File saveLocation = File.createTempFile("test" + i, ".jpg");
             saveLocation.deleteOnExit();
-
-            useCase.takePicture(saveLocation, mMainExecutor, callback);
+            ImageCapture.OutputFileOptions outputFileOptions =
+                    new ImageCapture.OutputFileOptions.Builder(
+                            saveLocation).build();
+            useCase.takePicture(outputFileOptions, mMainExecutor, callback);
         }
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(15000).times(numImages)).onImageSaved();
+        verify(callback, timeout(15000).times(numImages)).onImageSaved(any());
     }
 
     @Test
@@ -512,7 +586,9 @@ public final class ImageCaptureTest {
         // Note the invalid path
         File saveLocation = new File("/not/a/real/path.jpg");
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
-        useCase.takePicture(saveLocation, mMainExecutor, callback);
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(saveLocation).build();
+        useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         final ArgumentCaptor<ImageCaptureException> exceptionCaptor =
                 ArgumentCaptor.forClass(ImageCaptureException.class);

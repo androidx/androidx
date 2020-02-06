@@ -288,11 +288,12 @@ public class CameraExtensionsActivity extends AppCompatActivity
                     formatter.format(Calendar.getInstance().getTime())
                             + mCurrentImageCaptureType.name() + ".jpg");
             mImageCapture.takePicture(
-                    saveFile,
+                    new ImageCapture.OutputFileOptions.Builder(saveFile).build(),
                     ContextCompat.getMainExecutor(CameraExtensionsActivity.this),
                     new ImageCapture.OnImageSavedCallback() {
                         @Override
-                        public void onImageSaved() {
+                        public void onImageSaved(
+                                @NonNull ImageCapture.OutputFileResults outputFileResults) {
                             Log.d(TAG, "Saved image to " + saveFile);
 
                             if (!mTakePictureIdlingResource.isIdleNow()) {
