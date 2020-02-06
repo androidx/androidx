@@ -17,6 +17,7 @@
 package androidx.startup.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
+import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 
 object Stubs {
@@ -32,6 +33,22 @@ object Stubs {
             import androidx.startup.ComponentInitializer
 
             class TestComponentInitializer: ComponentInitializer<Unit> {
+
+            }
+        """
+    ).indented().within("src")
+
+    /**
+     * The Test component in Java.
+     */
+    val TEST_COMPONENT_JAVA: TestFile = java(
+        "com/example/TestComponentInitializer.java",
+        """
+            package com.example;
+
+            import androidx.startup.ComponentInitializer;
+
+            class TestComponentInitializer extends ComponentInitializer<Void> {
 
             }
         """
