@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.samples
+package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable

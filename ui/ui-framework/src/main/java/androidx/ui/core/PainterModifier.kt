@@ -29,7 +29,7 @@ import androidx.ui.unit.PxSize
  * Create a [DrawModifier] from this [Painter]. This modifier is memoized and re-used across
  * subsequent compositions
  *
- * @sample androidx.ui.foundation.samples.PainterModifierSample
+ * @sample androidx.ui.framework.samples.PainterModifierSample
  */
 @Composable
 fun Painter.toModifier(
