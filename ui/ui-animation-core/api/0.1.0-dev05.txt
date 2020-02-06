@@ -3,7 +3,6 @@ package androidx.animation {
 
   public abstract class AnimatedFloat extends androidx.animation.BaseAnimatedValue<java.lang.Float,androidx.animation.AnimationVector1D> {
     ctor public AnimatedFloat(androidx.animation.AnimationClockObservable clock);
-    ctor @Deprecated public AnimatedFloat();
     method public final float getMax();
     method public final float getMin();
     method public final float getVelocity();

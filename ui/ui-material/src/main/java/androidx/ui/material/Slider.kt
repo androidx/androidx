@@ -16,21 +16,24 @@
 
 package androidx.ui.material
 
+import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
+import androidx.animation.DefaultAnimationClock
 import androidx.animation.TargetAnimation
 import androidx.animation.TweenBuilder
 import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.foundation.animation.AnimatedValueHolder
 import androidx.ui.foundation.animation.FlingConfig
+import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -71,7 +74,9 @@ import kotlin.math.abs
 class SliderPosition(
     initial: Float = 0f,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    @IntRange(from = 0) steps: Int = 0
+    @IntRange(from = 0) steps: Int = 0,
+    // TODO: remove this default
+    animatedClock: AnimationClockObservable = DefaultAnimationClock()
 ) {
 
     internal val startValue: Float = valueRange.start
@@ -89,7 +94,7 @@ class SliderPosition(
     var value: Float
         get() = scale(startPx, endPx, holder.value, startValue, endValue)
         set(value) {
-            holder.animatedFloat.snapTo(scale(startValue, endValue, value, startPx, endPx))
+            holder.snapTo(scale(startValue, endValue, value, startPx, endPx))
         }
 
     private var endPx = Float.MAX_VALUE
@@ -108,10 +113,11 @@ class SliderPosition(
                 it
             )
         }
-        holder.animatedFloat.snapTo(newValue)
+        holder.snapTo(newValue)
     }
 
-    internal val holder = AnimatedValueHolder(scale(startValue, endValue, initial, startPx, endPx))
+    internal val holder =
+        AnimatedFloatModel(scale(startValue, endValue, initial, startPx, endPx), animatedClock)
 
     internal val tickFractions: List<Float> =
         if (steps == 0) emptyList() else List(steps + 2) { it.toFloat() / (steps + 1) }

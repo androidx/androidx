@@ -16,11 +16,10 @@
 
 package androidx.ui.foundation.gestures
 
+import androidx.animation.AnimatedFloat
 import androidx.compose.Composable
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
-import androidx.ui.foundation.ValueHolder
-import androidx.ui.foundation.animation.AnimatedValueHolder
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
@@ -29,14 +28,14 @@ import androidx.ui.unit.px
  * Component that provides high-level drag functionality reflected in one value
  *
  * The common usecase for this component is when you need to be able to drag/scroll something
- * on the screen and represent it as one value via [ValueHolder].
+ * on the screen and represent it as one value via [AnimatedFloat].
  *
  * If you need to control the whole dragging flow,
  * consider using [TouchSlopDragGestureDetector] instead.
  *
  * @sample androidx.ui.foundation.samples.DraggableSample
  *
- * By using [AnimatedValueHolder] as dragValue you can achieve
+ * By using [AnimatedFloat] as dragValue you can achieve
  * fling behaviour by calling fling on it
  *
  * @sample androidx.ui.foundation.samples.AnchoredDraggableSample
@@ -58,7 +57,7 @@ import androidx.ui.unit.px
 @Composable
 fun Draggable(
     dragDirection: DragDirection,
-    dragValue: ValueHolder<Float>,
+    dragValue: AnimatedFloat,
     onDragValueChangeRequested: (Float) -> Unit,
     onDragStarted: (startedPosition: PxPosition) -> Unit = {},
     onDragStopped: (velocity: Float) -> Unit = {},

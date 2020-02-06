@@ -304,9 +304,6 @@ abstract class AnimatedFloat(
     clock: AnimationClockObservable
 ) : BaseAnimatedValue<Float, AnimationVector1D>(FloatToVectorConverter, clock) {
 
-    @Deprecated("This method is to support existing APIs not providing clocks.")
-    constructor() : this(DefaultAnimationClock())
-
     /**
      * Lower bound of the animation value. When animations reach this lower bound, it will
      * automatically stop with [AnimationEndReason] being [AnimationEndReason.BoundReached].

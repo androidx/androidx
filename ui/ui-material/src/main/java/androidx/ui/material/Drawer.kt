@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import androidx.animation.AnimatedFloat
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.remember
@@ -27,7 +28,6 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
@@ -225,7 +225,7 @@ fun BottomDrawerLayout(
 
 @Composable
 private fun DrawerContent(
-    xOffset: ValueHolder<Float>,
+    xOffset: AnimatedFloat,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -242,7 +242,7 @@ private fun DrawerContent(
 
 @Composable
 private fun BottomDrawerContent(
-    yOffset: ValueHolder<Float>,
+    yOffset: AnimatedFloat,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -285,8 +285,8 @@ private fun Scrim(
 // TODO: consider make pretty and move to public
 @Composable
 private fun WithOffset(
-    xOffset: ValueHolder<Float>? = null,
-    yOffset: ValueHolder<Float>? = null,
+    xOffset: AnimatedFloat? = null,
+    yOffset: AnimatedFloat? = null,
     child: @Composable() () -> Unit
 ) {
     Layout(children = {
