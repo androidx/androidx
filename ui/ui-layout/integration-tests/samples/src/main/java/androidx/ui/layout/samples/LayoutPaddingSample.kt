@@ -33,7 +33,7 @@ fun LayoutPaddingModifier() {
             DrawRectangle(Color.Gray)
             SizedRectangle(
                 modifier = LayoutPadding(
-                    left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp
+                    start = 20.dp, top = 30.dp, end = 20.dp, bottom = 30.dp
                 ),
                 color = Color.Blue,
                 width = 50.dp,

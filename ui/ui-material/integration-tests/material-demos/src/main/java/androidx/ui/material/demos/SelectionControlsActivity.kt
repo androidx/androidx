@@ -34,7 +34,6 @@ class SelectionControlsActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
         val headerStyle = MaterialTheme.typography().h6
-
         Column(LayoutPadding(10.dp), arrangement = Arrangement.SpaceEvenly) {
             Text(text = "Checkbox", style = headerStyle)
             TriStateCheckboxSample()

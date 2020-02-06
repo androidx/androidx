@@ -57,7 +57,7 @@ class ElevationActivity : MaterialDemoActivity() {
 @Composable
 private fun ElevatedCard(elevation: Dp) {
     Card(
-        LayoutPadding(left = 10.dp, right = 10.dp, top = 20.dp, bottom = 20.dp),
+        LayoutPadding(start = 10.dp, end = 10.dp, top = 20.dp, bottom = 20.dp),
         shape = RoundedCornerShape(4.dp),
         border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
         elevation = elevation

@@ -153,12 +153,12 @@ fun FloatingActionButton(
                 text = text,
                 style = textStyle,
                 modifier = LayoutPadding(
-                    left = ExtendedFabTextPadding,
-                    right = ExtendedFabTextPadding
+                    start = ExtendedFabTextPadding,
+                    end = ExtendedFabTextPadding
                 )
             )
         } else {
-            Row(LayoutPadding(left = ExtendedFabIconPadding, right = ExtendedFabTextPadding)) {
+            Row(LayoutPadding(start = ExtendedFabIconPadding, end = ExtendedFabTextPadding)) {
                 SimpleImage(image = icon)
                 Spacer(LayoutWidth(ExtendedFabIconPadding))
                 Text(text = text, style = textStyle)

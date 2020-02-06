@@ -89,7 +89,7 @@ private fun AlertCard() {
                 }
             }
             Divider(
-                LayoutPadding(left = 12.dp, right = 12.dp),
+                LayoutPadding(start = 12.dp, end = 12.dp),
                 color = MaterialTheme.colors().background,
                 height = 2.dp
             )

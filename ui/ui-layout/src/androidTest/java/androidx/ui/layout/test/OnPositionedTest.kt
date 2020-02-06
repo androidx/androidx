@@ -65,7 +65,7 @@ class OnPositionedTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         show {
             Container(LayoutSize.Fill +
-                    LayoutPadding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
+                    LayoutPadding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
             ) {
                 OnPositioned(onPositioned = {
                     realLeft = it.positionInParent.x
@@ -97,7 +97,7 @@ class OnPositionedTest : LayoutTest() {
                 }) {
                     Container(
                         LayoutSize.Fill + LayoutPadding(
-                            left = paddingLeftPx.toDp(),
+                            start = paddingLeftPx.toDp(),
                             top = paddingTopPx.toDp()
                         ), children = emptyContent()
                     )
@@ -120,13 +120,13 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         show {
-            Container(LayoutPadding(left = firstPaddingPx.toDp())) {
+            Container(LayoutPadding(start = firstPaddingPx.toDp())) {
                 OnPositioned(onPositioned = {
                     gpCoordinates = it
                     positionedLatch.countDown()
                 })
-                Container(LayoutPadding(left = secondPaddingPx.toDp())) {
-                    Container(LayoutSize.Fill + LayoutPadding(left = thirdPaddingPx.toDp())) {
+                Container(LayoutPadding(start = secondPaddingPx.toDp())) {
+                    Container(LayoutSize.Fill + LayoutPadding(start = thirdPaddingPx.toDp())) {
                         OnPositioned(onPositioned = {
                             childCoordinates = it
                             positionedLatch.countDown()
@@ -242,7 +242,7 @@ class OnPositionedTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     Container(
-                        LayoutSize.Fill + LayoutPadding(left = modelLeft.size),
+                        LayoutSize.Fill + LayoutPadding(start = modelLeft.size),
                         children = emptyContent()
                     )
                 }

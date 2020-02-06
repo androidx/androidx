@@ -61,7 +61,7 @@ fun DraggableSample() {
             DrawShape(RectangleShape, Color.Black)
             ColoredRect(
                 Color.Red,
-                LayoutPadding(left = draggedDp) + LayoutSize(squareSize, squareSize)
+                LayoutPadding(start = draggedDp) + LayoutSize(squareSize, squareSize)
             )
         }
     }
@@ -96,7 +96,7 @@ fun AnchoredDraggableSample() {
             DrawShape(RectangleShape, Color.Black)
             ColoredRect(
                 Color.Red,
-                LayoutPadding(left = draggedDp) + LayoutSize(squareSize, squareSize)
+                LayoutPadding(start = draggedDp) + LayoutSize(squareSize, squareSize)
             )
         }
     }
