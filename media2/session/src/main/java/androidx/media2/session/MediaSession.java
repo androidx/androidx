@@ -74,7 +74,8 @@ import java.util.concurrent.Executor;
  * <p>
  * A MediaSession should be created when an app wants to publish media playback information or
  * handle media keys. In general an app only needs one session for all playback, though multiple
- * sessions can be created to provide finer grain controls of media.
+ * sessions can be created to provide finer grain controls of media. See
+ * <a href="#MultipleSessions">Supporting Multiple Sessions</a> for detail.
  * <p>
  * If you want to support background playback, {@link MediaSessionService} is preferred
  * instead. With it, your playback can be revived even after playback is finished. See
@@ -85,6 +86,7 @@ import java.util.concurrent.Executor;
  * <li><a href="#SessionLifecycle">Session Lifecycle</a>
  * <li><a href="#Thread">Thread</a>
  * <li><a href="#KeyEvents">Media key events mapping</a>
+ * <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
  * </ol>
  * <h3 id="SessionLifecycle">Session Lifecycle</h3>
  * <p>
@@ -131,6 +133,15 @@ import java.util.concurrent.Executor;
  *             <li>For a double tap, {@link SessionPlayer#skipToNextPlaylistItem()}</li></ul></td>
  *     </tr>
  * </table>
+ * <h3 id="MultipleSessions">Supporting Multiple Sessions</h3>
+ * Generally speaking, multiple sessions aren't necessary for most media apps. One exception is if
+ * your app can play multiple media content at the same time, but only for the playback of
+ * video-only media or remote playback, since
+ * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">audio focus policy</a> recommends
+ * not playing multiple audio content at the same time. Also keep in mind that multiple media
+ * sessions would make Android Auto and Bluetooth device with display to show your apps multiple
+ * times, because they list up media sessions, not media apps.
+ *
  * @see MediaSessionService
  */
 public class MediaSession implements AutoCloseable {
