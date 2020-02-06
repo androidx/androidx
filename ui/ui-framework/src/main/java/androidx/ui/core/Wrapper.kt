@@ -31,6 +31,7 @@ import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Observe
 import androidx.compose.Providers
+import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
 import androidx.compose.compositionReference
 import androidx.compose.invalidate
@@ -202,11 +203,11 @@ private fun WrapWithAmbients(
 
 val ContextAmbient = staticAmbientOf<Context>()
 
-val DensityAmbient = ambientOf<Density>()
+val DensityAmbient = ambientOf<Density>(StructurallyEqual)
 
 val CoroutineContextAmbient = ambientOf<CoroutineContext>()
 
-val ConfigurationAmbient = ambientOf<Configuration>()
+val ConfigurationAmbient = ambientOf<Configuration>(StructurallyEqual)
 
 // TODO(b/139866476): The AndroidComposeView should not be exposed via ambient
 val AndroidComposeViewAmbient = staticAmbientOf<AndroidComposeView>()
