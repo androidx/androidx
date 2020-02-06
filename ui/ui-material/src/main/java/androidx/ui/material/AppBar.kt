@@ -23,13 +23,12 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.graphics.painter.Painter
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
@@ -54,6 +53,7 @@ import androidx.ui.material.surface.Surface
 import androidx.ui.material.surface.primarySurface
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
+import androidx.ui.core.toModifier
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -673,15 +673,17 @@ private fun <T> AppBarActions(
  * A correctly sized clickable icon that can be used inside [TopAppBar] and [BottomAppBar] for
  * either the navigation icon or the actions.
  *
- * @param icon The icon to be displayed
+ * @param icon [Painter] to be displayed
  * @param onClick the lambda to be invoked when this icon is pressed
  */
 @Composable
-fun AppBarIcon(icon: Image, onClick: () -> Unit) {
-    Container(width = ActionIconDiameter, height = ActionIconDiameter) {
-        Ripple(bounded = false) {
-            Clickable(onClick = onClick) {
-                SimpleImage(icon)
+fun AppBarIcon(icon: Painter, onClick: () -> Unit) {
+    Ripple(bounded = false) {
+        Clickable(onClick = onClick) {
+            Container(
+                modifier = icon.toModifier(),
+                width = ActionIconDiameter,
+                height = ActionIconDiameter) {
             }
         }
     }

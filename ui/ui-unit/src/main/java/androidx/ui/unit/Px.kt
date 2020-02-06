@@ -430,6 +430,7 @@ inline class PxInverse(val value: Float) : Comparable<PxInverse> {
 @UseExperimental(ExperimentalUnsignedTypes::class)
 @Immutable
 data class PxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+
     /**
      * The horizontal aspect of the size in [Px].
      */
@@ -483,6 +484,11 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
          * [PxSize] with zero values.
          */
         val Zero = PxSize(0.px, 0.px)
+
+        /**
+         * Default value indicating no specified size
+         */
+        val UnspecifiedSize = PxSize(Px.Infinity, Px.Infinity)
     }
 }
 
