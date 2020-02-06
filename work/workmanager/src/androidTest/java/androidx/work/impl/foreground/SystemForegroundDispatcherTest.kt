@@ -248,6 +248,47 @@ class SystemForegroundDispatcherTest {
     }
 
     @Test
+    fun promoteWorkSpecForStartForeground3() {
+        val firstWorkSpecId = "first"
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo = ForegroundInfo(firstId, notification)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = "second"
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        val thirdWorkSpecId = "third"
+        val thirdId = 3
+        val thirdInfo = ForegroundInfo(thirdId, notification)
+        val thirdIntent = createNotifyIntent(context, thirdWorkSpecId, thirdInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(firstId), eq(0), any<Notification>())
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .notify(eq(secondId), any<Notification>())
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
+
+        dispatcher.onStartCommand(thirdIntent)
+        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .notify(eq(secondId), any<Notification>())
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(3))
+
+        dispatcher.onExecuted(secondWorkSpecId, false)
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(eq(secondId))
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 29)
     fun testUpdateNotificationWithDifferentForegroundServiceType() {
         val firstWorkSpecId = "first"
