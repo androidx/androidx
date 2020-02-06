@@ -34,9 +34,6 @@ class IconParserTest {
         val icon = Icon("SimpleVector", "simple_vector", TestVector)
         val vector = IconParser(icon).parse()
 
-        Truth.assertThat(vector.width).isEqualTo(50f)
-        Truth.assertThat(vector.height).isEqualTo(50f)
-
         val nodes = vector.nodes
         Truth.assertThat(nodes.size).isEqualTo(2)
 
@@ -70,8 +67,8 @@ class IconParserTest {
 
 private val TestVector = """
     <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="50dp"
-        android:height="50dp">
+        android:width="24dp"
+        android:height="24dp">
         <path
             android:fillAlpha=".3"
             android:pathData="M20,10, l10,10 0,10 -10, 0z" />
