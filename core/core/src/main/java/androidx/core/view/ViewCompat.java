@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -2611,6 +2612,23 @@ public class ViewCompat {
     }
 
     /**
+     * Provide original WindowInsets that are dispatched to the view hierarchy. The insets are
+     * only available if the view is attached.
+     * <p>
+     * On devices running API 23 and below, this method always returns null.
+     *
+     * @return WindowInsets from the top of the view hierarchy or null if View is detached
+     */
+    @Nullable
+    public static WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return WindowInsetsCompat.toWindowInsetsCompat(Api23Impl.getRootWindowInsets(view));
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Controls whether the entire hierarchy under this view will save its
      * state when a state saving traversal occurs from its parent.
      *
@@ -4447,6 +4465,20 @@ public class ViewCompat {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Methods added in API level 23.
+     */
+    @TargetApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // privatex
+        }
+
+        public static WindowInsets getRootWindowInsets(View v) {
+            return v.getRootWindowInsets();
         }
     }
 }

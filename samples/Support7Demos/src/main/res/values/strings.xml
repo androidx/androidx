@@ -91,6 +91,7 @@
     <string name="action_bar_sort">Sort</string>
     <string name="action_bar_sort_alpha">Alphabetically</string>
     <string name="action_bar_sort_size">By size</string>
+    <string name="action_bar_share_with">Share with...</string>
     <string name="action_bar_settings">Settings</string>
 
     <string name="action_bar_display_options">AppCompat/Action Bar/Display Options</string>
