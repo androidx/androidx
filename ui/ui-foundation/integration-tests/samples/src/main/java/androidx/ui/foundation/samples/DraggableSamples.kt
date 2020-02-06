@@ -18,11 +18,12 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.animation.AnchorsFlingConfig
-import androidx.ui.foundation.animation.animatedDragValue
+import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.DrawShape
@@ -40,10 +41,11 @@ fun DraggableSample() {
     val (minPx, maxPx) = with(DensityAmbient.current) {
         min.toPx().value to max.toPx().value
     }
-    val position = animatedDragValue(0f, minPx, maxPx)
+    val position = animatedFloat(0f)
+    position.setBounds(minPx, maxPx)
     Draggable(
         dragValue = position,
-        onDragValueChangeRequested = { position.animatedFloat.snapTo(it) },
+        onDragValueChangeRequested = { position.snapTo(it) },
         dragDirection = DragDirection.Horizontal
     ) {
         // dragValue is the current value in progress of dragging
@@ -74,11 +76,12 @@ fun AnchoredDraggableSample() {
     // define anchors and related animation controller
     val anchors = listOf(minPx, maxPx, maxPx / 2)
     val flingConfig = AnchorsFlingConfig(anchors)
-    val position = animatedDragValue(0f, minPx, maxPx)
+    val position = animatedFloat(0f)
+    position.setBounds(minPx, maxPx)
 
     Draggable(
         dragValue = position,
-        onDragValueChangeRequested = { position.animatedFloat.snapTo(it) },
+        onDragValueChangeRequested = { position.snapTo(it) },
         dragDirection = DragDirection.Horizontal,
         onDragStopped = { position.fling(flingConfig, it) }
     ) {

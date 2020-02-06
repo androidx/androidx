@@ -39,7 +39,6 @@ import androidx.ui.layout.Table
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 
 private val colors = listOf(
@@ -146,19 +145,19 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
             tableRow {
                 Text("Scroll")
                 SquareButton("< -", Color.Red) {
-                    position.scrollTo(position.value - 1000.px)
+                    position.scrollTo(position.value - 1000)
                 }
                 SquareButton("--- >", Color.Green) {
-                    position.scrollBy(10000.px)
+                    position.scrollBy(10000f)
                 }
             }
             tableRow {
                 Text("Smooth Scroll")
                 SquareButton("< -", Color.Red) {
-                    position.smoothScrollTo(position.value - 1000.px)
+                    position.smoothScrollTo(position.value - 1000)
                 }
                 SquareButton("--- >", Color.Green) {
-                    position.smoothScrollBy(10000.px)
+                    position.smoothScrollBy(10000f)
                 }
             }
             tableRow {
