@@ -70,7 +70,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     // actions
     private static final String ACTION_START_FOREGROUND = "ACTION_START_FOREGROUND";
     private static final String ACTION_NOTIFY = "ACTION_NOTIFY";
-    private static final String ACTION_STOP_FOREGROUND = "ACTION_STOP_FOREGROUND";
     private static final String ACTION_CANCEL_WORK = "ACTION_CANCEL_WORK";
 
     private Context mContext;
@@ -207,8 +206,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         String action = intent.getAction();
         if (ACTION_START_FOREGROUND.equals(action)) {
             handleStartForeground(intent);
-        } else if (ACTION_STOP_FOREGROUND.equals(action)) {
-            handleStop(intent);
+            // Call handleNotify() which in turn calls startForeground() as part of handing this
+            // command. This is important for some OEMs.
+            handleNotify(intent);
         } else if (ACTION_NOTIFY.equals(action)) {
             handleNotify(intent);
         } else if (ACTION_CANCEL_WORK.equals(action)) {
@@ -292,8 +292,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     }
 
     @MainThread
-    private void handleStop(@NonNull Intent intent) {
-        Logger.get().info(TAG, String.format("Stopping foreground service %s", intent));
+    void handleStop() {
+        Logger.get().info(TAG, "Stopping foreground service");
         if (mCallback != null) {
             if (mLastForegroundInfo != null) {
                 // Explicitly decrement the reference count for the notification.
@@ -340,9 +340,14 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     @NonNull
     public static Intent createStartForegroundIntent(
             @NonNull Context context,
-            @NonNull String workSpecId) {
+            @NonNull String workSpecId,
+            @NonNull ForegroundInfo info) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_START_FOREGROUND);
+        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
+        intent.putExtra(KEY_NOTIFICATION_ID, info.getNotificationId());
+        intent.putExtra(KEY_FOREGROUND_SERVICE_TYPE, info.getForegroundServiceType());
+        intent.putExtra(KEY_NOTIFICATION, info.getNotification());
         intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
     }
@@ -387,19 +392,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         intent.putExtra(KEY_FOREGROUND_SERVICE_TYPE, info.getForegroundServiceType());
         intent.putExtra(KEY_NOTIFICATION, info.getNotification());
         intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
-        return intent;
-    }
-
-    /**
-     * The {@link Intent} is used to stop a foreground {@link android.app.Service}.
-     *
-     * @param context   The application {@link Context}
-     * @return The {@link Intent}
-     */
-    @NonNull
-    public static Intent createStopForegroundIntent(@NonNull Context context) {
-        Intent intent = new Intent(context, SystemForegroundService.class);
-        intent.setAction(ACTION_STOP_FOREGROUND);
         return intent;
     }
 
