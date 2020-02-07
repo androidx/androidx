@@ -24,13 +24,13 @@ import androidx.compose.joinedKeyRight
 import androidx.compose.keySourceInfoOf
 import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
+import androidx.ui.core.globalPosition
 import androidx.ui.core.isAttached
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.unit.IntPxBounds
+import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
+import androidx.ui.unit.round
 
 /**
  * A group in the slot table. Represents either a call or an emitted node.
@@ -44,23 +44,23 @@ sealed class Group(
     /**
      * The bounding layout box for the group.
      */
-    val box: PxBounds,
+    val box: IntPxBounds,
 
     /**
      * Any data that was stored in the slot table for the group
      */
-    val data: Array<Any?>,
+    val data: Collection<Any?>,
 
     /**
      * The child groups of this group
      */
-    val children: Array<Group>
+    val children: Collection<Group>
 )
 
 /**
  * A group that represents the invocation of a component
  */
-class CallGroup(key: Any?, box: PxBounds, data: Array<Any?>, children: Array<Group>) :
+class CallGroup(key: Any?, box: IntPxBounds, data: Collection<Any?>, children: Collection<Group>) :
     Group(key, box, data, children)
 
 /**
@@ -73,9 +73,9 @@ class NodeGroup(
      * An emitted node
      */
     val node: Any,
-    box: PxBounds,
-    data: Array<Any?>,
-    children: Array<Group>
+    box: IntPxBounds,
+    data: Collection<Any?>,
+    children: Collection<Group>
 ) : Group(key, box, data, children)
 
 /**
@@ -95,7 +95,7 @@ private fun convertKey(key: Any?): Any? =
             else key
     }
 
-internal val emptyBox = PxBounds(0.px, 0.px, 0.px, 0.px)
+internal val emptyBox = IntPxBounds(0.ipx, 0.ipx, 0.ipx, 0.ipx)
 
 /**
  * Iterate the slot table and extract a group tree that corresponds to the content of the table.
@@ -133,30 +133,28 @@ private fun SlotReader.getGroup(): Group {
         key,
         node as Any,
         box,
-        data.toTypedArray(),
-        children.toTypedArray()
+        data,
+        children
     ) else
-        CallGroup(key, box, data.toTypedArray(), children.toTypedArray())
+        CallGroup(key, box, data, children)
 }
 
-private fun boundsOfLayoutNode(node: LayoutNode): PxBounds {
+private fun boundsOfLayoutNode(node: LayoutNode): IntPxBounds {
     if (!node.isAttached()) {
-        return PxBounds(
-            left = 0.px,
-            top = 0.px,
-            right = node.width.toPx(),
-            bottom = node.height.toPx()
+        return IntPxBounds(
+            left = 0.ipx,
+            top = 0.ipx,
+            right = node.width,
+            bottom = node.height
         )
     }
-    val position = node.coordinates.parentCoordinates!!.childToLocal(
-        node.coordinates, PxPosition.Origin
-    )
+    val position = node.coordinates.globalPosition
     val size = node.coordinates.size
-    val left = position.x
-    val top = position.y
-    val right = left + size.width.toPx()
-    val bottom = top + size.height.toPx()
-    return PxBounds(left = left, top = top, right = right, bottom = bottom)
+    val left = position.x.round()
+    val top = position.y.round()
+    val right = left + size.width
+    val bottom = top + size.height
+    return IntPxBounds(left = left, top = top, right = right, bottom = bottom)
 }
 
 /**
@@ -165,12 +163,16 @@ private fun boundsOfLayoutNode(node: LayoutNode): PxBounds {
  */
 fun SlotTable.asTree(): Group = read { it.getGroup() }
 
-internal fun PxBounds.union(other: PxBounds): PxBounds = PxBounds(
-    left = min(left, other.left),
-    top = min(top, other.top),
-    bottom = max(bottom, other.bottom),
-    right = max(right, other.right)
-)
+internal fun IntPxBounds.union(other: IntPxBounds): IntPxBounds {
+    if (this == emptyBox) return other else if (other == emptyBox) return this
+
+    return IntPxBounds(
+        left = min(left, other.left),
+        top = min(top, other.top),
+        bottom = max(bottom, other.bottom),
+        right = max(right, other.right)
+    )
+}
 
 private fun keyPosition(key: Any?): String? = when (key) {
     is String -> key

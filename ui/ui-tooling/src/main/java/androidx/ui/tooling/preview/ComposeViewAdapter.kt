@@ -36,8 +36,10 @@ import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.tables
-import androidx.ui.unit.Px
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
+import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
@@ -52,10 +54,10 @@ data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
     val methodName: String,
-    val bounds: PxBounds,
+    val bounds: IntPxBounds,
     val children: List<ViewInfo>
 ) {
-    fun hasBounds(): Boolean = bounds.bottom != Px.Zero && bounds.right != Px.Zero
+    fun hasBounds(): Boolean = bounds.bottom != IntPx.Zero && bounds.right != IntPx.Zero
 
     fun allChildren(): List<ViewInfo> =
         children + children.flatMap { it.allChildren() }
@@ -185,9 +187,11 @@ internal class ComposeViewAdapter : FrameLayout {
             .forEach {
                 if (it.hasBounds()) {
                     canvas?.apply {
-                        translate(paddingLeft.toFloat(), paddingTop.toFloat())
-                        drawRect(it.bounds.toRect().toFrameworkRect(), debugBoundsPaint)
-                        translate(-paddingLeft.toFloat(), -paddingTop.toFloat())
+                        val pxBounds = PxBounds(it.bounds.left.toPx(),
+                            it.bounds.top.toPx(),
+                            it.bounds.right.toPx(),
+                            it.bounds.bottom.toPx())
+                        drawRect(pxBounds.toRect().toFrameworkRect(), debugBoundsPaint)
                     }
                 }
             }
