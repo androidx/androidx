@@ -159,7 +159,7 @@ public final class Camera2CameraImplTest {
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         mCamera2CameraImpl = new Camera2CameraImpl(
                 CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
-                mCameraStateRegistry, mCameraHandler);
+                mCameraStateRegistry, mCameraHandler, mCameraHandler);
     }
 
     @After
