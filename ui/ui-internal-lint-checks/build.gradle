@@ -51,3 +51,5 @@ androidx {
     inceptionYear = "2019"
     description = "Internal lint checks for Compose"
 }
+
+tasks["shadowJar"].archiveFileName = "merged.jar"
