@@ -38,10 +38,11 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class SelectionManagerTest {
-    private val selectionRegistrar = SelectionRegistrarImpl()
+    private val selectionRegistrar = spy(SelectionRegistrarImpl())
     private val selectable = mock<Selectable>()
     private val selectionManager = SelectionManager(selectionRegistrar)
 
+    private val containerLayoutCoordinates = mock<LayoutCoordinates>()
     private val startLayoutCoordinates = mock<LayoutCoordinates>()
     private val endLayoutCoordinates = mock<LayoutCoordinates>()
     private val startCoordinates = PxPosition(3.px, 30.px)
@@ -67,10 +68,22 @@ class SelectionManagerTest {
 
     @Before
     fun setup() {
-        val containerLayoutCoordinates = mock<LayoutCoordinates>()
         selectionRegistrar.subscribe(selectable)
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.hapticFeedBack = hapticFeedback
+    }
+
+    @Test
+    fun mergeSelections_sorting() {
+        whenever((containerLayoutCoordinates.childToLocal(any(), any())))
+            .thenReturn(PxPosition.Origin)
+
+        selectionManager.mergeSelections(
+            startPosition = startCoordinates,
+            endPosition = endCoordinates
+        )
+
+        verify(selectionRegistrar, times(1)).sort(containerLayoutCoordinates)
     }
 
     @Test
@@ -104,6 +117,8 @@ class SelectionManagerTest {
     fun mergeSelections_multiple_selectables_calls_getSelection_multiple_times() {
         val selectable_another = mock<Selectable>()
         selectionRegistrar.subscribe(selectable_another)
+        whenever((containerLayoutCoordinates.childToLocal(any(), any())))
+            .thenReturn(PxPosition.Origin)
 
         selectionManager.mergeSelections(
             startPosition = startCoordinates,

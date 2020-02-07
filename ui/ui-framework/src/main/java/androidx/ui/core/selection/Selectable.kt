@@ -47,4 +47,12 @@ interface Selectable {
         previousSelection: Selection? = null,
         isStartHandle: Boolean = true
     ): Selection?
+
+    /**
+     * Return the [LayoutCoordinates] of the [Selectable].
+     *
+     * @return [LayoutCoordinates] of the [Selectable]. This could be null if called before
+     * composing.
+     */
+    fun getLayoutCoordinates(): LayoutCoordinates?
 }

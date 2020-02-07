@@ -36,6 +36,7 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
@@ -157,7 +158,29 @@ fun Text(
         val children = @Composable {
             // Get the layout coordinates of the text composable. This is for hit test of
             // cross-composable selection.
-            OnPositioned(onPositioned = { layoutCoordinates.value = it })
+            OnPositioned(
+                onPositioned = {
+                    val oldLayoutCoordinates = layoutCoordinates.value
+                    layoutCoordinates.value = it
+
+                    if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
+                        it.isAttached
+                    ) {
+                        selectionRegistrar?.onPositionChange()
+                    }
+
+                    if (oldLayoutCoordinates != null && oldLayoutCoordinates.isAttached &&
+                        it.isAttached
+                    ) {
+                        if (
+                            oldLayoutCoordinates.localToGlobal(PxPosition.Origin) !=
+                            it.localToGlobal(PxPosition.Origin)
+                        ) {
+                            selectionRegistrar?.onPositionChange()
+                        }
+                    }
+                }
+            )
             Draw { canvas, _ ->
                 layoutResultState.value?.let { layoutResult ->
                     selectionRange.value?.let {

@@ -16,6 +16,7 @@
 
 package androidx.ui.core.selection
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
@@ -25,6 +26,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
 import androidx.ui.framework.test.R
+import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
@@ -44,6 +46,7 @@ import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -57,6 +60,9 @@ val BASIC_MEASURE_FONT = font(
 @RunWith(JUnit4::class)
 @SmallTest
 class TextSelectionDelegateTest {
+    @get:Rule
+    val composeTestRule = AndroidComposeTestRule<Activity>()
+
     private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
