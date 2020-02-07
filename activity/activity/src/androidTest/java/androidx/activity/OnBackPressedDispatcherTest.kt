@@ -20,8 +20,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
@@ -368,6 +371,20 @@ class OnBackPressedHandlerTest {
                 "dispatcher")
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
+    }
+
+    /**
+     * Test to ensure that manually calling [ComponentActivity.onBackPressed] after
+     * [ComponentActivity.onSaveInstanceState] does not cause an exception.
+     */
+    @MediumTest
+    @Test
+    fun testCallOnBackPressedWhenStopped() {
+        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+            val realDispatcher = withActivity { onBackPressedDispatcher }
+            moveToState(Lifecycle.State.CREATED)
+            withActivity { realDispatcher.onBackPressed() }
+        }
     }
 }
 
