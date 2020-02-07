@@ -2574,12 +2574,12 @@ public class ViewCompat {
     }
 
     /**
-     * Provide original WindowInsets that are dispatched to the view hierarchy. The insets are
-     * only available if the view is attached.
+     * Provide original {@link WindowInsetsCompat} that are dispatched to the view hierarchy.
+     * The insets are only available if the view is attached.
      * <p>
-     * On devices running API 23 and below, this method always returns null.
+     * On devices running API 22 and below, this method always returns null.
      *
-     * @return WindowInsets from the top of the view hierarchy or null if View is detached
+     * @return WindowInsetsCompat from the top of the view hierarchy or null if View is detached
      */
     @Nullable
     public static WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
