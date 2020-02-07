@@ -69,6 +69,10 @@ internal class TextSelectionDelegate(
             return selection
         }
     }
+
+    override fun getLayoutCoordinates(): LayoutCoordinates? {
+        return layoutCoordinates.value
+    }
 }
 
 /**

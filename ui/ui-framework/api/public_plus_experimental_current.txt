@@ -286,6 +286,7 @@ package androidx.ui.core.input {
 package androidx.ui.core.selection {
 
   public interface Selectable {
+    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
   }
 
@@ -326,6 +327,7 @@ package androidx.ui.core.selection {
   }
 
   public interface SelectionRegistrar {
+    method public void onPositionChange();
     method public androidx.ui.core.selection.Selectable subscribe(androidx.ui.core.selection.Selectable selectable);
     method public void unsubscribe(androidx.ui.core.selection.Selectable selectable);
   }

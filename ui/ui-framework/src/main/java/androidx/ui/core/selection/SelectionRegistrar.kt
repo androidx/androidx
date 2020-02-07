@@ -31,6 +31,12 @@ interface SelectionRegistrar {
      * Unsubscribe from SelectionContainer selection changes.
      */
     fun unsubscribe(selectable: Selectable)
+
+    /**
+     * When the Global Position of a subscribed [Selectable] changes, this method
+     * is called.
+     */
+    fun onPositionChange()
 }
 
 /**
