@@ -20,13 +20,13 @@ import static androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.session.SessionCommand.COMMAND_VERSION_1;
 import static androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT;
 
+import android.util.SparseArray;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
 import androidx.core.util.ObjectsCompat;
 import androidx.media2.session.SessionCommand.CommandCode;
 import androidx.media2.session.SessionCommand.CommandVersion;
-import androidx.media2.session.SessionCommand.Range;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -230,15 +230,13 @@ public final class SessionCommandGroup implements VersionedParcelable {
             return this;
         }
 
-        private void addCommands(@CommandVersion int version, ArrayMap<Integer, List<Range>> map) {
-            for (int i = COMMAND_VERSION_1; i <= version; i++) {
-                List<Range> ranges = map.get(i);
-                if (ranges != null) {
-                    for (Range range : ranges) {
-                        for (int code = range.lower; code <= range.upper; code++) {
-                            addCommand(new SessionCommand(code));
-                        }
-                    }
+        private void addCommands(@CommandVersion int version, SparseArray<List<Integer>> map) {
+            for (int i = 0; i < map.size(); i++) {
+                if (map.keyAt(i) > version) {
+                    break;
+                }
+                for (int commandCode : map.valueAt(i)) {
+                    addCommand(new SessionCommand(commandCode));
                 }
             }
         }
