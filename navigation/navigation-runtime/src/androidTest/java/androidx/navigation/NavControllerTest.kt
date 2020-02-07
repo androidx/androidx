@@ -71,6 +71,21 @@ class NavControllerTest {
     }
 
     @Test
+    fun testGetPreviousBackStackEntry() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        navController.navigate(R.id.second_test)
+        assertEquals(R.id.start_test, navController.previousBackStackEntry?.destination?.id ?: 0)
+    }
+
+    @Test
+    fun testGetPreviousBackStackEntryEmptyBackStack() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        assertThat(navController.previousBackStackEntry).isNull()
+    }
+
+    @Test
     fun testStartDestination() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_start_destination)

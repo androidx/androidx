@@ -57,6 +57,7 @@ package androidx.navigation {
     method public androidx.navigation.NavGraph getGraph();
     method public androidx.navigation.NavInflater getNavInflater();
     method public androidx.navigation.NavigatorProvider getNavigatorProvider();
+    method public androidx.navigation.NavBackStackEntry? getPreviousBackStackEntry();
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner(@IdRes int);
     method public boolean handleDeepLink(android.content.Intent?);
     method public void navigate(@IdRes int);

@@ -1213,4 +1213,28 @@ public class NavController {
             return mBackStack.getLast();
         }
     }
+
+    /**
+     * Gets the previous visible {@link NavBackStackEntry}.
+     * <p>
+     * This skips over any {@link NavBackStackEntry} that is associated with a {@link NavGraph}.
+     *
+     * @return the previous visible entry on the back stack or null if the back stack has less
+     * than two visible entries
+     */
+    @Nullable
+    public NavBackStackEntry getPreviousBackStackEntry() {
+        Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
+        // throw the topmost destination away.
+        if (iterator.hasNext()) {
+            iterator.next();
+        }
+        while (iterator.hasNext()) {
+            NavBackStackEntry entry = iterator.next();
+            if (!(entry.getDestination() instanceof NavGraph)) {
+                return entry;
+            }
+        }
+        return null;
+    }
 }
