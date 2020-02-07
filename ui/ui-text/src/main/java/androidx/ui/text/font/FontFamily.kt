@@ -28,6 +28,11 @@ import androidx.compose.Immutable
 sealed class FontFamily {
     companion object {
         /**
+         * The platform default font.
+         */
+        val Default: SystemFontFamily = DefaultFontFamily()
+
+        /**
          * Font family with low contrast and plain stroke endings.
          *
          * @sample androidx.ui.text.samples.FontFamilySansSerifSample
@@ -74,6 +79,11 @@ sealed class FontFamily {
 sealed class FileBasedFontFamily : FontFamily()
 
 /**
+ * A base class of [FontFamily]s installed on the system.
+ */
+sealed class SystemFontFamily : FontFamily()
+
+/**
  * Defines a font family with list of [Font].
  *
  * @sample androidx.ui.text.samples.FontFamilySansSerifSample
@@ -107,14 +117,19 @@ fun fontFamily(vararg fonts: Font) = FontListFontFamily(fonts.asList())
 /**
  * Defines a font family with an generic font family name.
  *
- * @param name a generic font family name, e.g. "serif", "sans-serif"
- */
-@Immutable
-data class GenericFontFamily(val name: String) : FontFamily()
-
-/**
- * Construct a font family from a generic font family name.
+ * If the platform cannot find the passed generic font family, use the platform default one.
  *
  * @param name a generic font family name, e.g. "serif", "sans-serif"
+ * @see FontFamily.SansSerif
+ * @see FontFamily.Serif
+ * @see FontFamily.Monospace
+ * @see FontFamily.Cursive
  */
-fun fontFamily(name: String) = GenericFontFamily(name)
+@Immutable
+class GenericFontFamily internal constructor(val name: String) : SystemFontFamily()
+
+/**
+ * Defines a default font family.
+ */
+@Immutable
+internal class DefaultFontFamily : SystemFontFamily()

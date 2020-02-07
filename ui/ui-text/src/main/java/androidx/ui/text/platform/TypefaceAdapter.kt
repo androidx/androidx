@@ -19,8 +19,8 @@ package androidx.ui.text.platform
 import android.graphics.Typeface
 import android.os.Build
 import androidx.collection.LruCache
+import androidx.ui.text.font.DefaultFontFamily
 import androidx.ui.text.font.Font
-import androidx.ui.text.font.font
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontListFontFamily
 import androidx.ui.text.font.FontMatcher
@@ -28,6 +28,7 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.GenericFontFamily
+import androidx.ui.text.font.font
 
 /**
  * Creates a Typeface based on generic font family or a custom [FontFamily].
@@ -88,7 +89,7 @@ internal open class TypefaceAdapter(
                     fontWeight = fontWeight,
                     fontStyle = fontStyle
                 )
-            else ->
+            is DefaultFontFamily, null ->
                 create(
                     genericFontFamily = null,
                     fontWeight = fontWeight,
