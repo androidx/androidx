@@ -17,6 +17,7 @@
 package androidx.autofill;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.app.slice.Slice;
 import android.app.slice.SliceSpec;
 import android.graphics.drawable.Icon;
@@ -32,10 +33,9 @@ import androidx.core.util.Preconditions;
 import java.util.Collections;
 
 /**
- * Helper class to create {@link Slice} for rendering into inline suggestions via
- * {@link InlinePresentationRenderer}.
+ * Helper class to create {@link Slice} for rendering into inline suggestions.
  *
- * <p>This builder is used by {@link AutofillService} providers to create slices representing
+ * <p>This builder is used by {@link AutofillService} and providers to create slices representing
  * their inline suggestions UI.</p>
  *
  * TODO(b/147116534): Add documentation about UI templating.
@@ -43,9 +43,6 @@ import java.util.Collections;
 @SuppressLint("TopLevelBuilder")
 @RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
 public class InlinePresentationBuilder {
-
-    private static final String TAG = "InlinePresentationBuilder";
-
     private static final String INLINE_PRESENTATION_SPEC_TYPE = "InlinePresentation";
     private static final int INLINE_PRESENTATION_SPEC_VERSION = 1;
     private static final String INLINE_PRESENTATION_SLICE_URI = "inline.slice";
@@ -54,11 +51,13 @@ public class InlinePresentationBuilder {
     static final String HINT_INLINE_SUBTITLE = "inline_subtitle";
     static final String HINT_INLINE_START_ICON = "inline_start_icon";
     static final String HINT_INLINE_END_ICON = "inline_end_icon";
+    static final String HINT_INLINE_ACTION = "inline_action";
 
     @Nullable private Icon mStartIcon;
     @Nullable private Icon mEndIcon;
-    @NonNull private String mTitle;
+    @Nullable private String mTitle;
     @Nullable private String mSubtitle;
+    @Nullable private PendingIntent mAction;
 
     private boolean mDestroyed;
 
@@ -70,6 +69,12 @@ public class InlinePresentationBuilder {
     public InlinePresentationBuilder(@NonNull CharSequence title) {
         Preconditions.checkNotNull(title, "Title must not be null");
         mTitle = title.toString();
+    }
+
+    /**
+     * Initializes a an {@link InlinePresentationBuilder}.
+     */
+    public InlinePresentationBuilder() {
     }
 
     /**
@@ -109,19 +114,36 @@ public class InlinePresentationBuilder {
     }
 
     /**
+     * Sets the action of {@link Slice}.
+     *
+     * @param action invoked when the slice is tapped.
+     */
+    public @NonNull InlinePresentationBuilder setAction(@NonNull PendingIntent action) {
+        throwIfDestroyed();
+        Preconditions.checkNotNull(action, "Action should not be null");
+        mAction = action;
+        return this;
+    }
+
+    /**
      * Creates a new {@link Slice} instance.
      *
      * <p>You should not interact with this builder once this method is called.
      *
-     * @throws IllegalStateException if the title was not set.
+     * @throws IllegalStateException if none of the title, subtitle, start icon and end icon is
+     * set, or if the subtitle is set without the title.
      *
      * @return The built slice.
      */
     public @NonNull Slice build() {
         throwIfDestroyed();
         mDestroyed = true;
-        if (mTitle == null) {
-            throw new IllegalStateException("The title must be set");
+        if (mTitle == null && mStartIcon == null && mEndIcon == null && mSubtitle == null) {
+            throw new IllegalStateException("Title, subtitle, start icon, end icon are all null. "
+                    + "Please set value for at least one of them");
+        }
+        if (mTitle == null && mSubtitle != null) {
+            throw new IllegalStateException("Cannot set the subtitle without setting the title.");
         }
 
         Slice.Builder builder = new Slice.Builder(Uri.parse(INLINE_PRESENTATION_SLICE_URI),
@@ -129,12 +151,18 @@ public class InlinePresentationBuilder {
         if (mStartIcon != null) {
             builder.addIcon(mStartIcon, null, Collections.singletonList(HINT_INLINE_START_ICON));
         }
-        builder.addText(mTitle, null, Collections.singletonList(HINT_INLINE_TITLE));
+        if (mTitle != null) {
+            builder.addText(mTitle, null, Collections.singletonList(HINT_INLINE_TITLE));
+        }
         if (mSubtitle != null) {
             builder.addText(mSubtitle, null, Collections.singletonList(HINT_INLINE_SUBTITLE));
         }
         if (mEndIcon != null) {
             builder.addIcon(mEndIcon, null, Collections.singletonList(HINT_INLINE_END_ICON));
+        }
+        if (mAction != null) {
+            builder.addAction(mAction, new Slice.Builder(builder).addHints(
+                    Collections.singletonList(HINT_INLINE_ACTION)).build(), null);
         }
         return builder.build();
     }

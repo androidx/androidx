@@ -14,6 +14,4 @@
   limitations under the License
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.autofill.tests">
-</manifest>
+<manifest package="androidx.autofill.tests"></manifest>

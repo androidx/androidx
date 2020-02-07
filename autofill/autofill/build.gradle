@@ -27,6 +27,13 @@ plugins {
 
 dependencies {
     implementation("androidx.core:core:1.1.0")
+
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation 'junit:junit:4.12'
 }
 
 androidx {
