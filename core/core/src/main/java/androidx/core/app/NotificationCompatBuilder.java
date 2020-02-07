@@ -224,6 +224,12 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 mGroupAlertBehavior = GROUP_ALERT_SUMMARY;
             }
 
+            mBuilder.setVibrate(null);
+            mBuilder.setSound(null);
+            n.defaults &= ~DEFAULT_SOUND;
+            n.defaults &= ~DEFAULT_VIBRATE;
+            mBuilder.setDefaults(n.defaults);
+
             if (Build.VERSION.SDK_INT >= 26) {
                 if (TextUtils.isEmpty(mBuilderCompat.mGroupKey)) {
                     mBuilder.setGroup(NotificationCompat.GROUP_KEY_SILENT);
