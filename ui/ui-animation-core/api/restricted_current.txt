@@ -369,16 +369,6 @@ package androidx.animation {
     property public androidx.animation.Arithmetic<androidx.animation.AnimationVector4D> arithmetic;
   }
 
-  public interface ValueHolder<T> {
-    method public T! getValue();
-    method public void setValue(T! p);
-    property public abstract T! value;
-  }
-
-  public final class ValueHolderKt {
-    method public static <T> androidx.animation.ValueHolder<T> ValueHolder(T? initValue);
-  }
-
   public final class VectorAnimationKt {
     field public static final boolean DEBUG = false;
   }
