@@ -19,8 +19,6 @@ package androidx.ui.core.pointerinput
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.PointerId
-import androidx.ui.unit.Uptime
-import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -31,11 +29,11 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class MotionEventAdapterTest {
 
-    lateinit var motionEvenAdapter: MotionEventAdapter
+    lateinit var motionEventAdapter: MotionEventAdapter
 
     @Before
     fun setup() {
-        motionEvenAdapter = MotionEventAdapter()
+        motionEventAdapter = MotionEventAdapter()
     }
 
     @Test
@@ -49,7 +47,7 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(2967f, 5928f))
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -57,7 +55,7 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(1)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(8290, Uptime.Boot + 2894.milliseconds),
+            PointerId(0),
             true,
             2967f,
             5928f
@@ -66,7 +64,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_1pointerActionMove_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -85,7 +83,7 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(6f, 7f))
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -93,7 +91,7 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(1)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             6f,
             7f
@@ -102,7 +100,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_1pointerActionUp_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 10,
                 MotionEvent.ACTION_DOWN,
@@ -121,7 +119,7 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(3f, 4f))
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -130,7 +128,7 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(1)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(46, Uptime.Boot + 10.milliseconds),
+            PointerId(0),
             false,
             3f,
             4f
@@ -139,7 +137,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_2pointers1stPointerActionPointerDown_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -164,31 +162,31 @@ class MotionEventAdapterTest {
             )
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
         assertThat(uptime.nanoseconds).isEqualTo(4_000_000L)
         assertThat(pointers).hasSize(2)
         assertPointerInputEventData(
-            pointers[1],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
-            true,
-            3f,
-            4f
-        )
-        assertPointerInputEventData(
             pointers[0],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
+        )
+        assertPointerInputEventData(
+            pointers[1],
+            PointerId(0),
+            true,
+            3f,
+            4f
         )
     }
 
     @Test
     fun processMotionEvent_2pointers2ndPointerActionPointerDown_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -213,7 +211,7 @@ class MotionEventAdapterTest {
             )
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -221,14 +219,14 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(2)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
@@ -237,7 +235,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_3pointers1stPointerActionPointerDown_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -247,7 +245,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -281,7 +279,7 @@ class MotionEventAdapterTest {
                 )
             )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -289,21 +287,21 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(3)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(9, Uptime.Boot + 12.milliseconds),
+            PointerId(2),
             true,
             10f,
             11f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[2],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
@@ -312,7 +310,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_3pointers2ndPointerActionPointerDown_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -322,7 +320,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -356,7 +354,7 @@ class MotionEventAdapterTest {
                 )
             )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -364,21 +362,21 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(3)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(9, Uptime.Boot + 12.milliseconds),
+            PointerId(2),
             true,
             10f,
             11f
         )
         assertPointerInputEventData(
             pointers[2],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
@@ -387,7 +385,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_3pointers3rdPointerActionPointerDown_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -397,7 +395,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -431,7 +429,7 @@ class MotionEventAdapterTest {
                 )
             )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -439,21 +437,21 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(3)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
         )
         assertPointerInputEventData(
             pointers[2],
-            PointerId(9, Uptime.Boot + 12.milliseconds),
+            PointerId(2),
             true,
             10f,
             11f
@@ -462,7 +460,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_2pointersActionMove_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -472,7 +470,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -503,7 +501,7 @@ class MotionEventAdapterTest {
             )
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -511,14 +509,14 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(2)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             11f,
             12f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             13f,
             15f
@@ -527,7 +525,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_2pointers1stPointerActionPointerUP_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -537,7 +535,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -568,7 +566,7 @@ class MotionEventAdapterTest {
                 PointerCoords(7f, 8f)
             )
         )
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -576,14 +574,14 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(2)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             false,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
@@ -592,7 +590,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_2pointers2ndPointerActionPointerUp_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -602,7 +600,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -633,7 +631,7 @@ class MotionEventAdapterTest {
                 PointerCoords(7f, 8f)
             )
         )
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -641,14 +639,14 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(2)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             false,
             7f,
             8f
@@ -657,7 +655,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_3pointers1stPointerActionPointerUp_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -667,7 +665,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -683,7 +681,7 @@ class MotionEventAdapterTest {
                 )
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 12,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -719,7 +717,7 @@ class MotionEventAdapterTest {
             )
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -727,21 +725,21 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(3)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             false,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
         )
         assertPointerInputEventData(
             pointers[2],
-            PointerId(9, Uptime.Boot + 12.milliseconds),
+            PointerId(2),
             true,
             10f,
             11f
@@ -750,7 +748,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_3pointers2ndPointerActionPointerUp_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -760,7 +758,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -776,7 +774,7 @@ class MotionEventAdapterTest {
                 )
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 12,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -812,7 +810,7 @@ class MotionEventAdapterTest {
             )
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -820,21 +818,21 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(3)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             false,
             7f,
             8f
         )
         assertPointerInputEventData(
             pointers[2],
-            PointerId(9, Uptime.Boot + 12.milliseconds),
+            PointerId(2),
             true,
             10f,
             11f
@@ -843,7 +841,7 @@ class MotionEventAdapterTest {
 
     @Test
     fun processMotionEvent_3pointers3rdPointerActionPointerUp_convertsCorrectly() {
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 1,
                 MotionEvent.ACTION_DOWN,
@@ -853,7 +851,7 @@ class MotionEventAdapterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 4,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -869,7 +867,7 @@ class MotionEventAdapterTest {
                 )
             )
         )
-        motionEvenAdapter.processMotionEvent(
+        motionEventAdapter.processMotionEvent(
             MotionEvent(
                 12,
                 MotionEvent.ACTION_POINTER_DOWN,
@@ -905,7 +903,7 @@ class MotionEventAdapterTest {
             )
         )
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
@@ -913,25 +911,171 @@ class MotionEventAdapterTest {
         assertThat(pointers).hasSize(3)
         assertPointerInputEventData(
             pointers[0],
-            PointerId(2, Uptime.Boot + 1.milliseconds),
+            PointerId(0),
             true,
             3f,
             4f
         )
         assertPointerInputEventData(
             pointers[1],
-            PointerId(5, Uptime.Boot + 4.milliseconds),
+            PointerId(1),
             true,
             7f,
             8f
         )
         assertPointerInputEventData(
             pointers[2],
-            PointerId(9, Uptime.Boot + 12.milliseconds),
+            PointerId(2),
             false,
             10f,
             11f
         )
+    }
+
+    @Test
+    fun processMotionEvent_downUpDownUpDownUpSameMotionEventId_pointerIdsAreUnique() {
+        val down1 = MotionEvent(
+            100,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(10f, 11f))
+        )
+
+        val up1 = MotionEvent(
+            200,
+            MotionEvent.ACTION_UP,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(10f, 11f))
+        )
+
+        val down2 = MotionEvent(
+            300,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(20f, 21f))
+        )
+
+        val up2 = MotionEvent(
+            400,
+            MotionEvent.ACTION_UP,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(20f, 21f))
+        )
+
+        val down3 = MotionEvent(
+            500,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(30f, 31f))
+        )
+
+        val up3 = MotionEvent(
+            600,
+            MotionEvent.ACTION_UP,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(30f, 31f))
+        )
+
+        val pointerInputEventDown1 = motionEventAdapter.processMotionEvent(down1)
+        val pointerInputEventUp1 = motionEventAdapter.processMotionEvent(up1)
+        val pointerInputEventDown2 = motionEventAdapter.processMotionEvent(down2)
+        val pointerInputEventUp2 = motionEventAdapter.processMotionEvent(up2)
+        val pointerInputEventDown3 = motionEventAdapter.processMotionEvent(down3)
+        val pointerInputEventUp3 = motionEventAdapter.processMotionEvent(up3)
+
+        assertThat(pointerInputEventDown1).isNotNull()
+        assertThat(pointerInputEventUp1).isNotNull()
+        assertThat(pointerInputEventDown2).isNotNull()
+        assertThat(pointerInputEventUp2).isNotNull()
+        assertThat(pointerInputEventDown3).isNotNull()
+        assertThat(pointerInputEventUp3).isNotNull()
+
+        assertThat(pointerInputEventDown1!!.pointers[0].id).isEqualTo(PointerId(0))
+        assertThat(pointerInputEventUp1!!.pointers[0].id).isEqualTo(PointerId(0))
+        assertThat(pointerInputEventDown2!!.pointers[0].id).isEqualTo(PointerId(1))
+        assertThat(pointerInputEventUp2!!.pointers[0].id).isEqualTo(PointerId(1))
+        assertThat(pointerInputEventDown3!!.pointers[0].id).isEqualTo(PointerId(2))
+        assertThat(pointerInputEventUp3!!.pointers[0].id).isEqualTo(PointerId(2))
+    }
+
+    @Test
+    fun processMotionEvent_downDownDownRandomMotionEventIds_pointerIdsAreUnique() {
+        val down1 = MotionEvent(
+            100,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(
+                PointerProperties(9276)
+            ),
+            arrayOf(
+                PointerCoords(10f, 11f)
+            )
+        )
+
+        val down2 = MotionEvent(
+            200,
+            MotionEvent.ACTION_POINTER_DOWN,
+            2,
+            1,
+            arrayOf(
+                PointerProperties(9276),
+                PointerProperties(1759)
+            ),
+            arrayOf(
+                PointerCoords(10f, 11f),
+                PointerCoords(20f, 21f)
+            )
+        )
+
+        val down3 = MotionEvent(
+            300,
+            MotionEvent.ACTION_POINTER_DOWN,
+            3,
+            2,
+            arrayOf(
+                PointerProperties(9276),
+                PointerProperties(1759),
+                PointerProperties(5043)
+            ),
+            arrayOf(
+                PointerCoords(10f, 11f),
+                PointerCoords(20f, 21f),
+                PointerCoords(30f, 31f)
+            )
+        )
+
+        val pointerInputEventDown1 = motionEventAdapter.processMotionEvent(down1)
+        val pointerInputEventDown2 = motionEventAdapter.processMotionEvent(down2)
+        val pointerInputEventDown3 = motionEventAdapter.processMotionEvent(down3)
+
+        assertThat(pointerInputEventDown1).isNotNull()
+        assertThat(pointerInputEventDown2).isNotNull()
+        assertThat(pointerInputEventDown3).isNotNull()
+
+        assertThat(pointerInputEventDown1!!.pointers).hasSize(1)
+        assertThat(pointerInputEventDown1.pointers[0].id).isEqualTo(PointerId(0))
+
+        assertThat(pointerInputEventDown2!!.pointers).hasSize(2)
+        assertThat(pointerInputEventDown2.pointers[0].id).isEqualTo(PointerId(0))
+        assertThat(pointerInputEventDown2.pointers[1].id).isEqualTo(PointerId(1))
+
+        assertThat(pointerInputEventDown3!!.pointers).hasSize(3)
+        assertThat(pointerInputEventDown2.pointers[0].id).isEqualTo(PointerId(0))
+        assertThat(pointerInputEventDown2.pointers[1].id).isEqualTo(PointerId(1))
+        assertThat(pointerInputEventDown3.pointers[2].id).isEqualTo(PointerId(2))
     }
 
     @Test
@@ -947,13 +1091,13 @@ class MotionEventAdapterTest {
 
         motionEvent.offsetLocation(10f, 20f)
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNotNull()
 
         val (uptime, pointers) = pointerInputEvent!!
         assertThat(uptime.nanoseconds).isEqualTo(0L)
         assertThat(pointers).hasSize(1)
-        assertPointerInputEventData(pointers[0], PointerId(0, Uptime.Boot), true, 1f, 2f)
+        assertPointerInputEventData(pointers[0], PointerId(0), true, 1f, 2f)
     }
 
     @Test
@@ -969,7 +1113,7 @@ class MotionEventAdapterTest {
 
         motionEvent.offsetLocation(10f, 20f)
 
-        val pointerInputEvent = motionEvenAdapter.processMotionEvent(motionEvent)
+        val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
         assertThat(pointerInputEvent).isNull()
     }
 
@@ -992,10 +1136,10 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(2967f, 5928f))
         )
 
-        motionEvenAdapter.processMotionEvent(motionEvent1)
-        motionEvenAdapter.processMotionEvent(motionEvent2)
+        motionEventAdapter.processMotionEvent(motionEvent1)
+        motionEventAdapter.processMotionEvent(motionEvent2)
 
-        assertThat(motionEvenAdapter.intIdToPointerIdMap).isEmpty()
+        assertThat(motionEventAdapter.intIdToPointerIdMap).isEmpty()
     }
 
     @Test
@@ -1023,13 +1167,13 @@ class MotionEventAdapterTest {
             )
         )
 
-        motionEvenAdapter.processMotionEvent(motionEvent1)
-        motionEvenAdapter.processMotionEvent(motionEvent2)
+        motionEventAdapter.processMotionEvent(motionEvent1)
+        motionEventAdapter.processMotionEvent(motionEvent2)
 
-        assertThat(motionEvenAdapter.intIdToPointerIdMap).containsExactlyEntriesIn(
+        assertThat(motionEventAdapter.intIdToPointerIdMap).containsExactlyEntriesIn(
             mapOf(
-                2 to PointerId(2, Uptime.Boot + 1.milliseconds),
-                5 to PointerId(5, Uptime.Boot + 4.milliseconds)
+                2 to PointerId(0),
+                5 to PointerId(1)
             )
         )
     }
@@ -1073,12 +1217,12 @@ class MotionEventAdapterTest {
             )
         )
 
-        motionEvenAdapter.processMotionEvent(motionEvent1)
-        motionEvenAdapter.processMotionEvent(motionEvent2)
-        motionEvenAdapter.processMotionEvent(motionEvent3)
+        motionEventAdapter.processMotionEvent(motionEvent1)
+        motionEventAdapter.processMotionEvent(motionEvent2)
+        motionEventAdapter.processMotionEvent(motionEvent3)
 
-        assertThat(motionEvenAdapter.intIdToPointerIdMap).containsExactlyEntriesIn(
-            mapOf(2 to PointerId(2, Uptime.Boot + 1.milliseconds))
+        assertThat(motionEventAdapter.intIdToPointerIdMap).containsExactlyEntriesIn(
+            mapOf(2 to PointerId(0))
         )
     }
 
@@ -1121,12 +1265,12 @@ class MotionEventAdapterTest {
             )
         )
 
-        motionEvenAdapter.processMotionEvent(motionEvent1)
-        motionEvenAdapter.processMotionEvent(motionEvent2)
-        motionEvenAdapter.processMotionEvent(motionEvent3)
+        motionEventAdapter.processMotionEvent(motionEvent1)
+        motionEventAdapter.processMotionEvent(motionEvent2)
+        motionEventAdapter.processMotionEvent(motionEvent3)
 
-        assertThat(motionEvenAdapter.intIdToPointerIdMap).containsExactlyEntriesIn(
-            mapOf(5 to PointerId(5, Uptime.Boot + 4.milliseconds))
+        assertThat(motionEventAdapter.intIdToPointerIdMap).containsExactlyEntriesIn(
+            mapOf(5 to PointerId(1))
         )
     }
 
@@ -1177,12 +1321,12 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(3f, 4f))
         )
 
-        motionEvenAdapter.processMotionEvent(motionEvent1)
-        motionEvenAdapter.processMotionEvent(motionEvent2)
-        motionEvenAdapter.processMotionEvent(motionEvent3)
-        motionEvenAdapter.processMotionEvent(motionEvent4)
+        motionEventAdapter.processMotionEvent(motionEvent1)
+        motionEventAdapter.processMotionEvent(motionEvent2)
+        motionEventAdapter.processMotionEvent(motionEvent3)
+        motionEventAdapter.processMotionEvent(motionEvent4)
 
-        assertThat(motionEvenAdapter.intIdToPointerIdMap).isEmpty()
+        assertThat(motionEventAdapter.intIdToPointerIdMap).isEmpty()
     }
 
     @Test
@@ -1223,11 +1367,11 @@ class MotionEventAdapterTest {
                 PointerCoords(3f, 4f)
             )
         )
-        motionEvenAdapter.processMotionEvent(motionEvent1)
-        motionEvenAdapter.processMotionEvent(motionEvent2)
-        motionEvenAdapter.processMotionEvent(motionEvent3)
+        motionEventAdapter.processMotionEvent(motionEvent1)
+        motionEventAdapter.processMotionEvent(motionEvent2)
+        motionEventAdapter.processMotionEvent(motionEvent3)
 
-        assertThat(motionEvenAdapter.intIdToPointerIdMap).isEmpty()
+        assertThat(motionEventAdapter.intIdToPointerIdMap).isEmpty()
     }
 
     // Private help functions.

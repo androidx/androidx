@@ -34,12 +34,11 @@ data class PointerInputChange(
 )
 
 /**
- * Uniquely identifies each pointer based on its [creationTime] and its unique [id] at creation.
+ * An ID for a given pointer.
+ *
+ * @param value The actual value of the id.
  */
-data class PointerId(
-    private val id: Int,
-    private val creationTime: Uptime
-)
+/* inline */ data class PointerId(val value: Long)
 
 // TODO(shepshapard): Uptime will be an Inline Class, so it should not be nullable.
 /**
