@@ -52,6 +52,7 @@ package androidx.navigation {
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int);
+    method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
     method public androidx.navigation.NavDestination? getCurrentDestination();
     method public androidx.navigation.NavGraph getGraph();
     method public androidx.navigation.NavInflater getNavInflater();

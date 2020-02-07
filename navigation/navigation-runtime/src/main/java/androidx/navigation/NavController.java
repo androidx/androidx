@@ -772,11 +772,8 @@ public class NavController {
      */
     @Nullable
     public NavDestination getCurrentDestination() {
-        if (mBackStack.isEmpty()) {
-            return null;
-        } else {
-            return mBackStack.getLast().getDestination();
-        }
+        NavBackStackEntry entry = getCurrentBackStackEntry();
+        return entry != null ? entry.getDestination() : null;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1201,5 +1198,19 @@ public class NavController {
                     + " is on the NavController's back stack");
         }
         return lastFromBackStack;
+    }
+
+    /**
+     * Gets the topmost {@link NavBackStackEntry}.
+     *
+     * @return the topmost entry on the back stack or null if the back stack is empty
+     */
+    @Nullable
+    public NavBackStackEntry getCurrentBackStackEntry() {
+        if (mBackStack.isEmpty()) {
+            return null;
+        } else {
+            return mBackStack.getLast();
+        }
     }
 }
