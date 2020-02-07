@@ -51,6 +51,7 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,7 +141,6 @@ public class VideoCapture extends UseCase {
     /** For record the first sample written time. */
     private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
     private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
-    private final VideoCaptureConfig.Builder mUseCaseConfigBuilder;
 
     @NonNull
     MediaCodec mVideoEncoder;
@@ -156,6 +156,7 @@ public class VideoCapture extends UseCase {
     private int mAudioTrackIndex;
     /** Surface the camera writes to, which the videoEncoder uses as input. */
     Surface mCameraSurface;
+
     /** audio raw data */
     @NonNull
     private AudioRecord mAudioRecorder;
@@ -173,7 +174,6 @@ public class VideoCapture extends UseCase {
      */
     public VideoCapture(VideoCaptureConfig config) {
         super(config);
-        mUseCaseConfigBuilder = VideoCaptureConfig.Builder.fromConfig(config);
 
         // video thread start
         mVideoHandlerThread.start();
@@ -454,11 +454,12 @@ public class VideoCapture extends UseCase {
      * @param rotation Desired rotation of the output video.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        VideoCaptureConfig oldConfig = (VideoCaptureConfig) getUseCaseConfig();
+        VideoCaptureConfig.Builder builder = VideoCaptureConfig.Builder.fromConfig(oldConfig);
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfig(mUseCaseConfigBuilder.getUseCaseConfig());
+            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
+            updateUseCaseConfig(builder.getUseCaseConfig());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }

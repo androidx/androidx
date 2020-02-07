@@ -34,6 +34,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -43,6 +44,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
@@ -52,6 +54,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.util.FakeRepeatingUseCase;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -69,6 +72,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCameraControl;
@@ -439,15 +443,15 @@ public final class ImageCaptureTest {
         double aspectRatioThreshold = 0.01;
 
         // If rotation is equal then buffers were rotated by HAL so the aspect ratio should be
-        // the same. Otherwise the aspect ratio should be rotated by 90 degrees.
+        // rotated by 90 degrees. Otherwise the aspect ratio should be the same.
         if (exif.getRotation() == exifRotated90.getRotation()) {
-            double aspectRatio = (double) exif.getWidth() / exif.getHeight();
+            double aspectRatio = (double) exif.getHeight() / exif.getWidth();
             double aspectRatioRotated90 =
                     (double) exifRotated90.getWidth() / exifRotated90.getHeight();
             assertThat(Math.abs(aspectRatio - aspectRatioRotated90)).isLessThan(
                     aspectRatioThreshold);
         } else {
-            double aspectRatio = (double) exif.getHeight() / exif.getWidth();
+            double aspectRatio = (double) exif.getWidth() / exif.getHeight();
             double aspectRatioRotated90 =
                     (double) exifRotated90.getWidth() / exifRotated90.getHeight();
             assertThat(Math.abs(aspectRatio - aspectRatioRotated90)).isLessThan(
@@ -805,10 +809,137 @@ public final class ImageCaptureTest {
         }
     }
 
+    @Test
+    public void defaultAspectRatioCustomWontBeSet_whenTargetAspectRatioIsSet() {
+        ImageCapture useCase = new ImageCapture.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        assertThat(useCase.getUseCaseConfig().containsOption(
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM)).isFalse();
+
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        assertThat(useCase.getUseCaseConfig().containsOption(
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM)).isFalse();
+    }
+
+    @Test
+    public void targetRotationCanBeUpdatedAfterUseCaseIsCreated() {
+        ImageCapture imageCapture = new ImageCapture.Builder().setTargetRotation(
+                Surface.ROTATION_0).build();
+        imageCapture.setTargetRotation(Surface.ROTATION_90);
+
+        assertThat(imageCapture.getTargetRotation()).isEqualTo(Surface.ROTATION_90);
+    }
+
+    @Test
+    public void targetAspectRatioCustomCanBeUpdatedAfterUseCaseIsCreated() {
+        Rational oldRatio = new Rational(9, 16);
+        Rational newRatio = new Rational(16, 9);
+        ImageCapture imageCapture = new ImageCapture.Builder().setTargetAspectRatioCustom(
+                oldRatio).setTargetRotation(Surface.ROTATION_0).build();
+        imageCapture.setTargetAspectRatioCustom(newRatio);
+
+        Rational resultRatio =
+                ((ImageOutputConfig) imageCapture.getUseCaseConfig()).getTargetAspectRatioCustom(
+                        null);
+
+        assertThat(resultRatio).isEqualTo(newRatio);
+    }
+
+    @Test
+    public void targetResolutionIsUpdatedAfterTargetRotationIsUpdated() {
+        // setTargetResolution will also set corresponding value to targetAspectRatioCustom.
+        ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(
+                DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
+
+        // Updates target rotation from ROTATION_0 to ROTATION_90.
+        imageCapture.setTargetRotation(Surface.ROTATION_90);
+
+        ImageOutputConfig newConfig = (ImageOutputConfig) imageCapture.getUseCaseConfig();
+        Size expectedTargetResolution = new Size(DEFAULT_RESOLUTION.getHeight(),
+                DEFAULT_RESOLUTION.getWidth());
+        Rational expectedTargetAspectRatioCustom = new Rational(DEFAULT_RESOLUTION.getHeight(),
+                DEFAULT_RESOLUTION.getWidth());
+
+        // Expected targetResolution and targetAspectRatioCustom will be reversed from original
+        // target resolution.
+        assertThat(newConfig.getTargetResolution().equals(expectedTargetResolution)).isTrue();
+        assertThat(newConfig.getTargetAspectRatioCustom().equals(
+                expectedTargetAspectRatioCustom)).isTrue();
+    }
+
+    @Test
+    public void targetAspectRatioCustomIsUpdatedAfterTargetRotationIsUpdated() {
+        // No targetResolution and targetAspectRatioCustom are set to the use case.
+        ImageCapture imageCapture = new ImageCapture.Builder().setTargetRotation(
+                Surface.ROTATION_0).build();
+
+        // ImageCapture provide public API to setTargetAspectRatioCustom after use case is created.
+        imageCapture.setTargetAspectRatioCustom(new Rational(DEFAULT_RESOLUTION.getWidth(),
+                DEFAULT_RESOLUTION.getHeight()));
+
+        // Updates target rotation from ROTATION_0 to ROTATION_90.
+        imageCapture.setTargetRotation(Surface.ROTATION_90);
+
+        ImageOutputConfig newConfig = (ImageOutputConfig) imageCapture.getUseCaseConfig();
+        Rational expectedTargetAspectRatioCustom = new Rational(DEFAULT_RESOLUTION.getHeight(),
+                DEFAULT_RESOLUTION.getWidth());
+
+        // Expected targetAspectRatioCustom will be reversed from original one.
+        assertThat(newConfig.getTargetAspectRatioCustom().equals(
+                expectedTargetAspectRatioCustom)).isTrue();
+    }
+
+    @Test
+    public void capturedImageHasCorrectCroppingSize() throws ExecutionException,
+            InterruptedException, CameraInfoUnavailableException {
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // that the initial set target cropping aspect ratio matches the sensor orientation.
+        String cameraId = CameraX.getCameraFactory().cameraIdForLensFacing(
+                CameraSelector.LENS_FACING_BACK);
+        boolean isRotateNeeded = (CameraX.getCameraInfo(cameraId).getSensorRotationDegrees(
+                Surface.ROTATION_0) % 180) != 0;
+        ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
+                DEFAULT_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+
+        // Updates target rotation to opposite one.
+        useCase.setTargetRotation(isRotateNeeded ? Surface.ROTATION_0 : Surface.ROTATION_90);
+
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // After target rotation is updated, the result cropping aspect ratio should still the
+        // same as original one.
+        Rational expectedCroppingRatio = new Rational(DEFAULT_RESOLUTION.getWidth(),
+                DEFAULT_RESOLUTION.getHeight());
+        Rect cropRect = imageProperties.get().cropRect;
+        Rational resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
+
+        assertThat(resultCroppingRatio.equals(expectedCroppingRatio)).isTrue();
+    }
+
     private static final class ImageProperties {
         public Size size;
         public int format;
         public int rotationDegrees;
+        public Rect cropRect;
     }
 
     private OnImageCapturedCallback createMockOnImageCapturedCallback(
@@ -821,8 +952,10 @@ public final class ImageCaptureTest {
                         ImageProperties imageProperties = new ImageProperties();
                         imageProperties.size = new Size(image.getWidth(), image.getHeight());
                         imageProperties.format = image.getFormat();
-                        imageProperties.rotationDegrees = image.getImageInfo().getRotationDegrees();
+                        imageProperties.rotationDegrees =
+                                image.getImageInfo().getRotationDegrees();
                         resultProperties.set(imageProperties);
+                        imageProperties.cropRect = image.getCropRect();
                     }
                     image.close();
                     return null;

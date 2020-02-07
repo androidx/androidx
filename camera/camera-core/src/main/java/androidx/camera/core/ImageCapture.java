@@ -100,6 +100,7 @@ import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
@@ -243,7 +244,6 @@ public final class ImageCapture extends UseCase {
      * by {@link #takePicture(Executor, OnImageCapturedCallback)}
      */
     private final CaptureProcessor mCaptureProcessor;
-    private final Builder mUseCaseConfigBuilder;
     /** synthetic accessor */
     @SuppressWarnings("WeakerAccess")
     ImageReaderProxy mImageReader;
@@ -280,7 +280,6 @@ public final class ImageCapture extends UseCase {
      */
     ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
-        mUseCaseConfigBuilder = Builder.fromConfig(userConfig);
         // Ensure we're using the combined configuration (user config + defaults)
         mConfig = (ImageCaptureConfig) getUseCaseConfig();
         mCaptureMode = mConfig.getCaptureMode();
@@ -476,25 +475,43 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Sets target aspect ratio.
+     * Sets target cropping aspect ratio for output image.
+     *
+     * <p>This aspect ratio is in the coordinate frame after rotating the image by the target
+     * rotation.
      *
      * <p>This sets the cropping rectangle returned by {@link ImageProxy#getCropRect()} returned
      * from {@link ImageCapture#takePicture(Executor, OnImageCapturedCallback)}.
      *
+     * <p>For example, assume the {@code aspectRatio} of 3x4. If an image has a resolution of
+     * 480x640 after applying the target rotation, then the output {@link ImageProxy} of
+     * {@link ImageCapture#takePicture(Executor, OnImageCapturedCallback)} would have a cropping
+     * rectangle of 480x640 after applying the rotation degrees. However, if an image has a
+     * resolution of 640x480 after applying the target rotation, then the cropping rectangle
+     * of the output {@link ImageProxy} would be 360x480 after applying the rotation degrees.
+     *
      * <p>This crops the saved image when calling
-     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}
+     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}.
      *
      * <p>Cropping occurs around the center of the image and as though it were in the target
-     * rotation.
+     * rotation. For example, assume the {@code aspectRatio} of 3x4. If an image has a resolution
+     * of 480x640 after applying the target rotation, then the saved output image would be
+     * 480x640 after applying the EXIF orientation value. However, if an image has a resolution
+     * of 640x480 after applying the target rotation, then the saved output image would be
+     * 360x480 after applying the EXIF orientation value.
+     *
+     * <p>This setting value will be automatically updated to match the new target rotation value
+     * when {@link ImageCapture#setTargetRotation(int)} is called.
      *
      * @param aspectRatio New target aspect ratio.
      */
     public void setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
-        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        ImageCaptureConfig oldConfig = (ImageCaptureConfig) getUseCaseConfig();
+        Builder builder = Builder.fromConfig(oldConfig);
         Rational oldRatio = oldConfig.getTargetAspectRatioCustom(null);
         if (!aspectRatio.equals(oldRatio)) {
-            mUseCaseConfigBuilder.setTargetAspectRatioCustom(aspectRatio);
-            updateUseCaseConfig(mUseCaseConfigBuilder.getUseCaseConfig());
+            builder.setTargetAspectRatioCustom(aspectRatio);
+            updateUseCaseConfig(builder.getUseCaseConfig());
             mConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Reconfigure capture session if the ratio is changed drastically.
@@ -541,6 +558,12 @@ public final class ImageCapture extends UseCase {
      * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      *
+     * <p>When this function is called, value set by
+     * {@link ImageCapture.Builder#setTargetResolution(Size)} will be updated automatically to make
+     * sure the suitable resolution can be selected when the use case is bound. Value set by
+     * {@link ImageCapture#setTargetAspectRatioCustom(Rational)} will also be updated
+     * automatically to make sure the output image is cropped into expected aspect ratio.
+     *
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the use case is created.
      *
@@ -552,11 +575,12 @@ public final class ImageCapture extends UseCase {
      *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        ImageCaptureConfig oldConfig = (ImageCaptureConfig) getUseCaseConfig();
+        Builder builder = Builder.fromConfig(oldConfig);
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfig(mUseCaseConfigBuilder.build().getUseCaseConfig());
+            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
+            updateUseCaseConfig(builder.getUseCaseConfig());
             mConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
@@ -2245,6 +2269,11 @@ public final class ImageCapture extends UseCase {
          * For example, a device with portrait natural orientation in natural target rotation
          * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
          * and targeting landscape orientation may specify 640x480.
+         *
+         * <p>When the target resolution is set,
+         * {@link ImageCapture.Builder#setTargetAspectRatioCustom(Rational)} will be automatically
+         * called to set corresponding value. Such that the output image will be cropped into the
+         * desired aspect ratio.
          *
          * <p>The maximum available resolution that could be selected for an {@link ImageCapture}
          * will depend on the camera device's capability.
