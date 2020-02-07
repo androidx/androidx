@@ -24,12 +24,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.impl.LensFacingCameraIdFilter;
-
-import java.util.Set;
+import androidx.core.util.Preconditions;
 
 /**
  * Utility functions for accessing camera related parameters
@@ -40,7 +37,8 @@ class CameraUtil {
     @Nullable
     static String getCameraIdUnchecked(@NonNull CameraSelector cameraSelector) {
         try {
-            return CameraX.getCameraWithCameraSelector(cameraSelector);
+            return CameraX.getCameraWithCameraSelector(
+                    cameraSelector).getCameraInfoInternal().getCameraId();
         } catch (IllegalArgumentException e) {
             Log.w(TAG, "Unable to get camera id for the camera selector.");
             // Returns null if there's no camera id can be found.
@@ -48,18 +46,16 @@ class CameraUtil {
         }
     }
 
-    @NonNull
-    static Set<String> getCameraIdSetWithLensFacing(@Nullable Integer lensFacing)
-            throws CameraInfoUnavailableException {
-        Set<String> availableCameraIds = CameraX.getCameraFactory().getAvailableCameraIds();
-        LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                CameraX.getCameraFactory().getLensFacingCameraIdFilter(lensFacing);
-        availableCameraIds = lensFacingCameraIdFilter.filter(availableCameraIds);
+    @Nullable
+    static String getCameraIdWithLensFacingUnchecked(@Nullable Integer lensFacing) {
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
-        return availableCameraIds;
+        return getCameraIdUnchecked(cameraSelector);
     }
 
     static CameraCharacteristics getCameraCharacteristics(String cameraId) {
+        Preconditions.checkNotNull(cameraId, "Invalid camera id.");
         Context context = CameraX.getContext();
         CameraManager cameraManager = (CameraManager) context.getSystemService(
                 Context.CAMERA_SERVICE);

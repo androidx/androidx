@@ -58,14 +58,14 @@ public abstract class ImageCaptureExtender {
     private ImageCapture.Builder mBuilder;
     private ImageCaptureExtenderImpl mImpl;
     private EffectMode mEffectMode;
-    private ExtensionCameraIdFilter mExtensionCameraIdFilter;
+    private ExtensionCameraFilter mExtensionCameraFilter;
 
     void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
             EffectMode effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
-        mExtensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
+        mExtensionCameraFilter = new ExtensionCameraFilter(mImpl);
     }
 
     /**
@@ -86,7 +86,7 @@ public abstract class ImageCaptureExtender {
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
-        extensionCameraSelectorBuilder.appendFilter(mExtensionCameraIdFilter);
+        extensionCameraSelectorBuilder.appendFilter(mExtensionCameraFilter);
 
         return CameraUtil.getCameraIdUnchecked(extensionCameraSelectorBuilder.build());
     }
@@ -120,10 +120,10 @@ public abstract class ImageCaptureExtender {
         CameraSelector originalSelector = mBuilder.getUseCaseConfig().getCameraSelector(null);
         if (originalSelector == null) {
             mBuilder.setCameraSelector(
-                    new CameraSelector.Builder().appendFilter(mExtensionCameraIdFilter).build());
+                    new CameraSelector.Builder().appendFilter(mExtensionCameraFilter).build());
         } else {
             mBuilder.setCameraSelector(CameraSelector.Builder.fromSelector(
-                    originalSelector).appendFilter(mExtensionCameraIdFilter).build());
+                    originalSelector).appendFilter(mExtensionCameraFilter).build());
         }
 
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);

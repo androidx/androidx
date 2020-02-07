@@ -21,8 +21,6 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -57,10 +55,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
      * Initializes the repository from a {@link Context}.
      *
      * <p>All cameras queried from the {@link CameraFactory} will be added to the repository.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public void init(@NonNull CameraFactory cameraFactory) {
         synchronized (mCamerasLock) {
             try {
@@ -77,10 +72,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
 
     /**
      * Clear and release all cameras from the repository.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @NonNull
     public ListenableFuture<Void> deinit() {
@@ -146,9 +138,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
      * @param cameraId id for the camera
      * @return a {@link CameraInternal} paired to this id
      * @throws IllegalArgumentException if there is no camera paired with the id
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public CameraInternal getCamera(@NonNull String cameraId) {
         synchronized (mCamerasLock) {
@@ -159,6 +149,18 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
             }
 
             return cameraInternal;
+        }
+    }
+
+    /**
+     * Gets the set of all cameras.
+     *
+     * @return set of all cameras
+     */
+    @NonNull
+    public Set<CameraInternal> getCameras() {
+        synchronized (mCamerasLock) {
+            return new HashSet<>(mCameras.values());
         }
     }
 

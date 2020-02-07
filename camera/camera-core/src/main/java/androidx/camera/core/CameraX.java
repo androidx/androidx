@@ -31,7 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraIdFilter;
+import androidx.camera.core.impl.CameraFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
@@ -59,7 +59,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -275,20 +274,15 @@ public final class CameraX {
         for (UseCase useCase : useCases) {
             CameraSelector selector = useCase.getUseCaseConfig().getCameraSelector(null);
             if (selector != null) {
-                for (CameraIdFilter filter : selector.getCameraFilterSet()) {
+                for (CameraFilter filter : selector.getCameraFilterSet()) {
                     selectorBuilder.appendFilter(filter);
                 }
             }
         }
 
-        String newCameraId = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
-        if (newCameraId == null) {
-            throw new IllegalArgumentException("Unable to find a camera with the given selector.");
-        }
-
         // Try to get the camera before binding to the use case, and throw IllegalArgumentException
         // if the camera not found.
-        CameraInternal camera = cameraX.getCameraRepository().getCamera(newCameraId);
+        CameraInternal camera = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
 
         List<UseCase> originalUseCases = new ArrayList<>();
 
@@ -296,7 +290,7 @@ public final class CameraX {
         for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
             CameraInternal boundCamera = useCase.getBoundCamera();
             if (boundCamera != null) {
-                if (newCameraId.equals(boundCamera.getCameraInfoInternal().getCameraId())) {
+                if (camera.equals(boundCamera)) {
                     originalUseCases.add(useCase);
                 }
             }
@@ -426,17 +420,14 @@ public final class CameraX {
      *
      * @param cameraSelector the {@link CameraSelector} that filters available cameras.
      * @return true if the device has at least one available camera, otherwise false.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static boolean hasCamera(@NonNull CameraSelector cameraSelector)
-            throws CameraInfoUnavailableException {
-        checkInitialized();
+    public static boolean hasCamera(@NonNull CameraSelector cameraSelector) {
+        CameraX cameraX = checkInitialized();
 
         try {
-            cameraSelector.select(getCameraFactory().getAvailableCameraIds());
+            cameraSelector.select(cameraX.getCameraRepository().getCameras());
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -470,23 +461,16 @@ public final class CameraX {
      * @param cameraSelector the camera selector
      * @return the camera id if camera exists or {@code null} if no camera can be resolved with
      * the camera selector
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static String getCameraWithCameraSelector(@NonNull CameraSelector cameraSelector) {
-        checkInitialized();
+    @NonNull
+    public static CameraInternal getCameraWithCameraSelector(
+            @NonNull CameraSelector cameraSelector) {
+        CameraX cameraX = checkInitialized();
 
-        Set<String> availableCameraIds;
-        String resultCameraId = null;
-        try {
-            availableCameraIds = getCameraFactory().getAvailableCameraIds();
-            resultCameraId = cameraSelector.select(availableCameraIds);
-        } catch (CameraInfoUnavailableException e) {
-            return null;
-        }
-
-        return resultCameraId;
+        return cameraSelector.select(cameraX.getCameraRepository().getCameras());
     }
 
     /**
