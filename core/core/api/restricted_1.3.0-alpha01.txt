@@ -1938,6 +1938,13 @@ package androidx.core.util {
     method public static void buildShortClassTag(Object!, StringBuilder!);
   }
 
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LogWriter extends java.io.Writer {
+    ctor @Deprecated public LogWriter(String!);
+    method @Deprecated public void close();
+    method @Deprecated public void flush();
+    method @Deprecated public void write(char[]!, int, int);
+  }
+
   public class ObjectsCompat {
     method public static boolean equals(Object?, Object?);
     method public static int hash(java.lang.Object!...);
