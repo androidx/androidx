@@ -60,7 +60,8 @@ class ParallelNestedScrollingActivity : Activity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             with(holder) {
-                title.text = title.context.getString(R.string.page_position, adapterPosition)
+                title.text =
+                    title.context.getString(R.string.page_position, absoluteAdapterPosition)
                 itemView.setBackgroundResource(PAGE_COLORS[position % PAGE_COLORS.size])
             }
         }
@@ -99,7 +100,8 @@ class ParallelNestedScrollingActivity : Activity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             with(holder) {
-                tv.text = tv.context.getString(R.string.item_position, adapterPosition)
+                tv.text =
+                    tv.context.getString(R.string.item_position, absoluteAdapterPosition)
                 tv.setBackgroundResource(CELL_COLORS[position % CELL_COLORS.size])
             }
         }

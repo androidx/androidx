@@ -259,7 +259,7 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
         scrollBy(size * 2);
         assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
         assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
-        assertThat(vh.getAdapterPosition(), is(500));
+        assertThat(vh.getAbsoluteAdapterPosition(), is(500));
         scrollBy(size * 2);
         assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
     }
@@ -293,7 +293,7 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
         scrollBy(-size * 2);
         assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
         assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
-        assertThat(vh.getAdapterPosition(), is(500));
+        assertThat(vh.getAbsoluteAdapterPosition(), is(500));
         scrollBy(-size * 2);
         assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
     }

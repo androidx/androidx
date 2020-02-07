@@ -243,7 +243,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                             RecyclerView.State state) {
                         mLayoutItemCount = 7;
                         View targetView = recycler
-                                .getViewForPosition(target.getAdapterPosition());
+                                .getViewForPosition(target.getAbsoluteAdapterPosition());
                         assertSame(targetView, target.itemView);
                         super.beforePostLayout(recycler, layoutManager, state);
                     }
@@ -479,7 +479,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 mLayoutManager.expectLayouts(1);
                 target.mBoundItem.mType += 2;
                 mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 9;
-                mTestAdapter.changeAndNotify(target.getAdapterPosition(), 1);
+                mTestAdapter.changeAndNotify(target.getAbsoluteAdapterPosition(), 1);
                 requestLayoutOnUIThread(mRecyclerView);
                 mLayoutManager.waitForLayout(2);
 

@@ -1581,7 +1581,7 @@ public class GridWidgetTest {
         int scrollPos = 0;
         while (true) {
             final View view = mGridView.getChildAt(mGridView.getChildCount() - 1);
-            final int pos = mGridView.getChildViewHolder(view).getAdapterPosition();
+            final int pos = mGridView.getChildViewHolder(view).getAbsoluteAdapterPosition();
             if (scrollPos != pos) {
                 scrollPos = pos;
                 mActivityTestRule.runOnUiThread(new Runnable() {
@@ -2509,7 +2509,8 @@ public class GridWidgetTest {
             @Override
             public void run() {
                 final int removeIndex = mGridView.getChildViewHolder(
-                        mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
+                        mGridView.getChildAt(
+                                mGridView.getChildCount() - 1)).getAbsoluteAdapterPosition();
                 mActivity.removeItems(removeIndex, 1);
             }
         });
@@ -2682,7 +2683,8 @@ public class GridWidgetTest {
             @Override
             public void run() {
                 final int removeIndex = mGridView.getChildViewHolder(
-                        mGridView.getChildAt(mGridView.getChildCount() - 1)).getAdapterPosition();
+                        mGridView.getChildAt(
+                                mGridView.getChildCount() - 1)).getAbsoluteAdapterPosition();
                 mActivity.removeItems(removeIndex, 1);
             }
         });
