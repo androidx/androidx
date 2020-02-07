@@ -16,10 +16,12 @@
 
 package androidx.sqlite.inspection.test
 
+import android.database.sqlite.SQLiteDatabase
 import androidx.sqlite.inspection.test.MessageFactory.createGetSchemaCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,6 +34,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
+@SdkSuppress(minSdkVersion = 26)
 class GetSchemaTest {
     @get:Rule
     val testEnvironment = SqliteInspectorTestEnvironment()
@@ -58,9 +61,58 @@ class GetSchemaTest {
                         Column("id", "INTEGER"),
                         Column("name", "TEXT")
 
+                    ),
+                    Table(
+                        "table3a",
+                        Column("c1", "INT"),
+                        Column("c2", "INT", primaryKey = 1)
+                    ),
+                    Table(
+                        "table3b", // compound-primary-key
+                        Column("c1", "INT", primaryKey = 2),
+                        Column("c2", "INT", primaryKey = 1)
+                    ),
+                    Table(
+                        "table4", // compound-primary-key, two unique columns
+                        Column("c1", "INT", primaryKey = 1),
+                        Column("c2", "INT", primaryKey = 2, isUnique = true),
+                        Column("c3", "INT", isUnique = true)
+                    ),
+                    Table(
+                        "table5", // mix: unique, primary key, notNull
+                        Column("c1", "INT", isNotNull = true),
+                        Column("c2", "INT", primaryKey = 1, isUnique = true),
+                        Column("c3", "INT", isUnique = true, isNotNull = true)
+                    ),
+                    Table(
+                        "table6", // compound-unique-constraint-indices in [onDatabaseCreated]
+                        Column("c1", "INT"),
+                        Column("c2uuu", "INT", isUnique = true),
+                        Column("c3", "INT"),
+                        Column("c4u", "INT", isUnique = true)
                     )
                 )
-            )
+            ),
+            onDatabaseCreated = { db ->
+                // compound-unique-constraint-indices
+                listOf(
+                    "create index index6_12 on 'table6' ('c1', 'c2uuu')",
+                    "create index index6_23 on 'table6' ('c2uuu', 'c3')"
+                ).forEach { query ->
+                    db.execSQL(query, emptyArray())
+                }
+
+                // sanity check: verifies if the above index adding operations succeeded
+                val indexCountTable6 =
+                    db.rawQuery("select count(*) from pragma_index_list('table6')", null).let {
+                        it.moveToNext()
+                        val count = it.getString(0)
+                        it.close()
+                        count
+                    }
+
+                assertThat(indexCountTable6).isEqualTo("4")
+            }
         )
     }
 
@@ -75,11 +127,15 @@ class GetSchemaTest {
         )
     }
 
-    private fun test_get_schema(alreadyOpenDatabases: List<Database>) = runBlocking {
+    private fun test_get_schema(
+        alreadyOpenDatabases: List<Database>,
+        onDatabaseCreated: (SQLiteDatabase) -> Unit = {}
+    ) =
+        runBlocking {
         assertThat(alreadyOpenDatabases).isNotEmpty() // sanity check
 
         testEnvironment.registerAlreadyOpenDatabases(alreadyOpenDatabases.map {
-            it.createInstance(temporaryFolder)
+            it.createInstance(temporaryFolder).also { db -> onDatabaseCreated(db) }
         })
         testEnvironment.sendCommand(createTrackDatabasesCommand())
         val databaseConnections =
@@ -108,14 +164,29 @@ class GetSchemaTest {
                         val actualColumns = actualTable.columnsList.sortedBy { it.name }
 
                         expectedColumns
+                            .adjustForSinglePrimaryKey()
                             .zipSameSize(actualColumns)
-                            .forEach { (expectedColumn, actualColumn) ->
-                                assertThat(actualColumn.name).isEqualTo(expectedColumn.name)
-                                assertThat(actualColumn.type).isEqualTo(expectedColumn.type)
+                            .forEach { (expectedColumn, actualColumnProto) ->
+                                val actualColumn = Column(
+                                    name = actualColumnProto.name,
+                                    type = actualColumnProto.type,
+                                    primaryKey = actualColumnProto.primaryKey,
+                                    isNotNull = actualColumnProto.isNotNull,
+                                    isUnique = actualColumnProto.isUnique
+                                )
+                                assertThat(actualColumn).isEqualTo(expectedColumn)
                             }
                     }
             }
     }
+
+    // The sole primary key in a table is by definition unique
+    private fun List<Column>.adjustForSinglePrimaryKey(): List<Column> =
+        if (this.count { it.isPrimaryKey } > 1) this
+        else this.map {
+            if (it.isPrimaryKey) it.copy(isUnique = true)
+            else it
+        }
 
     /** Same as [List.zip] but ensures both lists are the same size. */
     private fun <A, B> List<A>.zipSameSize(other: List<B>): List<Pair<A, B>> {

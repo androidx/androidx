@@ -24,6 +24,7 @@ import androidx.sqlite.inspection.test.MessageFactory.createQueryCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +37,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
+@SdkSuppress(minSdkVersion = 26)
 // TODO: add tests for invalid queries: union of unequal number of columns, syntax error, etc.
 class QueryTest {
     @get:Rule
@@ -205,7 +207,9 @@ class QueryTest {
         issueQuery(databaseId, newTable.toCreateString())
 
         // then
-        assertThat(querySchema(databaseId)).isEqualTo(database.tables + newTable)
+        assertThat(querySchema(databaseId)).isEqualTo(
+            (database.tables + newTable).sortedBy { it.name }
+        )
         assertThat(queryTotalChanges(databaseId)).isEqualTo(initialTotalChanges) // note no diff
     }
 
