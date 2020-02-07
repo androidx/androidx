@@ -176,16 +176,11 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                     // that we reference count the Notification instance down by
                     // cancelling the notification.
                     mCallback.cancelNotification(info.getNotificationId());
-                    // Explicitly decrement the reference count for the notification
-                    // We are doing this just to be extra sure that all Notifications are cleared
-                    // when we may execute onExecuted() callbacks faster than Intents getting
-                    // delivered to the Foreground Service. This way mLastForegroundInfo truly
-                    // remains the last notification which needs to be cleared before
-                    // calling stopSelf().
-                    // More info at b/147249312
-                    mCallback.cancelNotification(mLastForegroundInfo.getNotificationId());
                 }
             }
+        } else if (mLastForegroundInfo != null && mCallback != null) {
+            // Explicitly decrement the reference count for the notification
+            mCallback.cancelNotification(mLastForegroundInfo.getNotificationId());
         }
     }
 
