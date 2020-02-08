@@ -29,8 +29,8 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.LensFacingCameraIdFilter;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -45,7 +45,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     private static final HandlerThread sHandlerThread = new HandlerThread(CameraXThreads.TAG);
     private static final Handler sHandler;
-    private final CameraAvailabilityRegistry mAvailabilityRegistry;
+    private final CameraStateRegistry mCameraStateRegistry;
     private final CameraManagerCompat mCameraManager;
 
     static {
@@ -55,9 +55,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     /** Creates a Camera2 implementation of CameraFactory */
     public Camera2CameraFactory(@NonNull Context context) {
-        mAvailabilityRegistry = new CameraAvailabilityRegistry(
-                DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS,
-                CameraXExecutors.newHandlerExecutor(sHandler));
+        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
         mCameraManager = CameraManagerCompat.from(context);
     }
 
@@ -70,8 +68,7 @@ public final class Camera2CameraFactory implements CameraFactory {
                     "The given camera id is not on the available camera id list.");
         }
         Camera2CameraImpl camera2CameraImpl = new Camera2CameraImpl(mCameraManager, cameraId,
-                mAvailabilityRegistry.getAvailableCameraCount(), sHandler);
-        mAvailabilityRegistry.registerCamera(camera2CameraImpl);
+                mCameraStateRegistry, sHandler);
         return camera2CameraImpl;
     }
 
