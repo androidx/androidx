@@ -34,6 +34,11 @@ dependencies {
     implementation("androidx.core:core:1.2.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(TRUTH)
+
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(MOCKITO_CORE)
     androidTestImplementation(ESPRESSO_CORE)
