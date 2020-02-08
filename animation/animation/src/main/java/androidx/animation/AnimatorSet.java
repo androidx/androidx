@@ -710,7 +710,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
 
     @Override
     void skipToEndValue(boolean inReverse) {
-        if (!isInitialized()) {
+        if (mSelfPulse && !isInitialized()) {
             throw new UnsupportedOperationException("Children must be initialized.");
         }
 
@@ -1644,6 +1644,9 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
             node = new Node(anim);
             mNodeMap.put(anim, node);
             mNodes.add(node);
+            if (anim instanceof AnimatorSet) {
+                ((AnimatorSet) anim).mSelfPulse = false;
+            }
         }
         return node;
     }

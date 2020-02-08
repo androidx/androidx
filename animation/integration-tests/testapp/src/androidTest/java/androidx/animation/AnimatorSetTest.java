@@ -575,6 +575,23 @@ public class AnimatorSetTest {
 
     @UiThreadTest
     @Test
+    public void testSeekNested() {
+        final AnimatorSet parent = new AnimatorSet();
+        final ValueAnimator a1 = ValueAnimator.ofFloat(0f, 100f);
+        a1.setDuration(100);
+        final AnimatorSet child = new AnimatorSet();
+        child.playTogether(a1);
+        final ValueAnimator a2 = ValueAnimator.ofFloat(100f, 200f);
+        a2.setDuration(100);
+        parent.playTogether(child, a2);
+
+        parent.setCurrentPlayTime(50);
+        assertEquals(50f, (float) a1.getAnimatedValue(), EPSILON);
+        assertEquals(150f, (float) a2.getAnimatedValue(), EPSILON);
+    }
+
+    @UiThreadTest
+    @Test
     public void testNotifiesAfterEnd() {
         final ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
         class TestListener extends AnimatorListenerAdapter {
