@@ -20,9 +20,9 @@
 
     <application>
 
-        <activity android:name=".AnimatedDraggableActivity"
+        <activity android:name=".HighLevelGesturesActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Foundation/AnimatedDraggable">
+                  android:label="Foundation/Draggable and Scrollable">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="androidx.ui.demos.SAMPLE_CODE"/>

@@ -21,7 +21,6 @@ import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
-import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Clip
@@ -30,9 +29,9 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.foundation.animation.FlingConfig
-import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Draggable
+import androidx.ui.foundation.gestures.Scrollable
+import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.Container
@@ -49,6 +48,8 @@ import kotlin.math.roundToInt
  * Create and [remember] the state for a [VerticalScroller] or [HorizontalScroller] based on the
  * currently appropriate scroll configuration to allow changing scroll position or observing
  * scroll behavior.
+ *
+ * @param initial initial scroller position to start with
  */
 @Composable
 fun ScrollerPosition(
@@ -56,28 +57,56 @@ fun ScrollerPosition(
 ): ScrollerPosition {
     val clock = AnimationClockAmbient.current
     val config = FlingConfig()
-    return remember(config) {
-        ScrollerPosition(
-            flingConfig = config,
-            initial = initial,
-            animationClock = clock
-        )
+    return remember(clock, config) {
+        ScrollerPosition(flingConfig = config, initial = initial, animationClock = clock)
     }
 }
 
 /**
  * This is the state of a [VerticalScroller] and [HorizontalScroller] that
  * allows the developer to change the scroll position by calling methods on this object.
+ *
+ * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
+ * @param initial initial scroller position to start with
+ * @param animationClock clock observable to run animation on. Consider querying
+ * [AnimationClockAmbient] to get current composition value
  */
 @Model
 class ScrollerPosition(
     /** Configuration that specifies fling logic when scrolling ends with velocity. */
-    val flingConfig: FlingConfig,
+    flingConfig: FlingConfig,
     initial: Float = 0f,
     animationClock: AnimationClockObservable
 ) {
 
-    internal val animatedFloat = AnimatedFloatModel(-initial, animationClock)
+    private val consumeDelta: (Float) -> Float = {
+        val reverseDelta = -it
+        val newValue = value + reverseDelta
+        val max = maxPosition
+        val min = 0f
+        val consumed = when {
+            newValue > max -> max - value
+            newValue < min -> min - value
+            else -> reverseDelta
+        }
+        value += consumed
+        -consumed
+    }
+
+    internal val scrollableState =
+        ScrollableState(consumeDelta, flingConfig, animationClock)
+
+    /**
+     * current scroller position value
+     */
+    var value = initial
+        private set
+
+    /**
+     * whether this [ScrollerPosition] is currently animating/flinging
+     */
+    val isAnimating
+        get() = scrollableState.isAnimating
 
     /**
      * maxPosition this scroller that consume this ScrollerPosition can reach, or
@@ -85,20 +114,6 @@ class ScrollerPosition(
      */
     var maxPosition: Float = Float.POSITIVE_INFINITY
         internal set
-
-    /**
-     * current position for scroller
-     */
-    val value: Float
-        get() = -animatedFloat.value
-
-    // TODO(b/145693559) This will likely be rendered obsolete when AnimatedFloat exposes a +state
-    //  "isAnimating" or "isRunning" property.
-    /**
-     * whether this [ScrollerPosition] is currently animating
-     */
-    var isAnimating: Boolean = false
-        private set
 
     /**
      * Smooth scroll to position in pixels
@@ -110,11 +125,7 @@ class ScrollerPosition(
         value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        isAnimating = true
-        animatedFloat.animateTo(-value) { endReason, finishValue ->
-            isAnimating = false
-            onEnd(endReason, finishValue)
-        }
+        smoothScrollBy(value - this.value, onEnd)
     }
 
     /**
@@ -126,7 +137,7 @@ class ScrollerPosition(
         value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        smoothScrollTo(this.value + value, onEnd)
+        scrollableState.smoothScrollBy(value, onEnd)
     }
 
     /**
@@ -135,7 +146,7 @@ class ScrollerPosition(
      * @param value target value to jump to
      */
     fun scrollTo(value: Float) {
-        animatedFloat.snapTo(-value)
+        this.value = value
     }
 
     /**
@@ -145,31 +156,6 @@ class ScrollerPosition(
      */
     fun scrollBy(value: Float) {
         scrollTo(this.value + value)
-    }
-
-    /**
-     * Starts a fling animation with the specified starting velocity and the previously set
-     * [flingConfig]
-     *
-     * @param startVelocity Starting velocity of the fling animation
-     */
-    fun fling(startVelocity: Float) {
-
-        // TODO(b/146054789): It would be more efficient to create and cache this object whenever
-        //  the `flingConfig` property is set, but doing so currently causes a
-        //  `java.lang.IllegalStateException: Not in a frame` exception, which is a bug
-        //  and is tracked by b/146054789.
-        val flingConfig = FlingConfig(
-            flingConfig.decayAnimation,
-            { endReason, endValue, remainingVelocity ->
-                isAnimating = false
-                flingConfig.onAnimationEnd?.invoke(endReason, endValue, remainingVelocity)
-            },
-            flingConfig.adjustTarget
-        )
-
-        isAnimating = true
-        animatedFloat.fling(flingConfig, startVelocity)
     }
 }
 
@@ -250,27 +236,14 @@ private fun Scroller(
             })
         }
     }) {
-        Draggable(
-            dragValue = scrollerPosition.animatedFloat,
-            onDragStarted = {
-                scrollerPosition.scrollTo(scrollerPosition.value)
-            },
-            onDragValueChangeRequested = {
-                scrollerPosition.animatedFloat.snapTo(it)
-            },
-            onDragStopped = {
-                scrollerPosition.fling(it)
-            },
+        Scrollable(
+            scrollableState = scrollerPosition.scrollableState,
             dragDirection = direction,
-            isValueAnimating = scrollerPosition.isAnimating,
             enabled = isScrollable
         ) {
             ScrollerLayout(
                 scrollerPosition = scrollerPosition,
-                onMaxPositionChanged = {
-                    scrollerPosition.animatedFloat.setBounds(-it, 0f)
-                    scrollerPosition.maxPosition = it
-                },
+                onMaxPositionChanged = { scrollerPosition.maxPosition = it },
                 modifier = modifier,
                 isVertical = isVertical,
                 child = child

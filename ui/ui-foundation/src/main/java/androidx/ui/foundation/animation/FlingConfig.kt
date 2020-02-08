@@ -26,6 +26,7 @@ import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
+import androidx.compose.Immutable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import kotlin.math.abs
@@ -49,6 +50,7 @@ import kotlin.math.abs
  * @param adjustTarget callback to be called at the start of fling
  * so the final value for fling can be adjusted
  */
+@Immutable
 data class FlingConfig(
     val decayAnimation: DecayAnimation,
     val onAnimationEnd: OnAnimationEnd? = null,
