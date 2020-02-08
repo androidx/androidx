@@ -33,6 +33,7 @@ import androidx.core.util.Preconditions;
 import java.util.List;
 
 @RequiresApi(23)
+@SuppressWarnings("deprecation")
 class CameraDeviceCompatApi23Impl extends CameraDeviceCompatBaseImpl {
 
     @Override

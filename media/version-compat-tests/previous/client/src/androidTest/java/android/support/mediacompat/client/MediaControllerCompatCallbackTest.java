@@ -584,7 +584,7 @@ public class MediaControllerCompatCallbackTest {
                     try {
                         MediaControllerCompat controller = new MediaControllerCompat(
                                 getInstrumentation().getTargetContext(), tokenWithoutExtraBinder);
-                        controller.registerCallback(callback, new Handler());
+                        controller.registerCallback(callback, new Handler(Looper.getMainLooper()));
                         assertFalse(controller.isSessionReady());
                     } catch (Exception e) {
                         fail();

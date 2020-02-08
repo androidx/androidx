@@ -701,6 +701,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * This function will calculate the convexity of the path from its control
      * points, and cache the result.
      */
+    @get:Suppress("DEPRECATION")
     val isConvex: Boolean get() = internalPath.isConvex
 
     /**

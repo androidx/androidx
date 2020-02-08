@@ -20,8 +20,8 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -123,7 +123,8 @@ public class BackgroundHelper {
         }
     }
 
-    class LoadBitmapTaskBase extends AsyncTask<Request, Object, Request> {
+    @SuppressWarnings("deprecation") /* AsyncTask */
+    class LoadBitmapTaskBase extends android.os.AsyncTask<Request, Object, Request> {
         @Override
         protected Request doInBackground(Request... params) {
             boolean cancelled = isCancelled();
@@ -189,7 +190,7 @@ public class BackgroundHelper {
 
     // Allocate a dedicated handler because there may be no view available
     // when setBackground is invoked.
-    static Handler sHandler = new Handler();
+    static Handler sHandler = new Handler(Looper.getMainLooper());
 
     void createBackgroundManagerIfNeeded() {
         if (mBackgroundManager == null) {

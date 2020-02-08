@@ -3559,6 +3559,7 @@ public class ViewCompat {
      * @return The logical display, or null if the view is not currently attached to a window.
      */
     @Nullable
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public static Display getDisplay(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 17) {
             return view.getDisplay();

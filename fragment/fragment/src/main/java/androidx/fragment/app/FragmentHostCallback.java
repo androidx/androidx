@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -55,7 +56,8 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     }
 
     FragmentHostCallback(@NonNull FragmentActivity activity) {
-        this(activity, activity /*context*/, new Handler(), 0 /*windowAnimations*/);
+        this(activity, activity /*context*/, new Handler(Looper.getMainLooper()),
+                0 /*windowAnimations*/);
     }
 
     FragmentHostCallback(@Nullable Activity activity, @NonNull Context context,

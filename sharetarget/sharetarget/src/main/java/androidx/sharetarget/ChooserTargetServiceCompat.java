@@ -22,8 +22,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.service.chooser.ChooserTarget;
-import android.service.chooser.ChooserTargetService;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -48,13 +46,14 @@ import java.util.List;
  */
 @RequiresApi(23)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-public class ChooserTargetServiceCompat extends ChooserTargetService {
+@SuppressWarnings("deprecation")
+public class ChooserTargetServiceCompat extends android.service.chooser.ChooserTargetService {
 
     static final String TAG = "ChooserServiceCompat";
 
     @Override
-    public List<ChooserTarget> onGetChooserTargets(ComponentName targetActivityName,
-            IntentFilter matchedFilter) {
+    public List<android.service.chooser.ChooserTarget> onGetChooserTargets(
+            ComponentName targetActivityName, IntentFilter matchedFilter) {
         Context context = getApplicationContext();
 
         // Retrieve share targets
@@ -107,7 +106,7 @@ public class ChooserTargetServiceCompat extends ChooserTargetService {
 
     @VisibleForTesting
     @NonNull
-    static List<ChooserTarget> convertShortcutsToChooserTargets(
+    static List<android.service.chooser.ChooserTarget> convertShortcutsToChooserTargets(
             @NonNull ShortcutInfoCompatSaverImpl shortcutSaver,
             @NonNull List<ShortcutHolder> matchedShortcuts) {
         if (matchedShortcuts.isEmpty()) {
@@ -115,7 +114,7 @@ public class ChooserTargetServiceCompat extends ChooserTargetService {
         }
         Collections.sort(matchedShortcuts);
 
-        ArrayList<ChooserTarget> chooserTargets = new ArrayList<>();
+        ArrayList<android.service.chooser.ChooserTarget> chooserTargets = new ArrayList<>();
         float currentScore = 1.0f;
         int lastRank = matchedShortcuts.get(0).getShortcut().getRank();
         for (ShortcutHolder holder : matchedShortcuts) {
@@ -135,7 +134,7 @@ public class ChooserTargetServiceCompat extends ChooserTargetService {
                 currentScore -= 0.01f;
                 lastRank = shortcut.getRank();
             }
-            chooserTargets.add(new ChooserTarget(
+            chooserTargets.add(new android.service.chooser.ChooserTarget(
                     shortcut.getShortLabel(),
                     shortcutIcon == null ? null : shortcutIcon.toIcon(),
                     currentScore,

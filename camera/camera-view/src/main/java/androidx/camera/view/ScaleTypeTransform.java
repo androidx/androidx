@@ -105,6 +105,7 @@ final class ScaleTypeTransform {
      * Computes the rotation of a {@link android.view.View} in degrees from its natural
      * orientation.
      */
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     static int getRotationDegrees(@NonNull final View view) {
         final WindowManager windowManager = (WindowManager) view.getContext().getSystemService(
                 Context.WINDOW_SERVICE);
@@ -134,6 +135,7 @@ final class ScaleTypeTransform {
      * @param rotationDegrees The device's rotation in degrees from its natural orientation.
      * @return Whether the device is naturally portrait-oriented.
      */
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     private static boolean isNaturalPortrait(@NonNull final Context context,
             final int rotationDegrees) {
         final WindowManager windowManager = (WindowManager) context.getSystemService(

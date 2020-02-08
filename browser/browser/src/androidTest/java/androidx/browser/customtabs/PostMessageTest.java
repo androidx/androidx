@@ -24,7 +24,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -71,6 +70,7 @@ public class PostMessageTest {
     private CustomTabsSession mSession;
 
     @Before
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void setup() {
         // Bind to PostMessageService only after CustomTabsService sends the callback to do so. This
         // callback is sent after requestPostMessageChannel is called.
@@ -79,7 +79,7 @@ public class PostMessageTest {
             public void extraCallback(@NonNull String callbackName, Bundle args) {
                 if (TestCustomTabsService.CALLBACK_BIND_TO_POST_MESSAGE.equals(callbackName)) {
                     // This gets run on the UI thread, where mServiceRule.bindService will not work.
-                    AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                    android.os.AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
                         @Override
                         public void run() {
                             try {

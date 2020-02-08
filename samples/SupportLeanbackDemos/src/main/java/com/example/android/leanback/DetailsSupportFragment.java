@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -186,7 +187,7 @@ public class DetailsSupportFragment extends androidx.leanback.app.DetailsSupport
             return;
         }
         mRowsAdapter.clear();
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 final Context context = getActivity();
@@ -202,7 +203,7 @@ public class DetailsSupportFragment extends androidx.leanback.app.DetailsSupport
             }
         }, TIME_TO_LOAD_OVERVIEW_ROW_MS);
 
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < NUM_ROWS; ++i) {

@@ -27,7 +27,6 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -61,6 +60,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Deprecated
 @RestrictTo(LIBRARY)
+@SuppressWarnings("deprecation") /* AsyncTask */
 public final class BrowserServiceFileProvider extends FileProvider {
     private static final String TAG = "BrowserServiceFP";
     private static final String AUTHORITY_SUFFIX = ".image_provider";
@@ -74,7 +74,7 @@ public final class BrowserServiceFileProvider extends FileProvider {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static Object sFileCleanupLock = new Object();
 
-    private static class FileCleanupTask extends AsyncTask<Void, Void, Void> {
+    private static class FileCleanupTask extends android.os.AsyncTask<Void, Void, Void> {
         private final Context mAppContext;
         private static final long IMAGE_RETENTION_DURATION = TimeUnit.DAYS.toMillis(7);
         private static final long CLEANUP_REQUIRED_TIME_SPAN = TimeUnit.DAYS.toMillis(7);
@@ -130,7 +130,7 @@ public final class BrowserServiceFileProvider extends FileProvider {
         }
     }
 
-    private static class FileSaveTask extends AsyncTask<String, Void, Void> {
+    private static class FileSaveTask extends android.os.AsyncTask<String, Void, Void> {
         private final Context mAppContext;
         private final String mFilename;
         private final Bitmap mBitmap;
@@ -155,7 +155,8 @@ public final class BrowserServiceFileProvider extends FileProvider {
 
         @Override
         protected void onPostExecute(Void result) {
-            new FileCleanupTask(mAppContext).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            new FileCleanupTask(mAppContext)
+                    .executeOnExecutor(android.os.AsyncTask.SERIAL_EXECUTOR);
         }
 
         private void saveFileIfNeededBlocking() {
@@ -221,6 +222,7 @@ public final class BrowserServiceFileProvider extends FileProvider {
      */
     @UiThread
     @NonNull
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public static ResolvableFuture<Uri> saveBitmap(@NonNull Context context, @NonNull Bitmap bitmap,
             @NonNull String name, int version) {
         String filename = name + "_" + Integer.toString(version);
@@ -228,7 +230,7 @@ public final class BrowserServiceFileProvider extends FileProvider {
 
         ResolvableFuture<Uri> result = ResolvableFuture.create();
         new FileSaveTask(context, filename, bitmap, uri, result)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                .executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR);
         return result;
     }
 
@@ -268,11 +270,12 @@ public final class BrowserServiceFileProvider extends FileProvider {
      *         completed or with an IOException describing the reason for failure.
      */
     @NonNull
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public static ListenableFuture<Bitmap> loadBitmap(@NonNull final ContentResolver resolver,
             @NonNull final Uri uri) {
         final ResolvableFuture<Bitmap> result = ResolvableFuture.create();
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        android.os.AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 try {

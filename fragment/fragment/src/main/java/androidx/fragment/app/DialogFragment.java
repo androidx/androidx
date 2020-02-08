@@ -380,7 +380,7 @@ public class DialogFragment extends Fragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // This assumes that onCreate() is being called on the main thread
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
 
         mShowsDialog = mContainerId == 0;
 

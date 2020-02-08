@@ -21,6 +21,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.SurfaceHolder;
 
 import androidx.leanback.R;
@@ -42,7 +43,7 @@ public class MediaPlayerAdapter extends PlayerAdapter {
             mHandler.postDelayed(this, getProgressUpdatingInterval());
         }
     };;
-    final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler(Looper.getMainLooper());
     boolean mInitialized = false; // true when the MediaPlayer is prepared/initialized
     Uri mMediaSourceUri = null;
     boolean mHasDisplay;

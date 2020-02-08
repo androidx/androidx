@@ -26,10 +26,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.renderscript.Allocation;
@@ -141,7 +141,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Handler mHandler = new Handler() {
+    final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
             switch (message.what) {
@@ -1424,7 +1424,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
     }
 
-    private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
+    private class FetchArtTask extends android.os.AsyncTask<Void, Void, Bitmap> {
         private final Bitmap mIconBitmap;
         private final Uri mIconUri;
         private int mBackgroundColor;

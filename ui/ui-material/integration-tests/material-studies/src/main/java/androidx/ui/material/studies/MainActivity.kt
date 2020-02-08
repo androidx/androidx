@@ -16,7 +16,6 @@
 
 package androidx.ui.material.studies
 
-import android.app.ListActivity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -27,7 +26,8 @@ import java.util.ArrayList
 import java.util.Comparator
 import java.util.HashMap
 
-class MainActivity : ListActivity() {
+@Suppress("DEPRECATION") /* ListActivity */
+class MainActivity : android.app.ListActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +61,7 @@ class MainActivity : ListActivity() {
             addCategory("androidx.ui.material.studies.SAMPLE_CODE")
         }
         val myData = ArrayList<Map<String, Any>>()
-        val list = pm.queryIntentActivities(mainIntent, 0) ?: return myData
+        val list = pm.queryIntentActivities(mainIntent, 0)
 
         list.forEach {
             val label = it.loadLabel(pm)?.toString() ?: it.activityInfo.name

@@ -21,6 +21,7 @@ package com.example.android.supportv4.app;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
@@ -71,7 +72,7 @@ public class SimpleJobIntentService extends JobIntentService {
         toast("All work complete");
     }
 
-    final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler(Looper.getMainLooper());
 
     // Helper for showing tests
     void toast(final CharSequence text) {

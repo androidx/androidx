@@ -17,6 +17,7 @@
 package androidx.ui.layout.demos
 
 import android.os.Handler
+import android.os.Looper
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.onCommit
@@ -369,7 +370,7 @@ fun ComplexLayoutDemos() {
 
 @Composable
 fun runDelayed(vararg millis: Int, block: () -> Unit) {
-    val handler = remember { Handler() }
+    val handler = remember { Handler(Looper.getMainLooper()) }
     onCommit {
         val runnable = object : Runnable {
             override fun run() {

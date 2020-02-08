@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -1062,7 +1063,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setHeader(new HeaderBuilder().setTitle("Some loading title", true)).build();
     }
 
-    private Handler mHandler = new Handler();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     private SparseArray<String> mListSummaries = new SparseArray<>();
     long mListLastUpdate;
     private SparseArray<String> mGridSummaries = new SparseArray<>();

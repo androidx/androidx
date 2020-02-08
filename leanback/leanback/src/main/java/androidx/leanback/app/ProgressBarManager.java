@@ -1,6 +1,7 @@
 package androidx.leanback.app;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ public final class ProgressBarManager {
     private long mInitialDelay = DEFAULT_PROGRESS_BAR_DELAY;
     ViewGroup rootView;
     View mProgressBarView;
-    private Handler mHandler = new Handler();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     boolean mEnableProgressBar = true;
     boolean mUserProvidedProgressBar;
     boolean mIsShowing;

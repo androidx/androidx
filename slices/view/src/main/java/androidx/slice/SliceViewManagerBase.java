@@ -22,7 +22,6 @@ import android.content.ContentProviderClient;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.ArrayMap;
@@ -145,8 +144,9 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
         private final ContentObserver mObserver = new ContentObserver(
                 new Handler(Looper.getMainLooper())) {
             @Override
+            @SuppressWarnings("deprecation") /* AsyncTask */
             public void onChange(boolean selfChange) {
-                AsyncTask.execute(mUpdateSlice);
+                android.os.AsyncTask.execute(mUpdateSlice);
             }
         };
     }

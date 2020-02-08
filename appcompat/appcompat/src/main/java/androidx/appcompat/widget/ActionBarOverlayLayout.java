@@ -230,6 +230,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     }
 
     @Override
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void onWindowSystemUiVisibilityChanged(int visible) {
         if (Build.VERSION.SDK_INT >= 16) {
             super.onWindowSystemUiVisibilityChanged(visible);
@@ -338,6 +339,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     }
 
     @Override
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         pullChildren();
 

@@ -80,6 +80,7 @@ public final class DisplayCompatTest {
     }
 
     @Before
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setup() {
         mUiModeManagerShadow = shadowOf((UiModeManager) mContext.getSystemService(UI_MODE_SERVICE));
         mUiModeManagerShadow.currentModeType = UI_MODE_TYPE_NORMAL;

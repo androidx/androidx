@@ -237,7 +237,7 @@ public class DrawerLayout extends ViewGroup {
     private CharSequence mTitleLeft;
     private CharSequence mTitleRight;
 
-    private Object mLastInsets;
+    private WindowInsetsCompat mLastInsets;
     private boolean mDrawStatusBarBackground;
 
     /** Shadow drawables for different gravity */
@@ -330,6 +330,7 @@ public class DrawerLayout extends ViewGroup {
         this(context, attrs, R.attr.drawerLayoutStyle);
     }
 
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public DrawerLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
@@ -360,14 +361,17 @@ public class DrawerLayout extends ViewGroup {
         setMotionEventSplittingEnabled(false);
         if (ViewCompat.getFitsSystemWindows(this)) {
             if (Build.VERSION.SDK_INT >= 21) {
-                setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                    @Override
-                    public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
-                        final DrawerLayout drawerLayout = (DrawerLayout) view;
-                        drawerLayout.setChildInsets(insets, insets.getSystemWindowInsetTop() > 0);
-                        return insets.consumeSystemWindowInsets();
-                    }
-                });
+                ViewCompat.setOnApplyWindowInsetsListener(this,
+                        new androidx.core.view.OnApplyWindowInsetsListener() {
+                            @Override
+                            public WindowInsetsCompat onApplyWindowInsets(View view,
+                                    WindowInsetsCompat insets) {
+                                final DrawerLayout drawerLayout = (DrawerLayout) view;
+                                drawerLayout.setChildInsets(insets,
+                                        insets.getSystemWindowInsets().top > 0);
+                                return insets.consumeSystemWindowInsets();
+                            }
+                        });
                 setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
                 final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
@@ -431,7 +435,7 @@ public class DrawerLayout extends ViewGroup {
      * with fitsSystemWindows="true"
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void setChildInsets(Object insets, boolean draw) {
+    public void setChildInsets(WindowInsetsCompat insets, boolean draw) {
         mLastInsets = insets;
         mDrawStatusBarBackground = draw;
         setWillNotDraw(!draw && getBackground() == null);
@@ -1113,7 +1117,7 @@ public class DrawerLayout extends ViewGroup {
                 final int cgrav = GravityCompat.getAbsoluteGravity(lp.gravity, layoutDirection);
                 if (ViewCompat.getFitsSystemWindows(child)) {
                     if (Build.VERSION.SDK_INT >= 21) {
-                        WindowInsets wi = (WindowInsets) mLastInsets;
+                        WindowInsetsCompat wi = mLastInsets;
                         if (cgrav == Gravity.LEFT) {
                             wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
                                     wi.getSystemWindowInsetTop(), 0,
@@ -1123,11 +1127,11 @@ public class DrawerLayout extends ViewGroup {
                                     wi.getSystemWindowInsetRight(),
                                     wi.getSystemWindowInsetBottom());
                         }
-                        child.dispatchApplyWindowInsets(wi);
+                        ViewCompat.dispatchApplyWindowInsets(child, wi);
                     }
                 } else {
                     if (Build.VERSION.SDK_INT >= 21) {
-                        WindowInsets wi = (WindowInsets) mLastInsets;
+                        WindowInsetsCompat wi = mLastInsets;
                         if (cgrav == Gravity.LEFT) {
                             wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
                                     wi.getSystemWindowInsetTop(), 0,
@@ -1434,8 +1438,7 @@ public class DrawerLayout extends ViewGroup {
         if (mDrawStatusBarBackground && mStatusBarBackground != null) {
             final int inset;
             if (Build.VERSION.SDK_INT >= 21) {
-                inset = mLastInsets != null
-                        ? ((WindowInsets) mLastInsets).getSystemWindowInsetTop() : 0;
+                inset = mLastInsets != null ? mLastInsets.getSystemWindowInsetTop() : 0;
             } else {
                 inset = 0;
             }

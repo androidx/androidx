@@ -28,6 +28,7 @@ final class RotationTransform {
     }
 
     /** Computes the rotation of a {@link View} in degrees from its natural orientation. */
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     static float getRotationDegrees(@NonNull final View view) {
         final WindowManager windowManager = (WindowManager) view.getContext().getSystemService(
                 Context.WINDOW_SERVICE);

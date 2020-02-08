@@ -46,6 +46,7 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
 
     @Override
     @NonNull
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public ImageAnalysisConfig getConfig(@Nullable CameraInfo cameraInfo) {
         ImageAnalysis.Builder builder = ImageAnalysis.Builder.fromConfig(
                 ImageAnalysis.DEFAULT_CONFIG.getConfig(cameraInfo));

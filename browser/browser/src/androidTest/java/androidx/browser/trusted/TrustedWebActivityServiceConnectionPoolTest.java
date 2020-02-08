@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.RemoteException;
 
 import androidx.browser.customtabs.EnableComponentsTestRule;
@@ -49,6 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@SuppressWarnings("deprecation") /* AsyncTask */
 public class TrustedWebActivityServiceConnectionPoolTest {
     private static final Uri GOOD_SCOPE = Uri.parse("https://www.example.com/notifications");
     private static final Uri BAD_SCOPE = Uri.parse("https://www.notexample.com");
@@ -84,7 +84,8 @@ public class TrustedWebActivityServiceConnectionPoolTest {
         final AtomicBoolean connected = new AtomicBoolean();
 
         ListenableFuture<TrustedWebActivityServiceConnection> serviceFuture =
-                mManager.connect(GOOD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR);
+                mManager.connect(GOOD_SCOPE, mTrustedPackages,
+                        android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         serviceFuture.addListener(() -> {
             try {
@@ -94,7 +95,7 @@ public class TrustedWebActivityServiceConnectionPoolTest {
             } catch (RemoteException | ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }, AsyncTask.THREAD_POOL_EXECUTOR);
+        }, android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         PollingCheck.waitFor(connected::get);
     }
@@ -104,7 +105,8 @@ public class TrustedWebActivityServiceConnectionPoolTest {
         assertFalse(mManager.serviceExistsForScope(BAD_SCOPE, mTrustedPackages));
 
         ListenableFuture<TrustedWebActivityServiceConnection> serviceFuture =
-                mManager.connect(BAD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR);
+                mManager.connect(BAD_SCOPE, mTrustedPackages,
+                        android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         try {
             serviceFuture.get();
@@ -120,10 +122,10 @@ public class TrustedWebActivityServiceConnectionPoolTest {
     public void testMultipleExecutions() {
         final AtomicInteger count = new AtomicInteger();
 
-        mManager.connect(GOOD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR)
-                .addListener(count::incrementAndGet, AsyncTask.THREAD_POOL_EXECUTOR);
-        mManager.connect(GOOD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR)
-                .addListener(count::incrementAndGet, AsyncTask.THREAD_POOL_EXECUTOR);
+        mManager.connect(GOOD_SCOPE, mTrustedPackages, android.os.AsyncTask.THREAD_POOL_EXECUTOR)
+                .addListener(count::incrementAndGet, android.os.AsyncTask.THREAD_POOL_EXECUTOR);
+        mManager.connect(GOOD_SCOPE, mTrustedPackages, android.os.AsyncTask.THREAD_POOL_EXECUTOR)
+                .addListener(count::incrementAndGet, android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         PollingCheck.waitFor(() -> count.get() == 2);
     }

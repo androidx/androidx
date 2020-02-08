@@ -21,6 +21,7 @@ package androidx.leanback.app;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.ViewGroup;
 
 import androidx.leanback.test.R;
@@ -106,7 +107,7 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
     public void setItem(PhotoItem photoItem) {
         mPhotoItem = photoItem;
         mRowsAdapter.clear();
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (getActivity() == null) {
@@ -125,7 +126,7 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
         }, mTimeToLoadOverviewRow);
 
 
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (getActivity() == null) {

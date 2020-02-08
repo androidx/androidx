@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -173,7 +174,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
 
     private void blockWebViewRenderer(int durationMs) {
         mBlocker.beginBlocking();
-        new Handler().postDelayed(this::unblockWebViewRenderer, durationMs);
+        new Handler(Looper.getMainLooper()).postDelayed(this::unblockWebViewRenderer, durationMs);
     }
 
     private void blockWebViewRenderer() {

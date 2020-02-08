@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
@@ -130,7 +131,7 @@ public class SearchSupportFragment extends Fragment {
         }
     };
 
-    final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler(Looper.getMainLooper());
 
     final Runnable mResultsChangedCallback = new Runnable() {
         @Override

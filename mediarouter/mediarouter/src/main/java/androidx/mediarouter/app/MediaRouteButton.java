@@ -28,7 +28,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -198,7 +197,7 @@ public class MediaRouteButton extends View {
                 } else {
                     mRemoteIndicatorLoader = new RemoteIndicatorLoader(remoteIndicatorStaticResId,
                             getContext());
-                    mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                    mRemoteIndicatorLoader.executeOnExecutor(android.os.AsyncTask.SERIAL_EXECUTOR);
                 }
             } else {
                 loadRemoteIndicatorIfNeeded();
@@ -565,7 +564,7 @@ public class MediaRouteButton extends View {
             mRemoteIndicatorLoader = new RemoteIndicatorLoader(mRemoteIndicatorResIdToLoad,
                     getContext());
             mRemoteIndicatorResIdToLoad = 0;
-            mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            mRemoteIndicatorLoader.executeOnExecutor(android.os.AsyncTask.SERIAL_EXECUTOR);
         }
     }
 
@@ -725,7 +724,7 @@ public class MediaRouteButton extends View {
         }
     }
 
-    private final class RemoteIndicatorLoader extends AsyncTask<Void, Void, Drawable> {
+    private final class RemoteIndicatorLoader extends android.os.AsyncTask<Void, Void, Drawable> {
         private final int mResId;
         private final Context mContext;
 

@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Looper;
 import android.util.Log;
 
@@ -212,6 +211,7 @@ public final class SliceLiveData {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @SuppressWarnings("deprecation") /* AsyncTask */
         protected synchronized void loadInitialSlice() {
             if (mInitialSliceLoaded) {
                 return;
@@ -247,7 +247,7 @@ public final class SliceLiveData {
                 mPendingIntent.add(intent);
             }
             if (mActive && !mSliceCallbackRegistered) {
-                AsyncTask.execute(mUpdateSlice);
+                android.os.AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                 mSliceCallbackRegistered = true;
             }
@@ -257,7 +257,7 @@ public final class SliceLiveData {
         protected void onActive() {
             mActive = true;
             if (!mInitialSliceLoaded) {
-                AsyncTask.execute(new Runnable() {
+                android.os.AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
                         loadInitialSlice();
@@ -265,7 +265,7 @@ public final class SliceLiveData {
                 });
             }
             if (mLive && !mSliceCallbackRegistered) {
-                AsyncTask.execute(mUpdateSlice);
+                android.os.AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                 mSliceCallbackRegistered = true;
             }
@@ -376,8 +376,9 @@ public final class SliceLiveData {
         }
 
         @Override
+        @SuppressWarnings("deprecation") /* AsyncTask */
         protected void onActive() {
-            AsyncTask.execute(mUpdateSlice);
+            android.os.AsyncTask.execute(mUpdateSlice);
             if (mUri != null) {
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
             }

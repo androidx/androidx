@@ -19,6 +19,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
@@ -2619,7 +2620,7 @@ fun ActivityTestRule<*>.waitAndScreenShot(): Bitmap {
         view.getLocationInWindow(offset)
         view.viewTreeObserver.addOnPreDrawListener(flushListener)
         view.invalidate()
-        handler = Handler()
+        handler = Handler(Looper.getMainLooper())
     }
 
     assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))

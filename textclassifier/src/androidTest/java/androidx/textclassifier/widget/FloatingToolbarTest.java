@@ -240,6 +240,7 @@ public final class FloatingToolbarTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public void ui_dismissOnOutsideClick() throws Exception {
         final int toolbarMargin = (int) (mWidget.getY() + 1.5 * mWidget.getResources()
                 .getDimensionPixelSize(R.dimen.floating_toolbar_height));
@@ -277,6 +278,7 @@ public final class FloatingToolbarTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public void ui_setContentRect_belowToolbar() throws Exception {
         final int toolbarMargin = 5 * mWidget.getResources()
                 .getDimensionPixelSize(R.dimen.floating_toolbar_height);

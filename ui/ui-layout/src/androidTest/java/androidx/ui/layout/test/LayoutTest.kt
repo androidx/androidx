@@ -18,6 +18,7 @@ package androidx.ui.layout.test
 
 import android.app.Activity
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -71,7 +72,7 @@ open class LayoutTest {
         // lambda to Runnable, so separate it here
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                handler = Handler()
+                handler = Handler(Looper.getMainLooper())
             }
         }
         activityTestRule.runOnUiThread(runnable)

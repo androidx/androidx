@@ -28,7 +28,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -56,6 +55,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Helper for printing bitmaps.
  */
+@SuppressWarnings("deprecation")
 public final class PrintHelper {
     private static final String LOG_TAG = "PrintHelper";
     // will be <= 300 dpi on A4 (8.3×11.7) paper (worst case of 150 dpi)
@@ -375,6 +375,7 @@ public final class PrintHelper {
         printManager.print(jobName, printDocumentAdapter, attr);
     }
 
+    @SuppressWarnings("deprecation")
     @RequiresApi(19)
     private class PrintUriAdapter extends PrintDocumentAdapter {
         final String mJobName;
@@ -382,7 +383,7 @@ public final class PrintHelper {
         final OnPrintFinishCallback mCallback;
         final int mFittingMode;
         PrintAttributes mAttributes;
-        AsyncTask<Uri, Boolean, Bitmap> mLoadBitmap;
+        android.os.AsyncTask<Uri, Boolean, Bitmap> mLoadBitmap;
         Bitmap mBitmap;
 
         PrintUriAdapter(String jobName, Uri imageFile, OnPrintFinishCallback callback,
@@ -421,7 +422,7 @@ public final class PrintHelper {
                 return;
             }
 
-            mLoadBitmap = new AsyncTask<Uri, Boolean, Bitmap>() {
+            mLoadBitmap = new android.os.AsyncTask<Uri, Boolean, Bitmap>() {
                 @Override
                 protected void onPreExecute() {
                     // First register for cancellation requests.
@@ -632,7 +633,7 @@ public final class PrintHelper {
                     .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();
         }
 
-        new AsyncTask<Void, Void, Throwable>() {
+        new android.os.AsyncTask<Void, Void, Throwable>() {
             @Override
             protected Throwable doInBackground(Void... params) {
                 try {

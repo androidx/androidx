@@ -30,7 +30,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -1336,7 +1335,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
+    private class FetchArtTask extends android.os.AsyncTask<Void, Void, Bitmap> {
         // Show animation only when fetching takes a long time.
         private static final long SHOW_ANIM_TIME_THRESHOLD_MILLIS = 120L;
 

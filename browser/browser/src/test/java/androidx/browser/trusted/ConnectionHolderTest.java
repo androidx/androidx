@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -140,6 +139,7 @@ public class ConnectionHolderTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void futureSetWithCorrectObject() throws InterruptedException, RemoteException {
         final int smallIconId = 56;
 
@@ -163,7 +163,7 @@ public class ConnectionHolderTest {
             } catch (ExecutionException | InterruptedException | RemoteException e) {
                 e.printStackTrace();
             }
-        }, AsyncTask.THREAD_POOL_EXECUTOR);
+        }, android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         assertTrue(methodCalledLatch.await(200, TimeUnit.MILLISECONDS));
         assertTrue(noExceptionLatch.await(200, TimeUnit.MILLISECONDS));

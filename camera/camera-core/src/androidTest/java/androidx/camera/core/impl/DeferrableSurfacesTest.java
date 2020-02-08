@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.os.AsyncTask;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -77,16 +76,18 @@ public class DeferrableSurfacesTest {
 
     @Test
     @MediumTest
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void getSurfaceTimeoutTest() {
         DeferrableSurface fakeDeferrableSurface = getFakeDeferrableSurface();
 
         List<DeferrableSurface> surfaces = Arrays.asList(fakeDeferrableSurface);
         ListenableFuture<List<Surface>> listenableFuture =
                 DeferrableSurfaces.surfaceListWithTimeout(surfaces, false, 50,
-                        AsyncTask.THREAD_POOL_EXECUTOR, mScheduledExecutorService);
+                        android.os.AsyncTask.THREAD_POOL_EXECUTOR, mScheduledExecutorService);
 
         FutureCallback<List<Surface>> mockFutureCallback = mock(FutureCallback.class);
-        Futures.addCallback(listenableFuture, mockFutureCallback, AsyncTask.THREAD_POOL_EXECUTOR);
+        Futures.addCallback(listenableFuture, mockFutureCallback,
+                android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
         verify(mockFutureCallback, timeout(3000).times(1)).onFailure(throwableCaptor.capture());
