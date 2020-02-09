@@ -137,12 +137,12 @@ abstract class PagingSource<Key : Any, Value : Any> {
             val itemsAfter: Int = COUNT_UNDEFINED
         ) : LoadResult<Key, Value>() {
             init {
-                if (itemsBefore != COUNT_UNDEFINED && itemsBefore < 0) {
-                    throw IllegalArgumentException("itemsBefore cannot be negative")
+                require(itemsBefore == COUNT_UNDEFINED || itemsBefore >= 0) {
+                    "itemsBefore cannot be negative"
                 }
 
-                if (itemsAfter != COUNT_UNDEFINED && itemsAfter < 0) {
-                    throw IllegalArgumentException("itemsAfter cannot be negative")
+                require(itemsAfter == COUNT_UNDEFINED || itemsAfter >= 0) {
+                    "itemsAfter cannot be negative"
                 }
             }
 
