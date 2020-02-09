@@ -28,26 +28,12 @@ import androidx.lifecycle.asLiveData
  * paginated data. These objects can be transformed to alter data as it loads, and presented in a
  * `RecyclerView`.
  */
-@Suppress("FunctionName")
+@Suppress("FunctionName", "unused")
+@JvmOverloads
 @JvmName("create")
 fun <Key : Any, Value : Any> LivePagingData(
     config: PagingConfig,
-    initialKey: Key?,
+    initialKey: Key? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
-): LiveData<PagingData<Value>> = PagingDataFlow(config, initialKey, pagingSourceFactory)
-    .asLiveData()
-
-/**
- * Construct the primary Paging reactive stream: `LiveData<PagingData<T>>`.
- *
- * Creates a stream of [PagingData] objects, each of which represents a single generation of
- * paginated data. These objects can be transformed to alter data as it loads, and presented in a
- * `RecyclerView`.
- */
-@Suppress("FunctionName")
-@JvmName("create")
-fun <Key : Any, Value : Any> LivePagingData(
-    config: PagingConfig,
-    pagingSourceFactory: () -> PagingSource<Key, Value>
-): LiveData<PagingData<Value>> = PagingDataFlow(config, pagingSourceFactory)
-    .asLiveData()
+): LiveData<PagingData<Value>> =
+    PagingDataFlow(config, initialKey, pagingSourceFactory).asLiveData()
