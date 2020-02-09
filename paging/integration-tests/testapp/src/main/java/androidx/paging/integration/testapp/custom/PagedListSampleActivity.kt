@@ -31,7 +31,6 @@ import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PagedList
-import androidx.paging.PagedListAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
@@ -61,7 +60,8 @@ class PagedListSampleActivity : AppCompatActivity() {
 
     private fun setupLoadStateButtons(
         viewModel: PagedListItemViewModel,
-        adapter: PagedListAdapter<Item, RecyclerView.ViewHolder>
+        @Suppress("DEPRECATION")
+        adapter: androidx.paging.PagedListAdapter<Item, RecyclerView.ViewHolder>
     ) {
         val buttonStart = findViewById<Button>(R.id.button_start)
         val buttonRefresh = findViewById<Button>(R.id.button_refresh)

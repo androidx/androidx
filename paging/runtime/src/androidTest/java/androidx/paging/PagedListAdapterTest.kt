@@ -43,6 +43,7 @@ class PagedListAdapterTest {
         .setBackgroundThreadExecutor(diffThread)
         .build()
 
+    @Suppress("DEPRECATION")
     inner class Adapter(
         private val onChangedLegacy: AsyncPagedListDiffer.PagedListListener<String>? = null,
         private val onChanged: AsyncPagedListDiffer.PagedListListener<String>? = null
