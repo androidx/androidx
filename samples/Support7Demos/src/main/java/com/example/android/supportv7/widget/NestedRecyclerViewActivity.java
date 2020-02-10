@@ -170,7 +170,7 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
 
         @Override
         public void onViewRecycled(@NonNull ViewHolder holder) {
-            mSavedStates.set(holder.getAdapterPosition(),
+            mSavedStates.set(holder.getBindingAdapterPosition(),
                     holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
         }
 

@@ -667,7 +667,7 @@ public class DetailsFragment extends BaseFragment {
                 RowPresenter rowPresenter = (RowPresenter) bridgeViewHolder.getPresenter();
                 onSetRowStatus(rowPresenter,
                         rowPresenter.getRowViewHolder(bridgeViewHolder.getViewHolder()),
-                        bridgeViewHolder.getAdapterPosition(),
+                        bridgeViewHolder.getAbsoluteAdapterPosition(),
                         selectedPosition, selectedSubPosition);
             }
         }

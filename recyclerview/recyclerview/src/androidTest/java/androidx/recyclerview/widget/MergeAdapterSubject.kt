@@ -1,0 +1,129 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.recyclerview.widget
+
+import com.google.common.truth.FailureMetadata
+import com.google.common.truth.Subject
+import com.google.common.truth.Truth.assertAbout
+import com.google.common.truth.Truth.assertThat
+
+/**
+ * Helper subject to write nicer looking MergeAdapter tests.
+ */
+internal class MergeAdapterSubject(
+    metadata: FailureMetadata,
+    private val adapter: MergeAdapter
+) : Subject(
+    metadata,
+    adapter
+) {
+    fun hasItemCount(itemCount: Int) {
+        assertThat(adapter.itemCount).isEqualTo(itemCount)
+    }
+
+    fun hasStateRestorationStrategy(strategy: RecyclerView.Adapter.StateRestorationStrategy) {
+        assertThat(adapter.stateRestorationStrategy).isEqualTo(strategy)
+    }
+
+    fun bindView(
+        recyclerView: RecyclerView,
+        globalPosition: Int
+    ): BindingSubject {
+        if (recyclerView.adapter == null) {
+            recyclerView.adapter = adapter
+        } else {
+            check(recyclerView.adapter == adapter) {
+                "recyclerview is bound to another adapter"
+            }
+        }
+        // clear state
+        recyclerView.mState.apply {
+            mItemCount = adapter.itemCount
+            mLayoutStep = RecyclerView.State.STEP_LAYOUT
+        }
+        return assertAbout(
+            BindingSubject.Factory(
+                recyclerView = recyclerView
+            )
+        ).that(globalPosition)
+    }
+
+    fun canRestoreState() {
+        assertThat(adapter.canRestoreState()).isTrue()
+    }
+
+    fun cannotRestoreState() {
+        assertThat(adapter.canRestoreState()).isFalse()
+    }
+
+    object Factory : Subject.Factory<MergeAdapterSubject, MergeAdapter> {
+        override fun createSubject(metadata: FailureMetadata, actual: MergeAdapter):
+                MergeAdapterSubject {
+            return MergeAdapterSubject(
+                metadata = metadata,
+                adapter = actual
+            )
+        }
+    }
+
+    companion object {
+        fun assertThat(mergeAdapter: MergeAdapter) =
+            assertAbout(Factory).that(mergeAdapter)
+    }
+
+    class BindingSubject(
+        metadata: FailureMetadata,
+        recyclerView: RecyclerView,
+        globalPosition: Int
+    ) : Subject(
+        metadata,
+        globalPosition
+    ) {
+        private val viewHolder by lazy {
+            val view = recyclerView.mRecycler.getViewForPosition(globalPosition)
+            val layoutParams = view.layoutParams
+            check(layoutParams is RecyclerView.LayoutParams)
+            val viewHolder = layoutParams.mViewHolder
+            viewHolder as MergeAdapterTest.MergeAdapterViewHolder
+        }
+
+        internal fun verifyBoundTo(
+            adapter: MergeAdapterTest.NestedTestAdapter,
+            localPosition: Int
+        ) {
+            assertThat(viewHolder.boundItem()).isEqualTo(adapter.getItemAt(localPosition))
+            assertThat(viewHolder.boundLocalPosition()).isEqualTo(localPosition)
+            assertThat(viewHolder.boundAdapter()).isSameInstanceAs(adapter)
+        }
+
+        class Factory(
+            private val recyclerView: RecyclerView
+        ) : Subject.Factory<BindingSubject, Int> {
+            override fun createSubject(
+                metadata: FailureMetadata,
+                globalPosition: Int
+            ):
+                    BindingSubject {
+                return BindingSubject(
+                    metadata = metadata,
+                    recyclerView = recyclerView,
+                    globalPosition = globalPosition
+                )
+            }
+        }
+    }
+}

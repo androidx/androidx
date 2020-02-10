@@ -155,7 +155,7 @@ public class RecyclerViewParallax extends Parallax<RecyclerViewParallax.ChildPos
                 }
                 View firstChild = recyclerView.getLayoutManager().getChildAt(0);
                 ViewHolder vh = recyclerView.findContainingViewHolder(firstChild);
-                int firstPosition = vh.getAdapterPosition();
+                int firstPosition = vh.getAbsoluteAdapterPosition();
                 if (firstPosition < mAdapterPosition) {
                     source.setIntPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
                 } else {
