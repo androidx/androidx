@@ -126,8 +126,8 @@ class DrawBackgroundTest {
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = CircleShape,
-            shapeColor = Color.White
-        )
+            shapeColor = Color.White,
+            shapeOverlapPixelCount = 2.px)
     }
 
     @Test
@@ -149,8 +149,8 @@ class DrawBackgroundTest {
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = CircleShape,
-            shapeColor = Color.White
-        )
+            shapeColor = Color.White,
+            shapeOverlapPixelCount = 2.px)
     }
 
     @Composable
