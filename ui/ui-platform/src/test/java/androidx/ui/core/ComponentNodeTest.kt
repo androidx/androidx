@@ -801,6 +801,21 @@ class ComponentNodeTest {
         assertTrue(layoutNode.coordinates.isAttached)
     }
 
+    @Test
+    fun layoutNodeWrapperParentCoordinates() {
+        val layoutNode = LayoutNode()
+        val layoutNode2 = LayoutNode()
+        val drawModifier = draw { _, _ -> }
+        layoutNode.modifier = drawModifier
+        layoutNode2.emitInsertAt(0, layoutNode)
+        layoutNode2.attach(mockOwner())
+
+        assertEquals(layoutNode2.innerLayoutNodeWrapper,
+            layoutNode.innerLayoutNodeWrapper.parentCoordinates)
+        assertEquals(layoutNode2.innerLayoutNodeWrapper,
+            layoutNode.layoutNodeWrapper.parentCoordinates)
+    }
+
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
         val layoutNode = LayoutNode()
         val child1 = LayoutNode()

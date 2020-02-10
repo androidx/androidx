@@ -20,9 +20,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.unit.PxPosition
 
 /**
- * Returns the position relative to the parent's LayoutCoordinate. This is useful for testing,
- * but should not be used in public API. The parent could be an arbitrary modifier and won't
- * necessarily be a position relative to the parent layout.
+ * Returns the position relative to the parent Layout
  */
 val LayoutCoordinates.positionInParent: PxPosition
     get() = parentCoordinates?.childToLocal(this, PxPosition.Origin) ?: PxPosition.Origin
