@@ -15,6 +15,7 @@ package androidx.exifinterface.media {
     method public double getAttributeDouble(String, double);
     method public int getAttributeInt(String, int);
     method public long[]? getAttributeRange(String);
+    method public long getGpsDateTime();
     method @Deprecated public boolean getLatLong(float[]!);
     method public double[]? getLatLong();
     method public int getRotationDegrees();
