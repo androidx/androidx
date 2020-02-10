@@ -26,6 +26,7 @@ plugins {
 }
 
 dependencies {
+    implementation(GUAVA)
     implementation(KOTLIN_STDLIB)
     implementation(KOTLINPOET)
     implementation(XMLPULL)
