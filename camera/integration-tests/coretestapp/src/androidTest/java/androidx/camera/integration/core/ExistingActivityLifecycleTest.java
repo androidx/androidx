@@ -105,16 +105,14 @@ public final class ExistingActivityLifecycleTest {
             // Check view gets to idle.
             checkForViewIdle(activityScenario);
             // Go through pause/resume then check again for view to get frames then idle.
-            activityScenario.moveToState(Lifecycle.State.CREATED);
-            activityScenario.onActivity(activity -> {
+            activityScenario.moveToState(Lifecycle.State.CREATED).onActivity(activity -> {
                 activity.resetViewIdlingResource();
             });
             checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
 
             // Go through pause/resume then check again for view to get frames then idle, the
             // second pass is used to protect against previous observed issues.
-            activityScenario.moveToState(Lifecycle.State.CREATED);
-            activityScenario.onActivity(activity -> {
+            activityScenario.moveToState(Lifecycle.State.CREATED).onActivity(activity -> {
                 activity.resetViewIdlingResource();
             });
             checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
@@ -128,20 +126,26 @@ public final class ExistingActivityLifecycleTest {
         // check have front camera
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         try (ActivityScenario<CameraXActivity> activityScenario =
-                ActivityScenario.launch(CameraXActivity.class)) {
-            activityScenario.onActivity(activity -> {
-                IdlingRegistry.getInstance().register(activity.getViewIdlingResource());
-            });
-            onView(withId(R.id.textureView)).check(matches(isDisplayed()));
-            // Switch camera.
-            onView(withId(R.id.direction_toggle)).perform(click());
-
-            // Go through pause/resume then check again for view to get frames then idle.
-            activityScenario.moveToState(Lifecycle.State.CREATED);
-            activityScenario.onActivity(activity -> {
-                activity.resetViewIdlingResource();
-            });
-            checkForViewIdle(activityScenario.moveToState(Lifecycle.State.RESUMED));
+                     ActivityScenario.launch(CameraXActivity.class)) {
+            try {
+                activityScenario.onActivity(activity -> {
+                    IdlingRegistry.getInstance().register(activity.getViewIdlingResource());
+                });
+                onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+                // Switch camera.
+                onView(withId(R.id.direction_toggle)).perform(click());
+                // Go through pause/resume then check again for view to get frames then idle.
+                activityScenario.moveToState(Lifecycle.State.CREATED);
+                activityScenario.onActivity(activity -> {
+                    activity.resetViewIdlingResource();
+                });
+                activityScenario.moveToState(Lifecycle.State.RESUMED);
+                onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+            } finally {
+                activityScenario.onActivity(activity -> {
+                    IdlingRegistry.getInstance().unregister(activity.getViewIdlingResource());
+                });
+            }
         }
     }
 
@@ -175,14 +179,18 @@ public final class ExistingActivityLifecycleTest {
 
     private ActivityScenario<CameraXActivity>
             checkForViewIdle(ActivityScenario<CameraXActivity> activityScenario) {
-        activityScenario.onActivity(activity -> {
-            IdlingRegistry.getInstance().register(activity.getViewIdlingResource());
-        });
-        // Check the activity launched and Preview displays frames.
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
-        activityScenario.onActivity(activity -> {
-            IdlingRegistry.getInstance().unregister(activity.getViewIdlingResource());
-        });
+        try {
+            activityScenario.onActivity(activity -> {
+                IdlingRegistry.getInstance().register(activity.getViewIdlingResource());
+            });
+            // Check the activity launched and Preview displays frames.
+            onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        } finally {
+            // Always release the idling resource, in case of timeout exceptions.
+            activityScenario.onActivity(activity -> {
+                IdlingRegistry.getInstance().unregister(activity.getViewIdlingResource());
+            });
+        }
         return activityScenario;
     }
 }
