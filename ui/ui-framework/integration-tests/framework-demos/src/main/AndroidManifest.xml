@@ -136,6 +136,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+        <activity android:name=".gestures.NestedLongPressDemo"
+            android:configChanges="orientation|screenSize"
+            android:label="Gestures/Complex/Nested Long Press">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".gestures.NestedPressDemo"
                   android:configChanges="orientation|screenSize"
                   android:label="Gestures/Complex/Nested Pressing">

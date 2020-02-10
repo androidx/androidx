@@ -100,6 +100,13 @@ package androidx.ui.core {
     method public androidx.ui.unit.PxPosition getPositionChange();
   }
 
+  public interface CustomEvent {
+  }
+
+  public interface CustomEventDispatcher {
+    method public void dispatchCustomEvent(androidx.ui.core.CustomEvent event);
+  }
+
   public enum Direction {
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
@@ -362,10 +369,12 @@ package androidx.ui.testutils {
     method public static androidx.ui.core.PointerInputChange down(long id, androidx.ui.unit.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
     method public static androidx.ui.core.PointerInputChange invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChanges, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange![] pointerInputChanges, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
+    method public static void invokeOverAllPasses(kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>, androidx.ui.core.CustomEvent event);
     method public static androidx.ui.core.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChange, androidx.ui.core.PointerEventPass pointerEventPass, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange![] pointerInputChanges, androidx.ui.core.PointerEventPass pointerEventPass, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static androidx.ui.core.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChange, androidx.ui.core.PointerEventPass![] pointerEventPasses, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, java.util.List<androidx.ui.core.PointerInputChange> pointerInputChanges, java.util.List<? extends androidx.ui.core.PointerEventPass> pointerEventPasses, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
+    method public static void invokeOverPasses(kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>, androidx.ui.core.CustomEvent event, java.util.List<? extends androidx.ui.core.PointerEventPass> pointerEventPasses);
     method public static androidx.ui.core.PointerInputChange moveBy(androidx.ui.core.PointerInputChange, androidx.ui.unit.Duration duration, float dx = 0f, float dy = 0f);
     method public static androidx.ui.core.PointerInputChange moveTo(androidx.ui.core.PointerInputChange, androidx.ui.unit.Duration duration, float x = 0f, float y = 0f);
     method public static androidx.ui.core.PointerInputChange up(androidx.ui.core.PointerInputChange, androidx.ui.unit.Duration duration);

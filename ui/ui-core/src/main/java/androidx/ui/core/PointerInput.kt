@@ -65,8 +65,39 @@ enum class PointerEventPass {
     InitialDown, PreUp, PreDown, PostUp, PostDown
 }
 
+/**
+ * A function used to react to and modify [PointerInputChange]s.
+ */
 typealias PointerInputHandler =
             (List<PointerInputChange>, PointerEventPass, IntPxSize) -> List<PointerInputChange>
+
+// This CustomEvent interface primarily exists exists to provide a base type other than Any.  If it
+// were Any, then Unit would be sufficient, which is not a valid type, or value, to send as a
+// custom event.
+/**
+ * The base type for all custom events.
+ */
+interface CustomEvent
+
+// TODO(b/149030989): Provide sample for usage of CustomEventDispatcher.
+/**
+ * Defines the interface that is used to dispatch CustomEvents to pointer input nodes across the
+ * compose tree.
+ */
+interface CustomEventDispatcher {
+
+    /**
+     * Dispatches the [event] to all other pointer input nodes that share associated [PointerId]s
+     * with the pointer input node doing the dispatching.
+     *
+     * @param event The [CustomEvent] to dispatch.
+     */
+    // TODO(shepshapard): Come back and consider any issues with: This effectively allows
+    //  individual pointer input nodes to gain a reference back to the internal HitPathTracker.
+    //  But I think that is ok since pointer input nodes should  never be able to live for longer
+    //  than the HitPathTracker that would be responsible for tracking them.
+    fun dispatchCustomEvent(event: CustomEvent)
+}
 
 // PointerInputChange extension functions
 
@@ -124,7 +155,7 @@ fun PointerInputChange.consumePositionChange(
     val newConsumedDx = consumedDx + consumed.positionChange.x
     val newConsumedDy = consumedDy + consumed.positionChange.y
     // TODO(shepshapard): Handle case where consumption would make the consumption total to be
-    // less than the total change.
+    //  less than the total change.
     return copy(
         consumed = this.consumed.copy(
             positionChange = PxPosition(
