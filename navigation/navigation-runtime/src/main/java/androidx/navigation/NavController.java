@@ -359,9 +359,29 @@ public class NavController {
             NavGraph parent = currentDestination.getParent();
             while (parent != null) {
                 if (parent.getStartDestination() != destId) {
+                    final Bundle args = new Bundle();
+
+                    if (mActivity != null && mActivity.getIntent() != null) {
+                        final Uri data = mActivity.getIntent().getData();
+
+                        // We were started via a URI intent.
+                        if (data != null) {
+                            // Include the original deep link Intent so the Destinations can
+                            // synthetically generate additional arguments as necessary.
+                            args.putParcelable(KEY_DEEP_LINK_INTENT, mActivity.getIntent());
+                            NavDestination.DeepLinkMatch matchingDeepLink = mGraph.matchDeepLink(
+                                    data);
+                            if (matchingDeepLink != null) {
+                                args.putAll(matchingDeepLink.getMatchingArgs());
+                            }
+                        }
+                    }
+
                     TaskStackBuilder parentIntents = new NavDeepLinkBuilder(this)
                             .setDestination(parent.getId())
+                            .setArguments(args)
                             .createTaskStackBuilder();
+
                     parentIntents.startActivities();
                     if (mActivity != null) {
                         mActivity.finish();
