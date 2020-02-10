@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.ui.core.SemanticsTreeProvider
-import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.android.AndroidSemanticsTreeInteraction
 import androidx.ui.unit.PxBounds
@@ -31,7 +30,7 @@ import androidx.ui.unit.PxBounds
  * implementations.
  */
 internal abstract class SemanticsTreeInteraction(
-    protected val selector: SemanticsConfiguration.() -> Boolean
+    val selector: SemanticsPredicate
 ) {
 
     internal abstract fun performAction(action: (SemanticsTreeProvider) -> Unit)
@@ -48,7 +47,7 @@ internal abstract class SemanticsTreeInteraction(
     fun findAllMatching(): List<SemanticsNodeInteraction> {
         return getAllSemanticsNodes()
             .filter { node ->
-                node.config.selector()
+                selector.condition(node.config)
             }.map {
                 SemanticsNodeInteraction(it.id, this)
             }
@@ -61,7 +60,7 @@ internal abstract class SemanticsTreeInteraction(
     internal fun findOne(): SemanticsNodeInteraction {
         val ids = getAllSemanticsNodes()
             .filter { node ->
-                node.config.selector()
+                selector.condition(node.config)
             }.map {
                 it.id
             }
@@ -74,7 +73,7 @@ internal abstract class SemanticsTreeInteraction(
 }
 
 internal var semanticsTreeInteractionFactory: (
-    selector: SemanticsConfiguration.() -> Boolean
+    selector: SemanticsPredicate
 ) -> SemanticsTreeInteraction = { selector ->
     AndroidSemanticsTreeInteraction(selector)
 }

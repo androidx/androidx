@@ -18,8 +18,6 @@ package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.core.semantics.getOrNull
-import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.semantics.testTag
 import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
@@ -37,7 +35,7 @@ class FindersTests {
                 })
         }
 
-        val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
+        val foundNodes = findAll(hasTestTag("myTestTag"))
         assertThat(foundNodes).isEmpty()
     }
 
@@ -55,7 +53,7 @@ class FindersTests {
                 .withSemantics(node1, node2)
         }
 
-        val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
+        val foundNodes = findAll(hasTestTag("myTestTag"))
         assertThat(foundNodes.map { it.semanticsNode }).containsExactly(node1)
     }
 
@@ -73,7 +71,7 @@ class FindersTests {
                 .withSemantics(node1, node2)
         }
 
-        val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
+        val foundNodes = findAll(hasTestTag("myTestTag"))
         assertThat(foundNodes.map { it.semanticsNode }).containsExactly(node1, node2)
     }
 

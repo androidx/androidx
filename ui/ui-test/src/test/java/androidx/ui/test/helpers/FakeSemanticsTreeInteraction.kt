@@ -21,12 +21,13 @@ import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.InputDispatcher
+import androidx.ui.test.SemanticsPredicate
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.test.SemanticsTreeNodeStub
 import androidx.ui.unit.PxBounds
 
 internal class FakeSemanticsTreeInteraction internal constructor(
-    selector: SemanticsConfiguration.() -> Boolean
+    selector: SemanticsPredicate
 ) : SemanticsTreeInteraction(selector) {
     private lateinit var semanticsToUse: List<SemanticsNode>
 
@@ -50,7 +51,7 @@ internal class FakeSemanticsTreeInteraction internal constructor(
 
     override fun getAllSemanticsNodes(): List<SemanticsNode> {
         return semanticsToUse.filter {
-            selector(it.config)
+            selector.condition(it.config)
         }
     }
 

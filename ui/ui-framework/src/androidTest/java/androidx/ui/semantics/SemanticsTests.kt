@@ -19,9 +19,9 @@ package androidx.ui.semantics
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
-import androidx.ui.core.semantics.getOrNull
 import androidx.ui.core.test.ValueModel
 import androidx.ui.test.SemanticsNodeInteraction
+import androidx.ui.test.SemanticsPredicate
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertLabelEquals
 import androidx.ui.test.assertValueEquals
@@ -339,9 +339,7 @@ class SemanticsTests {
 }
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
-    verify({ "Unexpected ${property.name}: '${it.getOrNull(property)}'" }) { config ->
-        property !in config
-    }
+    verify(SemanticsPredicate.keyNotDefined(property))
 }
 
 /**
