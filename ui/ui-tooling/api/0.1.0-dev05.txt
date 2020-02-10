@@ -2,13 +2,13 @@
 package androidx.ui.tooling {
 
   public final class CallGroup extends androidx.ui.tooling.Group {
-    ctor public CallGroup(Object? key, androidx.ui.unit.PxBounds box, Object![] data, androidx.ui.tooling.Group![] children);
+    ctor public CallGroup(Object? key, androidx.ui.unit.IntPxBounds box, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
   }
 
   public abstract sealed class Group {
-    method public final androidx.ui.unit.PxBounds getBox();
-    method public final androidx.ui.tooling.Group![] getChildren();
-    method public final Object![] getData();
+    method public final androidx.ui.unit.IntPxBounds getBox();
+    method public final java.util.Collection<androidx.ui.tooling.Group> getChildren();
+    method public final java.util.Collection<java.lang.Object> getData();
     method public final Object? getKey();
   }
 
@@ -28,7 +28,7 @@ package androidx.ui.tooling {
   }
 
   public final class NodeGroup extends androidx.ui.tooling.Group {
-    ctor public NodeGroup(Object? key, Object node, androidx.ui.unit.PxBounds box, Object![] data, androidx.ui.tooling.Group![] children);
+    ctor public NodeGroup(Object? key, Object node, androidx.ui.unit.IntPxBounds box, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
     method public Object getNode();
   }
 
