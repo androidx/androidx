@@ -17,7 +17,6 @@
 package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
-import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.Draw
 import androidx.ui.foundation.ScrollerPosition
@@ -41,10 +40,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     override fun emitContent() {
-        val scrollerPosition = ScrollerPosition()
-        onCommit(true) {
-            this@ScrollerTestCase.scrollerPosition = scrollerPosition
-        }
+        scrollerPosition = ScrollerPosition()
         VerticalScroller(
             scrollerPosition = scrollerPosition
         ) {
