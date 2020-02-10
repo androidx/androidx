@@ -21,6 +21,7 @@ import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -86,6 +87,7 @@ final class ImageSaver implements Runnable {
             file = isSaveToFile() ? mOutputFileOptions.getFile() :
                     File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
         } catch (IOException e) {
+            Log.e(TAG, "Failed to create temp file", e);
             postError(SaveError.FILE_IO_FAILED, "Failed to create temp file", e);
             return;
         }
@@ -144,6 +146,7 @@ final class ImageSaver implements Runnable {
 
             // Write temp file to Uri
         } catch (IOException e) {
+            Log.e(TAG, "Failed to save image", e);
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write or close the file";
             exception = e;
@@ -152,6 +155,7 @@ final class ImageSaver implements Runnable {
                 mOutputFileOptions.getContentResolver().delete(outputUri, null, null);
             }
         } catch (CodecFailedException e) {
+            Log.e(TAG, "Failed to save image", e);
             switch (e.getFailureType()) {
                 case ENCODE_FAILED:
                     saveError = SaveError.ENCODE_FAILED;
