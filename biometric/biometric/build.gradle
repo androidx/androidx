@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.appcompat:appcompat:1.1.0")
-    api("androidx.core:core:1.1.0")
+    api("androidx.core:core:1.2.0")
     api("androidx.fragment:fragment:1.1.0")
     api(project(":lifecycle:lifecycle-viewmodel"))
 

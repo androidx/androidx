@@ -31,7 +31,7 @@ dependencies {
     implementation project(path: ':camera:camera-lifecycle')
     api("androidx.annotation:annotation:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
-    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.core:core:1.2.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     androidTestImplementation(project(":camera:camera-testing"))
