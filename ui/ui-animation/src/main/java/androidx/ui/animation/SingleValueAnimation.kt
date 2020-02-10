@@ -49,8 +49,9 @@ fun animate(
     animBuilder: AnimationBuilder<Float> = remember { PhysicsBuilder() },
     endListener: ((Float) -> Unit)? = null
 ): Float {
+    val clock = AnimationClockAmbient.current
     val anim = remember {
-        AnimatedFloatModel(target, AnimationClockAmbient.current)
+        AnimatedFloatModel(target, clock)
     }
     // TODO: Support changing animation while keeping the same target
     onCommit(target) {
@@ -116,8 +117,9 @@ fun <T, V : AnimationVector> animate(
     animBuilder: AnimationBuilder<T> = remember { PhysicsBuilder() },
     endListener: ((T) -> Unit)? = null
 ): T {
+    val clock = AnimationClockAmbient.current
     val anim = remember {
-        AnimatedValueModel(target, converter, AnimationClockAmbient.current)
+        AnimatedValueModel(target, converter, clock)
     }
     // TODO: Support changing animation while keeping the same target
     onCommit(target) {
