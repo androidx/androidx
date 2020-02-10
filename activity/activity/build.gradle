@@ -18,7 +18,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.2.0")
+    api("androidx.core:core:1.1.0")
     api(project(":lifecycle:lifecycle-runtime"))
     api(project(":lifecycle:lifecycle-viewmodel"))
     api("androidx.savedstate:savedstate:1.0.0")

@@ -22,7 +22,7 @@ plugins {
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.core:core:1.2.0")
+    implementation("androidx.core:core:1.1.0")
     implementation(project(":webkit:webkit"))
     implementation(GUAVA_ANDROID)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
