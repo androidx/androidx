@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 
 public class WebViewTestActivity extends Activity {
@@ -30,7 +31,18 @@ public class WebViewTestActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mWebView = new WebView(this);
         setContentView(mWebView);
+    }
+
+    @Override
+    protected void onDestroy() {
+        ViewGroup parent = (ViewGroup) mWebView.getParent();
+        if (parent != null) {
+            parent.removeView(mWebView);
+        }
+        mWebView.destroy();
+        super.onDestroy();
     }
 }
