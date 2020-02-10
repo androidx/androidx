@@ -28,6 +28,9 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.unit.dp
 
+/**
+ * A button made with a 24x24dp icon
+ */
 @Composable
 fun RallyIconButton(
     vectorImage: VectorAsset,
@@ -37,10 +40,21 @@ fun RallyIconButton(
     Box(modifier = modifier) {
         Ripple(bounded = false) {
             Clickable(onClick) {
-                Box(modifier = LayoutHeight(24.dp) + LayoutWidth(24.dp)) {
-                    DrawVector(vectorImage = vectorImage, tintColor = Color.White)
-                }
+                RallyIcon(vectorImage)
             }
         }
+    }
+}
+
+/**
+ * 24x24dp icon from a resource id.
+ */
+@Composable
+fun RallyIcon(vectorImage: VectorAsset, tintColor: Color = Color.White) {
+    Box(modifier = LayoutHeight(24.dp) + LayoutWidth(24.dp)) {
+        DrawVector(
+            vectorImage = vectorImage,
+            tintColor = tintColor
+        )
     }
 }
