@@ -56,7 +56,7 @@ internal sealed class LayoutNodeWrapper(
     override val parentCoordinates: LayoutCoordinates?
         get() {
             check(isAttached) { ExpectAttachedLayoutCoordinates }
-            return wrappedBy
+            return layoutNode.layoutNodeWrapper.wrappedBy
         }
 
     /**
