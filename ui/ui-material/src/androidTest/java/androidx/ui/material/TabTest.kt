@@ -153,7 +153,7 @@ class TabTest {
         }
 
         // Click the second tab
-        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+        findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
@@ -226,7 +226,7 @@ class TabTest {
         }
 
         // Click the second tab
-        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+        findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
@@ -248,7 +248,7 @@ class TabTest {
                 TextTabs()
             }
 
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -267,7 +267,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -278,10 +278,10 @@ class TabTest {
         }.assertCountEquals(3)
 
         // Click the last tab
-        findAll { isInMutuallyExclusiveGroup }.last().doClick()
+        findAll(isInMutuallyExclusiveGroup()).last().doClick()
 
         // Now only the last tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == lastIndex) {
                     interaction.assertIsSelected()
@@ -299,7 +299,7 @@ class TabTest {
                 ScrollingTextTabs()
             }
 
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -318,7 +318,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -329,10 +329,10 @@ class TabTest {
         }.assertCountEquals(10)
 
         // Click the second tab
-        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+        findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Now only the second tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 1) {
                     interaction.assertIsSelected()

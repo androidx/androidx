@@ -22,8 +22,6 @@ import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
@@ -52,7 +50,6 @@ fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
     verifyHierarchy({ "The component is visible!" }) {
         it.getOrNull(SemanticsProperties.Hidden) == true
     }
-
     return this
 }
 
@@ -60,13 +57,16 @@ fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
  * Asserts that the current component is displayed.
  * This function also calls [assertIsVisible] to check if it is visible from a Semantics perspective
  * and afterwards checks if it's bounding rectangle is contained inside the closest layout node.
+ *
+ * Throws [AssertionError] if the component is not displayed.
  */
 fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
     // TODO(b/143608742): check the correct AndroidCraneView is visible
 
-    verify({ "The component is not displayed!" }) {
-        checkIsDisplayed()
+    if (!checkIsDisplayed()) {
+        // TODO(b/133217292)
+        throw AssertionError("Assert failed: The component is not displayed!")
     }
     return this
 }
@@ -74,15 +74,17 @@ fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
 /**
  * Asserts that the current component is not displayed.
  * This function checks if it's bounding rectangle is not contained inside the closest layout node.
+ *
+ * Throws [AssertionError] if the component is displayed.
  */
 fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
     // TODO(b/143608742): check no AndroidCraneView contains the given component
 
-    verify({ "The component is displayed!" }) {
-        !checkIsDisplayed()
+    if (checkIsDisplayed()) {
+        // TODO(b/133217292)
+        throw AssertionError("Assert failed: The component is displayed!")
     }
-
     return this
 }
 
@@ -91,102 +93,69 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
  *
  * Throws [AssertionError] if the component is not unchecked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction {
-    assertIsToggleable()
-    verify({ "Component is toggled off, expected it to be toggled on" }) {
-        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.On
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction = verify(isOn())
 
 /**
  * Asserts that the current component is unchecked.
  *
  * Throws [AssertionError] if the component is checked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction {
-    assertIsToggleable()
-    verify({ "Component is toggled on, expected it to be toggled off" }) {
-        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.Off
-    }
-
-    return this
-}
+fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = verify(isOff())
 
 /**
  * Asserts that the current component is selected.
  *
  * Throws [AssertionError] if the component is unselected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction {
-    assertIsSelectable()
-
-    verify({ "Component is unselected, expected it to be selected" }) {
-        it[FoundationSemanticsProperties.Selected]
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = verify(isSelected())
 
 /**
  * Asserts that the current component is unselected.
  *
  * Throws [AssertionError] if the component is selected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction {
-    assertIsSelectable()
+fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction =
+    verify(isUnselected())
 
-    verify({ "Component is selected, expected it to be unselected" }) {
-        !it[FoundationSemanticsProperties.Selected]
-    }
-    return this
-}
+/**
+ * Asserts that the current component is toggleable.
+ *
+ * Throws [AssertionError] if the component is not toggleable.
+ */
+fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction =
+    verify(isToggleable())
+
+/**
+ * Asserts that the current component is selectable.
+ *
+ * Throws [AssertionError] if the component is not selectable.
+ */
+fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction =
+    verify(isSelectable())
 
 /**
  * Asserts the component is in a mutually exclusive group. This is used by radio groups to assert
  * only one is selected at a given time.
- * For further details please check [SemanticsConfiguration.isInMutuallyExclusiveGroup].
  */
-fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction {
-    // TODO(pavlis): Throw exception if component is not selectable
-    verify(
-        { "The component is expected to be in a mutually exclusive group, but it's not!" }) {
-        it.isInMutuallyExclusiveGroup
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction =
+    verify(isInMutuallyExclusiveGroup())
 
 /**
  * Asserts the component's label equals the given String.
- * For further details please check [SemanticsConfiguration.accessibilityLabel].
+ * For further details please check [SemanticsProperties.AccessibilityLabel].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
-fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInteraction {
-    verify({ node -> "Expected label: $value, " +
-            "Actual label: ${node.getOrNull(SemanticsProperties.AccessibilityLabel)}"
-    }) {
-        it.getOrElse(SemanticsProperties.AccessibilityLabel) {
-            throw AssertionError("Expected label: $value, but had none")
-        } == value
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInteraction =
+    verify(hasText(value))
 
 /**
  * Asserts the component's value equals the given value.
  *
- * For further details please check [SemanticsConfiguration.accessibilityValue].
+ * For further details please check [SemanticsProperties.AccessibilityValue].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
-fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction {
-    verify({ node -> "Expected value: $value, " +
-                "Actual value: ${node.getOrNull(SemanticsProperties.AccessibilityValue)}"
-    }) {
-        it.getOrElse(SemanticsProperties.AccessibilityValue) {
-            throw AssertionError("Expected value: $value, but had none")
-        } == value
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
+    verify(hasValue(value))
 
 /**
  * Asserts that the semantics of the component are the same as the given semantics.
@@ -195,36 +164,25 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
 fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
     expectedProperties: SemanticsConfiguration
 ): SemanticsNodeInteraction {
+    // TODO: Assert exists gonne
     semanticsNode.config.assertEquals(expectedProperties)
-
     return this
 }
-
 /**
  * Asserts that the current component has a click action.
  *
  * Throws [AssertionError] if the component is doesn't have a click action.
  */
-fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction {
-    verify({ "Component is not clickable, expected it to be clickable" }) {
-        it.hasClickAction
-    }
-
-    return this
-}
+fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
+    verify(hasClickAction())
 
 /**
  * Asserts that the current component doesn't have a click action.
  *
  * Throws [AssertionError] if the component has a click action.
  */
-fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction {
-    verify({ "Component is clickable, expected it to not be clickable" }) {
-        !it.hasClickAction
-    }
-
-    return this
-}
+fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction =
+    verify(hasNoClickAction())
 
 /**
  * Asserts that given a list of components, its size is equal to the passed in size.
@@ -245,13 +203,14 @@ fun List<SemanticsNodeInteraction>.assertCountEquals(
  * Throws [AssertionError] if it is not.
  */
 fun SemanticsNodeInteraction.verify(
-    assertionMessage: (SemanticsConfiguration) -> String,
-    condition: (SemanticsConfiguration) -> Boolean
-) {
-    if (!condition.invoke(semanticsNode.config)) {
+    predicate: SemanticsPredicate
+): SemanticsNodeInteraction {
+    assertExists() // TODO: Do we need this here?
+    if (!predicate.condition(semanticsNode.config)) {
         // TODO(b/133217292)
-        throw AssertionError("Assert failed: ${assertionMessage(semanticsNode.config)}")
+        throw AssertionError("Assert failed for: ${predicate.description}")
     }
+    return this
 }
 
 /**
@@ -270,32 +229,6 @@ fun SemanticsNodeInteraction.verifyHierarchy(
         }
         node = node.parent
     }
-}
-
-/**
- * Asserts that the current component is toggleable.
- *
- * Throws [AssertionError] if the component is not toggleable.
- */
-internal fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction {
-    verify({ "Component is not toggleable, expected it to be toggleable" }) {
-        it.isToggleable
-    }
-
-    return this
-}
-
-/**
- * Asserts that the current component is selectable.
- *
- * Throws [AssertionError] if the component is not selectable.
- */
-internal fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction {
-    verify({ "Component is not selectable, expected it to be selectable" }) {
-        it.getOrNull(FoundationSemanticsProperties.Selected) != null
-    }
-
-    return this
 }
 
 private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
