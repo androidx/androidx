@@ -1,26 +1,26 @@
 // Signature format: 3.0
 package androidx.paging {
 
-  public class AsyncPagedListDiffer<T> {
-    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
-    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback listUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T> config);
-    method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
-    method public final void addPagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
-    method public androidx.paging.PagedList<T>? getCurrentList();
-    method public T? getItem(int index);
-    method public int getItemCount();
-    method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method public void removePagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
-    method public final void removePagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
-    method public void submitList(androidx.paging.PagedList<T>? pagedList);
-    method public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
+  @Deprecated public class AsyncPagedListDiffer<T> {
+    ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
+    ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback listUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T> config);
+    method @Deprecated public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method @Deprecated public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
+    method @Deprecated public final void addPagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
+    method @Deprecated public androidx.paging.PagedList<T>? getCurrentList();
+    method @Deprecated public T? getItem(int index);
+    method @Deprecated public int getItemCount();
+    method @Deprecated public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method @Deprecated public void removePagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
+    method @Deprecated public final void removePagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
+    method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList);
+    method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
     property public androidx.paging.PagedList<T>? currentList;
     property public int itemCount;
   }
 
-  public static interface AsyncPagedListDiffer.PagedListListener<T> {
-    method public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
+  @Deprecated public static interface AsyncPagedListDiffer.PagedListListener<T> {
+    method @Deprecated public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
   }
 
   public class AsyncPagingDataDiffer<T> {

@@ -20,8 +20,8 @@ package androidx.paging
  * LoadState of a PagedList load - associated with a [LoadType]
  *
  * [LoadState] of any [LoadType] may be observed for UI purposes by registering a listener via
- * [androidx.paging.PagedListAdapter.addLoadStateListener] or
- * [androidx.paging.AsyncPagedListDiffer.addLoadStateListener].
+ * [androidx.paging.PagingDataAdapter.addLoadStateListener] or
+ * [androidx.paging.AsyncPagingDataDiffer.addLoadStateListener]
  *
  * @see LoadType
  */
