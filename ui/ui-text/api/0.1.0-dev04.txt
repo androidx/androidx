@@ -613,6 +613,9 @@ package androidx.ui.text {
 
 package androidx.ui.text.font {
 
+  public abstract sealed class FallbackFontFamily extends androidx.ui.text.font.FontFamily {
+  }
+
   public abstract sealed class FileBasedFontFamily extends androidx.ui.text.font.FontFamily {
   }
 
@@ -632,20 +635,21 @@ package androidx.ui.text.font {
   }
 
   public static final class FontFamily.Companion {
-    method public androidx.ui.text.font.GenericFontFamily getCursive();
-    method public androidx.ui.text.font.GenericFontFamily getMonospace();
-    method public androidx.ui.text.font.GenericFontFamily getSansSerif();
-    method public androidx.ui.text.font.GenericFontFamily getSerif();
-    property public final androidx.ui.text.font.GenericFontFamily Cursive;
-    property public final androidx.ui.text.font.GenericFontFamily Monospace;
-    property public final androidx.ui.text.font.GenericFontFamily SansSerif;
-    property public final androidx.ui.text.font.GenericFontFamily Serif;
+    method public androidx.ui.text.font.FallbackFontFamily getCursive();
+    method public androidx.ui.text.font.FallbackFontFamily getDefault();
+    method public androidx.ui.text.font.FallbackFontFamily getMonospace();
+    method public androidx.ui.text.font.FallbackFontFamily getSansSerif();
+    method public androidx.ui.text.font.FallbackFontFamily getSerif();
+    property public final androidx.ui.text.font.FallbackFontFamily Cursive;
+    property public final androidx.ui.text.font.FallbackFontFamily Default;
+    property public final androidx.ui.text.font.FallbackFontFamily Monospace;
+    property public final androidx.ui.text.font.FallbackFontFamily SansSerif;
+    property public final androidx.ui.text.font.FallbackFontFamily Serif;
   }
 
   public final class FontFamilyKt {
     method public static androidx.ui.text.font.FontListFontFamily fontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public static androidx.ui.text.font.FontListFontFamily fontFamily(androidx.ui.text.font.Font... fonts);
-    method public static androidx.ui.text.font.GenericFontFamily fontFamily(String name);
   }
 
   public final class FontKt {
@@ -716,13 +720,6 @@ package androidx.ui.text.font {
 
   public final class FontWeightKt {
     method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
-  }
-
-  public final class GenericFontFamily extends androidx.ui.text.font.FontFamily {
-    ctor public GenericFontFamily(String name);
-    method public String component1();
-    method public androidx.ui.text.font.GenericFontFamily copy(String name);
-    method public String getName();
   }
 
   public final class ResourceFont implements androidx.ui.text.font.Font {

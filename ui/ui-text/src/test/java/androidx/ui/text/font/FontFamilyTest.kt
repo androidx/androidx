@@ -88,11 +88,4 @@ class FontFamilyTest {
             )
         )
     }
-
-    @Test
-    fun `can create FontFamily with genericFamily even though there are no custom fonts`() {
-        // main expectation is that there should be no exception
-        val fontFamily = fontFamily("sans-serif")
-        assertThat(fontFamily.name).isEqualTo("sans-serif")
-    }
 }

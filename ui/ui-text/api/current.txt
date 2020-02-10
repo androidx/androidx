@@ -633,10 +633,12 @@ package androidx.ui.text.font {
 
   public static final class FontFamily.Companion {
     method public androidx.ui.text.font.GenericFontFamily getCursive();
+    method public androidx.ui.text.font.SystemFontFamily getDefault();
     method public androidx.ui.text.font.GenericFontFamily getMonospace();
     method public androidx.ui.text.font.GenericFontFamily getSansSerif();
     method public androidx.ui.text.font.GenericFontFamily getSerif();
     property public final androidx.ui.text.font.GenericFontFamily Cursive;
+    property public final androidx.ui.text.font.SystemFontFamily Default;
     property public final androidx.ui.text.font.GenericFontFamily Monospace;
     property public final androidx.ui.text.font.GenericFontFamily SansSerif;
     property public final androidx.ui.text.font.GenericFontFamily Serif;
@@ -645,7 +647,6 @@ package androidx.ui.text.font {
   public final class FontFamilyKt {
     method public static androidx.ui.text.font.FontListFontFamily fontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public static androidx.ui.text.font.FontListFontFamily fontFamily(androidx.ui.text.font.Font... fonts);
-    method public static androidx.ui.text.font.GenericFontFamily fontFamily(String name);
   }
 
   public final class FontKt {
@@ -718,10 +719,7 @@ package androidx.ui.text.font {
     method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
   }
 
-  public final class GenericFontFamily extends androidx.ui.text.font.FontFamily {
-    ctor public GenericFontFamily(String name);
-    method public String component1();
-    method public androidx.ui.text.font.GenericFontFamily copy(String name);
+  public final class GenericFontFamily extends androidx.ui.text.font.SystemFontFamily {
     method public String getName();
   }
 
@@ -734,6 +732,9 @@ package androidx.ui.text.font {
     method public int getResId();
     method public androidx.ui.text.font.FontStyle getStyle();
     method public androidx.ui.text.font.FontWeight getWeight();
+  }
+
+  public abstract sealed class SystemFontFamily extends androidx.ui.text.font.FontFamily {
   }
 
 }
