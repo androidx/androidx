@@ -19,6 +19,7 @@ package androidx.appcompat.lint.res
 import androidx.appcompat.lint.Stubs
 import androidx.appcompat.res.ColorStateListLoadingDetector
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
@@ -61,7 +62,7 @@ class ColorStateListLoadingDetectorTest {
     }
 
     @Test
-    fun testCoreGetColorStateList() {
+    fun testCoreGetColorStateListApi24() {
         val customActivity = kotlin(
             "com/example/CustomActivity.kt",
             """
@@ -78,10 +79,87 @@ class ColorStateListLoadingDetectorTest {
             """
         ).indented().within("src")
 
-        // We expect the call to Resources.getColorStateList to be flagged
+        // Manifest that sets min sdk to 24
+        val manifest = manifest(
+            """
+                <?xml version="1.0" encoding="utf-8"?>
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                    package="com.example">
+                    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="29" />
+                    <application
+                        android:hardwareAccelerated="true"
+                        android:icon="@android:drawable/ic_delete"
+                        android:label="Sample app"
+                        android:allowBackup="false"
+                        android:supportsRtl="true"
+                        android:theme="@style/Theme.AppCompat">
+                        <activity android:name=".CustomActivity"/>
+                    </application>
+                </manifest>
+            """.trimIndent()
+        )
+
+        // We expect the call to Resources.getColorStateList to be flagged to use ContextCompat
+        // loading
         lint().files(
             Stubs.APPCOMPAT_ACTIVITY,
             Stubs.COLOR_STATE_LIST,
+            manifest,
+            customActivity
+        ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
+            .run()
+            .expect("""
+src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateList() [UseCompatLoading]
+        getResources().getColorStateList(R.color.color_state_list)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0 errors, 1 warnings
+            """.trimIndent())
+    }
+
+    @Test
+    fun testCoreGetColorStateListApi14() {
+        val customActivity = kotlin(
+            "com/example/CustomActivity.kt",
+            """
+            package com.example
+
+            import android.os.Bundle
+            import androidx.appcompat.app.AppCompatActivity
+
+            class CustomActivity: AppCompatActivity() {
+                override fun onCreate(savedInstanceState: Bundle?) {
+                    getResources().getColorStateList(R.color.color_state_list)
+                }
+            }
+            """
+        ).indented().within("src")
+
+        // Manifest that sets min sdk to 14
+        val manifest = manifest(
+            """
+                <?xml version="1.0" encoding="utf-8"?>
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                    package="com.example">
+                    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="29" />
+                    <application
+                        android:hardwareAccelerated="true"
+                        android:icon="@android:drawable/ic_delete"
+                        android:label="Sample app"
+                        android:allowBackup="false"
+                        android:supportsRtl="true"
+                        android:theme="@style/Theme.AppCompat">
+                        <activity android:name=".CustomActivity"/>
+                    </application>
+                </manifest>
+            """.trimIndent()
+        )
+
+        // We expect the call to Resources.getColorStateList to be flagged to use AppCompatResources
+        // loading
+        lint().files(
+            Stubs.APPCOMPAT_ACTIVITY,
+            Stubs.COLOR_STATE_LIST,
+            manifest,
             customActivity
         ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
