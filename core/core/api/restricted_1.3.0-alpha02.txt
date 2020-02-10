@@ -494,6 +494,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! setRemoteInputHistory(CharSequence![]!);
     method public androidx.core.app.NotificationCompat.Builder! setShortcutId(String!);
     method public androidx.core.app.NotificationCompat.Builder! setShowWhen(boolean);
+    method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setSmallIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.Builder! setSmallIcon(int);
     method public androidx.core.app.NotificationCompat.Builder! setSmallIcon(int, int);
     method public androidx.core.app.NotificationCompat.Builder! setSortKey(String!);
@@ -967,9 +968,11 @@ package androidx.core.content {
 
   public final class IntentCompat {
     method public static android.content.Intent makeMainSelectorActivity(String, String);
+    field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
     field public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
     field public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
+    field public static final String EXTRA_TIME = "android.intent.extra.TIME";
   }
 
   public final class MimeTypeFilter {
@@ -1551,8 +1554,43 @@ package androidx.core.internal.view {
 
 package androidx.core.location {
 
+  public abstract class GnssStatusCompat {
+    method @FloatRange(from=0, to=360) public abstract float getAzimuthDegrees(@IntRange(from=0) int);
+    method @FloatRange(from=0) public abstract float getCarrierFrequencyHz(@IntRange(from=0) int);
+    method @FloatRange(from=0, to=63) public abstract float getCn0DbHz(@IntRange(from=0) int);
+    method public abstract int getConstellationType(@IntRange(from=0) int);
+    method @FloatRange(from=0xffffffa6, to=90) public abstract float getElevationDegrees(@IntRange(from=0) int);
+    method @IntRange(from=0) public abstract int getSatelliteCount();
+    method @IntRange(from=1, to=200) public abstract int getSvid(@IntRange(from=0) int);
+    method public abstract boolean hasAlmanacData(@IntRange(from=0) int);
+    method public abstract boolean hasCarrierFrequencyHz(@IntRange(from=0) int);
+    method public abstract boolean hasEphemerisData(@IntRange(from=0) int);
+    method public abstract boolean usedInFix(@IntRange(from=0) int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.N) public static androidx.core.location.GnssStatusCompat wrap(android.location.GnssStatus);
+    method public static androidx.core.location.GnssStatusCompat wrap(android.location.GpsStatus);
+    field public static final int CONSTELLATION_BEIDOU = 5; // 0x5
+    field public static final int CONSTELLATION_GALILEO = 6; // 0x6
+    field public static final int CONSTELLATION_GLONASS = 3; // 0x3
+    field public static final int CONSTELLATION_GPS = 1; // 0x1
+    field public static final int CONSTELLATION_IRNSS = 7; // 0x7
+    field public static final int CONSTELLATION_QZSS = 4; // 0x4
+    field public static final int CONSTELLATION_SBAS = 2; // 0x2
+    field public static final int CONSTELLATION_UNKNOWN = 0; // 0x0
+  }
+
+  public abstract static class GnssStatusCompat.Callback {
+    ctor public GnssStatusCompat.Callback();
+    method public void onFirstFix(@IntRange(from=0) int);
+    method public void onSatelliteStatusChanged(androidx.core.location.GnssStatusCompat);
+    method public void onStarted();
+    method public void onStopped();
+  }
+
   public final class LocationManagerCompat {
     method public static boolean isLocationEnabled(android.location.LocationManager);
+    method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
+    method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
+    method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
   }
 
 }
@@ -1638,6 +1676,11 @@ package androidx.core.os {
     method public static android.os.Handler createAsync(android.os.Looper);
     method public static android.os.Handler createAsync(android.os.Looper, android.os.Handler.Callback);
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
+  }
+
+  public class HandlerExecutor implements java.util.concurrent.Executor {
+    ctor public HandlerExecutor(android.os.Handler);
+    method public void execute(Runnable);
   }
 
   public final class LocaleListCompat {
@@ -2484,6 +2527,7 @@ package androidx.core.view {
     method @Deprecated public static float getScaleX(android.view.View!);
     method @Deprecated public static float getScaleY(android.view.View!);
     method public static int getScrollIndicators(android.view.View);
+    method @UiThread public static final CharSequence? getStateDescription(android.view.View);
     method public static java.util.List<android.graphics.Rect!> getSystemGestureExclusionRects(android.view.View);
     method public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
@@ -2574,6 +2618,7 @@ package androidx.core.view {
     method @UiThread public static void setScreenReaderFocusable(android.view.View!, boolean);
     method public static void setScrollIndicators(android.view.View, @androidx.core.view.ViewCompat.ScrollIndicators int);
     method public static void setScrollIndicators(android.view.View, @androidx.core.view.ViewCompat.ScrollIndicators int, @androidx.core.view.ViewCompat.ScrollIndicators int);
+    method @UiThread public static void setStateDescription(android.view.View, CharSequence?);
     method public static void setSystemGestureExclusionRects(android.view.View, java.util.List<android.graphics.Rect!>);
     method public static void setTooltipText(android.view.View, CharSequence?);
     method public static void setTransitionName(android.view.View, String!);
@@ -2804,17 +2849,18 @@ package androidx.core.view.accessibility {
     method @Deprecated public static void appendRecord(android.view.accessibility.AccessibilityEvent!, androidx.core.view.accessibility.AccessibilityRecordCompat!);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! asRecord(android.view.accessibility.AccessibilityEvent!);
     method public static int getAction(android.view.accessibility.AccessibilityEvent!);
-    method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent!);
+    method @androidx.core.view.accessibility.AccessibilityEventCompat.ContentChangeType public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent!);
     method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent!);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! getRecord(android.view.accessibility.AccessibilityEvent!, int);
     method @Deprecated public static int getRecordCount(android.view.accessibility.AccessibilityEvent!);
     method public static void setAction(android.view.accessibility.AccessibilityEvent!, int);
-    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent!, int);
+    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent!, @androidx.core.view.accessibility.AccessibilityEventCompat.ContentChangeType int);
     method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent!, int);
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
     field public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 16; // 0x10
     field public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 32; // 0x20
     field public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 8; // 0x8
+    field public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 64; // 0x40
     field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
     field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
     field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0
@@ -2837,6 +2883,9 @@ package androidx.core.view.accessibility {
     field public static final int TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY = 131072; // 0x20000
     field public static final int TYPE_WINDOWS_CHANGED = 4194304; // 0x400000
     field @Deprecated public static final int TYPE_WINDOW_CONTENT_CHANGED = 2048; // 0x800
+  }
+
+  @IntDef(flag=true, value={androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityEventCompat.ContentChangeType {
   }
 
   public final class AccessibilityManagerCompat {
@@ -2900,6 +2949,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getParent();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat! getRangeInfo();
     method public CharSequence? getRoleDescription();
+    method public CharSequence? getStateDescription();
     method public CharSequence! getText();
     method public int getTextSelectionEnd();
     method public int getTextSelectionStart();
@@ -2989,6 +3039,7 @@ package androidx.core.view.accessibility {
     method public void setShowingHintText(boolean);
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
+    method public void setStateDescription(CharSequence?);
     method public void setText(CharSequence!);
     method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);
