@@ -7,7 +7,6 @@ plugins {
 }
 
 dependencies {
-    api 'com.google.android.material:material:1.0.0'
     implementation(project(":appcompat:appcompat"))
     implementation(project(":core:core"))
     api(KOTLIN_STDLIB)
