@@ -19,15 +19,23 @@ package androidx.paging
 import androidx.paging.PagingSource.LoadResult.Page
 
 /**
- * State of Paging system passed to [PagingSource.getRefreshKey] when fetching key for
- * the initial load or refresh.
+ * State of Paging system passed to [PagingSource.getRefreshKey] when fetching key for refresh.
  */
 class PagingState<Key : Any, Value : Any> internal constructor(
+    /**
+     * Loaded pages of data in the list.
+     *
+     * This is guaranteed to never be empty as [PagingSource.getRefreshKey] will never be called
+     * unless the initial load succeeds.
+     */
     val pages: List<Page<Key, Value>>,
     /**
      * Most recently accessed index in the list, including placeholders.
      */
     val anchorPosition: Int,
+    /**
+     * The initial load size set in [PagingConfig.initialLoadSize].
+     */
     val initialLoadSize: Int,
     private val placeholdersStart: Int
 ) {
@@ -39,6 +47,9 @@ class PagingState<Key : Any, Value : Any> internal constructor(
 
     /**
      * Coerces [anchorPosition] to closest loaded value in [pages].
+     *
+     * This function can be called with [anchorPosition] to fetch the loaded item that is closest
+     * to the last accessed index in the list.
      */
     fun closestItemToPosition(anchorPosition: Int): Value {
         anchorPositionToPagedIndices(anchorPosition) { pageIndex, index ->
@@ -53,7 +64,10 @@ class PagingState<Key : Any, Value : Any> internal constructor(
     }
 
     /**
-     * Coerces [anchorPosition] to closest loaded page in [pages].
+     * Coerces an index in the list, including placeholders, to closest loaded page in [pages].
+     *
+     * This function can be called with [anchorPosition] to fetch the loaded page that is closest
+     * to the last accessed index in the list.
      */
     fun closestPageToPosition(anchorPosition: Int): Page<Key, Value> {
         anchorPositionToPagedIndices(anchorPosition) { pageIndex, index ->
