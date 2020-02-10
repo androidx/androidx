@@ -70,6 +70,7 @@ class LivePagedListTest {
     }
 
     companion object {
+        @Suppress("DEPRECATION")
         private val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,
