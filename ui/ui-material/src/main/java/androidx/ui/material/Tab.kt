@@ -54,7 +54,6 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
-import androidx.ui.material.TabRow.IndicatorTransition
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
@@ -128,6 +127,8 @@ import androidx.ui.unit.toPx
  * @param indicatorContainer the container responsible for positioning and animating the position of
  * the indicator between tabs. By default this will be [TabRow.IndicatorContainer], which animates a
  * [TabRow.Indicator] between tabs.
+ * @param divider the divider displayed at the bottom of the TabRow. This provides a layer of
+ * separation between the TabRow and the content displayed underneath.
  * @param tab the [Tab] to be emitted for the given index and element of type [T] in [items]
  */
 @Composable
@@ -142,6 +143,9 @@ fun <T> TabRow(
             TabRow.Indicator()
         }
     },
+    divider: @Composable() () -> Unit = {
+        Divider(height = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
+    },
     tab: @Composable() (Int, T) -> Unit
 ) {
     Surface(color = color, contentColor = contentColor) {
@@ -154,7 +158,7 @@ fun <T> TabRow(
                         tab(index, item)
                     }
                 }
-                ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer)
+                ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer, divider)
             } else {
                 val tabs = @Composable { modifier: Modifier ->
                     items.forEachIndexed { index, item ->
@@ -163,7 +167,7 @@ fun <T> TabRow(
                         }
                     }
                 }
-                FixedTabRow(width, items.size, tabs, indicatorContainer)
+                FixedTabRow(width, items.size, tabs, indicatorContainer, divider)
             }
         }
     }
@@ -174,7 +178,8 @@ private fun FixedTabRow(
     width: IntPx,
     tabCount: Int,
     tabs: @Composable() (Modifier) -> Unit,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
+    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit,
+    divider: @Composable() () -> Unit
 ) {
     val tabWidth = width / tabCount
 
@@ -185,15 +190,13 @@ private fun FixedTabRow(
         }
     }
 
-    val divider = @Composable { modifier: Modifier ->
-        TabRow.Divider(modifier)
-    }
-
     Stack(LayoutWidth.Fill) {
         Row(LayoutGravity.Center) {
             tabs(LayoutFlexible(1f))
         }
-        divider(LayoutGravity.BottomCenter)
+        Container(LayoutGravity.BottomCenter + LayoutWidth.Fill) {
+            divider()
+        }
         Container(LayoutGravity.Stretch) {
             indicatorContainer(tabPositions)
         }
@@ -205,7 +208,8 @@ private fun ScrollableTabRow(
     width: IntPx,
     selectedIndex: Int,
     tabs: @Composable() () -> Unit,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
+    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit,
+    divider: @Composable() () -> Unit
 ) {
     val edgeOffset = with(DensityAmbient.current) { ScrollableTabRowEdgeOffset.toIntPx() }
 
@@ -224,10 +228,6 @@ private fun ScrollableTabRow(
         if (tabPositions.isNotEmpty()) {
             indicatorContainer(tabPositions)
         }
-    }
-
-    val divider = @Composable {
-        TabRow.Divider()
     }
 
     HorizontalScroller(
@@ -398,9 +398,8 @@ object TabRow {
     }
 
     /**
-     * Default indicator, which will be positioned at the bottom of the tab, on top of the divider.
-     *
-     * This is used as the default indicator inside [TabRow].
+     * Default indicator, which will be positioned at the bottom of the [TabRow], on top of the
+     * divider.
      *
      * @param modifier modifier for the indicator's layout
      * @param color color of the indicator
@@ -449,11 +448,6 @@ object TabRow {
         Transition(transitionDefinition, selectedIndex) { state ->
             children(state[IndicatorOffset])
         }
-    }
-
-    @Composable
-    internal fun Divider(modifier: Modifier = Modifier.None, color: Color = contentColor()) {
-        Divider(color = color.copy(alpha = DividerOpacity), height = 1.dp, modifier = modifier)
     }
 }
 
