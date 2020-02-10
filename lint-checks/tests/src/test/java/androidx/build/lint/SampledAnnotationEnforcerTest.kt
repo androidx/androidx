@@ -24,45 +24,24 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameter
-import org.junit.runners.Parameterized.Parameters
 
 /**
  * Test for [SampledAnnotationEnforcer]
  *
- * This tests (with Parameterized) the two following module setups:
+ * This tests the following module setup:
  *
  * Module 'foo', which lives in foo
- * Module 'foo:integration-tests:samples', which lives in foo/integration-tests/samples,
+ * Module 'integration-tests:samples', which lives in integration-tests,
  * and depends on 'foo'
  *
- * Module 'foo:foo', which lives in foo/foo
- * Module 'foo:integration-tests:samples', which lives in foo/integration-tests/samples,
- * and depends on 'foo:foo'
+ * Unfortunately since we cannot test submodules, we cannot verify the case for
+ * foo:integration-tests:samples in this test.
  */
-@RunWith(Parameterized::class)
 class SampledAnnotationEnforcerTest {
+    private val fooModuleName = "foo"
+    private val sampleModuleName = "integration-tests"
 
-    companion object {
-        @JvmStatic
-        @Parameters(name = "sourceModule={0}")
-        fun moduleNames(): Array<String> {
-            return arrayOf("foo", "foo:foo")
-        }
-    }
-
-    // At runtime this contains one of the values listed in moduleNames()
-    @Parameter lateinit var fooModuleName: String
-
-    private val sampleModuleName = "foo:integration-tests:samples"
-
-    // The path to Bar.kt changes depending on what module we are in
-    private val barFilePath by lazy {
-        val prefix = if (fooModuleName == moduleNames()[0]) "" else "foo:foo/"
-        prefix + "src/foo/Bar.kt"
-    }
+    private val barFilePath = "foo/src/foo/Bar.kt"
 
     private val emptySampleFile = kotlin("""
             package foo.samples
@@ -91,16 +70,20 @@ class SampledAnnotationEnforcerTest {
 
     private fun checkKotlin(
         fooFile: TestFile? = null,
-        sampleFile: TestFile? = null,
-        sampleModuleNameOverride: String? = null
+        sampleFile: TestFile? = null
     ): TestLintResult {
         val fooProject = ProjectDescription().apply {
             name = fooModuleName
             fooFile?.let { files = arrayOf(fooFile) }
         }
         val sampleProject = ProjectDescription().apply {
-            name = sampleModuleNameOverride ?: sampleModuleName
-            sampleFile?.let { files = arrayOf(sampleFile) }
+            name = sampleModuleName
+            sampleFile?.let {
+                // Hack to make it seem that we are in a samples sub-module of integration-tests,
+                // since we cannot actually set this up in tests.
+                sampleFile.within("samples/src")
+                files = arrayOf(sampleFile)
+            }
             dependsOn(fooProject)
         }
         return lint()
@@ -115,50 +98,6 @@ class SampledAnnotationEnforcerTest {
                 SampledAnnotationEnforcer.INVALID_SAMPLES_LOCATION
             )
             .run()
-    }
-
-    @Test
-    fun orphanedSampleFunction() {
-        val sampleFile = correctlyAnnotatedSampleFile
-
-        val path = if (fooModuleName == moduleNames()[0]) { "" } else { "foo" }
-
-        val expected =
-"$path:integration-tests:samples/src/foo/samples/test.kt:5: Error: sampleBar is annotated with" +
-""" @Sampled, but is not linked to from a @sample tag. [EnforceSampledAnnotation]
-            fun sampleBar() {}
-                ~~~~~~~~~
-1 errors, 0 warnings
-        """
-
-        checkKotlin(sampleFile = sampleFile)
-            .expect(expected)
-    }
-
-    @Test
-    fun invalidSampleLocation() {
-        val sampleFile = kotlin("""
-            package foo.wrong.location
-
-            @Sampled
-            fun sampleBar() {}
-        """)
-
-        val path = if (fooModuleName == moduleNames()[0]) { "" } else { "foo" }
-
-        val expected =
-"$path:integration-tests:wrong-location/src/foo/wrong/location/test.kt:5: Error: sampleBar in " +
-"/TESTROOT/foo:integration-tests:wrong-location/src/foo/wrong/location/test.kt is annotated " +
-"""with @Sampled, but is not inside a project/directory named samples. [EnforceSampledAnnotation]
-            fun sampleBar() {}
-                ~~~~~~~~~
-1 errors, 0 warnings
-        """
-
-        checkKotlin(
-            sampleFile = sampleFile,
-            sampleModuleNameOverride = "foo:integration-tests:wrong-location"
-        ).expect(expected)
     }
 
     @Test
@@ -228,10 +167,8 @@ class SampledAnnotationEnforcerTest {
 
         val sampleFile = unannotatedSampleFile
 
-        val path = if (fooModuleName == moduleNames()[0]) { "" } else { "foo:foo/" }
-
         val expected =
-"${path}src/foo/Bar.kt:6: Error: sampleBar is not annotated with @Sampled, but is linked to from" +
+"foo/src/foo/Bar.kt:6: Error: sampleBar is not annotated with @Sampled, but is linked to from" +
 """ the KDoc of bar [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
