@@ -44,6 +44,7 @@ class AsyncPagedListDifferTest {
     private val diffThread = TestExecutor()
     private val pageLoadingThread = TestExecutor()
 
+    @Suppress("DEPRECATION")
     private fun createDiffer(
         listUpdateCallback: ListUpdateCallback = IGNORE_CALLBACK
     ): AsyncPagedListDiffer<String> {
@@ -333,6 +334,7 @@ class AsyncPagedListDifferTest {
 
         val expectedCount = intArrayOf(0)
         // provides access to differ, which must be constructed after callback
+        @Suppress("DEPRECATION")
         val differAccessor = arrayOf<AsyncPagedListDiffer<*>?>(null)
 
         val callback = object : ListUpdateCallback {
@@ -463,7 +465,7 @@ class AsyncPagedListDifferTest {
     fun pagedListListener() {
         val differ = createDiffer()
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val listener = mock<AsyncPagedListDiffer.PagedListListener<String>>()
         differ.addPagedListListener(listener)
 
