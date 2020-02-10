@@ -43,6 +43,7 @@ package androidx.navigation {
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public androidx.navigation.NavDestination getDestination();
     method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
   }
