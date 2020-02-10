@@ -126,7 +126,7 @@ class PagingData<T : Any> internal constructor(
      */
     fun addFooter(item: T) = PagingData(flow.addFooter(item), receiver)
 
-    internal companion object {
+    companion object {
         private val EMPTY = PagingData<Any>(
             flow = flowOf(
                 Refresh(
@@ -146,7 +146,8 @@ class PagingData<T : Any> internal constructor(
         )
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
-        internal fun <T : Any> empty() = EMPTY as PagingData<T>
+        @JvmStatic // Convenience for Java developers.
+        fun <T : Any> empty() = EMPTY as PagingData<T>
     }
 }
 
