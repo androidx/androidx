@@ -61,13 +61,13 @@ class LongPressGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_onLongPressNotCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         verify(onLongPress, never()).invoke(any())
     }
 
     @Test
     fun pointerInputHandler_downWithinTimeout_onLongPressNotCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
         verify(onLongPress, never()).invoke(any())
     }
@@ -156,7 +156,7 @@ class LongPressGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutOfBoundsWait_onLongPressNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -169,7 +169,7 @@ class LongPressGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downBeyondTimeout_onLongPressCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
         verify(onLongPress).invoke(any())
     }
@@ -183,7 +183,7 @@ class LongPressGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutOfBoundsWaitUpThenDownWait_onLongPressCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -191,7 +191,7 @@ class LongPressGestureDetectorTest {
         pointer = pointer.up(105.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        pointer = down(duration = 200.milliseconds)
+        pointer = down(1, duration = 200.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
@@ -452,7 +452,7 @@ class LongPressGestureDetectorTest {
 
     @Test
     fun cancelHandler_downCancelBeyondTimeout_onLongPressNotCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         mRecognizer.cancelHandler()
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
@@ -461,7 +461,7 @@ class LongPressGestureDetectorTest {
 
     @Test
     fun cancelHandler_downAlmostTimeoutCancelTimeout_onLongPressNotCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
         mRecognizer.cancelHandler()
         testContext.advanceTimeBy(1, TimeUnit.MILLISECONDS)

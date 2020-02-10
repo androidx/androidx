@@ -74,14 +74,14 @@ class TouchSlopExceededGestureDetectorTest {
 
     @Test
     fun onPointerInputChanges_down_canDragNotCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0))
         assertThat(canDragDirections).isEmpty()
     }
 
     @Test
     fun onPointerInputChanges_downUp_canDragNotCalled() {
-        val down = down(duration = 0.milliseconds)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        val down = down(0, duration = 0.milliseconds)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val up = down.up(10.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(up)
 
@@ -90,7 +90,7 @@ class TouchSlopExceededGestureDetectorTest {
 
     @Test
     fun onPointerInputChanges_downMoveFullyConsumed_canDragNotCalled() {
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(Duration(milliseconds = 10), 3f, 5f).consume(3f, 5f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -102,7 +102,7 @@ class TouchSlopExceededGestureDetectorTest {
 
     @Test
     fun onPointerInputChanges_downMove1Dimension_canDragCalledOnce() {
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(Duration(milliseconds = 10), 3f, 0f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -113,7 +113,7 @@ class TouchSlopExceededGestureDetectorTest {
 
     @Test
     fun onPointerInputChanges_downMove2Dimensions_canDragCalledTwice() {
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(Duration(milliseconds = 10), 3f, 5f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -125,7 +125,7 @@ class TouchSlopExceededGestureDetectorTest {
 
     @Test
     fun onPointerInputChanges_downMoveOneDimensionPartiallyConsumed_canDragCalledOnce() {
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(Duration(milliseconds = 10), 0f, 5f).consume(0f, 4f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -137,7 +137,7 @@ class TouchSlopExceededGestureDetectorTest {
 
     @Test
     fun onPointerInputChanges_downMoveTwoDimensionPartiallyConsumed_canDragCalledTwice() {
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(Duration(milliseconds = 10), 3f, 5f).consume(2f, 4f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -151,7 +151,7 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_dragPastTouchSlopOneDimensionAndDrag3MoreTimes_canDragCalledOnce() {
         val justBeyondSlop = (TestTouchSlop + 1).toFloat()
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         var move = down.moveTo(10.milliseconds, 0f, justBeyondSlop)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -169,7 +169,7 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_downMoveUnderSlop3Times_canDragCalled3Times() {
         val thirdSlop = TestTouchSlop.toFloat() / 3
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         var move = down
         repeat(3) {
@@ -186,7 +186,7 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_moveBeyondSlopThenIntoTouchSlopAreaAndOutAgain_canDragCalledOnce() {
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
 
-        var event = down()
+        var event = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(event)
         // Out of touch slop region
         event = event.moveBy(Duration(milliseconds = 10), 0f, beyondTouchSlop)
@@ -239,7 +239,7 @@ class TouchSlopExceededGestureDetectorTest {
         expectedDirections: Array<Direction>
     ) {
         canDragDirections.clear()
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(Duration(milliseconds = 10), dx, dy)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -259,7 +259,7 @@ class TouchSlopExceededGestureDetectorTest {
     // test may therefore need to be updated.
     @Test
     fun onPointerInputChanges_downMoveWithinSlop_onTouchSlopExceededNotCalled() {
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(
             Duration(milliseconds = 10),
@@ -276,7 +276,7 @@ class TouchSlopExceededGestureDetectorTest {
         val beyondSlop = (TestTouchSlop + 1).toFloat()
         canDragReturn = false
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(
             Duration(milliseconds = 10),
@@ -291,10 +291,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_moveBeyondSlopButConsumeUnder_onTouchSlopExceededNotCalled() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, TestTouchSlop + 1f, 0f).consume(dx = 1f)
+        val move = down.moveBy(10.milliseconds, TestTouchSlop + 1f, 0f).consume(dx = 1f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         // Assert
@@ -305,10 +305,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_moveUnderToPostUpThenModOverInOppDir_onTouchSlopExceededNotCalled() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, TestTouchSlop.toFloat(), 0f)
+        val move = down.moveBy(10.milliseconds, TestTouchSlop.toFloat(), 0f)
         mRecognizer.pointerInputHandler.invokeOverPasses(
             listOf(move),
             listOf(
@@ -336,7 +336,7 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_moveAroundWithinSlop_onTouchSlopExceededNotCalled() {
         val slop = TestTouchSlop.toFloat()
 
-        var change = down()
+        var change = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         // Go around the border of the touch slop area
@@ -387,7 +387,7 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_movePassedSlop_onTouchSlopExceededCallOnce() {
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(
             Duration(milliseconds = 100),
@@ -402,7 +402,7 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_movePassedSlopIn2Events_onTouchSlopExceededCallOnce() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(
             Duration(milliseconds = 100),
@@ -424,7 +424,7 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_passSlopThenInSlopAreaThenOut_onTouchSlopExceededCallOnce() {
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
 
-        var event = down()
+        var event = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(event)
         // Out of touch slop region
         event = event.moveBy(Duration(milliseconds = 10), 0f, beyondTouchSlop)
@@ -443,7 +443,7 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_downConsumedMovePassedSlop_onTouchSlopExceededCallOnce() {
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
 
-        val down = down().consumeDownChange()
+        val down = down(0).consumeDownChange()
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val move = down.moveBy(Duration(milliseconds = 100), beyondTouchSlop, 0f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
@@ -456,7 +456,7 @@ class TouchSlopExceededGestureDetectorTest {
         val doubleTouchSlop = (TestTouchSlop * 2).toFloat()
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
 
-        var change = down()
+        var change = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(change)
         canDragReturn = false
         change = change.moveBy(
@@ -605,10 +605,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1ModifiedToMoveBeyondSlopBeforePostUp_onTouchSlopExceededCallOnce() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, 0f, 0f).consume(dx = TestTouchSlop + 1f)
+        val move = down.moveBy(10.milliseconds, 0f, 0f).consume(dx = TestTouchSlop + 1f)
         mRecognizer.pointerInputHandler.invokeOverPasses(
             listOf(move),
             listOf(
@@ -627,10 +627,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1ModedToMoveBeyondSlopBeforePostDown_onTouchSlopExceededCallOnce() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, 0f, 0f)
+        val move = down.moveBy(10.milliseconds, 0f, 0f)
         mRecognizer.pointerInputHandler.invokeOverPasses(
             listOf(move),
             listOf(
@@ -658,10 +658,10 @@ class TouchSlopExceededGestureDetectorTest {
         val halfSlop = TestTouchSlop / 2
         val restOfSlopAndBeyond = TestTouchSlop - halfSlop + 1
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, halfSlop.toFloat(), 0f)
+        val move = down.moveBy(10.milliseconds, halfSlop.toFloat(), 0f)
         mRecognizer.pointerInputHandler.invokeOverPasses(
             listOf(move),
             listOf(
@@ -686,10 +686,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_moveBeyondSlopAllPassesUpToPostUp_onTouchSlopExceededCallOnce() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, TestTouchSlop + 1f, 0f)
+        val move = down.moveBy(10.milliseconds, TestTouchSlop + 1f, 0f)
         mRecognizer.pointerInputHandler.invokeOverPasses(
             listOf(move),
             listOf(
@@ -710,7 +710,7 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1Down_nothingConsumed() {
 
-        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0))
 
         // Assert
 
@@ -722,10 +722,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1MoveUnderSlop_nothingConsumed() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, TestTouchSlop.toFloat(), TestTouchSlop.toFloat())
+        val move = down.moveBy(10.milliseconds, TestTouchSlop.toFloat(), TestTouchSlop.toFloat())
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         // Assert
@@ -738,10 +738,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1MoveUnderSlopThenUp_nothingConsumed() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, TestTouchSlop.toFloat(), TestTouchSlop.toFloat())
+        val move = down.moveBy(10.milliseconds, TestTouchSlop.toFloat(), TestTouchSlop.toFloat())
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         val up = move.up(20.milliseconds)
@@ -757,10 +757,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1MoveOverSlop_nothingConsumed() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, TestTouchSlop + 1f, TestTouchSlop + 1f)
+        val move = down.moveBy(10.milliseconds, TestTouchSlop + 1f, TestTouchSlop + 1f)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         // Assert
@@ -773,10 +773,10 @@ class TouchSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1MoveOverSlopThenUp_nothingConsumed() {
 
-        val down = down()
+        val down = down(0)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-        val move = down().moveBy(10.milliseconds, TestTouchSlop + 1f, TestTouchSlop + 1f)
+        val move = down.moveBy(10.milliseconds, TestTouchSlop + 1f, TestTouchSlop + 1f)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
 
         val up = move.up(20.milliseconds)
@@ -795,10 +795,10 @@ class TouchSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_MoveBeyondUpDownMoveBeyond_onTouchSlopExceededCalledTwice() {
 
         repeat(2) {
-            val down = down()
+            val down = down(0)
             mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
 
-            val move = down().moveBy(10.milliseconds, TestTouchSlop + 1f, 0f)
+            val move = down.moveBy(10.milliseconds, TestTouchSlop + 1f, 0f)
             mRecognizer.pointerInputHandler.invokeOverAllPasses(move)
 
             val up = move.up(20.milliseconds)
