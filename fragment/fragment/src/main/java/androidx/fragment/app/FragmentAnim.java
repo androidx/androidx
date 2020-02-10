@@ -249,7 +249,7 @@ class FragmentAnim {
      * with Views remaining in the hierarchy as disappearing children after the view has been
      * removed in some edge cases.
      */
-    private static class EndViewTransitionAnimation extends AnimationSet implements Runnable {
+    static class EndViewTransitionAnimation extends AnimationSet implements Runnable {
         private final ViewGroup mParent;
         private final View mChild;
         private boolean mEnded;
