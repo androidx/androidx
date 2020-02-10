@@ -41,6 +41,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Size;
 import android.view.Surface;
@@ -119,7 +120,6 @@ public final class ImageCaptureTest {
     private static final int BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK;
     private static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
-    private static final String CONTENT_URI_DISPLAY_NAME = "CONTENT_URI_DISPLAY_NAME";
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
@@ -165,6 +165,7 @@ public final class ImageCaptureTest {
     public void setUp() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
+        createDefaultPictureFolderIfNotExist();
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraFactory cameraFactory = Preconditions.checkNotNull(
@@ -354,13 +355,12 @@ public final class ImageCaptureTest {
                 });
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, CONTENT_URI_DISPLAY_NAME);
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(
                         mContentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        new ContentValues()).build();
+                        contentValues).build();
 
         // Act.
         useCase.takePicture(outputFileOptions, mMainExecutor, callback);
@@ -849,6 +849,14 @@ public final class ImageCaptureTest {
         verify(callback, timeout(500)).onError(exceptionCaptor.capture());
         assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
                 ImageCapture.ERROR_INVALID_CAMERA);
+    }
+
+    private void createDefaultPictureFolderIfNotExist() {
+        File pictureFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        if (!pictureFolder.exists()) {
+            pictureFolder.mkdir();
+        }
     }
 
     private static final class ImageProperties {

@@ -74,6 +74,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -491,11 +492,14 @@ public class CameraXActivity extends AppCompatActivity
                         mImageSavedIdlingResource.increment();
 
                         mStartCaptureTime = SystemClock.elapsedRealtime();
+                        createDefaultPictureFolderIfNotExist();
+                        ContentValues contentValues = new ContentValues();
+                        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
                         ImageCapture.OutputFileOptions outputFileOptions =
                                 new ImageCapture.OutputFileOptions.Builder(
                                         getContentResolver(),
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                        new ContentValues()).build();
+                                        contentValues).build();
                         mImageCapture.takePicture(outputFileOptions,
                                 ContextCompat.getMainExecutor(CameraXActivity.this),
                                 new ImageCapture.OnImageSavedCallback() {
@@ -951,6 +955,14 @@ public class CameraXActivity extends AppCompatActivity
             }
         }
         return true;
+    }
+
+    private void createDefaultPictureFolderIfNotExist() {
+        File pictureFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        if (!pictureFolder.exists()) {
+            pictureFolder.mkdir();
+        }
     }
 
     /** Tries to acquire all the necessary permissions through a dialog. */
