@@ -44,8 +44,6 @@ class AppBarActivity : MaterialDemoActivity() {
         Actions("With Actions")
     }
 
-    private val topAppBarOptions = listOf(Simple, Actions)
-
     @Composable
     override fun materialContent() {
         var selectedTopAppBar by state { Simple }
@@ -62,7 +60,7 @@ class AppBarActivity : MaterialDemoActivity() {
             }
             DemoText("TopAppBar options")
             RadioGroup {
-                topAppBarOptions.forEach { topAppBar ->
+                TopAppBarOption.values().forEach { topAppBar ->
                     RadioGroupTextItem(
                         selected = (topAppBar == selectedTopAppBar),
                         onSelect = { selectedTopAppBar = topAppBar },

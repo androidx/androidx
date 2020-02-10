@@ -23,10 +23,10 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
-import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.globalPosition
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.layout.Container
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabDockedPosition
@@ -38,6 +38,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findAllByTag
 import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -123,31 +124,29 @@ class AppBarTest {
         }
 
         composeTestRule.runOnIdleComposeWithDensity {
-            // Navigation icon should be 16.dp from the start
-            val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
-            val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
+            // Navigation icon should be 4.dp from the start
+            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
+            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // Title should be 72.dp from the start
-            val titlePositionX = titleCoords!!.localToGlobal(PxPosition.Origin).x
+            val titlePositionX = titleCoords!!.globalPosition.x
             val titleExpectedPositionX = 72.dp.toIntPx().toPx()
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Absolute position of the baseline
             val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
-                    titleCoords!!.localToGlobal(PxPosition.Origin).y
-            val appBarBottomEdgeY = appBarCoords!!.localToGlobal(PxPosition.Origin).y +
-                    appBarCoords!!.size.height
+                    titleCoords!!.globalPosition.y
+            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
             // Baseline should be 20.sp from the bottom of the app bar
             val titleExpectedLastBaselinePositionY = appBarBottomEdgeY - 20.sp.toIntPx().toPx()
             assertThat(titleLastBaselinePositionY)
                 .isEqualTo(titleExpectedLastBaselinePositionY)
 
             // Action should be placed at the end
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX =
-                appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX.toPx())
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -182,15 +181,14 @@ class AppBarTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // Title should now be placed 16.dp from the start, as there is no navigation icon
-            val titlePositionX = titleCoords!!.localToGlobal(PxPosition.Origin).x
+            val titlePositionX = titleCoords!!.globalPosition.x
             val titleExpectedPositionX = 16.dp.toIntPx().toPx()
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Action should still be placed at the end
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX =
-                appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX.toPx())
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
+            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
 
@@ -289,9 +287,8 @@ class AppBarTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // Action should still be placed at the end, even though there is no navigation icon
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
-                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
@@ -327,14 +324,13 @@ class AppBarTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // Navigation icon should be at the beginning
-            val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
-            val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
+            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
+            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // Action should be placed at the end
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
-                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
@@ -372,14 +368,13 @@ class AppBarTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // Navigation icon should be at the beginning
-            val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
-            val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
+            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
+            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // Action should be placed at the end
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
-                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
@@ -418,14 +413,13 @@ class AppBarTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // Navigation icon should be at the beginning
-            val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
-            val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
+            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
+            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // Action should be placed at the end
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = appBarCoords!!.size.width.toPx() -
-                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
@@ -450,8 +444,8 @@ class AppBarTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // Action should be placed at the start
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = 16.dp.toIntPx().toPx()
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
@@ -477,8 +471,8 @@ class AppBarTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // Action should be placed at the start
-            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
-            val actionExpectedPositionX = 16.dp.toIntPx().toPx()
+            val actionPositionX = actionCoords!!.globalPosition.x
+            val actionExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
 
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
@@ -524,14 +518,23 @@ class AppBarTest {
         findAllByTag(tag).assertCountEquals(maxNumberOfActions)
     }
 
-    private fun createImageList(count: Int) =
-        List<@Composable() () -> Unit>(count) { { FakeIcon() } }
+    private fun createImageList(count: Int) = List<@Composable() () -> Unit>(count) { FakeIcon }
 
-    // Render a clickable red rectangle to simulate an icon
-    @Composable
-    private fun FakeIcon() = Clickable {
-        ColoredRect(Color.Red, width = 24.dp, height = 24.dp)
+    /**
+     * [AppBarIcon] that just draws a red box, to simulate a real icon for testing positions.
+     */
+    private val FakeIcon = @Composable {
+        AppBarIcon(ColorPainter(Color.Red)) {}
     }
+
+    private fun Density.expectedActionPosition(appBarWidth: Px): Px {
+        return appBarWidth - AppBarStartAndEndPadding.toIntPx().toPx() -
+                FakeIconSize.toIntPx().toPx()
+    }
+
+    private val AppBarStartAndEndPadding = 4.dp
+
+    private val FakeIconSize = 48.dp
 
     private fun createFabConfiguration(position: FabDockedPosition) =
         FabConfiguration(
