@@ -196,6 +196,7 @@ internal data class Method(val cls: String?, val name: String)
 
 internal val UNSAFE_METHODS = mapOf(
     Method("androidx.lifecycle.LiveData", "observe") to LIVEDATA_ISSUE,
+    Method("androidx.lifecycle.LiveDataKt", "observe") to LIVEDATA_ISSUE,
     Method("androidx.activity.OnBackPressedDispatcher", "addCallback") to BACK_PRESSED_ISSUE
 )
 
