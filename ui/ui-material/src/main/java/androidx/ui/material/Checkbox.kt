@@ -23,8 +23,9 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
 import androidx.ui.geometry.Offset
@@ -37,6 +38,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
@@ -101,9 +103,7 @@ fun TriStateCheckbox(
             Ripple(bounded = false) {
                 TriStateToggleable(value = value, onToggle = onClick) {
                     Padding(padding = CheckboxDefaultPadding) {
-                        Container(width = CheckboxSize, height = CheckboxSize) {
-                            DrawCheckbox(value = value, activeColor = color)
-                        }
+                        DrawCheckbox(value = value, activeColor = color)
                     }
                 }
             }
@@ -118,91 +118,90 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }
     Transition(definition = definition, toState = value) { state ->
-        DrawBox(
-            color = state[BoxColorProp],
-            innerRadiusFraction = state[InnerRadiusFractionProp]
-        )
-        DrawCheck(
-            checkFraction = state[CheckFractionProp],
-            crossCenterGravitation = state[CenterGravitationForCheck]
-        )
+        Canvas(modifier = LayoutSize(CheckboxSize)) {
+            drawBox(
+                color = state[BoxColorProp],
+                innerRadiusFraction = state[InnerRadiusFractionProp]
+            )
+            drawCheck(
+                checkFraction = state[CheckFractionProp],
+                crossCenterGravitation = state[CenterGravitationForCheck]
+            )
+        }
     }
 }
 
-@Composable
-private fun DrawBox(color: Color, innerRadiusFraction: Float) {
-    Draw { canvas, parentSize ->
-        val paint = Paint()
-        paint.strokeWidth = StrokeWidth.toPx().value
-        paint.isAntiAlias = true
-        paint.color = color
+private fun CanvasScope.drawBox(
+    color: Color,
+    innerRadiusFraction: Float
+) {
+    val paint = Paint()
+    paint.strokeWidth = StrokeWidth.toPx().value
+    paint.isAntiAlias = true
+    paint.color = color
 
-        val checkboxSize = parentSize.width.value
+    val checkboxSize = size.width.value
 
-        val outer = RRect(
-            0f,
-            0f,
-            checkboxSize,
-            checkboxSize,
-            Radius.circular(RadiusSize.toPx().value)
-        )
+    val outer = RRect(
+        0f,
+        0f,
+        checkboxSize,
+        checkboxSize,
+        Radius.circular(RadiusSize.toPx().value)
+    )
 
-        val shrinkTo = calcMiddleValue(
-            paint.strokeWidth,
-            outer.width / 2,
-            innerRadiusFraction
-        )
-        val innerSquared = outer.shrink(shrinkTo)
-        val squareMultiplier = innerRadiusFraction * innerRadiusFraction
+    val shrinkTo = calcMiddleValue(
+        paint.strokeWidth,
+        outer.width / 2,
+        innerRadiusFraction
+    )
+    val innerSquared = outer.shrink(shrinkTo)
+    val squareMultiplier = innerRadiusFraction * innerRadiusFraction
 
-        // TODO(malkov): this radius formula is not in material spec
-        val inner = innerSquared
-            .withRadius(Radius.circular(innerSquared.width * squareMultiplier))
-        canvas.drawDoubleRoundRect(outer, inner, paint)
-    }
+    // TODO(malkov): this radius formula is not in material spec
+    val inner = innerSquared
+        .withRadius(Radius.circular(innerSquared.width * squareMultiplier))
+    drawDoubleRoundRect(outer, inner, paint)
 }
 
-@Composable
-private fun DrawCheck(
+private fun CanvasScope.drawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float
 ) {
-    Draw { canvas, parentSize ->
-        val paint = Paint()
-        paint.isAntiAlias = true
-        paint.style = PaintingStyle.stroke
-        paint.strokeCap = StrokeCap.square
-        paint.strokeWidth = StrokeWidth.toPx().value
-        paint.color = CheckStrokeDefaultColor
+    val paint = Paint()
+    paint.isAntiAlias = true
+    paint.style = PaintingStyle.stroke
+    paint.strokeCap = StrokeCap.square
+    paint.strokeWidth = StrokeWidth.toPx().value
+    paint.color = CheckStrokeDefaultColor
 
-        val width = parentSize.width.value
+    val width = size.width.value
 
-        val checkCrossX = 0.4f
-        val checkCrossY = 0.7f
-        val leftX = 0.2f
-        val leftY = 0.5f
-        val rightX = 0.8f
-        val rightY = 0.3f
+    val checkCrossX = 0.4f
+    val checkCrossY = 0.7f
+    val leftX = 0.2f
+    val leftY = 0.5f
+    val rightX = 0.8f
+    val rightY = 0.3f
 
-        val gravitatedCrossX = calcMiddleValue(checkCrossX, 0.5f, crossCenterGravitation)
-        val gravitatedCrossY = calcMiddleValue(checkCrossY, 0.5f, crossCenterGravitation)
+    val gravitatedCrossX = calcMiddleValue(checkCrossX, 0.5f, crossCenterGravitation)
+    val gravitatedCrossY = calcMiddleValue(checkCrossY, 0.5f, crossCenterGravitation)
 
-        // gravitate only Y for end to achieve center line
-        val gravitatedLeftY = calcMiddleValue(leftY, 0.5f, crossCenterGravitation)
-        val gravitatedRightY = calcMiddleValue(rightY, 0.5f, crossCenterGravitation)
+    // gravitate only Y for end to achieve center line
+    val gravitatedLeftY = calcMiddleValue(leftY, 0.5f, crossCenterGravitation)
+    val gravitatedRightY = calcMiddleValue(rightY, 0.5f, crossCenterGravitation)
 
-        val crossPoint = Offset(width * gravitatedCrossX, width * gravitatedCrossY)
-        val rightBranch = Offset(
-            width * calcMiddleValue(gravitatedCrossX, rightX, checkFraction),
-            width * calcMiddleValue(gravitatedCrossY, gravitatedRightY, checkFraction)
-        )
-        val leftBranch = Offset(
-            width * calcMiddleValue(gravitatedCrossX, leftX, checkFraction),
-            width * calcMiddleValue(gravitatedCrossY, gravitatedLeftY, checkFraction)
-        )
-        canvas.drawLine(crossPoint, leftBranch, paint)
-        canvas.drawLine(crossPoint, rightBranch, paint)
-    }
+    val crossPoint = Offset(width * gravitatedCrossX, width * gravitatedCrossY)
+    val rightBranch = Offset(
+        width * calcMiddleValue(gravitatedCrossX, rightX, checkFraction),
+        width * calcMiddleValue(gravitatedCrossY, gravitatedRightY, checkFraction)
+    )
+    val leftBranch = Offset(
+        width * calcMiddleValue(gravitatedCrossX, leftX, checkFraction),
+        width * calcMiddleValue(gravitatedCrossY, gravitatedLeftY, checkFraction)
+    )
+    drawLine(crossPoint, leftBranch, paint)
+    drawLine(crossPoint, rightBranch, paint)
 }
 
 private fun calcMiddleValue(start: Float, finish: Float, fraction: Float): Float {
@@ -248,8 +247,10 @@ private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
                 duration = CheckStrokeAnimationDuration
             }
         }
-        transition(ToggleableState.On to ToggleableState.Indeterminate,
-            ToggleableState.Indeterminate to ToggleableState.On) {
+        transition(
+            ToggleableState.On to ToggleableState.Indeterminate,
+            ToggleableState.Indeterminate to ToggleableState.On
+        ) {
             CenterGravitationForCheck using tween {
                 duration = CheckStrokeAnimationDuration
             }
