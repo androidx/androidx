@@ -25,6 +25,7 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -125,7 +126,7 @@ public class SearchBar extends RelativeLayout {
     private String mHint;
     private String mTitle;
     private Drawable mBadgeDrawable;
-    final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler(Looper.getMainLooper());
     private final InputMethodManager mInputMethodManager;
     boolean mAutoStartRecognition = false;
     private Drawable mBarBackground;

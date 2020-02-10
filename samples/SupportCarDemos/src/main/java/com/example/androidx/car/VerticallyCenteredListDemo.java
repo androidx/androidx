@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
@@ -50,7 +51,7 @@ public class VerticallyCenteredListDemo extends Activity {
 
         list.setAdapter(adapter);
 
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
 
         // Continually add items to the list until MAX_NUM_OF_ITEMS_TO_ADD is reached.
         handler.postDelayed(new Runnable() {

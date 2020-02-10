@@ -19,6 +19,7 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -51,7 +52,7 @@ abstract class PlaybackControlGlue extends androidx.leanback.media.PlaybackContr
     private PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
     private PlaybackControlsRow.PictureInPictureAction mPipAction;
 
-    private Handler mHandler = new Handler();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     private final Runnable mUpdateProgressRunnable = new Runnable() {
         @Override
         public void run() {

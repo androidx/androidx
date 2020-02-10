@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 
 import androidx.ads.identifier.AdvertisingIdClient;
 import androidx.ads.identifier.AdvertisingIdInfo;
@@ -165,19 +164,21 @@ public class AdvertisingIdBenchmark {
     }
 
     @Test
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void getAdvertisingIdInfo_asyncTask() throws Exception {
         final BenchmarkState state = mBenchmarkRule.getState();
         while (state.keepRunning()) {
-            AdvertisingIdInfo advertisingIdInfo = new AsyncTask<Void, Void, AdvertisingIdInfo>() {
-                @Override
-                protected AdvertisingIdInfo doInBackground(Void... voids) {
-                    try {
-                        return AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }.execute().get();
+            AdvertisingIdInfo advertisingIdInfo =
+                    new android.os.AsyncTask<Void, Void, AdvertisingIdInfo>() {
+                        @Override
+                        protected AdvertisingIdInfo doInBackground(Void... voids) {
+                            try {
+                                return AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }.execute().get();
             assertThat(advertisingIdInfo.getId()).isEqualTo(DUMMY_AD_ID);
         }
     }

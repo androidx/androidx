@@ -92,6 +92,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 16)
     @RequiresApi(16)
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void testFitSystemWindowsReachesContent() {
         final FitWindowsContentLayout content =
                 mActivityTestRule.getActivity().findViewById(R.id.test_content);
@@ -112,6 +113,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 21)
     @RequiresApi(21)
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void testOnApplyWindowInsetsReachesContent() {
         final View content = mActivityTestRule.getActivity().findViewById(R.id.test_content);
         assertNotNull(content);

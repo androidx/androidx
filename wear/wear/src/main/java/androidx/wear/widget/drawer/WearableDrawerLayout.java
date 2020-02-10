@@ -229,6 +229,7 @@ public class WearableDrawerLayout extends FrameLayout
         this(context, attrs, defStyleAttr, 0);
     }
 
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public WearableDrawerLayout(
             Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -318,6 +319,7 @@ public class WearableDrawerLayout extends FrameLayout
     }
 
     @Override
+    @SuppressWarnings("deprecation") /* getSystemWindowInsetBottom */
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         mSystemWindowInsetBottom = insets.getSystemWindowInsetBottom();
 

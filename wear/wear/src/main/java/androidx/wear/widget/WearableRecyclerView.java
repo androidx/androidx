@@ -149,6 +149,7 @@ public class WearableRecyclerView extends RecyclerView {
     }
 
     @Override
+    @SuppressWarnings("deprecation") /* Display.getSize() */
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         Point screenSize = new Point();

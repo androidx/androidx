@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.provider.BaseColumns;
@@ -537,7 +538,7 @@ public class FontsContractCompat {
     private static void requestFontInternal(final @NonNull Context appContext,
             final @NonNull FontRequest request, final @NonNull FontRequestCallback callback,
             final @NonNull Handler handler) {
-        final Handler callerThreadHandler = new Handler();
+        final Handler callerThreadHandler = new Handler(Looper.getMainLooper());
         handler.post(new Runnable() {
             @Override
             public void run() {

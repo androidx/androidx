@@ -306,6 +306,7 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     /** @return One of 0, 90, 180, 270. */
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     private int getDisplayRotation() {
         int displayRotation = getWindowManager().getDefaultDisplay().getRotation();
 

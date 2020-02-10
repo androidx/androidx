@@ -1113,6 +1113,7 @@ final class SupportedSurfaceCombination {
      * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
      * (1920x1080), whichever is smaller.
      */
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     private Size getPreviewSize(WindowManager windowManager) {
         Point displaySize = new Point();
         windowManager.getDefaultDisplay().getRealSize(displaySize);

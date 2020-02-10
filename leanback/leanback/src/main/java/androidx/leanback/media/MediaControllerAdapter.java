@@ -29,6 +29,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -46,7 +47,7 @@ public class MediaControllerAdapter extends PlayerAdapter {
 
     private MediaControllerCompat mController;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Handler mHandler = new Handler();
+    Handler mHandler = new Handler(Looper.getMainLooper());
 
     // Runnable object to update current media's playing position.
     private final Runnable mPositionUpdaterRunnable = new Runnable() {

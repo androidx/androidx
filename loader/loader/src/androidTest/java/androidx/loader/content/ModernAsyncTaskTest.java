@@ -18,8 +18,6 @@ package androidx.loader.content;
 
 import static org.junit.Assert.fail;
 
-import android.os.AsyncTask;
-
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -33,6 +31,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation") /* AsyncTask */
 public class ModernAsyncTaskTest {
 
     private ModernAsyncTask mModernAsyncTask;
@@ -53,7 +52,7 @@ public class ModernAsyncTaskTest {
                 // because sInternalHandler was initialized as static field.
                 // https://github.com/aosp-mirror/platform_frameworks_base/blob/ics-mr1/core/java/android/os/AsyncTask.java#L190
                 //noinspection unused
-                Executor unused = AsyncTask.THREAD_POOL_EXECUTOR;
+                Executor unused = android.os.AsyncTask.THREAD_POOL_EXECUTOR;
                 mModernAsyncTask = new ModernAsyncTask() {
                     @Override
                     protected Object doInBackground() {
@@ -73,7 +72,7 @@ public class ModernAsyncTaskTest {
             }
         });
 
-        mModernAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        mModernAsyncTask.executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR);
         if (!readyToCancel.await(5, TimeUnit.SECONDS)) {
             fail("Test failure: doInBackground did not run in time.");
         }

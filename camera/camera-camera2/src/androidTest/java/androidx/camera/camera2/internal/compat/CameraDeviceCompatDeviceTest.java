@@ -27,7 +27,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.os.AsyncTask;
 import android.util.Size;
 import android.view.Surface;
 
@@ -143,6 +142,7 @@ public final class CameraDeviceCompatDeviceTest {
     // This test should not run on the main thread since it will block the main thread and
     // deadlock on API <= 28.
     @Test
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void canConfigureCaptureSession() throws InterruptedException, CameraAccessException {
         OutputConfigurationCompat outputConfig = new OutputConfigurationCompat(mSurface);
 
@@ -165,7 +165,7 @@ public final class CameraDeviceCompatDeviceTest {
 
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
-                Collections.singletonList(outputConfig), AsyncTask.THREAD_POOL_EXECUTOR,
+                Collections.singletonList(outputConfig), android.os.AsyncTask.THREAD_POOL_EXECUTOR,
                 stateCallback);
 
         try {

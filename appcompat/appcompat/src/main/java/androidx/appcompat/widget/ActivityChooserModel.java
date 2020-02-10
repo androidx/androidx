@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.DataSetObservable;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
@@ -571,8 +570,9 @@ class ActivityChooserModel extends DataSetObservable {
         }
         mHistoricalRecordsChanged = false;
         if (!TextUtils.isEmpty(mHistoryFileName)) {
-            new PersistHistoryAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                    new ArrayList<HistoricalRecord>(mHistoricalRecords), mHistoryFileName);
+            new PersistHistoryAsyncTask().executeOnExecutor(
+                    android.os.AsyncTask.THREAD_POOL_EXECUTOR,
+                    new ArrayList<>(mHistoricalRecords), mHistoryFileName);
         }
     }
 
@@ -1034,10 +1034,10 @@ class ActivityChooserModel extends DataSetObservable {
     /**
      * Command for persisting the historical records to a file off the UI thread.
      */
-    private final class PersistHistoryAsyncTask extends AsyncTask<Object, Void, Void> {
+    @SuppressWarnings("deprecation") /* AsyncTask */
+    private final class PersistHistoryAsyncTask extends android.os.AsyncTask<Object, Void, Void> {
 
-        PersistHistoryAsyncTask() {
-        }
+        PersistHistoryAsyncTask() {}
 
         @Override
         @SuppressWarnings("unchecked")

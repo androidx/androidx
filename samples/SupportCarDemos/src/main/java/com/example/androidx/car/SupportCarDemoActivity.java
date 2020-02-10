@@ -16,7 +16,6 @@
 
 package com.example.androidx.car;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -35,7 +34,8 @@ import java.util.List;
 /**
  * Home activity for car support library samples.
  */
-public class SupportCarDemoActivity extends ListActivity {
+@SuppressWarnings("deprecation")
+public class SupportCarDemoActivity extends android.app.ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -3337,6 +3337,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         return super.requestChildRectangleOnScreen(child, rectangle, immediate);
     }
 
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     private void setupForInsets() {
         if (Build.VERSION.SDK_INT < 21) {
             return;

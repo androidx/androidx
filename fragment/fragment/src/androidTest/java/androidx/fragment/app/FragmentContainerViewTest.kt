@@ -115,6 +115,7 @@ class FragmentContainerViewTest {
             .isInstanceOf(FragmentContainerView::class.java)
     }
 
+    @Suppress("DEPRECATION") /* systemWindowInsets */
     @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
     @Test
     fun windowInsetsDispatchToChildren() {

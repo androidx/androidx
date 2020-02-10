@@ -23,7 +23,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -149,7 +148,8 @@ public class VideoSessionService extends MediaSessionService {
         }
     }
 
-    private static class MetadataExtractTask extends AsyncTask<Void, Void, MediaMetadata> {
+    private static class MetadataExtractTask
+            extends android.os.AsyncTask<Void, Void, MediaMetadata> {
         private MediaItem mItem;
         private WeakReference<Context> mRefContext;
 

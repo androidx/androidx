@@ -23,10 +23,10 @@ import static androidx.enterprise.feedback.KeyedAppStatesReporter.WHAT_STATE;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 
@@ -63,8 +63,10 @@ public abstract class KeyedAppStatesService extends Service {
 
     // This form is used instead of AsyncTask.execute(Runnable) as Robolectric causes tests to wait
     // for execution of these but does not currently wait for execution of
-    // AsyncTask.execute(runnable).
-    private static final class KeyedAppStatesServiceAsyncTask extends AsyncTask<Void, Void, Void> {
+    // android.os.AsyncTask.execute(runnable).
+    @SuppressWarnings("deprecation") /* AsyncTask */
+    private static final class KeyedAppStatesServiceAsyncTask
+            extends android.os.AsyncTask<Void, Void, Void> {
 
         @SuppressLint("StaticFieldLeak")
         // Instances are short-lived so won't block garbage collection.
@@ -90,11 +92,13 @@ public abstract class KeyedAppStatesService extends Service {
         }
     }
 
+    @SuppressWarnings("deprecation") /* AsyncTask */
     private static class IncomingHandler extends Handler {
         private final KeyedAppStatesService mKeyedAppStatesService;
 
         IncomingHandler(KeyedAppStatesService keyedAppStatesService) {
-            this.mKeyedAppStatesService = keyedAppStatesService;
+            super(Looper.getMainLooper());
+            mKeyedAppStatesService = keyedAppStatesService;
         }
 
         @Override

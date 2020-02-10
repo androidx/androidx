@@ -16,7 +16,6 @@
 
 package com.example.androidx.preference;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -33,7 +32,8 @@ import java.util.Map;
 /**
  * Activity that displays and handles launching the demo preference activities with a ListView.
  */
-public class MainActivity extends ListActivity {
+@SuppressWarnings("deprecation")
+public class MainActivity extends android.app.ListActivity {
 
     private static final String INTENT = "intent";
     private static final String NAME = "name";

@@ -1332,6 +1332,7 @@ private class OutlineResolver(private val density: Density) {
         }
     }
 
+    @Suppress("DEPRECATION") /* Path.isConvex & Outline.setConvexPath */
     private fun updateCacheWithPath(composePath: Path) {
         val path = composePath.toFrameworkPath()
         if (hasElevation && path.isConvex) {

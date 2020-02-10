@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -284,7 +285,7 @@ public class NewDetailsSupportFragment extends androidx.leanback.app.DetailsSupp
             return;
         }
         mRowsAdapter.clear();
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 final Context context = getActivity();
@@ -325,7 +326,7 @@ public class NewDetailsSupportFragment extends androidx.leanback.app.DetailsSupp
             }
         }, TIME_TO_LOAD_OVERVIEW_ROW_MS);
 
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (getActivity() == null) {

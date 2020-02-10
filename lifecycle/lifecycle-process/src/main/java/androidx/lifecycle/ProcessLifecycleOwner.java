@@ -22,6 +22,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -155,7 +156,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
     }
 
     void attach(Context context) {
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         Application app = (Application) context.getApplicationContext();
         app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {

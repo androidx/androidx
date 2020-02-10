@@ -42,7 +42,6 @@ import android.hardware.camera2.CaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.Surface;
@@ -639,6 +638,7 @@ public final class CaptureSessionTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void cancelOpenCaptureSessionListenableFuture_shouldNoop() {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
@@ -647,7 +647,8 @@ public final class CaptureSessionTest {
         ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
         ListenableFuture<Void> openingFuture = captureSession.open(mTestParameters0.mSessionConfig,
                 mCameraDeviceHolder.get());
-        Futures.addCallback(openingFuture, mockFutureCallback, AsyncTask.THREAD_POOL_EXECUTOR);
+        Futures.addCallback(openingFuture, mockFutureCallback,
+                android.os.AsyncTask.THREAD_POOL_EXECUTOR);
         openingFuture.cancel(true);
 
         // The captureSession opening should callback onFailure with a CancellationException.

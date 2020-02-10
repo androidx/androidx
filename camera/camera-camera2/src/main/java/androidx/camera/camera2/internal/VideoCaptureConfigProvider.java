@@ -46,6 +46,7 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
 
     @Override
     @NonNull
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public VideoCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
         VideoCaptureConfig.Builder builder =
                 VideoCaptureConfig.Builder.fromConfig(

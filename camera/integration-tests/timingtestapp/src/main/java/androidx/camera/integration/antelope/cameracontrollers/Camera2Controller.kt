@@ -110,6 +110,7 @@ fun createCameraPreviewSession(
             params.captureRequestBuilder?.removeTarget(params.previewSurfaceView?.holder?.surface!!)
         params.captureRequestBuilder?.addTarget(surface)
 
+        @Suppress("DEPRECATION")
         params.device?.createCaptureSession(Arrays.asList(surface, imageSurface),
             Camera2PreviewSessionStateCallback(activity, params, testConfig), null)
     } catch (e: CameraAccessException) {
@@ -222,6 +223,7 @@ fun runPrecaptureSequence(params: CameraParams) {
 /**
  * Make a still capture request. At this point, AF and AE should be converged or unnecessary.
  */
+@Suppress("DEPRECATION") /* defaultDisplay */
 fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
     if (!params.isOpen) {
         return
@@ -260,6 +262,7 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
             }
 
             // Orientation
+            @Suppress("DEPRECATION")  /* defaultDisplay */
             val rotation = activity.windowManager.defaultDisplay.rotation
             val capturedImageRotation = getOrientation(params, rotation)
             params.captureRequestBuilder

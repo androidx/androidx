@@ -84,6 +84,7 @@ class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompa
         }
     }
 
+    @SuppressWarnings("deprecation") /* createCaptureSession */
     void createBaseCaptureSession(@NonNull CameraDevice device, @NonNull List<Surface> surfaces,
             @NonNull CameraCaptureSession.StateCallback cb, @NonNull Handler handler)
             throws CameraAccessException {

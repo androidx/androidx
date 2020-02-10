@@ -258,6 +258,7 @@ public class BiometricFragment extends Fragment {
 
     @Override
     @Nullable
+    @SuppressWarnings("deprecation") /* setDeviceCredentialAllowed */
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         // Start the actual authentication when the fragment is attached.

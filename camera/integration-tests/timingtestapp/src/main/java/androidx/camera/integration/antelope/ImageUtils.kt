@@ -31,12 +31,12 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
-import androidx.exifinterface.media.ExifInterface
 import androidx.camera.integration.antelope.MainActivity.Companion.PHOTOS_DIR
 import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.camera.integration.antelope.cameracontrollers.CameraState
 import androidx.camera.integration.antelope.cameracontrollers.closeCameraX
 import androidx.camera.integration.antelope.cameracontrollers.closePreviewAndCamera
+import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -71,6 +71,7 @@ class ImageAvailableListener(
         when (image.format) {
             ImageFormat.JPEG -> {
                 // Orientation
+                @Suppress("DEPRECATION")  /* defaultDisplay */
                 val rotation = activity.windowManager.defaultDisplay.rotation
                 val capturedImageRotation = getOrientation(params, rotation)
 

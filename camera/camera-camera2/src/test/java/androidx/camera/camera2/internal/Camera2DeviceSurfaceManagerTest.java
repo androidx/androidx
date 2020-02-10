@@ -131,6 +131,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     private FakeCameraFactory mCameraFactory;
 
     @Before
+    @SuppressWarnings("deprecation")  /* defaultDisplay */
     public void setUp() {
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);

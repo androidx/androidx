@@ -16,7 +16,6 @@
 
 package androidx.viewpager2.integration.testapp
 
-import android.app.ListActivity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -26,7 +25,8 @@ import android.widget.SimpleAdapter
 /**
  * This activity lists all the activities in this application.
  */
-class BrowseActivity : ListActivity() {
+@Suppress("DEPRECATION")
+class BrowseActivity : android.app.ListActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

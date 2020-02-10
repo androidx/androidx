@@ -56,6 +56,7 @@ public class ColumnCalculator {
      * @param context The current calling Context.
      * @return An instance of {@link ColumnCalculator}.
      */
+    @SuppressWarnings("deprecation") /* getDefaultDisplay() */
     public static ColumnCalculator getInstance(Context context) {
         if (sInstance == null) {
             WindowManager windowManager = (WindowManager) context.getSystemService(

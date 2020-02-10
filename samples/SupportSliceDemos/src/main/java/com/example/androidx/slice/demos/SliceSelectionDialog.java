@@ -35,7 +35,6 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -288,11 +287,12 @@ public class SliceSelectionDialog {
     private static class IconCache {
         private final HashMap<String, Drawable> mIcons = new HashMap<>();
 
+        @SuppressWarnings("deprecation") /* AsyncTask */
         private void loadIcon(ImageView iv, ProviderInfo provider, PackageManager pm) {
             if (mIcons.containsKey(provider.packageName)) {
                 iv.setImageDrawable(mIcons.get(provider.packageName));
             }
-            AsyncTask.execute(() -> {
+            android.os.AsyncTask.execute(() -> {
                 mIcons.put(provider.packageName, provider.loadIcon(pm));
                 iv.post(() -> iv.setImageDrawable(mIcons.get(provider.packageName)));
             });

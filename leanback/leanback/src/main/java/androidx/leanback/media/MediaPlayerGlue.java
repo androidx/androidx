@@ -22,6 +22,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -73,7 +74,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     private final PlaybackControlsRow.RepeatAction mRepeatAction;
     private Runnable mRunnable;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Handler mHandler = new Handler();
+    Handler mHandler = new Handler(Looper.getMainLooper());
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mInitialized = false; // true when the MediaPlayer is prepared/initialized
     private Action mSelectedAction; // the action which is currently selected by the user

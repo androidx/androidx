@@ -17,8 +17,8 @@
 package androidx.loader.content;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
  * to switch to the framework's implementation.  See the framework SDK
  * documentation for a class overview.
  */
+@SuppressWarnings("deprecation") /* AsyncTask */
 public abstract class AsyncTaskLoader<D> extends Loader<D> {
     private static final String TAG = "AsyncTaskLoader";
     private static final boolean DEBUG = false;
@@ -118,7 +119,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     public void setUpdateThrottle(long delayMS) {
         mUpdateThrottle = delayMS;
         if (delayMS != 0) {
-            mHandler = new Handler();
+            mHandler = new Handler(Looper.getMainLooper());
         }
     }
 
@@ -314,19 +315,20 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     }
 
     /**
-     * Returns the {@link Executor} to use for this {@link Loader}'s {@link AsyncTask}s.
-     * By default {@link AsyncTask#THREAD_POOL_EXECUTOR} will be used.
+     * Returns the {@link Executor} to use for this {@link Loader}'s {@link android.os.AsyncTask}s.
+     * By default {@link android.os.AsyncTask#THREAD_POOL_EXECUTOR} will be used.
      *
      * Override this method to return a custom executor. Note that this method will only be called
-     * once before this {@link Loader}'s first {@link AsyncTask} is run. It is up to the
+     * once before this {@link Loader}'s first {@link android.os.AsyncTask} is run. It is up to the
      * {@link Loader} to shut down the {@link Executor} at the appropriate place
      * (e.g. in {@link #onAbandon()}) if necessary.
      *
-     * @return the {@link Executor} to use for this {@link Loader}'s {@link AsyncTask}s.
+     * @return the {@link Executor} to use for this {@link Loader}'s {@link android.os.AsyncTask}s.
      */
     @NonNull
+    @SuppressWarnings("deprecation") /* AsyncTask */
     protected Executor getExecutor() {
-        return AsyncTask.THREAD_POOL_EXECUTOR;
+        return android.os.AsyncTask.THREAD_POOL_EXECUTOR;
     }
 
     /**

@@ -438,6 +438,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * <code>LayoutInflater.inflate</code>.
      * @return The view to be added to the caller's view hierarchy.
      */
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public View onCreateView(LayoutInflater inflater, final ViewGroup container) {
         TypedArray ta = inflater.getContext().getTheme().obtainStyledAttributes(
                 R.styleable.LeanbackGuidedStepTheme);

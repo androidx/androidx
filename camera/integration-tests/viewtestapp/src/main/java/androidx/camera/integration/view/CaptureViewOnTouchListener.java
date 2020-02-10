@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -68,7 +69,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     // TODO: Use a Handler for a background thread, rather than running on the current (main)
     // thread.
     private final Handler mHandler =
-            new Handler() {
+            new Handler(Looper.getMainLooper()) {
                 @Override
                 public void handleMessage(Message msg) {
                     switch (msg.what) {

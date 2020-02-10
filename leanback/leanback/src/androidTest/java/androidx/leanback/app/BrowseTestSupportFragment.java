@@ -17,13 +17,12 @@ import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_HEAD
 import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY;
 import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_NUM_ROWS;
 import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_REPEAT_PER_ROW;
-import static androidx.leanback.app.BrowseSupportFragmentTestActivity
-        .EXTRA_SET_ADAPTER_AFTER_DATA_LOAD;
-import static androidx.leanback.app.BrowseSupportFragmentTestActivity
-        .EXTRA_TEST_ENTRANCE_TRANSITION;
+import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_SET_ADAPTER_AFTER_DATA_LOAD;
+import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_TEST_ENTRANCE_TRANSITION;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -105,7 +104,7 @@ public class BrowseTestSupportFragment extends BrowseSupportFragment {
             }
         }
         // simulates in a real world use case  data being loaded two seconds later
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (getActivity() == null || getActivity().isDestroyed()) {
