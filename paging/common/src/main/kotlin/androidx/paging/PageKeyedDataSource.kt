@@ -39,6 +39,13 @@ import kotlin.coroutines.resume
  * @param Key Type of data used to query Value types out of the [DataSource].
  * @param Value Type of items being loaded by the [DataSource].
  */
+@Deprecated(
+    message = "PageKeyedDataSource is deprecated and has been replaced by PagingSource",
+    replaceWith = ReplaceWith(
+        "PagingSource<Key, Value>",
+        "androidx.paging.PagingSource"
+    )
+)
 abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(PAGE_KEYED) {
 
     /**
@@ -223,6 +230,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
             loadAfter(params, cont.asCallback(true))
         }
 
+    @Suppress("DEPRECATION")
     private fun CancellableContinuation<BaseResult<Value>>.asCallback(isAppend: Boolean) =
         object : PageKeyedDataSource.LoadCallback<Key, Value>() {
             override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
@@ -302,19 +310,23 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal override val supportsPageDropping = false
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
     ): PageKeyedDataSource<Key, ToValue> = WrapperPageKeyedDataSource(this, function)
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: (List<Value>) -> List<ToValue>
     ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { function(it) })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: Function<Value, ToValue>
     ): PageKeyedDataSource<Key, ToValue> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: (Value) -> ToValue
     ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })

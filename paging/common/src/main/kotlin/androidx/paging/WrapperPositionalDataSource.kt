@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.arch.core.util.Function
 
+@Suppress("DEPRECATION")
 internal class WrapperPositionalDataSource<A : Any, B : Any>(
     private val source: PositionalDataSource<A>,
     val listFunction: Function<List<A>, List<B>>

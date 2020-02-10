@@ -22,7 +22,6 @@ import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import androidx.paging.PositionalDataSource.LoadInitialCallback
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -47,6 +46,13 @@ import kotlin.coroutines.resume
  *
  * @param T Type of items being loaded by the [PositionalDataSource].
  */
+@Deprecated(
+    message = "PositionalDataSource is deprecated and has been replaced by PagingSource",
+    replaceWith = ReplaceWith(
+        "PagingSource<Int, T>",
+        "androidx.paging.PagingSource"
+    )
+)
 abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
 
     /**
@@ -348,13 +354,15 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                         // https://issuetracker.google.com/issues/124511903
                         cont.resume(BaseResult.empty())
                     } else {
-                        resume(params, BaseResult(
-                            data = data,
-                            prevKey = position,
-                            nextKey = position + data.size,
-                            itemsBefore = position,
-                            itemsAfter = totalCount - data.size - position
-                        ))
+                        resume(
+                            params, BaseResult(
+                                data = data,
+                                prevKey = position,
+                                nextKey = position + data.size,
+                                itemsBefore = position,
+                                itemsAfter = totalCount - data.size - position
+                            )
+                        )
                     }
                 }
 
@@ -365,13 +373,15 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                         cont.resume(BaseResult.empty())
                     } else {
                         // always pass prevKey/nextKey, since we let position
-                        resume(params, BaseResult(
-                            data = data,
-                            prevKey = position,
-                            nextKey = position + data.size,
-                            itemsBefore = position,
-                            itemsAfter = COUNT_UNDEFINED
-                        ))
+                        resume(
+                            params, BaseResult(
+                                data = data,
+                                prevKey = position,
+                                nextKey = position + data.size,
+                                itemsBefore = position,
+                                itemsAfter = COUNT_UNDEFINED
+                            )
+                        )
                     }
                 }
 
@@ -400,11 +410,13 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                 override fun onResult(data: List<T>) {
                     when {
                         isInvalid -> cont.resume(BaseResult.empty())
-                        else -> cont.resume(BaseResult(
-                            data = data,
-                            prevKey = params.startPosition,
-                            nextKey = params.startPosition + data.size
-                        ))
+                        else -> cont.resume(
+                            BaseResult(
+                                data = data,
+                                prevKey = params.startPosition,
+                                nextKey = params.startPosition + data.size
+                            )
+                        )
                     }
                 }
             })
@@ -447,17 +459,21 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
     internal final override fun getKeyInternal(item: T): Int =
         throw IllegalStateException("Cannot get key by item in positionalDataSource")
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> mapByPage(
         function: Function<List<T>, List<V>>
     ): PositionalDataSource<V> = WrapperPositionalDataSource(this, function)
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> mapByPage(
         function: (List<T>) -> List<V>
     ): PositionalDataSource<V> = mapByPage(Function { function(it) })
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> map(function: Function<T, V>): PositionalDataSource<V> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> map(function: (T) -> V): PositionalDataSource<V> =
         mapByPage(Function { list -> list.map(function) })
 }
