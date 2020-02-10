@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -66,6 +67,26 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param pagingSourceFactory DataSource factory providing DataSource generations.
      * @param config Paging configuration.
      */
+    @Deprecated(
+        message = "PagedList is deprecated and has been replaced by PagingData",
+        replaceWith = ReplaceWith(
+            """PagingDataFlowable(
+                config = PagingConfig(
+                    config.pageSize,
+                    config.prefetchDistance,
+                    config.enablePlaceholders,
+                    config.initialLoadSizeHint,
+                    config.maxSize
+                ),
+                initialKey = null,
+                strategy = BackpressureStrategy.LATEST,
+                pagingSourceFactory = pagingSourceFactory
+            )""",
+            "androidx.paging.PagingConfig",
+            "androidx.paging.PagingDataFlowable",
+            "io.reactivex.BackpressureStrategy"
+        )
+    )
     constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
         config: PagedList.Config
@@ -76,7 +97,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     }
 
     /**
-     * Creates a RxPagedListBuilder with required parameters.
+     * Creates a [RxPagedListBuilder] with required parameters.
      *
      * This method is a convenience for:
      * ```
@@ -89,6 +110,21 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param pagingSourceFactory [PagingSource] factory providing [PagingSource] generations.
      * @param pageSize Size of pages to load.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "PagedList is deprecated and has been replaced by PagingData",
+        replaceWith = ReplaceWith(
+            """PagingDataFlowable(
+                config = PagingConfig(pageSize),
+                initialKey = null,
+                strategy = BackpressureStrategy.LATEST,
+                pagingSourceFactory = pagingSourceFactory
+            )""",
+            "androidx.paging.PagingConfig",
+            "androidx.paging.PagingDataFlowable",
+            "io.reactivex.BackpressureStrategy"
+        )
+    )
     constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
         pagingSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
@@ -96,10 +132,31 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
     /**
      * Creates a [RxPagedListBuilder] with required parameters.
+     *
      * @param dataSourceFactory DataSource factory providing DataSource generations.
      * @param config Paging configuration.
      */
-    @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
+    @Deprecated(
+        message = "PagedList is deprecated and has been replaced by PagingData",
+        replaceWith = ReplaceWith(
+            """PagingDataFlowable(
+                config = PagingConfig(
+                    config.pageSize,
+                    config.prefetchDistance,
+                    config.enablePlaceholders,
+                    config.initialLoadSizeHint,
+                    config.maxSize
+                ),
+                initialKey = null,
+                strategy = BackpressureStrategy.LATEST,
+                this.asPagingSourceFactory(Dispatchers.IO)
+            )""",
+            "androidx.paging.PagingConfig",
+            "androidx.paging.PagingDataFlowable",
+            "io.reactivex.BackpressureStrategy",
+            "kotlinx.coroutines.Dispatchers"
+        )
+    )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
         config: PagedList.Config
@@ -110,19 +167,35 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     }
 
     /**
-     * Creates a RxPagedListBuilder with required parameters.
+     * Creates a [RxPagedListBuilder] with required parameters.
      *
      * This method is a convenience for:
      * ```
-     * RxPagedListBuilder(dataSourceFactory,
-     *         new PagedList.Config.Builder().setPageSize(pageSize).build())
+     * RxPagedListBuilder(
+     *     dataSourceFactory,
+     *     PagedList.Config.Builder().setPageSize(pageSize).build()
+     * )
      * ```
      *
      * @param dataSourceFactory [DataSource.Factory] providing DataSource generations.
      * @param pageSize Size of pages to load.
      */
     @Suppress("DEPRECATION")
-    @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
+    @Deprecated(
+        message = "PagedList is deprecated and has been replaced by PagingData",
+        replaceWith = ReplaceWith(
+            """PagingDataFlowable(
+                config = PagingConfig(pageSize),
+                initialKey = null,
+                strategy = BackpressureStrategy.LATEST,
+                this.asPagingSourceFactory(Dispatchers.IO)
+            )""",
+            "androidx.paging.PagingConfig",
+            "androidx.paging.PagingDataFlowable",
+            "io.reactivex.BackpressureStrategy",
+            "kotlinx.coroutines.Dispatchers"
+        )
+    )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
         pageSize: Int
@@ -212,10 +285,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @return The [Observable] of PagedLists
      */
     fun buildObservable(): Observable<PagedList<Value>> {
+        @SuppressLint("RestrictedApi")
         val notifyScheduler = notifyScheduler
             ?: ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
         val notifyDispatcher = notifyDispatcher ?: notifyScheduler.asCoroutineDispatcher()
 
+        @SuppressLint("RestrictedApi")
         val fetchScheduler = fetchScheduler
             ?: ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
         val fetchDispatcher = fetchDispatcher ?: fetchScheduler.asCoroutineDispatcher()

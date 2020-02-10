@@ -98,6 +98,7 @@ public class CustomerViewModel extends AndroidViewModel {
                 .build();
     }
 
+    @SuppressWarnings("deprecation")
     private static <K> Flowable<PagedList<Customer>> getPagedListFlowable(
             DataSource.Factory<K, Customer> dataSourceFactory) {
         PagedList.Config config = new PagedList.Config.Builder()
