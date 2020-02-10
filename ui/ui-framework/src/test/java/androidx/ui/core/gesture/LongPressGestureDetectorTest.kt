@@ -16,6 +16,7 @@
 
 package androidx.ui.core.gesture
 
+import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
 import androidx.ui.testutils.consume
@@ -48,6 +49,7 @@ class LongPressGestureDetectorTest {
     @Suppress("DEPRECATION")
     private val testContext = kotlinx.coroutines.test.TestCoroutineContext()
     private val onLongPress: (PxPosition) -> Unit = mock()
+    private val customEventDispatcher: CustomEventDispatcher = mock()
     private lateinit var mRecognizer: LongPressGestureRecognizer
 
     @Before
@@ -55,25 +57,30 @@ class LongPressGestureDetectorTest {
         mRecognizer = LongPressGestureRecognizer(testContext)
         mRecognizer.onLongPress = onLongPress
         mRecognizer.longPressTimeout = LongPressTimeoutMillis
+        mRecognizer.initHandler.invoke(customEventDispatcher)
     }
 
     // Tests that verify conditions under which onLongPress will not be called.
 
     @Test
-    fun pointerInputHandler_down_onLongPressNotCalled() {
+    fun pointerInputHandler_down_eventNotFired() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun pointerInputHandler_downWithinTimeout_onLongPressNotCalled() {
+    fun pointerInputHandler_downWithinTimeout_eventNotFired() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun pointerInputHandler_DownMoveConsumed_onLongPressNotCalled() {
+    fun pointerInputHandler_DownMoveConsumed_eventNotFired() {
         val down = down(0)
         val move = down.moveBy(50.milliseconds, 1f, 1f).consume(1f, 0f)
 
@@ -83,10 +90,11 @@ class LongPressGestureDetectorTest {
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun pointerInputHandler_2Down1MoveConsumed_onLongPressNotCalled() {
+    fun pointerInputHandler_2Down1MoveConsumed_eventNotFired() {
         val down0 = down(0)
         val down1 = down(1)
         val move0 = down0.moveBy(50.milliseconds, 1f, 1f).consume(1f, 0f)
@@ -98,10 +106,11 @@ class LongPressGestureDetectorTest {
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun pointerInputHandler_DownUpConsumed_onLongPressNotCalled() {
+    fun pointerInputHandler_DownUpConsumed_eventNotFired() {
         val down = down(0)
         val up = down.up(50.milliseconds).consumeDownChange()
 
@@ -111,10 +120,11 @@ class LongPressGestureDetectorTest {
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun pointerInputHandler_DownUpNotConsumed_onLongPressNotCalled() {
+    fun pointerInputHandler_DownUpNotConsumed_eventNotFired() {
         val down = down(0)
         val up = down.up(50.milliseconds)
 
@@ -124,10 +134,11 @@ class LongPressGestureDetectorTest {
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun pointerInputHandler_2DownIndependentlyUnderTimeoutAndDoNotOverlap_onLongPressNotCalled() {
+    fun pointerInputHandler_2DownIndependentlyUnderTimeoutAndDoNotOverlap_eventNotFired() {
 
         // Arrange
 
@@ -135,7 +146,7 @@ class LongPressGestureDetectorTest {
 
         val up0 = down0.up(50.milliseconds)
 
-        val down1 = down(1, duration = 51.milliseconds)
+        val down1 = down(1, 51.milliseconds)
 
         // Act
 
@@ -152,10 +163,11 @@ class LongPressGestureDetectorTest {
         // Assert
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun pointerInputHandler_downMoveOutOfBoundsWait_onLongPressNotCalled() {
+    fun pointerInputHandler_downMoveOutOfBoundsWait_eventNotFired() {
         var pointer = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
@@ -163,26 +175,31 @@ class LongPressGestureDetectorTest {
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     // Tests that verify conditions under which onLongPress will be called.
 
     @Test
-    fun pointerInputHandler_downBeyondTimeout_onLongPressCalled() {
+    fun pointerInputHandler_downBeyondTimeout_eventFiredOnce() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+
         verify(onLongPress).invoke(any())
+        verify(customEventDispatcher).dispatchCustomEvent(LongPressFiredEvent)
     }
 
     @Test
-    fun pointerInputHandler_2DownBeyondTimeout_onLongPressCalled() {
+    fun pointerInputHandler_2DownBeyondTimeout_eventFiredOnce() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0), down(1))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+
         verify(onLongPress).invoke(any())
+        verify(customEventDispatcher).dispatchCustomEvent(LongPressFiredEvent)
     }
 
     @Test
-    fun pointerInputHandler_downMoveOutOfBoundsWaitUpThenDownWait_onLongPressCalledOnce() {
+    fun pointerInputHandler_downMoveOutOfBoundsWaitUpThenDownWait_eventFiredOnce() {
         var pointer = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
@@ -191,22 +208,23 @@ class LongPressGestureDetectorTest {
         pointer = pointer.up(105.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        pointer = down(1, duration = 200.milliseconds)
+        pointer = down(1, 200.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
         verify(onLongPress).invoke(any())
+        verify(customEventDispatcher).dispatchCustomEvent(LongPressFiredEvent)
     }
 
     @Test
-    fun pointerInputHandler_2DownIndependentlyUnderTimeoutButOverlapTimeIsOver_onLongPressCalled() {
+    fun pointerInputHandler_2DownIndependentlyUnderTimeoutButOverlapTimeIsOver_eventFiredOnce() {
 
         // Arrange
 
         val down0 = down(0)
 
         val move0 = down0.moveTo(50.milliseconds, 0f, 0f)
-        val down1 = down(1, duration = 50.milliseconds)
+        val down1 = down(1, 50.milliseconds)
 
         val up0 = move0.up(75.milliseconds)
         val move1 = down1.moveTo(75.milliseconds, 0f, 0f)
@@ -232,10 +250,11 @@ class LongPressGestureDetectorTest {
         // Assert
 
         verify(onLongPress).invoke(any())
+        verify(customEventDispatcher).dispatchCustomEvent(LongPressFiredEvent)
     }
 
     @Test
-    fun pointerInputHandler_downMoveNotConsumed_onLongPressCalled() {
+    fun pointerInputHandler_downMoveNotConsumed_eventFiredOnce() {
         val down = down(0)
         val move = down.moveBy(50.milliseconds, 1f, 1f)
 
@@ -245,6 +264,7 @@ class LongPressGestureDetectorTest {
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
         verify(onLongPress).invoke(any())
+        verify(customEventDispatcher).dispatchCustomEvent(LongPressFiredEvent)
     }
 
     // Tests that verify correctness of PxPosition value passed to onLongPress
@@ -358,7 +378,7 @@ class LongPressGestureDetectorTest {
 
         // Arrange
 
-        val down0 = down(0, duration = 0.milliseconds)
+        val down0 = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(
                 down0
         )
@@ -367,7 +387,7 @@ class LongPressGestureDetectorTest {
 
         testContext.advanceTimeBy(10, TimeUnit.MILLISECONDS)
         val move0 = down0.moveTo(10.milliseconds, 0f, 0f)
-        val down1 = down(0, duration = 10.milliseconds)
+        val down1 = down(0, 10.milliseconds)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(
                 move0, down1
         )
@@ -383,7 +403,7 @@ class LongPressGestureDetectorTest {
 
         // Arrange
 
-        val down0 = down(0, duration = 0.milliseconds)
+        val down0 = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(
                 down0
         )
@@ -406,7 +426,7 @@ class LongPressGestureDetectorTest {
 
         // Arrange
 
-        val down0 = down(0, duration = 0.milliseconds)
+        val down0 = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(
                 down0
         )
@@ -431,7 +451,7 @@ class LongPressGestureDetectorTest {
 
         // Arrange
 
-        var pointer = down(0, duration = 0.milliseconds)
+        var pointer = down(0, 0.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
         pointer = pointer.moveTo(50.milliseconds, 5f).consume(1f)
@@ -451,23 +471,59 @@ class LongPressGestureDetectorTest {
     // Tests that verify correct behavior around cancellation.
 
     @Test
-    fun cancelHandler_downCancelBeyondTimeout_onLongPressNotCalled() {
+    fun cancelHandler_downCancelBeyondTimeout_eventNotFired() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         mRecognizer.cancelHandler()
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
     @Test
-    fun cancelHandler_downAlmostTimeoutCancelTimeout_onLongPressNotCalled() {
+    fun cancelHandler_downAlmostTimeoutCancelTimeout_eventNotFired() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
         mRecognizer.cancelHandler()
         testContext.advanceTimeBy(1, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
     }
 
-    // cancelHandler_downCancelDownTimeExpires_onLongPressCalledOnce
+    @Test
+    fun cancelHandler_downCancelDownTimeExpires_eventFiredOnce() {
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+        testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
+        mRecognizer.cancelHandler()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+        testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+
+        verify(onLongPress).invoke(any())
+        verify(customEventDispatcher).dispatchCustomEvent(LongPressFiredEvent)
+    }
+
+    // Verify correct behavior around responding to LongPressFiredEvent
+
+    @Test
+    fun customEventHandler_downCustomEventTimeout_eventNotFired() {
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+        mRecognizer.customEventHandler.invokeOverAllPasses(LongPressFiredEvent)
+        testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+
+        verify(onLongPress, never()).invoke(any())
+        verify(customEventDispatcher, never()).dispatchCustomEvent(any())
+    }
+
+    @Test
+    fun customEventHandler_downCustomEventTimeoutDownTimeout_eventFiredOnce() {
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+        mRecognizer.customEventHandler.invokeOverAllPasses(LongPressFiredEvent)
+        testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+        testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+
+        verify(onLongPress).invoke(any())
+        verify(customEventDispatcher).dispatchCustomEvent(LongPressFiredEvent)
+    }
 }

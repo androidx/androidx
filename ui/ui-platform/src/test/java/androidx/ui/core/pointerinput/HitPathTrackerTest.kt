@@ -18,6 +18,8 @@ package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.CustomEvent
+import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
@@ -45,6 +47,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
@@ -190,6 +193,32 @@ class HitPathTrackerTest {
             })
         }
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_1NodeAdded_initHandlerCalledWithValidCustomMessageDispatcher() {
+        val pin = PointerInputNode()
+        pin.initHandler = mock()
+
+        hitResult.addHitPath(PointerId(3), listOf(pin))
+
+        verify(pin.initHandler)!!.invoke(any())
+    }
+
+    @Test
+    fun addHitPath_3NodesAdded_allIitHandlersCalledWithValidCustomMessageDispatcher() {
+        val pinParent = PointerInputNode()
+        val pinMiddle = PointerInputNode()
+        val pinChild = PointerInputNode()
+        pinParent.initHandler = mock()
+        pinMiddle.initHandler = mock()
+        pinChild.initHandler = mock()
+
+        hitResult.addHitPath(PointerId(3), listOf(pinParent, pinMiddle, pinChild))
+
+        verify(pinParent.initHandler)!!.invoke(any())
+        verify(pinMiddle.initHandler)!!.invoke(any())
+        verify(pinChild.initHandler)!!.invoke(any())
     }
 
     @Test
@@ -4127,6 +4156,233 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, NodeParent())).isTrue()
     }
 
+    @Test
+    fun dispatchCustomEvent_1Node_nothingReceivesDispatch() {
+
+        // Arrange
+
+        val pin = PointerInputNode()
+
+        lateinit var dispatcher: CustomEventDispatcher
+        pin.initHandler = {
+            dispatcher = it
+        }
+
+        pin.customEventHandler = mock()
+
+        hitResult.addHitPath(PointerId(3), listOf(pin))
+
+        val event = TestCustomEvent("test")
+
+        // Act
+
+        dispatcher.dispatchCustomEvent(event)
+
+        // Assert
+
+        verifyNoMoreInteractions(pin.customEventHandler!!)
+    }
+
+    @Test
+    fun dispatchCustomEvent_1Path3NodesParentDispatches_dispatchCorrect() {
+        val parentPin = PointerInputNode()
+        val middlePin = PointerInputNode()
+        val childPin = PointerInputNode()
+        dispatchCustomEvent_1Path3Nodes_dispatchCorrect(parentPin, middlePin, childPin, parentPin)
+    }
+
+    @Test
+    fun dispatchCustomEvent_1Path3NodesMiddleDispatches_dispatchCorrect() {
+        val parentPin = PointerInputNode()
+        val middlePin = PointerInputNode()
+        val childPin = PointerInputNode()
+        dispatchCustomEvent_1Path3Nodes_dispatchCorrect(parentPin, middlePin, childPin, middlePin)
+    }
+
+    @Test
+    fun dispatchCustomEvent_1Path3NodesChildDispatches_dispatchCorrect() {
+        val parentPin = PointerInputNode()
+        val middlePin = PointerInputNode()
+        val childPin = PointerInputNode()
+        dispatchCustomEvent_1Path3Nodes_dispatchCorrect(parentPin, middlePin, childPin, childPin)
+    }
+
+    private fun dispatchCustomEvent_1Path3Nodes_dispatchCorrect(
+        parentPin: PointerInputNode,
+        middlePin: PointerInputNode,
+        childPin: PointerInputNode,
+        dispatchingPin: PointerInputNode
+    ) {
+        // Arrange
+
+        val seniorReceivingPin =
+            if (dispatchingPin == parentPin) {
+                middlePin
+            } else {
+                parentPin
+            }
+
+        val juniorReceivingPin =
+            if (dispatchingPin == childPin) {
+                middlePin
+            } else {
+                childPin
+            }
+
+        lateinit var dispatcher: CustomEventDispatcher
+        dispatchingPin.initHandler = {
+            dispatcher = it
+        }
+
+        val dispatchingHandler: (CustomEvent, PointerEventPass) -> Unit = mock()
+        val seniorHandler: (CustomEvent, PointerEventPass) -> Unit = mock()
+        val juniorHandler: (CustomEvent, PointerEventPass) -> Unit = mock()
+        dispatchingPin.customEventHandler = dispatchingHandler
+        seniorReceivingPin.customEventHandler = seniorHandler
+        juniorReceivingPin.customEventHandler = juniorHandler
+
+        hitResult.addHitPath(PointerId(3), listOf(parentPin, middlePin, childPin))
+
+        val event = TestCustomEvent("test")
+
+        // Act
+
+        dispatcher.dispatchCustomEvent(event)
+
+        // Assert
+
+        inOrder(seniorHandler, juniorHandler) {
+            verify(seniorHandler).invoke(event, PointerEventPass.InitialDown)
+            verify(juniorHandler).invoke(event, PointerEventPass.InitialDown)
+            verify(juniorHandler).invoke(event, PointerEventPass.PreUp)
+            verify(seniorHandler).invoke(event, PointerEventPass.PreUp)
+            verify(seniorHandler).invoke(event, PointerEventPass.PreDown)
+            verify(juniorHandler).invoke(event, PointerEventPass.PreDown)
+            verify(juniorHandler).invoke(event, PointerEventPass.PostUp)
+            verify(seniorHandler).invoke(event, PointerEventPass.PostUp)
+            verify(seniorHandler).invoke(event, PointerEventPass.PostDown)
+            verify(juniorHandler).invoke(event, PointerEventPass.PostDown)
+        }
+
+        verifyNoMoreInteractions(seniorHandler, juniorHandler, dispatchingHandler)
+    }
+
+    @Test
+    fun dispatchCustomEvent_1Parent2ChildrenParentDispatches_dispatchCorrect() {
+        val parentPin = PointerInputNode()
+        val childPin1 = PointerInputNode()
+        val childPin2 = PointerInputNode()
+
+        lateinit var dispatcher: CustomEventDispatcher
+        parentPin.initHandler = {
+            dispatcher = it
+        }
+
+        val parentHandler: (CustomEvent, PointerEventPass) -> Unit = mock()
+        val childHandler1: (CustomEvent, PointerEventPass) -> Unit = mock()
+        val childHandler2: (CustomEvent, PointerEventPass) -> Unit = mock()
+        parentPin.customEventHandler = parentHandler
+        childPin1.customEventHandler = childHandler1
+        childPin2.customEventHandler = childHandler2
+
+        hitResult.addHitPath(PointerId(3), listOf(parentPin, childPin1))
+        hitResult.addHitPath(PointerId(4), listOf(parentPin, childPin2))
+
+        val event = TestCustomEvent("test")
+
+        // Act
+
+        dispatcher.dispatchCustomEvent(event)
+
+        // Assert
+        inOrder(childHandler1) {
+            verify(childHandler1).invoke(event, PointerEventPass.InitialDown)
+            verify(childHandler1).invoke(event, PointerEventPass.PreUp)
+            verify(childHandler1).invoke(event, PointerEventPass.PreDown)
+            verify(childHandler1).invoke(event, PointerEventPass.PostUp)
+            verify(childHandler1).invoke(event, PointerEventPass.PostDown)
+        }
+
+        inOrder(childHandler2) {
+            verify(childHandler2).invoke(event, PointerEventPass.InitialDown)
+            verify(childHandler2).invoke(event, PointerEventPass.PreUp)
+            verify(childHandler2).invoke(event, PointerEventPass.PreDown)
+            verify(childHandler2).invoke(event, PointerEventPass.PostUp)
+            verify(childHandler2).invoke(event, PointerEventPass.PostDown)
+        }
+
+        verifyNoMoreInteractions(parentHandler, childHandler1, childHandler2)
+    }
+
+    @Test
+    fun dispatchCustomEvent_1Parent2ChildrenChild1Dispatches_dispatchCorrect() {
+        dispatchCustomEvent_1Parent2ChildrenChildDispatches_dispatchCorrect(
+            true
+        )
+    }
+
+    @Test
+    fun dispatchCustomEvent_1Parent2ChildrenChild2Dispatches_dispatchCorrect() {
+        dispatchCustomEvent_1Parent2ChildrenChildDispatches_dispatchCorrect(
+            false
+        )
+    }
+
+    private fun dispatchCustomEvent_1Parent2ChildrenChildDispatches_dispatchCorrect(
+        firstChildDispatches: Boolean
+    ) {
+        // Arrange
+        val parentPin = PointerInputNode()
+        val childPin1 = PointerInputNode()
+        val childPin2 = PointerInputNode()
+
+        val parentHandler: (CustomEvent, PointerEventPass) -> Unit = mock()
+        val childHandler1: (CustomEvent, PointerEventPass) -> Unit = mock()
+        val childHandler2: (CustomEvent, PointerEventPass) -> Unit = mock()
+        parentPin.customEventHandler = parentHandler
+        childPin1.customEventHandler = childHandler1
+        childPin2.customEventHandler = childHandler2
+
+        lateinit var dispatchingPin: PointerInputNode
+        lateinit var dispatchingHandler: (CustomEvent, PointerEventPass) -> Unit
+        lateinit var otherHandler: (CustomEvent, PointerEventPass) -> Unit
+
+        if (firstChildDispatches) {
+            dispatchingPin = childPin1
+            dispatchingHandler = childHandler1
+            otherHandler = childHandler2
+        } else {
+            dispatchingPin = childPin2
+            dispatchingHandler = childHandler2
+            otherHandler = childHandler1
+        }
+
+        lateinit var dispatcher: CustomEventDispatcher
+        dispatchingPin.initHandler = {
+            dispatcher = it
+        }
+
+        hitResult.addHitPath(PointerId(3), listOf(parentPin, childPin1))
+        hitResult.addHitPath(PointerId(4), listOf(parentPin, childPin2))
+
+        val event = TestCustomEvent("test")
+
+        // Act
+
+        dispatcher.dispatchCustomEvent(event)
+
+        // Assert
+        inOrder(parentHandler) {
+            verify(parentHandler).invoke(event, PointerEventPass.InitialDown)
+            verify(parentHandler).invoke(event, PointerEventPass.PreUp)
+            verify(parentHandler).invoke(event, PointerEventPass.PreDown)
+            verify(parentHandler).invoke(event, PointerEventPass.PostUp)
+            verify(parentHandler).invoke(event, PointerEventPass.PostDown)
+        }
+
+        verifyNoMoreInteractions(parentHandler, dispatchingHandler, otherHandler)
+    }
+
     private fun areEqual(actualNode: NodeParent, expectedNode: NodeParent): Boolean {
         var check = true
 
@@ -4174,3 +4430,5 @@ class HitPathTrackerTest {
 private data class Box(val left: Int, val top: Int, val right: Int, val bottom: Int)
 
 private data class Point(val x: Int, val y: Int)
+
+private data class TestCustomEvent(val value: String) : CustomEvent

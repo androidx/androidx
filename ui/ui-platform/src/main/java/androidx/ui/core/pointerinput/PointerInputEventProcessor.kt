@@ -19,7 +19,6 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
-import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
@@ -70,12 +69,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         hitPathTracker.refreshPathInformation(additionalPointerOffset)
 
         // Dispatch the PointerInputChanges to the hit PointerInputNodes.
-        var changes = pointerInputChangeEvent.changes
-        hitPathTracker.apply {
-            changes = dispatchChanges(changes, PointerEventPass.InitialDown, PointerEventPass.PreUp)
-            changes = dispatchChanges(changes, PointerEventPass.PreDown, PointerEventPass.PostUp)
-            dispatchChanges(changes, PointerEventPass.PostDown)
-        }
+        hitPathTracker.dispatchChanges(pointerInputChangeEvent.changes)
 
         // Remove hit paths from the tracker due to up events.
         pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
