@@ -25,6 +25,7 @@ import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
+import androidx.compose.Composition
 import androidx.compose.Providers
 import androidx.compose.disposeComposition
 import androidx.ui.core.FontLoaderAmbient
@@ -106,6 +107,8 @@ internal class ComposeViewAdapter : FrameLayout {
         style = Paint.Style.STROKE
         color = Color.Red.toArgb()
     }
+
+    private var composition: Composition? = null
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init(attrs)
@@ -227,7 +230,7 @@ internal class ComposeViewAdapter : FrameLayout {
     ) {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
-        setContent {
+        composition = setContent {
             WrapPreview {
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
@@ -242,6 +245,8 @@ internal class ComposeViewAdapter : FrameLayout {
      */
     internal fun dispose() {
         disposeComposition()
+        composition?.dispose()
+        composition = null
     }
 
     private fun init(attrs: AttributeSet) {
