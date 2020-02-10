@@ -5155,10 +5155,8 @@ public class ExifInterface {
 
     /**
      * Returns number of milliseconds since Jan. 1, 1970, midnight UTC.
-     * Returns -1 if the date time information if not available.
-     * @hide
+     * Returns -1 if the date time information is not available.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public long getGpsDateTime() {
         String date = getAttribute(TAG_GPS_DATESTAMP);
         String time = getAttribute(TAG_GPS_TIMESTAMP);
