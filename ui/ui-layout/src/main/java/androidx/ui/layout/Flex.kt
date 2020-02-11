@@ -27,7 +27,6 @@ import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.VerticalAlignmentLine
@@ -41,132 +40,6 @@ import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import kotlin.math.sign
-
-/**
- * Collects information about the children of a [FlexColumn] or [FlexColumn]
- * when its body is executed with a [FlexChildren] instance as argument.
- */
-class FlexChildren internal constructor() {
-    internal val childrenList = mutableListOf<@Composable() () -> Unit>()
-    fun expanded(@FloatRange(from = 0.0) flex: Float, children: @Composable() () -> Unit) {
-        if (flex < 0) {
-            throw IllegalArgumentException("flex must be >= 0")
-        }
-        childrenList += {
-            ParentData(
-                data = FlexChildProperties(flex = flex, fit = FlexFit.Tight),
-                children = children
-            )
-        }
-    }
-
-    fun flexible(@FloatRange(from = 0.0) flex: Float, children: @Composable() () -> Unit) {
-        if (flex < 0) {
-            throw IllegalArgumentException("flex must be >= 0")
-        }
-        childrenList += {
-            ParentData(
-                data = FlexChildProperties(flex = flex, fit = FlexFit.Loose),
-                children = children
-            )
-        }
-    }
-
-    fun inflexible(children: @Composable() () -> Unit) {
-        childrenList += @Composable {
-            ParentData(
-                data = FlexChildProperties(flex = 0f, fit = FlexFit.Loose),
-                children = children
-            )
-        }
-    }
-}
-
-/**
- * A composable that places its children in a horizontal sequence, assigning children widths
- * according to their flex weights.
- *
- * [FlexRow] children can be:
- * - [FlexChildren.inflexible] meaning that the child is not flex, and it should be measured first
- * to determine its size, before the expanded and flexible children are measured
- * - [FlexChildren.expanded] meaning that the child is flexible, and it should be assigned a width
- * according to its flex weight relative to its flexible children. The child is forced to occupy the
- * entire width assigned by the parent
- * - [FlexChildren.flexible] similar to [FlexChildren.expanded], but the child can leave unoccupied
- * width.
- *
- * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
- * Default is [MainAxisAlignment.Start].
- * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Start].
- * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [SizeMode.Wrap].
- */
-@Deprecated(
-    "Use Row layout instead.",
-    ReplaceWith("Row"),
-    DeprecationLevel.WARNING
-)
-@Composable
-fun FlexRow(
-    modifier: Modifier = Modifier.None,
-    mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: SizeMode = SizeMode.Wrap,
-    block: FlexChildren.() -> Unit
-) {
-    Flex(
-        orientation = LayoutOrientation.Horizontal,
-        mainAxisAlignment = mainAxisAlignment,
-        crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize,
-        modifier = modifier,
-        block = block
-    )
-}
-
-/**
- * A composable that places its children in a vertical sequence, assigning children heights
- * according to their flex weights.
- *
- * [FlexColumn] children can be:
- * - [FlexChildren.inflexible] meaning that the child is not flex, and it should be measured first
- * to determine its size, before the expanded and flexible children are measured
- * - [FlexChildren.expanded] meaning that the child is flexible, and it should be assigned a
- * height according to its flex weight relative to its flexible children. The child is forced
- * to occupy the entire height assigned by the parent
- * - [FlexChildren.flexible] similar to [FlexChildren.expanded], but the child can leave unoccupied
- * height.
- *
- * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
- * Default is [MainAxisAlignment.Start].
- * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Start].
- * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [SizeMode.Wrap].
- */
-@Deprecated(
-    "Use Column layout instead.",
-    ReplaceWith("Column"),
-    DeprecationLevel.WARNING
-)
-@Composable
-fun FlexColumn(
-    modifier: Modifier = Modifier.None,
-    mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: SizeMode = SizeMode.Wrap,
-    block: FlexChildren.() -> Unit
-) {
-    Flex(
-        orientation = LayoutOrientation.Vertical,
-        mainAxisAlignment = mainAxisAlignment,
-        crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize,
-        modifier = modifier,
-        block = block
-    )
-}
 
 /**
  * Base class for scopes of [Row] and [Column], containing scoped modifiers.
@@ -606,10 +479,6 @@ class CrossAxisAlignment private constructor(
          */
         val End = CrossAxisAlignment(null)
         /**
-         * Force children to occupy the entire cross axis space.
-         */
-        val Stretch = CrossAxisAlignment(null)
-        /**
          * Align children by their baseline.
          */
         fun AlignmentLine(alignmentLine: AlignmentLine) =
@@ -681,32 +550,6 @@ private val IntrinsicMeasurable.fit: FlexFit
 private val IntrinsicMeasurable.crossAxisAlignment: CrossAxisAlignment?
     get() = (parentData as? FlexChildProperties)?.crossAxisAlignment
 
-@Composable
-private fun Flex(
-    orientation: LayoutOrientation,
-    modifier: Modifier = Modifier.None,
-    mainAxisAlignment: MainAxisAlignment,
-    crossAxisSize: SizeMode,
-    crossAxisAlignment: CrossAxisAlignment,
-    block: FlexChildren.() -> Unit
-) {
-    val flexChildren: @Composable() () -> Unit = with(FlexChildren()) {
-        block()
-        val composable = @Composable {
-            childrenList.forEach { it() }
-        }
-        composable
-    }
-    FlexLayout(
-        orientation = orientation,
-        modifier = modifier,
-        arrangement = mainAxisAlignment.arrangement,
-        crossAxisSize = crossAxisSize,
-        crossAxisAlignment = crossAxisAlignment,
-        children = flexChildren
-    )
-}
-
 /**
  * Layout model that places its children in a horizontal or vertical sequence, according to the
  * specified orientation, while also looking at the flex weights of the children.
@@ -753,17 +596,10 @@ private fun FlexLayout(
                 val placeable = child.measure(
                     // Ask for preferred main axis size.
                     constraints.copy(
-                        mainAxisMin = 0.ipx,
-                        mainAxisMax = constraints.mainAxisMax - inflexibleSpace
-                    ).let {
-                        if (child.crossAxisAlignment == CrossAxisAlignment.Stretch ||
-                            crossAxisAlignment == CrossAxisAlignment.Stretch
-                        ) {
-                            it.stretchCrossAxis()
-                        } else {
-                            it.copy(crossAxisMin = IntPx.Zero)
-                        }
-                    }.toBoxConstraints(orientation)
+                        mainAxisMin = IntPx.Zero,
+                        mainAxisMax = constraints.mainAxisMax - inflexibleSpace,
+                        crossAxisMin = IntPx.Zero
+                    ).toBoxConstraints(orientation)
                 )
                 inflexibleSpace += placeable.mainAxisSize()
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
@@ -826,13 +662,7 @@ private fun FlexLayout(
                             IntPx.Zero
                         },
                         childMainAxisSize,
-                        if (child.crossAxisAlignment == CrossAxisAlignment.Stretch ||
-                            crossAxisAlignment == CrossAxisAlignment.Stretch
-                        ) {
-                            constraints.crossAxisMax
-                        } else {
-                            IntPx.Zero
-                        },
+                        IntPx.Zero,
                         constraints.crossAxisMax
                     ).toBoxConstraints(orientation)
                 )
@@ -881,7 +711,6 @@ private fun FlexLayout(
                     measurables[index].crossAxisAlignment ?: crossAxisAlignment
                 val crossAxis = when (childCrossAlignment) {
                     CrossAxisAlignment.Start -> IntPx.Zero
-                    CrossAxisAlignment.Stretch -> IntPx.Zero
                     CrossAxisAlignment.End -> {
                         crossAxisLayoutSize - placeable.crossAxisSize()
                     }

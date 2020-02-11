@@ -32,7 +32,6 @@ package androidx.ui.layout {
   }
 
   public final class AspectRatioKt {
-    method @Deprecated public static void AspectRatio(float aspectRatio, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ColumnScope extends androidx.ui.layout.FlexScope {
@@ -58,11 +57,9 @@ package androidx.ui.layout {
     method public androidx.ui.layout.CrossAxisAlignment getCenter();
     method public androidx.ui.layout.CrossAxisAlignment getEnd();
     method public androidx.ui.layout.CrossAxisAlignment getStart();
-    method public androidx.ui.layout.CrossAxisAlignment getStretch();
     property public final androidx.ui.layout.CrossAxisAlignment Center;
     property public final androidx.ui.layout.CrossAxisAlignment End;
     property public final androidx.ui.layout.CrossAxisAlignment Start;
-    property public final androidx.ui.layout.CrossAxisAlignment Stretch;
   }
 
   public final class DpConstraints {
@@ -114,16 +111,8 @@ package androidx.ui.layout {
     method public androidx.ui.unit.Dp getTop();
   }
 
-  public final class FlexChildren {
-    method public void expanded(@FloatRange(from=0.0) float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void flexible(@FloatRange(from=0.0) float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void inflexible(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class FlexKt {
     method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement arrangement = Arrangement.Begin, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
-    method @Deprecated public static void FlexColumn(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.SizeMode crossAxisSize = androidx.ui.layout.SizeMode.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method @Deprecated public static void FlexRow(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.SizeMode crossAxisSize = androidx.ui.layout.SizeMode.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
     method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement arrangement = Arrangement.Begin, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
   }
 
@@ -437,8 +426,6 @@ package androidx.ui.layout {
     method public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Padding(androidx.ui.unit.Dp left = 0.dp, androidx.ui.unit.Dp top = 0.dp, androidx.ui.unit.Dp right = 0.dp, androidx.ui.unit.Dp bottom = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Padding(androidx.ui.unit.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @Deprecated public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.unit.Dp left = 0.dp, androidx.ui.unit.Dp top = 0.dp, androidx.ui.unit.Dp right = 0.dp, androidx.ui.unit.Dp bottom = 0.dp);
-    method @Deprecated public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.unit.Dp all = 0.dp);
   }
 
   public final class RowScope extends androidx.ui.layout.FlexScope {
