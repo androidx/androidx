@@ -14,30 +14,39 @@
  * limitations under the License.
  */
 
-package androidx.ui.integration.test.core
+package androidx.ui.foundation.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.Border
+import androidx.ui.core.Text
 import androidx.ui.foundation.DrawBackground
-import androidx.ui.foundation.DrawBorder
-import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
-class SimpleRadioButton4TestCase : BaseSimpleRadioButtonTestCase() {
+@Composable
+@Sampled
+fun DrawBackgroundColor() {
+    Text(
+        "Text with background",
+        modifier = DrawBackground(color = Color.Magenta) + LayoutPadding(10.dp)
+    )
+}
 
-    @Composable
-    override fun emitContent() {
-        val innerSize = getInnerSize()
-        Container(
-            width = 48.dp, height = 48.dp, modifier = DrawBackground(Color.Cyan, CircleShape) +
-                    LayoutPadding(innerSize.value) +
-                    DrawBorder(
-                        border = Border(color = Color.Cyan, size = 1.dp),
-                        shape = CircleShape
-                    )
-        ) {}
-    }
+@Composable
+@Sampled
+fun DrawBackgroundShapedBrush() {
+    val gradientBrush = HorizontalGradient(
+        colors = listOf(Color.Red, Color.Blue, Color.Green),
+        startX = 0.px,
+        endX = 500.px
+    )
+    Text(
+        "Text with gradient back",
+        modifier = DrawBackground(shape = CutCornerShape(8.dp), brush = gradientBrush) +
+                LayoutPadding(10.dp)
+    )
 }

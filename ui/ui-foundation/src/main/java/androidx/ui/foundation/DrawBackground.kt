@@ -16,13 +16,14 @@
 
 package androidx.ui.foundation
 
+import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.draw
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.drawOutline
@@ -30,46 +31,51 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.toRect
 
-private fun background(paint: Paint) = draw { canvas, size ->
-    canvas.drawRect(size.toRect(), paint)
-}
-
-/**
- * Returns a [DrawModifier] that fills the layout rectangle with the given background [color].
- */
-fun background(color: Color): DrawModifier =
-    background(Paint().also { paint ->
-        paint.style = PaintingStyle.fill
-        paint.color = color
-    })
-
-/**
- * Returns a [DrawModifier] that fills the layout rectangle with the given background [brush].
- */
-fun background(brush: Brush): DrawModifier =
-    background(Paint().also { brush.applyTo(it) })
-
 /**
  * Returns a [DrawModifier] that draws [shape] with a solid [color], with the size of the
  * layout's rectangle.
+ *
+ * @sample androidx.ui.foundation.samples.DrawBackgroundColor
+ *
+ * @param color color to paint background with
+ * @param shape desired shape of the background
  */
-fun background(shape: Shape, color: Color): DrawModifier =
-    background(shape, SolidColor(color))
+@Composable
+fun DrawBackground(color: Color, shape: Shape = RectangleShape): DrawBackground =
+    DrawBackground(SolidColor(color), shape)
 
 /**
  * Returns a [DrawModifier] that draws [shape] with [brush], with the size of the layout's
  * rectangle.
+ *
+ * @sample androidx.ui.foundation.samples.DrawBackgroundShapedBrush
+ *
+ * @param brush brush to paint background with
+ * @param shape desired shape of the background
  */
-fun background(shape: Shape, brush: Brush): DrawModifier = object : DrawModifier {
-    private val paint = Paint()
-
-    init {
-        brush.applyTo(paint)
+@Composable
+fun DrawBackground(brush: Brush, shape: Shape = RectangleShape): DrawBackground {
+    return remember(shape, brush) {
+        val paint = Paint().also {
+            brush.applyTo(it)
+        }
+        DrawBackground(paint, shape)
     }
+}
+
+data class DrawBackground internal constructor(
+    private val paint: Paint,
+    private val shape: Shape
+) : DrawModifier {
 
     override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
-        val outline = shape.createOutline(size, density)
-        canvas.drawOutline(outline, paint)
+        if (shape === RectangleShape) {
+            // shortcut to avoid Outline calculation and allocation
+            canvas.drawRect(size.toRect(), paint)
+        } else {
+            val outline = shape.createOutline(size, density)
+            canvas.drawOutline(outline, paint)
+        }
         drawContent()
     }
 }
