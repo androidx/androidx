@@ -35,11 +35,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Align
 import androidx.ui.layout.AlignmentLineOffset
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.Wrap
@@ -171,18 +171,6 @@ fun StackUsage() {
 }
 
 @Composable
-fun PaddingUsage() {
-    Row {
-        Padding(padding = 20.dp) {
-            SizedRectangle(color = Color(0xFFFF0000), width = 20.dp, height = 20.dp)
-        }
-        Padding(padding = 20.dp) {
-            SizedRectangle(color = Color(0xFFFF0000), width = 20.dp, height = 20.dp)
-        }
-    }
-}
-
-@Composable
 fun SingleCompositionRow(children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val placeables = measurables.map {
@@ -299,11 +287,9 @@ fun SingleCompositionRowWithIntrinsics(children: @Composable() () -> Unit) {
 fun FillWithRectangles() {
     WithConstraints { constraints ->
         val rectangles = (constraints.maxWidth / 50).value
-        Row {
+        Row(arrangement = Arrangement.SpaceBetween) {
             for (i in 0 until rectangles) {
-                Padding(padding = 1.dp) {
-                    SingleCompositionRect()
-                }
+                SingleCompositionRect()
             }
         }
     }
@@ -345,9 +331,11 @@ fun RowBaselineAlignment() {
         Text("First text", modifier = LayoutGravity.RelativeToSiblings(FirstBaseline))
         Column(modifier = LayoutGravity.RelativeToSiblings(FirstBaseline)) {
             SizedRectangle(color = Color.Blue, width = 10.dp, height = 50.dp)
-            Padding(30.dp) {
-                Text("Second text", style = TextStyle(fontSize = 45.sp))
-            }
+            Text(
+                text = "Second text",
+                style = TextStyle(fontSize = 45.sp),
+                modifier = LayoutPadding(30.dp)
+            )
         }
     }
 }

@@ -423,9 +423,6 @@ package androidx.ui.layout {
 
   public final class PaddingKt {
     method public static androidx.ui.layout.LayoutPadding LayoutPadding(androidx.ui.unit.Dp all);
-    method public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Padding(androidx.ui.unit.Dp left = 0.dp, androidx.ui.unit.Dp top = 0.dp, androidx.ui.unit.Dp right = 0.dp, androidx.ui.unit.Dp bottom = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Padding(androidx.ui.unit.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RowScope extends androidx.ui.layout.FlexScope {

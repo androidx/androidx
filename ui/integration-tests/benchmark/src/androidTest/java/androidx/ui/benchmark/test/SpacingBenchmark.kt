@@ -31,13 +31,16 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
+import androidx.ui.core.Layout
+import androidx.ui.core.offset
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Padding
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.EdgeInsets
+import androidx.ui.unit.min
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -199,7 +202,41 @@ private class NoModifierTestCase : PaddingTestCase() {
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {
         Container(expanded = true) {
-            Padding(padding = padding, children = child)
+            Padding(all = padding, children = child)
+        }
+    }
+}
+
+// The Padding composable function has been removed in favour of modifier. Keeping this private
+// implementation to benchmark it against a modifier.
+@Composable
+private fun Padding(
+    all: Dp,
+    children: @Composable() () -> Unit
+) {
+    val padding = EdgeInsets(all)
+    Layout(children) { measurables, constraints ->
+        val measurable = measurables.firstOrNull()
+        if (measurable == null) {
+            layout(constraints.minWidth, constraints.minHeight) { }
+        } else {
+            val paddingLeft = padding.left.toIntPx()
+            val paddingTop = padding.top.toIntPx()
+            val paddingRight = padding.right.toIntPx()
+            val paddingBottom = padding.bottom.toIntPx()
+            val horizontalPadding = (paddingLeft + paddingRight)
+            val verticalPadding = (paddingTop + paddingBottom)
+
+            val newConstraints = constraints.offset(-horizontalPadding, -verticalPadding)
+            val placeable = measurable.measure(newConstraints)
+            val width =
+                min(placeable.width + horizontalPadding, constraints.maxWidth)
+            val height =
+                min(placeable.height + verticalPadding, constraints.maxHeight)
+
+            layout(width, height) {
+                placeable.place(paddingLeft, paddingTop)
+            }
         }
     }
 }

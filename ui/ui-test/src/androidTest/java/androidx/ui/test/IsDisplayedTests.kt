@@ -30,7 +30,7 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
@@ -74,13 +74,11 @@ class IsDisplayedTests {
     private fun createScrollableContent() {
         composeTestRule.setContent {
             val style = TextStyle(fontSize = 30.sp)
-            Padding(padding = 10.dp) {
-                VerticalScroller {
-                    Column {
-                        for (i in 1..100) {
-                            Semantics(container = true) {
-                                Text(text = i.toString(), style = style)
-                            }
+            VerticalScroller(modifier = LayoutPadding(10.dp)) {
+                Column {
+                    for (i in 1..100) {
+                        Semantics(container = true) {
+                            Text(text = i.toString(), style = style)
                         }
                     }
                 }
@@ -168,23 +166,21 @@ class IsDisplayedTests {
     fun rowTooSmall() {
         composeTestRule.setContent {
             val style = TextStyle(fontSize = 30.sp)
-            Padding(padding = 10.dp) {
-                Center {
-                    // TODO(popam): remove this when a modifier can be used instead
-                    Layout({
-                        Row {
-                            for (i in 1..100) {
-                                Semantics(container = true) {
-                                    Text(text = i.toString(), style = style)
-                                }
+            Center {
+                // TODO(popam): remove this when a modifier can be used instead
+                Layout({
+                    Row {
+                        for (i in 1..100) {
+                            Semantics(container = true) {
+                                Text(text = i.toString(), style = style)
                             }
                         }
-                    }) { measurables, constraints ->
-                        val placeable =
-                            measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0.ipx, 0.ipx)
-                        }
+                    }
+                }) { measurables, constraints ->
+                    val placeable =
+                        measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
                     }
                 }
             }
@@ -200,17 +196,15 @@ class IsDisplayedTests {
         val tag = "myTag"
 
         composeTestRule.setContent {
-            Padding(padding = 10.dp) {
-                Semantics(container = true, properties = {
-                    ScrollTo(action = { _, _ ->
-                        wasScrollToCalled = true
-                    })
-                }) {
-                    Container {
-                        TestTag(tag) {
-                            Semantics(container = true) {
-                                Container { }
-                            }
+            Semantics(container = true, properties = {
+                ScrollTo(action = { _, _ ->
+                    wasScrollToCalled = true
+                })
+            }) {
+                Container {
+                    TestTag(tag) {
+                        Semantics(container = true) {
+                            Container { }
                         }
                     }
                 }
@@ -258,25 +252,23 @@ class IsDisplayedTests {
         }
 
         composeTestRule.setContent {
-            Padding(padding = 10.dp) {
-                // Need to make the "scrolling" container the semantics boundary so that it
-                // doesn't try to include the padding
-                Semantics(container = true, properties = {
-                    ScrollTo(action = { x, y ->
-                        currentScrollPositionY = y
-                        currentScrollPositionX = x
-                    })
-                }) {
-                    val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
-                    val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
-                    val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
+            // Need to make the "scrolling" container the semantics boundary so that it
+            // doesn't try to include the padding
+            Semantics(container = true, properties = {
+                ScrollTo(action = { x, y ->
+                    currentScrollPositionY = y
+                    currentScrollPositionX = x
+                })
+            }) {
+                val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
+                val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
+                val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
 
-                    Column {
-                        drawRect(red)
-                        drawRect(blue)
-                        TestTag(tag) {
-                            drawRect(green)
-                        }
+                Column {
+                    drawRect(red)
+                    drawRect(blue)
+                    TestTag(tag) {
+                        drawRect(green)
                     }
                 }
             }

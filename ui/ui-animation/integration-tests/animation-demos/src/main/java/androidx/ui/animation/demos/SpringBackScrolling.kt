@@ -38,7 +38,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
@@ -58,9 +58,11 @@ class SpringBackScrolling : Activity() {
     @Composable
     fun SpringBackExample() {
         Column(LayoutHeight.Fill) {
-            Padding(40.dp) {
-                Text("<== Scroll horizontally ==>", style = TextStyle(fontSize = 20.sp))
-            }
+            Text(
+                "<== Scroll horizontally ==>",
+                style = TextStyle(fontSize = 20.sp),
+                modifier = LayoutPadding(40.dp)
+            )
             val animScroll = animatedFloat(0f)
             val itemWidth = state { 0f }
             var isFlinging = state { false }

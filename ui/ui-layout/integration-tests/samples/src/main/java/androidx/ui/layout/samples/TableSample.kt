@@ -18,11 +18,12 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
 import androidx.ui.unit.Dp
@@ -31,15 +32,11 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun SimpleTable() {
-    Padding(2.dp) {
-        Table(columns = 8) {
-            for (i in 0 until 8) {
-                tableRow {
-                    for (j in 0 until 8) {
-                        Padding(2.dp) {
-                            SizedSquare(color = Color.Magenta)
-                        }
-                    }
+    Table(columns = 8) {
+        for (i in 0 until 8) {
+            tableRow {
+                for (j in 0 until 8) {
+                    SizedSquare(color = Color.Magenta, modifier = LayoutPadding(2.dp))
                 }
             }
         }
@@ -49,21 +46,17 @@ fun SimpleTable() {
 @Sampled
 @Composable
 fun TableWithDecorations() {
-    Padding(2.dp) {
-        Table(columns = 8) {
-            tableDecoration(overlay = false) {
-                SizedRectangle(color = Color.Green)
-            }
-            tableDecoration(overlay = false) {
-                DrawShape(shape = CircleShape, color = Color.Red)
-            }
-            for (i in 0 until 8) {
-                tableRow {
-                    for (j in 0 until 8) {
-                        Padding(2.dp) {
-                            SizedSquare(color = Color.Magenta)
-                        }
-                    }
+    Table(columns = 8) {
+        tableDecoration(overlay = false) {
+            SizedRectangle(color = Color.Green)
+        }
+        tableDecoration(overlay = false) {
+            DrawShape(shape = CircleShape, color = Color.Red)
+        }
+        for (i in 0 until 8) {
+            tableRow {
+                for (j in 0 until 8) {
+                    SizedSquare(color = Color.Magenta, modifier = LayoutPadding(2.dp))
                 }
             }
         }
@@ -73,29 +66,29 @@ fun TableWithDecorations() {
 @Sampled
 @Composable
 fun TableWithDifferentColumnWidths() {
-    Padding(2.dp) {
-        Table(
-            columns = 5,
-            columnWidth = { columnIndex ->
-                when (columnIndex) {
-                    0 -> TableColumnWidth.Wrap
-                    1 -> TableColumnWidth.Flex(flex = 1f)
-                    2 -> TableColumnWidth.Flex(flex = 3f)
-                    3 -> TableColumnWidth.Fixed(width = 50.dp)
-                    else -> TableColumnWidth.Fraction(fraction = 0.5f)
-                }
+    val padding = LayoutPadding(2.dp)
+    Table(
+        columns = 5,
+        columnWidth = { columnIndex ->
+            when (columnIndex) {
+                0 -> TableColumnWidth.Wrap
+                1 -> TableColumnWidth.Flex(flex = 1f)
+                2 -> TableColumnWidth.Flex(flex = 3f)
+                3 -> TableColumnWidth.Fixed(width = 50.dp)
+                else -> TableColumnWidth.Fraction(fraction = 0.5f)
             }
-        ) {
-            for (i in 0 until 8) {
-                tableRow {
-                    Padding(2.dp) {
-                        SizedRectangle(color = Color.Magenta, width = 25.dp, height = 25.dp)
-                    }
-                    for (j in 1 until 5) {
-                        Padding(2.dp) {
-                            SizedRectangle(color = Color.Magenta, height = 25.dp)
-                        }
-                    }
+        }
+    ) {
+        for (i in 0 until 8) {
+            tableRow {
+                SizedRectangle(
+                    color = Color.Magenta,
+                    width = 25.dp,
+                    height = 25.dp,
+                    modifier = padding
+                )
+                for (j in 1 until 5) {
+                    SizedRectangle(color = Color.Magenta, height = 25.dp, modifier = padding)
                 }
             }
         }
@@ -103,6 +96,6 @@ fun TableWithDifferentColumnWidths() {
 }
 
 @Composable
-private fun SizedSquare(color: Color, size: Dp? = null) {
-    SizedRectangle(LayoutAspectRatio(1f), color = color, width = size)
+private fun SizedSquare(color: Color, size: Dp? = null, modifier: Modifier = Modifier.None) {
+    SizedRectangle(LayoutAspectRatio(1f) + modifier, color = color, width = size)
 }

@@ -32,6 +32,7 @@ import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
@@ -46,8 +47,8 @@ import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Spacer
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
@@ -228,7 +229,7 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
             DrawTrack(color, position)
-            Padding(left = offset) {
+            Box(LayoutPadding(left = offset)) {
                 Ripple(bounded = false) {
                     Surface(
                         shape = CircleShape,

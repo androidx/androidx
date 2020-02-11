@@ -23,6 +23,7 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
@@ -36,9 +37,9 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
@@ -161,15 +162,15 @@ class RadioGroupScope internal constructor() {
         textStyle: TextStyle? = null
     ) {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
-            Padding(padding = DefaultRadioItemPadding) {
-                Row(LayoutWidth.Fill) {
+            // TODO: remove this Box when Ripple becomes a modifier.
+            Box {
+                Row(LayoutWidth.Fill + LayoutPadding(DefaultRadioItemPadding)) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
-                    Padding(left = DefaultRadioLabelOffset) {
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography().body1.merge(textStyle)
-                        )
-                    }
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography().body1.merge(textStyle),
+                        modifier = LayoutPadding(left = DefaultRadioLabelOffset)
+                    )
                 }
             }
         }
@@ -201,7 +202,7 @@ fun RadioButton(
             MutuallyExclusiveSetItem(
                 selected = selected, onClick = { if (!selected) onSelect?.invoke() }
             ) {
-                Padding(padding = RadioButtonPadding) {
+                Box(LayoutPadding(RadioButtonPadding)) {
                     val unselectedColor =
                         MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
                     val definition = remember(color, unselectedColor) {
