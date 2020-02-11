@@ -58,7 +58,6 @@ android {
 androidx {
     name = "Jetpack Camera Lifecycle Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.CAMERA
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "Lifecycle components for the Jetpack Camera Library, a library providing a " +
