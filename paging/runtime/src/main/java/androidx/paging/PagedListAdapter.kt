@@ -115,8 +115,8 @@ import androidx.recyclerview.widget.RecyclerView
 abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH> {
     @Suppress("DEPRECATION")
     internal val differ: AsyncPagedListDiffer<T>
+    @Suppress("DEPRECATION")
     private val listener = { previousList: PagedList<T>?, currentList: PagedList<T>? ->
-        @Suppress("DEPRECATION")
         this@PagedListAdapter.onCurrentListChanged(currentList)
         this@PagedListAdapter.onCurrentListChanged(previousList, currentList)
     }
@@ -132,6 +132,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @see onCurrentListChanged
      */
+    @Suppress("DEPRECATION")
     open val currentList: PagedList<T>?
         get() = differ.currentList
 
@@ -164,7 +165,8 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @param pagedList The new list to be displayed.
      */
-    open fun submitList(pagedList: PagedList<T>?) = differ.submitList(pagedList)
+    open fun submitList(@Suppress("DEPRECATION") pagedList: PagedList<T>?) =
+        differ.submitList(pagedList)
 
     /**
      * Set the new list to be displayed.
@@ -180,8 +182,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
      * it is committed.
      */
-    open fun submitList(pagedList: PagedList<T>?, commitCallback: Runnable?) =
-        differ.submitList(pagedList, commitCallback)
+    open fun submitList(
+        @Suppress("DEPRECATION") pagedList: PagedList<T>?,
+        commitCallback: Runnable?
+    ) = differ.submitList(pagedList, commitCallback)
 
     protected open fun getItem(position: Int) = differ.getItem(position)
 
@@ -207,7 +211,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         "Use the two argument variant instead.",
         ReplaceWith("onCurrentListChanged(previousList, currentList)")
     )
-    open fun onCurrentListChanged(currentList: PagedList<T>?) {
+    open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {
     }
 
     /**
@@ -227,7 +231,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @see currentList
      */
-    open fun onCurrentListChanged(previousList: PagedList<T>?, currentList: PagedList<T>?) {
+    open fun onCurrentListChanged(
+        @Suppress("DEPRECATION") previousList: PagedList<T>?,
+        @Suppress("DEPRECATION") currentList: PagedList<T>?
+    ) {
     }
 
     /**

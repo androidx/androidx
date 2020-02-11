@@ -58,6 +58,7 @@ class PagedListAdapterTest {
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) =
             throw IllegalStateException("not supported")
 
+        @Suppress("OverridingDeprecatedMember")
         override fun onCurrentListChanged(currentList: PagedList<String>?) {
             onChangedLegacy?.onCurrentListChanged(null, currentList)
         }
@@ -137,12 +138,10 @@ class PagedListAdapterTest {
     }
 
     private fun verifyOnCurrentListChanged(
-        @Suppress("DEPRECATION")
-        legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
-        @Suppress("DEPRECATION")
-        listener: AsyncPagedListDiffer.PagedListListener<String>,
-        previousList: PagedList<String>?,
-        currentList: PagedList<String>?
+        @Suppress("DEPRECATION") legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
+        @Suppress("DEPRECATION") listener: AsyncPagedListDiffer.PagedListListener<String>,
+        @Suppress("DEPRECATION") previousList: PagedList<String>?,
+        @Suppress("DEPRECATION") currentList: PagedList<String>?
     ) {
         verify(legacyListener).onCurrentListChanged(null, currentList)
         verify(listener).onCurrentListChanged(previousList, currentList)

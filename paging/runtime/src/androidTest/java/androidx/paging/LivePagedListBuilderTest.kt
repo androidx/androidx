@@ -140,8 +140,10 @@ class LivePagedListBuilderTest {
             .setFetchExecutor(backgroundExecutor)
             .build()
 
+        @Suppress("DEPRECATION")
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
+        @Suppress("DEPRECATION")
         livePagedList.observe(lifecycleOwner, Observer<PagedList<String>> { newList ->
             pagedListHolder[0] = newList
         })
@@ -174,8 +176,10 @@ class LivePagedListBuilderTest {
             .setFetchExecutor(backgroundExecutor)
             .build()
 
+        @Suppress("DEPRECATION")
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
+        @Suppress("DEPRECATION")
         livePagedList.observe(lifecycleOwner, Observer<PagedList<String>> { newList ->
             pagedListHolder[0] = newList
         })

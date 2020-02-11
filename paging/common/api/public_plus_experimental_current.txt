@@ -140,25 +140,25 @@ package androidx.paging {
     field @Deprecated public final int requestedLoadSize;
   }
 
-  public abstract class PagedList<T> extends java.util.AbstractList<T> {
+  @Deprecated public abstract class PagedList<T> extends java.util.AbstractList<T> {
     method @Deprecated public final void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
-    method public final void addWeakCallback(androidx.paging.PagedList.Callback callback);
-    method public final void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method public abstract void detach();
-    method public T? get(int index);
-    method public final androidx.paging.PagedList.Config getConfig();
+    method @Deprecated public final void addWeakCallback(androidx.paging.PagedList.Callback callback);
+    method @Deprecated public final void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method @Deprecated public abstract void detach();
+    method @Deprecated public T? get(int index);
+    method @Deprecated public final androidx.paging.PagedList.Config getConfig();
     method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
-    method public abstract Object? getLastKey();
-    method public final int getLoadedCount();
-    method public final int getPositionOffset();
-    method public int getSize();
-    method public abstract boolean isDetached();
-    method public boolean isImmutable();
-    method public final void loadAround(int index);
-    method public final void removeWeakCallback(androidx.paging.PagedList.Callback callback);
-    method public final void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method public void retry();
-    method public final java.util.List<T> snapshot();
+    method @Deprecated public abstract Object? getLastKey();
+    method @Deprecated public final int getLoadedCount();
+    method @Deprecated public final int getPositionOffset();
+    method @Deprecated public int getSize();
+    method @Deprecated public abstract boolean isDetached();
+    method @Deprecated public boolean isImmutable();
+    method @Deprecated public final void loadAround(int index);
+    method @Deprecated public final void removeWeakCallback(androidx.paging.PagedList.Callback callback);
+    method @Deprecated public final void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method @Deprecated public void retry();
+    method @Deprecated public final java.util.List<T> snapshot();
     property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
     property public abstract boolean isDetached;
     property public boolean isImmutable;
@@ -168,52 +168,52 @@ package androidx.paging {
     property public int size;
   }
 
-  @MainThread public abstract static class PagedList.BoundaryCallback<T> {
-    ctor public PagedList.BoundaryCallback();
-    method public void onItemAtEndLoaded(T itemAtEnd);
-    method public void onItemAtFrontLoaded(T itemAtFront);
-    method public void onZeroItemsLoaded();
+  @Deprecated @MainThread public abstract static class PagedList.BoundaryCallback<T> {
+    ctor @Deprecated public PagedList.BoundaryCallback();
+    method @Deprecated public void onItemAtEndLoaded(T itemAtEnd);
+    method @Deprecated public void onItemAtFrontLoaded(T itemAtFront);
+    method @Deprecated public void onZeroItemsLoaded();
   }
 
-  public static final class PagedList.Builder<Key, Value> {
+  @Deprecated public static final class PagedList.Builder<Key, Value> {
     ctor @Deprecated public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config);
     ctor @Deprecated public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, int pageSize);
-    ctor public PagedList.Builder(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingSource.LoadResult.Page<Key,Value> initialPage, androidx.paging.PagedList.Config config);
-    ctor public PagedList.Builder(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingSource.LoadResult.Page<Key,Value> initialPage, int pageSize);
-    method public androidx.paging.PagedList<Value> build();
-    method public androidx.paging.PagedList.Builder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
-    method public androidx.paging.PagedList.Builder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
-    method public androidx.paging.PagedList.Builder<Key,Value> setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher fetchDispatcher);
+    ctor @Deprecated public PagedList.Builder(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingSource.LoadResult.Page<Key,Value> initialPage, androidx.paging.PagedList.Config config);
+    ctor @Deprecated public PagedList.Builder(androidx.paging.PagingSource<Key,Value> pagingSource, androidx.paging.PagingSource.LoadResult.Page<Key,Value> initialPage, int pageSize);
+    method @Deprecated public androidx.paging.PagedList<Value> build();
+    method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
+    method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
+    method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher fetchDispatcher);
     method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setFetchExecutor(java.util.concurrent.Executor fetchExecutor);
-    method public androidx.paging.PagedList.Builder<Key,Value> setInitialKey(Key? initialKey);
-    method public androidx.paging.PagedList.Builder<Key,Value> setNotifyDispatcher(kotlinx.coroutines.CoroutineDispatcher notifyDispatcher);
+    method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setInitialKey(Key? initialKey);
+    method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setNotifyDispatcher(kotlinx.coroutines.CoroutineDispatcher notifyDispatcher);
     method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setNotifyExecutor(java.util.concurrent.Executor notifyExecutor);
   }
 
-  public abstract static class PagedList.Callback {
-    ctor public PagedList.Callback();
-    method public abstract void onChanged(int position, int count);
-    method public abstract void onInserted(int position, int count);
-    method public abstract void onRemoved(int position, int count);
+  @Deprecated public abstract static class PagedList.Callback {
+    ctor @Deprecated public PagedList.Callback();
+    method @Deprecated public abstract void onChanged(int position, int count);
+    method @Deprecated public abstract void onInserted(int position, int count);
+    method @Deprecated public abstract void onRemoved(int position, int count);
   }
 
-  public static final class PagedList.Config {
-    field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
-    field public final boolean enablePlaceholders;
-    field public final int initialLoadSizeHint;
-    field public final int maxSize;
-    field public final int pageSize;
-    field public final int prefetchDistance;
+  @Deprecated public static final class PagedList.Config {
+    field @Deprecated public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
+    field @Deprecated public final boolean enablePlaceholders;
+    field @Deprecated public final int initialLoadSizeHint;
+    field @Deprecated public final int maxSize;
+    field @Deprecated public final int pageSize;
+    field @Deprecated public final int prefetchDistance;
   }
 
-  public static final class PagedList.Config.Builder {
-    ctor public PagedList.Config.Builder();
-    method public androidx.paging.PagedList.Config build();
-    method public androidx.paging.PagedList.Config.Builder setEnablePlaceholders(boolean enablePlaceholders);
-    method public androidx.paging.PagedList.Config.Builder setInitialLoadSizeHint(@IntRange(from=1) int initialLoadSizeHint);
-    method public androidx.paging.PagedList.Config.Builder setMaxSize(@IntRange(from=2) int maxSize);
-    method public androidx.paging.PagedList.Config.Builder setPageSize(@IntRange(from=1) int pageSize);
-    method public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0) int prefetchDistance);
+  @Deprecated public static final class PagedList.Config.Builder {
+    ctor @Deprecated public PagedList.Config.Builder();
+    method @Deprecated public androidx.paging.PagedList.Config build();
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setEnablePlaceholders(boolean enablePlaceholders);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setInitialLoadSizeHint(@IntRange(from=1) int initialLoadSizeHint);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setMaxSize(@IntRange(from=2) int maxSize);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setPageSize(@IntRange(from=1) int pageSize);
+    method @Deprecated public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0) int prefetchDistance);
   }
 
   public final class PagedListConfigKt {

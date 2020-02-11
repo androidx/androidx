@@ -47,6 +47,7 @@ class PagedListSampleActivity : AppCompatActivity() {
             footer = StateItemAdapter { pagingAdapter.currentList?.retry() }
         )
 
+        @Suppress("DEPRECATION")
         viewModel.livePagedList.observe(this,
             Observer<PagedList<Item>> { pagingAdapter.submitList(it) })
 
