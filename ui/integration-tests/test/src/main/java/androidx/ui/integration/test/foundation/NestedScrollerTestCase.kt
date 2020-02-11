@@ -17,7 +17,6 @@
 package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
-import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Text
@@ -48,17 +47,13 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     override fun emitContent() {
-        val scrollerPosition = ScrollerPosition()
-        onCommit(true) {
-            this@NestedScrollerTestCase.scrollerPosition = scrollerPosition
-        }
+        scrollerPosition = ScrollerPosition()
         MaterialTheme {
             Surface {
                 VerticalScroller {
                     Column {
                         repeat(5) { index ->
-                            if (index == 0) SquareRow(scrollerPosition)
-                            else SquareRow()
+                            SquareRow(index == 0)
                         }
                     }
                 }
@@ -71,7 +66,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     }
 
     @Composable
-    fun SquareRow(scrollerPosition: ScrollerPosition = ScrollerPosition()) {
+    fun SquareRow(useScrollerPosition: Boolean) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
         val content = @Composable {
             Row(LayoutWidth.Fill) {
@@ -111,6 +106,10 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                 }
             }
         }
-        HorizontalScroller(scrollerPosition = scrollerPosition, child = content)
+        if (useScrollerPosition) {
+            HorizontalScroller(scrollerPosition = scrollerPosition, child = content)
+        } else {
+            HorizontalScroller(child = content)
+        }
     }
 }
