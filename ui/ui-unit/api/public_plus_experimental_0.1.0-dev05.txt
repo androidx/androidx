@@ -65,8 +65,10 @@ package androidx.ui.unit {
   public static final class Dp.Companion {
     method public androidx.ui.unit.Dp getHairline();
     method public androidx.ui.unit.Dp getInfinity();
+    method public androidx.ui.unit.Dp getUnspecified();
     property public final androidx.ui.unit.Dp Hairline;
     property public final androidx.ui.unit.Dp Infinity;
+    property public final androidx.ui.unit.Dp Unspecified;
   }
 
   public final inline class DpCubed implements java.lang.Comparable<androidx.ui.unit.DpCubed> {
