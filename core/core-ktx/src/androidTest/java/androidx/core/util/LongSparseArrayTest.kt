@@ -128,7 +128,7 @@ class LongSparseArrayTest {
     @Test fun removeValue() {
         val array = LongSparseArray<String>()
         array.put(1L, "one")
-        assertFalse(array.remove(0L, "one"))
+        assertFalse(array.remove(2L, "one"))
         assertEquals(1, array.size())
         assertFalse(array.remove(1L, "two"))
         assertEquals(1, array.size())

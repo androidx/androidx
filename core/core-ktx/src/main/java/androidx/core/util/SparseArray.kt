@@ -41,7 +41,7 @@ operator fun <T> SparseArray<T>.plus(other: SparseArray<T>): SparseArray<T> {
 inline fun <T> SparseArray<T>.containsKey(key: Int) = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
-inline fun <T> SparseArray<T>.containsValue(value: T) = indexOfValue(value) != -1
+inline fun <T> SparseArray<T>.containsValue(value: T) = indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 inline fun <T> SparseArray<T>.getOrDefault(key: Int, defaultValue: T) = get(key) ?: defaultValue
@@ -59,7 +59,7 @@ inline fun <T> SparseArray<T>.isNotEmpty() = size() != 0
 /** Removes the entry for [key] only if it is mapped to [value]. */
 fun <T> SparseArray<T>.remove(key: Int, value: T): Boolean {
     val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
+    if (index >= 0 && value == valueAt(index)) {
         removeAt(index)
         return true
     }
