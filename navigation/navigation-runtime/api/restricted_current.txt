@@ -43,6 +43,7 @@ package androidx.navigation {
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public androidx.navigation.NavDestination getDestination();
     method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
   }
@@ -52,10 +53,12 @@ package androidx.navigation {
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int);
+    method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
     method public androidx.navigation.NavDestination? getCurrentDestination();
     method public androidx.navigation.NavGraph getGraph();
     method public androidx.navigation.NavInflater getNavInflater();
     method public androidx.navigation.NavigatorProvider getNavigatorProvider();
+    method public androidx.navigation.NavBackStackEntry? getPreviousBackStackEntry();
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner(@IdRes int);
     method public boolean handleDeepLink(android.content.Intent?);
     method public void navigate(@IdRes int);
