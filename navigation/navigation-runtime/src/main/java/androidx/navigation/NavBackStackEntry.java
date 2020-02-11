@@ -22,11 +22,14 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.AbstractSavedStateViewModelFactory;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -61,6 +64,7 @@ public final class NavBackStackEntry implements
     private Lifecycle.State mMaxLifecycle = Lifecycle.State.RESUMED;
     private NavControllerViewModel mNavControllerViewModel;
     private ViewModelProvider.Factory mDefaultFactory;
+    private SavedStateHandle mSavedStateHandle;
 
     NavBackStackEntry(@NonNull Context context,
             @NonNull NavDestination destination, @Nullable Bundle args,
@@ -183,6 +187,21 @@ public final class NavBackStackEntry implements
         mSavedStateRegistryController.performSave(outBundle);
     }
 
+    /**
+     * Gets the {@link SavedStateHandle} for this entry.
+     *
+     * @return the SavedStateHandle for this entry
+     */
+    @NonNull
+    public SavedStateHandle getSavedStateHandle() {
+        if (mSavedStateHandle == null) {
+            mSavedStateHandle = new ViewModelProvider(
+                    this, new NavResultSavedStateFactory(this, null)
+            ).get(SavedStateViewModel.class).getHandle();
+        }
+        return mSavedStateHandle;
+    }
+
     // Copied from LifecycleRegistry.getStateAfter()
     @NonNull
     private static Lifecycle.State getStateAfter(@NonNull Lifecycle.Event event) {
@@ -201,5 +220,37 @@ public final class NavBackStackEntry implements
                 break;
         }
         throw new IllegalArgumentException("Unexpected event value " + event);
+    }
+
+    /**
+     * Used to create the {SavedStateViewModel}
+     */
+    private static class NavResultSavedStateFactory extends AbstractSavedStateViewModelFactory {
+
+        NavResultSavedStateFactory(
+                @NonNull SavedStateRegistryOwner owner, @Nullable Bundle defaultArgs) {
+            super(owner, defaultArgs);
+        }
+
+        @NonNull
+        @Override
+        @SuppressWarnings("unchecked")
+        protected <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass,
+                @NonNull SavedStateHandle handle) {
+            SavedStateViewModel savedStateViewModel = new SavedStateViewModel(handle);
+            return (T) savedStateViewModel;
+        }
+    }
+
+    private static class SavedStateViewModel extends ViewModel {
+        private SavedStateHandle mHandle;
+
+        SavedStateViewModel(SavedStateHandle handle) {
+            mHandle = handle;
+        }
+
+        public SavedStateHandle getHandle() {
+            return mHandle;
+        }
     }
 }
