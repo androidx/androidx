@@ -35,8 +35,7 @@ import androidx.ui.unit.ipx
  * Here [MinIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose minimum intrinsic width will correspond to the preferred width of the largest
  * [Container]. Then [MinIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured minimum intrinsic width, which due to [CrossAxisAlignment.Stretch] will force
- * the [Container]s to use the same width.
+ * as the premeasured minimum intrinsic width.
  */
 @Composable
 fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
