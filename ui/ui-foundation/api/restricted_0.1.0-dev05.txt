@@ -1,13 +1,6 @@
 // Signature format: 3.0
 package androidx.ui.foundation {
 
-  public final class BackgroundKt {
-    method public static androidx.ui.core.DrawModifier background(androidx.ui.graphics.Color color);
-    method public static androidx.ui.core.DrawModifier background(androidx.ui.graphics.Brush brush);
-    method public static androidx.ui.core.DrawModifier background(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color color);
-    method public static androidx.ui.core.DrawModifier background(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Brush brush);
-  }
-
   public final class Border {
     ctor public Border(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
     method public androidx.ui.unit.Dp component1();
@@ -61,6 +54,16 @@ package androidx.ui.foundation {
 
   public final class DialogKt {
     method public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class DrawBackground implements androidx.ui.core.DrawModifier {
+    method public androidx.ui.foundation.DrawBackground copy(androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
+    method public void draw(androidx.ui.unit.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size);
+  }
+
+  public final class DrawBackgroundKt {
+    method public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = RectangleShape);
   }
 
   public final class DrawBorder implements androidx.ui.core.DrawModifier {

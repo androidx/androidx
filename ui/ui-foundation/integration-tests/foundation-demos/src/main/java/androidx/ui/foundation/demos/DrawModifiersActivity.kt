@@ -22,9 +22,12 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.samples.BorderSample
 import androidx.ui.foundation.samples.BorderSampleWithBrush
 import androidx.ui.foundation.samples.BorderSampleWithDataClass
+import androidx.ui.foundation.samples.DrawBackgroundColor
+import androidx.ui.foundation.samples.DrawBackgroundShapedBrush
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.unit.dp
 
@@ -33,12 +36,19 @@ class DrawModifiersActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Column(LayoutPadding(10.dp)) {
-                BorderSample()
-                Spacer(LayoutHeight(30.dp))
-                BorderSampleWithBrush()
-                Spacer(LayoutHeight(30.dp))
-                BorderSampleWithDataClass()
+            Row {
+                Column(LayoutFlexible(1f) + LayoutPadding(10.dp)) {
+                    BorderSample()
+                    Spacer(LayoutHeight(30.dp))
+                    BorderSampleWithBrush()
+                    Spacer(LayoutHeight(30.dp))
+                    BorderSampleWithDataClass()
+                }
+                Column(LayoutFlexible(1f) + LayoutPadding(10.dp)) {
+                    DrawBackgroundColor()
+                    Spacer(LayoutHeight(30.dp))
+                    DrawBackgroundShapedBrush()
+                }
             }
         }
     }
