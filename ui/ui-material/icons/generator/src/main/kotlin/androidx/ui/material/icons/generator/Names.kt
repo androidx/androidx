@@ -24,6 +24,7 @@ import com.squareup.kotlinpoet.MemberName
  */
 enum class PackageNames(val packageName: String) {
     MaterialIconsPackage("androidx.ui.material.icons"),
+    MaterialIconsTestPackage("androidx.ui.material.icons.test"),
     VectorPackage("androidx.ui.graphics.vector")
 }
 
@@ -31,6 +32,7 @@ enum class PackageNames(val packageName: String) {
  * [ClassName]s used for icon generation.
  */
 object ClassNames {
+    val Icons = PackageNames.MaterialIconsPackage.className("Icons")
     val VectorAsset = PackageNames.VectorPackage.className("VectorAsset")
 }
 
