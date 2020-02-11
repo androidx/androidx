@@ -104,6 +104,10 @@ public class InlineSuggestionsHostView extends FrameLayout {
 
     @Override
     public void addView(@NonNull View child, int index, @NonNull ViewGroup.LayoutParams params) {
+        if (child == mSurfaceClipView) {
+            super.addView(child, index, params);
+            return;
+        }
         final FrameLayout locationOffsetWrapper = new FrameLayout(getContext());
         locationOffsetWrapper.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,

@@ -14,4 +14,10 @@
   limitations under the License
   -->
 
-<manifest package="androidx.autofill.tests"></manifest>
+<manifest package="androidx.autofill.tests">
+    <application>
+        <activity xmlns:android="http://schemas.android.com/apk/res/android"
+            android:name="androidx.autofill.InlineContentActivity">
+        </activity>
+    </application>
+</manifest>
