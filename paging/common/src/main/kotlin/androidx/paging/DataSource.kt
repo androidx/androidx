@@ -20,7 +20,6 @@ import androidx.annotation.AnyThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
-import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -492,19 +491,6 @@ internal constructor(internal val type: KeyType) {
                 )
             }
         }
-
-        /**
-         * Assumes that nextKey and prevKey returned by this [BaseResult] matches the expected type
-         * in [PagingSource.LoadResult].
-         */
-        @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct Key type.
-        internal fun <Key : Any> toLoadResult(): Page<Key, Value> = Page(
-            data,
-            prevKey as Key?,
-            nextKey as Key?,
-            itemsBefore,
-            itemsAfter
-        )
 
         override fun equals(other: Any?) = when (other) {
             is BaseResult<*> -> data == other.data &&

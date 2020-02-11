@@ -20,6 +20,8 @@ import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.DataSource.Params
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.START
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -44,7 +46,17 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
         )
 
         return withContext(fetchDispatcher) {
-            dataSource.load(dataSourceParams).toLoadResult<Key>()
+            dataSource.load(dataSourceParams).run {
+                LoadResult.Page(
+                    data,
+                    @Suppress("UNCHECKED_CAST")
+                    if (data.isEmpty() && params.loadType == START) null else prevKey as Key?,
+                    @Suppress("UNCHECKED_CAST")
+                    if (data.isEmpty() && params.loadType == END) null else nextKey as Key?,
+                    itemsBefore,
+                    itemsAfter
+                )
+            }
         }
     }
 
