@@ -36,4 +36,5 @@
         <item name="autofillInlineSuggestionTitle">@style/GreenText</item>
         <item name="autofillInlineSuggestionSubtitle">@style/GreenText</item>
     </style>
+
 </resources>
