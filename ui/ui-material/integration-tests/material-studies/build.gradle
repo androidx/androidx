@@ -15,15 +15,18 @@
  */
 
 
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.library")
     id("AndroidXUiPlugin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -53,4 +56,15 @@ android {
             useIR = true
         }
     }
+}
+
+androidx {
+    name = "Compose Material Studies"
+    publish = Publish.NONE
+    // b/142788501: Set toolingProject to true so Dokka does not generate reference docs for this project
+    toolingProject = true
+    mavenVersion = LibraryVersions.UI
+    mavenGroup = LibraryGroups.UI
+    inceptionYear = "2020"
+    description = "This is a project for Material Studies demos."
 }
