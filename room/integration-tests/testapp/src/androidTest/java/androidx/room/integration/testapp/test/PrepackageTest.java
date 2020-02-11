@@ -37,6 +37,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -323,6 +324,7 @@ public class PrepackageTest {
     }
 
     @Test
+    @Ignore("Flaky test, see b/149072706")
     public void createFromAssert_multiInstanceCopy() throws InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase("products.db");
