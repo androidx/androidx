@@ -21,7 +21,11 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.offset
+import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shape
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -39,20 +43,57 @@ import androidx.ui.unit.max
  * The specified [padding] will be applied inside the [Box]. In order to apply padding outside
  * the [Box], the [androidx.ui.layout.LayoutPadding] modifier should be used.
  *
+ * @sample androidx.ui.foundation.samples.SimpleCircleBox
+ *
  * @param modifier The modifier to be applied to the Box
- * @param padding The padding to be applied inside Box, along its edges
+ * @param shape The shape of the box
+ * @param backgroundColor The [Color] for background with. If [Color.Transparent], there will be no
+ * background
+ * @param border [Border] object that specifies border appearance, such as size and color. If
+ * `null`, there will be no border
+ * @param padding The padding to be applied inside Box, along its edges. Unless otherwise
+ * specified, content will be padded by the [Border.size], if [border] is provided
+ * @param paddingLeft specific padding for left side. Setting this will override
+ * [padding] for the left side
+ * @param paddingTop specific padding for right side. Setting this will override
+ * [padding] for the top side
+ * @param paddingRight specific padding for top side. Setting this will override
+ * [padding] for the right side
+ * @param paddingBottom specific padding for bottom side. Setting this will override
+ * [padding] for the bottom side
  * @param gravity The gravity of the content inside Box
  */
 @Composable
 fun Box(
     modifier: Modifier = Modifier.None,
-    padding: ContentPadding = ContentPadding(0.dp),
+    shape: Shape = RectangleShape,
+    backgroundColor: Color = Color.Transparent,
+    border: Border? = null,
+    padding: Dp = border?.size ?: 0.dp,
+    paddingLeft: Dp = Dp.Unspecified,
+    paddingTop: Dp = Dp.Unspecified,
+    paddingRight: Dp = Dp.Unspecified,
+    paddingBottom: Dp = Dp.Unspecified,
     gravity: ContentGravity = ContentGravity.TopLeft,
     children: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints ->
-        val totalHorizontal = padding.left.toIntPx() + padding.right.toIntPx()
-        val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
+    val borderModifier =
+        if (border != null) DrawBorder(border, shape) else Modifier.None
+    val backgroundModifier =
+        if (backgroundColor == Color.Transparent) {
+            Modifier.None
+        } else {
+            background(shape, backgroundColor)
+        }
+    // TODO(malkov): support ContentColor prorogation (b/148129218)
+    // TODO(popam): there should be no custom layout, use Column instead (b/148809177)
+    Layout(children, modifier + backgroundModifier + borderModifier) { measurables, constraints ->
+        val leftPadding = if (paddingLeft != Dp.Unspecified) paddingLeft else padding
+        val rightPadding = if (paddingTop != Dp.Unspecified) paddingTop else padding
+        val topPadding = if (paddingRight != Dp.Unspecified) paddingRight else padding
+        val bottomPadding = if (paddingBottom != Dp.Unspecified) paddingBottom else padding
+        val totalHorizontal = leftPadding.toIntPx() + rightPadding.toIntPx()
+        val totalVertical = topPadding.toIntPx() + bottomPadding.toIntPx()
 
         val childConstraints = constraints
             .offset(-totalHorizontal, -totalVertical)
@@ -75,8 +116,8 @@ fun Box(
                     )
                 )
                 it.place(
-                    padding.left.toIntPx() + position.x,
-                    padding.top.toIntPx() + position.y
+                    leftPadding.toIntPx() + position.x,
+                    topPadding.toIntPx() + position.y
                 )
             }
         }
@@ -85,5 +126,6 @@ fun Box(
 
 // TODO(popam/148015674): move EdgeInsets here and rename the API to ContentPadding
 typealias ContentPadding = EdgeInsets
+
 // TODO(popam/148014745): add a Gravity class consistent with cross axis alignment for Row/Column
 typealias ContentGravity = Alignment
