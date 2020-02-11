@@ -147,7 +147,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          */
         AES256_SIV(DeterministicAeadKeyTemplates.AES256_SIV);
 
-        private KeyTemplate mDeterministicAeadKeyTemplate;
+        private final KeyTemplate mDeterministicAeadKeyTemplate;
 
         PrefKeyEncryptionScheme(KeyTemplate keyTemplate) {
             mDeterministicAeadKeyTemplate = keyTemplate;
@@ -171,7 +171,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          */
         AES256_GCM(AeadKeyTemplates.AES256_GCM);
 
-        private KeyTemplate mAeadKeyTemplate;
+        private final KeyTemplate mAeadKeyTemplate;
 
         PrefValueEncryptionScheme(KeyTemplate keyTemplates) {
             mAeadKeyTemplate = keyTemplates;
@@ -451,7 +451,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         FLOAT(4),
         BOOLEAN(5);
 
-        int mId;
+        private final int mId;
 
         EncryptedType(int id) {
             mId = id;
