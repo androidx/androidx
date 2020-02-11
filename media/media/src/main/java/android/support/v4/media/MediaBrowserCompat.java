@@ -62,6 +62,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
@@ -2106,7 +2107,7 @@ public final class MediaBrowserCompat {
         private WeakReference<Messenger> mCallbacksMessengerRef;
 
         CallbackHandler(MediaBrowserServiceCallbackImpl callbackImpl) {
-            super();
+            super(Looper.getMainLooper());
             mCallbackImplRef = new WeakReference<>(callbackImpl);
         }
 

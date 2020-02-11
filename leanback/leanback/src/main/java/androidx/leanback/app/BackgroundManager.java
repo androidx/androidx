@@ -31,6 +31,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -562,7 +563,7 @@ public final class BackgroundManager {
         mService = BackgroundContinuityService.getInstance();
         mHeightPx = mContext.getResources().getDisplayMetrics().heightPixels;
         mWidthPx = mContext.getResources().getDisplayMetrics().widthPixels;
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
 
         Interpolator defaultInterpolator = new FastOutLinearInInterpolator();
 

@@ -20,6 +20,7 @@ import android.graphics.Canvas;
 import android.media.MediaFormat;
 import android.media.MediaPlayer.TrackInfo;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.LongSparseArray;
 import android.util.Pair;
@@ -57,7 +58,7 @@ abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
 
     public boolean DEBUG = false;
 
-    protected Handler mHandler = new Handler();
+    protected Handler mHandler = new Handler(Looper.getMainLooper());
 
     private MediaFormat mFormat;
 

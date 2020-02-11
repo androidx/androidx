@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -55,7 +56,7 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 boolean newState = i.getBooleanExtra(EXTRA_TOGGLE_STATE, wm.isWifiEnabled());
                 wm.setWifiEnabled(newState);
                 // Wait a bit for wifi to update (TODO: is there a better way to do this?)
-                Handler h = new Handler();
+                Handler h = new Handler(Looper.getMainLooper());
                 h.postDelayed(new Runnable() {
                     @Override
                     public void run() {

@@ -29,6 +29,7 @@ import android.content.ServiceConnection;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -74,7 +75,7 @@ class SpeedBumpController {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final int mLockOutMessageDurationMs;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final Context mContext;
     @SuppressWarnings("WeakerAccess") /* synthetic access */

@@ -52,6 +52,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -690,7 +691,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
     private void addRange() {
         if (mHandler == null) {
-            mHandler = new Handler();
+            mHandler = new Handler(Looper.getMainLooper());
         }
 
         final boolean isSeekBar = FORMAT_ACTION.equals(mRangeItem.getFormat());
@@ -757,7 +758,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
     private void addSelection(final SliceItem selection) {
         if (mHandler == null) {
-            mHandler = new Handler();
+            mHandler = new Handler(Looper.getMainLooper());
         }
 
         mSelectionOptionKeys = new ArrayList<String>();

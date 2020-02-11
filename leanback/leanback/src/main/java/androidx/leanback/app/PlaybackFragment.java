@@ -21,11 +21,13 @@ import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.util.TypedValue;
@@ -40,7 +42,6 @@ import android.view.animation.AccelerateInterpolator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import android.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.animation.LogAccelerateInterpolator;
 import androidx.leanback.animation.LogDecelerateInterpolator;
@@ -301,7 +302,7 @@ public class PlaybackFragment extends Fragment {
         return mRowsFragment.getVerticalGridView();
     }
 
-    private final Handler mHandler = new Handler() {
+    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
             if (message.what == START_FADE_OUT && mFadingEnabled) {

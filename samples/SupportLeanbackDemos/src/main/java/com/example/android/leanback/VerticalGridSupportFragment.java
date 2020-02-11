@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -67,7 +68,7 @@ public class VerticalGridSupportFragment extends androidx.leanback.app.VerticalG
             }
         }
         // simulates in a real world use case  data being loaded two seconds later
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 loadData();

@@ -19,6 +19,7 @@ package androidx.lifecycle;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
@@ -37,7 +38,7 @@ public class ServiceLifecycleDispatcher {
      */
     public ServiceLifecycleDispatcher(@NonNull LifecycleOwner provider) {
         mRegistry = new LifecycleRegistry(provider);
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
     }
 
     private void postDispatchRunnable(Lifecycle.Event event) {
