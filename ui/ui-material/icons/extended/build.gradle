@@ -17,6 +17,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import androidx.ui.material.icons.generator.tasks.IconGenerationTask
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -47,6 +48,8 @@ android.buildTypes.all {
     // Jacoco hangs intermittently due to the large number of files
     testCoverageEnabled = false
 }
+
+IconGenerationTask.registerExtendedIconProject(project, android)
 
 androidx {
     name = "AndroidX Extended Material Icons"

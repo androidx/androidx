@@ -14,28 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.icons.samples
+package androidx.ui.material.icons.generator
 
-import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.ui.graphics.vector.DrawVector
-import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.rounded.Menu
-
-@Sampled
-@Composable
-@Suppress("LocalVariableName")
-fun AppIcons() {
-    val MyAppIcons = Icons.Rounded
-    SomeComposable(icon = MyAppIcons.Menu)
-}
-
-@Sampled
-@Composable
-fun DrawIcon() {
-    DrawVector(vectorImage = Icons.Rounded.Menu)
-}
-
-@Composable
-private fun SomeComposable(icon: VectorAsset) { DrawVector(icon) }
+/**
+ * List of 'core' icons that will be added to the 'core' icons module, and depended on by
+ * ui-material. These icons are the set of most commonly used icons, including icons used by
+ * Material components directly (such as the menu icon in an AppBar). All icons not specified
+ * here will be generated to the 'extended' icons module.
+ */
+// TODO: b/148935744 clarify and 'finalize' this list, this is just a placeholder for now
+val CoreIcons = listOf(
+    "Menu",
+    "Close",
+    "Favorite"
+)
