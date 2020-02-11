@@ -18,6 +18,8 @@ package androidx.startup.lint
 
 import androidx.startup.lint.Stubs.TEST_COMPONENT
 import androidx.startup.lint.Stubs.COMPONENT_INITIALIZER
+import androidx.startup.lint.Stubs.TEST_COMPONENT_2
+import androidx.startup.lint.Stubs.TEST_COMPONENT_WITH_DEPENDENCIES
 import com.android.tools.lint.checks.infrastructure.TestFiles.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
@@ -64,6 +66,34 @@ class EnsureComponentInitializerMetadataTest {
             .files(
                 COMPONENT_INITIALIZER,
                 TEST_COMPONENT,
+                manifest
+            )
+            .issues(EnsureComponentInitializerMetadataDetector.ISSUE)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testSuccessWhenInCompleteMetadataIsProvided() {
+        val manifest = manifest(
+            """
+               <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  package="com.example">
+                  <application>
+                    <meta-data
+                        android:name="com.example.TestComponentInitializer"
+                        android:value="androidx.startup" />
+                  </application>
+                </manifest>
+        """
+        ).indented()
+
+        lint()
+            .files(
+                COMPONENT_INITIALIZER,
+                TEST_COMPONENT_WITH_DEPENDENCIES,
+                TEST_COMPONENT_2,
                 manifest
             )
             .issues(EnsureComponentInitializerMetadataDetector.ISSUE)
