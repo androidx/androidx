@@ -26,6 +26,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.unit.dp
@@ -49,13 +50,37 @@ fun SimpleCenter() {
 @Sampled
 @Composable
 fun SimpleAlignedModifier() {
-    SizedRectangle(LayoutAlign.TopCenter, color = Color.Blue, width = 20.dp, height = 20.dp)
+    // Here, the blue rectangle prefers to have a 20.dp size, subject to the incoming constraints.
+    // Because of the LayoutSize.Min modifier, if LayoutAlign was not present, the blue rectangle
+    // would actually be 40.dp x 40.dp to satisfy the min size set by the modifier. However,
+    // because we also provide LayoutAlign, the blue rectangle is allowed to be smaller than the min
+    // constraints, and it will be aligned in the 40.dp x 40.dp space. Note the example would not
+    // work if LayoutAlign was specified before LayoutSize in the modifier chain.
+    SizedRectangle(
+        modifier = LayoutSize.Min(40.dp, 40.dp) + LayoutAlign.TopCenter,
+        color = Color.Blue,
+        width = 20.dp,
+        height = 20.dp
+    )
 }
 
 @Sampled
 @Composable
 fun SimpleVerticallyAlignedModifier() {
-    SizedRectangle(LayoutAlign.CenterVertically, color = Color.Blue, height = 50.dp)
+    // Here, the blue rectangle prefers to have a 50.dp height, subject to the incoming constraints.
+    // Because of the LayoutSize.Fill modifier, if LayoutAlign was not present, the blue rectangle
+    // would actually fill the available height to satisfy the min height set by the modifier.
+    // However, because we also provide LayoutAlign, the blue rectangle is allowed to be smaller
+    // than the min height, and it will be centered vertically in the available height.
+    // The width of the rectangle will still fill the available width, because the
+    // LayoutAlign.CenterVertically modifier is only concerned with vertical alignment.
+    // Note the example would not work if LayoutAlign was specified before LayoutSize
+    // in the modifier chain.
+    SizedRectangle(
+        modifier = LayoutSize.Fill + LayoutAlign.CenterVertically,
+        color = Color.Blue,
+        height = 50.dp
+    )
 }
 
 @Sampled
