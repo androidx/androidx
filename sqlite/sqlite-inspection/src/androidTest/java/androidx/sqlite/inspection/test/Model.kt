@@ -24,4 +24,17 @@ data class Table(val name: String, val columns: List<Column>) {
     constructor(name: String, vararg columns: Column) : this(name, columns.toList())
 }
 
-data class Column(val name: String, val type: String)
+data class Column(
+    val name: String,
+    val type: String,
+    /**
+     * The value of [primaryKey] is either:
+     * - Zero for columns that are not part of the primary key.
+     * - The index of the column in the primary key for columns that are part of the primary key.
+     */
+    val primaryKey: Int = 0,
+    val isNotNull: Boolean = false,
+    val isUnique: Boolean = false
+) {
+    val isPrimaryKey: Boolean get() = primaryKey > 0
+}
