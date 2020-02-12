@@ -300,6 +300,7 @@ package androidx.ui.text {
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
+    method public float getLineTop(int lineIndex);
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public int getMaxLines();
@@ -347,6 +348,7 @@ package androidx.ui.text {
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
+    method public float getLineTop(int lineIndex);
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
