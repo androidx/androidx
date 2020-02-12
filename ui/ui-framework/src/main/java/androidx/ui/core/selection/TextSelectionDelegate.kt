@@ -71,7 +71,9 @@ internal class TextSelectionDelegate(
     }
 
     override fun getLayoutCoordinates(): LayoutCoordinates? {
-        return layoutCoordinates.value
+        val layoutCoordinates = layoutCoordinates.value
+        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
+        return layoutCoordinates
     }
 }
 
