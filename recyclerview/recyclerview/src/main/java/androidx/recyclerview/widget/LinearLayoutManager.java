@@ -854,14 +854,16 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             // If that is the case, offset it back to 0 so that we use these pre-layout children.
             if (!state.isPreLayout() && supportsPredictiveItemAnimations()) {
                 // validate this child is at least partially visible. if not, offset it to start
-                final boolean notVisible = mOrientationHelper.getDecoratedStart(referenceChild)
-                        >= mOrientationHelper.getEndAfterPadding()
-                        || mOrientationHelper.getDecoratedEnd(referenceChild)
-                        <= mOrientationHelper.getStartAfterPadding();
+                final int childStart = mOrientationHelper.getDecoratedStart(referenceChild);
+                final int childEnd = mOrientationHelper.getDecoratedEnd(referenceChild);
+                final int boundsStart = mOrientationHelper.getStartAfterPadding();
+                final int boundsEnd = mOrientationHelper.getEndAfterPadding();
+                // b/148869110: usually if childStart >= boundsEnd the child is out of
+                // bounds, except if the child is 0 pixels!
+                final boolean notVisible = (childStart >= boundsEnd && childEnd > boundsEnd)
+                        || (childEnd <= boundsStart && childStart < boundsStart);
                 if (notVisible) {
-                    anchorInfo.mCoordinate = anchorInfo.mLayoutFromEnd
-                            ? mOrientationHelper.getEndAfterPadding()
-                            : mOrientationHelper.getStartAfterPadding();
+                    anchorInfo.mCoordinate = anchorInfo.mLayoutFromEnd ? boundsEnd : boundsStart;
                 }
             }
             return true;
@@ -1863,18 +1865,25 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         for (int i = start; i != end; i += diff) {
             final View view = getChildAt(i);
             final int position = getPosition(view);
+            final int childStart = mOrientationHelper.getDecoratedStart(view);
+            final int childEnd = mOrientationHelper.getDecoratedEnd(view);
             if (position >= 0 && position < itemCount) {
                 if (((RecyclerView.LayoutParams) view.getLayoutParams()).isItemRemoved()) {
                     if (invalidMatch == null) {
                         invalidMatch = view; // removed item, least preferred
                     }
-                } else if (mOrientationHelper.getDecoratedStart(view) >= boundsEnd
-                        || mOrientationHelper.getDecoratedEnd(view) <= boundsStart) {
-                    if (outOfBoundsMatch == null) {
-                        outOfBoundsMatch = view; // item is not visible, less preferred
-                    }
                 } else {
-                    return view;
+                    // b/148869110: usually if childStart >= boundsEnd the child is out of
+                    // bounds, except if the child is 0 pixels!
+                    if ((childStart >= boundsEnd && childEnd > boundsEnd)
+                            || (childEnd <= boundsStart && childStart < boundsStart)) {
+                        // item is not visible, less preferred
+                        if (outOfBoundsMatch == null) {
+                            outOfBoundsMatch = view;
+                        }
+                    } else {
+                        return view;
+                    }
                 }
             }
         }

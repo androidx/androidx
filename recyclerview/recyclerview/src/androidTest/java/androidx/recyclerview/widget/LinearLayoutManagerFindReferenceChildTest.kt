@@ -36,8 +36,7 @@ class LinearLayoutManagerFindReferenceChildTest(
     private val config: Config,
     private val addExtraLayoutSpace: Boolean,
     private val childOffset: Int
-) :
-    BaseLinearLayoutManagerTest() {
+) : BaseLinearLayoutManagerTest() {
 
     companion object {
         @JvmStatic
@@ -64,7 +63,7 @@ class LinearLayoutManagerFindReferenceChildTest(
 
     @Test
     fun test() {
-        val llm = MyLayoutManager(activity, config)
+        val llm = MyLayoutManager(activity)
         config.mTestLayoutManager = llm
         setupByConfig(config, true, createLayoutParams(), createLayoutParams())
 
@@ -101,12 +100,8 @@ class LinearLayoutManagerFindReferenceChildTest(
         return RecyclerView.LayoutParams(size, size)
     }
 
-    private inner class MyLayoutManager internal constructor(context: Context, config: Config) :
-        BaseLinearLayoutManagerTest.WrappedLinearLayoutManager(
-            context,
-            config.mOrientation,
-            config.mReverseLayout
-        ) {
+    private inner class MyLayoutManager internal constructor(context: Context) :
+        WrappedLinearLayoutManager(context, config.mOrientation, config.mReverseLayout) {
 
         internal val recordedReferenceChildren: MutableList<Int> = ArrayList()
 
