@@ -17,13 +17,14 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Immutable
-import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Text
+import androidx.ui.core.toModifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
-import androidx.ui.graphics.painter.Painter
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
@@ -34,18 +35,17 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
+import androidx.ui.graphics.painter.Painter
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Wrap
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.ripple.Ripple
@@ -53,7 +53,6 @@ import androidx.ui.material.surface.Surface
 import androidx.ui.material.surface.primarySurface
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
-import androidx.ui.core.toModifier
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -163,38 +162,37 @@ private fun BaseTopAppBar(
     endContent: @Composable() (() -> Unit)?
 ) {
     BaseAppBar(color, contentColor, elevation, RectangleShape) {
-        Row(arrangement = Arrangement.SpaceBetween) {
-            // We only want to reserve space here if we have some start content
-            if (startContent != null) {
-                Container(
-                    modifier = LayoutHeight.Fill,
-                    width = AppBarTitleStartPadding,
-                    alignment = Alignment.CenterLeft,
-                    children = startContent
-                )
-            }
-            // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
-            Container(LayoutFlexible(1f) + LayoutAlign.BottomLeft) {
-                AlignmentLineOffset(
-                    alignmentLine = LastBaseline,
-                    after = with(DensityAmbient.current) { AppBarTitleBaselineOffset.toDp() }
-                ) {
-                    Semantics(container = true) {
-                        // TODO: AlignmentLineOffset requires a child, so in case title() is
-                        // empty we just add an empty wrap here - should be fixed when we move to
-                        // modifiers.
-                        Wrap(children = title)
-                    }
+        if (startContent == null) {
+            Spacer(LayoutWidth(TitleInsetWithoutIcon))
+        } else {
+            // TODO: make this a row after b/148014745 is fixed
+            Box(
+                LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon) +
+                        LayoutPadding(left = IconPadding),
+                gravity = ContentGravity.CenterLeft,
+                children = startContent
+            )
+        }
+
+        // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
+        Box(LayoutHeight.Fill + LayoutFlexible(1f), gravity = ContentGravity.BottomLeft) {
+            val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
+            AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
+                Semantics(container = true) {
+                    // TODO: AlignmentLineOffset requires a child, so in case title() is
+                    // empty we just add an empty box here - should be fixed when we move to
+                    // modifiers.
+                    Box(children = title)
                 }
             }
-            if (endContent != null) {
-                Container(
-                    modifier = LayoutHeight.Fill,
-                    alignment = Alignment.Center,
-                    children = endContent
-                )
-            }
         }
+
+        // TODO: make this a row after b/148014745 is fixed
+        Box(
+            modifier = LayoutHeight.Fill + LayoutPadding(right = IconPadding),
+            gravity = ContentGravity.CenterRight,
+            children = endContent ?: {}
+        )
     }
 }
 
@@ -586,16 +584,17 @@ private fun BaseBottomAppBar(
     endContent: @Composable() (() -> Unit)?
 ) {
     BaseAppBar(color, contentColor, BottomAppBarElevation, shape) {
-        Padding(top = AppBarPadding, bottom = AppBarPadding) {
-            Row(LayoutSize.Fill, arrangement = Arrangement.SpaceBetween) {
-                // Using wrap so that even if startContent is null or emits no layout nodes,
-                // we will still force end content to be placed at the end of the row.
-                Wrap(alignment = Alignment.Center, children = startContent ?: {})
-                if (endContent != null) {
-                    Wrap(alignment = Alignment.Center, children = endContent)
-                }
-            }
-        }
+        // TODO: make these rows after b/148014745 is fixed
+        Box(
+            LayoutHeight.Fill + LayoutPadding(left = IconPadding),
+            gravity = ContentGravity.CenterLeft,
+            children = startContent ?: {}
+        )
+        Box(
+            LayoutHeight.Fill + LayoutPadding(right = IconPadding),
+            gravity = ContentGravity.CenterRight,
+            children = endContent ?: {}
+        )
     }
 }
 
@@ -611,13 +610,12 @@ private fun BaseAppBar(
     contentColor: Color,
     elevation: Dp,
     shape: Shape,
-    children: @Composable() () -> Unit
+    children: @Composable() RowScope.() -> Unit
 ) {
     Surface(color = color, contentColor = contentColor, elevation = elevation, shape = shape) {
-        Container(
-            height = AppBarHeight,
-            expanded = true,
-            padding = EdgeInsets(left = AppBarPadding, right = AppBarPadding),
+        Row(
+            LayoutWidth.Fill + LayoutHeight(AppBarHeight),
+            arrangement = Arrangement.SpaceBetween,
             children = children
         )
     }
@@ -653,11 +651,8 @@ private fun <T> AppBarActions(
     }
 
     Row {
-        shownActions.forEach { (index, shownAction) ->
+        shownActions.forEach { (_, shownAction) ->
             action(shownAction)
-            if (index != shownActions.lastIndex) {
-                Spacer(LayoutWidth(24.dp))
-            }
         }
         if (overflowActions.isNotEmpty()) {
             Spacer(LayoutWidth(24.dp))
@@ -678,25 +673,33 @@ private fun <T> AppBarActions(
  */
 @Composable
 fun AppBarIcon(icon: Painter, onClick: () -> Unit) {
-    Container(width = ActionIconDiameter, height = ActionIconDiameter) {
-        Ripple(bounded = false) {
-            Clickable(onClick = onClick) {
-                Container(
-                    modifier = icon.toModifier(),
-                    width = ActionIconDiameter,
-                    height = ActionIconDiameter) {
-                }
+    Ripple(radius = IconRippleRadius, bounded = false) {
+        Clickable(onClick = onClick) {
+            // We need this outer box to ensure that Clickable and Ripple are bound to the
+            // touch target size, and not the inner size.
+            // TODO: remove this when Clickable and Ripple are modifiers
+            Box(LayoutSize(TouchTargetDiameter)) {
+                Spacer(LayoutPadding(ActionIconDiameter / 2) + icon.toModifier())
             }
         }
     }
 }
 
+private val TouchTargetDiameter = 48.dp
 private val ActionIconDiameter = 24.dp
+// Default ripple radius for icon buttons, this comes from the framework default for
+// actionBarItemBackground
+private val IconRippleRadius = 20.dp
 
 private val AppBarHeight = 56.dp
-private val AppBarPadding = 16.dp
-private val AppBarTitleStartPadding = 72.dp - AppBarPadding
-private val AppBarTitleBaselineOffset = 20.sp
+// TODO: this should probably be part of the touch target of the start and end icons, clarify this
+private val IconPadding = 4.dp
+// Start inset for the title when there is no navigation icon provided
+private val TitleInsetWithoutIcon = 16.dp
+// Start inset for the title when there is a navigation icon provided
+private val TitleInsetWithIcon = 72.dp
+// The baseline distance for the title from the bottom of the app bar
+private val TitleBaselineOffset = 20.sp
 
 private val BottomAppBarElevation = 8.dp
 // TODO: clarify elevation in surface mapping - spec says 0.dp but it appears to have an
