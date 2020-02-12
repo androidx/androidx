@@ -32,7 +32,7 @@ import androidx.ui.unit.dp
  * A button made with a 24x24dp icon
  */
 @Composable
-fun RallyIconButton(
+fun IconButton(
     vectorImage: VectorAsset,
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None
@@ -40,7 +40,7 @@ fun RallyIconButton(
     Box(modifier = modifier) {
         Ripple(bounded = false) {
             Clickable(onClick) {
-                RallyIcon(vectorImage)
+                Icon(vectorImage)
             }
         }
     }
@@ -50,7 +50,7 @@ fun RallyIconButton(
  * 24x24dp icon from a resource id.
  */
 @Composable
-fun RallyIcon(vectorImage: VectorAsset, tintColor: Color = Color.White) {
+fun Icon(vectorImage: VectorAsset, tintColor: Color = Color.White) {
     Box(modifier = LayoutHeight(24.dp) + LayoutWidth(24.dp)) {
         DrawVector(
             vectorImage = vectorImage,
