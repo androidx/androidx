@@ -42,8 +42,9 @@ class GitClientImplTest {
      * directory passed to the [GitClientImpl] constructor needs to contain the a .git
      * directory somewhere in the parent directory tree.  @see [GitClientImpl]
      */
+    private val workingDir = File(System.getProperty("user.dir")).parentFile
     private val client = GitClientImpl(
-        workingDir = File(System.getProperty("user.dir")),
+        workingDir = workingDir,
         logger = logger,
         commandRunner = commandRunner
     )
@@ -368,7 +369,7 @@ class GitClientImplTest {
                     "$bodyDelimiter%b" +
                     " --no-merges"
         val gitLogCmd: String = "${GitClientImpl.GIT_LOG_CMD_PREFIX} " +
-                "$gitLogOptions sha..topSha -- $projectDir"
+                "$gitLogOptions sha..topSha -- ./group/artifact"
 
         // Check with default delimiters
         val gitLogString: String =
@@ -488,7 +489,7 @@ class GitClientImplTest {
                 untilInclusive = "topSha"
             ),
             keepMerges = false,
-            fullProjectDir = File(projectDir)
+            fullProjectDir = File(File(workingDir, "group"), "artifact")
         )
         assertEquals(3, gitLogList.size)
         gitLogList.forEach { commit ->
@@ -506,7 +507,7 @@ class GitClientImplTest {
         /* Do not use the MockCommandRunner because it's a better test to check the validity of
          * the git command against the actual git in the repo
          */
-        val commitList: List<Commit> = GitClientImpl(File(System.getProperty("user.dir")))
+        val commitList: List<Commit> = GitClientImpl(workingDir, logger)
             .getGitLog(
                 GitCommitRange(
                     fromExclusive = "",
@@ -514,7 +515,7 @@ class GitClientImplTest {
                     n = 1
                 ),
                 keepMerges = true,
-                fullProjectDir = File(System.getProperty("user.dir"))
+                fullProjectDir = workingDir
         )
         assertEquals(1, commitList.size)
     }
