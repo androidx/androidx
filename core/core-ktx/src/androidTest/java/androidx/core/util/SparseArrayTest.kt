@@ -116,7 +116,7 @@ class SparseArrayTest {
     @Test fun removeValue() {
         val array = SparseArray<String>()
         array.put(1, "one")
-        assertFalse(array.remove(0, "one"))
+        assertFalse(array.remove(2, "one"))
         assertEquals(1, array.size())
         assertFalse(array.remove(1, "two"))
         assertEquals(1, array.size())
