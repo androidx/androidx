@@ -22,17 +22,12 @@ import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.AttachMoney
 import androidx.ui.material.icons.filled.MoneyOff
 import androidx.ui.material.icons.filled.PieChart
-import androidx.ui.material.studies.R
 
-enum class RallyScreenState(val icon: VectorAsset) {
-    Overview(Icons.Filled.PieChart),
-    Accounts(Icons.Filled.AttachMoney),
-    Bills(Icons.Filled.MoneyOff)
-}
-
-@Composable
-fun RallyScreenState.body() = when (this) {
-    RallyScreenState.Overview -> RallyBody()
-    RallyScreenState.Accounts -> RallyAccountsCard()
-    RallyScreenState.Bills -> RallyBillsCard()
+enum class RallyScreenState(
+    val icon: VectorAsset,
+    val body: @Composable() () -> Unit
+) {
+    Overview(Icons.Filled.PieChart, { RallyBody() }),
+    Accounts(Icons.Filled.AttachMoney, { RallyAccountsCard() }),
+    Bills(Icons.Filled.MoneyOff, { RallyBillsCard() })
 }
