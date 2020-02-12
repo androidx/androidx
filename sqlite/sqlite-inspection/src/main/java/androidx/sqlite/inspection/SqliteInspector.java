@@ -47,6 +47,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -166,8 +167,12 @@ final class SqliteInspector extends Inspector {
 
         Cursor cursor = database.rawQuery(command.getQuery(), null);
         try {
+            List<String> columnNames = Arrays.asList(cursor.getColumnNames());
             callback.reply(Response.newBuilder()
-                    .setQuery(QueryResponse.newBuilder().addAllRows(convert(cursor)).build())
+                    .setQuery(QueryResponse.newBuilder()
+                            .addAllRows(convert(cursor))
+                            .addAllColumnNames(columnNames)
+                            .build())
                     .build()
                     .toByteArray()
             );
@@ -209,7 +214,6 @@ final class SqliteInspector extends Inspector {
     private static CellValue readValue(Cursor cursor, int index) {
         CellValue.Builder builder = CellValue.newBuilder();
 
-        builder.setColumnName(cursor.getColumnName(index));
         switch (cursor.getType(index)) {
             case Cursor.FIELD_TYPE_NULL:
                 // no field to set
