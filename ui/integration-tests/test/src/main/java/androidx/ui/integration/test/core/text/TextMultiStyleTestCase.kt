@@ -22,9 +22,9 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.LayoutWrapped
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.RandomTextGenerator
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 
@@ -52,7 +52,7 @@ class TextMultiStyleTestCase(
     override fun emitContent() {
         Text(
             text = text, style = TextStyle(color = Color.Black, fontSize = 8.sp),
-            modifier = LayoutWrapped + LayoutWidth(160.dp)
+            modifier = LayoutAlign.Center + LayoutWidth(160.dp)
         )
     }
 }
