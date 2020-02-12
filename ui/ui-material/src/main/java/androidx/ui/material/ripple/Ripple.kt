@@ -16,11 +16,13 @@
 
 package androidx.ui.material.ripple
 
+import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
@@ -48,6 +50,7 @@ import androidx.ui.unit.toPxSize
  * based on the target layout size.
  * @param color The Ripple color is usually the same color used by the text or iconography in the
  * component. If null is provided the color will be calculated by [RippleTheme.defaultColor].
+ * @param clock The animation clock observable that will drive this ripple effect
  * @param enabled The ripple effect will not start if false is provided.
  */
 @Composable
@@ -56,6 +59,7 @@ fun Ripple(
     radius: Dp? = null,
     color: Color? = null,
     enabled: Boolean = true,
+    clock: AnimationClockObservable = AnimationClockAmbient.current,
     children: @Composable() () -> Unit
 ) {
     val density = DensityAmbient.current
@@ -66,7 +70,7 @@ fun Ripple(
         PressIndicatorGestureDetector(
             onStart = { position ->
                 if (enabled && transitionsEnabled) {
-                    state.handleStart(position, theme.factory, density, bounded, radius)
+                    state.handleStart(position, theme.factory, density, bounded, radius, clock)
                 }
             },
             onStop = { state.handleFinish(false) },
@@ -108,7 +112,8 @@ private class RippleState {
         factory: RippleEffectFactory,
         density: Density,
         bounded: Boolean,
-        radius: Dp?
+        radius: Dp?,
+        clock: AnimationClockObservable
     ) {
         val coordinates = checkNotNull(coordinates) {
             "handleStart() called before the layout coordinates were provided!"
@@ -126,6 +131,7 @@ private class RippleState {
             density,
             radius,
             bounded,
+            clock,
             recompose,
             onAnimationFinished
         )
