@@ -17,43 +17,111 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.ArrowForwardIos
 import androidx.ui.unit.dp
+import java.text.DecimalFormat
 
 /**
- * A row within the Accounts card in the Rally Overview screen.
+ * A row representing the basic information of an Account.
  */
 @Composable
-fun AccountRow(name: String, number: String, amount: String, color: Color) {
-    Row(LayoutPadding(top = 12.dp, bottom = 12.dp)) {
+fun AccountRow(name: String, number: Int, amount: Float, color: Color) {
+    BaseRow(
+        color = color,
+        title = name,
+        subtitle = "• • • • • " + accountDecimalFormat.format(number),
+        amount = amount,
+        negative = false
+    )
+}
+
+/**
+ * A row representing the basic information of a Bill.
+ */
+@Composable
+fun BillRow(name: String, due: String, amount: Float, color: Color) {
+    BaseRow(
+        color = color,
+        title = name,
+        subtitle = "Due $due",
+        amount = amount,
+        negative = true
+    )
+}
+
+@Composable
+private fun BaseRow(
+    color: Color,
+    title: String,
+    subtitle: String,
+    amount: Float,
+    negative: Boolean
+) {
+    Row(LayoutHeight(68.dp)) {
         val typography = MaterialTheme.typography()
-        AccountIndicator(color = color)
+        AccountIndicator(color = color, modifier = LayoutGravity.Center)
         Spacer(LayoutWidth(8.dp))
-        Column {
-            Text(text = name, style = typography.body1)
-            Text(text = "•••••$number", style = typography.subtitle1)
+        Column(LayoutGravity.Center) {
+            Text(text = title, style = typography.body1)
+            Text(text = subtitle, style = typography.subtitle1)
         }
         Spacer(LayoutFlexible(1f))
-        Text(text = "$ $amount", style = typography.h6)
+        Row(
+            modifier = LayoutGravity.Center + LayoutWidth(113.dp),
+            arrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = if (negative) "–$ " else "$ ",
+                style = typography.h6,
+                modifier = LayoutGravity.Center
+            )
+            Text(
+                text = formatAmount(amount),
+                style = typography.h6,
+                modifier = LayoutGravity.Center
+            )
+        }
+        Spacer(LayoutWidth(16.dp))
+        Icon(
+            Icons.Filled.ArrowForwardIos,
+            tintColor = Color.White.copy(alpha = 0.6f),
+            modifier = LayoutGravity.Center,
+            size = 12.dp
+        )
     }
+    RallyDivider()
 }
 
 /**
- * A vertical colored line that is used in a [AccountRow] to differentiate accounts.
+ * A vertical colored line that is used in a [BaseRow] to differentiate accounts.
  */
 @Composable
-private fun AccountIndicator(color: Color) {
-    ColoredRect(color = color, width = 4.dp, height = 36.dp)
+private fun AccountIndicator(color: Color, modifier: Modifier = Modifier.None) {
+    ColoredRect(color = color, width = 4.dp, height = 36.dp, modifier = modifier)
 }
 
 @Composable
-fun RallyDivider() = Divider(color = MaterialTheme.colors().background, height = 2.dp)
+fun RallyDivider(modifier: Modifier = Modifier.None) {
+    Divider(color = MaterialTheme.colors().background, height = 1.dp, modifier = modifier)
+}
+
+fun formatAmount(amount: Float): String {
+    return amountDecimalFormat.format(amount)
+}
+
+private val accountDecimalFormat = DecimalFormat("####")
+private val amountDecimalFormat = DecimalFormat("#,###.##")

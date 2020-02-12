@@ -26,6 +26,7 @@ import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
 /**
@@ -50,8 +51,13 @@ fun IconButton(
  * 24x24dp icon from a resource id.
  */
 @Composable
-fun Icon(vectorImage: VectorAsset, tintColor: Color = Color.White) {
-    Box(modifier = LayoutHeight(24.dp) + LayoutWidth(24.dp)) {
+fun Icon(
+    vectorImage: VectorAsset,
+    tintColor: Color = Color.White,
+    modifier: Modifier = Modifier.None,
+    size: Dp = 24.dp
+) {
+    Box(modifier = LayoutHeight(size) + LayoutWidth(size) + modifier) {
         DrawVector(
             vectorImage = vectorImage,
             tintColor = tintColor
