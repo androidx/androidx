@@ -135,13 +135,16 @@ public final class AppInitializer {
                     ComponentInitializer<?> initializer = (ComponentInitializer<?>) instance;
                     List<Class<? extends ComponentInitializer<?>>> dependencies =
                             initializer.dependencies();
-                    List<Class<?>> filtered = new ArrayList<>(dependencies.size());
-                    for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
-                        if (!mInitialized.containsKey(clazz)) {
-                            filtered.add(clazz);
+                    List<Class<?>> filtered = null;
+                    if (!dependencies.isEmpty()) {
+                        filtered = new ArrayList<>(dependencies.size());
+                        for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
+                            if (!mInitialized.containsKey(clazz)) {
+                                filtered.add(clazz);
+                            }
                         }
                     }
-                    if (!filtered.isEmpty()) {
+                    if (filtered != null && !filtered.isEmpty()) {
                         doInitialize(filtered, initializing);
                     }
                     if (StartupLogger.DEBUG) {
