@@ -35,6 +35,8 @@ import java.io.File
  * resources are generated at build time
  */
 class InspectionPlugin : Plugin<Project> {
+    // project.register* are marked with @ExperimentalStdlibApi, because they use experimental
+    // string.capitalize call.
     @ExperimentalStdlibApi
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
@@ -47,7 +49,8 @@ class InspectionPlugin : Plugin<Project> {
                 if (variant.name == "release") {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
-                    project.registerDexInspectorTask(variant, libExtension, unzip)
+                    val jarJar = project.registerJarJarDependenciesTask(variant, unzip)
+                    project.registerDexInspectorTask(variant, libExtension, jarJar)
                 }
             }
             libExtension.sourceSets {
