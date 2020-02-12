@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
@@ -71,7 +72,7 @@ class LongPressDragGestureDetectorTest {
                             layout(100.ipx, 100.ipx) {
                                 setupLatch.countDown()
                             }
-                        }, children = {}
+                        }, children = emptyContent()
                     )
                 }
             }

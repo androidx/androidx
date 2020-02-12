@@ -17,6 +17,7 @@ package androidx.ui.core
 
 import android.view.View
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -89,7 +90,11 @@ class PopupTest {
                                 OnPositioned {
                                     measureLatch.countDown()
                                 }
-                                SimpleContainer(width = popupWidthDp, height = popupHeightDp) {}
+                                SimpleContainer(
+                                    width = popupWidthDp,
+                                    height = popupHeightDp,
+                                    children = emptyContent()
+                                )
                             }
                         }
                     }
@@ -144,7 +149,11 @@ class PopupTest {
             SimpleContainer {
                 PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        SimpleContainer(width = popupWidthDp, height = popupHeightDp) {}
+                        SimpleContainer(
+                            width = popupWidthDp,
+                            height = popupHeightDp,
+                            children = emptyContent()
+                        )
                     }
                 }
             }

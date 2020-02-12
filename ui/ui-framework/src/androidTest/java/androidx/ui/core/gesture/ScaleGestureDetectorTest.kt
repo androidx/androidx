@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DensityAmbient
@@ -65,7 +66,7 @@ class ScaleGestureDetectorTest {
                             layout(touchSlop * 4, touchSlop * 4) {
                                 setupLatch.countDown()
                             }
-                        }, children = {}
+                        }, children = emptyContent()
                     )
                 }
             }

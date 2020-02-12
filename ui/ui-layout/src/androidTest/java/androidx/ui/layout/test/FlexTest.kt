@@ -17,6 +17,7 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
@@ -963,8 +964,17 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row {
-                    Container(LayoutFlexible(1f), width = sizeDp, height = sizeDp) {}
-                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {}
+                    Container(
+                        LayoutFlexible(1f),
+                        width = sizeDp,
+                        height = sizeDp,
+                        children = emptyContent()
+                    )
+                    Container(
+                        width = (sizeDp * 2),
+                        height = (sizeDp * 2),
+                        children = emptyContent()
+                    )
 
                     OnPositioned(onPositioned = { coordinates ->
                         rowSize = coordinates.size
@@ -1088,8 +1098,17 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
                     Row {
-                        Container(LayoutFlexible(1f), width = sizeDp, height = sizeDp) {}
-                        Container(width = sizeDp * 2, height = sizeDp * 2) {}
+                        Container(
+                            LayoutFlexible(1f),
+                            width = sizeDp,
+                            height = sizeDp,
+                            children = emptyContent()
+                        )
+                        Container(
+                            width = sizeDp * 2,
+                            height = sizeDp * 2,
+                            children = emptyContent()
+                        )
 
                         OnPositioned(onPositioned = { coordinates ->
                             rowSize = coordinates.size
@@ -1209,8 +1228,11 @@ class FlexTest : LayoutTest() {
         )
     }
 
-    @Test @Ignore("Wrap is not supported when there are flexible children. " +
-            "Should use maxWidth(.Infinity) modifier when it is available")
+    @Test
+    @Ignore(
+        "Wrap is not supported when there are flexible children. " +
+                "Should use maxWidth(.Infinity) modifier when it is available"
+    )
     fun testRow_withMinMainAxisSize() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
@@ -1407,8 +1429,17 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column {
-                    Container(LayoutFlexible(1f), width = sizeDp, height = sizeDp) {}
-                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {}
+                    Container(
+                        LayoutFlexible(1f),
+                        width = sizeDp,
+                        height = sizeDp,
+                        children = emptyContent()
+                    )
+                    Container(
+                        width = (sizeDp * 2),
+                        height = (sizeDp * 2),
+                        children = emptyContent()
+                    )
 
                     OnPositioned(onPositioned = { coordinates ->
                         columnSize = coordinates.size
@@ -1532,8 +1563,17 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
                     Column {
-                        Container(LayoutFlexible(1f), width = sizeDp, height = sizeDp) {}
-                        Container(width = sizeDp * 2, height = sizeDp * 2) {}
+                        Container(
+                            LayoutFlexible(1f),
+                            width = sizeDp,
+                            height = sizeDp,
+                            children = emptyContent()
+                        )
+                        Container(
+                            width = sizeDp * 2,
+                            height = sizeDp * 2,
+                            children = emptyContent()
+                        )
 
                         OnPositioned(onPositioned = { coordinates ->
                             columnSize = coordinates.size
@@ -1653,8 +1693,11 @@ class FlexTest : LayoutTest() {
         )
     }
 
-    @Test @Ignore("Wrap is not supported when there are flexible children. " +
-            "Should use maxHeight(IntPx.Infinity) modifier when it is available")
+    @Test
+    @Ignore(
+        "Wrap is not supported when there are flexible children. " +
+                "Should use maxHeight(IntPx.Infinity) modifier when it is available"
+    )
     fun testColumn_withMinMainAxisSize() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
@@ -1701,38 +1744,38 @@ class FlexTest : LayoutTest() {
     @Test
     fun testColumn_measuresChildrenCorrectly_whenMeasuredWithInfiniteHeight() =
         with(density) {
-        val columnMinHeight = 100.dp
-        val inflexibleChildHeight = 30.dp
-        val latch = CountDownLatch(1)
-        show {
-            WithInfiniteConstraints {
-                ConstrainedBox(DpConstraints(minHeight = columnMinHeight)) {
-                    Column {
-                        WithConstraints { constraints ->
-                            assertEquals(Constraints(), constraints)
-                            FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
-                        }
-                        WithConstraints { constraints ->
-                            assertEquals(Constraints(), constraints)
-                            FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
-                        }
-                        Layout({}, LayoutFlexible(1f)) { _, constraints ->
-                            assertEquals(
-                                columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx() * 2,
-                                constraints.minHeight
-                            )
-                            assertEquals(
-                                columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx() * 2,
-                                constraints.maxHeight
-                            )
-                            latch.countDown()
-                            layout(0.ipx, 0.ipx) { }
+            val columnMinHeight = 100.dp
+            val inflexibleChildHeight = 30.dp
+            val latch = CountDownLatch(1)
+            show {
+                WithInfiniteConstraints {
+                    ConstrainedBox(DpConstraints(minHeight = columnMinHeight)) {
+                        Column {
+                            WithConstraints { constraints ->
+                                assertEquals(Constraints(), constraints)
+                                FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
+                            }
+                            WithConstraints { constraints ->
+                                assertEquals(Constraints(), constraints)
+                                FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
+                            }
+                            Layout(emptyContent(), LayoutFlexible(1f)) { _, constraints ->
+                                assertEquals(
+                                    columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx() * 2,
+                                    constraints.minHeight
+                                )
+                                assertEquals(
+                                    columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx() * 2,
+                                    constraints.maxHeight
+                                )
+                                latch.countDown()
+                                layout(0.ipx, 0.ipx) { }
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
     @Test
     fun testColumn_measuresInflexibleChildrenCorrectly() = with(density) {
@@ -2444,63 +2487,76 @@ class FlexTest : LayoutTest() {
     fun testRow_withInflexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Row {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Row(LayoutWidth.Fill) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Row {
-                Container(LayoutAspectRatio(2f) + LayoutGravity.Top) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp),
-                    LayoutGravity.Center) { }
+                Container(LayoutAspectRatio(2f) + LayoutGravity.Top, children = emptyContent())
+                ConstrainedBox(
+                    DpConstraints.fixed(50.dp, 40.dp),
+                    LayoutGravity.Center,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row {
                 Container(
-                    LayoutAspectRatio(2f) + LayoutGravity.RelativeToSiblings(FirstBaseline)
-                ) { }
+                    LayoutAspectRatio(2f) + LayoutGravity.RelativeToSiblings(FirstBaseline),
+                    children = emptyContent()
+                )
                 ConstrainedBox(
                     DpConstraints.fixed(50.dp, 40.dp),
-                    LayoutGravity.RelativeToSiblings { it.width }
-                ) { }
+                    LayoutGravity.RelativeToSiblings { it.width },
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(LayoutWidth.Fill, arrangement = Arrangement.Begin) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
-                Container(LayoutGravity.Center + LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp),
-                    LayoutGravity.Center) { }
+                Container(LayoutGravity.Center + LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(
+                    DpConstraints.fixed(50.dp, 40.dp),
+                    LayoutGravity.Center,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(LayoutWidth.Fill, arrangement = Arrangement.End) {
-                Container(LayoutGravity.Bottom + LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp),
-                    LayoutGravity.Bottom) { }
+                Container(LayoutGravity.Bottom + LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(
+                    DpConstraints.fixed(50.dp, 40.dp),
+                    LayoutGravity.Bottom,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceAround) {
-                Container(LayoutHeight.Fill + LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp),
-                    LayoutHeight.Fill
-                ) { }
+                Container(LayoutHeight.Fill + LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(
+                    DpConstraints.fixed(50.dp, 40.dp),
+                    LayoutHeight.Fill,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceBetween) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -2526,99 +2582,150 @@ class FlexTest : LayoutTest() {
     fun testRow_withFlexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Row {
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), LayoutFlexible(3f)) { }
-                ConstrainedBox(DpConstraints.fixed(30.dp, 40.dp), LayoutFlexible(2f)) { }
-                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp)) { }
+                ConstrainedBox(
+                    DpConstraints.fixed(20.dp, 30.dp),
+                    LayoutFlexible(3f),
+                    children = emptyContent()
+                )
+                ConstrainedBox(
+                    DpConstraints.fixed(30.dp, 40.dp),
+                    LayoutFlexible(2f),
+                    children = emptyContent()
+                )
+                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), children = emptyContent())
             }
         }, @Composable {
             Row {
                 ConstrainedBox(
                     DpConstraints.fixed(20.dp, 30.dp),
-                    LayoutFlexible(3f) + LayoutGravity.Top
-                ) { }
+                    LayoutFlexible(3f) + LayoutGravity.Top,
+                    children = emptyContent()
+                )
                 ConstrainedBox(
                     DpConstraints.fixed(30.dp, 40.dp),
-                    LayoutFlexible(2f) + LayoutGravity.Center
-                ) { }
-                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp),
-                    LayoutGravity.Bottom) { }
+                    LayoutFlexible(2f) + LayoutGravity.Center,
+                    children = emptyContent()
+                )
+                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f), children = emptyContent())
+                ConstrainedBox(
+                    DpConstraints.fixed(20.dp, 30.dp),
+                    LayoutGravity.Bottom,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(arrangement = Arrangement.Begin) {
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), LayoutFlexible(3f)) { }
-                ConstrainedBox(DpConstraints.fixed(30.dp, 40.dp), LayoutFlexible(2f)) { }
-                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp)) { }
+                ConstrainedBox(
+                    DpConstraints.fixed(20.dp, 30.dp),
+                    LayoutFlexible(3f),
+                    children = emptyContent()
+                )
+                ConstrainedBox(
+                    DpConstraints.fixed(30.dp, 40.dp),
+                    LayoutFlexible(2f),
+                    children = emptyContent()
+                )
+                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), children = emptyContent())
             }
         }, @Composable {
             Row(arrangement = Arrangement.Center) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
-                    modifier = LayoutFlexible(3f) + LayoutGravity.Center
-                ) { }
+                    modifier = LayoutFlexible(3f) + LayoutGravity.Center,
+                    children = emptyContent()
+                )
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(30.dp, 40.dp),
-                    modifier = LayoutFlexible(2f) + LayoutGravity.Center
-                ) { }
+                    modifier = LayoutFlexible(2f) + LayoutGravity.Center,
+                    children = emptyContent()
+                )
                 Container(
-                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutGravity.Center
-                ) { }
+                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutGravity.Center,
+                    children =
+                    emptyContent()
+                )
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
-                    modifier = LayoutGravity.Center
-                ) { }
+                    modifier = LayoutGravity.Center,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(arrangement = Arrangement.End) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
-                    modifier = LayoutFlexible(3f) + LayoutGravity.Bottom
-                ) { }
+                    modifier = LayoutFlexible(3f) + LayoutGravity.Bottom,
+                    children = emptyContent()
+                )
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(30.dp, 40.dp),
-                    modifier = LayoutFlexible(2f) + LayoutGravity.Bottom
-                ) { }
+                    modifier = LayoutFlexible(2f) + LayoutGravity.Bottom,
+                    children = emptyContent()
+                )
                 Container(
-                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutGravity.Bottom
-                ) { }
+                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutGravity.Bottom,
+                    children = emptyContent()
+                )
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
-                    modifier = LayoutGravity.Bottom
-                ) { }
+                    modifier = LayoutGravity.Bottom,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(arrangement = Arrangement.SpaceAround) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
-                    modifier = LayoutFlexible(3f) + LayoutHeight.Fill
-                ) { }
+                    modifier = LayoutFlexible(3f) + LayoutHeight.Fill,
+                    children = emptyContent()
+                )
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(30.dp, 40.dp),
-                    modifier = LayoutFlexible(2f) + LayoutHeight.Fill
-                ) { }
+                    modifier = LayoutFlexible(2f) + LayoutHeight.Fill,
+                    children = emptyContent()
+                )
                 Container(
-                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutHeight.Fill
-                ) { }
+                    LayoutAspectRatio(2f) + LayoutFlexible(2f) + LayoutHeight.Fill,
+                    children =
+                    emptyContent()
+                )
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
-                    modifier = LayoutHeight.Fill
-                ) { }
+                    modifier = LayoutHeight.Fill,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Row(arrangement = Arrangement.SpaceBetween) {
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), LayoutFlexible(3f)) { }
-                ConstrainedBox(DpConstraints.fixed(30.dp, 40.dp), LayoutFlexible(2f)) { }
-                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp)) { }
+                ConstrainedBox(
+                    DpConstraints.fixed(20.dp, 30.dp),
+                    LayoutFlexible(3f),
+                    children = emptyContent()
+                )
+                ConstrainedBox(
+                    DpConstraints.fixed(30.dp, 40.dp),
+                    LayoutFlexible(2f),
+                    children = emptyContent()
+                )
+                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), children = emptyContent())
             }
         }, @Composable {
             Row(arrangement = Arrangement.SpaceEvenly) {
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), LayoutFlexible(3f)) { }
-                ConstrainedBox(DpConstraints.fixed(30.dp, 40.dp), LayoutFlexible(2f)) { }
-                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp)) { }
+                ConstrainedBox(
+                    DpConstraints.fixed(20.dp, 30.dp),
+                    LayoutFlexible(3f),
+                    children = emptyContent()
+                )
+                ConstrainedBox(
+                    DpConstraints.fixed(30.dp, 40.dp),
+                    LayoutFlexible(2f),
+                    children = emptyContent()
+                )
+                Container(LayoutAspectRatio(2f) + LayoutFlexible(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), children = emptyContent())
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -2672,58 +2779,72 @@ class FlexTest : LayoutTest() {
     fun testColumn_withInflexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Column {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Column {
-                Container(LayoutAspectRatio(2f) + LayoutGravity.Start) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), LayoutGravity.End) { }
-            }
-        }, @Composable {
-            Column {
-                Container(LayoutAspectRatio(2f) + LayoutGravity.RelativeToSiblings { 0.ipx }) { }
+                Container(LayoutAspectRatio(2f) + LayoutGravity.Start, children = emptyContent())
                 ConstrainedBox(
                     DpConstraints.fixed(50.dp, 40.dp),
-                    LayoutGravity.RelativeToSiblings(TestVerticalLine)
-                ) { }
+                    LayoutGravity.End,
+                    children = emptyContent()
+                )
+            }
+        }, @Composable {
+            Column {
+                Container(
+                    LayoutAspectRatio(2f) + LayoutGravity.RelativeToSiblings { 0.ipx },
+                    children = emptyContent()
+                )
+                ConstrainedBox(
+                    DpConstraints.fixed(50.dp, 40.dp),
+                    LayoutGravity.RelativeToSiblings(TestVerticalLine),
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Column(LayoutHeight.Fill) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Column(LayoutHeight.Fill, arrangement = Arrangement.Begin) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Column(LayoutHeight.Fill, arrangement = Arrangement.Center) {
-                Container(LayoutGravity.Center + LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutGravity.Center + LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
-                Container(LayoutGravity.End + LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), LayoutGravity.End) { }
+                Container(LayoutGravity.End + LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(
+                    DpConstraints.fixed(50.dp, 40.dp),
+                    LayoutGravity.End,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
-                Container(LayoutWidth.Fill + LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp),
-                    LayoutWidth.Fill
-                ) { }
+                Container(LayoutWidth.Fill + LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(
+                    DpConstraints.fixed(50.dp, 40.dp),
+                    LayoutWidth.Fill,
+                    children = emptyContent()
+                )
             }
         }, @Composable {
             Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
             Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceEvenly) {
-                Container(LayoutAspectRatio(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp)) { }
+                Container(LayoutAspectRatio(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -2749,21 +2870,31 @@ class FlexTest : LayoutTest() {
     fun testColumn_withFlexibleChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Column {
-                ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), LayoutFlexible(3f)) { }
-                ConstrainedBox(DpConstraints.fixed(40.dp, 30.dp), LayoutFlexible(2f)) { }
-                Container(LayoutAspectRatio(0.5f) + LayoutFlexible(2f)) { }
-                ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp)) { }
+                ConstrainedBox(
+                    DpConstraints.fixed(30.dp, 20.dp),
+                    LayoutFlexible(3f),
+                    children = emptyContent()
+                )
+                ConstrainedBox(
+                    DpConstraints.fixed(40.dp, 30.dp),
+                    LayoutFlexible(2f),
+                    children = emptyContent()
+                )
+                Container(LayoutAspectRatio(0.5f) + LayoutFlexible(2f), children = emptyContent())
+                ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), children = emptyContent())
             }
         }, @Composable {
             Column {
                 ConstrainedBox(
                     DpConstraints.fixed(30.dp, 20.dp),
-                    LayoutFlexible(3f) + LayoutGravity.Start
-                ) { }
+                    LayoutFlexible(3f) + LayoutGravity.Start,
+                    children = emptyContent()
+                )
                 ConstrainedBox(
                     DpConstraints.fixed(40.dp, 30.dp),
-                    LayoutFlexible(2f) + LayoutGravity.Center
-                ) { }
+                    LayoutFlexible(2f) + LayoutGravity.Center,
+                    children = emptyContent()
+                )
                 Container(LayoutAspectRatio(0.5f) + LayoutFlexible(2f)) { }
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), LayoutGravity.End) { }
             }
@@ -2906,10 +3037,11 @@ class FlexTest : LayoutTest() {
                         positionedLatch.countDown()
                     }) {
                         Container(
-                            LayoutFlexible(2f) + LayoutFlexible(1f)
-                        ) {}
+                            LayoutFlexible(2f) + LayoutFlexible(1f),
+                            children = emptyContent()
+                        )
                     }
-                    Container(LayoutFlexible(1f)) {}
+                    Container(LayoutFlexible(1f), children = emptyContent())
                 }
             }
         }
@@ -2932,8 +3064,9 @@ class FlexTest : LayoutTest() {
                 Container(
                     modifier = LayoutGravity.RelativeToSiblings { it.height },
                     width = size,
-                    height = size
-                ) {}
+                    height = size,
+                    children = emptyContent()
+                )
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     containerPosition.value = coordinates.globalPosition
@@ -2943,8 +3076,9 @@ class FlexTest : LayoutTest() {
                         modifier = LayoutGravity.RelativeToSiblings { 0.ipx } +
                                 LayoutGravity.RelativeToSiblings { it.height * 0.5 },
                         width = size,
-                        height = size
-                    ) {}
+                        height = size,
+                        children = emptyContent()
+                    )
                 }
             }
         }
@@ -2971,7 +3105,8 @@ private fun BaselineTestLayout(
     Layout(children = children, modifier = modifier, measureBlock = { _, constraints ->
         val widthPx = max(width.toIntPx(), constraints.minWidth)
         val heightPx = max(height.toIntPx(), constraints.minHeight)
-        layout(widthPx, heightPx,
+        layout(
+            widthPx, heightPx,
             mapOf(TestHorizontalLine to baseline.toIntPx(), TestVerticalLine to baseline.toIntPx())
         ) {}
     })

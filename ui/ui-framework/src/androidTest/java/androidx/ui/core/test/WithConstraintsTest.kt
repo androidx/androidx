@@ -19,7 +19,7 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
-import androidx.compose.Observe
+import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
@@ -280,7 +280,7 @@ class WithConstraintsTest {
                         actualConstraints = constraints
                         assertEquals(1, latch.count)
                         latch.countDown()
-                        Container(width = 100.ipx, height = 100.ipx) {}
+                        Container(width = 100.ipx, height = 100.ipx, children = emptyContent())
                     }
                 }
             }
@@ -461,7 +461,7 @@ class WithConstraintsTest {
                                 }
                             }
                         }
-                        Container(100.ipx, 100.ipx) {}
+                        Container(100.ipx, 100.ipx, emptyContent())
                     }
                 }
             }
@@ -529,7 +529,7 @@ class WithConstraintsTest {
                     WithConstraints {
                         assertEquals(1, innerComposeLatch.count)
                         innerComposeLatch.countDown()
-                        Layout(children = {}) { _, _ ->
+                        Layout(children = emptyContent()) { _, _ ->
                             assertEquals(1, innerMeasureLatch.count)
                             innerMeasureLatch.countDown()
                             layout(100.ipx, 100.ipx) {
