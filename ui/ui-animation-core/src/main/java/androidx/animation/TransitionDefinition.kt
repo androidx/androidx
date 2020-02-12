@@ -131,7 +131,63 @@ internal class SpringTransition : DefaultTransitionAnimation {
 }
 
 /**
- * Static definitions of states and transitions.
+ * [TransitionDefinition] contains all the animation related configurations that will be used in
+ * a state-based transition. It holds a set of [TransitionState]s and an optional set of
+ * [TransitionSpec]s. It can be used in [android.ui.animation.Transition] to create a state-based
+ * animation in Compose.
+ *
+ * Each [TransitionState] specifies how the UI should look in terms of values
+ * associated with properties that differentiates the UI from one conceptual state to anther. Each
+ * [TransitionState] can be considered as a snapshot of the UI in the form of property values.
+ *
+ * [TransitionSpec] defines how to animate from one state to another with a specific animation for
+ * each property defined in the states. [TransitionSpec] can be created using [transition] method
+ * inside of a [TransitionDefinition]. Currently the animations supported in a [transition] are:
+ * [TransitionSpec.tween], [TransitionSpec.keyframes], [TransitionSpec.physics],
+ * [TransitionSpec.snap], [TransitionSpec.repeatable]. When no [TransitionSpec] is specified,
+ * the default [TransitionSpec.physics] animation will be used for all properties involved.
+ * Similarly, when no animation is provided in a [TransitionSpec] for a particular property,
+ * the default physics animation will be used. For each [transition], both the from and the to state
+ * can be omitted. Omitting in this case is equivalent to a wildcard on the starting state or ending
+ * state. When both are omitted at the same time, it means this transition applies to all the state
+ * transitions unless a more specific transition have been defined.
+ *
+ * To create a [TransitionDefinition], there are generally 3 steps involved:
+ *
+ * __Step 1__: Create PropKeys. One [PropKey] is required for each property/value that needs to
+ * be animated. These should be file level properties, so they are visible to
+ * [TransitionDefinition] ( which will be created in step 3).
+ *
+ *     val radius = FloatPropKey()
+ *     val alpha = FloatPropKey()
+ *
+ * __Step 2__ (optional): Create state names.
+ *
+ * This is an optional but recommended step to create a reference for different states that the
+ * animation should end at. State names can be of type [T], which means they can be string,
+ * integer, etc, or any custom object, so long as they are consistent.
+
+ * It is recommended to either reuse the states that you already defined (e.g.
+ * TogglableState.On, TogglableState.Off, etc) for animating those state changes, or create
+ * an enum class for all the animation states.
+ *
+ *     enum class ButtonState {
+ *         Released, Pressed, Disabled
+ *     }
+ *
+ * __Step 3__: Create a [TransitionDefinition] using the animation DSL.
+ *
+ * [TransitionDefinition] is conceptually an animation configuration that defines:
+ * 1) States, each of which are described as a set of values.  Each value is associated with a
+ * PropKey.
+ * 2) Optional transitions, for how to animate from one state to another.
+ *
+ * @sample androidx.animation.samples.TransitionDefSample
+ *
+ * Once a [TransitionDefinition] is created, [androidx.ui.animation.Transition] composable can take
+ * it as an input and create a state-based transition in compose.
+ *
+ * @see [androidx.ui.animation.Transition]
  */
 class TransitionDefinition<T> {
     internal val states: MutableMap<T, StateImpl<T>> = mutableMapOf()
@@ -264,25 +320,6 @@ private val radius = FloatPropKey()
 
 // TODO: Support states with only part of the props defined
 
-/**
- * TransitionState defines how the UI should look in terms of values of a certain set of properties
- * that are critical to the look and feel for the UI. Each state can be considered as a snapshot of
- * the UI. Once states are defined, if no animations are specified, states will be able to
- * createAnimation from one to another when state changes, using the system's default physics based
- * animation.
- *
- * Transition defines how to createAnimation from one state to another with a specific animation for
- * each property defined in the states. Currently transition supports:
- * 1) tween (simple interpolation between start and end value), physics (i.e. spring only, decay
- * coming). Keyframes support coming soon.
- * 2) When no transition is specified, the default physics based animation will be used. Same for
- * the properties that have no animation associated with them in a transition
- * 3) For each transition, both the from and the to state can be omitted. Omitting in this case is
- * equivalent to a wildcard that means any starting state or ending state. When both are omitted at
- * the same time, it means this transition applies to all the state transitions unless a more
- * specific transition have been defined.
- *
- */
 private val example = transitionDefinition {
     state(ButtonState.Pressed) {
         this[alpha] = 0f

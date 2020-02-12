@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,54 +18,39 @@ package androidx.animation.samples
 
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
-import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 
-enum class ButtonState {
-    Released,
-    Pressed,
-    Disabled
-}
+private val radius = FloatPropKey()
+private val alpha = FloatPropKey()
 
 @Sampled
-fun TransitionSpecWith3Properties() {
+@Suppress("UNUSED_VARIABLE")
+fun TransitionDefSample() {
+    val definition = transitionDefinition {
+        state(ButtonState.Pressed) {
+            this[alpha] = 0f
+            this[radius] = 200f
+        }
+        state(ButtonState.Released) {
+            this[alpha] = 0f
+            this[radius] = 60f
+        }
 
-    val Radius = FloatPropKey()
-    val Alpha = FloatPropKey()
-    val Background = FloatPropKey()
-
-    transitionDefinition {
-        // This defines animations for 3 properties: Radius, Alpha, and Background.
+        // Optional configuration for transition from Pressed to Released. If no transition is
+        // defined, the default physics-based transition will be used.
         transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
-            Radius using tween {
-                easing = LinearEasing
-                duration = 75
+            radius using physics {
+                dampingRatio = 1.0f
             }
-            Alpha using keyframes {
+            alpha using keyframes {
                 duration = 375
                 0f at 0 // ms  // Optional
                 0.4f at 75 // ms
                 0.4f at 225 // ms
                 0f at 375 // ms  // Optional
             }
-            Background using physics {
-                dampingRatio = 1.0f
-            }
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
-        }
-    }
-}
-
-@Sampled
-fun TransitionSpecWithPairs() {
-
-    transitionDefinition<ButtonState> {
-        transition(
-            ButtonState.Released to ButtonState.Pressed,
-            ButtonState.Disabled to ButtonState.Pressed
-        ) {
-            // ...
         }
     }
 }
