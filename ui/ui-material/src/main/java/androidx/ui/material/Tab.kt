@@ -50,8 +50,8 @@ import androidx.ui.graphics.Image
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.material.TabRow.TabPosition
@@ -390,9 +390,12 @@ object TabRow {
 
         Container(expanded = true, alignment = Alignment.BottomLeft) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
-                Padding(left = with(DensityAmbient.current) { indicatorOffset.toDp() }) {
-                    Container(width = currentTabWidth, children = indicator)
-                }
+                val offset = with(DensityAmbient.current) { indicatorOffset.toDp() }
+                Container(
+                    modifier = LayoutPadding(left = offset),
+                    width = currentTabWidth,
+                    children = indicator
+                )
             }
         }
     }
@@ -640,13 +643,12 @@ private fun TabTransition(
 @Composable
 private fun TabText(text: String, color: Color) {
     val buttonTextStyle = MaterialTheme.typography().button
-    Padding(left = HorizontalTextPadding, right = HorizontalTextPadding) {
-        Text(
-            text = text,
-            style = buttonTextStyle.copy(color = color, textAlign = TextAlign.Center),
-            maxLines = TextLabelMaxLines
-        )
-    }
+    Text(
+        text = text,
+        style = buttonTextStyle.copy(color = color, textAlign = TextAlign.Center),
+        maxLines = TextLabelMaxLines,
+        modifier = LayoutPadding(left = HorizontalTextPadding, right = HorizontalTextPadding)
+    )
 }
 
 /**

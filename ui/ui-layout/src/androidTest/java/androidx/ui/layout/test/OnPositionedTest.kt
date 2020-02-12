@@ -31,7 +31,8 @@ import androidx.ui.core.setContent
 import androidx.ui.layout.Align
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.test.positionInParent
 import androidx.ui.unit.Px
@@ -62,14 +63,14 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         show {
-            Padding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) {
-                Container(expanded = true) {
-                    OnPositioned(onPositioned = {
-                        realLeft = it.positionInParent.x
-                        realTop = it.positionInParent.y
-                        positionedLatch.countDown()
-                    })
-                }
+            Container(LayoutSize.Fill +
+                    LayoutPadding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
+            ) {
+                OnPositioned(onPositioned = {
+                    realLeft = it.positionInParent.x
+                    realTop = it.positionInParent.y
+                    positionedLatch.countDown()
+                })
             }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
@@ -87,13 +88,15 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         show {
-            Padding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) {
+            Container {
                 OnChildPositioned(onPositioned = {
                     realLeft = it.positionInParent.x
                     realTop = it.positionInParent.y
                     positionedLatch.countDown()
                 }) {
-                    Container(expanded = true) {}
+                    Container(LayoutSize.Fill +
+                            LayoutPadding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
+                    ) {}
                 }
             }
         }
@@ -113,19 +116,17 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         show {
-            Padding(left = firstPaddingPx.toDp()) {
-                Padding(left = secondPaddingPx.toDp()) {
-                    OnPositioned(onPositioned = {
-                        gpCoordinates = it
-                        positionedLatch.countDown()
-                    })
-                    Padding(left = thirdPaddingPx.toDp()) {
-                        Container(expanded = true) {
-                            OnPositioned(onPositioned = {
-                                childCoordinates = it
-                                positionedLatch.countDown()
-                            })
-                        }
+            Container(LayoutPadding(left = firstPaddingPx.toDp())) {
+                OnPositioned(onPositioned = {
+                    gpCoordinates = it
+                    positionedLatch.countDown()
+                })
+                Container(LayoutPadding(left = secondPaddingPx.toDp())) {
+                    Container(LayoutSize.Fill + LayoutPadding(left = thirdPaddingPx.toDp())) {
+                        OnPositioned(onPositioned = {
+                            childCoordinates = it
+                            positionedLatch.countDown()
+                        })
                     }
                 }
             }
@@ -232,13 +233,11 @@ class OnPositionedTest : LayoutTest() {
         var positionedLatch = CountDownLatch(1)
         show {
             Center {
-                Padding(left = modelLeft.size) {
-                    OnChildPositioned(onPositioned = {
-                        realLeft = it.positionInParent.x
-                        positionedLatch.countDown()
-                    }) {
-                        Container(expanded = true) {}
-                    }
+                OnChildPositioned(onPositioned = {
+                    realLeft = it.positionInParent.x
+                    positionedLatch.countDown()
+                }) {
+                    Container(LayoutSize.Fill + LayoutPadding(left = modelLeft.size)) {}
                 }
             }
         }

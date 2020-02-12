@@ -34,7 +34,6 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.text.TextStyle
@@ -383,12 +382,11 @@ private object ThreeLine {
                 secondaryText()
             }
             if (trailing != null) {
-                Padding(top = ThreeLineTrailingTopPadding, right = TrailingRightPadding) {
-                    OffsetToBaselineOrCenter(
-                        ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
-                        trailing
-                    )
-                }
+                OffsetToBaselineOrCenter(
+                    ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
+                    LayoutPadding(top = ThreeLineTrailingTopPadding, right = TrailingRightPadding),
+                    trailing
+                )
             }
         }
     }
@@ -442,8 +440,12 @@ private fun BaselinesOffsetColumn(
  */
 // TODO(popam): support fallback alignment in AlignmentLineOffset, and use that here.
 @Composable
-private fun OffsetToBaselineOrCenter(offset: Dp, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+private fun OffsetToBaselineOrCenter(
+    offset: Dp,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    Layout(children, modifier) { measurables, constraints ->
         val placeable = measurables[0].measure(constraints.copy(minHeight = 0.ipx))
         val baseline = placeable[FirstBaseline]
         val y: IntPx

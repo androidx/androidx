@@ -33,7 +33,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.text.TextStyle
@@ -140,34 +140,32 @@ private fun Square(index: Int) {
 
 @Composable
 private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<Boolean>) {
-    Padding(top = 20.dp) {
-        Table(3, alignment = { Alignment.Center }) {
-            tableRow {
-                Text("Scroll")
-                SquareButton("< -", Color.Red) {
-                    position.scrollTo(position.value - 1000)
-                }
-                SquareButton("--- >", Color.Green) {
-                    position.scrollBy(10000f)
-                }
+    Table(3, alignment = { Alignment.Center }) {
+        tableRow {
+            Text("Scroll")
+            SquareButton("< -", Color.Red) {
+                position.scrollTo(position.value - 1000)
             }
-            tableRow {
-                Text("Smooth Scroll")
-                SquareButton("< -", Color.Red) {
-                    position.smoothScrollTo(position.value - 1000)
-                }
-                SquareButton("--- >", Color.Green) {
-                    position.smoothScrollBy(10000f)
-                }
+            SquareButton("--- >", Color.Green) {
+                position.scrollBy(10000f)
             }
-            tableRow {
-                SquareButton("Scroll: ${scrollable.value}") {
-                    scrollable.value = !scrollable.value
-                }
-                // empty container to fill table
-                Container { }
-                Container { }
+        }
+        tableRow {
+            Text("Smooth Scroll")
+            SquareButton("< -", Color.Red) {
+                position.smoothScrollTo(position.value - 1000)
             }
+            SquareButton("--- >", Color.Green) {
+                position.smoothScrollBy(10000f)
+            }
+        }
+        tableRow {
+            SquareButton("Scroll: ${scrollable.value}") {
+                scrollable.value = !scrollable.value
+            }
+            // empty container to fill table
+            Container { }
+            Container { }
         }
     }
 }
@@ -175,11 +173,9 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
 @Composable
 private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: () -> Unit) {
     Clickable(onClick = onClick) {
-        Padding(5.dp) {
-            Container(height = 60.dp, width = 120.dp) {
-                DrawShape(RectangleShape, color)
-                Text(text, style = TextStyle(fontSize = 20.sp))
-            }
+        Container(LayoutPadding(5.dp) + LayoutSize(120.dp, 60.dp)) {
+            DrawShape(RectangleShape, color)
+            Text(text, style = TextStyle(fontSize = 20.sp))
         }
     }
 }
