@@ -69,7 +69,6 @@ import androidx.ui.unit.px
 
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
-import java.util.TreeSet
 import kotlin.math.roundToInt
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -83,8 +82,8 @@ class AndroidComposeView constructor(context: Context) :
         it.measureBlocks = RootMeasureBlocks
     }
 
-    // LayoutNodes that need measure and layout, the value is true when measure is needed
-    private val relayoutNodes = TreeSet<LayoutNode>(DepthComparator)
+    // LayoutNodes that need measure and layout
+    private val relayoutNodes = DepthSortedSet<LayoutNode>(enableExtraAssertions)
 
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
 
@@ -97,12 +96,14 @@ class AndroidComposeView constructor(context: Context) :
     // RepaintBoundaryNodes that have had their boundary changed. When using Views,
     // the size/position of a View should change during layout, so this list
     // is kept separate from dirtyRepaintBoundaryNodes.
-    private val repaintBoundaryChanges = TreeSet<RepaintBoundaryNode>(DepthComparator)
+    private val repaintBoundaryChanges =
+        DepthSortedSet<RepaintBoundaryNode>(enableExtraAssertions)
 
     // RepaintBoundaryNodes that are dirty and should be redrawn. This is only
     // used when RenderNodes are active in Q+. When Views are used, the View
     // system tracks the dirty RenderNodes.
-    internal val dirtyRepaintBoundaryNodes = TreeSet<RepaintBoundaryNode>(DepthComparator)
+    internal val dirtyRepaintBoundaryNodes =
+        DepthSortedSet<RepaintBoundaryNode>(enableExtraAssertions)
 
     var ref: Ref<AndroidComposeView>? = null
         set(value) {
@@ -148,19 +149,9 @@ class AndroidComposeView constructor(context: Context) :
         }
 
     /**
-     * Flag to indicate that we're measuring and the nodes, requesting relayout should
-     * be added into [relayoutNodesDuringMeasureLayout].
+     * Flag to indicate that we're currently measuring.
      */
     private var duringMeasureLayout = false
-    /**
-     * Stores the list of [LayoutNode]s passed to [requestRelayout] while we were
-     * already doing measure/layout stage. This usually happens when we start subcomposition
-     * from inside measure block(like in WithConstraints).
-     * Inside [requestRelayout] we can add a new item into the list we are currently iterating
-     * through inside [measureAndLayout]. To save on the list allocation and iterate through
-     * the copied list we temporary add items into this list instead.
-     */
-    private val relayoutNodesDuringMeasureLayout = mutableListOf<LayoutNode>()
     /**
      * Stores the list of [LayoutNode]s scheduled to be remeasured in the next measure/layout pass.
      * We were unable to mark them as needsRemeasure=true previously as this request happened
@@ -202,6 +193,18 @@ class AndroidComposeView constructor(context: Context) :
         @TestOnly
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set
+
+    private val consistencyChecker: LayoutTreeConsistencyChecker? =
+        if (enableExtraAssertions) {
+            LayoutTreeConsistencyChecker(
+                root,
+                { duringMeasureLayout },
+                relayoutNodes,
+                postponedMeasureRequests
+            )
+        } else {
+            null
+        }
 
     override fun pauseModelReadObserveration(block: () -> Unit) =
         modelObserver.pauseObservingReads(block)
@@ -271,7 +274,7 @@ class AndroidComposeView constructor(context: Context) :
      */
     private fun collectChildrenRepaintBoundaries(node: ComponentNode) {
         if (node is RepaintBoundaryNode) {
-            repaintBoundaryChanges += node
+            repaintBoundaryChanges.add(node)
         }
         if (node !is LayoutNode) {
             node.visitChildren(::collectChildrenRepaintBoundaries)
@@ -313,20 +316,20 @@ class AndroidComposeView constructor(context: Context) :
                         // otherwise we finished. this child wasn't measured yet, will be
                         // measured soon.
                     }
-                    assertLayoutDirtyStateIsConsistent()
+                    consistencyChecker?.assertConsistent()
                     return
                 } else {
-                    layout.needsRemeasure = true
+                    layout.markRemeasureRequested()
                     if (parent.needsRemeasure) {
                         // don't need to do anything else since the parent is already scheduled
                         // for a remeasuring
-                        assertLayoutDirtyStateIsConsistent()
+                        consistencyChecker?.assertConsistent()
                         return
                     }
                     layout = parent
                 }
             }
-            layout.needsRemeasure = true
+            layout.markRemeasureRequested()
 
             requestRelayout(layout.parentLayoutNode ?: layout)
         }
@@ -336,8 +339,8 @@ class AndroidComposeView constructor(context: Context) :
         if (layoutNode.needsRelayout || (layoutNode.needsRemeasure && layoutNode !== root) ||
                 layoutNode.isLayingOut) {
             // don't need to do anything else since the parent is already scheduled
-            // for a relayout (measure pass includes relayout), or is layouting right now
-            assertLayoutDirtyStateIsConsistent()
+            // for a relayout (measure pass includes relayout), or is laying out right now
+            consistencyChecker?.assertConsistent()
             return
         }
         layoutNode.requireOwner()
@@ -355,8 +358,10 @@ class AndroidComposeView constructor(context: Context) :
             }
         } else {
             var layout = layoutNode
-            while (layout != layoutNode.alignmentLinesQueryOwner && !layout.needsRelayout) {
-                layout.needsRelayout = true
+            while (layout != layoutNode.alignmentLinesQueryOwner &&
+                // and relayout or remeasure(includes relayout) is not scheduled already
+                !(layout.needsRelayout || layout.needsRemeasure)) {
+                layout.markRelayoutRequested()
                 layout.dirtyAlignmentLines = true
                 if (layout.parentLayoutNode == null) break
                 layout = layout.parentLayoutNode!!
@@ -365,28 +370,32 @@ class AndroidComposeView constructor(context: Context) :
             nodeToRelayout = layout
         }
 
-        nodeToRelayout.needsRelayout = true
-        require(!nodeToRelayout.needsRemeasure || nodeToRelayout == root) {
-            "$nodeToRelayout is supposed to be the top one of the affected subtree. which " +
-                    "means it should only be scheduled for relayouting, not remeasuring unless " +
-                    "it`s the root node."
-        }
-        if (nodeToRelayout == root) {
-            nodeToRelayout.needsRemeasure = true
-        }
-        if (duringMeasureLayout) {
-            relayoutNodesDuringMeasureLayout += nodeToRelayout
-        } else {
-            val noRelayoutScheduled = relayoutNodes.isEmpty()
-            relayoutNodes += nodeToRelayout
+        nodeToRelayout.markRelayoutRequested()
+        relayoutNodes.add(nodeToRelayout)
+        if (!duringMeasureLayout) {
             if (nodeToRelayout == root || constraints.isZero) {
                 requestLayout()
-            } else if (noRelayoutScheduled) {
+            } else {
                 // Invalidate and catch measureAndLayout() in the dispatchDraw()
                 invalidateRepaintBoundary(nodeToRelayout)
             }
         }
-        assertLayoutDirtyStateIsConsistent()
+        consistencyChecker?.assertConsistent()
+    }
+
+    private fun LayoutNode.markRemeasureRequested() {
+        needsRemeasure = true
+        if (needsRelayout) {
+            // cancel needsRelayout as remeasure includes relayout
+            needsRelayout = false
+        }
+    }
+
+    private fun LayoutNode.markRelayoutRequested() {
+        // remeasure includes relayout so we are ok
+        if (!needsRemeasure) {
+            needsRelayout = true
+        }
     }
 
     override fun onAttach(node: ComponentNode) {
@@ -400,7 +409,7 @@ class AndroidComposeView constructor(context: Context) :
             }
             node.ownerData = ownerData
             ownerData.attach(node.parent?.repaintBoundary?.container)
-            repaintBoundaryChanges += node
+            repaintBoundaryChanges.add(node)
             node.parent?.let { invalidateRepaintBoundary(it) }
         }
     }
@@ -410,15 +419,11 @@ class AndroidComposeView constructor(context: Context) :
             is RepaintBoundaryNode -> {
                 node.container.detach()
                 node.ownerData = null
-                repaintBoundaryChanges -= node
-                dirtyRepaintBoundaryNodes -= node
+                repaintBoundaryChanges.remove(node)
+                dirtyRepaintBoundaryNodes.remove(node)
             }
             is LayoutNode -> {
-                if (!duringMeasureLayout) {
-                    // We can't change the contents of relayoutNodes during measure/layout, but
-                    // layout will clear its contents, as well as ignore any detached nodes
-                    relayoutNodes -= node
-                }
+                relayoutNodes.remove(node)
             }
         }
         modelObserver.clear(node)
@@ -444,60 +449,43 @@ class AndroidComposeView constructor(context: Context) :
     internal fun measureAndLayout() {
         trace("AndroidOwner:measureAndLayout") {
             if (relayoutNodes.isNotEmpty()) {
-                try {
-                    duringMeasureLayout = true
-                    while (relayoutNodes.isNotEmpty()) {
-                        measureIteration++
-                        relayoutNodes.forEach { layoutNode ->
-                            if (layoutNode.isAttached()) {
-                                if (layoutNode === root) {
-                                    // it is the root node - the only top node from relayoutNodes
-                                    // which needs to be remeasured.
-                                    layoutNode.measure(constraints)
-                                }
-                                require(!layoutNode.needsRemeasure) {
-                                    "$layoutNode shouldn't require remeasure. relayoutNodes " +
-                                            "consists of the top nodes of the affected subtrees"
-                                }
-                                if (layoutNode.needsRelayout) {
-                                    layoutNode.layout()
-                                    onPositionedDispatcher.onNodePositioned(layoutNode)
-                                    assertLayoutDirtyStateIsConsistent()
-                                }
-                            }
-                        }
-                        relayoutNodes.clear()
-
-                        // execute postponed `onRequestMeasure`
-                        if (postponedMeasureRequests.isNotEmpty()) {
-                            postponedMeasureRequests.forEach {
-                                it.needsRemeasure = false
+                duringMeasureLayout = true
+                relayoutNodes.popEach { layoutNode ->
+                    measureIteration++
+                    if (layoutNode === root) {
+                        // it is the root node - the only top node from relayoutNodes
+                        // which needs to be remeasured.
+                        layoutNode.measure(constraints)
+                    }
+                    require(!layoutNode.needsRemeasure) {
+                        "$layoutNode shouldn't require remeasure. relayoutNodes " +
+                                "consists of the top nodes of the affected subtrees"
+                    }
+                    if (layoutNode.needsRelayout) {
+                        layoutNode.layout()
+                        onPositionedDispatcher.onNodePositioned(layoutNode)
+                        consistencyChecker?.assertConsistent()
+                    }
+                    // execute postponed `onRequestMeasure`
+                    if (postponedMeasureRequests.isNotEmpty()) {
+                        postponedMeasureRequests.forEach {
+                            if (it.isAttached()) {
                                 onRequestMeasure(it)
                             }
-                            postponedMeasureRequests.clear()
                         }
-
-                        // move nodes added during the measure/layout pass into the main list
-                        if (relayoutNodesDuringMeasureLayout.isNotEmpty()) {
-                            relayoutNodes.addAll(relayoutNodesDuringMeasureLayout)
-                            relayoutNodesDuringMeasureLayout.clear()
-                        }
+                        postponedMeasureRequests.clear()
                     }
-                    onPositionedDispatcher.dispatch()
-                    assertLayoutDirtyStateIsConsistent()
-                } finally {
-                    duringMeasureLayout = false
                 }
+                duringMeasureLayout = false
+                onPositionedDispatcher.dispatch()
+                consistencyChecker?.assertConsistent()
             }
-            if (!repaintBoundaryChanges.isEmpty()) {
-                repaintBoundaryChanges.forEach { node ->
-                    val parentNode = node.parentLayoutNode!!
-                    node.container.setSize(
-                        parentNode.innerLayoutNodeWrapper.width.value,
-                        parentNode.innerLayoutNodeWrapper.height.value
-                    )
-                }
-                repaintBoundaryChanges.clear()
+            repaintBoundaryChanges.popEach { node ->
+                val parentNode = node.parentLayoutNode!!
+                node.container.setSize(
+                    parentNode.innerLayoutNodeWrapper.width.value,
+                    parentNode.innerLayoutNodeWrapper.height.value
+                )
             }
         }
     }
@@ -618,11 +606,8 @@ class AndroidComposeView constructor(context: Context) :
         modelObserver.observeReads(Unit, onCommitAffectingRootDraw) {
             root.visitChildren { callDraw(uiCanvas, it, parentSize) }
         }
-        if (dirtyRepaintBoundaryNodes.isNotEmpty()) {
-            dirtyRepaintBoundaryNodes.forEach { node ->
-                node.container.updateDisplayList()
-            }
-            dirtyRepaintBoundaryNodes.clear()
+        dirtyRepaintBoundaryNodes.popEach { node ->
+            node.container.updateDisplayList()
         }
     }
 
@@ -756,97 +741,6 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-
-    /**
-     * There are some contracts between the tree of LayoutNodes and the state of AndroidComposeView
-     * which is hard to enforce but important to maintain. This method is intended to do the
-     * work only during our tests ([enableExtraAssertions] will be set to true during some of out
-     * tests) and will iterate through the tree to validate the states consistency.
-     */
-    private fun assertLayoutDirtyStateIsConsistent() {
-        if (enableExtraAssertions) {
-            fun LayoutNode.consistentLayoutState(): Boolean {
-                if (this === root && needsRemeasure) {
-                    return relayoutNodes.contains(this) ||
-                            relayoutNodesDuringMeasureLayout.contains(this)
-                }
-                val parent = parentLayoutNode
-                if (parent != null && isPlaced) {
-                    if (needsRelayout) {
-                        if (!relayoutNodes.contains(this) &&
-                            !relayoutNodesDuringMeasureLayout.contains(this)) {
-                            // the parent should also have needsRelayout or it is still
-                            // measuring, this will trigger relayout right after
-                            return parent.needsRelayout || parent.isMeasuring
-                        }
-                    }
-                    if (needsRemeasure) {
-                        if (parent.isMeasuring || parent.isLayingOut) {
-                            return !duringMeasureLayout ||
-                                    parent.measureIteration != measureIteration
-                        } else {
-                            val parentRemeasureScheduled = parent.needsRemeasure ||
-                                    postponedMeasureRequests.contains(parent)
-                            if (affectsParentSize) {
-                                // node and parent both not yet laid out -> parent remeasure
-                                // should be scheduled
-                                return parentRemeasureScheduled
-                            } else {
-                                // node is not affecting parent size and parent relayout(or
-                                // remeasure, as it includes relayout) is scheduled
-                                return parent.needsRelayout || parentRemeasureScheduled
-                            }
-                        }
-                    }
-                }
-                return true
-            }
-            var inconsistencyFound = false
-            logTree { node ->
-                with(StringBuilder()) {
-                    if (node is LayoutNode) {
-                        append(node)
-                        if (node.needsRemeasure) append("[needsRemeasure]")
-                        if (node.needsRelayout) append("[needsRelayout]")
-                        if (node.isMeasuring) append("[isMeasuring]")
-                        if (duringMeasureLayout) append("[#${node.measureIteration}]")
-                        if (node.isLayingOut) append("[isLayingOut]")
-                        if (!node.isPlaced) append("[!isPlaced]")
-                        if (node.affectsParentSize) append("[affectsParentSize]")
-                        if (!node.consistentLayoutState()) {
-                            append("[INCONSISTENT]")
-                            inconsistencyFound = true
-                        }
-                    }
-                    toString()
-                }
-            }
-            Log.d("AndroidOwner", "List of relayoutNodes: $relayoutNodes")
-            Log.d("AndroidOwner", "List of relayoutNodesDuringMeasureLayout: " +
-                    "$relayoutNodesDuringMeasureLayout")
-            require(!inconsistencyFound) { "Inconsistency found! See the printed tree" }
-        }
-    }
-
-    /** Prints the nodes tree into the logs. */
-    private fun logTree(nodeToString: (ComponentNode) -> String = { it.toString() }) {
-        fun printSubTree(node: ComponentNode, depth: Int) {
-            var childrenDepth = depth
-            val nodeRepresentation = nodeToString(node)
-            if (nodeRepresentation.isNotEmpty()) {
-                val stringBuilder = StringBuilder()
-                for (i in 0 until depth) {
-                    stringBuilder.append("..")
-                }
-                stringBuilder.append(nodeRepresentation)
-                Log.d("AndroidOwner", stringBuilder.toString())
-                childrenDepth += 1
-            }
-            node.visitChildren { printSubTree(it, childrenDepth) }
-        }
-        Log.d("AndroidOwner", "Tree state:")
-        printSubTree(root, 0)
-    }
 
     companion object {
         private var systemPropertiesClass: Class<*>? = null
@@ -1113,7 +1007,13 @@ private class RepaintBoundaryView(
             canvas.save()
             canvas.clipPath(clipPath)
         }
-        ownerView.callChildDraw(canvas, repaintBoundaryNode)
+        // as we call measure and layout in this callback sometimes it is possible
+        // the node we wanted to draw became detached already and it would be incorrect
+        // to draw the attached node so we just skip the drawing - this RepaintBoundaryView
+        // will be removed from the hierarchy anyway.
+        if (repaintBoundaryNode.isAttached()) {
+            ownerView.callChildDraw(canvas, repaintBoundaryNode)
+        }
         if (clipPath != null) {
             canvas.restore()
         }
@@ -1159,7 +1059,7 @@ private class RepaintBoundaryRenderNode(
         set(value) {
             if (value && !field) {
                 ownerView.invalidate()
-                ownerView.dirtyRepaintBoundaryNodes += repaintBoundaryNode
+                ownerView.dirtyRepaintBoundaryNodes.add(repaintBoundaryNode)
             }
             field = value
         }
@@ -1236,18 +1136,6 @@ private class RepaintBoundaryRenderNode(
 }
 
 private val RepaintBoundaryNode.container: RepaintBoundary get() = ownerData as RepaintBoundary
-
-private val DepthComparator: Comparator<ComponentNode> = object : Comparator<ComponentNode> {
-    override fun compare(l1: ComponentNode, l2: ComponentNode): Int {
-        val depth1 = l1.depth
-        val depth2 = l2.depth
-        val depthDiff = depth1 - depth2
-        if (depthDiff != 0) {
-            return depthDiff
-        }
-        return System.identityHashCode(l1) - System.identityHashCode(l2)
-    }
-}
 
 /**
  * Resolves the Android [Outline] from the [Shape] of [RepaintBoundaryNode].
