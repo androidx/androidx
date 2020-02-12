@@ -37,6 +37,7 @@ import android.content.pm.ShortcutInfo;
 import androidx.core.app.Person;
 import androidx.core.app.TestActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
@@ -141,12 +142,14 @@ public class ShortcutInfoCompatTest {
         Set<String> categories = new HashSet<>();
         categories.add("cat1");
         categories.add("cat2");
+        LocusIdCompat locusId = new LocusIdCompat("Chat_A_B");
         int rank = 3;
         ShortcutInfoCompat compat = mBuilder
                 .setActivity(activity)
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
+                .setLocusId(locusId)
                 .setRank(rank)
                 .build();
 
@@ -158,6 +161,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(disabledMessage, copyCompat.getDisabledMessage());
         assertEquals(activity, copyCompat.getActivity());
         assertEquals(categories, copyCompat.getCategories());
+        assertEquals(locusId, copyCompat.getLocusId());
         assertEquals(rank, copyCompat.getRank());
     }
 
@@ -256,9 +260,10 @@ public class ShortcutInfoCompatTest {
         Person[] persons = {
                 new Person.Builder().setName("P1").build(),
                 new Person.Builder().setName("P2").build()};
-
+        LocusIdCompat locusId = new LocusIdCompat("Chat_A_B");
         ShortcutInfoCompat compat = mBuilder
                 .setPersons(persons)
+                .setLocusId(locusId)
                 .setLongLived(true)
                 .build();
 
@@ -272,5 +277,7 @@ public class ShortcutInfoCompatTest {
         for (int i = 0; i < persons.length; i++) {
             assertEquals(persons[i].getName(), retrievedPersons[i].getName());
         }
+
+        assertEquals(locusId, ShortcutInfoCompat.getLocusId(shortcut));
     }
 }

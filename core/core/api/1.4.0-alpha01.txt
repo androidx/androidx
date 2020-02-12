@@ -191,6 +191,7 @@ package androidx.core.app {
     method public static int getGroupAlertBehavior(android.app.Notification!);
     method @RequiresApi(21) public static java.util.List<androidx.core.app.NotificationCompat.Action!>! getInvisibleActions(android.app.Notification!);
     method public static boolean getLocalOnly(android.app.Notification!);
+    method public static androidx.core.content.LocusIdCompat? getLocusId(android.app.Notification);
     method public static String! getShortcutId(android.app.Notification!);
     method public static String! getSortKey(android.app.Notification!);
     method public static long getTimeoutAfter(android.app.Notification!);
@@ -429,6 +430,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! setLargeIcon(android.graphics.Bitmap!);
     method public androidx.core.app.NotificationCompat.Builder! setLights(@ColorInt int, int, int);
     method public androidx.core.app.NotificationCompat.Builder! setLocalOnly(boolean);
+    method public androidx.core.app.NotificationCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
     method public androidx.core.app.NotificationCompat.Builder setNotificationSilent();
     method public androidx.core.app.NotificationCompat.Builder! setNumber(int);
     method public androidx.core.app.NotificationCompat.Builder! setOngoing(boolean);
@@ -877,6 +879,13 @@ package androidx.core.content {
     field public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
   }
 
+  public final class LocusIdCompat {
+    ctor public LocusIdCompat(String);
+    method public String getId();
+    method @RequiresApi(29) public android.content.LocusId toLocusId();
+    method @RequiresApi(29) public static androidx.core.content.LocusIdCompat toLocusIdCompat(android.content.LocusId);
+  }
+
   public final class MimeTypeFilter {
     method public static boolean matches(String?, String);
     method public static String? matches(String?, String![]);
@@ -926,6 +935,7 @@ package androidx.core.content.pm {
     method public String getId();
     method public android.content.Intent getIntent();
     method public android.content.Intent![] getIntents();
+    method public androidx.core.content.LocusIdCompat? getLocusId();
     method public CharSequence? getLongLabel();
     method public int getRank();
     method public CharSequence getShortLabel();
@@ -942,6 +952,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIcon(androidx.core.graphics.drawable.IconCompat!);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent![]);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLabel(CharSequence);
     method @Deprecated public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived(boolean);
