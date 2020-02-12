@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":ui:ui-framework:integration-tests:ui-framework-demos"))
     implementation(project(":ui:ui-layout:integration-tests:ui-layout-demos"))
     implementation(project(":ui:ui-material:integration-tests:ui-material-demos"))
+    implementation(project(":ui:ui-material:integration-tests:ui-material-studies"))
     implementation(project(":ui:ui-foundation:integration-tests:ui-foundation-demos"))
     implementation(project(":ui:ui-text:integration-tests:ui-text-demos"))
     implementation(KOTLIN_STDLIB)
