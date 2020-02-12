@@ -192,6 +192,8 @@ package androidx.ui.test {
   public final class SemanticsNodeInteraction {
     method public void assertDoesNotExist();
     method public void assertExists();
+    method public androidx.ui.core.semantics.SemanticsNode getSemanticsNode();
+    property public final androidx.ui.core.semantics.SemanticsNode semanticsNode;
   }
 
   public final class SemanticsNodeInteractionKt {
