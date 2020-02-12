@@ -422,6 +422,17 @@ class MultiParagraph(
         }
     }
 
+    /** Returns the top y coordinate of the given line. */
+    fun getLineTop(lineIndex: Int): Float {
+        requireLineIndexInRange(lineIndex)
+
+        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getLineTop(lineIndex.toLocalLineIndex()).toGlobalYPosition()
+        }
+    }
+
     /** Returns the bottom y coordinate of the given line. */
     fun getLineBottom(lineIndex: Int): Float {
         requireLineIndexInRange(lineIndex)
