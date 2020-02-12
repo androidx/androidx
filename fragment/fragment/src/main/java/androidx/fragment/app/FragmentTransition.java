@@ -74,11 +74,11 @@ class FragmentTransition {
         void onComplete(@NonNull Fragment fragment, @NonNull CancellationSignal signal);
     }
 
-    private static final FragmentTransitionImpl PLATFORM_IMPL = Build.VERSION.SDK_INT >= 21
+    static final FragmentTransitionImpl PLATFORM_IMPL = Build.VERSION.SDK_INT >= 21
             ? new FragmentTransitionCompat21()
             : null;
 
-    private static final FragmentTransitionImpl SUPPORT_IMPL = resolveSupportImpl();
+    static final FragmentTransitionImpl SUPPORT_IMPL = resolveSupportImpl();
 
     private static FragmentTransitionImpl resolveSupportImpl() {
         try {
