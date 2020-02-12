@@ -23,10 +23,14 @@ import org.gradle.api.tasks.OutputDirectory
 import java.io.File
 
 /**
- * Task responsible for flattening all the input icons into a drawable folder that will be used
- * in comparison tests.
+ * Task responsible for generating files related to testing.
+ *
+ * - Generates a list of all icons mapped to the drawable ID used in testing, so we can bitmap
+ * compare the programmatic icon with the original source drawable.
+ *
+ * - Flattens all the source drawables into a drawable folder that will be used in comparison tests.
  */
-open class IconTestingDrawableGenerationTask : IconGenerationTask() {
+open class IconTestingGenerationTask : IconGenerationTask() {
     /**
      * Directory to generate the flattened drawables used for testing to.
      */
@@ -35,48 +39,32 @@ open class IconTestingDrawableGenerationTask : IconGenerationTask() {
         get() = generatedResourceDirectory.resolve("drawable")
 
     override fun run() {
+        // Copy all drawables to the drawable directory
         loadIcons().forEach { icon ->
             drawableDirectory.resolve("${icon.xmlFileName}.xml").apply {
                 createNewFile()
                 writeText(icon.fileContent)
             }
         }
+
+        // Generate the testing manifest to the androidTest directory
+        IconTestingManifestGenerator(loadIcons()).generateTo(generatedSrcAndroidTestDirectory)
     }
 
     companion object {
         /**
-         * Registers [IconTestingDrawableGenerationTask] in [project] for [variant].
+         * Registers [IconTestingGenerationTask] in [project] for [variant].
          */
         fun register(project: Project, variant: BaseVariant) {
-            val task = project.tasks.create(
-                "copyIcons${variant.name.capitalize()}",
-                IconTestingDrawableGenerationTask::class.java
+            val task = project.createGenerationTask(
+                "generateTestFiles",
+                variant,
+                IconTestingGenerationTask::class.java
             )
             variant.registerGeneratedResFolders(
-                project.files(getGeneratedResourceDirectory(project)).builtBy(task)
+                project.files(task.generatedResourceDirectory).builtBy(task)
             )
-        }
-    }
-}
-
-/**
- * Task responsible for generating a list of all icons mapped to the drawable ID used in
- * testing, so we can bitmap compare the programmatic icon with the original source drawable.
- */
-open class IconTestingManifestGenerationTask : IconGenerationTask() {
-    override fun run() =
-        IconTestingManifestGenerator(loadIcons()).generateTo(generatedSrcAndroidTestDirectory)
-
-    companion object {
-        /**
-         * Registers [IconTestingManifestGenerationTask] in [project] for [variant].
-         */
-        fun register(project: Project, variant: BaseVariant) {
-            val task = project.tasks.create(
-                "generateAllIcons${variant.name.capitalize()}",
-                IconTestingManifestGenerationTask::class.java
-            )
-            variant.registerJavaGeneratingTask(task, getGeneratedSrcAndroidTestDirectory(project))
+            variant.registerJavaGeneratingTask(task, task.generatedSrcAndroidTestDirectory)
         }
     }
 }
