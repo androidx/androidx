@@ -17,6 +17,7 @@
 package androidx.ui.semantics
 
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.test.ValueModel
@@ -33,6 +34,7 @@ import androidx.ui.test.verify
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -335,6 +337,44 @@ class SemanticsTests {
         composeTestRule.runOnIdleCompose { isAfter.value = true }
 
         findByTag(TestTag).assertLabelEquals(afterLabel)
+    }
+
+    @Test
+    fun changingSemantics_doesNotReplaceNodesBelow() {
+        // Regression test for b/148606417
+        var nodeCount = 0
+        val beforeLabel = "before"
+        val afterLabel = "after"
+
+        // Do different things in an attempt to defeat a sufficiently clever compiler
+        val beforeAction = { println("this never gets called") }
+        val afterAction = { println("neither does this") }
+
+        val isAfter = ValueModel(false)
+
+        composeTestRule.setContent {
+            Semantics(container = true, properties = {
+                accessibilityLabel = if (isAfter.value) afterLabel else beforeLabel
+                onClick(action = if (isAfter.value) afterAction else beforeAction)
+                testTag = TestTag
+            }) {
+                SimpleTestLayout {
+                    remember { nodeCount++ }
+                }
+            }
+        }
+
+        // This isn't the important part, just makes sure everything is behaving as expected
+        findByTag(TestTag).assertLabelEquals(beforeLabel)
+        assertThat(nodeCount).isEqualTo(1)
+
+        composeTestRule.runOnIdleCompose { isAfter.value = true }
+
+        // Make sure everything is still behaving as expected
+        findByTag(TestTag).assertLabelEquals(afterLabel)
+        // This is the important part: make sure we didn't replace the identity due to unwanted
+        // pivotal properties
+        assertThat(nodeCount).isEqualTo(1)
     }
 }
 

@@ -1440,10 +1440,13 @@ private class InvalidatingProperty<T>(private var value: T) :
 
 class SemanticsComponentNode(
     val id: Int,
-    semanticsConfiguration: SemanticsConfiguration
+    // IMPORTANT: this *must* have the same name as localSemanticsConfiguration (which must be
+    // public) in order to ensure that changes to it are assigned through that property, rather
+    // than treating this as pivotal and recreating the whole subtree (there's a test for this).
+    localSemanticsConfiguration: SemanticsConfiguration
 ) : ComponentNode() {
-    private var localSemanticsConfiguration: SemanticsConfiguration
-            by InvalidatingProperty(semanticsConfiguration)
+    var localSemanticsConfiguration: SemanticsConfiguration
+            by InvalidatingProperty(localSemanticsConfiguration)
 
     private var topNodeOfConfig: SemanticsComponentNode? = null
     private var _semanticsNode: SemanticsNode? = null
