@@ -33,6 +33,7 @@
 package androidx.animation
 
 import com.google.common.truth.Truth.assertThat
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -109,5 +110,35 @@ class KeyframeAnimationTest {
         }
 
         assertThat(animation.at(25)).isEqualTo(0.25f)
+    }
+
+    @Test
+    fun testMultiDimensKeyframesWithEasing() {
+        val easing = FastOutLinearInEasing
+        val animation = KeyframesBuilder<AnimationVector2D>().run {
+            duration = 400
+            AnimationVector(200f, 300f) at 200 with easing
+            build(TwoWayConverter<AnimationVector2D, AnimationVector2D>({ it }, { it }))
+        }
+        val start = AnimationVector(0f, 0f)
+        val end = AnimationVector(200f, 400f)
+
+        for (time in 0..400 step 50) {
+            val v1: Float
+            val v2: Float
+            if (time < 200) {
+                v1 = lerp(0f, 200f, time / 200f)
+                v2 = lerp(0f, 300f, time / 200f)
+            } else {
+                v1 = 200f
+                v2 = lerp(300f, 400f, easing((time - 200) / 200f))
+            }
+            assertEquals(
+                AnimationVector(v1, v2), animation.getValue(
+                    time.toLong(), start, end,
+                    AnimationVector(0f, 0f)
+                )
+            )
+        }
     }
 }

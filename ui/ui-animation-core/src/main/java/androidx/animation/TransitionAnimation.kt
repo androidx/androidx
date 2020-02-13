@@ -128,7 +128,7 @@ class TransitionAnimation<T>(
         startVelocity: V?,
         end: T
     ): AnimationWrapper<T, V> {
-        val velocity: V = startVelocity ?: typeConverter.createNewVector()
+        val velocity: V = startVelocity ?: typeConverter.convertToVector(start).newInstance()
         return TargetBasedAnimationWrapper(start, velocity, end, anim, typeConverter)
     }
 

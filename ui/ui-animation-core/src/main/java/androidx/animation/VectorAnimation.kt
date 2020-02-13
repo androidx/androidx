@@ -92,10 +92,11 @@ internal interface DurationBasedAnimation<V : AnimationVector> : Animation<V> {
 internal class Keyframes<V : AnimationVector>(
     override val duration: Long,
     override val delay: Long,
-    private val keyframes: Map<Long, Pair<V, Easing>>,
-    // TODO: Need to work out a better way to do the arithmetic operations
-    private val arithmetic: Arithmetic<V>
+    private val keyframes: Map<Long, Pair<V, Easing>>
 ) : DurationBasedAnimation<V> {
+
+    private lateinit var valueVector: V
+    private lateinit var velocityVector: V
 
     override fun getValue(
         playTime: Long,
@@ -131,7 +132,18 @@ internal class Keyframes<V : AnimationVector>(
 
         // Now interpolate
         val fraction = easing((clampedPlayTime - startTime) / (endTime - startTime).toFloat())
-        return arithmetic.interpolate(startVal, endVal, fraction)
+        init(start)
+        for (i in 0 until startVal.size) {
+            valueVector[i] = lerp(startVal[i], endVal[i], fraction)
+        }
+        return valueVector
+    }
+
+    private fun init(value: V) {
+        if (!::valueVector.isInitialized) {
+            valueVector = value.newInstance()
+            velocityVector = value.newInstance()
+        }
     }
 
     override fun getVelocity(
@@ -146,7 +158,12 @@ internal class Keyframes<V : AnimationVector>(
         }
         val startNum = getValue(clampedPlayTime - 1, start, end, startVelocity)
         val endNum = getValue(clampedPlayTime, start, end, startVelocity)
-        return arithmetic.times(arithmetic.minus(endNum, startNum), 1000f)
+
+        init(start)
+        for (i in 0 until startNum.size) {
+            velocityVector[i] = (startNum[i] - endNum[i]) * 1000f
+        }
+        return velocityVector
     }
 }
 
