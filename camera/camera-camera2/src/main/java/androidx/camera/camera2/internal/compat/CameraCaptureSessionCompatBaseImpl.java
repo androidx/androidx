@@ -19,10 +19,11 @@ package androidx.camera.camera2.internal.compat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureRequest;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -31,56 +32,87 @@ import java.util.concurrent.Executor;
 @RequiresApi(21)
 class CameraCaptureSessionCompatBaseImpl implements
         CameraCaptureSessionCompat.CameraCaptureSessionCompatImpl {
-    @Override
-    public int captureBurstRequests(@NonNull CameraCaptureSession captureSession,
-            @NonNull List<CaptureRequest> requests, @NonNull Executor executor,
-            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
 
-        // Wrap the executor in the callback
-        CameraCaptureSession.CaptureCallback cb =
-                new CameraCaptureSessionCompat.CaptureCallbackExecutorWrapper(executor, listener);
+    final CameraCaptureSession mCameraCaptureSession;
+    final Object mObject;
 
-        return captureSession.captureBurst(requests, cb, MainThreadAsyncHandler.getInstance());
+    CameraCaptureSessionCompatBaseImpl(@NonNull CameraCaptureSession captureSession,
+            @Nullable Object implParams) {
+        mCameraCaptureSession = Preconditions.checkNotNull(captureSession);
+        mObject = implParams;
+    }
+
+    static CameraCaptureSessionCompat.CameraCaptureSessionCompatImpl create(
+            @NonNull CameraCaptureSession captureSession,
+            @NonNull Handler compatHandler) {
+        return new CameraCaptureSessionCompatBaseImpl(captureSession,
+                new CameraCaptureSessionCompatBaseImpl.CameraCaptureSessionCompatParamsApi21(
+                        compatHandler));
     }
 
     @Override
-    public int captureSingleRequest(@NonNull CameraCaptureSession captureSession,
-            @NonNull CaptureRequest request, @NonNull Executor executor,
+    public int captureBurstRequests(@NonNull List<CaptureRequest> requests,
+            @NonNull Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
-
         // Wrap the executor in the callback
         CameraCaptureSession.CaptureCallback cb =
                 new CameraCaptureSessionCompat.CaptureCallbackExecutorWrapper(executor, listener);
 
-        return captureSession.capture(request, cb, MainThreadAsyncHandler.getInstance());
+        CameraCaptureSessionCompatParamsApi21 params =
+                (CameraCaptureSessionCompatParamsApi21) mObject;
+        return mCameraCaptureSession.captureBurst(requests, cb, params.mCompatHandler);
     }
 
     @Override
-    public int setRepeatingBurstRequests(@NonNull CameraCaptureSession captureSession,
-            @NonNull List<CaptureRequest> requests, @NonNull Executor executor,
+    public int captureSingleRequest(@NonNull CaptureRequest request, @NonNull Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
-
         // Wrap the executor in the callback
         CameraCaptureSession.CaptureCallback cb =
                 new CameraCaptureSessionCompat.CaptureCallbackExecutorWrapper(executor, listener);
 
-        return captureSession.setRepeatingBurst(requests, cb, MainThreadAsyncHandler.getInstance());
+        CameraCaptureSessionCompatParamsApi21 params =
+                (CameraCaptureSessionCompatParamsApi21) mObject;
+        return mCameraCaptureSession.capture(request, cb, params.mCompatHandler);
     }
 
     @Override
-    public int setSingleRepeatingRequest(@NonNull CameraCaptureSession captureSession,
-            @NonNull CaptureRequest request, @NonNull Executor executor,
+    public int setRepeatingBurstRequests(@NonNull List<CaptureRequest> requests,
+            @NonNull Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
-
         // Wrap the executor in the callback
         CameraCaptureSession.CaptureCallback cb =
                 new CameraCaptureSessionCompat.CaptureCallbackExecutorWrapper(executor, listener);
 
-        return captureSession.setRepeatingRequest(
-                request, cb, MainThreadAsyncHandler.getInstance());
+        CameraCaptureSessionCompatParamsApi21 params =
+                (CameraCaptureSessionCompatParamsApi21) mObject;
+        return mCameraCaptureSession.setRepeatingBurst(requests, cb, params.mCompatHandler);
+    }
+
+    @Override
+    public int setSingleRepeatingRequest(@NonNull CaptureRequest request,
+            @NonNull Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
+        // Wrap the executor in the callback
+        CameraCaptureSession.CaptureCallback cb =
+                new CameraCaptureSessionCompat.CaptureCallbackExecutorWrapper(executor, listener);
+
+        CameraCaptureSessionCompatParamsApi21 params =
+                (CameraCaptureSessionCompatParamsApi21) mObject;
+        return mCameraCaptureSession.setRepeatingRequest(
+                request, cb, params.mCompatHandler);
+    }
+
+    @NonNull
+    @Override
+    public CameraCaptureSession unwrap() {
+        return mCameraCaptureSession;
+    }
+
+    private static class CameraCaptureSessionCompatParamsApi21 {
+        final Handler mCompatHandler;
+
+        CameraCaptureSessionCompatParamsApi21(@NonNull Handler compatHandler) {
+            mCompatHandler = compatHandler;
+        }
     }
 }
