@@ -20,13 +20,13 @@ import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.os.Handler;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 import androidx.core.util.Preconditions;
 
 import java.util.HashMap;
@@ -44,9 +44,10 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
         mObject = cameraManagerParams;
     }
 
-    CameraManagerCompatBaseImpl(@NonNull Context context) {
-        mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        mObject = new CameraManagerCompatParamsApi21();
+    static CameraManagerCompatBaseImpl create(@NonNull Context context,
+            @NonNull Handler compatHandler) {
+        return new CameraManagerCompatBaseImpl(context,
+                new CameraManagerCompatParamsApi21(compatHandler));
     }
 
     @Override
@@ -57,8 +58,8 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
         }
 
         CameraManagerCompat.AvailabilityCallbackExecutorWrapper wrapper = null;
+        CameraManagerCompatParamsApi21 params = (CameraManagerCompatParamsApi21) mObject;
         if (callback != null) {
-            CameraManagerCompatParamsApi21 params = (CameraManagerCompatParamsApi21) mObject;
             synchronized (params.mWrapperMap) {
                 wrapper = params.mWrapperMap.get(callback);
                 if (wrapper == null) {
@@ -69,7 +70,7 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
             }
         }
 
-        mCameraManager.registerAvailabilityCallback(wrapper, MainThreadAsyncHandler.getInstance());
+        mCameraManager.registerAvailabilityCallback(wrapper, params.mCompatHandler);
     }
 
     @Override
@@ -97,7 +98,8 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
         CameraDevice.StateCallback cb =
                 new CameraDeviceCompat.StateCallbackExecutorWrapper(executor, callback);
 
-        mCameraManager.openCamera(cameraId, cb, MainThreadAsyncHandler.getInstance());
+        CameraManagerCompatParamsApi21 params = (CameraManagerCompatParamsApi21) mObject;
+        mCameraManager.openCamera(cameraId, cb, params.mCompatHandler);
     }
 
     @NonNull
@@ -111,6 +113,11 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
         final Map<CameraManager.AvailabilityCallback,
                 CameraManagerCompat.AvailabilityCallbackExecutorWrapper>
                 mWrapperMap = new HashMap<>();
+        final Handler mCompatHandler;
+
+        CameraManagerCompatParamsApi21(@NonNull Handler compatHandler) {
+            mCompatHandler = compatHandler;
+        }
     }
 }
 
