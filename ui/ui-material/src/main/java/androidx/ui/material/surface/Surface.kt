@@ -19,14 +19,15 @@ package androidx.ui.material.surface
 import androidx.compose.Composable
 import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.core.Draw
 import androidx.ui.core.DrawShadow
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.ProvideContentColor
-import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -96,7 +97,10 @@ fun Surface(
             DrawShadow(shape = shape, elevation = elevation)
         }
         val backgroundColor = getBackgroundColorForElevation(color, elevation)
-        DrawShape(shape = shape, color = backgroundColor)
+        val background = DrawBackground(shape = shape, color = backgroundColor)
+        Draw { canvas, size ->
+            background.draw(this, {}, canvas, size)
+        }
         Clip(shape = shape) {
             ProvideContentColor(contentColor, children)
         }

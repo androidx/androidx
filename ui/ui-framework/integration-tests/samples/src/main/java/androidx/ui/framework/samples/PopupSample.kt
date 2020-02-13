@@ -22,25 +22,27 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DropDownAlignment
 import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Popup
-import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun PopupSample() {
-    Container {
+    Box {
         val popupWidth = 200.dp
         val popupHeight = 50.dp
         val cornerSize = 16.dp
 
         Popup(alignment = Alignment.Center) {
             // Draw a rectangle shape with rounded corners inside the popup
-            Container(width = popupWidth, height = popupHeight) {
-                DrawShape(RoundedCornerShape(cornerSize), Color.White)
-            }
+            Box(
+                LayoutSize(popupWidth, popupHeight),
+                shape = RoundedCornerShape(cornerSize),
+                backgroundColor = Color.White
+            )
         }
     }
 }
@@ -48,9 +50,7 @@ fun PopupSample() {
 @Sampled
 @Composable
 fun DropdownPopupSample() {
-    val parentWidth = 400.dp
-    val parentHeight = 200.dp
-    Container(width = parentWidth, height = parentHeight) {
+    Box(LayoutSize(400.dp, 200.dp)) {
         val popupWidth = 200.dp
         val popupHeight = 50.dp
         val cornerSize = 16.dp
@@ -58,9 +58,11 @@ fun DropdownPopupSample() {
         // The popup will appear below the parent
         DropdownPopup(dropDownAlignment = DropDownAlignment.Left) {
             // Draw a rectangle shape with rounded corners inside the popup
-            Container(width = popupWidth, height = popupHeight) {
-                DrawShape(RoundedCornerShape(cornerSize), Color.White)
-            }
+            Box(
+                LayoutSize(popupWidth, popupHeight),
+                shape = RoundedCornerShape(cornerSize),
+                backgroundColor = Color.White
+            )
         }
     }
 }

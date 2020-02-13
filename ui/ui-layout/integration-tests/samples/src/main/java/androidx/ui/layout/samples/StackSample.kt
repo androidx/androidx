@@ -18,6 +18,7 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
@@ -29,17 +30,17 @@ import androidx.ui.unit.dp
 @Composable
 fun SimpleStack() {
     Stack {
-        SizedRectangle(LayoutSize.Fill, color = Color.Cyan)
-        SizedRectangle(
+        Box(LayoutSize.Fill, backgroundColor = Color.Cyan)
+        Box(
             LayoutGravity.Stretch + LayoutPadding(top = 20.dp, bottom = 20.dp),
-            color = Color.Yellow
+            backgroundColor = Color.Yellow
         )
-        SizedRectangle(LayoutGravity.Stretch + LayoutPadding(40.dp), color = Color.Magenta)
-        SizedRectangle(LayoutGravity.Center + LayoutSize(300.dp, 300.dp), color = Color.Green)
-        SizedRectangle(LayoutGravity.TopLeft + LayoutSize(150.dp, 150.dp), color = Color.Red)
-        SizedRectangle(
+        Box(LayoutGravity.Stretch + LayoutPadding(40.dp), backgroundColor = Color.Magenta)
+        Box(LayoutGravity.Center + LayoutSize(300.dp, 300.dp), backgroundColor = Color.Green)
+        Box(LayoutGravity.TopLeft + LayoutSize(150.dp, 150.dp), backgroundColor = Color.Red)
+        Box(
             LayoutGravity.BottomRight + LayoutSize(150.dp, 150.dp),
-            color = Color.Blue
+            backgroundColor = Color.Blue
         )
     }
 }

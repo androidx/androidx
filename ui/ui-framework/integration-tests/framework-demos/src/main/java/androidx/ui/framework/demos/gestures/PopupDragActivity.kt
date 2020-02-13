@@ -27,10 +27,11 @@ import androidx.ui.core.disposeActivityComposition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Wrap
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -59,9 +60,13 @@ class PopupDragActivity : Activity() {
 
             Popup(alignment = Alignment.TopLeft, offset = offset.value.round()) {
                 Wrap {
-                    DrawShape(CircleShape, Color.Green)
                     RawDragGestureDetector(observer) {
-                        Container(width = 70.dp, height = 70.dp) {
+                        Box(
+                            LayoutSize(70.dp),
+                            shape = CircleShape,
+                            backgroundColor = Color.Green,
+                            gravity = ContentGravity.Center
+                        ) {
                             Text(
                                 text = "This is a popup!",
                                 style = TextStyle(textAlign = TextAlign.Center)

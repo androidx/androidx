@@ -17,28 +17,33 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
-import androidx.ui.core.Draw
+import androidx.compose.remember
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.DrawBorder
-import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.drawOutline
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
     override fun emitContent() {
-        Container(width = 48.dp, height = 48.dp) {
-            // code below was replaced by DrawBorder but we still need it
-            // in order to have honest benchmark here
-            val borderModifier = DrawBorder(Border(1.dp, Color.Cyan), CircleShape)
-            Draw { canvas, size ->
-                borderModifier.draw(this, {}, canvas, size)
+        Box(
+            modifier = LayoutSize(48.dp),
+            shape = CircleShape,
+            border = Border(1.dp, Color.Cyan),
+            gravity = ContentGravity.Center
+        ) {
+            val paint = remember {
+                Paint().apply { color = Color.Cyan }
             }
             val innerSize = getInnerSize().value
-            Container(width = innerSize, height = innerSize) {
-                DrawShape(CircleShape, Color.Cyan)
+            Canvas(LayoutSize(innerSize)) {
+                drawOutline(CircleShape.createOutline(size, this), paint)
             }
         }
     }
