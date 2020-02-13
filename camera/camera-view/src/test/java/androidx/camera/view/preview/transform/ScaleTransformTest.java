@@ -19,12 +19,10 @@ package androidx.camera.view.preview.transform;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
@@ -33,7 +31,6 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.test.filters.SmallTest;
 
@@ -58,17 +55,11 @@ public class ScaleTransformTest {
 
     @Before
     public void setUp() {
-        final Context context = mock(Context.class);
-        final WindowManager windowManager = mock(WindowManager.class);
-        when(context.getSystemService(anyString())).thenReturn(windowManager);
-
         mDisplay = mock(Display.class);
-        when(windowManager.getDefaultDisplay()).thenReturn(mDisplay);
-
         mView = mock(View.class);
+        when(mView.getDisplay()).thenReturn(mDisplay);
         when(mView.getWidth()).thenReturn(BUFFER.getWidth());
         when(mView.getHeight()).thenReturn(BUFFER.getHeight());
-        when(mView.getContext()).thenReturn(context);
     }
 
     @Test
