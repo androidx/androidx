@@ -21,13 +21,7 @@ import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.setContent
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Spacer
 import androidx.ui.material.Scaffold
-import androidx.ui.unit.dp
 
 /**
  * This Activity recreates the Rally Material Study from
@@ -40,36 +34,23 @@ class RallyActivity : Activity() {
             RallyApp()
         }
     }
-
-    @Composable
-    fun RallyApp() {
-        RallyTheme {
-            val allScreens = RallyScreenState.values().toList()
-            var currentScreen by state { RallyScreenState.Overview }
-            Scaffold(
-                topAppBar = {
-                    RallyTopAppBar(
-                        allScreens = allScreens,
-                        onChangeTab = { screen -> currentScreen = screen },
-                        currentScreen = currentScreen
-                    )
-                }
-            ) {
-                currentScreen.body()
-            }
-        }
-    }
 }
 
 @Composable
-fun RallyBody() {
-    VerticalScroller {
-        Column(modifier = LayoutPadding(16.dp)) {
-            RallyAlertCard()
-            Spacer(LayoutHeight(10.dp))
-            RallyAccountsOverviewCard()
-            Spacer(LayoutHeight(10.dp))
-            RallyBillsOverviewCard()
+fun RallyApp() {
+    RallyTheme {
+        val allScreens = RallyScreenState.values().toList()
+        var currentScreen by state { RallyScreenState.Overview }
+        Scaffold(
+            topAppBar = {
+                RallyTopAppBar(
+                    allScreens = allScreens,
+                    onTabSelected = { screen -> currentScreen = screen },
+                    currentScreen = currentScreen
+                )
+            }
+        ) {
+            currentScreen.body()
         }
     }
 }
