@@ -24,6 +24,7 @@ import androidx.ui.util.lerp
 import androidx.ui.util.packFloats
 import androidx.ui.util.unpackFloat1
 import androidx.ui.util.unpackFloat2
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -185,6 +186,8 @@ inline operator fun Int.times(other: Px) =
 inline fun min(a: Px, b: Px): Px = Px(value = min(a.value, b.value))
 
 inline fun max(a: Px, b: Px): Px = Px(value = max(a.value, b.value))
+
+inline fun abs(x: Px): Px = Px(abs(x.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
