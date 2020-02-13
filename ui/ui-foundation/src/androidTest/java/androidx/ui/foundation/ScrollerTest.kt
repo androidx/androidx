@@ -444,14 +444,14 @@ class ScrollerTest {
     private fun SemanticsNodeInteraction.awaitScrollAnimation(
         scroller: ScrollerPosition
     ): SemanticsNodeInteraction {
-        if (!scroller.animatedFloat.isRunning) {
+        if (!scroller.isAnimating) {
             return this
         }
         val latch = CountDownLatch(1)
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {
             override fun run() {
-                if (scroller.animatedFloat.isRunning) {
+                if (scroller.isAnimating) {
                     handler.post(this)
                 } else {
                     latch.countDown()
