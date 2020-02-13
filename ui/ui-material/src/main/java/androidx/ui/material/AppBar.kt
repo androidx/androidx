@@ -20,7 +20,6 @@ import androidx.compose.Immutable
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
-import androidx.ui.core.Text
 import androidx.ui.core.toModifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
@@ -38,7 +37,6 @@ import androidx.ui.graphics.addOutline
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
@@ -47,12 +45,10 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
 import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.surface.primarySurface
 import androidx.ui.semantics.Semantics
-import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -67,110 +63,40 @@ import kotlin.math.sqrt
  * A TopAppBar displays information and actions relating to the current screen and is placed at the
  * top of the screen.
  *
- * This TopAppBar displays only a title and navigation icon, use the other TopAppBar overload if
- * you want to display actions as well.
+ * This TopAppBar has slots for a title, navigation icon, and actions. Use the other TopAppBar
+ * overload for a generic TopAppBar with no restriction on content.
  *
- * @sample androidx.ui.material.samples.SimpleTopAppBarNavIcon
+ * @sample androidx.ui.material.samples.SimpleTopAppBar
  *
  * @param title The title to be displayed in the center of the TopAppBar
+ * @param navigationIcon The navigation icon displayed at the start of the TopAppBar. This should
+ * typically be an [AppBarIcon].
+ * @param actions The actions displayed at the end of the TopAppBar. This should typically be
+ * [AppBarIcon]s. The default layout here is a [Row], so icons inside will be placed horizontally.
  * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
  * @param contentColor The preferred content color provided by this TopAppBar to its children.
  * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
  * the theme, this will keep the same value set above this TopAppBar.
  * @param elevation the elevation of this TopAppBar.
- * @param navigationIcon The navigation icon displayed at the start of the TopAppBar
  */
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
-    color: Color = MaterialTheme.colors().primarySurface,
-    contentColor: Color = contentColorFor(color),
-    elevation: Dp = TopAppBarElevation,
-    navigationIcon: @Composable() (() -> Unit)? = null
-) {
-    BaseTopAppBar(
-        color = color,
-        contentColor = contentColor,
-        elevation = elevation,
-        startContent = navigationIcon,
-        title = {
-            // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = MaterialTheme.typography().h6, children = title)
-        },
-        endContent = null
-    )
-}
-
-/**
- * A TopAppBar displays information and actions relating to the current screen and is placed at the
- * top of the screen.
- *
- * This TopAppBar has space for a title, navigation icon, and actions. Use the other TopAppBar
- * overload if you only want to display a title and navigation icon.
- *
- * @sample androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
- *
- * @param title The title to be displayed in the center of the TopAppBar
- * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
- * @param contentColor The preferred content color provided by this TopAppBar to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this TopAppBar.
- * @param elevation the elevation of this TopAppBar.
- * @param navigationIcon The navigation icon displayed at the start of the TopAppBar
- * @param actionData A list of data representing the actions to be displayed at the end of
- * the TopAppBar. Any remaining actions that do not fit on the TopAppBar should typically be
- * displayed in an overflow menu at the end. This list will be transformed into icons / overflow
- * menu items by [action]. For example, you may choose to represent an action with a sealed class
- * containing an icon and text, so you can easily handle events when the action is pressed.
- * @param action A specific action that will be displayed at the end of the TopAppBar - this
- * will be called for items in [actionData] up to the maximum number of icons that can be displayed.
- * This parameter essentially transforms data in [actionData] to an icon / menu item that
- * will actually be displayed to the user.
- * @param T the type of data in [actionData]
- */
-@Composable
-fun <T> TopAppBar(
-    title: @Composable() () -> Unit,
-    actionData: List<T>,
-    color: Color = MaterialTheme.colors().primarySurface,
-    contentColor: Color = contentColorFor(color),
-    elevation: Dp = TopAppBarElevation,
     navigationIcon: @Composable() (() -> Unit)? = null,
-    action: @Composable() (T) -> Unit
-    // TODO: support overflow menu here with the remainder of the list
+    actions: @Composable() RowScope.() -> Unit = {},
+    color: Color = MaterialTheme.colors().primarySurface,
+    contentColor: Color = contentColorFor(color),
+    elevation: Dp = TopAppBarElevation
 ) {
-    BaseTopAppBar(
-        color = color,
-        contentColor = contentColor,
-        elevation = elevation,
-        startContent = navigationIcon,
-        title = {
-            // Text color comes from the underlying Surface
-            CurrentTextStyleProvider(value = MaterialTheme.typography().h6, children = title)
-        },
-        endContent = getActions(actionData, MaxIconsInTopAppBar, action)
-    )
-}
-
-@Composable
-private fun BaseTopAppBar(
-    color: Color,
-    contentColor: Color,
-    elevation: Dp,
-    startContent: @Composable() (() -> Unit)?,
-    title: @Composable() () -> Unit,
-    endContent: @Composable() (() -> Unit)?
-) {
-    BaseAppBar(color, contentColor, elevation, RectangleShape) {
-        if (startContent == null) {
+    AppBar(color, contentColor, elevation, RectangleShape) {
+        if (navigationIcon == null) {
             Spacer(LayoutWidth(TitleInsetWithoutIcon))
         } else {
             // TODO: make this a row after b/148014745 is fixed
             Box(
-                LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon) +
-                        LayoutPadding(left = IconPadding),
+                LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon),
                 gravity = ContentGravity.CenterLeft,
-                children = startContent
+                children = navigationIcon
             )
         }
 
@@ -179,21 +105,45 @@ private fun BaseTopAppBar(
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {
-                    // TODO: AlignmentLineOffset requires a child, so in case title() is
-                    // empty we just add an empty box here - should be fixed when we move to
-                    // modifiers.
-                    Box(children = title)
+                    CurrentTextStyleProvider(value = MaterialTheme.typography().h6) {
+                        Row {
+                            title()
+                        }
+                    }
                 }
             }
         }
 
-        // TODO: make this a row after b/148014745 is fixed
-        Box(
-            modifier = LayoutHeight.Fill + LayoutPadding(right = IconPadding),
-            gravity = ContentGravity.CenterRight,
-            children = endContent ?: {}
-        )
+        // TODO: remove box and center align row's children after b/148014745 is fixed
+        Box(modifier = LayoutHeight.Fill, gravity = ContentGravity.CenterRight) {
+            Row(arrangement = Arrangement.End, children = actions)
+        }
     }
+}
+
+/**
+ * A TopAppBar displays information and actions relating to the current screen and is placed at the
+ * top of the screen.
+ *
+ * This TopAppBar has no pre-defined slots for content, allowing you to customize the layout of
+ * content inside.
+ *
+ * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
+ * @param contentColor The preferred content color provided by this TopAppBar to its children.
+ * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
+ * the theme, this will keep the same value set above this TopAppBar.
+ * @param elevation the elevation of this TopAppBar.
+ * @param children the children of this TopAppBar.The default layout here is a [Row],
+ * so content inside will be placed horizontally.
+ */
+@Composable
+fun TopAppBar(
+    color: Color = MaterialTheme.colors().primarySurface,
+    contentColor: Color = contentColorFor(color),
+    elevation: Dp = TopAppBarElevation,
+    children: @Composable() RowScope.() -> Unit
+) {
+    AppBar(color, contentColor, elevation, RectangleShape, children)
 }
 
 object BottomAppBar {
@@ -209,6 +159,7 @@ object BottomAppBar {
      *
      * If you use BottomAppBar with [Scaffold], a typical cutout for
      * FAB may look like:
+     *
      * @sample androidx.ui.material.samples.SimpleBottomAppBarCutoutWithScaffold
      *
      * @param fabSize the size of the FAB that will be shown on top of BottomAppBar
@@ -250,30 +201,15 @@ object BottomAppBar {
  * the screen. It can also optionally display a [FloatingActionButton], which is either overlaid
  * on top of the BottomAppBar, or inset, carving a cutout in the BottomAppBar.
  *
- * The location of the actions displayed by the BottomAppBar depends on the position / existence
- * of a [FloatingActionButton], configured with [fabConfiguration]. When [fabConfiguration] is:
+ * See [BottomAppBar anatomy](https://material.io/components/app-bars-bottom/#anatomy) for the
+ * recommended content depending on the [FloatingActionButton] position.
  *
- * - `null`: the [navigationIcon] is displayed at the start, and the actions are displayed
- * at the end
- *
- * - not null and has [FabDockedPosition.Center] fabPosition: the [navigationIcon] is displayed at
- * the start, and the actions are displayed at the end
- *
- * - not null and has [FabDockedPosition.End] fabPosition: the actions are displayed at the start,
- * and no navigation icon is supported - setting a navigation icon here will throw an exception.
- *
- * See [BottomAppBar anatomy](https://material.io/components/app-bars-bottom/#anatomy) for more
- * information.
- *
- * @sample androidx.ui.material.samples.SimpleBottomAppBarNoFab
+ * @sample androidx.ui.material.samples.SimpleBottomAppBar
  *
  * @param color The background color for the BottomAppBar. Use [Color.Transparent] to have no color.
  * @param contentColor The preferred content color provided by this BottomAppBar to its children.
  * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
  * the theme, this will keep the same value set above this BottomAppBar.
- * @param navigationIcon The navigation icon displayed in the BottomAppBar. Note that if
- * [fabConfiguration] has fabPosition [FabDockedPosition.End], this parameter must be null /
- * not set.
  * @param fabConfiguration The [FabConfiguration] that controls where the [FloatingActionButton]
  * is placed inside the BottomAppBar. This is used both to determine the cutout position for
  * BottomAppBar (if cutoutShape is non-null) and to choose proper layout for BottomAppBar. If
@@ -281,68 +217,30 @@ object BottomAppBar {
  * @param cutoutShape the shape of the cutout that will be added to the BottomAppBar - this
  * should typically be the same shape used inside the [FloatingActionButton]. This shape will be
  * drawn with an offset around all sides. If null, where will be no cutout.
- * @param actionData A list of data representing the actions to be displayed at the end of
- * the BottomAppBar. Any remaining actions that do not fit on the BottomAppBar should typically be
- * displayed in an overflow menu at the end. This list will be transformed into icons / overflow
- * menu items by [action]. For example, you may choose to represent an action with a sealed class
- * containing an icon and text, so you can easily handle events when the action is pressed.
- * @param action A specific action that will be displayed at the end of the BottomAppBar - this
- * will be called for items in [actionData] up to the maximum number of icons that can be displayed.
- * This parameter essentially transforms data in [actionData] to an icon / menu item that
- * will actually be displayed to the user.
- * @param T the type of data in [actionData]
+ * @param children the children of this BottomAppBar. The default layout here is a [Row],
+ * so content inside will be placed horizontally.
  */
 @Composable
-fun <T> BottomAppBar(
+fun BottomAppBar(
     color: Color = MaterialTheme.colors().primarySurface,
     contentColor: Color = contentColorFor(color),
-    navigationIcon: @Composable() (() -> Unit)? = null,
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
-    actionData: List<T> = emptyList(),
-    action: @Composable() (T) -> Unit = {}
-    // TODO: support overflow menu here with the remainder of the list
+    children: @Composable() RowScope.() -> Unit
 ) {
-    require(
-        fabConfiguration == null || navigationIcon == null ||
-                fabConfiguration.fabDockedPosition != FabDockedPosition.End
-    ) {
-        "Using a navigation icon with an end-aligned FloatingActionButton is not supported"
-    }
-    if (fabConfiguration == null) {
-        BaseBottomAppBar(
-            color = color,
-            contentColor = contentColor,
-            startContent = navigationIcon,
-            endContent = getActions(actionData, MaxIconsInBottomAppBarNoFab, action),
-            shape = RectangleShape
-        )
+    val shape = if (cutoutShape == null || fabConfiguration == null) {
+        RectangleShape
     } else {
-        val shape =
-            if (cutoutShape != null) {
-                BottomAppBarCutoutShape(
-                    cutoutShape,
-                    fabConfiguration.fabTopLeftPosition,
-                    fabConfiguration.fabSize.toPxSize()
-                )
-            } else {
-                RectangleShape
-            }
-        when (fabConfiguration.fabDockedPosition) {
-            FabDockedPosition.End -> BaseBottomAppBar(
-                color = color,
-                contentColor = contentColor,
-                startContent = getActions(actionData, MaxIconsInBottomAppBarEndFab, action),
-                endContent = null,
-                shape = shape
-            )
-            FabDockedPosition.Center -> BaseBottomAppBar(
-                color = color,
-                contentColor = contentColor,
-                startContent = navigationIcon,
-                endContent = getActions(actionData, MaxIconsInBottomAppBarCenterFab, action),
-                shape = shape
-            )
+        BottomAppBarCutoutShape(
+            cutoutShape,
+            fabConfiguration.fabTopLeftPosition,
+            fabConfiguration.fabSize.toPxSize()
+        )
+    }
+    AppBar(color, contentColor, BottomAppBarElevation, shape) {
+        // TODO: remove box and inline row's children after b/148014745 is fixed
+        Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
+            Row(LayoutWidth.Fill, children = children)
         }
     }
 }
@@ -575,29 +473,6 @@ internal fun calculateRoundedEdgeIntercept(
     return xSolution to adjustedYSolution
 }
 
-@Composable
-private fun BaseBottomAppBar(
-    color: Color,
-    contentColor: Color,
-    shape: Shape,
-    startContent: @Composable() (() -> Unit)?,
-    endContent: @Composable() (() -> Unit)?
-) {
-    BaseAppBar(color, contentColor, BottomAppBarElevation, shape) {
-        // TODO: make these rows after b/148014745 is fixed
-        Box(
-            LayoutHeight.Fill + LayoutPadding(left = IconPadding),
-            gravity = ContentGravity.CenterLeft,
-            children = startContent ?: {}
-        )
-        Box(
-            LayoutHeight.Fill + LayoutPadding(right = IconPadding),
-            gravity = ContentGravity.CenterRight,
-            children = endContent ?: {}
-        )
-    }
-}
-
 /**
  * An empty App Bar that expands to the parent's width.
  *
@@ -605,7 +480,7 @@ private fun BaseBottomAppBar(
  * [TopAppBar].
  */
 @Composable
-private fun BaseAppBar(
+private fun AppBar(
     color: Color,
     contentColor: Color,
     elevation: Dp,
@@ -614,53 +489,13 @@ private fun BaseAppBar(
 ) {
     Surface(color = color, contentColor = contentColor, elevation = elevation, shape = shape) {
         Row(
-            LayoutWidth.Fill + LayoutHeight(AppBarHeight),
+            LayoutWidth.Fill + LayoutPadding(
+                left = AppBarHorizontalPadding,
+                right = AppBarHorizontalPadding
+            ) + LayoutHeight(AppBarHeight),
             arrangement = Arrangement.SpaceBetween,
             children = children
         )
-    }
-}
-
-/**
- * @return [AppBarActions] if [actionData] is not empty, else `null`
- */
-private fun <T> getActions(
-    actionData: List<T>,
-    numberOfActions: Int,
-    action: @Composable() (T) -> Unit
-): @Composable() (() -> Unit)? {
-    return if (actionData.isEmpty()) {
-        null
-    } else {
-        @Composable {
-            AppBarActions(numberOfActions, actionData, action)
-        }
-    }
-}
-
-@Composable
-private fun <T> AppBarActions(
-    actionsToDisplay: Int,
-    actionData: List<T>,
-    action: @Composable() (T) -> Unit
-) {
-    // Split the list depending on how many actions we are displaying - if actionsToDisplay is
-    // greater than or equal to the number of actions provided, overflowActions will be empty.
-    val (shownActions, overflowActions) = actionData.withIndex().partition {
-        it.index < actionsToDisplay
-    }
-
-    Row {
-        shownActions.forEach { (_, shownAction) ->
-            action(shownAction)
-        }
-        if (overflowActions.isNotEmpty()) {
-            Spacer(LayoutWidth(24.dp))
-            // TODO: use overflowActions to build menu here
-            Container(width = 12.dp) {
-                Text(text = "${overflowActions.size}", style = TextStyle(fontSize = 15.sp))
-            }
-        }
     }
 }
 
@@ -693,11 +528,11 @@ private val IconRippleRadius = 20.dp
 
 private val AppBarHeight = 56.dp
 // TODO: this should probably be part of the touch target of the start and end icons, clarify this
-private val IconPadding = 4.dp
+private val AppBarHorizontalPadding = 4.dp
 // Start inset for the title when there is no navigation icon provided
-private val TitleInsetWithoutIcon = 16.dp
+private val TitleInsetWithoutIcon = 16.dp - AppBarHorizontalPadding
 // Start inset for the title when there is a navigation icon provided
-private val TitleInsetWithIcon = 72.dp
+private val TitleInsetWithIcon = 72.dp - AppBarHorizontalPadding
 // The baseline distance for the title from the bottom of the app bar
 private val TitleBaselineOffset = 20.sp
 
@@ -710,8 +545,3 @@ private val TopAppBarElevation = 4.dp
 private val BottomAppBarCutoutOffset = 8.dp
 // How far from the notch the rounded edges start
 private val BottomAppBarRoundedEdgeRadius = 4.dp
-
-private const val MaxIconsInTopAppBar = 2
-private const val MaxIconsInBottomAppBarCenterFab = 2
-private const val MaxIconsInBottomAppBarEndFab = 4
-private const val MaxIconsInBottomAppBarNoFab = 4

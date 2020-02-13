@@ -24,27 +24,18 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.globalPosition
-import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.layout.Container
-import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.BottomAppBar.FabDockedPosition
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
-import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findAllByTag
 import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
+import androidx.ui.unit.round
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
@@ -112,11 +103,12 @@ class AppBarTest {
                                 Text("title")
                             }
                         },
-                        actionData = createImageList(1),
-                        action = { action ->
+                        actions = {
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }, children = action)
+                            }) {
+                                FakeIcon()
+                            }
                         }
                     )
                 }
@@ -124,29 +116,44 @@ class AppBarTest {
         }
 
         composeTestRule.runOnIdleComposeWithDensity {
+            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
+
             // Navigation icon should be 4.dp from the start
             val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
             val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
+            // Navigation icon should be 4.dp from the bottom
+            val navigationIconPositionY = navigationIconCoords!!.globalPosition.y
+            val navigationIconExpectedPositionY = (appBarBottomEdgeY -
+                    AppBarStartAndEndPadding.toPx() - FakeIconSize.toPx()
+            ).round().toPx()
+            assertThat(navigationIconPositionY).isEqualTo(navigationIconExpectedPositionY)
+
             // Title should be 72.dp from the start
             val titlePositionX = titleCoords!!.globalPosition.x
-            val titleExpectedPositionX = 72.dp.toIntPx().toPx()
+            // 4.dp padding for the whole app bar + 68.dp inset
+            val titleExpectedPositionX = (4.dp.toIntPx() + 68.dp.toIntPx()).toPx()
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Absolute position of the baseline
             val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
                     titleCoords!!.globalPosition.y
-            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
             // Baseline should be 20.sp from the bottom of the app bar
             val titleExpectedLastBaselinePositionY = appBarBottomEdgeY - 20.sp.toIntPx().toPx()
-            assertThat(titleLastBaselinePositionY)
-                .isEqualTo(titleExpectedLastBaselinePositionY)
+            assertThat(titleLastBaselinePositionY).isEqualTo(titleExpectedLastBaselinePositionY)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.globalPosition.x
             val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+
+            // Action should be 4.dp from the bottom
+            val actionPositionY = actionCoords!!.globalPosition.y
+            val actionExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
+                FakeIconSize.toPx()
+            ).round().toPx()
+            assertThat(actionPositionY).isEqualTo(actionExpectedPositionY)
         }
     }
 
@@ -168,11 +175,12 @@ class AppBarTest {
                                 Text("title")
                             }
                         },
-                        actionData = createImageList(1),
-                        action = { action ->
+                        actions = {
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }, children = action)
+                            }) {
+                                FakeIcon()
+                            }
                         }
                     )
                 }
@@ -182,7 +190,8 @@ class AppBarTest {
         composeTestRule.runOnIdleComposeWithDensity {
             // Title should now be placed 16.dp from the start, as there is no navigation icon
             val titlePositionX = titleCoords!!.globalPosition.x
-            val titleExpectedPositionX = 16.dp.toIntPx().toPx()
+            // 4.dp padding for the whole app bar + 12.dp inset
+            val titleExpectedPositionX = (4.dp.toIntPx() + 12.dp.toIntPx()).toPx()
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Action should still be placed at the end
@@ -190,48 +199,6 @@ class AppBarTest {
             val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
-    }
-
-    @Test
-    fun topAppBar_oneAction() {
-        val tag = "action"
-        val numberOfActions = 1
-        composeTestRule.setMaterialContent {
-            Container {
-                TopAppBar(
-                    title = { Text("Title") },
-                    actionData = createImageList(numberOfActions),
-                    action = { action ->
-                        Semantics(
-                            properties = { testTag = tag },
-                            children = action
-                        )
-                    }
-                )
-            }
-        }
-
-        findAllByTag(tag).assertCountEquals(numberOfActions)
-    }
-
-    @Test
-    fun topAppBar_fiveActions_onlyTwoShouldBeVisible() {
-        val tag = "action"
-        val numberOfActions = 5
-        val maxNumberOfActions = 2
-        composeTestRule.setMaterialContent {
-            Container {
-                TopAppBar(
-                    title = { Text("Title") },
-                    actionData = createImageList(numberOfActions),
-                    action = { action ->
-                        Semantics(properties = { testTag = tag }, children = action)
-                    }
-                )
-            }
-        }
-
-        findAllByTag(tag).assertCountEquals(maxNumberOfActions)
     }
 
     @Test
@@ -258,267 +225,48 @@ class AppBarTest {
         val dm = composeTestRule.displayMetrics
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                BottomAppBar<Nothing>()
+                BottomAppBar {}
             }
             .assertHeightEqualsTo(appBarHeight)
             .assertWidthEqualsTo { dm.widthPixels.ipx }
     }
 
     @Test
-    fun bottomAppBar_noNavigationIcon_positioning() {
+    fun bottomAppBar_default_positioning() {
         var appBarCoords: LayoutCoordinates? = null
-        var actionCoords: LayoutCoordinates? = null
+        var childCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
             Container {
                 OnChildPositioned(onPositioned = { coords ->
                     appBarCoords = coords
                 }) {
-                    BottomAppBar(
-                        actionData = createImageList(1),
-                        action = { action ->
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }, children = action)
-                        }
-                    )
-                }
-            }
-        }
-
-        composeTestRule.runOnIdleComposeWithDensity {
-            // Action should still be placed at the end, even though there is no navigation icon
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-        }
-    }
-
-    @Test
-    fun bottomAppBar_noFab_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var navigationIconCoords: LayoutCoordinates? = null
-        var actionCoords: LayoutCoordinates? = null
-        composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    BottomAppBar(
-                        navigationIcon = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                navigationIconCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
-                        actionData = createImageList(1),
-                        action = { action ->
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }, children = action)
-                        }
-                    )
-                }
-            }
-        }
-
-        composeTestRule.runOnIdleComposeWithDensity {
-            // Navigation icon should be at the beginning
-            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
-            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
-            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
-
-            // Action should be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-        }
-    }
-
-    @Test
-    fun bottomAppBar_centerFab_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var navigationIconCoords: LayoutCoordinates? = null
-        var actionCoords: LayoutCoordinates? = null
-        val fabConfig = createFabConfiguration(FabDockedPosition.Center)
-        composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    BottomAppBar(
-                        navigationIcon = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                navigationIconCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
-                        fabConfiguration = fabConfig,
-                        actionData = createImageList(1),
-                        action = { action ->
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }, children = action)
-                        }
-                    )
-                }
-            }
-        }
-
-        composeTestRule.runOnIdleComposeWithDensity {
-            // Navigation icon should be at the beginning
-            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
-            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
-            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
-
-            // Action should be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-        }
-    }
-
-    @Test
-    fun bottomAppBar_centerCutoutFab_positioning() {
-        var appBarCoords: LayoutCoordinates? = null
-        var navigationIconCoords: LayoutCoordinates? = null
-        var actionCoords: LayoutCoordinates? = null
-        val fabConfig = createFabConfiguration(FabDockedPosition.Center)
-        composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    BottomAppBar(
-                        navigationIcon = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                navigationIconCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
-                        fabConfiguration = fabConfig,
-                        cutoutShape = CircleShape,
-                        actionData = createImageList(1),
-                        action = { action ->
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }, children = action)
-                        }
-                    )
-                }
-            }
-        }
-
-        composeTestRule.runOnIdleComposeWithDensity {
-            // Navigation icon should be at the beginning
-            val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
-            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
-            assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
-
-            // Action should be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-        }
-    }
-
-    @Test
-    fun bottomAppBar_endFab_positioning() {
-        var actionCoords: LayoutCoordinates? = null
-        val fabConfig = createFabConfiguration(FabDockedPosition.End)
-        composeTestRule.setMaterialContent {
-            Container {
-                BottomAppBar(
-                    fabConfiguration = fabConfig,
-                    actionData = createImageList(1),
-                    action = { action ->
+                    BottomAppBar {
                         OnChildPositioned(onPositioned = { coords ->
-                            actionCoords = coords
-                        }, children = action)
+                            childCoords = coords
+                        }) {
+                            FakeIcon()
+                        }
                     }
-                )
+                }
             }
         }
 
         composeTestRule.runOnIdleComposeWithDensity {
-            // Action should be placed at the start
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+            // Child icon should be 4.dp from the start
+            val childIconPositionX = childCoords!!.globalPosition.x
+            val childIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
+            assertThat(childIconPositionX).isEqualTo(childIconExpectedPositionX)
+
+            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
+
+            // Child icon should be 4.dp from the bottom
+            val childIconPositionY = childCoords!!.globalPosition.y
+            val childIconExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
+                FakeIconSize.toPx()
+            ).round().toPx()
+            assertThat(childIconPositionY).isEqualTo(childIconExpectedPositionY)
         }
     }
-
-    @Test
-    fun bottomAppBar_endCutoutFab_positioning() {
-        var actionCoords: LayoutCoordinates? = null
-        val fabConfig = createFabConfiguration(FabDockedPosition.End)
-        composeTestRule.setMaterialContent {
-            Container {
-                BottomAppBar(
-                    fabConfiguration = fabConfig,
-                    cutoutShape = CircleShape,
-                    actionData = createImageList(1),
-                    action = { action ->
-                        OnChildPositioned(onPositioned = { coords ->
-                            actionCoords = coords
-                        }, children = action)
-                    }
-                )
-            }
-        }
-
-        composeTestRule.runOnIdleComposeWithDensity {
-            // Action should be placed at the start
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
-
-            assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-        }
-    }
-
-    @Test
-    fun bottomAppBar_oneAction() {
-        val tag = "action"
-        val numberOfActions = 1
-        composeTestRule.setMaterialContent {
-            Container {
-                BottomAppBar(
-                    actionData = createImageList(numberOfActions),
-                    action = { action ->
-                        Semantics(
-                            properties = { testTag = tag },
-                            children = action
-                        )
-                    }
-                )
-            }
-        }
-
-        findAllByTag(tag).assertCountEquals(numberOfActions)
-    }
-
-    @Test
-    fun bottomAppBar_fiveActions_onlyFourShouldBeVisible() {
-        val tag = "action"
-        val numberOfActions = 5
-        val maxNumberOfActions = 4
-        composeTestRule.setMaterialContent {
-            Container {
-                BottomAppBar(
-                    actionData = createImageList(numberOfActions),
-                    action = { action ->
-                        Semantics(properties = { testTag = tag }, children = action)
-                    }
-                )
-            }
-        }
-
-        findAllByTag(tag).assertCountEquals(maxNumberOfActions)
-    }
-
-    private fun createImageList(count: Int) = List<@Composable() () -> Unit>(count) { FakeIcon }
 
     /**
      * [AppBarIcon] that just draws a red box, to simulate a real icon for testing positions.
@@ -535,12 +283,4 @@ class AppBarTest {
     private val AppBarStartAndEndPadding = 4.dp
 
     private val FakeIconSize = 48.dp
-
-    private fun createFabConfiguration(position: FabDockedPosition) =
-        FabConfiguration(
-            fabSize = IntPxSize(100.ipx, 100.ipx),
-            fabTopLeftPosition = PxPosition(0.px, 0.px),
-            // all what matters here is a fabDockedPosition, as it will decide the layout
-            fabDockedPosition = position
-        )
 }
