@@ -114,6 +114,7 @@ private fun isInPowerSaveMode(): Boolean {
  * @return `true` if the system-wide dark theme toggle is enabled
  */
 @RequiresApi(29)
+@Composable
 private fun isSystemSetToDarkTheme(): Boolean {
     val configuration = ConfigurationAmbient.current
     return (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration
