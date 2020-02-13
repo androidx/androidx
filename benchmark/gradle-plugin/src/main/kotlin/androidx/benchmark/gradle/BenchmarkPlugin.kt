@@ -27,7 +27,6 @@ import com.android.ddmlib.Log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
-import org.gradle.kotlin.dsl.setValue
 
 private const val ADDITIONAL_TEST_OUTPUT_KEY = "android.enableAdditionalTestOutput"
 
@@ -137,8 +136,8 @@ class BenchmarkPlugin : Plugin<Project> {
                 applied = true
 
                 if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
-                    // Only enable pulling benchmark data through this plugin on older versions of AGP
-                    // that do not yet enable this flag.
+                    // Only enable pulling benchmark data through this plugin on older versions of
+                    // AGP that do not yet enable this flag.
                     project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
                         .configure {
                             it.adbPath.set(extension.adbExecutable.absolutePath)
@@ -146,9 +145,9 @@ class BenchmarkPlugin : Plugin<Project> {
                         }
 
                     project.tasks.named("connectedAndroidTest").configure {
-                        // The task benchmarkReport must be registered by this point, and is responsible
-                        // for pulling report data from all connected devices onto host machine through
-                        // adb.
+                        // The task benchmarkReport must be registered by this point, and is
+                        // responsible for pulling report data from all connected devices onto host
+                        // machine through adb.
                         it.finalizedBy("benchmarkReport")
                     }
                 } else {
