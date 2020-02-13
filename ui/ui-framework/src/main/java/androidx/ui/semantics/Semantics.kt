@@ -58,7 +58,7 @@ fun Semantics(
 
     SemanticsComponentNode(
         id = id,
-        semanticsConfiguration = semanticsConfiguration
+        localSemanticsConfiguration = semanticsConfiguration
     ) {
         children()
     }
