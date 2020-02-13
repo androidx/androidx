@@ -152,10 +152,6 @@ final class ImageSaver implements Runnable {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write or close the file";
             exception = e;
-            if (outputUri != null) {
-                // If error saving to URI, delete the URI row created.
-                mOutputFileOptions.getContentResolver().delete(outputUri, null, null);
-            }
         } catch (CodecFailedException e) {
             switch (e.getFailureType()) {
                 case ENCODE_FAILED:
