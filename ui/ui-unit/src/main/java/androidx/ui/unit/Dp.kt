@@ -422,7 +422,7 @@ inline class DpInverse(val value: Float) : Comparable<DpInverse> {
 /**
  * A two dimensional size using [Dp] for units
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
 inline class Size(@PublishedApi internal val value: Long) {
     /**
@@ -478,7 +478,7 @@ inline class Size(@PublishedApi internal val value: Long) {
 /**
  * Constructs a [Size] from width and height [Dp] values.
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 inline fun Size(width: Dp, height: Dp): Size = Size(packFloats(width.value, height.value))
 
 /**
@@ -507,7 +507,7 @@ fun Size.center(): Position {
 /**
  * A two-dimensional position using [Dp] for units
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
 inline class Position(@PublishedApi internal val value: Long) {
     /**
@@ -540,7 +540,7 @@ inline class Position(@PublishedApi internal val value: Long) {
 /**
  * Constructs a [Position] from [x] and [y] position [Dp] values.
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 inline fun Position(x: Dp, y: Dp): Position = Position(packFloats(x.value, y.value))
 
 /**
