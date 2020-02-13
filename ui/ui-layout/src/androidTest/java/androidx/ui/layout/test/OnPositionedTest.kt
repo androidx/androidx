@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
@@ -94,9 +95,12 @@ class OnPositionedTest : LayoutTest() {
                     realTop = it.positionInParent.y
                     positionedLatch.countDown()
                 }) {
-                    Container(LayoutSize.Fill +
-                            LayoutPadding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
-                    ) {}
+                    Container(
+                        LayoutSize.Fill + LayoutPadding(
+                            left = paddingLeftPx.toDp(),
+                            top = paddingTopPx.toDp()
+                        ), children = emptyContent()
+                    )
                 }
             }
         }
@@ -157,13 +161,13 @@ class OnPositionedTest : LayoutTest() {
                     firstCoordinates = it
                     positionedLatch.countDown()
                 }) {
-                    Container(width = sizeDp, height = sizeDp) {}
+                    Container(width = sizeDp, height = sizeDp, children = emptyContent())
                 }
                 OnChildPositioned(onPositioned = {
                     secondCoordinates = it
                     positionedLatch.countDown()
                 }) {
-                    Container(width = sizeDp, height = sizeDp) {}
+                    Container(width = sizeDp, height = sizeDp, children = emptyContent())
                 }
             }
         }
@@ -194,7 +198,7 @@ class OnPositionedTest : LayoutTest() {
                         realLocalPosition = it.globalToLocal(globalPosition)
                         positionedLatch.countDown()
                     }) {
-                        Container(expanded = true) {}
+                        Container(expanded = true, children = emptyContent())
                     }
                 }
             }
@@ -237,7 +241,10 @@ class OnPositionedTest : LayoutTest() {
                     realLeft = it.positionInParent.x
                     positionedLatch.countDown()
                 }) {
-                    Container(LayoutSize.Fill + LayoutPadding(left = modelLeft.size)) {}
+                    Container(
+                        LayoutSize.Fill + LayoutPadding(left = modelLeft.size),
+                        children = emptyContent()
+                    )
                 }
             }
         }

@@ -30,6 +30,7 @@ import androidx.compose.Compose
 import androidx.compose.FrameManager
 import androidx.compose.Model
 import androidx.compose.Providers
+import androidx.compose.emptyContent
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -406,17 +407,17 @@ class AndroidLayoutDrawTest {
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[0], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {}, modifier = LayoutTag("header"))
+                    }, children = emptyContent(), modifier = LayoutTag("header"))
                 }
                 val footer = @Composable {
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[1], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {}, modifier = LayoutTag("footer"))
+                    }, children = emptyContent(), modifier = LayoutTag("footer"))
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[2], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {}, modifier = LayoutTag("footer"))
+                    }, children = emptyContent(), modifier = LayoutTag("footer"))
                 }
 
                 Layout({ header(); footer() }) { measurables, _ ->
@@ -443,12 +444,12 @@ class AndroidLayoutDrawTest {
             activity.setContentInFrameLayout {
                 val header = @Composable {
                     ParentData(data = 0) {
-                        Layout(children = {}) { _, _ -> layout(0.ipx, 0.ipx) {} }
+                        Layout(children = emptyContent()) { _, _ -> layout(0.ipx, 0.ipx) {} }
                     }
                 }
                 val footer = @Composable {
                     ParentData(data = 1) {
-                        Layout(children = {}) { _, _ -> layout(0.ipx, 0.ipx) {} }
+                        Layout(children = emptyContent()) { _, _ -> layout(0.ipx, 0.ipx) {} }
                     }
                 }
 
@@ -1542,7 +1543,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 Layout(children = {
-                    Layout(children = {}) { _, _ ->
+                    Layout(children = emptyContent()) { _, _ ->
                         latch.countDown()
                         layout(model.size, model.size) {}
                     }
@@ -1571,7 +1572,7 @@ class AndroidLayoutDrawTest {
             activity.setContentInFrameLayout {
                 Layout(children = {
                     RepaintBoundary {
-                        Layout(children = {}) { _, _ ->
+                        Layout(children = emptyContent()) { _, _ ->
                             latch.countDown()
                             layout(model.size, model.size) {}
                         }
@@ -1852,7 +1853,7 @@ class AndroidLayoutDrawTest {
                     canvas.drawRect(Rect(10f, 10f, 20f, 20f), paint)
                     drawLatch.countDown()
                 }
-                FixedSize(30.ipx, colorModifier) {}
+                FixedSize(30.ipx, colorModifier)
             }
         }
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
@@ -1873,9 +1874,7 @@ class AndroidLayoutDrawTest {
                 )
                 ) {
                     Padding(10.ipx) {
-                        FixedSize(10.ipx,
-                            background(color = innerColor)
-                        ) {}
+                        FixedSize(10.ipx, background(color = innerColor))
                     }
                 }
             }
@@ -2050,7 +2049,7 @@ class AndroidLayoutDrawTest {
                         }
                         layout(100.ipx, 100.ipx) {}
                     }
-                    FixedSize(30.ipx) { }
+                    FixedSize(30.ipx, children = emptyContent())
                 }) { measurables, constraints ->
                     val (first, second) = measurables
                     val firstPlaceable = first.measure(constraints)
@@ -2300,7 +2299,7 @@ fun AtLeastSize(
 fun FixedSize(
     size: IntPx,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit = {}
+    children: @Composable() () -> Unit = emptyContent()
 ) {
     Layout(children = children, modifier = modifier) { measurables, _ ->
         val newConstraints = Constraints.fixed(size, size)

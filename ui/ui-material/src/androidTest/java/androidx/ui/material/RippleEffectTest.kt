@@ -19,6 +19,7 @@ import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.Providers
+import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.TestTag
@@ -268,7 +269,7 @@ class RippleEffectTest {
     private fun RippleButton(size: Dp? = null, color: Color? = null, enabled: Boolean = true) {
         Ripple(bounded = false, color = color, enabled = enabled) {
             Clickable(onClick = {}) {
-                Container(width = size, height = size) {}
+                Container(width = size, height = size, children = emptyContent())
             }
         }
     }
