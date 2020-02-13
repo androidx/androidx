@@ -17,6 +17,7 @@
 package androidx.enterprise.feedback;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.Nullable;
@@ -26,6 +27,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 /** Handler which stores the most recently handled message in a public field. */
 @DoNotInstrument
 class TestHandler extends Handler {
+    TestHandler() {
+        super(Looper.getMainLooper());
+    }
 
     @Nullable
     private Message mLatestMessage;

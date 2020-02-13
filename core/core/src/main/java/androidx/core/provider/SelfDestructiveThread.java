@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.GuardedBy;
@@ -133,7 +134,7 @@ public class SelfDestructiveThread {
      * calling thread once it finishes.
      */
     public <T> void postAndReply(final Callable<T> callable, final ReplyCallback<T> reply) {
-        final Handler callingHandler = new Handler();
+        final Handler callingHandler = new Handler(Looper.getMainLooper());
         post(new Runnable() {
             @Override
             public void run() {

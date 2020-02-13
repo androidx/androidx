@@ -70,6 +70,7 @@ import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -622,6 +623,7 @@ public abstract class MediaRouteProviderService extends Service {
 
     private final class PrivateHandler extends Handler {
         PrivateHandler() {
+            super(Looper.getMainLooper());
         }
 
         @Override
@@ -801,6 +803,7 @@ public abstract class MediaRouteProviderService extends Service {
         private final WeakReference<MediaRouteProviderService> mServiceRef;
 
         public ReceiveHandler(MediaRouteProviderService service) {
+            super(Looper.getMainLooper());
             mServiceRef = new WeakReference<MediaRouteProviderService>(service);
         }
 

@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Handler;
+import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +49,7 @@ final class RegisteredMediaRouteProviderWatcher {
     public RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
         mContext = context;
         mCallback = callback;
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         mPackageManager = context.getPackageManager();
     }
 

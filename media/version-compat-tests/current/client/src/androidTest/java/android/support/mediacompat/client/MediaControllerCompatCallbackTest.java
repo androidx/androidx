@@ -586,7 +586,7 @@ public class MediaControllerCompatCallbackTest {
                         mController = new MediaControllerCompat(
                                 getInstrumentation().getTargetContext(),
                                 mSessionToken /* This token has an extra binder in it */);
-                        mController.registerCallback(callback, new Handler());
+                        mController.registerCallback(callback, new Handler(Looper.getMainLooper()));
                         assertTrue(mController.isSessionReady());
                         assertFalse(callback.mOnSessionReadyCalled);
                     } catch (Exception e) {
@@ -619,7 +619,7 @@ public class MediaControllerCompatCallbackTest {
                         mController = new MediaControllerCompat(
                                 getInstrumentation().getTargetContext(),
                                 tokenWithoutExtraBinder);
-                        mController.registerCallback(callback, new Handler());
+                        mController.registerCallback(callback, new Handler(Looper.getMainLooper()));
                         // Since mController.isSessionReady() can be both true/false,
                         // we don't check the return value at this point.
                         assertFalse(callback.mOnSessionReadyCalled);
@@ -650,7 +650,7 @@ public class MediaControllerCompatCallbackTest {
                         mController = new MediaControllerCompat(
                                 getInstrumentation().getTargetContext(),
                                 mSessionToken);
-                        mController.registerCallback(callback, new Handler());
+                        mController.registerCallback(callback, new Handler(Looper.getMainLooper()));
                         assertTrue(mController.isSessionReady());
                         assertFalse(callback.mOnSessionReadyCalled);
                     } catch (Exception e) {
@@ -683,7 +683,7 @@ public class MediaControllerCompatCallbackTest {
                         mController = new MediaControllerCompat(
                                 getInstrumentation().getTargetContext(),
                                 MediaSessionCompat.Token.fromToken(fwkToken));
-                        mController.registerCallback(callback, new Handler());
+                        mController.registerCallback(callback, new Handler(Looper.getMainLooper()));
                     } catch (Exception e) {
                         fail();
                     }

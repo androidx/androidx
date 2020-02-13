@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -153,7 +154,7 @@ public class PlaybackTestSupportFragment extends PlaybackSupportFragment {
         private PlaybackControlsRow.ThumbsUpAction mThumbsUpAction;
         private PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
         private PlaybackControlsRow.PictureInPictureAction mPipAction;
-        private static Handler sProgressHandler = new Handler();
+        private static Handler sProgressHandler = new Handler(Looper.getMainLooper());
 
         private final Runnable mUpdateProgressRunnable = new Runnable() {
             @Override

@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -115,7 +116,7 @@ public class LocalServiceBroadcaster extends Activity {
 
         static final int MSG_UPDATE = 1;
 
-        Handler mHandler = new Handler() {
+        Handler mHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {

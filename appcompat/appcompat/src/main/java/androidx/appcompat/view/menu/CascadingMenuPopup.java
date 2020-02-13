@@ -21,6 +21,7 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.view.Gravity;
@@ -233,7 +234,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
         mMenuMaxWidth = Math.max(res.getDisplayMetrics().widthPixels / 2,
                 res.getDimensionPixelSize(R.dimen.abc_config_prefDialogWidth));
 
-        mSubMenuHoverHandler = new Handler();
+        mSubMenuHoverHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override

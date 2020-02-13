@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -97,7 +98,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private boolean mNeedResume;
     private boolean mSeeking;
 
-    private final Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Runnable mUpdateSeekRunnable = new Runnable() {
         @Override
         public void run() {
