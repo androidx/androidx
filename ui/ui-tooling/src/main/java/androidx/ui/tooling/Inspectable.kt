@@ -19,7 +19,7 @@ package androidx.ui.tooling
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.SlotTable
-import androidx.compose.composer
+import androidx.compose.currentComposerIntrinsic
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -29,8 +29,8 @@ import java.util.WeakHashMap
  */
 @Composable
 fun Inspectable(children: @Composable() () -> Unit) {
-    composer.collectKeySourceInformation()
-    tables.add(composer.slotTable)
+    currentComposerIntrinsic.collectKeySourceInformation()
+    tables.add(currentComposerIntrinsic.slotTable)
     Providers(InspectionMode provides true, children = children)
 }
 
