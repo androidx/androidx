@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,57 +16,52 @@
 
 package androidx.ui.test
 
+import androidx.compose.Composable
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
 import androidx.ui.foundation.semantics.toggleableState
+import androidx.ui.layout.Column
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag
-import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import org.junit.Rule
 import org.junit.Test
 
-class AssertsTests {
+class AssertsTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
-    fun assertIsVisible_forVisibleElement_isOk() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    hidden = false
-                })
+    fun assertIsNotHidden_forVisibleElement_isOk() {
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; hidden = false }
         }
 
         findByTag("test")
-            .assertIsVisible()
+            .assertIsNotHidden()
     }
 
     @Test(expected = AssertionError::class)
-    fun assertIsVisible_forNotVisibleElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    hidden = true
-                })
+    fun assertIsNotHidden_forHiddenElement_throwsError() {
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; hidden = true }
         }
 
         findByTag("test")
-            .assertIsVisible()
+            .assertIsNotHidden()
     }
 
     @Test
     fun assertIsHidden_forHiddenElement_isOk() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    hidden = true
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; hidden = true }
         }
 
         findByTag("test")
@@ -75,12 +70,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsHidden_forNotHiddenElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    hidden = false
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; hidden = false }
         }
 
         findByTag("test")
@@ -89,12 +80,8 @@ class AssertsTests {
 
     @Test
     fun assertIsOn_forCheckedElement_isOk() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    toggleableState = ToggleableState.On
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
         findByTag("test")
@@ -103,12 +90,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsOn_forUncheckedElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    toggleableState = ToggleableState.Off
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
         findByTag("test")
@@ -117,11 +100,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsOn_forNotToggleableElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test" }
         }
 
         findByTag("test")
@@ -130,12 +110,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsOff_forCheckedElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    toggleableState = ToggleableState.On
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
         findByTag("test")
@@ -144,12 +120,8 @@ class AssertsTests {
 
     @Test
     fun assertIsOff_forUncheckedElement_isOk() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    toggleableState = ToggleableState.Off
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
         findByTag("test")
@@ -158,11 +130,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsOff_forNotToggleableElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; }
         }
 
         findByTag("test")
@@ -171,12 +140,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsSelected_forNotSelectedElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    selected = false
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; selected = false }
         }
 
         findByTag("test")
@@ -185,12 +150,8 @@ class AssertsTests {
 
     @Test
     fun assertIsSelected_forSelectedElement_isOk() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    selected = true
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; selected = true }
         }
 
         findByTag("test")
@@ -199,11 +160,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsSelected_forNotSelectableElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; }
         }
 
         findByTag("test")
@@ -212,12 +170,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsUnselected_forSelectedElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    selected = true
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; selected = true }
         }
 
         findByTag("test")
@@ -226,12 +180,8 @@ class AssertsTests {
 
     @Test
     fun assertIsUnselected_forUnselectedElement_isOk() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    selected = false
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; selected = false }
         }
 
         findByTag("test")
@@ -240,11 +190,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertIsUnselected_forNotSelectableElement_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; }
         }
 
         findByTag("test")
@@ -253,12 +200,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    inMutuallyExclusiveGroup = false
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = false }
         }
 
         findByTag("test")
@@ -267,11 +210,8 @@ class AssertsTests {
 
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemWithoutProperty_throwsError() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; }
         }
 
         findByTag("test")
@@ -280,12 +220,8 @@ class AssertsTests {
 
     @Test
     fun assertItemInExclusiveGroup_forItemInGroup_isOk() {
-        semanticsTreeInteractionFactory = { selector ->
-            FakeSemanticsTreeInteraction(selector)
-                .withProperties({
-                    testTag = "test"
-                    inMutuallyExclusiveGroup = true
-                })
+        composeTestRule.setContent {
+            BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = true }
         }
 
         findByTag("test")
@@ -314,5 +250,12 @@ class AssertsTests {
         val spec = CollectedSizes(size, Density(2f))
         spec.assertIsSquareWithSize(25.dp)
         spec.assertIsSquareWithSize { 50.ipx }
+    }
+
+    @Composable
+    fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
+        Semantics(container = true, properties = props) {
+            Column {}
+        }
     }
 }

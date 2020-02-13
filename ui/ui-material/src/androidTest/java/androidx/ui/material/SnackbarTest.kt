@@ -25,7 +25,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.globalPosition
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
-import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
@@ -61,12 +60,11 @@ class SnackbarTest {
         }
 
         findByText("Message")
-            .assertIsVisible()
+            .assertExists()
 
         assertThat(clicked).isFalse()
 
         findByText("UNDO")
-            .assertIsVisible()
             .doClick()
 
         assertThat(clicked).isTrue()
