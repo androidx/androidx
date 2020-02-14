@@ -43,6 +43,8 @@ class ScaleSlopExceededGestureDetectorTest {
     private var onScaleSlopExceededCount: Int = 0
     private lateinit var mRecognizer: ScaleSlopExceededGestureRecognizer
 
+    private val TinyNum = .01f
+
     @Before
     fun setup() {
         onScaleSlopExceededCount = 0
@@ -84,7 +86,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f, 0f,
             1f, 0f,
             0f, 0f,
-            11.01f, 0f,
+            11 + TinyNum, 0f,
             1
         )
     }
@@ -106,7 +108,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f, 0f,
             0f, 1f,
             0f, 0f,
-            0f, 11.01f,
+            0f, 11 + TinyNum,
             1
         )
     }
@@ -126,7 +128,7 @@ class ScaleSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_2Pointers1MoveTowardOverSlopX_onTouchSlopExceededCalledOnce() {
         onPointerInputChanges_2Pointers(
             0f, 0f,
-            11.01f, 0f,
+            11 + TinyNum, 0f,
             0f, 0f,
             1f, 0f,
             1
@@ -148,7 +150,7 @@ class ScaleSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_2Pointers1MoveTowardOverSlopY_onTouchSlopExceededCalledOnce() {
         onPointerInputChanges_2Pointers(
             0f, 0f,
-            0f, 11.01f,
+            0f, 11 + TinyNum,
             0f, 0f,
             0f, 1f,
             1
@@ -172,7 +174,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f, 0f,
             1f, 0f,
             -5f, 0f,
-            6.01f, 0f,
+            6 + TinyNum, 0f,
             1
         )
     }
@@ -194,7 +196,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f, 0f,
             0f, 1f,
             0f, -5f,
-            0f, 6.01f,
+            0f, 6 + TinyNum,
             1
         )
     }
@@ -214,7 +216,7 @@ class ScaleSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_2Pointers2MoveTowardOverSlopX_onTouchSlopExceededCalledOnce() {
         onPointerInputChanges_2Pointers(
             -5f, 0f,
-            6.01f, 0f,
+            6 + TinyNum, 0f,
             0f, 0f,
             1f, 0f,
             1
@@ -236,7 +238,7 @@ class ScaleSlopExceededGestureDetectorTest {
     fun onPointerInputChanges_2Pointers2MoveTowardOverSlopY_onTouchSlopExceededCalledOnce() {
         onPointerInputChanges_2Pointers(
             0f, -5f,
-            0f, 6.01f,
+            0f, 6 + TinyNum,
             0f, 0f,
             0f, 1f,
             1
@@ -533,7 +535,7 @@ class ScaleSlopExceededGestureDetectorTest {
         pointer2 = pointer2.moveTo(
             10.milliseconds,
             0f,
-            31f
+            30 + TinyNum
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
@@ -546,7 +548,7 @@ class ScaleSlopExceededGestureDetectorTest {
         pointer2 = pointer2.moveTo(
             20.milliseconds,
             0f,
-            29f
+            30 - TinyNum
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
@@ -559,7 +561,7 @@ class ScaleSlopExceededGestureDetectorTest {
         pointer2 = pointer2.moveTo(
             30.milliseconds,
             0f,
-            31f
+            30 + TinyNum
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
@@ -602,7 +604,7 @@ class ScaleSlopExceededGestureDetectorTest {
         )
         pointer2 = pointer2.moveBy(
             10.milliseconds,
-            .01f,
+            TinyNum,
             0f
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
@@ -647,7 +649,7 @@ class ScaleSlopExceededGestureDetectorTest {
         pointer2 = pointer2.moveBy(
             10.milliseconds,
             0f,
-            .01f
+            TinyNum
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
 
@@ -658,7 +660,7 @@ class ScaleSlopExceededGestureDetectorTest {
     // Tests that verify correct cancelling behavior.
 
     @Test
-    fun cancelHandler_scaleHalfCancelScaleOtherHalf_onScaleSlopExceededNotCalled() {
+    fun cancelHandler_scaleUnderCancelScaleUnder_onScaleSlopExceededNotCalled() {
 
         // Arrange
 
@@ -673,7 +675,7 @@ class ScaleSlopExceededGestureDetectorTest {
         )
         pointer2 = pointer2.moveTo(
             10.milliseconds,
-            6f,
+            11f,
             0f
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
@@ -693,7 +695,7 @@ class ScaleSlopExceededGestureDetectorTest {
         )
         pointer2 = pointer2.moveTo(
             10.milliseconds,
-            6.01f,
+            11f,
             0f
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
@@ -719,7 +721,7 @@ class ScaleSlopExceededGestureDetectorTest {
         )
         pointer2 = pointer2.moveTo(
             10.milliseconds,
-            11.01f,
+            11 + TinyNum,
             0f
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
@@ -739,7 +741,7 @@ class ScaleSlopExceededGestureDetectorTest {
         )
         pointer2 = pointer2.moveTo(
             10.milliseconds,
-            11.01f,
+            11 + TinyNum,
             0f
         )
         mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
