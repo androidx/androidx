@@ -784,60 +784,6 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void onRequestFailed_OnErrorCAPTURE_FAILED() throws InterruptedException {
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
-                    mRepeatingUseCase);
-            mLifecycleOwner.startAndResume();
-        });
-
-        FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
-                CameraControlInternal.ControlUpdateCallback.class));
-        imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
-        CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
-        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
-        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
-            captureSubmittedLatch.countDown();
-        });
-
-        imageCapture.takePicture(mMainExecutor, callback);
-
-        captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
-        fakeCameraControl.notifyAllRequestsOnCaptureFailed();
-
-        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
-                ImageCaptureException.class);
-        verify(callback, timeout(500).times(1)).onError(exceptionCaptor.capture());
-        assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
-                ImageCapture.ERROR_CAPTURE_FAILED);
-    }
-
-    @Test
-    public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
-                    mRepeatingUseCase);
-            mLifecycleOwner.startAndResume();
-        });
-
-        CountingCallback callback = new CountingCallback(3, 500);
-
-        imageCapture.takePicture(mMainExecutor, callback);
-        imageCapture.takePicture(mMainExecutor, callback);
-        imageCapture.takePicture(mMainExecutor, callback);
-
-        mInstrumentation.runOnMainSync(() -> imageCapture.onStateOffline(mCameraId));
-
-        assertThat(callback.getNumOnCaptureSuccess() + callback.getNumOnError()).isEqualTo(3);
-
-        for (Integer imageCaptureError : callback.getImageCaptureErrors()) {
-            assertThat(imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
-        }
-    }
-
-    @Test
     public void takePictureReturnsErrorNO_CAMERA_whenNotBound() {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
 
