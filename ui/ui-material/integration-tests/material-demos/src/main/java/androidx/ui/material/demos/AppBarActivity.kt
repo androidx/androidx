@@ -17,69 +17,23 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.compose.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Text
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.RadioGroup
-import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.Actions
-import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.Simple
-import androidx.ui.material.samples.SimpleBottomAppBarNoFab
-import androidx.ui.material.samples.SimpleTopAppBarNavIcon
-import androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
-import androidx.ui.unit.dp
+import androidx.ui.material.samples.SimpleBottomAppBar
+import androidx.ui.material.samples.SimpleTopAppBar
 
 class AppBarActivity : MaterialDemoActivity() {
 
     private val favouriteImage by lazy { { imageFromResource(resources, R.drawable.ic_favorite) } }
     private val navigationImage by lazy { { imageFromResource(resources, R.drawable.ic_menu) } }
 
-    private enum class TopAppBarOption(val description: String) {
-        Simple("Simple"),
-        Actions("With Actions")
-    }
-
     @Composable
     override fun materialContent() {
-        var selectedTopAppBar by state { Simple }
-
         Column {
-            Container(height = 120.dp, alignment = Alignment.TopCenter) {
-                when (selectedTopAppBar) {
-                    Simple -> SimpleTopAppBarNavIcon(navigationImage)
-                    Actions -> SimpleTopAppBarNavIconWithActions(
-                        favouriteImage,
-                        navigationImage
-                    )
-                }
-            }
-            DemoText("TopAppBar options")
-            RadioGroup {
-                TopAppBarOption.values().forEach { topAppBar ->
-                    RadioGroupTextItem(
-                        selected = (topAppBar == selectedTopAppBar),
-                        onSelect = { selectedTopAppBar = topAppBar },
-                        text = topAppBar.description
-                    )
-                }
-            }
+            SimpleTopAppBar(favouriteImage, navigationImage)
             Spacer(LayoutFlexible(1f))
-            DemoText("BottomAppBar")
-            Spacer(LayoutHeight(10.dp))
-            SimpleBottomAppBarNoFab(
-                favouriteImage,
-                navigationImage
-            )
+            SimpleBottomAppBar(favouriteImage, navigationImage)
         }
-    }
-
-    @Composable
-    private fun DemoText(text: String) {
-        Text(text, style = MaterialTheme.typography().h6)
     }
 }

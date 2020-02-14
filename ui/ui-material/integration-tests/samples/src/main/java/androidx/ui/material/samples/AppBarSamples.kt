@@ -22,6 +22,7 @@ import androidx.ui.core.Text
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Image
+import androidx.ui.layout.Spacer
 import androidx.ui.material.AppBarIcon
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.FloatingActionButton
@@ -30,18 +31,7 @@ import androidx.ui.material.TopAppBar
 
 @Sampled
 @Composable
-fun SimpleTopAppBarNavIcon(getMyNavigationImage: () -> Image) {
-    val someNavigationImage: Image = getMyNavigationImage()
-
-    TopAppBar(
-        title = { Text("Simple TopAppBar") },
-        navigationIcon = { AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething() */ } }
-    )
-}
-
-@Sampled
-@Composable
-fun SimpleTopAppBarNavIconWithActions(
+fun SimpleTopAppBar(
     getMyActionImage: () -> Image,
     getMyNavigationImage: () -> Image
 ) {
@@ -51,33 +41,29 @@ fun SimpleTopAppBarNavIconWithActions(
     val navigationIcon: @Composable() () -> Unit = {
         AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething()*/ }
     }
-    val actionData = listOf(someActionImage, someActionImage)
 
     TopAppBar(
         title = { Text("Simple TopAppBar") },
         navigationIcon = navigationIcon,
-        actionData = actionData
-    ) { actionImage ->
-        AppBarIcon(ImagePainter(actionImage)) { /* doSomething()*/ }
-    }
+        actions = { // RowScope here, so these icons will be placed horizontally
+            AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
+            AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
+        }
+    )
 }
 
 @Sampled
 @Composable
-fun SimpleBottomAppBarNoFab(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
+fun SimpleBottomAppBar(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
     val someActionImage: Image = getMyActionImage()
     val someNavigationImage: Image = getMyNavigationImage()
 
-    val navigationIcon: @Composable() () -> Unit = {
+    BottomAppBar {
         AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething()*/ }
-    }
-    val actionData = listOf(someActionImage, someActionImage)
-
-    BottomAppBar(
-        navigationIcon = navigationIcon,
-        actionData = actionData
-    ) { actionImage ->
-        AppBarIcon(ImagePainter(actionImage)) { /* doSomething()*/ }
+        // The actions should be at the end of the BottomAppBar
+        Spacer(LayoutFlexible(1f))
+        AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
+        AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
     }
 }
 
@@ -86,15 +72,12 @@ fun SimpleBottomAppBarNoFab(getMyActionImage: () -> Image, getMyNavigationImage:
 fun SimpleBottomAppBarCutoutWithScaffold(getMyActionImage: () -> Image) {
     val someActionImage: Image = getMyActionImage()
     val fabShape = CircleShape
+
     Scaffold(
         bottomAppBar = { fabConfiguration ->
-            val actionData = listOf(someActionImage, someActionImage)
-            BottomAppBar(
-                fabConfiguration = fabConfiguration,
-                cutoutShape = fabShape,
-                actionData = actionData
-            ) { actionImage ->
-                AppBarIcon(ImagePainter(actionImage)) { /* doSomething()*/ }
+            BottomAppBar(fabConfiguration = fabConfiguration, cutoutShape = fabShape) {
+                AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
+                AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
             }
         },
         floatingActionButton = {
@@ -102,6 +85,6 @@ fun SimpleBottomAppBarCutoutWithScaffold(getMyActionImage: () -> Image) {
         },
         floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
     ) {
-        Text("Your app goes there")
+        Text("Your app goes here")
     }
 }

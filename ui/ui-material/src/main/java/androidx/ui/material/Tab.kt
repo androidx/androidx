@@ -195,9 +195,7 @@ private fun FixedTabRow(
         Row(LayoutGravity.Center) {
             tabs(LayoutFlexible(1f))
         }
-        Container(LayoutGravity.BottomCenter + LayoutWidth.Fill) {
-            divider()
-        }
+        Container(LayoutGravity.BottomCenter + LayoutWidth.Fill, children = divider)
         Container(LayoutGravity.Stretch) {
             indicatorContainer(tabPositions)
         }
