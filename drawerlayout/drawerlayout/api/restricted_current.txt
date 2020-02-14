@@ -1,11 +1,12 @@
 // Signature format: 3.0
 package androidx.drawerlayout.widget {
 
-  public class DrawerLayout extends android.view.ViewGroup {
+  public class DrawerLayout extends android.view.ViewGroup implements androidx.customview.widget.Openable {
     ctor public DrawerLayout(android.content.Context);
     ctor public DrawerLayout(android.content.Context, android.util.AttributeSet?);
     ctor public DrawerLayout(android.content.Context, android.util.AttributeSet?, int);
     method public void addDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener);
+    method public void close();
     method public void closeDrawer(android.view.View);
     method public void closeDrawer(android.view.View, boolean);
     method public void closeDrawer(int);
@@ -20,7 +21,9 @@ package androidx.drawerlayout.widget {
     method public boolean isDrawerOpen(int);
     method public boolean isDrawerVisible(android.view.View);
     method public boolean isDrawerVisible(int);
+    method public boolean isOpen();
     method public void onDraw(android.graphics.Canvas!);
+    method public void open();
     method public void openDrawer(android.view.View);
     method public void openDrawer(android.view.View, boolean);
     method public void openDrawer(int);
