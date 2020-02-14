@@ -17,7 +17,12 @@
 package androidx.sqlite.inspection;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
+import android.os.Build;
+import android.os.CancellationSignal;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -35,6 +40,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.Event;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryParameterValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Row;
@@ -165,7 +171,8 @@ final class SqliteInspector extends Inspector {
         SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
         if (database == null) return;
 
-        Cursor cursor = database.rawQuery(command.getQuery(), null);
+        String[] params = parseQueryParameterValues(command);
+        Cursor cursor = rawQuery(database, command.getQuery(), params, null);
         try {
             List<String> columnNames = Arrays.asList(cursor.getColumnNames());
             callback.reply(Response.newBuilder()
@@ -179,6 +186,51 @@ final class SqliteInspector extends Inspector {
         } finally {
             cursor.close();
         }
+    }
+
+    private Cursor rawQuery(SQLiteDatabase database, String queryText, final String[] params,
+            CancellationSignal cancellationSignal) {
+        SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
+            @Override
+            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver driver,
+                    String editTable, SQLiteQuery query) {
+                for (int i = 0; i < params.length; i++) {
+                    String value = params[i];
+                    int index = i + 1;
+                    if (value == null) {
+                        query.bindNull(index);
+                    } else {
+                        query.bindString(index, value);
+                    }
+                }
+                return new SQLiteCursor(driver, editTable, query);
+            }
+        };
+
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                ? database.rawQueryWithFactory(cursorFactory, queryText, null, null,
+                cancellationSignal)
+                : database.rawQueryWithFactory(cursorFactory, queryText, null, null);
+    }
+
+    @NonNull
+    private String[] parseQueryParameterValues(QueryCommand command) {
+        String[] params = new String[command.getQueryParameterValuesCount()];
+        for (int i = 0; i < command.getQueryParameterValuesCount(); i++) {
+            QueryParameterValue param = command.getQueryParameterValues(i);
+            switch (param.getOneOfCase()) {
+                case STRING_VALUE:
+                    params[i] = param.getStringValue();
+                    break;
+                case ONEOF_NOT_SET:
+                    params[i] = null;
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            "Unsupported parameter type. OneOfCase=" + param.getOneOfCase());
+            }
+        }
+        return params;
     }
 
     /**
