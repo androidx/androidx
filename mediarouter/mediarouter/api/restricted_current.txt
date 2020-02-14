@@ -60,9 +60,7 @@ package androidx.mediarouter.app {
 
   public class MediaRouteControllerDialogFragment extends androidx.fragment.app.DialogFragment {
     ctor public MediaRouteControllerDialogFragment();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteSelector! getRouteSelector();
     method public androidx.mediarouter.app.MediaRouteControllerDialog! onCreateControllerDialog(android.content.Context!, android.os.Bundle!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector!);
   }
 
   public class MediaRouteDialogFactory {
@@ -173,11 +171,8 @@ package androidx.mediarouter.media {
     method public String! getDescription();
     method public int getDeviceType();
     method public android.os.Bundle! getExtras();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<java.lang.String!>! getGroupMemberIds();
     method public android.net.Uri! getIconUri();
     method public String! getId();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMaxClientVersion();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMinClientVersion();
     method public String! getName();
     method public int getPlaybackStream();
     method public int getPlaybackType();
@@ -197,10 +192,7 @@ package androidx.mediarouter.media {
     ctor public MediaRouteDescriptor.Builder(androidx.mediarouter.media.MediaRouteDescriptor!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addControlFilter(android.content.IntentFilter!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addControlFilters(java.util.Collection<android.content.IntentFilter!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addGroupMemberId(String!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addGroupMemberIds(java.util.Collection<java.lang.String!>!);
     method public androidx.mediarouter.media.MediaRouteDescriptor! build();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! removeGroupMemberId(String!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setCanDisconnect(boolean);
     method @Deprecated public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setConnecting(boolean);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setConnectionState(int);
@@ -211,8 +203,6 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setIconUri(android.net.Uri!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setId(String!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setIsDynamicGroupRoute(boolean);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setMaxClientVersion(int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setMinClientVersion(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setName(String!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setPlaybackStream(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! setPlaybackType(int);
@@ -241,7 +231,6 @@ package androidx.mediarouter.media {
     method public final androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata! getMetadata();
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? onCreateDynamicGroupRouteController(String);
     method public androidx.mediarouter.media.MediaRouteProvider.RouteController? onCreateRouteController(String);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteProvider.RouteController? onCreateRouteController(String, String);
     method public void onDiscoveryRequestChanged(androidx.mediarouter.media.MediaRouteDiscoveryRequest?);
     method public final void setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback?);
     method public final void setDescriptor(androidx.mediarouter.media.MediaRouteProviderDescriptor?);
@@ -265,7 +254,7 @@ package androidx.mediarouter.media {
 
   public static final class MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor {
     method public androidx.mediarouter.media.MediaRouteDescriptor getRouteDescriptor();
-    method @androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SelectionState public int getSelectionState();
+    method public int getSelectionState();
     method public boolean isGroupable();
     method public boolean isTransferable();
     method public boolean isUnselectable();
@@ -282,10 +271,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setIsGroupable(boolean);
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setIsTransferable(boolean);
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setIsUnselectable(boolean);
-    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setSelectionState(@androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SelectionState int);
-  }
-
-  @IntDef({androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.UNSELECTING, androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.UNSELECTED, androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SELECTING, androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SELECTED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SelectionState {
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setSelectionState(int);
   }
 
   public static final class MediaRouteProvider.ProviderMetadata {
@@ -418,18 +404,14 @@ package androidx.mediarouter.media {
     method public java.util.List<android.content.IntentFilter!>! getControlFilters();
     method public String? getDescription();
     method public int getDeviceType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? getDynamicGroupController();
     method public android.os.Bundle? getExtras();
     method public android.net.Uri! getIconUri();
     method public String getId();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!> getMemberRoutes();
     method public String! getName();
     method public int getPlaybackStream();
     method public int getPlaybackType();
     method public android.view.Display? getPresentationDisplay();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPresentationDisplayId();
     method public androidx.mediarouter.media.MediaRouter.ProviderInfo! getProvider();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteProvider! getProviderInstance();
     method public android.content.IntentSender? getSettingsIntent();
     method public int getVolume();
     method public int getVolumeHandling();
@@ -437,10 +419,8 @@ package androidx.mediarouter.media {
     method public boolean isBluetooth();
     method @Deprecated public boolean isConnecting();
     method public boolean isDefault();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isDefaultOrBluetooth();
     method public boolean isDeviceSpeaker();
     method public boolean isEnabled();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isGroup();
     method public boolean isSelected();
     method public boolean matchesSelector(androidx.mediarouter.media.MediaRouteSelector);
     method public void requestSetVolume(int);
@@ -453,15 +433,12 @@ package androidx.mediarouter.media {
     field public static final int CONNECTION_STATE_CONNECTED = 2; // 0x2
     field public static final int CONNECTION_STATE_CONNECTING = 1; // 0x1
     field public static final int CONNECTION_STATE_DISCONNECTED = 0; // 0x0
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int DEVICE_TYPE_BLUETOOTH = 3; // 0x3
     field public static final int DEVICE_TYPE_SPEAKER = 2; // 0x2
     field public static final int DEVICE_TYPE_TV = 1; // 0x1
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int DEVICE_TYPE_UNKNOWN = 0; // 0x0
     field public static final int PLAYBACK_TYPE_LOCAL = 0; // 0x0
     field public static final int PLAYBACK_TYPE_REMOTE = 1; // 0x1
     field public static final int PLAYBACK_VOLUME_FIXED = 0; // 0x0
     field public static final int PLAYBACK_VOLUME_VARIABLE = 1; // 0x1
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int PRESENTATION_DISPLAY_ID_NONE = -1; // 0xffffffff
   }
 
   public final class MediaSessionStatus {

@@ -16,8 +16,7 @@
 
 package androidx.mediarouter.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -57,7 +56,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * @return The selector, never null.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public MediaRouteSelector getRouteSelector() {
         ensureRouteSelector();
         return mSelector;
@@ -96,7 +95,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * @param selector The selector to set.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void setRouteSelector(MediaRouteSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
@@ -125,7 +124,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * Called when the cast dialog is being created.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY)
     public MediaRouteDynamicControllerDialog onCreateDynamicControllerDialog(Context context) {
         return new MediaRouteDynamicControllerDialog(context);
     }
