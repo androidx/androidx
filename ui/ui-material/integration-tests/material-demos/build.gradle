@@ -30,7 +30,7 @@ dependencies {
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-material:integration-tests:samples")
     implementation project(":ui:ui-text")
-    implementation project(':ui:ui-android-view-non-ir')
+    implementation project(':ui:ui-android-view')
     implementation project(':ui:ui-material')
 }
 

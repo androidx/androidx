@@ -25,12 +25,12 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.compose.composer
+import androidx.compose.Composable
 import androidx.compose.setViewContent
 
 // TODO(lmr): This should be moved to a separate module, but needs to be one that is not IR-compiled
 class ArrayAdapter<T> : BaseAdapter(), Filterable {
-    var composable: Function1<T, Unit>? = null
+    var composable: (@Composable() (T) -> Unit)? = null
     var items: MutableList<T>? = null
     var itemLayoutResourceId: Int = android.R.layout.simple_list_item_1
     var itemFieldId: Int = 0
@@ -106,7 +106,7 @@ class ArrayAdapter<T> : BaseAdapter(), Filterable {
 
     @Suppress("PLUGIN_WARNING")
     private fun getViewFromComposable(position: Int, convertView: View?, parent: ViewGroup): View {
-        val composable = composable ?: error("Expected composable to be non-null")
+        if (composable == null) error("Expected composable to be non-null")
         val items = items ?: error("Expected non-null items array")
 
         val item = items[position]
@@ -114,15 +114,9 @@ class ArrayAdapter<T> : BaseAdapter(), Filterable {
         val group = view as ViewGroup
 
         // TODO(lmr): we should use the variant of this that passes through ambients if we can
-        group.setViewContent(object : Function0<Unit> {
-            @Suppress("PLUGIN_WARNING")
-            override fun invoke() {
-                val composer = composer
-                composer.startGroup(0)
-                composable(item)
-                composer.endGroup()
-            }
-        })
+        group.setViewContent {
+            composable!!(item)
+        }
 
         return view
     }

@@ -32,13 +32,15 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
     implementation(KOTLIN_COROUTINES_ANDROID)
+    // TODO: remove / refactor out reflection dependencies, this is a large dependency to bundle
+    // with a library.
+    implementation(KOTLIN_REFLECT)
     implementation(KOTLIN_STDLIB)
 
     implementation "androidx.activity:activity:1.0.0-alpha01"
     api "androidx.annotation:annotation:1.1.0"
 
     implementation project(":compose:compose-runtime")
-    implementation project(":ui:ui-android-view-non-ir")
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-core")
     implementation project(":ui:ui-platform")
