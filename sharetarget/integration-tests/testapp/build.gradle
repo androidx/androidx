@@ -22,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.core:core:1.2.0-rc01")
+    api("androidx.core:core:1.2.0")
     api(project(":sharetarget:sharetarget"))
     api("androidx.appcompat:appcompat:1.1.0")
     api(CONSTRAINT_LAYOUT, { transitive = true })
