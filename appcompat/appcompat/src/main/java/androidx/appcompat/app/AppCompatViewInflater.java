@@ -52,10 +52,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * This class is responsible for manually inflating our tinted widgets.
+ * This class is used by AppCompat to automatically "substitute" all usages of core Android
+ * widgets inflated from layout files by the AppCompat extensions of those widgets.
+ *
  * <p>This class two main responsibilities: the first is to 'inject' our tinted views in place of
  * the framework versions in layout inflation; the second is backport the {@code android:theme}
- * functionality for any inflated widgets. This include theme inheritance from its parent.
+ * functionality for any inflated widgets. This include theme inheritance from its parent.</p>
+ *
+ * <p>In order to provide your own extensions, follow these steps:
+ *    <ul>
+ *        <li>Extend this class, or the relevant subclass if you're using the Material
+ *        components library</li>
+ *        <li>Override one or more of the <code>createXYZ</code> methods</li>
+ *        <li>Add the <code>viewInflaterClass</code> attribute on your application theme. The
+ *        value of the attribute should be the fully-qualified class name of your custom inflater
+ *        class.</li>
+ *    </ul>
+ * </p>
  */
 public class AppCompatViewInflater {
 
