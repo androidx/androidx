@@ -43,29 +43,15 @@ class AppInitializerTest {
     }
 
     @Test
-    fun basicUsageTest() {
-        appInitializer.initializeComponents(listOf<Class<*>>(InitializerNoDependencies::class.java))
+    fun basicInitializationTest() {
+        appInitializer.initializeComponent(InitializerNoDependencies::class.java)
+        assertThat(appInitializer.mInitialized.size, `is`(1))
         assertTrue(appInitializer.mInitialized.containsKey(InitializerNoDependencies::class.java))
     }
 
     @Test
-    fun basicInitializationTest() {
-        val initializing = mutableSetOf<Class<*>>()
-        val components = listOf<Class<*>>(InitializerNoDependencies::class.java)
-        appInitializer.doInitialize(components, initializing)
-        assertThat(initializing.size, `is`(0))
-        assertThat(appInitializer.mInitialized.size, `is`(1))
-        for (component in components) {
-            assertTrue(appInitializer.mInitialized.containsKey(component))
-        }
-    }
-
-    @Test
     fun initializationWithDependencies() {
-        val initializing = mutableSetOf<Class<*>>()
-        val components = listOf<Class<*>>(InitializerWithDependency::class.java)
-        appInitializer.doInitialize(components, initializing)
-        assertThat(initializing.size, `is`(0))
+        appInitializer.initializeComponent(InitializerWithDependency::class.java)
         assertThat(appInitializer.mInitialized.size, `is`(2))
         assertTrue(appInitializer.mInitialized.containsKey(InitializerNoDependencies::class.java))
         assertTrue(appInitializer.mInitialized.containsKey(InitializerWithDependency::class.java))
@@ -73,10 +59,8 @@ class AppInitializerTest {
 
     @Test
     fun initializationWithCyclicDependencies() {
-        val initializing = mutableSetOf<Class<*>>()
-        val components = listOf<Class<*>>(CyclicDependencyInitializer::class.java)
         try {
-            appInitializer.doInitialize(components, initializing)
+            appInitializer.initializeComponent(CyclicDependencyInitializer::class.java)
             fail()
         } catch (exception: StartupException) {
             assertThat(exception.localizedMessage, containsString("Cycle detected."))

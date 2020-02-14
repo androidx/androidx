@@ -24,10 +24,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,9 +50,6 @@ public final class AppInitializer {
     private static final Object sLock = new Object();
 
     @NonNull
-    final List<Class<?>> mDiscovered;
-
-    @NonNull
     final Map<Class<?>, Object> mInitialized;
 
     @NonNull
@@ -69,7 +63,6 @@ public final class AppInitializer {
     AppInitializer(@NonNull Context context) {
         mContext = context.getApplicationContext();
         mInitialized = new HashMap<>();
-        mDiscovered = discoverComponents();
     }
 
     /**
@@ -88,69 +81,51 @@ public final class AppInitializer {
     }
 
     /**
-     * Discovers an initializes all available {@link ComponentInitializer} classes based on the
-     * merged manifest `<meta-data>` entries in the `AndroidManifest.xml`.
-     */
-    public void initializeAllComponents() {
-        initializeComponents(mDiscovered);
-    }
-
-    /**
-     * Initializes a {@link List} of {@link ComponentInitializer} class types.
+     * Initializes a {@link ComponentInitializer} class type.
      *
-     * @param components The {@link List} of {@link Class}es that represent all discovered
-     *                   {@link ComponentInitializer}s
+     * @param component The {@link Class} of {@link ComponentInitializer} to initialize.
+     * @param <T>       The instance type being initialized
+     * @return The initialized instance
      */
-    public void initializeComponents(@NonNull List<Class<?>> components) {
-        synchronized (sLock) {
-            doInitialize(components, new HashSet<>());
-        }
+    @NonNull
+    @SuppressWarnings("unused")
+    public <T> T initializeComponent(@NonNull Class<? extends ComponentInitializer<T>> component) {
+        return doInitialize(component, new HashSet<>());
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void doInitialize(
-            @NonNull List<Class<?>> components,
+    @NonNull
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+    <T> T doInitialize(
+            @NonNull Class<? extends ComponentInitializer<?>> component,
             @NonNull Set<Class<?>> initializing) {
-
-        for (Class<?> component : components) {
+        synchronized (sLock) {
             if (initializing.contains(component)) {
                 String message = String.format(
                         "Cannot initialize %s. Cycle detected.", component.getName()
                 );
                 throw new IllegalStateException(message);
             }
+            Object result;
             if (!mInitialized.containsKey(component)) {
                 initializing.add(component);
                 try {
                     Object instance = component.getDeclaredConstructor().newInstance();
-                    if (!(instance instanceof ComponentInitializer<?>)) {
-                        String message = String.format(
-                                "%s is not a subtype of ComponentInitializer", component.getName()
-                        );
-                        throw new IllegalStateException(message);
-                    }
                     ComponentInitializer<?> initializer = (ComponentInitializer<?>) instance;
                     List<Class<? extends ComponentInitializer<?>>> dependencies =
                             initializer.dependencies();
-                    List<Class<?>> filtered = null;
+
                     if (!dependencies.isEmpty()) {
-                        filtered = new ArrayList<>(dependencies.size());
                         for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
                             if (!mInitialized.containsKey(clazz)) {
-                                filtered.add(clazz);
+                                doInitialize(clazz, initializing);
                             }
                         }
                     }
-                    if (filtered != null && !filtered.isEmpty()) {
-                        doInitialize(filtered, initializing);
-                    }
+
                     if (StartupLogger.DEBUG) {
                         StartupLogger.i(String.format("Initializing %s", component.getName()));
                     }
-                    Object result = initializer.create(mContext);
+                    result = initializer.create(mContext);
                     if (StartupLogger.DEBUG) {
                         StartupLogger.i(String.format("Initialized %s", component.getName()));
                     }
@@ -159,16 +134,15 @@ public final class AppInitializer {
                 } catch (Throwable throwable) {
                     throw new StartupException(throwable);
                 }
+            } else {
+                result = mInitialized.get(component);
             }
+            return (T) result;
         }
     }
 
-    /**
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public List<Class<?>> discoverComponents() {
+    @SuppressWarnings("unchecked")
+    void discoverAndInitialize() {
         try {
             ApplicationInfo applicationInfo =
                     mContext.getPackageManager()
@@ -177,21 +151,22 @@ public final class AppInitializer {
             Bundle metadata = applicationInfo.metaData;
             String startup = mContext.getString(R.string.androidx_startup);
             if (metadata != null) {
-                List<Class<?>> components = new ArrayList<>(metadata.size());
+                Set<Class<?>> initializing = new HashSet<>();
                 Set<String> keys = metadata.keySet();
                 for (String key : keys) {
                     String value = metadata.getString(key, null);
                     if (startup.equals(value)) {
                         Class<?> clazz = Class.forName(key);
-                        if (StartupLogger.DEBUG) {
-                            StartupLogger.i(String.format("Discovered %s", key));
+                        if (ComponentInitializer.class.isAssignableFrom(clazz)) {
+                            Class<? extends ComponentInitializer<?>> component =
+                                    (Class<? extends ComponentInitializer<?>>) clazz;
+                            if (StartupLogger.DEBUG) {
+                                StartupLogger.i(String.format("Discovered %s", key));
+                            }
+                            doInitialize(component, initializing);
                         }
-                        components.add(clazz);
                     }
                 }
-                return components;
-            } else {
-                return Collections.emptyList();
             }
         } catch (PackageManager.NameNotFoundException | ClassNotFoundException exception) {
             throw new StartupException(exception);
