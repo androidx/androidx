@@ -33,7 +33,24 @@ sealed class Outline {
     /**
      * Rectangular area with rounded corners.
      */
-    data class Rounded(val rrect: RRect) : Outline()
+    data class Rounded(val rrect: RRect) : Outline() {
+
+        /**
+         * Optional Path to be created for the RRect if the corner radii are not identical
+         * This is because Canvas has a built in API for drawing round rectangles with the
+         * same corner radii in all 4 corners. However, if each corner has a different
+         * corner radii, a path must be drawn instead
+         */
+        internal val roundRectPath: Path?
+
+        init {
+            roundRectPath = if (!rrect.hasSameCornerRadius()) {
+                Path().apply { addRRect(rrect) }
+            } else {
+                null
+            }
+        }
+    }
     /**
      * An area defined as a path.
      *
@@ -59,6 +76,39 @@ fun Path.addOutline(outline: Outline) = when (outline) {
  */
 fun Canvas.drawOutline(outline: Outline, paint: Paint) = when (outline) {
     is Outline.Rectangle -> drawRect(outline.rect, paint)
-    is Outline.Rounded -> drawRRect(outline.rrect, paint)
+    is Outline.Rounded -> {
+        val path = outline.roundRectPath
+        // If the rounded rect has a path, then the corner radii are not the same across
+        // each of the corners, so we draw the given path.
+        // If there is no path available, then the corner radii are identical so call the
+        // Canvas primitive for drawing a rounded rectangle
+        if (path != null) {
+            drawPath(path, paint)
+        } else {
+            drawRoundRect(
+                left = outline.rrect.left,
+                top = outline.rrect.top,
+                right = outline.rrect.right,
+                bottom = outline.rrect.bottom,
+                radiusX = outline.rrect.bottomLeftRadiusX,
+                radiusY = outline.rrect.bottomLeftRadiusY,
+                paint = paint)
+        }
+    }
     is Outline.Generic -> drawPath(outline.path, paint)
+}
+
+/**
+ * Convenience method to determine if the corner radii of the RRect are identical
+ * in each of the corners. That is the x radius and the y radius are the same for each corner,
+ * however, the x and y can be different
+ */
+private fun RRect.hasSameCornerRadius(): Boolean {
+    val sameRadiusX = bottomLeftRadiusX == bottomRightRadiusX &&
+            bottomRightRadiusX == topRightRadiusX &&
+            topRightRadiusX == topLeftRadiusX
+    val sameRadiusY = bottomLeftRadiusY == bottomRightRadiusY &&
+            bottomRightRadiusY == topRightRadiusY &&
+            topRightRadiusY == topLeftRadiusY
+    return sameRadiusX && sameRadiusY
 }
