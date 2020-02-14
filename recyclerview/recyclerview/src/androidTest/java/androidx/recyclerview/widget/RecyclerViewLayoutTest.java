@@ -75,9 +75,11 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
+import androidx.testutils.AnimationDurationScaleRule;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -100,6 +102,10 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     private static final boolean DEBUG = false;
 
     private static final String TAG = "RecyclerViewLayoutTest";
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.create();
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
@@ -4957,6 +4963,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void updateHiddenView() throws Throwable {
+        mAnimationDurationScaleRule.setAnimationDurationScale(1f);
         final RecyclerView recyclerView = new RecyclerView(getActivity());
         final int[] preLayoutRange = new int[]{0, 10};
         final int[] postLayoutRange = new int[]{0, 10};
@@ -5026,10 +5033,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     adapter.changeAndNotify(0, 1);
                     adapter.deleteAndNotify(0, 1);
                 } catch (Throwable throwable) {
-                    fail(throwable.getMessage());
+                    postExceptionToInstrumentation(throwable);
                 }
             }
         });
+        checkForMainThreadException();
         tlm.waitForLayout(2);
         checkForMainThreadException();
     }
