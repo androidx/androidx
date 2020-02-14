@@ -24,6 +24,7 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.globalPosition
+import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.layout.Container
@@ -269,10 +270,12 @@ class AppBarTest {
     }
 
     /**
-     * [AppBarIcon] that just draws a red box, to simulate a real icon for testing positions.
+     * [IconButton] that just draws a red box, to simulate a real icon for testing positions.
      */
     private val FakeIcon = @Composable {
-        AppBarIcon(ColorPainter(Color.Red)) {}
+        IconButton(onClick = {}) {
+            Icon(ColorPainter(Color.Red))
+        }
     }
 
     private fun Density.expectedActionPosition(appBarWidth: Px): Px {

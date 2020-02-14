@@ -270,5 +270,15 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".IconButtonActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Icon Buttons">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
