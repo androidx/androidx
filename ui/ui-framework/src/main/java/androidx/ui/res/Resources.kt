@@ -17,12 +17,12 @@
 package androidx.ui.res
 
 import android.content.res.Resources
+import android.os.Handler
+import android.os.Looper
 import android.util.LruCache
 import android.util.TypedValue
 import androidx.annotation.GuardedBy
 import androidx.compose.Composable
-import androidx.compose.Handler
-import androidx.compose.LooperWrapper
 import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.core.ContextAmbient
@@ -41,7 +41,7 @@ internal val resourceCache = LruCache<String, Any>(CACHE_SIZE)
 
 // TODO(nona): Reimplement coroutine once IR compiler support suspend function.
 private val executor = Executors.newFixedThreadPool(1) { Thread(it, "ResourceThread") }
-private val handler by lazy { Handler(LooperWrapper.getMainLooper()) }
+private val handler by lazy { Handler(Looper.getMainLooper()) }
 private val postAtFrontOfQueue: (() -> Unit) -> Unit = { handler.postAtFrontOfQueue(it) }
 
 internal enum class LoadingState { PENDING, LOADED, FAILED }
