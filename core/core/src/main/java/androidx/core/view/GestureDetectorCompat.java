@@ -19,7 +19,6 @@ package androidx.core.view;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;
@@ -102,7 +101,7 @@ public final class GestureDetectorCompat {
 
         private class GestureHandler extends Handler {
             GestureHandler() {
-                super(Looper.getMainLooper());
+                super();
             }
 
             GestureHandler(Handler handler) {

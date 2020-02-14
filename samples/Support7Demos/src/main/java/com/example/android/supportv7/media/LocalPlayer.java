@@ -25,7 +25,6 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
@@ -58,7 +57,7 @@ public abstract class LocalPlayer extends Player implements
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final Context mContext;
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler();
     private final Handler mUpdateSurfaceHandler = new Handler(mHandler.getLooper());
     private MediaPlayer mMediaPlayer;
     private int mState = STATE_IDLE;

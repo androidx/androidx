@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -36,7 +35,7 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
     private static final int SEARCH_DELAY_MS = 1000;
 
     private ArrayObjectAdapter mRowsAdapter;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private Handler mHandler = new Handler();
     private String mQuery;
 
     // Flag to represent if data set one is presented in the fragment

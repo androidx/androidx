@@ -18,7 +18,6 @@ package com.example.android.leanback;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +41,7 @@ public class BrowseErrorSupportActivity extends FragmentActivity
     }
 
     private void testError() {
-        Handler handler = new Handler(Looper.getMainLooper());
+        Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {

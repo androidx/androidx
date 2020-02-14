@@ -24,7 +24,6 @@ import android.graphics.Typeface;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
@@ -482,7 +481,7 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
 
             CCHandler(CCLayout ccLayout) {
                 mCCLayout = ccLayout;
-                mHandler = new Handler(Looper.getMainLooper(), this);
+                mHandler = new Handler(this);
             }
 
             @Override

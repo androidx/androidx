@@ -19,7 +19,6 @@ package androidx.loader.content;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -119,7 +118,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     public void setUpdateThrottle(long delayMS) {
         mUpdateThrottle = delayMS;
         if (delayMS != 0) {
-            mHandler = new Handler(Looper.getMainLooper());
+            mHandler = new Handler();
         }
     }
 

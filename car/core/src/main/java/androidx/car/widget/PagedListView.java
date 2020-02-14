@@ -25,7 +25,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -106,7 +105,7 @@ public class PagedListView extends FrameLayout {
     private final RecyclerView mRecyclerView;
     private final PagedSnapHelper mSnapHelper;
     private final View mDividerView;
-    final Handler mHandler = new Handler(Looper.getMainLooper());
+    final Handler mHandler = new Handler();
     private boolean mIsScrollBarVisibleIfNeeded;
     private boolean mIsScrollBarDividerVisibleIfNeeded;
     @VisibleForTesting

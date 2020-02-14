@@ -30,7 +30,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.renderscript.Allocation;
@@ -142,7 +141,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Handler mHandler = new Handler(Looper.getMainLooper()) {
+    final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {
             switch (message.what) {

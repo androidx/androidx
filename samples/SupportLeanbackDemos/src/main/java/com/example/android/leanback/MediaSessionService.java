@@ -27,7 +27,6 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.support.v4.media.MediaMetadataCompat;
@@ -86,10 +85,6 @@ public class MediaSessionService extends Service {
 
     // This handler can control media player through audio's status.
     private class MediaPlayerAudioHandler extends Handler {
-        MediaPlayerAudioHandler() {
-            super(Looper.getMainLooper());
-        }
-
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {

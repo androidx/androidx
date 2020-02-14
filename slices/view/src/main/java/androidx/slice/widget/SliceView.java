@@ -26,7 +26,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
@@ -229,7 +228,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
         final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         mTouchSlopSquared = slop * slop;
-        mHandler = new Handler(Looper.getMainLooper());
+        mHandler = new Handler();
 
         setClipToPadding(false);
         super.setOnClickListener(this);

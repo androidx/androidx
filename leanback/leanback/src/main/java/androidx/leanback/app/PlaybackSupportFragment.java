@@ -23,7 +23,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.util.TypedValue;
@@ -298,7 +297,7 @@ public class PlaybackSupportFragment extends Fragment {
         return mRowsSupportFragment.getVerticalGridView();
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
+    private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {
             if (message.what == START_FADE_OUT && mFadingEnabled) {

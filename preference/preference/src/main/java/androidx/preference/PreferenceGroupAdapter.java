@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,7 +87,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
     public PreferenceGroupAdapter(PreferenceGroup preferenceGroup) {
         mPreferenceGroup = preferenceGroup;
-        mHandler = new Handler(Looper.getMainLooper());
+        mHandler = new Handler();
 
         // This adapter should be notified when preferences are added or removed from the group
         mPreferenceGroup.setOnPreferenceChangeInternalListener(this);

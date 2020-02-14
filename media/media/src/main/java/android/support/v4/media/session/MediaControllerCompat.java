@@ -579,7 +579,7 @@ public final class MediaControllerCompat {
             return;
         }
         if (handler == null) {
-            handler = new Handler(Looper.getMainLooper());
+            handler = new Handler();
         }
         callback.setHandler(handler);
         mImpl.registerCallback(callback, handler);

@@ -27,7 +27,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
@@ -760,7 +759,6 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
         private final WeakReference<MediaBrowserServiceSupport> mWeakReference;
 
         private DelayedStopHandler(MediaBrowserServiceSupport service) {
-            super(Looper.getMainLooper());
             mWeakReference = new WeakReference<>(service);
         }
 

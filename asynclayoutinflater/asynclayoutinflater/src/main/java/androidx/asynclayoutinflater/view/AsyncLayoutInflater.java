@@ -74,7 +74,7 @@ public final class AsyncLayoutInflater {
 
     public AsyncLayoutInflater(@NonNull Context context) {
         mInflater = new BasicInflater(context);
-        mHandler = new Handler(Looper.getMainLooper(), mHandlerCallback);
+        mHandler = new Handler(mHandlerCallback);
         mInflateThread = InflateThread.getInstance();
     }
 

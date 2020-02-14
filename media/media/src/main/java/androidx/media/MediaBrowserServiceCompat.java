@@ -67,7 +67,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
@@ -663,7 +662,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         private final ServiceBinderImpl mServiceBinderImpl = new ServiceBinderImpl();
 
         ServiceHandler() {
-            super(Looper.getMainLooper());
         }
 
         @Override

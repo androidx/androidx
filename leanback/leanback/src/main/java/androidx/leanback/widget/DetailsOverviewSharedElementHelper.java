@@ -16,7 +16,6 @@ package androidx.leanback.widget;
 import android.app.Activity;
 import android.graphics.Matrix;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -206,8 +205,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         ActivityCompat.setEnterSharedElementCallback(mActivityToRunTransition, this);
         ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
         if (timeoutMs > 0) {
-            new Handler(Looper.getMainLooper())
-                    .postDelayed(new TransitionTimeOutRunnable(this), timeoutMs);
+            new Handler().postDelayed(new TransitionTimeOutRunnable(this), timeoutMs);
         }
     }
 

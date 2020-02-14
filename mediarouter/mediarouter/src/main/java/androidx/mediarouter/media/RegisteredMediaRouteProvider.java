@@ -72,7 +72,6 @@ import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -81,7 +80,8 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
+import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
+        .DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
 import java.lang.ref.WeakReference;
@@ -957,7 +957,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
     private static final class PrivateHandler extends Handler {
         PrivateHandler() {
-            super(Looper.getMainLooper());
         }
     }
 
@@ -976,7 +975,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         private final WeakReference<Connection> mConnectionRef;
 
         public ReceiveHandler(Connection connection) {
-            super(Looper.getMainLooper());
             mConnectionRef = new WeakReference<Connection>(connection);
         }
 
