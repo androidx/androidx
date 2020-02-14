@@ -444,7 +444,8 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! addExtras(android.os.Bundle!);
     method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder! addInvisibleAction(int, CharSequence!, android.app.PendingIntent!);
     method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder! addInvisibleAction(androidx.core.app.NotificationCompat.Action!);
-    method public androidx.core.app.NotificationCompat.Builder! addPerson(String!);
+    method @Deprecated public androidx.core.app.NotificationCompat.Builder! addPerson(String!);
+    method public androidx.core.app.NotificationCompat.Builder addPerson(androidx.core.app.Person);
     method public android.app.Notification! build();
     method public androidx.core.app.NotificationCompat.Builder! extend(androidx.core.app.NotificationCompat.Extender!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getBigContentView();
@@ -512,6 +513,7 @@ package androidx.core.app {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.ArrayList<androidx.core.app.NotificationCompat.Action!>! mActions;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.Context! mContext;
     field @Deprecated public java.util.ArrayList<java.lang.String!>! mPeople;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.ArrayList<androidx.core.app.Person!> mPersonList;
   }
 
   public static final class NotificationCompat.CarExtender implements androidx.core.app.NotificationCompat.Extender {
@@ -734,6 +736,7 @@ package androidx.core.app {
     method public String? getUri();
     method public boolean isBot();
     method public boolean isImportant();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String resolveToLegacyUri();
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Person toAndroidPerson();
     method public androidx.core.app.Person.Builder toBuilder();
     method public android.os.Bundle toBundle();

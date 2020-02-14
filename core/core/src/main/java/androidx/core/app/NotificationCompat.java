@@ -704,6 +704,11 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public ArrayList<Action> mActions = new ArrayList<>();
 
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @NonNull
+        public ArrayList<Person> mPersonList = new ArrayList<>();
+
         // Invisible actions are stored in the CarExtender bundle without actually being owned by
         // CarExtender. This is to comply with an optimization of the Android OS which removes
         // Actions from the Notification if there are no listeners for those Actions.
@@ -1318,10 +1323,37 @@ public class NotificationCompat {
          *
          * @param uri A URI for the person.
          * @see Notification#EXTRA_PEOPLE
+         * @deprecated use {@link #addPerson(Person)}
          */
-        @SuppressWarnings("deprecation")
+        @Deprecated
         public Builder addPerson(String uri) {
             mPeople.add(uri);
+            return this;
+        }
+
+        /**
+         * Add a person that is relevant to this notification.
+         *
+         * <P>
+         * Depending on user preferences, this annotation may allow the notification to pass
+         * through interruption filters, if this notification is of category {@link #CATEGORY_CALL}
+         * or {@link #CATEGORY_MESSAGE}. The addition of people may also cause this notification to
+         * appear more prominently in the user interface.
+         * </P>
+         *
+         * <P>
+         * A person should usually contain a uri in order to benefit from the ranking boost.
+         * However, even if no uri is provided, it's beneficial to provide other people in the
+         * notification, such that listeners and voice only devices can announce and handle them
+         * properly.
+         * </P>
+         *
+         * @param person the person to add.
+         * @see Notification#EXTRA_PEOPLE_LIST
+         */
+        @NonNull
+        public Builder addPerson(@NonNull final Person person) {
+            mPersonList.add(person);
             return this;
         }
 
