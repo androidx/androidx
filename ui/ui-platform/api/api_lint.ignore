@@ -5,7 +5,3 @@ CallbackName: androidx.ui.core.ModelObserver:
 
 DocumentExceptions: androidx.ui.core.AndroidComposeView#onAttach(androidx.ui.core.ComponentNode):
     Method AndroidComposeView.onAttach appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
-EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
-    Don't expose your implementation details: `SemanticsTreeNodeImpl` ends with `Impl`
