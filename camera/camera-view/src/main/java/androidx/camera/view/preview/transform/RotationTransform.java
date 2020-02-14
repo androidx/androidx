@@ -16,9 +16,8 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.content.Context;
+import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
@@ -29,12 +28,11 @@ final class RotationTransform {
 
     /** Computes the rotation of a {@link View} in degrees from its natural orientation. */
     static float getRotationDegrees(@NonNull final View view) {
-        final WindowManager windowManager = (WindowManager) view.getContext().getSystemService(
-                Context.WINDOW_SERVICE);
-        if (windowManager == null) {
+        final Display display = view.getDisplay();
+        if (display == null) {
             return 0;
         }
-        final int rotation = windowManager.getDefaultDisplay().getRotation();
+        final int rotation = display.getRotation();
         return SurfaceRotation.rotationDegreesFromSurfaceRotation(rotation);
     }
 }
