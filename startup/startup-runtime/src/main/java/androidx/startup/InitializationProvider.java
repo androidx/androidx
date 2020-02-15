@@ -39,7 +39,7 @@ public final class InitializationProvider extends ContentProvider {
     public boolean onCreate() {
         Context context = getContext();
         if (context != null) {
-            AppInitializer.getInstance(context).initializeAllComponents();
+            AppInitializer.getInstance(context).discoverAndInitialize();
         } else {
             throw new StartupException("Context cannot be null");
         }
