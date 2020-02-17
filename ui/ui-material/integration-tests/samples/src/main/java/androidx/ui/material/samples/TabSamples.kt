@@ -327,7 +327,7 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
             val width = with(density) {
                 (state[indicatorEnd] - state[indicatorStart]).toDp()
             }
-            Container(width = width, modifier = LayoutPadding(left = offset)) {
+            Container(width = width, modifier = LayoutPadding(start = offset)) {
                 // Pass the current color to the indicator
                 FancyIndicator(state[indicatorColor])
             }

@@ -145,7 +145,7 @@ fun Snackbar(
 @Composable
 private fun TextOnlySnackbar(text: @Composable() () -> Unit) {
     Layout(
-        text, modifier = LayoutPadding(left = HorizontalSpacing, right = HorizontalSpacing)
+        text, modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacing)
     ) { measurables, constraints ->
         require(measurables.size == 1) {
             "text for Snackbar expected to have exactly only one child"
@@ -169,14 +169,14 @@ private fun NewLineButtonSnackbar(
 ) {
     Column(
         modifier = LayoutWidth.Fill + LayoutPadding(
-            left = HorizontalSpacing,
-            right = HorizontalSpacingButtonSide,
+            start = HorizontalSpacing,
+            end = HorizontalSpacingButtonSide,
             bottom = SeparateButtonExtraY
         )
     ) {
         AlignmentLineOffset(alignmentLine = LastBaseline, after = LongButtonVerticalOffset) {
             AlignmentLineOffset(alignmentLine = FirstBaseline, before = HeightToFirstLine) {
-                Container(LayoutPadding(right = HorizontalSpacingButtonSide), children = text)
+                Container(LayoutPadding(end = HorizontalSpacingButtonSide), children = text)
             }
         }
         Container(modifier = LayoutGravity.End, children = button)
@@ -203,7 +203,7 @@ private fun OneRowSnackbar(
                 button
             )
         },
-        modifier = LayoutPadding(left = HorizontalSpacing, right = HorizontalSpacingButtonSide)
+        modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
     ) { measurables, constraints ->
         val buttonPlaceable = measurables.first { it.tag == "button" }.measure(constraints)
         val textMaxWidth =

@@ -165,7 +165,7 @@ class RadioGroupScope internal constructor() {
                     Text(
                         text = text,
                         style = MaterialTheme.typography().body1.merge(textStyle),
-                        modifier = LayoutPadding(left = DefaultRadioLabelOffset)
+                        modifier = LayoutPadding(start = DefaultRadioLabelOffset)
                     )
                 }
             }

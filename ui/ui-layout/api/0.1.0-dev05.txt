@@ -257,16 +257,16 @@ package androidx.ui.layout {
   }
 
   public final class LayoutPadding implements androidx.ui.core.LayoutModifier {
-    ctor public LayoutPadding(androidx.ui.unit.Dp left, androidx.ui.unit.Dp top, androidx.ui.unit.Dp right, androidx.ui.unit.Dp bottom);
+    ctor public LayoutPadding(androidx.ui.unit.Dp start, androidx.ui.unit.Dp top, androidx.ui.unit.Dp end, androidx.ui.unit.Dp bottom);
     ctor public LayoutPadding();
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.unit.Dp component3();
     method public androidx.ui.unit.Dp component4();
-    method public androidx.ui.layout.LayoutPadding copy(androidx.ui.unit.Dp left, androidx.ui.unit.Dp top, androidx.ui.unit.Dp right, androidx.ui.unit.Dp bottom);
+    method public androidx.ui.layout.LayoutPadding copy(androidx.ui.unit.Dp start, androidx.ui.unit.Dp top, androidx.ui.unit.Dp end, androidx.ui.unit.Dp bottom);
     method public androidx.ui.unit.Dp getBottom();
-    method public androidx.ui.unit.Dp getLeft();
-    method public androidx.ui.unit.Dp getRight();
+    method public androidx.ui.unit.Dp getEnd();
+    method public androidx.ui.unit.Dp getStart();
     method public androidx.ui.unit.Dp getTop();
     method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);

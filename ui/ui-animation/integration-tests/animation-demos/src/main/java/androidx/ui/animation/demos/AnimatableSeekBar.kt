@@ -62,7 +62,7 @@ class AnimatableSeekBar : Activity() {
                         modifier = LayoutPadding(40.dp)
                     )
 
-                    Box(LayoutPadding(left = 10.dp, right = 10.dp, bottom = 30.dp)) {
+                    Box(LayoutPadding(start = 10.dp, end = 10.dp, bottom = 30.dp)) {
                         MovingTargetExample(clock)
                     }
 

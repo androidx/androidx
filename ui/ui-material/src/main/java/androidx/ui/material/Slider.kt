@@ -229,7 +229,7 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
             DrawTrack(color, position)
-            Box(LayoutPadding(left = offset)) {
+            Box(LayoutPadding(start = offset)) {
                 Ripple(bounded = false) {
                     Surface(
                         shape = CircleShape,
