@@ -2984,19 +2984,14 @@ public class ExifInterface {
     private static final int WEBP_FILE_SIZE_BYTE_LENGTH = 4;
     private static final byte[] WEBP_CHUNK_TYPE_EXIF = new byte[]{(byte) 0x45, (byte) 0x58,
             (byte) 0x49, (byte) 0x46};
-    @SuppressWarnings("unused")
     private static final byte[] WEBP_VP8_SIGNATURE = new byte[]{(byte) 0x9d, (byte) 0x01,
             (byte) 0x2a};
-    @SuppressWarnings("unused")
     private static final byte WEBP_VP8L_SIGNATURE = (byte) 0x2f;
     private static final byte[] WEBP_CHUNK_TYPE_VP8X = "VP8X".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_VP8L = "VP8L".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_VP8 = "VP8 ".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANIM = "ANIM".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANMF = "ANMF".getBytes(Charset.defaultCharset());
-    @SuppressWarnings("unused")
-    private static final byte[] WEBP_CHUNK_TYPE_XMP = "XMP ".getBytes(Charset.defaultCharset());
-    @SuppressWarnings("unused")
     private static final int WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH = 10;
     private static final int WEBP_CHUNK_TYPE_BYTE_LENGTH = 4;
     private static final int WEBP_CHUNK_SIZE_BYTE_LENGTH = 4;
@@ -6472,9 +6467,90 @@ public class ExifInterface {
                     }
                 } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)
                         || Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
-                    // TODO: Add support for WebP files with only VP8 or VP8L chunks
-                    throw new IOException("WebP files with only VP8 or VP8L chunks are currently "
-                            + "not supported");
+                    int size = totalInputStream.readInt();
+                    int bytesToRead = size;
+                    // WebP files have a single padding byte at the end if the chunk size is odd.
+                    if (size % 2 == 1) {
+                        bytesToRead += 1;
+                    }
+
+                    // Retrieve image width/height
+                    int widthAndHeight = 0;
+                    int width = 0;
+                    int height = 0;
+                    int alpha = 0;
+                    // Save VP8 frame data for later
+                    byte[] vp8Frame = new byte[3];
+
+                    if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
+                        totalInputStream.read(vp8Frame);
+
+                        // Check signature
+                        byte[] vp8Signature = new byte[3];
+                        if (totalInputStream.read(vp8Signature) != vp8Signature.length
+                                || !Arrays.equals(WEBP_VP8_SIGNATURE, vp8Signature)) {
+                            throw new IOException("Encountered error while checking VP8 "
+                                    + "signature");
+                        }
+
+                        // Retrieve image width/height
+                        widthAndHeight = totalInputStream.readInt();
+                        width = (widthAndHeight << 18) >> 18;
+                        height = (widthAndHeight << 2) >> 18;
+                        bytesToRead -= (vp8Frame.length + vp8Signature.length + 4);
+                    } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
+                        // Check signature
+                        byte vp8lSignature = totalInputStream.readByte();
+                        if (vp8lSignature != WEBP_VP8L_SIGNATURE) {
+                            throw new IOException("Encountered error while checking VP8L "
+                                    + "signature");
+                        }
+
+                        // Retrieve image width/height
+                        widthAndHeight = totalInputStream.readInt();
+                        // VP8L stores width - 1 and height - 1 values. See "2 RIFF Header" of
+                        // "WebP Lossless Bitstream Specification"
+                        width = ((widthAndHeight << 18) >> 18) + 1;
+                        height = ((widthAndHeight << 4) >> 18) + 1;
+                        // Retrieve alpha bit
+                        alpha = widthAndHeight & (1 << 3);
+                        bytesToRead -= (1 /* VP8L signature */ + 4);
+                    }
+
+                    // Create VP8X with Exif flag set to 1
+                    nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
+                    nonHeaderOutputStream.writeInt(WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH);
+                    byte[] data = new byte[WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH];
+                    // EXIF flag
+                    data[0] = (byte) (data[0] | (1 << 3));
+                    // ALPHA flag
+                    data[0] = (byte) (data[0] | (alpha << 4));
+                    // VP8X stores Width - 1 and Height - 1 values
+                    width -= 1;
+                    height -= 1;
+                    data[4] = (byte) width;
+                    data[5] = (byte) (width >> 8);
+                    data[6] = (byte) (width >> 16);
+                    data[7] = (byte) height;
+                    data[8] = (byte) (height >> 8);
+                    data[9] = (byte) (height >> 16);
+                    nonHeaderOutputStream.write(data);
+
+                    // Write VP8 or VP8L data
+                    nonHeaderOutputStream.write(firstChunkType);
+                    nonHeaderOutputStream.writeInt(size);
+                    if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
+                        nonHeaderOutputStream.write(vp8Frame);
+                        nonHeaderOutputStream.write(WEBP_VP8_SIGNATURE);
+                        nonHeaderOutputStream.writeInt(widthAndHeight);
+                    } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
+                        nonHeaderOutputStream.write(WEBP_VP8L_SIGNATURE);
+                        nonHeaderOutputStream.writeInt(widthAndHeight);
+                    }
+                    copy(totalInputStream, nonHeaderOutputStream, bytesToRead);
+
+                    // Write EXIF chunk
+                    writeExifSegment(nonHeaderOutputStream);
                 }
             }
 
