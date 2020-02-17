@@ -17,6 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -75,7 +76,7 @@ fun Box(
     paddingRight: Dp = Dp.Unspecified,
     paddingBottom: Dp = Dp.Unspecified,
     gravity: ContentGravity = ContentGravity.TopLeft,
-    children: @Composable() () -> Unit
+    children: @Composable() () -> Unit = emptyContent()
 ) {
     val borderModifier =
         if (border != null) DrawBorder(border, shape) else Modifier.None
@@ -103,8 +104,8 @@ fun Box(
         var containerWidth = constraints.minWidth
         var containerHeight = constraints.minHeight
         placeables.forEach {
-            containerWidth = max(containerWidth, it.width)
-            containerHeight = max(containerHeight, it.height)
+            containerWidth = max(containerWidth, it.width + totalHorizontal)
+            containerHeight = max(containerHeight, it.height + totalVertical)
         }
 
         layout(containerWidth, containerHeight) {
