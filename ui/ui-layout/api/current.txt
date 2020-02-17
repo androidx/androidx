@@ -178,11 +178,11 @@ package androidx.ui.layout {
     method public float component1();
     method public androidx.ui.layout.LayoutAspectRatio copy(float aspectRatio);
     method public float getAspectRatio();
-    method public androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
   }
 
   public final class LayoutGravity {
@@ -196,9 +196,10 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -212,15 +213,16 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxHeight();
     method public androidx.ui.unit.Dp getMinHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
 
   public static final class LayoutHeight.Fill implements androidx.ui.core.LayoutModifier {
-    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
     field public static final androidx.ui.layout.LayoutHeight.Fill! INSTANCE;
   }
 
@@ -231,9 +233,10 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -245,9 +248,10 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMinHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -264,9 +268,9 @@ package androidx.ui.layout {
     method public androidx.ui.unit.Dp getLeft();
     method public androidx.ui.unit.Dp getRight();
     method public androidx.ui.unit.Dp getTop();
-    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
   }
 
   @kotlin.DslMarker public @interface LayoutScopeMarker {
@@ -282,9 +286,10 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getHeight();
     method public androidx.ui.unit.Dp getWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -303,15 +308,16 @@ package androidx.ui.layout {
     method public androidx.ui.unit.Dp getMaxWidth();
     method public androidx.ui.unit.Dp getMinHeight();
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
 
   public static final class LayoutSize.Fill implements androidx.ui.core.LayoutModifier {
-    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
     field public static final androidx.ui.layout.LayoutSize.Fill! INSTANCE;
   }
 
@@ -325,9 +331,10 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxHeight();
     method public androidx.ui.unit.Dp getMaxWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -342,9 +349,10 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMinHeight();
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -356,9 +364,10 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -372,15 +381,16 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxWidth();
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
 
   public static final class LayoutWidth.Fill implements androidx.ui.core.LayoutModifier {
-    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
     field public static final androidx.ui.layout.LayoutWidth.Fill! INSTANCE;
   }
 
@@ -391,9 +401,10 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
@@ -405,9 +416,10 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }

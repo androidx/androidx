@@ -34,6 +34,7 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
+import androidx.ui.core.ModifierScope
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Placeable.PlacementScope.place
@@ -658,16 +659,17 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
 }
 
 private data class TagModifier(val tag: Any) : LayoutModifier, ParentDataModifier {
-    override fun Density.modifyConstraints(constraints: Constraints) = constraints
-    override fun Density.modifySize(constraints: Constraints, childSize: IntPxSize) = childSize
-    override fun Density.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+    override fun ModifierScope.modifyConstraints(constraints: Constraints) = constraints
+    override fun ModifierScope.modifySize(constraints: Constraints, childSize: IntPxSize) =
+        childSize
+    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
         measurable.minIntrinsicWidth(height)
-    override fun Density.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
         measurable.maxIntrinsicWidth(height)
-    override fun Density.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
         measurable.minIntrinsicHeight(width)
-    override fun Density.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
         measurable.maxIntrinsicHeight(width)
-    override fun Density.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+    override fun ModifierScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
     override fun Density.modifyParentData(parentData: Any?) = this@TagModifier
 }

@@ -20,37 +20,37 @@ import androidx.compose.Stable
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
+import androidx.ui.core.ModifierScope
 import androidx.ui.core.enforce
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.isFinite
 
 private data class SizeModifier(private val modifierConstraints: DpConstraints) : LayoutModifier {
-    override fun Density.modifyConstraints(constraints: Constraints) =
+    override fun ModifierScope.modifyConstraints(constraints: Constraints) =
         Constraints(modifierConstraints).enforce(constraints)
 
-    override fun Density.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.minIntrinsicWidth(height).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minWidth, constraints.maxWidth)
         }
 
-    override fun Density.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.maxIntrinsicWidth(height).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minWidth, constraints.maxWidth)
         }
 
-    override fun Density.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.minIntrinsicHeight(width).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minHeight, constraints.maxHeight)
         }
 
-    override fun Density.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.maxIntrinsicHeight(width).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minHeight, constraints.maxHeight)
@@ -142,7 +142,7 @@ data class LayoutWidth(val width: Dp)
      */
     @Stable
     object Fill : LayoutModifier {
-        override fun Density.modifyConstraints(constraints: Constraints): Constraints =
+        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints =
             if (constraints.hasBoundedWidth) {
                 constraints.copy(minWidth = constraints.maxWidth, maxWidth = constraints.maxWidth)
             } else {
@@ -238,7 +238,7 @@ data class LayoutHeight(val height: Dp)
      */
     @Stable
     object Fill : LayoutModifier {
-        override fun Density.modifyConstraints(constraints: Constraints): Constraints =
+        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints =
             if (constraints.hasBoundedHeight) {
                 constraints.copy(
                     minHeight = constraints.maxHeight,
@@ -384,7 +384,7 @@ data class LayoutSize(val width: Dp, val height: Dp)
      */
     @Stable
     object Fill : LayoutModifier {
-        override fun Density.modifyConstraints(constraints: Constraints): Constraints =
+        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints =
             when {
                 constraints.hasBoundedWidth && constraints.hasBoundedHeight -> constraints.copy(
                     minWidth = constraints.maxWidth,

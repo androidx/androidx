@@ -87,25 +87,25 @@ import androidx.ui.unit.min
             constraints: Constraints
         ) = measureScope.measureBlock(measurables, constraints)
         override fun minIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = density.minIntrinsicWidthMeasureBlock(measurables, h)
+        ) = modifierScope.minIntrinsicWidthMeasureBlock(measurables, h)
         override fun minIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = density.minIntrinsicHeightMeasureBlock(measurables, w)
+        ) = modifierScope.minIntrinsicHeightMeasureBlock(measurables, w)
         override fun maxIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = density.maxIntrinsicWidthMeasureBlock(measurables, h)
+        ) = modifierScope.maxIntrinsicWidthMeasureBlock(measurables, h)
         override fun maxIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = density.maxIntrinsicHeightMeasureBlock(measurables, w)
+        ) = modifierScope.maxIntrinsicHeightMeasureBlock(measurables, w)
     }
     Layout(children, measureBlocks, modifier)
 }
@@ -151,7 +151,12 @@ import androidx.ui.unit.min
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier
 ) {
-    LayoutNode(modifier = modifier, measureBlocks = measureBlocks) {
+    val layoutDirection = LayoutDirectionAmbient.current
+    LayoutNode(
+        modifier = modifier,
+        measureBlocks = measureBlocks,
+        ambientLayoutDirection = layoutDirection
+    ) {
         children()
     }
 }
@@ -252,25 +257,25 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
             constraints: Constraints
         ) = measureScope.measureBlock(measurables, constraints)
         override fun minIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = density.MeasuringMinIntrinsicWidth(measureBlock, measurables, h)
+        ) = modifierScope.MeasuringMinIntrinsicWidth(measureBlock, measurables, h)
         override fun minIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = density.MeasuringMinIntrinsicHeight(measureBlock, measurables, w)
+        ) = modifierScope.MeasuringMinIntrinsicHeight(measureBlock, measurables, w)
         override fun maxIntrinsicWidth(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
-        ) = density.MeasuringMaxIntrinsicWidth(measureBlock, measurables, h)
+        ) = modifierScope.MeasuringMaxIntrinsicWidth(measureBlock, measurables, h)
         override fun maxIntrinsicHeight(
-            density: Density,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
-        ) = density.MeasuringMaxIntrinsicHeight(measureBlock, measurables, w)
+        ) = modifierScope.MeasuringMaxIntrinsicHeight(measureBlock, measurables, w)
 
         override fun toString(): String {
             // this calls simpleIdentityToString on measureBlock because it is typically a lambda,

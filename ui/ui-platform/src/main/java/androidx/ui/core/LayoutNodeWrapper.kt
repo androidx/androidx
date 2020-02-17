@@ -358,6 +358,7 @@ internal class ModifiedLayoutNode(
     }
 
     override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
+        updateLayoutDirection()
         val measureResult = withMeasuredConstraints(constraints) {
             wrapped.measure(layoutNode.measureScope.modifyConstraints(constraints))
         }
@@ -366,18 +367,22 @@ internal class ModifiedLayoutNode(
     }
 
     override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
         layoutNode.measureScope.minIntrinsicWidthOf(wrapped, height)
     }
 
     override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
         layoutNode.measureScope.maxIntrinsicWidthOf(wrapped, height)
     }
 
     override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
         layoutNode.measureScope.minIntrinsicHeightOf(wrapped, width)
     }
 
     override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
         layoutNode.measureScope.maxIntrinsicHeightOf(wrapped, width)
     }
 
@@ -416,6 +421,10 @@ internal class ModifiedLayoutNode(
             paint.strokeWidth = 1f
             paint.style = PaintingStyle.stroke
         }
+    }
+
+    private fun updateLayoutDirection() = with(layoutModifier) {
+        layoutNode.measureScope.layoutDirection = layoutNode.measureScope.modifyLayoutDirection()
     }
 }
 
