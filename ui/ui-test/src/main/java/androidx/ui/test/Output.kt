@@ -16,13 +16,32 @@
 
 package androidx.ui.test
 
-// TODO(b/133217292)
-fun SemanticsNodeInteraction.dumpSemantics(consumer: (String) -> Unit) {
-    val builder = StringBuilder()
-
-    semanticsTreeInteraction.findAllMatching().forEach {
-        builder.appendln(semanticsNode.config.toString())
+/**
+ * Dumps all the semantics nodes information it holds into string.
+ *
+ * Note that this will fetch the latest snapshot of nodes it sees in the hierarchy for the IDs it
+ * collected before. So the output can change over time if the tree changes.
+ */
+fun SemanticsNodeInteraction.dumpToString(): String {
+    val nodes = fetchSemanticsNodes()
+    return if (nodes.isEmpty()) {
+        "There were 0 nodes found!"
+    } else {
+        nodes.toStringInfo()
     }
+}
 
-    consumer.invoke(builder.toString())
+/**
+ * Dumps all the semantics nodes information it holds into string.
+ *
+ * Note that this will fetch the latest snapshot of nodes it sees in the hierarchy for the IDs it
+ * collected before. So the output can change over time if the tree changes.
+ */
+fun Collection<SemanticsNodeInteraction>.dumpToString(): String {
+    val nodes = this.flatMap { it.fetchSemanticsNodes() }
+    return if (nodes.isEmpty()) {
+        "There were 0 nodes found!"
+    } else {
+        nodes.toStringInfo()
+    }
 }

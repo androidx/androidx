@@ -45,7 +45,8 @@ import org.junit.Assert.assertTrue
  */
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
-    return semanticsTreeInteraction.captureNodeToBitmap(semanticsNode)
+    val errorMessageOnFail = "Failed to capture a node to bitmap."
+    return semanticsTreeInteraction.captureNodeToBitmap(fetchSemanticsNode(errorMessageOnFail))
 }
 
 /**

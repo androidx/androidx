@@ -21,7 +21,6 @@ import androidx.ui.core.RepaintBoundaryNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.core.semantics.getOrNull
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
@@ -31,32 +30,29 @@ import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 
 /**
- * Asserts that current component is visible.
+ * Asserts that the current component has hidden property set to true.
+ *
+ * Note that this does not verify parents of the component. For stronger guarantees of visibility
+ * see [assertIsNotDisplayed]. If you want to assert that the component is not even in the hierarchy
+ * use [SemanticsNodeInteraction.assertDoesNotExist].
+ *
+ * Throws [AssertionError] if the component is not hidden.
  */
-// TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
-fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
-    verifyHierarchy({ "The component is not visible!" }) {
-        it.getOrNull(SemanticsProperties.Hidden) != true
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction = verify(isHidden())
 
 /**
- * Asserts that current component is hidden. This requires that the component actually exists in
- * the hierarchy and is hidden. If you want to actually verify that the component does not  exist
- * at all, please use [SemanticsNodeInteraction.assertDoesNotExist]
+ * Asserts that the current component has hidden property set to false.
+ *
+ * Note that this does not verify parents of the component. For stronger guarantees of visibility
+ * see [assertIsDisplayed]. If you only want to assert that the component is in the hierarchy use
+ * [SemanticsNodeInteraction.assertExists]
+ *
+ * Throws [AssertionError] if the component is hidden.
  */
-fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
-    verifyHierarchy({ "The component is visible!" }) {
-        it.getOrNull(SemanticsProperties.Hidden) == true
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsNotHidden(): SemanticsNodeInteraction = verify(isNotHidden())
 
 /**
- * Asserts that the current component is displayed.
- * This function also calls [assertIsVisible] to check if it is visible from a Semantics perspective
- * and afterwards checks if it's bounding rectangle is contained inside the closest layout node.
+ * Asserts that the current component is displayed on screen.
  *
  * Throws [AssertionError] if the component is not displayed.
  */
@@ -72,8 +68,7 @@ fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
 }
 
 /**
- * Asserts that the current component is not displayed.
- * This function checks if it's bounding rectangle is not contained inside the closest layout node.
+ * Asserts that the current component is not displayed on screen.
  *
  * Throws [AssertionError] if the component is displayed.
  */
@@ -164,8 +159,8 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
 fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
     expectedProperties: SemanticsConfiguration
 ): SemanticsNodeInteraction {
-    // TODO: Assert exists gonne
-    semanticsNode.config.assertEquals(expectedProperties)
+    val errorMessageOnFail = "Failed to assert semantics is equal"
+    fetchSemanticsNode(errorMessageOnFail).config.assertEquals(expectedProperties)
     return this
 }
 /**
@@ -185,16 +180,31 @@ fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction 
     verify(hasNoClickAction())
 
 /**
- * Asserts that given a list of components, its size is equal to the passed in size.
+ * Asserts that this collection of nodes is equal to the given [expectedSize].
+ *
+ * Provides a detailed error message on failure.
+ *
+ * @throws AssertionError if the size is not equal to [expectedSize]
  */
-fun List<SemanticsNodeInteraction>.assertCountEquals(
-    count: Int
-): List<SemanticsNodeInteraction> {
-    if (size != count) {
-        // TODO(b/133217292)
-        throw AssertionError("Found $size nodes but exactly $count was expected!")
+// TODO: Rename to assertSizeEquals to be consistent with Collection.size
+fun <T : Collection<SemanticsNodeInteraction>> T.assertCountEquals(expectedSize: Int): T {
+    if (size != expectedSize) {
+        // Quite often all the elements of a collection come from the same selector. So we try to
+        // distinct them hoping we get just one selector to show it to the user on failure.
+        // TODO: If there is more than one selector maybe show selector per node?
+        val selectors = map { it.semanticsTreeInteraction.selector }
+            .distinct()
+        val selector = if (selectors.size == 1) {
+            selectors.first()
+        } else {
+            null
+        }
+        throw AssertionError(buildErrorMessageForCountMismatch(
+            errorMessage = "Failed to assert count of nodes.",
+            selector = selector,
+            foundNodes = map { it.fetchSemanticsNode("") },
+            expectedCount = expectedSize))
     }
-
     return this
 }
 
@@ -205,10 +215,11 @@ fun List<SemanticsNodeInteraction>.assertCountEquals(
 fun SemanticsNodeInteraction.verify(
     predicate: SemanticsPredicate
 ): SemanticsNodeInteraction {
-    assertExists() // TODO: Do we need this here?
-    if (!predicate.condition(semanticsNode.config)) {
-        // TODO(b/133217292)
-        throw AssertionError("Assert failed for: ${predicate.description}")
+    val errorMessageOnFail = "Failed to assert the following: (${predicate.description})"
+    val node = fetchSemanticsNode(errorMessageOnFail)
+    if (!predicate.condition(node.config)) {
+        throw AssertionError(buildErrorMessageForPredicateFail(
+            semanticsTreeInteraction.selector, node, predicate))
     }
     return this
 }
@@ -221,11 +232,12 @@ fun SemanticsNodeInteraction.verifyHierarchy(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
 ) {
-    var node: SemanticsNode? = semanticsNode
+    // TODO(b/133217292)
+    var node: SemanticsNode? = fetchSemanticsNode("Failed to verify hierarchy.")
     while (node != null) {
         if (!condition.invoke(node.config)) {
             // TODO(b/133217292)
-            throw AssertionError("Assert failed: ${assertionMessage(semanticsNode.config)}")
+            throw AssertionError("Assert failed: ${assertionMessage(node.config)}")
         }
         node = node.parent
     }
@@ -233,20 +245,22 @@ fun SemanticsNodeInteraction.verifyHierarchy(
 
 private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible
-    if (semanticsNode.componentNode.findClosestParentNode {
+    val errorMessageOnFail = "Failed to perform isDisplayed check."
+    val node = fetchSemanticsNode(errorMessageOnFail)
+    if (node.componentNode.findClosestParentNode {
             it is LayoutNode && !it.isPlaced
         } != null) {
         return false
     }
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
-    val globalRect = semanticsNode.globalBounds
+    val globalRect = node.globalBounds
     if (!semanticsTreeInteraction.isInScreenBounds(globalRect)) {
         return false
     }
 
     // check if we have clipping via RepaintBoundaryNode
-    val repaintBoundaryNode = semanticsNode.componentNode.findClosestParentNode {
+    val repaintBoundaryNode = node.componentNode.findClosestParentNode {
         it is RepaintBoundaryNode && it.clipToShape
     }
     if (repaintBoundaryNode == null) {

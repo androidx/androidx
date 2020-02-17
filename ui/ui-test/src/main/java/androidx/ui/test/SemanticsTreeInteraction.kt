@@ -49,7 +49,7 @@ internal abstract class SemanticsTreeInteraction(
             .filter { node ->
                 selector.condition(node.config)
             }.map {
-                SemanticsNodeInteraction(it.id, this)
+                SemanticsNodeInteraction(it, this)
             }
     }
 
@@ -58,13 +58,11 @@ internal abstract class SemanticsTreeInteraction(
     }
 
     internal fun findOne(): SemanticsNodeInteraction {
-        val ids = getAllSemanticsNodes()
+        val nodes = getAllSemanticsNodes()
             .filter { node ->
                 selector.condition(node.config)
-            }.map {
-                it.id
             }
-        return SemanticsNodeInteraction(ids, this)
+        return SemanticsNodeInteraction(nodes, this)
     }
 
     internal fun contains(nodeId: Int): Boolean {

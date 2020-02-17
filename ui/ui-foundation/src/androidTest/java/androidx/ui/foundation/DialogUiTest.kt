@@ -20,7 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.ui.core.Text
-import androidx.ui.test.assertIsVisible
+import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
@@ -50,7 +50,7 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsVisible()
+        findByText(defaultText).assertIsDisplayed()
     }
 
     @Test
@@ -76,14 +76,14 @@ class DialogUiTest {
         }
 
         findByText(textBeforeClick)
-            .assertIsVisible()
+            .assertIsDisplayed()
             // Click inside the dialog
             .doClick()
 
         // Check that the Clickable was pressed and that the Dialog is still visible, but with
         // the new text
         findByText(textBeforeClick).assertDoesNotExist()
-        findByText(textAfterClick).assertIsVisible()
+        findByText(textAfterClick).assertIsDisplayed()
     }
 
     @Test
@@ -98,7 +98,7 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsVisible()
+        findByText(defaultText).assertIsDisplayed()
 
         // Click outside the dialog to dismiss it
         val outsideX = 0
@@ -120,7 +120,7 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsVisible()
+        findByText(defaultText).assertIsDisplayed()
 
         // Click outside the dialog to try to dismiss it
         val outsideX = 0
@@ -128,7 +128,7 @@ class DialogUiTest {
         UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
 
         // The Dialog should still be visible
-        findByText(defaultText).assertIsVisible()
+        findByText(defaultText).assertIsDisplayed()
     }
 
     @Test
@@ -143,7 +143,7 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsVisible()
+        findByText(defaultText).assertIsDisplayed()
 
         // Click the back button to dismiss the Dialog
         UiDevice.getInstance(getInstrumentation()).pressBack()
@@ -166,12 +166,12 @@ class DialogUiTest {
             }
         }
 
-        findByText(defaultText).assertIsVisible()
+        findByText(defaultText).assertIsDisplayed()
 
         // Click the back button to try to dismiss the dialog
         UiDevice.getInstance(getInstrumentation()).pressBack()
 
         // The Dialog should still be visible
-        findByText(defaultText).assertIsVisible()
+        findByText(defaultText).assertIsDisplayed()
     }
 }

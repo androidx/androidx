@@ -27,7 +27,7 @@ import androidx.ui.core.globalPosition
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.layout.Container
-import androidx.ui.test.assertIsVisible
+import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
@@ -70,7 +70,7 @@ class AppBarTest {
         composeTestRule.setMaterialContent {
             TopAppBar(title = { Text(title) })
         }
-        findByText(title).assertIsVisible()
+        findByText(title).assertIsDisplayed()
     }
 
     @Test

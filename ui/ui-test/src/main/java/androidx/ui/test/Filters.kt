@@ -166,3 +166,23 @@ fun hasTestTag(testTag: String): SemanticsPredicate =
  */
 fun isInMutuallyExclusiveGroup(): SemanticsPredicate =
     SemanticsPredicate.expectValue(FoundationSemanticsProperties.InMutuallyExclusiveGroup, true)
+
+/**
+ * Returns whether the component is hidden.
+ *
+ * This checks only the property of the component itself. Ignoring parents visibility.
+ *
+ * @see SemanticsProperties.Hidden
+ */
+fun isHidden(): SemanticsPredicate =
+    SemanticsPredicate.expectValue(SemanticsProperties.Hidden, true)
+
+/**
+ * Returns whether the component is not hidden.
+ *
+ * This checks only the property of the component itself. Ignoring parents visibility.
+ *
+ * @see SemanticsProperties.Hidden
+ */
+fun isNotHidden(): SemanticsPredicate =
+    SemanticsPredicate.expectValue(SemanticsProperties.Hidden, false)
