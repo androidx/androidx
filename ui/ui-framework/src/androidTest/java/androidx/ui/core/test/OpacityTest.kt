@@ -19,6 +19,7 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -144,6 +145,36 @@ class OpacityTest {
         drawLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             model.value = 1f
+        }
+
+        takeScreenShot(10).apply {
+            assertRect(color)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun switchFromZeroOpacityToFullWithNestedRepaintBoundaries() {
+        val color = Color.Green
+        var opacity by mutableStateOf(0f)
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = 10.ipx) {
+                    FillColor(Color.White)
+                    Opacity(1f) {
+                        Opacity(opacity = opacity) {
+                            FillColor(color)
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR {
+            opacity = 1f
         }
 
         takeScreenShot(10).apply {
