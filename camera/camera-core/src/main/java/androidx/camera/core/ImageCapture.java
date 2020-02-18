@@ -777,14 +777,40 @@ public final class ImageCapture extends UseCase {
             return;
         }
 
-        if (!takePictureInternal(imageCaptureRequest)) {
+        if (!mTakePictureLock.lockTakePicture(imageCaptureRequest)) {
             // Was not able to successfully take picture. Retry again later when no current
             // picture being taken.
             Log.d(TAG, "Unable to issue take picture. Re-queuing image capture request");
             mPendingImageCaptureRequests.offerFirst(imageCaptureRequest);
+            return;
         }
         Log.d(TAG, "Size of image capture request queue: " + mPendingImageCaptureRequests.size());
 
+        Futures.addCallback(
+                takePictureInternal(imageCaptureRequest),
+                new FutureCallback<ImageProxy>() {
+                    @Override
+                    public void onSuccess(@Nullable ImageProxy image) {
+                        Preconditions.checkNotNull(image);
+                        imageCaptureRequest.dispatchImage(image);
+                        if (!mTakePictureLock.unlockTakePicture(imageCaptureRequest)) {
+                            Log.d(TAG, "Error unlocking after dispatch");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        Log.e(TAG, "takePictureInternal onFailure", throwable);
+                        // To handle the error and issue the next capture request when the
+                        // capture stages have any fail.
+                        imageCaptureRequest.notifyCallbackError(getError(throwable),
+                                (throwable != null) ? throwable.getMessage() : "Unknown error",
+                                throwable);
+                        if (!mTakePictureLock.unlockTakePicture(imageCaptureRequest)) {
+                            Log.d(TAG, "Error unlocking wrong request");
+                        }
+                    }
+                }, CameraXExecutors.mainThreadExecutor());
     }
 
     /**
@@ -799,57 +825,45 @@ public final class ImageCapture extends UseCase {
      *
      * <p>(3) Post-take picture, which will cancel af/ae scan or close torch if necessary.
      */
-    private boolean takePictureInternal(@NonNull ImageCaptureRequest imageCaptureRequest) {
-        if (!mTakePictureLock.lockTakePicture(imageCaptureRequest)) {
-            // A ImageCaptureRequest in progress. Need to wait until current request completed
-            // before issuing another one.
-            return false;
-        }
+    private ListenableFuture<ImageProxy> takePictureInternal(
+            @NonNull ImageCaptureRequest imageCaptureRequest) {
+        return CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mImageReader.setOnImageAvailableListener(
+                            (imageReader) -> {
+                                ImageProxy image = mTakePictureLock.tryAcquireImage(imageReader,
+                                        imageCaptureRequest);
 
-        mImageReader.setOnImageAvailableListener(
-                (imageReader) -> {
-                    ImageProxy image = mTakePictureLock.tryAcquireImage(imageReader,
-                            imageCaptureRequest);
-                    if (image != null) {
-                        imageCaptureRequest.dispatchImage(image);
-                    }
-                    if (!mTakePictureLock.unlockTakePicture(imageCaptureRequest)) {
-                        Log.d(TAG, "Error unlocking after dispatch");
-                    }
-                },
-                CameraXExecutors.mainThreadExecutor());
+                                if (image != null) {
+                                    completer.set(image);
+                                } else {
+                                    completer.setException(new IllegalStateException(
+                                            "Unable to acquire image"));
+                                }
+                            },
+                            CameraXExecutors.mainThreadExecutor());
 
-        final TakePictureState state = new TakePictureState();
+                    TakePictureState state = new TakePictureState();
+                    ListenableFuture<Void> future = FutureChain.from(preTakePicture(state))
+                            .transformAsync(v -> issueTakePicture(imageCaptureRequest), mExecutor);
 
-        FutureChain.from(preTakePicture(state))
-                .transformAsync(v -> issueTakePicture(imageCaptureRequest), mExecutor)
-                .addCallback(
-                        new FutureCallback<Void>() {
-                            @Override
-                            public void onSuccess(Void result) {
-                                postTakePicture(state);
-                            }
+                    Futures.addCallback(future,
+                            new FutureCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    postTakePicture(state);
+                                }
 
-                            @Override
-                            public void onFailure(Throwable throwable) {
-                                Log.e(TAG, "takePictureInternal onFailure", throwable);
-                                postTakePicture(state);
+                                @Override
+                                public void onFailure(Throwable throwable) {
+                                    postTakePicture(state);
 
-                                // To handle the error and issue the next capture request
-                                // when the capture stages have any fail.
-                                CameraXExecutors.mainThreadExecutor().execute(() -> {
-                                    imageCaptureRequest.notifyCallbackError(getError(throwable),
-                                            (throwable != null) ? throwable.getMessage()
-                                                    : "Unknown error", throwable);
-                                    if (!mTakePictureLock.unlockTakePicture(imageCaptureRequest)) {
-                                        Log.d(TAG, "Error unlocking wrong request");
-                                    }
-                                });
-                            }
-                        },
-                        mExecutor);
-
-        return true;
+                                    completer.setException(throwable);
+                                }
+                            },
+                            mExecutor);
+                    return "takePictureInternal";
+                });
     }
 
     /**
@@ -990,23 +1004,6 @@ public final class ImageCapture extends UseCase {
 
         return suggestedResolution;
     }
-
-    final OnImageCloseListener mOnImageCloseListener = new OnImageCloseListener() {
-        /**
-         * {@inheritDoc}
-         *
-         * <p>Issues next image capture request when dispatched image is closed, which can ensure
-         * the image buffer in ImageReader is always available.
-         */
-        @Override
-        public void onImageClose(ImageProxy image) {
-            if (Looper.getMainLooper() != Looper.myLooper()) {
-                CameraXExecutors.mainThreadExecutor().execute(() -> onImageClose(image));
-                return;
-            }
-            issueImageCaptureRequests();
-        }
-    };
 
     /**
      * Routine before taking picture.
