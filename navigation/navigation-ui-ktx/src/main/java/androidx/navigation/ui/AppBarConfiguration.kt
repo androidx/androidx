@@ -19,7 +19,7 @@
 package androidx.navigation.ui
 
 import android.view.Menu
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.customview.widget.Openable
 import androidx.navigation.NavGraph
 
 /**
@@ -31,7 +31,7 @@ import androidx.navigation.NavGraph
  * @param navGraph The [NavGraph] whose start destination should be considered the only
  *                 top level destination. The Up button will not be displayed when on the
  *                 start destination of the graph.
- * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
+ * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
@@ -40,10 +40,10 @@ import androidx.navigation.NavGraph
 @Suppress("FunctionName") /* Acts like a constructor */
 inline fun AppBarConfiguration(
     navGraph: NavGraph,
-    drawerLayout: DrawerLayout? = null,
+    drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
 ) = AppBarConfiguration.Builder(navGraph)
-    .setDrawerLayout(drawerLayout)
+    .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
 
@@ -56,7 +56,7 @@ inline fun AppBarConfiguration(
  * @param topLevelMenu A Menu containing MenuItems corresponding with the destinations
  *                     considered at the top level of your information hierarchy.
  *                     The Up button will not be displayed when on these destinations.
- * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
+ * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
@@ -65,10 +65,10 @@ inline fun AppBarConfiguration(
 @Suppress("FunctionName") /* Acts like a constructor */
 inline fun AppBarConfiguration(
     topLevelMenu: Menu,
-    drawerLayout: DrawerLayout? = null,
+    drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
 ) = AppBarConfiguration.Builder(topLevelMenu)
-    .setDrawerLayout(drawerLayout)
+    .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
 
@@ -81,7 +81,7 @@ inline fun AppBarConfiguration(
  * @param topLevelDestinationIds The set of destinations by id considered at the top level
  *                               of your information hierarchy. The Up button will not be
  *                               displayed when on these destinations.
- * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
+ * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
@@ -90,9 +90,9 @@ inline fun AppBarConfiguration(
 @Suppress("FunctionName") /* Acts like a constructor */
 inline fun AppBarConfiguration(
     topLevelDestinationIds: Set<Int>,
-    drawerLayout: DrawerLayout? = null,
+    drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
 ) = AppBarConfiguration.Builder(topLevelDestinationIds)
-    .setDrawerLayout(drawerLayout)
+    .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()

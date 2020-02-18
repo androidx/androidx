@@ -34,6 +34,8 @@ android {
 
 dependencies {
     api(project(":navigation:navigation-runtime"))
+    api(project(":customview:customview"))
+    api(project(":drawerlayout:drawerlayout"))
     api(MATERIAL)
     implementation('androidx.transition:transition:1.3.0')
 
