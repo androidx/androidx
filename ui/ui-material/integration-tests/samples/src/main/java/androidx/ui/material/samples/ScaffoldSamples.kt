@@ -23,23 +23,24 @@ import androidx.compose.remember
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Text
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Icon
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
-import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.material.AppBarIcon
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.DrawerState
 import androidx.ui.material.FloatingActionButton
+import androidx.ui.material.IconButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
 import androidx.ui.material.ScaffoldState
 import androidx.ui.material.TopAppBar
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Menu
 import androidx.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -54,7 +55,7 @@ private val colors = listOf(
 
 @Sampled
 @Composable
-fun SimpleScaffoldWithTopBar(navigationImage: Image) {
+fun SimpleScaffoldWithTopBar() {
     val scaffoldState = remember { ScaffoldState() }
     Scaffold(
         scaffoldState = scaffoldState,
@@ -63,9 +64,11 @@ fun SimpleScaffoldWithTopBar(navigationImage: Image) {
             TopAppBar(
                 title = { Text("Simple Scaffold Screen") },
                 navigationIcon = {
-                    AppBarIcon(ImagePainter(navigationImage), onClick = {
+                    IconButton(onClick = {
                         scaffoldState.drawerState = DrawerState.Opened
-                    })
+                    }) {
+                        Icon(Icons.Filled.Menu)
+                    }
                 }
             )
         },
@@ -89,7 +92,7 @@ fun SimpleScaffoldWithTopBar(navigationImage: Image) {
 
 @Sampled
 @Composable
-fun ScaffoldWithBottomBarAndCutout(navigationImage: Image) {
+fun ScaffoldWithBottomBarAndCutout() {
     val scaffoldState = remember { ScaffoldState() }
 
     // Consider negative values to mean 'cut corner' and positive values to mean 'round corner'
@@ -125,8 +128,10 @@ fun ScaffoldWithBottomBarAndCutout(navigationImage: Image) {
         topAppBar = { TopAppBar(title = { Text("Scaffold with bottom cutout") }) },
         bottomAppBar = { fabConfiguration ->
             BottomAppBar(fabConfiguration = fabConfiguration, cutoutShape = fabShape) {
-                AppBarIcon(ImagePainter(navigationImage)) {
+                IconButton(onClick = {
                     scaffoldState.drawerState = DrawerState.Opened
+                }) {
+                    Icon(Icons.Filled.Menu)
                 }
             }
         },

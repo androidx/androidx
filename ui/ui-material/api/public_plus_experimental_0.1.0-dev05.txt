@@ -12,7 +12,6 @@ package androidx.ui.material {
   }
 
   public final class AppBarKt {
-    method public static void AppBarIcon(androidx.ui.graphics.painter.Painter icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method public static void BottomAppBar(androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, androidx.ui.graphics.Shape? cutoutShape = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
     method public static void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> actions = {}, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.AppBarKt.TopAppBarElevation);
     method public static void TopAppBar(androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.AppBarKt.TopAppBarElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
@@ -160,6 +159,11 @@ package androidx.ui.material {
     method public static void FloatingActionButton(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.unit.Dp minSize = androidx.ui.material.FloatingActionButtonKt.FabSize, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void FloatingActionButton(androidx.ui.graphics.Image icon, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
     method public static void FloatingActionButton(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Image? icon = null, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
+  }
+
+  public final class IconButtonKt {
+    method public static void IconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void IconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ListItemKt {

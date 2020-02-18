@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,17 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.layout.Column
-import androidx.ui.layout.Spacer
-import androidx.ui.material.samples.SimpleBottomAppBar
-import androidx.ui.material.samples.SimpleTopAppBar
+import androidx.ui.layout.Row
+import androidx.ui.material.samples.IconButtonSample
+import androidx.ui.material.samples.IconToggleButtonSample
 
-class AppBarActivity : MaterialDemoActivity() {
+class IconButtonActivity : MaterialDemoActivity() {
+
     @Composable
     override fun materialContent() {
-        Column {
-            SimpleTopAppBar()
-            Spacer(LayoutFlexible(1f))
-            SimpleBottomAppBar()
+        Row {
+            IconButtonSample()
+            IconToggleButtonSample()
         }
     }
 }
