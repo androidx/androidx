@@ -16,17 +16,17 @@
 
 package androidx.navigation.ui
 
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.customview.widget.Openable
 import androidx.navigation.NavController
 
 /**
  * Handles the Up button by delegating its behavior to the given [NavController].
  *
- * This is equivalent to calling [NavController.navigateUp] if the [DrawerLayout] is null.
+ * This is equivalent to calling [NavController.navigateUp] if the [Openable] layout is null.
  *
  * @return True if the [NavController] was able to navigate up.
  */
-fun NavController.navigateUp(drawerLayout: DrawerLayout?): Boolean =
+fun NavController.navigateUp(drawerLayout: Openable?): Boolean =
         NavigationUI.navigateUp(this,
                 AppBarConfiguration(graph, drawerLayout))
 
