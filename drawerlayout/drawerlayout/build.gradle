@@ -11,7 +11,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.2.0-alpha03")
+    api("androidx.core:core:1.2.0")
     api("androidx.customview:customview:1.1.0-alpha01")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
