@@ -278,8 +278,7 @@ public class ImageSaverTest {
         mSemaphore.acquire();
 
         // Assert.
-        verify(mMockCallback).onError(eq(SaveError.FILE_IO_FAILED), eq("Failed to insert URI."),
-                eq(null));
+        verify(mMockCallback).onError(eq(SaveError.FILE_IO_FAILED), any(), any());
     }
 
     @Test
