@@ -25,7 +25,7 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
-import androidx.compose.currentComposerIntrinsic
+import androidx.compose.currentComposer
 import java.util.WeakHashMap
 
 private val VectorCompositions = WeakHashMap<VectorComponent, VectorComposition>()
@@ -54,7 +54,7 @@ class VectorComposition(
         content: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
     ) {
         super.compose {
-            val composer = currentComposerIntrinsic as VectorComposer
+            val composer = currentComposer as VectorComposer
             val scope = VectorScope(composer)
             scope.content(container.viewportWidth, container.viewportHeight)
         }
