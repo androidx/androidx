@@ -41,6 +41,7 @@ import java.lang.reflect.Field;
 @DoNotInstrument
 @Config(
         minSdk = Build.VERSION_CODES.LOLLIPOP,
+        maxSdk = Build.VERSION_CODES.P, //TODO (b/149669465) : Some robolectric tests will fail on Q
         manifest = Config.NONE,
         shadows = {
                 ExtensionVersionTest.ShadowExtenderVersioningImpl.class,
