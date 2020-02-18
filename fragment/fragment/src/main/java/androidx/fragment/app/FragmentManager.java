@@ -1090,7 +1090,8 @@ public abstract class FragmentManager {
         }
     }
 
-    void performPendingDeferredStart(@NonNull Fragment f) {
+    void performPendingDeferredStart(@NonNull FragmentStateManager fragmentStateManager) {
+        Fragment f = fragmentStateManager.getFragment();
         if (f.mDeferStart) {
             if (mExecutingActions) {
                 // Wait until we're done executing our pending transactions
@@ -1098,7 +1099,7 @@ public abstract class FragmentManager {
                 return;
             }
             f.mDeferStart = false;
-            moveToState(f, mCurState);
+            moveToState(f);
         }
     }
 
@@ -1454,8 +1455,10 @@ public abstract class FragmentManager {
 
         // Now iterate through all active fragments. These will include those that are removed
         // and detached.
-        for (Fragment f : mFragmentStore.getActiveFragments()) {
-            if (f != null && !f.mIsNewlyAdded) {
+        for (FragmentStateManager fragmentStateManager :
+                mFragmentStore.getActiveFragmentStateManagers()) {
+            Fragment f = fragmentStateManager.getFragment();
+            if (!f.mIsNewlyAdded) {
                 moveFragmentToExpectedState(f);
             }
         }
@@ -1469,10 +1472,9 @@ public abstract class FragmentManager {
     }
 
     private void startPendingDeferredFragments() {
-        for (Fragment f : mFragmentStore.getActiveFragments()) {
-            if (f != null) {
-                performPendingDeferredStart(f);
-            }
+        for (FragmentStateManager fragmentStateManager :
+                mFragmentStore.getActiveFragmentStateManagers()) {
+            performPendingDeferredStart(fragmentStateManager);
         }
     }
 
