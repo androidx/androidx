@@ -30,7 +30,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findAllByText
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
-import androidx.ui.test.verify
+import androidx.ui.test.assert
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -379,7 +379,7 @@ class SemanticsTests {
 }
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
-    verify(SemanticsPredicate.keyNotDefined(property))
+    assert(SemanticsPredicate.keyNotDefined(property))
 }
 
 /**
