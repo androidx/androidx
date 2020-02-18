@@ -113,9 +113,7 @@ public final class FragmentContainerView extends FrameLayout {
      * {@link UnsupportedOperationException}.
      */
     public FragmentContainerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        throw new UnsupportedOperationException("FragmentContainerView must be within a "
-                + "FragmentActivity to be instantiated from XML.");
+        this(context, attrs, 0);
     }
 
     /**
@@ -127,8 +125,10 @@ public final class FragmentContainerView extends FrameLayout {
             @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        throw new UnsupportedOperationException("FragmentContainerView must be within a "
-                + "FragmentActivity to be instantiated from XML.");
+        if (!isInEditMode()) {
+            throw new UnsupportedOperationException("FragmentContainerView must be within a "
+                    + "FragmentActivity to be instantiated from XML.");
+        }
     }
 
     FragmentContainerView(
