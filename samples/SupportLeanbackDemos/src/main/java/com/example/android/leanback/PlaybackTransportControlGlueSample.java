@@ -20,7 +20,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -202,7 +201,7 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
         return (ArrayObjectAdapter) getControlsRow().getSecondaryActionsAdapter();
     }
 
-    Handler mHandler = new Handler(Looper.getMainLooper());
+    Handler mHandler = new Handler();
 
     @Override
     protected void onPlayCompleted() {

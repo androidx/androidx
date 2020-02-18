@@ -17,7 +17,6 @@ package com.example.android.supportv7.view;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
@@ -146,7 +145,7 @@ public class CardViewActivity extends AppCompatActivity {
             }
         });
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 View content = findViewById(android.R.id.content);

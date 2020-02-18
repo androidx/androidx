@@ -3125,7 +3125,6 @@ public final class MediaRouter {
             public static final int MSG_PROVIDER_CHANGED = MSG_TYPE_PROVIDER | 3;
 
             CallbackHandler() {
-                super(Looper.getMainLooper());
             }
 
             public void post(int msg, Object obj) {

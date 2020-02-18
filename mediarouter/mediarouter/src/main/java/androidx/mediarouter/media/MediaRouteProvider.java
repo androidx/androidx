@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.GuardedBy;
@@ -830,7 +829,6 @@ public abstract class MediaRouteProvider {
 
     private final class ProviderHandler extends Handler {
         ProviderHandler() {
-            super(Looper.getMainLooper());
         }
 
         @Override

@@ -22,7 +22,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -190,7 +189,7 @@ public class BackgroundHelper {
 
     // Allocate a dedicated handler because there may be no view available
     // when setBackground is invoked.
-    static Handler sHandler = new Handler(Looper.getMainLooper());
+    static Handler sHandler = new Handler();
 
     void createBackgroundManagerIfNeeded() {
         if (mBackgroundManager == null) {

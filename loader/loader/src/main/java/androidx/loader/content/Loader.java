@@ -19,7 +19,6 @@ package androidx.loader.content;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -56,7 +55,7 @@ public class Loader<D> {
      */
     public final class ForceLoadContentObserver extends ContentObserver {
         public ForceLoadContentObserver() {
-            super(new Handler(Looper.getMainLooper()));
+            super(new Handler());
         }
 
         @Override

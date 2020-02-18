@@ -18,7 +18,6 @@ package androidx.leanback.media;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -97,10 +96,6 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
     boolean mSeekEnabled;
 
     static class UpdatePlaybackStateHandler extends Handler {
-        UpdatePlaybackStateHandler() {
-            super(Looper.getMainLooper());
-        }
-
         @Override
         @SuppressWarnings("unchecked")
         public void handleMessage(Message msg) {

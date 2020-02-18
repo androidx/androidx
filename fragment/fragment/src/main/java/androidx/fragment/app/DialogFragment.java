@@ -379,7 +379,8 @@ public class DialogFragment extends Fragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mHandler = new Handler(Looper.getMainLooper());
+        // This assumes that onCreate() is being called on the main thread
+        mHandler = new Handler();
 
         mShowsDialog = mContainerId == 0;
 

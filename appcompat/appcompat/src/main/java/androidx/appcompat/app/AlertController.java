@@ -25,7 +25,6 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -155,7 +154,6 @@ class AlertController {
         private WeakReference<DialogInterface> mDialog;
 
         public ButtonHandler(DialogInterface dialog) {
-            super(Looper.getMainLooper());
             mDialog = new WeakReference<>(dialog);
         }
 

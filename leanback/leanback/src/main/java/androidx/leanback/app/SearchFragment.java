@@ -19,12 +19,10 @@ package androidx.leanback.app;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
@@ -33,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.CompletionInfo;
 
+import android.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.leanback.widget.ObjectAdapter;
@@ -136,7 +135,7 @@ public class SearchFragment extends Fragment {
         }
     };
 
-    final Handler mHandler = new Handler(Looper.getMainLooper());
+    final Handler mHandler = new Handler();
 
     final Runnable mResultsChangedCallback = new Runnable() {
         @Override

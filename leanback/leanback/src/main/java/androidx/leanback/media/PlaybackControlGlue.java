@@ -19,13 +19,11 @@ package androidx.leanback.media;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
@@ -194,10 +192,6 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     private boolean mFadeWhenPlaying = true;
 
     static class UpdatePlaybackStateHandler extends Handler {
-        UpdatePlaybackStateHandler(@NonNull Looper looper) {
-            super(looper);
-        }
-
         @Override
         @SuppressWarnings("unchecked")
         public void handleMessage(Message msg) {
@@ -210,7 +204,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         }
     }
 
-    static final Handler sHandler = new UpdatePlaybackStateHandler(Looper.getMainLooper());
+    static final Handler sHandler = new UpdatePlaybackStateHandler();
 
     final WeakReference<PlaybackControlGlue> mGlueWeakReference =  new WeakReference<>(this);
 

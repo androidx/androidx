@@ -18,7 +18,6 @@ package com.example.android.supportv4.widget;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -77,7 +76,7 @@ abstract class BaseSwipeRefreshLayoutActivity extends FragmentActivity
 
     private SwipeRefreshLayout mSwipeRefreshWidget;
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler();
     private MyViewModel mViewModel;
 
     public static class MyViewModel extends ViewModel {

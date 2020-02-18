@@ -17,7 +17,6 @@
 package com.example.android.leanback;
 
 import android.os.Handler;
-import android.os.Looper;
 
 class PlayerAdapter extends
         androidx.leanback.media.PlayerAdapter {
@@ -27,7 +26,7 @@ class PlayerAdapter extends
     private boolean mIsPlaying;
     private long mStartTime;
     private long mStartPosition = 0;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private Handler mHandler = new Handler();
     private final Runnable mUpdateProgressRunnable = new Runnable() {
         @Override
         public void run() {

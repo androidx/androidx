@@ -27,7 +27,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -173,13 +172,13 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setSelectedPosition(7, false);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     getVerticalGridView().requestLayout();
                 }
             }, 100);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     ListRowPresenter lrp = new ListRowPresenter();
@@ -210,13 +209,13 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
             final ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
             setAdapter(adapter);
             setSelectedPosition(7, false);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     getVerticalGridView().requestLayout();
                 }
             }, 100);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     loadData(adapter, 10, 1);
@@ -244,7 +243,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
             final ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
             setAdapter(adapter);
             loadData(adapter, 10, 1);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     setSelectedPosition(7, false);
@@ -432,7 +431,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 adapter.add(new ListRow(header, listRowAdapter));
             }
             setAdapter(adapter);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     StableIdAdapter rowAdapter = (StableIdAdapter)
@@ -482,7 +481,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 adapter.add(new ListRow(header, listRowAdapter));
             }
             setAdapter(adapter);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     StableIdAdapter rowAdapter = (StableIdAdapter)
@@ -490,7 +489,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
                     rowAdapter.notifyItemRangeChanged(0, 3);
                 }
             }, 500);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     startEntranceTransition();
@@ -613,7 +612,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
             if (savedInstanceState == null) {
                 prepareEntranceTransition();
             }
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     setAdapter(createListRowsAdapter());
@@ -1038,7 +1037,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
     public static class SampleRowsSupportFragment extends RowsSupportFragment {
         public SampleRowsSupportFragment() {
             // simulates late data loading:
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     setAdapter(createListRowsAdapter());
@@ -1173,7 +1172,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
             if (savedInstanceState == null) {
                 prepareEntranceTransition();
             }
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     setAdapter(create3ListRow2PageRowAdapter());
@@ -1196,7 +1195,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
             if (savedInstanceState == null) {
                 prepareEntranceTransition();
             }
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     setAdapter(create2PageRow3ListRow());
