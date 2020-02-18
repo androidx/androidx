@@ -27,6 +27,12 @@ ContextFirst: androidx.appcompat.app.AppCompatDelegate#createView(android.view.V
     Context is distinct, so it must be the first argument (method `createView`)
 
 
+ExecutorRegistration: androidx.appcompat.app.AppCompatDelegate#create(android.content.Context, android.app.Activity, androidx.appcompat.app.AppCompatCallback):
+    Registration methods should have overload that accepts delivery Executor: `create`
+ExecutorRegistration: androidx.appcompat.app.AppCompatDelegate#startSupportActionMode(androidx.appcompat.view.ActionMode.Callback):
+    Registration methods should have overload that accepts delivery Executor: `startSupportActionMode`
+
+
 ForbiddenSuperClass: androidx.appcompat.app.AppCompatActivity:
     AppCompatActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 

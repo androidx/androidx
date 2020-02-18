@@ -53,6 +53,42 @@ ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_STATUS_CODE:
     Inconsistent extra value; expected `androidx.mediarouter.media.extra.HTTP_STATUS_CODE`, was `android.media.status.extra.HTTP_STATUS_CODE`
 
 
+ExecutorRegistration: androidx.mediarouter.media.MediaRouteProvider#setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback):
+    Registration methods should have overload that accepts delivery Executor: `setCallback`
+ExecutorRegistration: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):
+    Registration methods should have overload that accepts delivery Executor: `addCallback`
+ExecutorRegistration: androidx.mediarouter.media.MediaRouter#setOnPrepareTransferListener(androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPrepareTransferListener`
+ExecutorRegistration: androidx.mediarouter.media.MediaRouter.RouteInfo#sendControlRequest(android.content.Intent, androidx.mediarouter.media.MediaRouter.ControlRequestCallback):
+    Registration methods should have overload that accepts delivery Executor: `sendControlRequest`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#endSession(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `endSession`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#enqueue(android.net.Uri, String, android.os.Bundle, long, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `enqueue`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#getSessionStatus(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `getSessionStatus`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#getStatus(String, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `getStatus`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#pause(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `pause`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#play(android.net.Uri, String, android.os.Bundle, long, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `play`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#resume(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `resume`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#seek(String, long, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `seek`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#sendMessage(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `sendMessage`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#setOnMessageReceivedListener(androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnMessageReceivedListener`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#setStatusCallback(androidx.mediarouter.media.RemotePlaybackClient.StatusCallback):
+    Registration methods should have overload that accepts delivery Executor: `setStatusCallback`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#startSession(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `startSession`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#stop(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `stop`
+
+
 InterfaceConstant: androidx.mediarouter.media.MediaRouteProviderService#SERVICE_INTERFACE:
     Inconsistent interface constant; expected 'androidx.mediarouter.media.MediaRouteProviderService'`
 
