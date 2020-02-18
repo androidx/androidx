@@ -22,7 +22,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
-import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.InputDispatcher
 import androidx.ui.test.SemanticsPredicate
@@ -44,25 +43,6 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 ) : SemanticsTreeInteraction(selector) {
 
     private val handler = Handler(Looper.getMainLooper())
-
-    override fun performAction(action: (SemanticsTreeProvider) -> Unit) {
-        val collectedInfo = SynchronizedTreeCollector.collectSemanticsProviders()
-
-        handler.post(object : Runnable {
-            override fun run() {
-                collectedInfo.treeProviders.forEach {
-                    action.invoke(it)
-                }
-            }
-        })
-
-        // Since we have our idling resource registered into Espresso we can leave from here
-        // before synchronizing. It can however happen that if a developer needs to perform assert
-        // on some variable change (e.g. click set the right value) they will fail unless they run
-        // that assert as part of composeTestRule.runOnIdleCompose { }. Obviously any shared
-        // variable should not be asserted from other thread but if we would waitForIdle here we
-        // would mask lots of these issues.
-    }
 
     override fun sendInput(action: (InputDispatcher) -> Unit) {
         action(AndroidInputDispatcher(SynchronizedTreeCollector.collectSemanticsProviders()))
