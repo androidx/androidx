@@ -155,7 +155,7 @@ class DrawBackgroundTest {
 
     @Composable
     private fun OuterJunk(children: @Composable Density.() -> Unit) {
-        Align(Alignment.TopLeft) {
+        Align(Alignment.TopStart) {
             TestTag(contentTag) {
                 Semantics(container = true) {
                     DensityAmbient.current.children()

@@ -320,7 +320,7 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
 
     // Fill up the entire TabRow with this container, and place children at the left so we can use
     // Padding to set the 'offset'
-    Container(expanded = true, alignment = Alignment.BottomLeft) {
+    Container(expanded = true, alignment = Alignment.BottomStart) {
         Transition(transitionDefinition, selectedIndex) { state ->
             val density = DensityAmbient.current
             val offset = with(density) { state[indicatorStart].toDp() }

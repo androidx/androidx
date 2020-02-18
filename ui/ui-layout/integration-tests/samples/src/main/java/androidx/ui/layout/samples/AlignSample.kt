@@ -35,7 +35,7 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun SimpleAlign() {
-    Align(Alignment.BottomRight) {
+    Align(Alignment.BottomEnd) {
         Box(LayoutSize(20.dp, 20.dp), backgroundColor = Color.Blue)
     }
 }

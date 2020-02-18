@@ -59,7 +59,7 @@ class AlignTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.BottomRight) {
+            Align(alignment = Alignment.BottomEnd) {
                 SaveLayoutInfo(
                     size = alignSize,
                     position = alignPosition,
@@ -196,7 +196,7 @@ class AlignTest : LayoutTest() {
         show {
             Layout(
                 children = {
-                    Align(alignment = Alignment.BottomRight) {
+                    Align(alignment = Alignment.BottomEnd) {
                         SaveLayoutInfo(
                             size = alignSize,
                             position = alignPosition,
@@ -335,36 +335,36 @@ class AlignTest : LayoutTest() {
     @Test
     fun testAlignmentCoordinates_evenSize() {
         val size = IntPxSize(2.ipx, 2.ipx)
-        assertEquals(IntPxPosition(0.ipx, 0.ipx), Alignment.TopLeft.align(size))
+        assertEquals(IntPxPosition(0.ipx, 0.ipx), Alignment.TopStart.align(size))
         assertEquals(IntPxPosition(1.ipx, 0.ipx), Alignment.TopCenter.align(size))
-        assertEquals(IntPxPosition(2.ipx, 0.ipx), Alignment.TopRight.align(size))
-        assertEquals(IntPxPosition(0.ipx, 1.ipx), Alignment.CenterLeft.align(size))
+        assertEquals(IntPxPosition(2.ipx, 0.ipx), Alignment.TopEnd.align(size))
+        assertEquals(IntPxPosition(0.ipx, 1.ipx), Alignment.CenterStart.align(size))
         assertEquals(IntPxPosition(1.ipx, 1.ipx), Alignment.Center.align(size))
-        assertEquals(IntPxPosition(2.ipx, 1.ipx), Alignment.CenterRight.align(size))
-        assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.BottomLeft.align(size))
+        assertEquals(IntPxPosition(2.ipx, 1.ipx), Alignment.CenterEnd.align(size))
+        assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.BottomStart.align(size))
         assertEquals(IntPxPosition(1.ipx, 2.ipx), Alignment.BottomCenter.align(size))
-        assertEquals(IntPxPosition(2.ipx, 2.ipx), Alignment.BottomRight.align(size))
+        assertEquals(IntPxPosition(2.ipx, 2.ipx), Alignment.BottomEnd.align(size))
     }
 
     // TODO(popam): this should be unit test instead
     @Test
     fun testAlignmentCoordinates_oddSize() {
         val size = IntPxSize(3.ipx, 3.ipx)
-        assertEquals(IntPxPosition(0.ipx, 0.ipx), Alignment.TopLeft.align(size))
+        assertEquals(IntPxPosition(0.ipx, 0.ipx), Alignment.TopStart.align(size))
         assertEquals(IntPxPosition(2.ipx, 0.ipx), Alignment.TopCenter.align(size))
-        assertEquals(IntPxPosition(3.ipx, 0.ipx), Alignment.TopRight.align(size))
-        assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.CenterLeft.align(size))
+        assertEquals(IntPxPosition(3.ipx, 0.ipx), Alignment.TopEnd.align(size))
+        assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.CenterStart.align(size))
         assertEquals(IntPxPosition(2.ipx, 2.ipx), Alignment.Center.align(size))
-        assertEquals(IntPxPosition(3.ipx, 2.ipx), Alignment.CenterRight.align(size))
-        assertEquals(IntPxPosition(0.ipx, 3.ipx), Alignment.BottomLeft.align(size))
+        assertEquals(IntPxPosition(3.ipx, 2.ipx), Alignment.CenterEnd.align(size))
+        assertEquals(IntPxPosition(0.ipx, 3.ipx), Alignment.BottomStart.align(size))
         assertEquals(IntPxPosition(2.ipx, 3.ipx), Alignment.BottomCenter.align(size))
-        assertEquals(IntPxPosition(3.ipx, 3.ipx), Alignment.BottomRight.align(size))
+        assertEquals(IntPxPosition(3.ipx, 3.ipx), Alignment.BottomEnd.align(size))
     }
 
     @Test
     fun testAlign_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Container(LayoutAspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -441,7 +441,7 @@ class AlignTest : LayoutTest() {
     @Test
     fun testAlign_hasCorrectIntrinsicMeasurements_whenNoChildren() = with(density) {
         testIntrinsics(@Composable {
-            Align(alignment = Alignment.TopLeft) { }
+            Align(alignment = Alignment.TopStart) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
             assertEquals(0.dp.toIntPx(), minIntrinsicWidth(25.dp.toIntPx()))
@@ -475,7 +475,7 @@ class AlignTest : LayoutTest() {
             Layout(
                 children = {
                     Container(width = parentSize, height = parentSize) {
-                        Align(alignment = Alignment.BottomRight) {
+                        Align(alignment = Alignment.BottomEnd) {
                             SaveLayoutInfo(
                                 size = alignSize,
                                 position = alignPosition,

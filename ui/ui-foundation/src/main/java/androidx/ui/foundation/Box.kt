@@ -74,7 +74,7 @@ fun Box(
     paddingTop: Dp = Dp.Unspecified,
     paddingRight: Dp = Dp.Unspecified,
     paddingBottom: Dp = Dp.Unspecified,
-    gravity: ContentGravity = ContentGravity.TopLeft,
+    gravity: ContentGravity = ContentGravity.TopStart,
     children: @Composable() () -> Unit = emptyContent()
 ) {
     val borderModifier =

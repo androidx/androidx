@@ -59,7 +59,7 @@ import androidx.ui.unit.toPxSize
  */
 @Composable
 fun Popup(
-    alignment: Alignment = Alignment.TopLeft,
+    alignment: Alignment = Alignment.TopStart,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
     popupProperties: PopupProperties = PopupProperties(),
     children: @Composable() () -> Unit

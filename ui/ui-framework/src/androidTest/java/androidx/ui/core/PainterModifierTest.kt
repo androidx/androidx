@@ -207,7 +207,7 @@ class PainterModifierTest {
                         containerHeight,
                         paintLatch
                     ).toModifier(
-                        alignment = Alignment.BottomRight,
+                        alignment = Alignment.BottomEnd,
                         scaleFit = ScaleFit.Fit)
                     ) {
                     // Intentionally empty

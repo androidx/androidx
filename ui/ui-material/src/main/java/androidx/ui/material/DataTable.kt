@@ -342,9 +342,9 @@ fun DataTable(
             columns = columns + if (showCheckboxes) 1 else 0,
             alignment = { j ->
                 if (numeric(j - if (showCheckboxes) 1 else 0)) {
-                    Alignment.CenterRight
+                    Alignment.CenterEnd
                 } else {
-                    Alignment.CenterLeft
+                    Alignment.CenterStart
                 }
             },
             columnWidth = { j ->

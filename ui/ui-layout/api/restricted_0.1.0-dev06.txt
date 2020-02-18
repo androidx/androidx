@@ -494,25 +494,25 @@ package androidx.ui.layout {
   @androidx.ui.layout.LayoutScopeMarker public final class StackScope {
     ctor public StackScope();
     method public androidx.ui.core.ParentDataModifier getBottomCenter(androidx.ui.layout.LayoutGravity);
-    method public androidx.ui.core.ParentDataModifier getBottomLeft(androidx.ui.layout.LayoutGravity);
-    method public androidx.ui.core.ParentDataModifier getBottomRight(androidx.ui.layout.LayoutGravity);
+    method public androidx.ui.core.ParentDataModifier getBottomEnd(androidx.ui.layout.LayoutGravity);
+    method public androidx.ui.core.ParentDataModifier getBottomStart(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.ParentDataModifier getCenter(androidx.ui.layout.LayoutGravity);
-    method public androidx.ui.core.ParentDataModifier getCenterLeft(androidx.ui.layout.LayoutGravity);
-    method public androidx.ui.core.ParentDataModifier getCenterRight(androidx.ui.layout.LayoutGravity);
+    method public androidx.ui.core.ParentDataModifier getCenterEnd(androidx.ui.layout.LayoutGravity);
+    method public androidx.ui.core.ParentDataModifier getCenterStart(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.ParentDataModifier getStretch(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.ParentDataModifier getTopCenter(androidx.ui.layout.LayoutGravity);
-    method public androidx.ui.core.ParentDataModifier getTopLeft(androidx.ui.layout.LayoutGravity);
-    method public androidx.ui.core.ParentDataModifier getTopRight(androidx.ui.layout.LayoutGravity);
+    method public androidx.ui.core.ParentDataModifier getTopEnd(androidx.ui.layout.LayoutGravity);
+    method public androidx.ui.core.ParentDataModifier getTopStart(androidx.ui.layout.LayoutGravity);
     property public final androidx.ui.core.ParentDataModifier BottomCenter;
-    property public final androidx.ui.core.ParentDataModifier BottomLeft;
-    property public final androidx.ui.core.ParentDataModifier BottomRight;
+    property public final androidx.ui.core.ParentDataModifier BottomEnd;
+    property public final androidx.ui.core.ParentDataModifier BottomStart;
     property public final androidx.ui.core.ParentDataModifier Center;
-    property public final androidx.ui.core.ParentDataModifier CenterLeft;
-    property public final androidx.ui.core.ParentDataModifier CenterRight;
+    property public final androidx.ui.core.ParentDataModifier CenterEnd;
+    property public final androidx.ui.core.ParentDataModifier CenterStart;
     property public final androidx.ui.core.ParentDataModifier Stretch;
     property public final androidx.ui.core.ParentDataModifier TopCenter;
-    property public final androidx.ui.core.ParentDataModifier TopLeft;
-    property public final androidx.ui.core.ParentDataModifier TopRight;
+    property public final androidx.ui.core.ParentDataModifier TopEnd;
+    property public final androidx.ui.core.ParentDataModifier TopStart;
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class TableChildren {
@@ -585,7 +585,7 @@ package androidx.ui.layout {
   }
 
   public final class TableKt {
-    method public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.core.Alignment> alignment = { Alignment.TopLeft }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> children);
+    method public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.core.Alignment> alignment = { Alignment.TopStart }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> children);
   }
 
   public final class TableMeasurable {
@@ -599,7 +599,7 @@ package androidx.ui.layout {
   }
 
   public final class WrapKt {
-    method public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }
