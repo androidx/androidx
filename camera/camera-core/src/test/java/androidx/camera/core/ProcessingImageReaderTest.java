@@ -19,8 +19,11 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import android.graphics.ImageFormat;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,6 +35,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.filters.SmallTest;
@@ -39,6 +43,8 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -49,7 +55,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -98,40 +103,26 @@ public final class ProcessingImageReaderTest {
     @Test
     public void canSetFuturesInSettableImawgeProxyBundle()
             throws InterruptedException, TimeoutException, ExecutionException {
-        final AtomicReference<ImageProxyBundle> bundleRef = new AtomicReference<>();
         // Sets the callback from ProcessingImageReader to start processing
-        CaptureProcessor captureProcessor = new CaptureProcessor() {
-            @Override
-            public void onOutputSurface(Surface surface, int imageFormat) {
-
-            }
-
-            @Override
-            public void process(ImageProxyBundle bundle) {
-                bundleRef.set(bundle);
-            }
-
-            @Override
-            public void onResolutionUpdate(Size size) {
-
-            }
-        };
+        CaptureProcessor captureProcessor = mock(CaptureProcessor.class);
         ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mImageReaderProxy, mMainHandler, mCaptureBundle, captureProcessor);
+                mImageReaderProxy, mMainHandler, AsyncTask.THREAD_POOL_EXECUTOR,
+                mCaptureBundle, captureProcessor);
         Map<Integer, Long> resultMap = new HashMap<>();
         resultMap.put(CAPTURE_ID_0, TIMESTAMP_0);
         resultMap.put(CAPTURE_ID_1, TIMESTAMP_1);
-        triggerAndVerify(bundleRef, resultMap);
+        triggerAndVerify(captureProcessor, resultMap);
+        Mockito.reset(captureProcessor);
 
         processingImageReader.setCaptureBundle(CaptureBundles.createCaptureBundle(mCaptureStage2,
                 mCaptureStage3));
         Map<Integer, Long> resultMap1 = new HashMap<>();
         resultMap1.put(CAPTURE_ID_2, TIMESTAMP_2);
         resultMap1.put(CAPTURE_ID_3, TIMESTAMP_3);
-        triggerAndVerify(bundleRef, resultMap1);
+        triggerAndVerify(captureProcessor, resultMap1);
     }
 
-    private void triggerAndVerify(AtomicReference<ImageProxyBundle> bundleRef,
+    private void triggerAndVerify(CaptureProcessor captureProcessor,
             Map<Integer, Long> captureIdToTime)
             throws InterruptedException, ExecutionException, TimeoutException {
         // Feeds ImageProxy with all capture id on the initial list.
@@ -142,13 +133,15 @@ public final class ProcessingImageReaderTest {
         // Ensure all posted tasks finish running
         ShadowLooper.runUiThreadTasks();
 
-        ImageProxyBundle bundle = bundleRef.get();
-        assertThat(bundle).isNotNull();
+        ArgumentCaptor<ImageProxyBundle> imageProxyBundleCaptor =
+                ArgumentCaptor.forClass(ImageProxyBundle.class);
+        verify(captureProcessor, timeout(3000).times(1)).process(imageProxyBundleCaptor.capture());
+        assertThat(imageProxyBundleCaptor.getValue()).isNotNull();
 
         // CaptureProcessor.process should be called once all ImageProxies on the
         // initial lists are ready. Then checks if the output has matched timestamp.
         for (Integer id : captureIdToTime.keySet()) {
-            assertThat(bundle.getImageProxy(id).get(0,
+            assertThat(imageProxyBundleCaptor.getValue().getImageProxy(id).get(0,
                     TimeUnit.SECONDS).getImageInfo().getTimestamp()).isEqualTo(
                     captureIdToTime.get(id));
         }
@@ -162,6 +155,7 @@ public final class ProcessingImageReaderTest {
 
         // Expects to throw exception when creating ProcessingImageReader.
         new ProcessingImageReader(imageReaderProxy, mMainHandler,
+                AsyncTask.THREAD_POOL_EXECUTOR,
                 mCaptureBundle, NOOP_PROCESSOR);
     }
 
@@ -169,7 +163,8 @@ public final class ProcessingImageReaderTest {
     public void captureStageExceedMaxCaptureStage_setCaptureBundleThrowsException() {
         // Creates a ProcessingImageReader with maximum Image number.
         ProcessingImageReader processingImageReader = new ProcessingImageReader(100, 100,
-                ImageFormat.YUV_420_888, 2, mMainHandler, mCaptureBundle,
+                ImageFormat.YUV_420_888, 2, CameraXExecutors.newHandlerExecutor(mMainHandler),
+                AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
                 mock(CaptureProcessor.class));
 
         // Expects to throw exception when invoke the setCaptureBundle method with a

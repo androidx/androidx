@@ -46,8 +46,6 @@ import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.MediaStore;
@@ -327,12 +325,6 @@ public final class ImageCapture extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
 
-        HandlerThread processingImageResultThread = new HandlerThread(
-                "OnImageAvailableHandlerThread");
-        processingImageResultThread.start();
-        Handler processingImageResultHandler = new Handler(
-                processingImageResultThread.getLooper());
-
         // Setup the ImageReader to do processing
         if (mCaptureProcessor != null) {
             // TODO: To allow user to use an Executor for the image processing.
@@ -341,7 +333,8 @@ public final class ImageCapture extends UseCase {
                             resolution.getWidth(),
                             resolution.getHeight(),
                             getImageFormat(), mMaxCaptureStages,
-                            processingImageResultHandler,
+                            CameraXExecutors.mainThreadExecutor(),
+                            /* postProcessExecutor */mExecutor,
                             getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
                             mCaptureProcessor);
             mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
@@ -349,7 +342,7 @@ public final class ImageCapture extends UseCase {
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
                     resolution.getHeight(), getImageFormat(), MAX_IMAGES,
-                    processingImageResultHandler);
+                    CameraXExecutors.mainThreadExecutor());
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = metadataImageReader;
         }
@@ -368,7 +361,6 @@ public final class ImageCapture extends UseCase {
                     imageReaderProxy.close();
 
                     // Close the handlerThread after the ImageReader was closed.
-                    processingImageResultThread.quitSafely();
                 }, CameraXExecutors.mainThreadExecutor());
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
