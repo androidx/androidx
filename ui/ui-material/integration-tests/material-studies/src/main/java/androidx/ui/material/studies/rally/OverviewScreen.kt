@@ -16,15 +16,14 @@
 
 package androidx.ui.material.studies.rally
 
+import android.annotation.SuppressLint
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Text
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
@@ -36,7 +35,6 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Sort
-import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
 import androidx.ui.unit.dp
 import java.util.Locale
@@ -46,9 +44,9 @@ fun OverviewBody() {
     VerticalScroller {
         Column(modifier = LayoutPadding(16.dp)) {
             AlertCard()
-            Spacer(LayoutHeight(10.dp))
+            Spacer(LayoutHeight(RallyDefaultPadding))
             AccountsCard()
-            Spacer(LayoutHeight(10.dp))
+            Spacer(LayoutHeight(RallyDefaultPadding))
             BillsCard()
         }
     }
@@ -59,13 +57,13 @@ fun OverviewBody() {
  */
 @Composable
 private fun AlertCard() {
-    val openDialog = state { false }
+    var openDialog by state { false }
     val alertMessage = "Heads up, you've used up 90% of your Shopping budget for this month."
 
-    if (openDialog.value) {
+    if (openDialog) {
         RallyAlertDialog(
             onDismiss = {
-                openDialog.value = false
+                openDialog = false
             },
             bodyText = alertMessage,
             buttonText = "Dismiss".toUpperCase(Locale.getDefault())
@@ -73,37 +71,79 @@ private fun AlertCard() {
     }
     Card {
         Column {
-            Ripple(bounded = true) {
-                Clickable(onClick = { openDialog.value = true }) {
-                    Container {
-                        Row(
-                            modifier = LayoutPadding(12.dp) + LayoutWidth.Fill,
-                            arrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = "Alerts", style = MaterialTheme.typography().subtitle2)
-                            TextButton(onClick = { }) {
-                                Text("See All")
-                            }
-                        }
-                    }
-                }
-            }
-            Divider(
-                LayoutPadding(start = 12.dp, end = 12.dp),
-                color = MaterialTheme.colors().background,
-                height = 2.dp
+            AlertHeader({ openDialog = true })
+            RallyDivider(
+                modifier = LayoutPadding(start = RallyDefaultPadding, end = RallyDefaultPadding)
             )
-            Row(LayoutPadding(12.dp)) {
-                Text(
-                    style = MaterialTheme.typography().body1,
-                    modifier = LayoutFlexible(1f),
-                    text = alertMessage
-                )
-                IconButton(
-                    vectorImage = Icons.Filled.Sort,
-                    onClick = {},
-                    modifier = LayoutGravity.Top
-                )
+            AlertItem(alertMessage)
+        }
+    }
+}
+
+@Composable
+private fun AlertHeader(onClickSeeAll: () -> Unit) {
+    Row(
+        modifier = LayoutPadding(RallyDefaultPadding) + LayoutWidth.Fill,
+        arrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "Alerts",
+            style = MaterialTheme.typography().subtitle2,
+            modifier = LayoutGravity.Center
+        )
+        TextButton(
+            onClick = onClickSeeAll,
+            paddings = EdgeInsets(0.dp),
+            modifier = LayoutGravity.Center
+        ) {
+            Text("SEE ALL")
+        }
+    }
+}
+
+@Composable
+private fun AlertItem(message: String) {
+    // TODO: Make alerts into a data structure
+    Row(
+        modifier = LayoutPadding(RallyDefaultPadding),
+        arrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            style = MaterialTheme.typography().h3,
+            modifier = LayoutFlexible(1f),
+            text = message
+        )
+        IconButton(
+            vectorImage = Icons.Filled.Sort,
+            onClick = {},
+            modifier = LayoutGravity.Top
+        )
+    }
+}
+
+/**
+ * Base structure for cards in the Overview screen.
+ */
+@SuppressLint("UnnecessaryLambdaCreation")
+@Composable
+private fun <T> OverviewScreenCard(
+    title: String,
+    amount: Float,
+    onClickSeeAll: () -> Unit,
+    data: List<T>,
+    row: @Composable() (T) -> Unit
+) {
+    Card {
+        Column {
+            Column(modifier = LayoutPadding(RallyDefaultPadding)) {
+                Text(text = title, style = MaterialTheme.typography().subtitle2)
+                val amountText = "$" + formatAmount(amount)
+                Text(text = amountText, style = MaterialTheme.typography().h2)
+            }
+            Divider(color = rallyGreen, height = 1.dp)
+            Column(LayoutPadding(start = 16.dp, top = 4.dp, end = 8.dp)) {
+                data.take(3).forEach { row(it) }
+                SeeAllButton(onClick = onClickSeeAll)
             }
         }
     }
@@ -114,40 +154,21 @@ private fun AlertCard() {
  */
 @Composable
 private fun AccountsCard() {
-    Card {
-        Column {
-            Column(modifier = LayoutPadding(12.dp)) {
-                Text(text = "Accounts", style = MaterialTheme.typography().body1)
-                Text(text = "$12,132.49", style = MaterialTheme.typography().h3)
-            }
-            Divider(color = rallyGreen, height = 1.dp)
-            Column(modifier = LayoutPadding(12.dp)) {
-                AccountRow(
-                    name = "Checking",
-                    number = "1234",
-                    amount = "2,215.13",
-                    color = Color(0xFF005D57)
-                )
-                RallyDivider()
-                AccountRow(
-                    name = "Home Savings",
-                    number = "5678",
-                    amount = "8,676.88",
-                    color = Color(0xFF04B97F)
-                )
-                RallyDivider()
-                AccountRow(
-                    name = "Car Savings",
-                    number = "9012",
-                    amount = "987.48",
-                    color = Color(0xFF37EFBA)
-                )
-                RallyDivider()
-                TextButton(onClick = { }) {
-                    Text("See All")
-                }
-            }
-        }
+    val amount = UserData.accounts.map { account -> account.balance }.sum()
+    OverviewScreenCard(
+        title = "Accounts",
+        amount = amount,
+        onClickSeeAll = {
+            // TODO: Figure out navigation
+        },
+        data = UserData.accounts
+    ) { account ->
+        AccountRow(
+            name = account.name,
+            number = account.number,
+            amount = account.balance,
+            color = account.color
+        )
     }
 }
 
@@ -155,41 +176,33 @@ private fun AccountsCard() {
  * The Bills card within the Rally Overview screen.
  */
 @Composable
-fun BillsCard() {
-    Card {
-        Column {
-            Column(modifier = LayoutPadding(12.dp)) {
-                Text(text = "Bills", style = MaterialTheme.typography().subtitle2)
-                Text(text = "$1,810.00", style = MaterialTheme.typography().h3)
-            }
-            Divider(color = rallyGreen, height = 1.dp)
-            // TODO: change to proper bill items
-            Column(modifier = LayoutPadding(12.dp)) {
-                AccountRow(
-                    name = "RedPay Credit",
-                    number = "Jan 29",
-                    amount = "-45.36",
-                    color = Color(0xFF005D57)
-                )
-                RallyDivider()
-                AccountRow(
-                    name = "Rent",
-                    number = "Feb 9",
-                    amount = "-1,200.00",
-                    color = Color(0xFF04B97F)
-                )
-                RallyDivider()
-                AccountRow(
-                    name = "TabFine Credit",
-                    number = "Feb 22",
-                    amount = "-87.33",
-                    color = Color(0xFF37EFBA)
-                )
-                RallyDivider()
-                TextButton(onClick = { }) {
-                    Text("See All")
-                }
-            }
-        }
+private fun BillsCard() {
+    val amount = UserData.bills.map { bill -> bill.amount }.sum()
+    OverviewScreenCard(
+        title = "Bills",
+        amount = amount,
+        onClickSeeAll = {
+            // TODO: Figure out navigation
+        },
+        data = UserData.bills
+    ) { bill ->
+        BillRow(
+            name = bill.name,
+            due = bill.due,
+            amount = bill.amount,
+            color = bill.color
+        )
     }
 }
+
+@Composable
+private fun SeeAllButton(onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        modifier = LayoutHeight(44.dp) + LayoutWidth.Fill
+    ) {
+        Text("SEE ALL")
+    }
+}
+
+private val RallyDefaultPadding = 12.dp

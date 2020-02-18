@@ -54,7 +54,7 @@ fun AccountsBody() {
                     )
                     Text(
                         text = "$12,132.49",
-                        style = MaterialTheme.typography().h3,
+                        style = MaterialTheme.typography().h2,
                         modifier = LayoutGravity.Center
                     )
                 }
@@ -62,33 +62,14 @@ fun AccountsBody() {
             Spacer(LayoutHeight(10.dp))
             Card {
                 Column(modifier = LayoutPadding(12.dp)) {
-                    AccountRow(
-                        name = "Checking",
-                        number = "1234",
-                        amount = "2,215.13",
-                        color = Color(0xFF005D57)
-                    )
-                    RallyDivider()
-                    AccountRow(
-                        name = "Home Savings",
-                        number = "5678",
-                        amount = "8,676.88",
-                        color = Color(0xFF04B97F)
-                    )
-                    RallyDivider()
-                    AccountRow(
-                        name = "Car Savings",
-                        number = "9012",
-                        amount = "987.48",
-                        color = Color(0xFF37EFBA)
-                    )
-                    RallyDivider()
-                    AccountRow(
-                        name = "Vacation",
-                        number = "3456",
-                        amount = "253",
-                        color = Color(0xFF005D57)
-                    )
+                    UserData.accounts.forEach { account ->
+                        AccountRow(
+                            name = account.name,
+                            number = account.number,
+                            amount = account.balance,
+                            color = account.color
+                        )
+                    }
                 }
             }
         }
