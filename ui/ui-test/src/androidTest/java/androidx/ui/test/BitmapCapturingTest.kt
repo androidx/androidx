@@ -19,20 +19,16 @@ package androidx.ui.test
 import android.os.Build
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Alignment
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
 import androidx.ui.core.TestTag
-import androidx.ui.unit.ipx
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.Row
 import androidx.ui.semantics.Semantics
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -156,10 +152,7 @@ class BitmapCapturingTest {
     private fun composeCheckerboard() {
         with(composeTestRule.density) {
             composeTestRule.setContent {
-                Container(alignment = Alignment.TopLeft) {
-
-                    DrawShape(RectangleShape, SolidColor(colorBg))
-
+                Box(backgroundColor = colorBg) {
                     TestTag(rootTag) {
                         Semantics(container = true) {
                             Column {

@@ -309,11 +309,6 @@ package androidx.ui.foundation.semantics {
 
 package androidx.ui.foundation.shape {
 
-  public final class DrawShapeKt {
-    method public static void DrawShape(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color color);
-    method public static void DrawShape(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Brush brush);
-  }
-
   public final class GenericShape implements androidx.ui.graphics.Shape {
     ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.unit.PxSize,kotlin.Unit> builder);
     method public androidx.ui.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.unit.PxSize,kotlin.Unit> builder);

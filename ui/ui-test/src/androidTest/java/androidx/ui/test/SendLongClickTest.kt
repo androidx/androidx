@@ -24,11 +24,10 @@ import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.LongPressTimeout
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.areAlmostEqualTo
@@ -61,9 +60,10 @@ private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit
                         cancelHandler = {}
                     ) {
                         with(DensityAmbient.current) {
-                            Container(width = width.toDp(), height = height.toDp()) {
-                                DrawShape(RectangleShape, Color.Yellow)
-                            }
+                            Box(
+                                LayoutSize(width.toDp(), height.toDp()),
+                                backgroundColor = Color.Yellow
+                            )
                         }
                     }
                 }

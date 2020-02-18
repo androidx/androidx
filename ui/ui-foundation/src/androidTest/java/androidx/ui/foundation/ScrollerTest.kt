@@ -24,18 +24,12 @@ import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.Draw
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
 import androidx.ui.foundation.animation.FlingConfig
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.semantics.Semantics
@@ -58,7 +52,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -307,17 +300,10 @@ class ScrollerTest {
                         ) {
                             Column {
                                 colors.forEach { color ->
-                                    Container(
-                                        height = rowHeight.toDp(),
-                                        width = width.toDp()
-                                    ) {
-                                        Draw { canvas, parentSize ->
-                                            val paint = Paint()
-                                            paint.color = color
-                                            paint.style = PaintingStyle.fill
-                                            canvas.drawRect(parentSize.toRect(), paint)
-                                        }
-                                    }
+                                    Box(
+                                        LayoutSize(width.toDp(), rowHeight.toDp()),
+                                        backgroundColor = color
+                                    )
                                 }
                             }
                         }
@@ -347,17 +333,10 @@ class ScrollerTest {
                         ) {
                             Row {
                                 colors.forEach { color ->
-                                    Container(
-                                        width = columnWidth.toDp(),
-                                        height = height.toDp()
-                                    ) {
-                                        Draw { canvas, parentSize ->
-                                            val paint = Paint()
-                                            paint.color = color
-                                            paint.style = PaintingStyle.fill
-                                            canvas.drawRect(parentSize.toRect(), paint)
-                                        }
-                                    }
+                                    Box(
+                                        LayoutSize(columnWidth.toDp(), height.toDp()),
+                                        backgroundColor = color
+                                    )
                                 }
                             }
                         }
@@ -416,8 +395,7 @@ class ScrollerTest {
                 }
             }
             Align(alignment = Alignment.TopLeft) {
-                Container(width = width, height = height) {
-                    DrawShape(RectangleShape, Color.White)
+                Box(LayoutSize(width, height), backgroundColor = Color.White) {
                     TestTag(scrollerTag) {
                         Semantics(container = true) {
                             if (isVertical) {

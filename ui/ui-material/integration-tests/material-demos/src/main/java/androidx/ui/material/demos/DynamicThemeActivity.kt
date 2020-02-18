@@ -24,16 +24,16 @@ import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.core.Text
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
@@ -123,11 +123,15 @@ private fun Fab(scrollFraction: ScrollFraction) {
 private fun Card(index: Int) {
     val shapeColor = lerp(Color(0xFF303030), Color.White, index / 19f)
     val textColor = lerp(Color.White, Color(0xFF303030), index / 19f)
-    Container(LayoutPadding(25.dp) + LayoutWidth.Fill + LayoutHeight(150.dp)) {
-        // TODO: ideally this would be a Card but currently Surface consumes every
-        // colour from the Material theme to work out text colour, so we end up doing a
-        // large amount of work here when the top level theme changes
-        DrawShape(RoundedCornerShape(10.dp), shapeColor)
+    // TODO: ideally this would be a Card but currently Surface consumes every
+    // colour from the Material theme to work out text colour, so we end up doing a
+    // large amount of work here when the top level theme changes
+    Box(
+        LayoutPadding(25.dp) + LayoutWidth.Fill + LayoutHeight(150.dp),
+        shape = RoundedCornerShape(10.dp),
+        backgroundColor = shapeColor,
+        gravity = ContentGravity.Center
+    ) {
         Text("Card ${index + 1}", style = TextStyle(color = textColor))
     }
 }

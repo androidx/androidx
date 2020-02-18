@@ -18,17 +18,14 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun SimpleAspectRatio() {
-    Container(constraints = DpConstraints.fixedWidth(100.dp)) {
-        ColoredRect(color = Color.Gray, modifier = LayoutAspectRatio(2f))
-    }
+    Box(LayoutWidth(100.dp) + LayoutAspectRatio(2f), backgroundColor = Color.Green)
 }

@@ -19,19 +19,17 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.animation.animatedFloat
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.unit.dp
 
 @Sampled
@@ -57,11 +55,14 @@ fun DraggableSample() {
 
         // Draw a seekbar-like composable that has a black background
         // with a red square that moves along the drag
-        Container(width = max + squareSize, alignment = Alignment.CenterLeft) {
-            DrawShape(RectangleShape, Color.Black)
-            ColoredRect(
-                Color.Red,
-                LayoutPadding(start = draggedDp) + LayoutSize(squareSize, squareSize)
+        Box(
+            modifier = LayoutWidth(max + squareSize),
+            gravity = ContentGravity.CenterLeft,
+            backgroundColor = Color.Black
+        ) {
+            Box(
+                LayoutPadding(start = draggedDp) + LayoutSize(squareSize),
+                backgroundColor = Color.Red
             )
         }
     }
@@ -92,11 +93,14 @@ fun AnchoredDraggableSample() {
 
         // Draw a seekbar-like widget that has a black background
         // with a red square that moves along the drag
-        Container(width = max + squareSize, alignment = Alignment.CenterLeft) {
-            DrawShape(RectangleShape, Color.Black)
-            ColoredRect(
-                Color.Red,
-                LayoutPadding(start = draggedDp) + LayoutSize(squareSize, squareSize)
+        Box(
+            modifier = LayoutWidth(max + squareSize),
+            gravity = ContentGravity.CenterLeft,
+            backgroundColor = Color.Black
+        ) {
+            Box(
+                LayoutPadding(start = draggedDp) + LayoutSize(squareSize),
+                backgroundColor = Color.Red
             )
         }
     }

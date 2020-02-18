@@ -18,25 +18,21 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.withStyle
-import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.max
 import androidx.ui.unit.sp
 
 val commonStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF9e9e9e), lineHeight = 22.sp)
@@ -102,12 +98,7 @@ fun Basics() {
         style = commonStyle.merge(header)
     )
     Row {
-        SizedRectangle(
-            modifier = LayoutPadding(8.dp),
-            color = rectColor,
-            width = 48.dp,
-            height = 48.dp
-        )
+        Box(LayoutPadding(8.dp) + LayoutSize(48.dp), backgroundColor = rectColor)
         Text(
             text = "Jetpack Compose is a modern toolkit for building native Android UI." +
                     " Jetpack Compose simplifies and accelerates UI development on Android " +
@@ -141,14 +132,12 @@ fun AddTextElement() {
                 style = commonStyle
             )
         }
-        SizedRectangle(
-            modifier = LayoutPadding(8.dp),
-            color = rectColor,
-            width = 48.dp,
-            height = 48.dp
-        )
+        Box(LayoutPadding(8.dp) + LayoutSize(48.dp), backgroundColor = rectColor)
     }
-    EmptyRect()
+    Box(
+        LayoutPadding(top = 20.dp, bottom = 20.dp) + LayoutSize(200.dp, 60.dp),
+        backgroundColor = rectColor
+    )
     Text(
         text = AnnotatedString {
             withStyle(commonStyle.toSpanStyle()) {
@@ -212,11 +201,9 @@ fun MultiLanguage(title: String, content: String) {
         style = commonStyle.merge(header)
     )
     Row {
-        SizedRectangle(
-            modifier = LayoutPadding(8.dp),
-            color = rectColor,
-            width = 48.dp,
-            height = 48.dp
+        Box(
+            LayoutPadding(8.dp) + LayoutSize(48.dp),
+            backgroundColor = rectColor
         )
         Text(
             text = content,
@@ -224,36 +211,4 @@ fun MultiLanguage(title: String, content: String) {
             style = commonStyle
         )
     }
-}
-
-@Composable
-fun EmptyRect() {
-    SizedRectangle(
-        modifier = LayoutPadding(top = 20.dp, bottom = 20.dp),
-        color = rectColor,
-        width = 200.dp,
-        height = 60.dp
-    )
-}
-
-@Composable
-fun SizedRectangle(
-    modifier: Modifier = Modifier.None,
-    color: Color,
-    width: Dp? = null,
-    height: Dp? = null
-) {
-    Layout(children = { DrawRectangle(color = color) }, modifier = modifier) { _, constraints ->
-        val widthPx = max(width?.toIntPx() ?: constraints.maxWidth, constraints.minWidth)
-        val heightPx = max(height?.toIntPx() ?: constraints.maxHeight, constraints.minHeight)
-        layout(widthPx, heightPx) {}
-    }
-}
-
-/**
- * Draws a rectangle of a given color in the space of the parent layout.
- */
-@Composable
-fun DrawRectangle(color: Color) {
-    DrawShape(shape = RectangleShape, color = color)
 }

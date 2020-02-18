@@ -23,12 +23,13 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -132,8 +133,11 @@ fun ControlledHorizontalScrollerSample() {
 
 @Composable
 private fun Square(index: Int) {
-    Container(width = 75.dp, height = 200.dp) {
-        DrawShape(RectangleShape, colors[index % colors.size])
+    Box(
+        modifier = LayoutSize(75.dp, 200.dp),
+        backgroundColor = colors[index % colors.size],
+        gravity = ContentGravity.Center
+    ) {
         Text(index.toString())
     }
 }
@@ -173,8 +177,11 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
 @Composable
 private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: () -> Unit) {
     Clickable(onClick = onClick) {
-        Container(LayoutPadding(5.dp) + LayoutSize(120.dp, 60.dp)) {
-            DrawShape(RectangleShape, color)
+        Box(
+            modifier = LayoutPadding(5.dp) + LayoutSize(120.dp, 60.dp),
+            backgroundColor = color,
+            gravity = ContentGravity.Center
+        ) {
             Text(text, style = TextStyle(fontSize = 20.sp))
         }
     }
@@ -197,9 +204,6 @@ private fun Text(text: String, textStyle: TextStyle) {
     }
 
     PressIndicatorGestureDetector(onStart = onPress, onStop = onRelease, onCancel = onRelease) {
-        Container {
-            DrawShape(RectangleShape, color.value)
-            Text(text, style = textStyle)
-        }
+        Text(text, modifier = DrawBackground(color = color.value), style = textStyle)
     }
 }

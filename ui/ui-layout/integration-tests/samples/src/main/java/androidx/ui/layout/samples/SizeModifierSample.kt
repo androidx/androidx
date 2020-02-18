@@ -19,13 +19,12 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
 import androidx.ui.layout.Center
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
@@ -36,9 +35,7 @@ import androidx.ui.unit.dp
 @Composable
 fun SimpleSizeModifier() {
     Center {
-        Container(modifier = LayoutSize(width = 100.dp, height = 100.dp)) {
-            DrawShape(shape = RectangleShape, color = Color.Red)
-        }
+        Box(LayoutSize(width = 100.dp, height = 100.dp), backgroundColor = Color.Red)
     }
 }
 
@@ -46,9 +43,7 @@ fun SimpleSizeModifier() {
 @Composable
 fun SimpleWidthModifier() {
     Center {
-        Container(modifier = LayoutWidth(100.dp) + LayoutAspectRatio(1f)) {
-            DrawShape(shape = RectangleShape, color = Color.Magenta)
-        }
+        Box(LayoutWidth(100.dp) + LayoutAspectRatio(1f), backgroundColor = Color.Magenta)
     }
 }
 
@@ -56,17 +51,14 @@ fun SimpleWidthModifier() {
 @Composable
 fun SimpleHeightModifier() {
     Center {
-        Container(modifier = LayoutHeight(100.dp) + LayoutAspectRatio(1f)) {
-            DrawShape(shape = RectangleShape, color = Color.Blue)
-        }
+        Box(LayoutHeight(100.dp) + LayoutAspectRatio(1f), backgroundColor = Color.Blue)
     }
 }
 
 @Sampled
 @Composable
 fun SimpleFillWidthModifier() {
-    Container(modifier = LayoutWidth.Fill) {
-        DrawShape(RectangleShape, Color.Red)
+    Box(LayoutWidth.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
         ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
     }
 }
@@ -75,8 +67,7 @@ fun SimpleFillWidthModifier() {
 @Composable
 fun SimpleFillHeightModifier() {
     Align(alignment = Alignment.TopLeft) {
-        Container(modifier = LayoutHeight.Fill) {
-            DrawShape(RectangleShape, Color.Red)
+        Box(LayoutHeight.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
             ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
         }
     }
@@ -86,8 +77,7 @@ fun SimpleFillHeightModifier() {
 @Composable
 fun SimpleFillModifier() {
     Align(alignment = Alignment.TopLeft) {
-        Container(modifier = LayoutSize.Fill) {
-            DrawShape(RectangleShape, Color.Red)
+        Box(LayoutSize.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
             ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
         }
     }
