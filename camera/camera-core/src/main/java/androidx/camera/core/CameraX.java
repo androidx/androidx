@@ -290,7 +290,11 @@ public final class CameraX {
             useCase.onBind(camera);
         }
 
-        calculateSuggestedResolutions(lifecycleOwner, newCameraId, useCases);
+        Map<UseCase, Size> suggestResolutionsMap = calculateSuggestedResolutions(useCaseGroupToBind,
+                newCameraId,
+                useCases);
+
+        updateSuggestedResolutions(suggestResolutionsMap, useCases);
 
         for (UseCase useCase : useCases) {
             useCaseGroupToBind.addUseCase(useCase);
@@ -902,55 +906,36 @@ public final class CameraX {
         cameraInternal.removeOnlineUseCase(useCases);
     }
 
-    private static void calculateSuggestedResolutions(@NonNull LifecycleOwner lifecycleOwner,
-            @NonNull String newCameraId, @NonNull UseCase... useCases) {
-        CameraX cameraX = checkInitialized();
-
-        // There will only one lifecycleOwner active. Therefore, only collect use cases belong to
-        // same lifecycleOwner and calculate the suggested resolutions.
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController =
-                cameraX.getOrCreateUseCaseGroup(lifecycleOwner);
-        UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
-        Map<String, List<UseCase>> originalCameraIdUseCaseMap = new HashMap<>();
-        Map<String, List<UseCase>> newCameraIdUseCaseMap = new HashMap<>();
+    private static Map<UseCase, Size> calculateSuggestedResolutions(
+            @NonNull UseCaseGroup useCaseGroupToBind,
+            @NonNull String cameraId, @NonNull UseCase... useCases) {
+        List<UseCase> originalUseCases = new ArrayList<>();
+        List<UseCase> newUseCases = Arrays.asList(useCases);
 
         // Collect original use cases for different camera devices
         for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
             CameraInternal boundCamera = useCase.getBoundCamera();
             if (boundCamera != null) {
-                String cameraId = boundCamera.getCameraInfoInternal().getCameraId();
-                List<UseCase> useCaseList = originalCameraIdUseCaseMap.get(cameraId);
-                if (useCaseList == null) {
-                    useCaseList = new ArrayList<>();
-                    originalCameraIdUseCaseMap.put(cameraId, useCaseList);
+                if (cameraId.equals(boundCamera.getCameraInfoInternal().getCameraId())) {
+                    originalUseCases.add(useCase);
                 }
-                useCaseList.add(useCase);
             }
-        }
-
-        // Collect new use cases for different camera devices
-        for (UseCase useCase : useCases) {
-            List<UseCase> useCaseList = newCameraIdUseCaseMap.get(newCameraId);
-            if (useCaseList == null) {
-                useCaseList = new ArrayList<>();
-                newCameraIdUseCaseMap.put(newCameraId, useCaseList);
-            }
-            useCaseList.add(useCase);
         }
 
         // Get suggested resolutions and update the use case session configuration
-        for (String cameraId : newCameraIdUseCaseMap.keySet()) {
-            Map<UseCase, Size> suggestResolutionsMap =
-                    getSurfaceManager()
-                            .getSuggestedResolutions(
-                                    cameraId,
-                                    originalCameraIdUseCaseMap.get(cameraId),
-                                    newCameraIdUseCaseMap.get(cameraId));
+        return getSurfaceManager()
+                .getSuggestedResolutions(cameraId, originalUseCases, newUseCases);
+    }
 
-            for (UseCase useCase : newCameraIdUseCaseMap.get(cameraId)) {
-                Size resolution = suggestResolutionsMap.get(useCase);
-                useCase.updateSuggestedResolution(resolution);
+    private static void updateSuggestedResolutions(Map<UseCase, Size> suggestResolutionsMap,
+            @NonNull UseCase... useCases) {
+        for (UseCase useCase : useCases) {
+            Size resolution = suggestResolutionsMap.get(useCase);
+            if (resolution == null) {
+                throw new IllegalArgumentException("Suggested resolution map does not contain the"
+                        + " UseCase specified.");
             }
+            useCase.updateSuggestedResolution(resolution);
         }
     }
 
@@ -1009,8 +994,7 @@ public final class CameraX {
                                 mSurfaceManager = surfaceManagerProvider.newInstance(context);
 
                                 UseCaseConfigFactory.Provider configFactoryProvider =
-                                        cameraXConfig.getUseCaseConfigFactoryProvider(
-                                        null);
+                                        cameraXConfig.getUseCaseConfigFactoryProvider(null);
                                 if (configFactoryProvider == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
