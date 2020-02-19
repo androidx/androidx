@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import android.os.Build
+import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.TestTag
@@ -32,7 +33,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.withDensity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,18 +93,19 @@ class ElevationOverlayTest(private val elevation: Dp, private val expectedOverla
     }
 
     private fun setupSurfaceForTesting(elevation: Dp, colorPalette: ColorPalette) {
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             composeTestRule.setContent {
                 MaterialTheme(colorPalette) {
                     Container {
                         Surface(elevation = elevation) {
                             // Make the surface size small so we compare less pixels
                             TestTag(Tag) {
-                                Semantics {
+                                Semantics(container = true) {
                                     Container(
                                         width = SurfaceSize.width.toDp(),
-                                        height = SurfaceSize.height.toDp()
-                                    ) {}
+                                        height = SurfaceSize.height.toDp(),
+                                        children = emptyContent()
+                                    )
                                 }
                             }
                         }

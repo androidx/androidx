@@ -36,9 +36,13 @@ internal open class FontMatcher {
      * @param fontWeight desired [FontWeight]
      * @param fontStyle desired [FontStyle]
      */
-    open fun matchFont(fontFamily: FontFamily, fontWeight: FontWeight, fontStyle: FontStyle): Font {
+    open fun matchFont(
+        fontFamily: FontListFontFamily,
+        fontWeight: FontWeight,
+        fontStyle: FontStyle
+    ): Font {
         // check for exact match first
-        fontFamily.filter { it.weight == fontWeight && it.style == fontStyle }.let {
+        fontFamily.fonts.filter { it.weight == fontWeight && it.style == fontStyle }.let {
             // TODO(b/130797349): IR compiler bug was here
             if (it.isNotEmpty()) {
                 return it[0]
@@ -46,7 +50,7 @@ internal open class FontMatcher {
         }
 
         // if no exact match, filter with style
-        val fonts = fontFamily.filter { it.style == fontStyle }.let {
+        val fonts = fontFamily.fonts.filter { it.style == fontStyle }.let {
             if (it.isNotEmpty()) it else fontFamily.fonts
         }
 

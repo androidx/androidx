@@ -705,7 +705,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             public void run() {
                 if (mRecyclerView != null && mRecyclerView.isAttachedToWindow()
                         && !anim.mOverridden
-                        && anim.mViewHolder.getAdapterPosition() != RecyclerView.NO_POSITION) {
+                        && anim.mViewHolder.getAbsoluteAdapterPosition()
+                        != RecyclerView.NO_POSITION) {
                     final RecyclerView.ItemAnimator animator = mRecyclerView.getItemAnimator();
                     // if animator is running or we have other active recover animations, we try
                     // not to call onSwiped because DefaultItemAnimator is not good at merging
@@ -879,8 +880,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             mDistances.clear();
             return;
         }
-        final int toPosition = target.getAdapterPosition();
-        final int fromPosition = viewHolder.getAdapterPosition();
+        final int toPosition = target.getAbsoluteAdapterPosition();
+        final int fromPosition = viewHolder.getAbsoluteAdapterPosition();
         if (mCallback.onMove(mRecyclerView, viewHolder, target)) {
             // keep target visible
             mCallback.onMoved(mRecyclerView, viewHolder, fromPosition,
@@ -1635,8 +1636,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * <p>
          * If this method returns true, ItemTouchHelper assumes {@code viewHolder} has been moved
          * to the adapter position of {@code target} ViewHolder
-         * ({@link ViewHolder#getAdapterPosition()
-         * ViewHolder#getAdapterPosition()}).
+         * ({@link ViewHolder#getAbsoluteAdapterPosition()
+         * ViewHolder#getAdapterPositionInRecyclerView()}).
          * <p>
          * If you don't support drag & drop, this method will never be called.
          *

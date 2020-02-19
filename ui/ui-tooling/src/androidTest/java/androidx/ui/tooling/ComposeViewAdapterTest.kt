@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.ComposeViewAdapter
+import androidx.ui.tooling.preview.ViewInfo
 import androidx.ui.tooling.test.R
 import org.junit.After
 import org.junit.Assert.assertTrue
@@ -46,49 +47,79 @@ class ComposeViewAdapterTest {
         }
     }
 
-    @Test
-    fun instantiateComposeViewAdapter() {
+    /**
+     * Asserts that the given Composable method executes correct and outputs some [ViewInfo]s.
+     */
+    private fun assertRendersCorrectly(className: String, methodName: String): List<ViewInfo> {
         activityTestRule.runOnUiThread {
-            composeViewAdapter.init(
-                "androidx.ui.tooling.SimpleComposablePreviewKt",
-                "SimpleComposablePreview",
-                debugViewInfos = true
-            )
+            composeViewAdapter.init(className, methodName, debugViewInfos = true)
         }
 
         activityTestRule.runOnUiThread {
             assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
+        }
+
+        return composeViewAdapter.viewInfos
+    }
+
+    @Test
+    fun instantiateComposeViewAdapter() {
+        val viewInfos = assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "SimpleComposablePreview"
+        ).flatMap { it.allChildren() + it }
+            .filter { it.fileName == "SimpleComposablePreview.kt" }
+            .toList()
+
+        activityTestRule.runOnUiThread {
+            assertTrue(viewInfos.isNotEmpty())
+            // Verify that valid line numbers are being recorded
+            assertTrue(viewInfos.map { it.lineNumber }.all { it > 0 })
+            // Verify that method names are being captured
+            assertTrue(viewInfos.map { it.methodName }.all {
+                it.startsWith("androidx.ui.tooling.")
+            })
         }
     }
 
     @Test
     fun instantiatePrivateComposeViewAdapter() {
-        activityTestRule.runOnUiThread {
-            composeViewAdapter.init(
-                "androidx.ui.tooling.SimpleComposablePreviewKt",
-                "PrivateSimpleComposablePreview",
-                debugViewInfos = true
-            )
-        }
+        assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "PrivateSimpleComposablePreview"
+        )
+    }
 
-        activityTestRule.runOnUiThread {
-            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
-        }
+    @Test
+    fun defaultParametersComposableTest1() {
+        assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "DefaultParametersPreview1"
+        )
+    }
+
+    @Test
+    fun defaultParametersComposableTest2() {
+        assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "DefaultParametersPreview2"
+        )
+    }
+
+    @Test
+    fun defaultParametersComposableTest3() {
+        assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "DefaultParametersPreview3"
+        )
     }
 
     @Test
     fun previewInClass() {
-        activityTestRule.runOnUiThread {
-            composeViewAdapter.init(
-                "androidx.ui.tooling.TestGroup",
-                "InClassPreview",
-                debugViewInfos = true
-            )
-        }
-
-        activityTestRule.runOnUiThread {
-            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
-        }
+        assertRendersCorrectly(
+            "androidx.ui.tooling.TestGroup",
+            "InClassPreview"
+        )
     }
 
     companion object {

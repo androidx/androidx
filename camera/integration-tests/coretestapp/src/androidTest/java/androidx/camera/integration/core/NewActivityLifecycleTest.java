@@ -38,9 +38,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.Until;
 
 import org.junit.After;
 import org.junit.Before;
@@ -129,7 +127,7 @@ public final class NewActivityLifecycleTest {
 
     private void pressHomeButton() {
         mDevice.pressHome();
-        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
+        mDevice.waitForIdle(LAUNCH_TIMEOUT_MS);
     }
 
 }

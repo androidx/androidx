@@ -17,14 +17,15 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Rule
 import org.junit.Test
@@ -70,11 +71,12 @@ class TextFieldFocusTest {
         )
 
         composeTestRule.setContent {
-            FocusManagerAmbient.Provider(value = focusManager) {
-                TextInputServiceAmbient.Provider(value = textInputService) {
-                    TestTag(tag = "textField") {
-                        TextFieldApp(testDataList)
-                    }
+            Providers(
+                FocusManagerAmbient provides focusManager,
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag(tag = "textField") {
+                    TextFieldApp(testDataList)
                 }
             }
         }

@@ -371,6 +371,7 @@ class CachingTest {
         private val version: Int
     ) : PagingSource<Int, Item>() {
         private var generation = -1
+
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
             when (params.loadType) {
                 LoadType.REFRESH -> {
@@ -475,5 +476,6 @@ class CachingTest {
         fun pageDataFlowCount() = (counters[PAGED_DATA_FLOW] ?: error("unexpected")).get()
         fun pageEventFlowCount() = (counters[PAGE_EVENT_FLOW] ?: error("unexpected")).get()
     }
+
     private class AbortCollectionException : Throwable()
 }

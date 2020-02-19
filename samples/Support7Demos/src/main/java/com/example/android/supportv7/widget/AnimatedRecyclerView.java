@@ -359,7 +359,7 @@ public class AnimatedRecyclerView extends Activity {
     public void itemClicked(View view) {
         ViewGroup parent = (ViewGroup) view;
         MyViewHolder holder = (MyViewHolder) mRecyclerView.getChildViewHolder(parent);
-        final int position = holder.getAdapterPosition();
+        final int position = holder.getBindingAdapterPosition();
         if (position == RecyclerView.NO_POSITION) {
             return;
         }

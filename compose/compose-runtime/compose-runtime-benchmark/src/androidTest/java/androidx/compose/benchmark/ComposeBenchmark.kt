@@ -23,9 +23,12 @@ import androidx.compose.benchmark.realworld4.RealWorld4_FancyWidget_000
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.ui.unit.dp
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.draw
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
+import androidx.ui.layout.Container
+import androidx.ui.unit.dp
+import androidx.ui.unit.toRect
 import org.junit.FixMethodOrder
 import org.junit.Ignore
 import org.junit.Test
@@ -150,31 +153,72 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     }
 }
 
-private val color = Color.Yellow
+private fun background(paint: Paint) =
+    draw { canvas, size -> canvas.drawRect(size.toRect(), paint) }
+
+private val redBackground = background(Paint().also { it.color = Color.Red })
+private val blackBackground = background(Paint().also { it.color = Color.Black })
+private val yellowBackground = background(Paint().also { it.color = Color.Yellow })
+private val defaultBackground = yellowBackground
+
+private val dp10 = 10.dp
 
 @Model
-class ColorModel(var color: Color = Color.Black) {
+class ColorModel(private var color: Color = Color.Black) {
     fun toggle() {
         color = if (color == Color.Black) Color.Red else Color.Black
     }
+
+    val background
+        get() = when (color) {
+            Color.Red -> redBackground
+            Color.Black -> blackBackground
+            Color.Yellow -> yellowBackground
+            else -> background(Paint().also { it.color = color })
+        }
 }
 
+val noChildren = @Composable { }
 @Composable
 fun OneRect(model: ColorModel) {
-    ColoredRect(color = model.color, width = 10.dp, height = 10.dp)
+    Container(
+        modifier = model.background,
+        width = dp10,
+        height = dp10,
+        expanded = true,
+        children = noChildren
+    )
 }
 
 @Composable
 fun TenRects(model: ColorModel, narrow: Boolean = false) {
     if (narrow) {
         Observe {
-            ColoredRect(color = model.color, width = 10.dp, height = 10.dp)
+            Container(
+                modifier = model.background,
+                width = dp10,
+                height = dp10,
+                expanded = true,
+                children = noChildren
+            )
         }
     } else {
-        ColoredRect(color = model.color, width = 10.dp, height = 10.dp)
+        Container(
+            modifier = model.background,
+            width = dp10,
+            height = dp10,
+            expanded = true,
+            children = noChildren
+        )
     }
     repeat(9) {
-        ColoredRect(color = color, width = 10.dp, height = 10.dp)
+        Container(
+            modifier = defaultBackground,
+            width = dp10,
+            height = dp10,
+            expanded = true,
+            children = noChildren
+        )
     }
 }
 
@@ -184,12 +228,30 @@ fun HundredRects(model: ColorModel, narrow: Boolean = false) {
         if (it % 10 == 0)
             if (narrow) {
                 Observe {
-                    ColoredRect(color = model.color, width = 10.dp, height = 10.dp)
+                    Container(
+                        modifier = model.background,
+                        width = dp10,
+                        height = dp10,
+                        expanded = true,
+                        children = noChildren
+                    )
                 }
             } else {
-                ColoredRect(color = model.color, width = 10.dp, height = 10.dp)
+                Container(
+                    modifier = model.background,
+                    width = dp10,
+                    height = dp10,
+                    expanded = true,
+                    children = noChildren
+                )
             }
         else
-            ColoredRect(color = color, width = 10.dp, height = 10.dp)
+            Container(
+                modifier = defaultBackground,
+                width = dp10,
+                height = dp10,
+                expanded = true,
+                children = noChildren
+            )
     }
 }

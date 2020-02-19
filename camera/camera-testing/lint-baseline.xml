@@ -26,28 +26,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void openCameraWithUseCase(String cameraId, CameraInternal cameraInternal,"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="234"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void openCameraWithUseCase(String cameraId, CameraInternal cameraInternal,"
-        errorLine2="                                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="234"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            UseCase... useCases) {"
         errorLine2="            ~~~~~~~~~~">
         <location

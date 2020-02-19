@@ -19,7 +19,6 @@ package androidx.ui.res
 import android.util.TypedValue
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.compose.trace
 import androidx.ui.core.ContextAmbient
@@ -36,7 +35,7 @@ import androidx.ui.graphics.imageFromResource
  */
 @Composable
 fun imageResource(@DrawableRes id: Int): Image {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     val value = remember { TypedValue() }
     context.resources.getValue(id, value, true)
     // We use the file path as a key of the request cache.
@@ -63,7 +62,7 @@ fun loadImageResource(
     pendingImage: Image? = null,
     failedImage: Image? = null
 ): DeferredResource<Image> {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     val res = context.resources
     return loadResource(id, pendingImage, failedImage) {
         trace("Image Resource Loading") {

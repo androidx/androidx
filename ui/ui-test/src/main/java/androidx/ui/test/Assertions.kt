@@ -18,70 +18,68 @@ package androidx.ui.test
 
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.RepaintBoundaryNode
-import androidx.ui.core.SemanticsTreeNode
-import androidx.ui.core.localToGlobal
+import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.core.semantics.getOrNull
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.semantics.FoundationSemanticsProperties
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.semantics.accessibilityValue
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 
 /**
- * Asserts that current component is visible.
+ * Asserts that the current component has hidden property set to true.
+ *
+ * Note that this does not verify parents of the component. For stronger guarantees of visibility
+ * see [assertIsNotDisplayed]. If you want to assert that the component is not even in the hierarchy
+ * use [SemanticsNodeInteraction.assertDoesNotExist].
+ *
+ * Throws [AssertionError] if the component is not hidden.
  */
-// TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
-fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
-    verifyHierarchy({ "The component is not visible!" }) {
-        it.getOrNull(SemanticsProperties.Hidden) != true
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction = verify(isHidden())
 
 /**
- * Asserts that current component is hidden. This requires that the component actually exists in
- * the hierarchy and is hidden. If you want to actually verify that the component does not  exist
- * at all, please use [SemanticsNodeInteraction.assertDoesNotExist]
+ * Asserts that the current component has hidden property set to false.
+ *
+ * Note that this does not verify parents of the component. For stronger guarantees of visibility
+ * see [assertIsDisplayed]. If you only want to assert that the component is in the hierarchy use
+ * [SemanticsNodeInteraction.assertExists]
+ *
+ * Throws [AssertionError] if the component is hidden.
  */
-fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
-    verifyHierarchy({ "The component is visible!" }) {
-        it.getOrNull(SemanticsProperties.Hidden) == true
-    }
-
-    return this
-}
+fun SemanticsNodeInteraction.assertIsNotHidden(): SemanticsNodeInteraction = verify(isNotHidden())
 
 /**
- * Asserts that the current component is displayed.
- * This function also calls [assertIsVisible] to check if it is visible from a Semantics perspective
- * and afterwards checks if it's bounding rectangle is contained inside the closest layout node.
+ * Asserts that the current component is displayed on screen.
+ *
+ * Throws [AssertionError] if the component is not displayed.
  */
 fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
     // TODO(b/143608742): check the correct AndroidCraneView is visible
 
-    verify({ "The component is not displayed!" }) {
-        checkIsDisplayed()
+    if (!checkIsDisplayed()) {
+        // TODO(b/133217292)
+        throw AssertionError("Assert failed: The component is not displayed!")
     }
     return this
 }
 
 /**
- * Asserts that the current component is not displayed.
- * This function checks if it's bounding rectangle is not contained inside the closest layout node.
+ * Asserts that the current component is not displayed on screen.
+ *
+ * Throws [AssertionError] if the component is displayed.
  */
 fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
     // TODO(b/143608742): check no AndroidCraneView contains the given component
 
-    verify({ "The component is displayed!" }) {
-        !checkIsDisplayed()
+    if (checkIsDisplayed()) {
+        // TODO(b/133217292)
+        throw AssertionError("Assert failed: The component is displayed!")
     }
-
     return this
 }
 
@@ -90,84 +88,69 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
  *
  * Throws [AssertionError] if the component is not unchecked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction {
-    assertIsToggleable()
-    verify({ "Component is toggled off, expected it to be toggled on" }) {
-        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.On
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction = verify(isOn())
 
 /**
  * Asserts that the current component is unchecked.
  *
  * Throws [AssertionError] if the component is checked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction {
-    assertIsToggleable()
-    verify({ "Component is toggled on, expected it to be toggled off" }) {
-        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.Off
-    }
-
-    return this
-}
+fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = verify(isOff())
 
 /**
  * Asserts that the current component is selected.
  *
  * Throws [AssertionError] if the component is unselected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction {
-    assertIsSelectable()
-
-    verify({ "Component is unselected, expected it to be selected" }) {
-        it[FoundationSemanticsProperties.Selected]
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = verify(isSelected())
 
 /**
  * Asserts that the current component is unselected.
  *
  * Throws [AssertionError] if the component is selected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction {
-    assertIsSelectable()
+fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction =
+    verify(isUnselected())
 
-    verify({ "Component is selected, expected it to be unselected" }) {
-        !it[FoundationSemanticsProperties.Selected]
-    }
-    return this
-}
+/**
+ * Asserts that the current component is toggleable.
+ *
+ * Throws [AssertionError] if the component is not toggleable.
+ */
+fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction =
+    verify(isToggleable())
+
+/**
+ * Asserts that the current component is selectable.
+ *
+ * Throws [AssertionError] if the component is not selectable.
+ */
+fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction =
+    verify(isSelectable())
 
 /**
  * Asserts the component is in a mutually exclusive group. This is used by radio groups to assert
  * only one is selected at a given time.
- * For further details please check [SemanticsConfiguration.isInMutuallyExclusiveGroup].
  */
-fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction {
-    // TODO(pavlis): Throw exception if component is not selectable
-    verify(
-        { "The component is expected to be in a mutually exclusive group, but it's not!" }) {
-        it.isInMutuallyExclusiveGroup
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction =
+    verify(isInMutuallyExclusiveGroup())
+
+/**
+ * Asserts the component's label equals the given String.
+ * For further details please check [SemanticsProperties.AccessibilityLabel].
+ * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
+ */
+fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInteraction =
+    verify(hasText(value))
 
 /**
  * Asserts the component's value equals the given value.
  *
- * For further details please check [SemanticsConfiguration.accessibilityValue].
+ * For further details please check [SemanticsProperties.AccessibilityValue].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
-fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction {
-    verify({ node -> "Expected value: $value, Actual value: ${node.accessibilityValue}" }) {
-        it.getOrElse(SemanticsProperties.AccessibilityValue) {
-            throw AssertionError("Expected value: $value, but had none")
-        } == value
-    }
-    return this
-}
+fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
+    verify(hasValue(value))
 
 /**
  * Asserts that the semantics of the component are the same as the given semantics.
@@ -176,49 +159,52 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
 fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
     expectedProperties: SemanticsConfiguration
 ): SemanticsNodeInteraction {
-    assertExists()
-    semanticsTreeNode.data.assertEquals(expectedProperties)
-
+    val errorMessageOnFail = "Failed to assert semantics is equal"
+    fetchSemanticsNode(errorMessageOnFail).config.assertEquals(expectedProperties)
     return this
 }
-
 /**
  * Asserts that the current component has a click action.
  *
  * Throws [AssertionError] if the component is doesn't have a click action.
  */
-fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction {
-    verify({ "Component is not clickable, expected it to be clickable" }) {
-        it.hasClickAction
-    }
-
-    return this
-}
+fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
+    verify(hasClickAction())
 
 /**
  * Asserts that the current component doesn't have a click action.
  *
  * Throws [AssertionError] if the component has a click action.
  */
-fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction {
-    verify({ "Component is clickable, expected it to not be clickable" }) {
-        !it.hasClickAction
-    }
-
-    return this
-}
+fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction =
+    verify(hasNoClickAction())
 
 /**
- * Asserts that given a list of components, its size is equal to the passed in size.
+ * Asserts that this collection of nodes is equal to the given [expectedSize].
+ *
+ * Provides a detailed error message on failure.
+ *
+ * @throws AssertionError if the size is not equal to [expectedSize]
  */
-fun List<SemanticsNodeInteraction>.assertCountEquals(
-    count: Int
-): List<SemanticsNodeInteraction> {
-    if (size != count) {
-        // TODO(b/133217292)
-        throw AssertionError("Found '$size' nodes but exactly '$count' was expected!")
+// TODO: Rename to assertSizeEquals to be consistent with Collection.size
+fun <T : Collection<SemanticsNodeInteraction>> T.assertCountEquals(expectedSize: Int): T {
+    if (size != expectedSize) {
+        // Quite often all the elements of a collection come from the same selector. So we try to
+        // distinct them hoping we get just one selector to show it to the user on failure.
+        // TODO: If there is more than one selector maybe show selector per node?
+        val selectors = map { it.semanticsTreeInteraction.selector }
+            .distinct()
+        val selector = if (selectors.size == 1) {
+            selectors.first()
+        } else {
+            null
+        }
+        throw AssertionError(buildErrorMessageForCountMismatch(
+            errorMessage = "Failed to assert count of nodes.",
+            selector = selector,
+            foundNodes = map { it.fetchSemanticsNode("") },
+            expectedCount = expectedSize))
     }
-
     return this
 }
 
@@ -227,15 +213,15 @@ fun List<SemanticsNodeInteraction>.assertCountEquals(
  * Throws [AssertionError] if it is not.
  */
 fun SemanticsNodeInteraction.verify(
-    assertionMessage: (SemanticsConfiguration) -> String,
-    condition: (SemanticsConfiguration) -> Boolean
-) {
-    assertExists()
-
-    if (!condition.invoke(semanticsTreeNode.data)) {
-        // TODO(b/133217292)
-        throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
+    predicate: SemanticsPredicate
+): SemanticsNodeInteraction {
+    val errorMessageOnFail = "Failed to assert the following: (${predicate.description})"
+    val node = fetchSemanticsNode(errorMessageOnFail)
+    if (!predicate.condition(node.config)) {
+        throw AssertionError(buildErrorMessageForPredicateFail(
+            semanticsTreeInteraction.selector, node, predicate))
     }
+    return this
 }
 
 /**
@@ -246,60 +232,35 @@ fun SemanticsNodeInteraction.verifyHierarchy(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
 ) {
-    assertExists()
-
-    var node: SemanticsTreeNode? = semanticsTreeNode
+    // TODO(b/133217292)
+    var node: SemanticsNode? = fetchSemanticsNode("Failed to verify hierarchy.")
     while (node != null) {
-        if (!condition.invoke(node.data)) {
+        if (!condition.invoke(node.config)) {
             // TODO(b/133217292)
-            throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
+            throw AssertionError("Assert failed: ${assertionMessage(node.config)}")
         }
         node = node.parent
     }
 }
 
-/**
- * Asserts that the current component is toggleable.
- *
- * Throws [AssertionError] if the component is not toggleable.
- */
-internal fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction {
-    verify({ "Component is not toggleable, expected it to be toggleable" }) {
-        it.isToggleable
-    }
-
-    return this
-}
-
-/**
- * Asserts that the current component is selectable.
- *
- * Throws [AssertionError] if the component is not selectable.
- */
-internal fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction {
-    verify({ "Component is not selectable, expected it to be selectable" }) {
-        it.getOrNull(FoundationSemanticsProperties.Selected) != null
-    }
-
-    return this
-}
-
 private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible
-    if (semanticsTreeNode.findClosestParentNode {
+    val errorMessageOnFail = "Failed to perform isDisplayed check."
+    val node = fetchSemanticsNode(errorMessageOnFail)
+    if (node.componentNode.findClosestParentNode {
             it is LayoutNode && !it.isPlaced
         } != null) {
         return false
     }
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
-    val globalRect = semanticsTreeNode.globalRect
-    if (!semanticsTreeInteraction.isInScreenBounds(globalRect!!)) {
+    val globalRect = node.globalBounds
+    if (!semanticsTreeInteraction.isInScreenBounds(globalRect)) {
         return false
     }
 
     // check if we have clipping via RepaintBoundaryNode
-    val repaintBoundaryNode = semanticsTreeNode.findClosestParentNode {
+    val repaintBoundaryNode = node.componentNode.findClosestParentNode {
         it is RepaintBoundaryNode && it.clipToShape
     }
     if (repaintBoundaryNode == null) {
@@ -320,8 +281,9 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
  * Returns `true` if the given [rectangle] is completely contained within this
  * [LayoutNode].
  */
-private fun LayoutNode.contains(rectangle: Rect): Boolean {
-    val globalPositionTopLeft = localToGlobal(PxPosition(0.px, 0.px))
+private fun LayoutNode.contains(rectangle: PxBounds): Boolean {
+    val globalPositionTopLeft = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+    // TODO: This method generates a lot of objects when it could compare primitives
 
     val rect = Rect.fromLTWH(
         globalPositionTopLeft.x.value,
@@ -329,5 +291,6 @@ private fun LayoutNode.contains(rectangle: Rect): Boolean {
         width.toPx().value + 1f,
         height.toPx().value + 1f)
 
-    return rect.contains(rectangle.getTopLeft()) && rect.contains(rectangle.getBottomRight())
+    return rect.contains(Offset(rectangle.left.value, rectangle.top.value)) &&
+            rect.contains(Offset(rectangle.right.value, rectangle.bottom.value))
 }

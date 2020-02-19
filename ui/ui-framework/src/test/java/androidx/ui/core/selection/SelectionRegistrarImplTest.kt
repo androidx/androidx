@@ -17,8 +17,12 @@
 package androidx.ui.core.selection
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -51,5 +55,151 @@ class SelectionRegistrarImplTest {
         selectionRegistrar.unsubscribe(id2)
 
         assertThat(selectionRegistrar.selectables.size).isEqualTo(1)
+    }
+
+    @Test
+    fun sort() {
+        // Setup.
+        val handler0 = mock<Selectable>()
+        val handler1 = mock<Selectable>()
+        val handler2 = mock<Selectable>()
+        val handler3 = mock<Selectable>()
+
+        val layoutCoordinates0 = mock<LayoutCoordinates>()
+        val layoutCoordinates1 = mock<LayoutCoordinates>()
+        val layoutCoordinates2 = mock<LayoutCoordinates>()
+        val layoutCoordinates3 = mock<LayoutCoordinates>()
+
+        whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
+        whenever(handler1.getLayoutCoordinates()).thenReturn(layoutCoordinates1)
+        whenever(handler2.getLayoutCoordinates()).thenReturn(layoutCoordinates2)
+        whenever(handler3.getLayoutCoordinates()).thenReturn(layoutCoordinates3)
+
+        // The order of the 4 handlers should be 1, 0, 3, 2.
+        val relativeCoordinates0 = PxPosition(20.px, 12.px)
+        val relativeCoordinates1 = PxPosition(5.px, 12.px)
+        val relativeCoordinates2 = PxPosition(20.px, 24.px)
+        val relativeCoordinates3 = PxPosition(5.px, 24.px)
+
+        val containerLayoutCoordinates = mock<LayoutCoordinates>()
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
+            .thenReturn(relativeCoordinates0)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, PxPosition.Origin))
+            .thenReturn(relativeCoordinates1)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, PxPosition.Origin))
+            .thenReturn(relativeCoordinates2)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, PxPosition.Origin))
+            .thenReturn(relativeCoordinates3)
+
+        val selectionRegistrar = SelectionRegistrarImpl()
+        selectionRegistrar.subscribe(handler0)
+        selectionRegistrar.subscribe(handler1)
+        selectionRegistrar.subscribe(handler2)
+        selectionRegistrar.subscribe(handler3)
+
+        // Act.
+        selectionRegistrar.sort(containerLayoutCoordinates)
+
+        // Assert.
+        assertThat(selectionRegistrar.selectables[0]).isEqualTo(handler1)
+        assertThat(selectionRegistrar.selectables[1]).isEqualTo(handler0)
+        assertThat(selectionRegistrar.selectables[2]).isEqualTo(handler3)
+        assertThat(selectionRegistrar.selectables[3]).isEqualTo(handler2)
+        assertThat(selectionRegistrar.sorted).isTrue()
+    }
+
+    @Test
+    fun unsubscribe_after_sorting() {
+        // Setup.
+        val handler0 = mock<Selectable>()
+        val handler1 = mock<Selectable>()
+        val handler2 = mock<Selectable>()
+        val handler3 = mock<Selectable>()
+
+        val layoutCoordinates0 = mock<LayoutCoordinates>()
+        val layoutCoordinates1 = mock<LayoutCoordinates>()
+        val layoutCoordinates2 = mock<LayoutCoordinates>()
+        val layoutCoordinates3 = mock<LayoutCoordinates>()
+
+        whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
+        whenever(handler1.getLayoutCoordinates()).thenReturn(layoutCoordinates1)
+        whenever(handler2.getLayoutCoordinates()).thenReturn(layoutCoordinates2)
+        whenever(handler3.getLayoutCoordinates()).thenReturn(layoutCoordinates3)
+
+        // The order of the 4 handlers should be 1, 0, 3, 2.
+        val relativeCoordinates0 = PxPosition(20.px, 12.px)
+        val relativeCoordinates1 = PxPosition(5.px, 12.px)
+        val relativeCoordinates2 = PxPosition(20.px, 24.px)
+        val relativeCoordinates3 = PxPosition(5.px, 24.px)
+
+        val containerLayoutCoordinates = mock<LayoutCoordinates>()
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
+            .thenReturn(relativeCoordinates0)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, PxPosition.Origin))
+            .thenReturn(relativeCoordinates1)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, PxPosition.Origin))
+            .thenReturn(relativeCoordinates2)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, PxPosition.Origin))
+            .thenReturn(relativeCoordinates3)
+
+        val selectionRegistrar = SelectionRegistrarImpl()
+        selectionRegistrar.subscribe(handler0)
+        selectionRegistrar.subscribe(handler1)
+        selectionRegistrar.subscribe(handler2)
+        selectionRegistrar.subscribe(handler3)
+
+        selectionRegistrar.sort(containerLayoutCoordinates)
+
+        // Act.
+        selectionRegistrar.unsubscribe(handler0)
+
+        // Assert.
+        assertThat(selectionRegistrar.selectables[0]).isEqualTo(handler1)
+        assertThat(selectionRegistrar.selectables[1]).isEqualTo(handler3)
+        assertThat(selectionRegistrar.selectables[2]).isEqualTo(handler2)
+    }
+
+    @Test
+    fun subscribe_after_sorting() {
+        // Setup.
+        val handler0 = mock<Selectable>()
+        val layoutCoordinates0 = mock<LayoutCoordinates>()
+        whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
+        val containerLayoutCoordinates = mock<LayoutCoordinates>()
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
+            .thenReturn(PxPosition.Origin)
+
+        val selectionRegistrar = SelectionRegistrarImpl()
+        selectionRegistrar.subscribe(handler0)
+        selectionRegistrar.sort(containerLayoutCoordinates)
+        assertThat(selectionRegistrar.sorted).isTrue()
+
+        // Act.
+        selectionRegistrar.subscribe(mock())
+
+        // Assert.
+        assertThat(selectionRegistrar.sorted).isFalse()
+    }
+
+    @Test
+    fun layoutCoordinates_changed_after_sorting() {
+        // Setup.
+        val handler0 = mock<Selectable>()
+        val layoutCoordinates0 = mock<LayoutCoordinates>()
+        whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
+        val containerLayoutCoordinates = mock<LayoutCoordinates>()
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
+            .thenReturn(PxPosition.Origin)
+
+        val selectionRegistrar = SelectionRegistrarImpl()
+        selectionRegistrar.subscribe(handler0)
+        selectionRegistrar.sort(containerLayoutCoordinates)
+        assertThat(selectionRegistrar.sorted).isTrue()
+
+        // Act.
+        selectionRegistrar.onPositionChange()
+
+        // Assert.
+        assertThat(selectionRegistrar.sorted).isFalse()
     }
 }

@@ -29,7 +29,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.Compose
-import androidx.compose.CompositionContext
+import androidx.compose.Composition
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.frames.currentFrame
@@ -65,7 +65,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     internal var view: ViewGroup? = null
         private set
 
-    private var compositionContext: CompositionContext? = null
+    private var composition: Composition? = null
 
     override var didLastRecomposeHaveChanges = false
         private set
@@ -107,7 +107,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         }
 
         recomposer = Recomposer.current()
-        compositionContext = activity.setContent { testCase!!.emitContent() }!!
+        composition = activity.setContent { testCase!!.emitContent() }
         FrameManager.nextFrame()
         view = findComposeView(activity)!!
         simulationState = SimulationState.EmitContentDone

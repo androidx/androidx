@@ -47,7 +47,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
     public LinearLayoutManagerSavedStateTest(Config config, boolean waitForLayout,
             boolean loadDataAfterRestore, PostLayoutRunnable postLayoutOperation,
-            PostRestoreRunnable postRestoreOperation) {
+            PostRestoreRunnable postRestoreOperation, int index) {
         mConfig = config;
         mWaitForLayout = waitForLayout;
         mLoadDataAfterRestore = loadDataAfterRestore;
@@ -80,7 +80,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
     }
 
     @Parameterized.Parameters(name = "{0},waitForLayout:{1},loadDataAfterRestore:{2}"
-            + ",postLayout:{3},postRestore:{4}")
+            + ",postLayout:{3},postRestore:{4},testIndex:{5}")
     public static Iterable<Object[]> params()
             throws IllegalAccessException, CloneNotSupportedException, NoSuchFieldException {
         PostLayoutRunnable[] postLayoutOptions = new PostLayoutRunnable[]{
@@ -250,6 +250,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
         variations = addConfigVariation(variations, "mRecycleChildrenOnDetach", true);
 
         List<Object[]> params = new ArrayList<>();
+        int index = 0;
         for (Config config : variations) {
             for (PostLayoutRunnable postLayoutRunnable : postLayoutOptions) {
                 for (boolean waitForLayout : waitForLayoutOptions) {
@@ -257,7 +258,8 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
                         for (boolean loadDataAfterRestore : loadDataAfterRestoreOptions) {
                             params.add(new Object[]{
                                     config.clone(), waitForLayout,
-                                    loadDataAfterRestore, postLayoutRunnable, postRestoreRunnable
+                                    loadDataAfterRestore, postLayoutRunnable, postRestoreRunnable,
+                                    index++
                             });
                         }
                     }

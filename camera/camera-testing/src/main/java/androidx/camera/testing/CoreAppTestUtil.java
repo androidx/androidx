@@ -19,6 +19,7 @@ package androidx.camera.testing;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Build;
+import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.test.uiautomator.UiDevice;
@@ -29,6 +30,7 @@ import org.junit.AssumptionViolatedException;
 public final class CoreAppTestUtil {
 
     private static final int DISMISS_LOCK_SCREEN_CODE = 82;
+    private static final int MAX_TIMEOUT_MS = 3000;
 
     private CoreAppTestUtil() {
     }
@@ -45,7 +47,6 @@ public final class CoreAppTestUtil {
                 && Build.MODEL.contains("Nexus 5")) {
             throw new AssumptionViolatedException("Known issue, b/134894604.");
         }
-
     }
 
     /**
@@ -65,9 +66,17 @@ public final class CoreAppTestUtil {
      */
     public static void clearDeviceUI(@NonNull Instrumentation instrumentation) {
         UiDevice device = UiDevice.getInstance(instrumentation);
+        // On some devices, its necessary to wake up the device before attempting unlock, otherwise
+        // unlock attempt will not unlock.
+        try {
+            device.wakeUp();
+        } catch (RemoteException remoteException) {
+        }
         // In case the lock screen on top, the action to dismiss it.
         device.pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
+
         device.pressHome();
+        device.waitForIdle(MAX_TIMEOUT_MS);
 
         // Close system dialogs first to avoid interrupt.
         instrumentation.getTargetContext().sendBroadcast(

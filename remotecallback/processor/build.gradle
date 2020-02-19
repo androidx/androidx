@@ -35,7 +35,6 @@ androidx {
     name = "Remote Callback Compiler"
     publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
-    mavenVersion = LibraryVersions.REMOTECALLBACK
     mavenGroup = LibraryGroups.REMOTECALLBACK
     inceptionYear = "2018"
     description = "Compiler for RemoteCallback implementations"

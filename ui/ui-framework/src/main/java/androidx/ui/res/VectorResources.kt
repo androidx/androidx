@@ -21,7 +21,6 @@ import android.content.res.Resources
 import android.util.Xml
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.compose.trace
 import androidx.ui.core.ContextAmbient
@@ -42,7 +41,7 @@ import org.xmlpull.v1.XmlPullParserException
  */
 @Composable
 fun vectorResource(@DrawableRes id: Int): VectorAsset {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     val res = context.resources
     val theme = context.theme
     return remember(id) {
@@ -68,7 +67,7 @@ fun loadVectorResource(
     pendingResource: VectorAsset? = null,
     failedResource: VectorAsset? = null
 ): DeferredResource<VectorAsset> {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     val res = context.resources
     val theme = context.theme
 

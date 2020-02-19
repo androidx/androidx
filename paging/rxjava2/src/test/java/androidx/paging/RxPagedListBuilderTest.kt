@@ -100,6 +100,7 @@ class RxPagedListBuilderTest {
             )
         )
         val scheduler = TestScheduler()
+        @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(scheduler)
             .setNotifyScheduler(scheduler)
@@ -132,6 +133,7 @@ class RxPagedListBuilderTest {
         val factory = testDataSourceSequence(listOf(listOf("a", "b"), listOf("c", "d")))
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+        @Suppress("DEPRECATION")
         val observable: Observable<PagedList<String>> = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
@@ -161,6 +163,7 @@ class RxPagedListBuilderTest {
         // initial load - if we used one, we wouldn't be able to see the initial Loading state
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+        @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory::create, 2)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)

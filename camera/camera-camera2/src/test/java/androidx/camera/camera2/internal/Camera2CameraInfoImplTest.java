@@ -31,7 +31,9 @@ import android.view.Surface;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -174,41 +176,15 @@ public class Camera2CameraInfoImplTest {
     }
 
     // zoom related tests just ensure it uses ZoomControl to get the value
-    // Full tests are performed at ZoomControlTest / ZoomControlRoboTest.
+    // Full tests are performed at ZoomControlDeviceTest / ZoomControlTest.
     @Test
-    public void cameraInfo_getZoomRatio_valueIsCorrect() {
+    public void cameraInfo_getZoom_valueIsCorrect() {
         CameraInfoInternal cameraInfo =
                 new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
                         mMockTorchControl);
-        when(mMockZoomControl.getZoomRatio()).thenReturn(new MutableLiveData<>(3.0f));
-        assertThat(cameraInfo.getZoomRatio().getValue()).isEqualTo(3.0f);
-    }
-
-    @Test
-    public void cameraInfo_getZoomPercentage_valueIsCorrect() {
-        CameraInfoInternal cameraInfo =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
-        when(mMockZoomControl.getLinearZoom()).thenReturn(new MutableLiveData<>(0.2f));
-        assertThat(cameraInfo.getLinearZoom().getValue()).isEqualTo(0.2f);
-    }
-
-    @Test
-    public void cameraInfo_getMaxZoomRatio_valueIsCorrect() {
-        CameraInfoInternal cameraInfo =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
-        when(mMockZoomControl.getMaxZoomRatio()).thenReturn(new MutableLiveData<>(8.0f));
-        assertThat(cameraInfo.getMaxZoomRatio().getValue()).isEqualTo(8.0f);
-    }
-
-    @Test
-    public void cameraInfo_getMinZoomRatio_valueIsCorrect() {
-        CameraInfoInternal cameraInfo =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
-        when(mMockZoomControl.getMinZoomRatio()).thenReturn(new MutableLiveData<>(1.0f));
-        assertThat(cameraInfo.getMinZoomRatio().getValue()).isEqualTo(1.0f);
+        ZoomState zoomState = ImmutableZoomState.create(3.0f, 8.0f, 1.0f, 0.2f);
+        when(mMockZoomControl.getZoomState()).thenReturn(new MutableLiveData<>(zoomState));
+        assertThat(mMockZoomControl.getZoomState().getValue()).isEqualTo(zoomState);
     }
 
     @Test

@@ -16,78 +16,25 @@
 
 package androidx.ui.core
 
-import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.geometry.Rect
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
+import androidx.ui.core.semantics.SemanticsNode
 
 /**
- * Represent a node in the semantics tree together with information about its parent and children.
- *
- * @param parent Parent of this node or null if none
- * @param semanticsComponentNode The actual semantics data of this node
+ * Finds all [SemanticsNode]s under the given [rootNode].
  */
-class SemanticsTreeNodeImpl(
-    override val parent: SemanticsTreeNode?,
-    private val semanticsComponentNode: SemanticsComponentNode
-) : SemanticsTreeNode {
-    private val _children = mutableSetOf<SemanticsTreeNode>()
-    override val children: Set<SemanticsTreeNode>
-        get() = _children
-
-    fun addChild(child: SemanticsTreeNode) {
-        _children.add(child)
-    }
-    override val globalRect: Rect?
-        get() {
-            // TODO(ryanmentley): Handle multiple children better
-            val layoutNode = semanticsComponentNode.findLastLayoutChild { true } ?: return null
-            val position = layoutNode.localToGlobal(PxPosition(0.px, 0.px))
-
-            return Rect.fromLTWH(
-                position.x.value,
-                position.y.value,
-                layoutNode.width.toPx().value,
-                layoutNode.height.toPx().value
-            )
-        }
-
-    override val data: SemanticsConfiguration
-        get() = semanticsComponentNode.semanticsConfiguration
-
-    override fun findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode? {
-        return semanticsComponentNode.findClosestParentNode(selector)
-    }
-}
-
-/**
- * Finds all [SemanticsTreeNode]s under the given [rootNode].
- */
-internal fun findAllSemanticNodesIn(rootNode: ComponentNode): List<SemanticsTreeNode> {
+internal fun findAllSemanticNodesIn(rootNode: SemanticsNode): List<SemanticsNode> {
     // TODO(pavlis): Write some unit tests for this
-    var nodes = mutableListOf<SemanticsTreeNode>()
-    findAllSemanticNodesInternal(parent = null, currentNode = rootNode, nodes = nodes)
+    val nodes = mutableListOf<SemanticsNode>()
+    findAllSemanticNodesInternal(currentNode = rootNode, nodes = nodes)
     return nodes
 }
 
 private fun findAllSemanticNodesInternal(
-    parent: SemanticsTreeNodeImpl?,
-    currentNode: ComponentNode,
-    nodes: MutableList<SemanticsTreeNode>
+    currentNode: SemanticsNode,
+    nodes: MutableList<SemanticsNode>
 ) {
-    var currentParent = parent
-    if (currentNode is SemanticsComponentNode) {
-        val wrapper = SemanticsTreeNodeImpl(
-            parent = parent,
-            semanticsComponentNode = currentNode
-        )
-        parent?.addChild(wrapper)
-        nodes.add(wrapper)
-        currentParent = wrapper
-    }
+    nodes.add(currentNode)
 
-    currentNode.visitChildren {
-        findAllSemanticNodesInternal(currentParent, it, nodes)
+    for (child in currentNode.children) {
+        findAllSemanticNodesInternal(child, nodes)
     }
 }

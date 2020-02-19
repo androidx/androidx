@@ -359,9 +359,29 @@ public class NavController {
             NavGraph parent = currentDestination.getParent();
             while (parent != null) {
                 if (parent.getStartDestination() != destId) {
+                    final Bundle args = new Bundle();
+
+                    if (mActivity != null && mActivity.getIntent() != null) {
+                        final Uri data = mActivity.getIntent().getData();
+
+                        // We were started via a URI intent.
+                        if (data != null) {
+                            // Include the original deep link Intent so the Destinations can
+                            // synthetically generate additional arguments as necessary.
+                            args.putParcelable(KEY_DEEP_LINK_INTENT, mActivity.getIntent());
+                            NavDestination.DeepLinkMatch matchingDeepLink = mGraph.matchDeepLink(
+                                    data);
+                            if (matchingDeepLink != null) {
+                                args.putAll(matchingDeepLink.getMatchingArgs());
+                            }
+                        }
+                    }
+
                     TaskStackBuilder parentIntents = new NavDeepLinkBuilder(this)
                             .setDestination(parent.getId())
+                            .setArguments(args)
                             .createTaskStackBuilder();
+
                     parentIntents.startActivities();
                     if (mActivity != null) {
                         mActivity.finish();
@@ -772,11 +792,8 @@ public class NavController {
      */
     @Nullable
     public NavDestination getCurrentDestination() {
-        if (mBackStack.isEmpty()) {
-            return null;
-        } else {
-            return mBackStack.getLast().getDestination();
-        }
+        NavBackStackEntry entry = getCurrentBackStackEntry();
+        return entry != null ? entry.getDestination() : null;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1201,5 +1218,43 @@ public class NavController {
                     + " is on the NavController's back stack");
         }
         return lastFromBackStack;
+    }
+
+    /**
+     * Gets the topmost {@link NavBackStackEntry}.
+     *
+     * @return the topmost entry on the back stack or null if the back stack is empty
+     */
+    @Nullable
+    public NavBackStackEntry getCurrentBackStackEntry() {
+        if (mBackStack.isEmpty()) {
+            return null;
+        } else {
+            return mBackStack.getLast();
+        }
+    }
+
+    /**
+     * Gets the previous visible {@link NavBackStackEntry}.
+     * <p>
+     * This skips over any {@link NavBackStackEntry} that is associated with a {@link NavGraph}.
+     *
+     * @return the previous visible entry on the back stack or null if the back stack has less
+     * than two visible entries
+     */
+    @Nullable
+    public NavBackStackEntry getPreviousBackStackEntry() {
+        Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
+        // throw the topmost destination away.
+        if (iterator.hasNext()) {
+            iterator.next();
+        }
+        while (iterator.hasNext()) {
+            NavBackStackEntry entry = iterator.next();
+            if (!(entry.getDestination() instanceof NavGraph)) {
+                return entry;
+            }
+        }
+        return null;
     }
 }

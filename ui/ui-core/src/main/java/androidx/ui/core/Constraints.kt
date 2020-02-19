@@ -26,17 +26,17 @@ import androidx.ui.unit.isFinite
 
 /**
  * Immutable constraints used for measuring child [Layout]s. A parent [Layout]
- * can measure their children using the [measure] method on the corresponding [Measurable]s,
- * method which takes the [Constraints] the child has to follow. A [measure]d child is then
- * responsible to choose for themselves and return a size which satisfies the received set
- * of [Constraints]:
+ * can measure their children using the measure method on the corresponding [Measurable]s,
+ * method which takes the [Constraints] the child has to follow. A measured child is then
+ * responsible to choose for themselves and return a size which satisfies the set of [Constraints]
+ * received from their parent:
  * - minWidth <= chosenWidth <= maxWidth
  * - minHeight <= chosenHeight <= maxHeight
  * The parent can then access the child chosen size on the resulting [Placeable]. The parent is
  * responsible of defining a valid positioning of the children according to their sizes, so the
  * parent needs to measure the children with appropriate [Constraints], such that whatever valid
  * sizes children choose, they can be laid out in a way that also respects the parent's incoming
- * [Constraints]. Note that different children can be [measure]d with different [Constraints].
+ * [Constraints]. Note that different children can be measured with different [Constraints].
  * A set of [Constraints] can have infinite maxWidth and/or maxHeight. This is a trick often
  * used by parents to ask their children for their preferred size: unbounded constraints force
  * children whose default behavior is to fill the available space (always size to
@@ -44,6 +44,11 @@ import androidx.ui.unit.isFinite
  * with unbounded [Constraints], these children will fallback to size themselves to wrap their
  * content, instead of expanding to fill the available space (this is not always true
  * as it depends on the child layout model, but is a common behavior for core layout components).
+ *
+ * @param minWidth The minimum width of a layout satisfying the constraints.
+ * @param maxWidth The maximum width of a layout satisfying the constraints.
+ * @param minHeight The minimum height of a layout satisfying the constraints.
+ * @param maxHeight The maximum height of a layout satisfying the constraints.
  */
 @Immutable
 data class Constraints(
@@ -70,15 +75,14 @@ data class Constraints(
 
     companion object {
         /**
-         * Creates constraints tight in both dimensions.
+         * Creates constraints for fixed size in both dimensions.
          */
-        fun tightConstraints(width: IntPx, height: IntPx) =
-            Constraints(width, width, height, height)
+        fun fixed(width: IntPx, height: IntPx) = Constraints(width, width, height, height)
 
         /**
-         * Creates constraints with tight width and loose height.
+         * Creates constraints for fixed width and unspecified height.
          */
-        fun tightConstraintsForWidth(width: IntPx) = Constraints(
+        fun fixedWidth(width: IntPx) = Constraints(
             minWidth = width,
             maxWidth = width,
             minHeight = IntPx.Zero,
@@ -86,9 +90,9 @@ data class Constraints(
         )
 
         /**
-         * Creates constraints with tight height and loose width.
+         * Creates constraints for fixed height and unspecified width.
          */
-        fun tightConstraintsForHeight(height: IntPx) = Constraints(
+        fun fixedHeight(height: IntPx) = Constraints(
             minWidth = IntPx.Zero,
             maxWidth = IntPx.Infinity,
             minHeight = height,
@@ -110,24 +114,18 @@ val Constraints.hasBoundedHeight get() = maxHeight.isFinite()
 val Constraints.hasBoundedWidth get() = maxWidth.isFinite()
 
 /**
- * Whether there is exactly one size that satisfies the constraints.
- * @see hasTightHeight
- * @see hasTightWidth
- */
-val Constraints.isTight get() = minWidth == maxWidth && minHeight == maxHeight
-
-/**
  * Whether there is exactly one width value that satisfies the constraints.
  */
-val Constraints.hasTightWidth get() = maxWidth == minWidth
+val Constraints.hasFixedWidth get() = maxWidth == minWidth
 
 /**
  * Whether there is exactly one height value that satisfies the constraints.
  */
-val Constraints.hasTightHeight get() = maxHeight == minHeight
+val Constraints.hasFixedHeight get() = maxHeight == minHeight
 
 /**
- * Whether there is exactly one height value that satisfies the constraints.
+ * Whether the area of a component respecting these constraints will definitely be 0.
+ * This is true when at least one of maxWidth and maxHeight are 0.
  */
 val Constraints.isZero get() = maxWidth == IntPx.Zero || maxHeight == IntPx.Zero
 
@@ -139,16 +137,6 @@ fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
     maxWidth = maxWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
     minHeight = minHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight),
     maxHeight = maxHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight)
-)
-
-/**
- * Returns a copy of the current instance, overriding the specified values to be tight.
- */
-fun Constraints.withTight(width: IntPx? = null, height: IntPx? = null) = Constraints(
-    minWidth = width ?: this.minWidth,
-    maxWidth = width ?: this.maxWidth,
-    minHeight = height ?: this.minHeight,
-    maxHeight = height ?: this.maxHeight
 )
 
 /**
@@ -165,30 +153,6 @@ fun Constraints.constrain(size: IntPxSize) = IntPxSize(
 fun Constraints.satisfiedBy(size: IntPxSize) =
         minWidth <= size.width && size.width <= maxWidth &&
                 minHeight <= size.height && size.height <= maxHeight
-
-/**
- * Returns a copy of the current instance with no min constraints.
- */
-fun Constraints.looseMin() = this.copy(minWidth = 0.ipx, minHeight = 0.ipx)
-
-/**
- * Returns a copy of the current instance with no max constraints.
- */
-fun Constraints.looseMax() = this.copy(maxWidth = IntPx.Infinity, maxHeight = IntPx.Infinity)
-
-/**
- * Returns a copy of the current instance with the constraints tightened to their smallest size.
- */
-fun Constraints.tightMin() = this.withTight(width = minWidth, height = minHeight)
-
-/**
- * Returns a copy of the current instance with the constraints tightened to their largest size.
- * Note that if any of the constraints are unbounded, they will be left unchanged.
- */
-fun Constraints.tightMax() = this.copy(
-    minWidth = if (hasBoundedWidth) maxWidth else minWidth,
-    minHeight = if (hasBoundedHeight) maxHeight else minHeight
-)
 
 /**
  * Returns the Constraints obtained by offsetting the current instance with the given values.

@@ -40,6 +40,13 @@ import kotlin.coroutines.resume
  * @param Key Type of data used to query Value types out of the [DataSource].
  * @param Value Type of items being loaded by the [DataSource].
  */
+@Deprecated(
+    message = "ItemKeyedDataSource is deprecated and has been replaced by PagingSource",
+    replaceWith = ReplaceWith(
+        "PagingSource<Key, Value>",
+        "androidx.paging.PagingSource"
+    )
+)
 abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(ITEM_KEYED) {
 
     /**
@@ -196,6 +203,7 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
             })
         }
 
+    @Suppress("DEPRECATION")
     private fun CancellableContinuation<BaseResult<Value>>.asCallback() =
         object : ItemKeyedDataSource.LoadCallback<Value>() {
             override fun onResult(data: List<Value>) {
@@ -303,19 +311,23 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal override fun getKeyInternal(item: Value): Key = getKey(item)
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
     ): ItemKeyedDataSource<Key, ToValue> = WrapperItemKeyedDataSource(this, function)
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: (List<Value>) -> List<ToValue>
     ): ItemKeyedDataSource<Key, ToValue> = mapByPage(Function { function(it) })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: Function<Value, ToValue>
     ): ItemKeyedDataSource<Key, ToValue> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: (Value) -> ToValue
     ): ItemKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })

@@ -117,22 +117,31 @@ public final class UseCaseCombinationTest {
         initPreview();
         initImageCapture();
         mInstrumentation.runOnMainSync(() -> {
-            mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
+            mPreview.setSurfaceProvider(createSurfaceTextureProvider(
                     new SurfaceTextureProvider.SurfaceTextureCallback() {
+                        boolean mIsSurfaceTextureReleased = false;
+                        Object mIsSurfaceTextureReleasedLock = new Object();
                         @Override
                         public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
                                 @NonNull Size resolution) {
                             surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
                             surfaceTexture.setOnFrameAvailableListener(
                                     surfaceTexture1 -> {
-                                        surfaceTexture.updateTexImage();
+                                        synchronized (mIsSurfaceTextureReleasedLock) {
+                                            if (!mIsSurfaceTextureReleased) {
+                                                surfaceTexture.updateTexImage();
+                                            }
+                                        }
                                         mSemaphore.release();
                                     });
                         }
 
                         @Override
                         public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                            surfaceTexture.release();
+                            synchronized (mIsSurfaceTextureReleasedLock) {
+                                mIsSurfaceTextureReleased = true;
+                                surfaceTexture.release();
+                            }
                         }
                     }));
             CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, mPreview, mImageCapture);

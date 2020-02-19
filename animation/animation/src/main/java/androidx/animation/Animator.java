@@ -16,6 +16,9 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -173,7 +176,7 @@ public abstract class Animator implements Cloneable {
 
      * @param startDelay The amount of the delay, in milliseconds
      */
-    public abstract void setStartDelay(long startDelay);
+    public abstract void setStartDelay(@IntRange(from = 0) long startDelay);
 
     /**
      * Sets the duration of the animation.
@@ -181,7 +184,7 @@ public abstract class Animator implements Cloneable {
      * @param duration The length of the animation, in milliseconds.
      */
     @NonNull
-    public abstract Animator setDuration(long duration);
+    public abstract Animator setDuration(@IntRange(from = 0) long duration);
 
     /**
      * Gets the duration of the animation.
@@ -219,7 +222,8 @@ public abstract class Animator implements Cloneable {
      * linear or non-linear motion, such as acceleration and deceleration. The
      * default value is {@link androidx.animation.AccelerateDecelerateInterpolator}.
      *
-     * @param value the interpolator to be used by this animation
+     * @param value the interpolator to be used by this animation, or {@code null} to use the
+     *              default one.
      */
     public abstract void setInterpolator(@Nullable Interpolator value);
 
@@ -386,6 +390,7 @@ public abstract class Animator implements Cloneable {
         }
     }
 
+    @SuppressLint("NoClone") /* Platform API */
     @NonNull
     @Override
     public Animator clone() {

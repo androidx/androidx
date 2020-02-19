@@ -81,13 +81,13 @@ import java.util.ArrayList;
  * <p>FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
  * LinearLayout, etc) outside of Fragment use cases.
  *
- * <p>FragmentContainerView will only allow views to returned by a Fragment's
+ * <p>FragmentContainerView will only allow views returned by a Fragment's
  * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any other
  * view will result in an {@link IllegalStateException}.
  *
  * <p>Layout animations and transitions are disabled for FragmentContainerView for APIs above 17.
  * Otherwise, Animations should be done through
- * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. IfanimateLayoutChanges is
+ * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. If animateLayoutChanges is
  * set to <code>true</code> or {@link #setLayoutTransition(LayoutTransition)} is called directly an
  * {@link UnsupportedOperationException} will be thrown.
  *
@@ -113,9 +113,7 @@ public final class FragmentContainerView extends FrameLayout {
      * {@link UnsupportedOperationException}.
      */
     public FragmentContainerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        throw new UnsupportedOperationException("FragmentContainerView must be within a "
-                + "FragmentActivity to be instantiated from XML.");
+        this(context, attrs, 0);
     }
 
     /**
@@ -127,8 +125,10 @@ public final class FragmentContainerView extends FrameLayout {
             @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        throw new UnsupportedOperationException("FragmentContainerView must be within a "
-                + "FragmentActivity to be instantiated from XML.");
+        if (!isInEditMode()) {
+            throw new UnsupportedOperationException("FragmentContainerView must be within a "
+                    + "FragmentActivity to be instantiated from XML.");
+        }
     }
 
     FragmentContainerView(
@@ -264,7 +264,7 @@ public final class FragmentContainerView extends FrameLayout {
     }
 
     /**
-     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * <p>FragmentContainerView will only allow views returned by a Fragment's
      * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
      *  other view will result in an {@link IllegalStateException}.
      *
@@ -281,7 +281,7 @@ public final class FragmentContainerView extends FrameLayout {
     }
 
     /**
-     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * <p>FragmentContainerView will only allow views returned by a Fragment's
      * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
      *  other view will result in an {@link IllegalStateException}.
      *

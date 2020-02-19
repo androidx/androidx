@@ -21,9 +21,10 @@ import android.os.Bundle
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.ManualAnimationClock
-import androidx.animation.PhysicsBuilder
+import androidx.animation.TweenBuilder
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.animation.animatedFloat
@@ -34,13 +35,14 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -52,13 +54,15 @@ class AnimatableSeekBar : Activity() {
         super.onCreate(savedInstanceState)
         setContent {
             val clock = remember { ManualAnimationClock(0L) }
-            AnimationClockAmbient.Provider(clock) {
+            Providers(AnimationClockAmbient provides clock) {
                 Column {
-                    Padding(40.dp) {
-                        Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 20.sp))
-                    }
+                    Text(
+                        "Drag to update AnimationClock",
+                        style = TextStyle(fontSize = 20.sp),
+                        modifier = LayoutPadding(40.dp)
+                    )
 
-                    Padding(left = 10.dp, right = 10.dp, bottom = 30.dp) {
+                    Box(LayoutPadding(start = 10.dp, end = 10.dp, bottom = 30.dp)) {
                         MovingTargetExample(clock)
                     }
 
@@ -110,7 +114,9 @@ class AnimatableSeekBar : Activity() {
                 PressGestureDetector(
                     onPress = { position ->
                         animValue.animateTo(position.x.value,
-                            PhysicsBuilder(dampingRatio = 1.0f, stiffness = 1500f))
+                            TweenBuilder<Float>().apply {
+                                duration = 400
+                            })
                     }) {
 
                     Container(height = 60.dp, expanded = true) {

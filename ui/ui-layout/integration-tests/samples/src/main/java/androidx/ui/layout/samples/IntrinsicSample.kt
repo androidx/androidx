@@ -19,12 +19,10 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
@@ -37,13 +35,13 @@ import androidx.ui.layout.Wrap
 import androidx.ui.unit.dp
 
 /**
- * Builds a layout containing three [Container] having the same width as the widest one.
+ * Builds a layout containing three [Box] having the same width as the widest one.
  *
  * Here [MinIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose minimum intrinsic width will correspond to the preferred width of the largest
- * [Container]. Then [MinIntrinsicWidth] will measure the [Column] with tight width, the same
+ * [Box]. Then [MinIntrinsicWidth] will measure the [Column] with tight width, the same
  * as the premeasured minimum intrinsic width, which due to [LayoutExpandedWidth] will force
- * the [Container]'s to use the same width.
+ * the [Box]'s to use the same width.
  */
 @Sampled
 @Composable
@@ -51,15 +49,18 @@ fun SameWidthBoxes() {
     Wrap {
         MinIntrinsicWidth {
             Column(LayoutHeight.Fill) {
-                Container(modifier = LayoutWidth.Fill + LayoutSize(20.dp, 10.dp)) {
-                    DrawShape(RectangleShape, Color.Gray)
-                }
-                Container(modifier = LayoutWidth.Fill + LayoutSize(30.dp, 10.dp)) {
-                    DrawShape(RectangleShape, Color.Blue)
-                }
-                Container(modifier = LayoutWidth.Fill + LayoutSize(10.dp, 10.dp)) {
-                    DrawShape(RectangleShape, Color.Magenta)
-                }
+                Box(
+                    modifier = LayoutWidth.Fill + LayoutSize(20.dp, 10.dp),
+                    backgroundColor = Color.Gray
+                )
+                Box(
+                    modifier = LayoutWidth.Fill + LayoutSize(30.dp, 10.dp),
+                    backgroundColor = Color.Blue
+                )
+                Box(
+                    modifier = LayoutWidth.Fill + LayoutSize(10.dp, 10.dp),
+                    backgroundColor = Color.Magenta
+                )
             }
         }
     }
@@ -85,9 +86,7 @@ fun MatchParentDividerForText() {
                     text = "This is a really short text",
                     modifier = LayoutFlexible(1f) + LayoutHeight.Fill
                 )
-                Container(width = 1.dp, modifier = LayoutHeight.Fill) {
-                    DrawShape(RectangleShape, Color.Black)
-                }
+                Box(LayoutWidth(1.dp) + LayoutHeight.Fill, backgroundColor = Color.Black)
                 Text(
                     text = "This is a much much much much much much much much much much" +
                             " much much much much much much longer text",
@@ -103,9 +102,9 @@ fun MatchParentDividerForText() {
  *
  * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose maximum intrinsic width will correspond to the preferred width of the largest
- * [Container]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
+ * [Box]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
  * as the premeasured maximum intrinsic width, which due to [LayoutExpandedWidth] modifiers will
- * force the [Container]s to use the same width.
+ * force the [Box]s to use the same width.
  */
 @Sampled
 @Composable
@@ -113,16 +112,13 @@ fun SameWidthTextBoxes() {
     Wrap {
         MaxIntrinsicWidth {
             Column(LayoutHeight.Fill) {
-                Container(LayoutWidth.Fill) {
-                    DrawShape(RectangleShape, Color.Gray)
+                Box(LayoutWidth.Fill, backgroundColor = Color.Gray) {
                     Text("Short text")
                 }
-                Container(LayoutWidth.Fill) {
-                    DrawShape(RectangleShape, Color.Blue)
+                Box(LayoutWidth.Fill, backgroundColor = Color.Blue) {
                     Text("Extremely long text giving the width of its siblings")
                 }
-                Container(LayoutWidth.Fill) {
-                    DrawShape(RectangleShape, Color.Magenta)
+                Box(LayoutWidth.Fill, backgroundColor = Color.Magenta) {
                     Text("Medium length text")
                 }
             }
@@ -147,15 +143,9 @@ fun MatchParentDividerForAspectRatio() {
         MaxIntrinsicHeight {
             Row {
                 val modifier = LayoutHeight.Fill + LayoutFlexible(1f)
-                Container(modifier + LayoutAspectRatio(2f)) {
-                    DrawShape(RectangleShape, Color.Gray)
-                }
-                Container(width = 1.dp, modifier = LayoutHeight.Fill) {
-                    DrawShape(RectangleShape, Color.Black)
-                }
-                Container(modifier + LayoutAspectRatio(1f)) {
-                    DrawShape(RectangleShape, Color.Blue)
-                }
+                Box(modifier + LayoutAspectRatio(2f), backgroundColor = Color.Gray)
+                Box(LayoutWidth(1.dp) + LayoutHeight.Fill, backgroundColor = Color.Black)
+                Box(modifier + LayoutAspectRatio(1f), backgroundColor = Color.Blue)
             }
         }
     }

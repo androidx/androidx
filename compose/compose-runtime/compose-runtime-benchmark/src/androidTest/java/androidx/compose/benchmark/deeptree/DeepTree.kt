@@ -17,23 +17,42 @@
 package androidx.compose.benchmark.deeptree
 
 import androidx.compose.Composable
-import androidx.ui.unit.dp
-import androidx.ui.foundation.ColoredRect
+import androidx.compose.benchmark.noChildren
+import androidx.ui.core.draw
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
+import androidx.ui.layout.Container
 import androidx.ui.layout.FlexScope
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.unit.dp
+import androidx.ui.unit.toRect
+
+private fun background(paint: Paint) =
+    draw { canvas, size -> canvas.drawRect(size.toRect(), paint) }
+
+val blueBackground = background(Paint().also { it.color = Color.Blue })
+val magentaBackground = background(Paint().also { it.color = Color.Magenta })
+val blackBackground = background(Paint().also { it.color = Color.Black })
+
+val dp16 = 16.dp
 
 @Composable
 fun Terminal(style: Int) {
-    val color = when (style) {
-        0 -> Color.Blue
-        1 -> Color.Black
-        else -> Color.Magenta
+    val background = when (style) {
+        0 -> blueBackground
+        1 -> blackBackground
+        else -> magentaBackground
     }
-    ColoredRect(color = color, height = 16.dp, width = 16.dp)
+    Container(
+        modifier = background,
+        height = dp16,
+        width = dp16,
+        expanded = true,
+        children = noChildren
+    )
 }
 
 @Composable
@@ -43,12 +62,6 @@ fun Stack(vertical: Boolean, children: @Composable() FlexScope.() -> Unit) {
     } else {
         Row(LayoutWidth.Fill, children = children)
     }
-}
-
-@Composable
-fun Container(children: @Composable() () -> Unit) {
-    // non-layout node component. just adds depth to the composition hierarchy.
-    children()
 }
 
 /**
@@ -76,15 +89,20 @@ fun DeepTree(depth: Int, breadth: Int, wrap: Int, id: Int = 0) {
 //            DeepTree(depth=depth, breadth=breadth, wrap=wrap - 1, id=id)
 //        }
 //    } else {
-        Stack(vertical = depth % 2 == 0) {
-            if (depth == 0) {
-                Terminal(style = id % 3)
-            } else {
-                repeat(breadth) {
-                    ColoredRect(color = Color.Blue, height = 16.dp, width = 16.dp)
-//                    DeepTree(depth=depth - 1, wrap=wrap, breadth=breadth, id=id)
-                }
+    Stack(vertical = depth % 2 == 0) {
+        if (depth == 0) {
+            Terminal(style = id % 3)
+        } else {
+            repeat(breadth) {
+                Container(
+                    modifier = blueBackground,
+                    height = dp16,
+                    width = dp16,
+                    expanded = true,
+                    children = noChildren
+                )
             }
         }
+    }
 //    }
 }

@@ -60,7 +60,7 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
     }
 
     /* Returns whether or not the groupId of the project requires the same version for all
-     * artifactIds.  See CheckSameVersionLibraryGroupsTask.kt
+     * artifactIds.
      */
     private fun requiresSameVersion(): Boolean {
         val library =
@@ -72,15 +72,19 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
      * of the build that is released.  Thus, we use frameworks/support to get the sha
      */
     private fun getFrameworksSupportCommitShaAtHead(): String {
-        val commitList: List<Commit> = GitClientImpl(project.rootDir).getGitLog(
+        val supportRoot = getSupportRoot(project)
+        val commitList: List<Commit> = GitClientImpl(supportRoot, logger).getGitLog(
             GitCommitRange(
                 fromExclusive = "",
                 untilInclusive = "HEAD",
                 n = 1
             ),
             keepMerges = true,
-            fullProjectDir = getSupportRoot(project)
+            fullProjectDir = supportRoot
         )
+        if (commitList.size < 1) {
+            throw RuntimeException("Failed to find git commit for HEAD!")
+        }
         return commitList.first().sha
     }
 

@@ -24,7 +24,6 @@ import android.view.TextureView;
 import androidx.annotation.NonNull;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.Futures;
 
 /**
  * This class creates implementations of PreviewSurfaceProvider that provide Surfaces that have been
@@ -35,11 +34,11 @@ public final class SurfaceTextureProvider {
     }
 
     /**
-     * Creates a {@link Preview.PreviewSurfaceProvider} that is backed by a {@link SurfaceTexture}.
+     * Creates a {@link Preview.SurfaceProvider} that is backed by a {@link SurfaceTexture}.
      *
-     * <p>This is a convenience method for creating a {@link Preview.PreviewSurfaceProvider}
+     * <p>This is a convenience method for creating a {@link Preview.SurfaceProvider}
      * whose {@link Surface} is backed by a {@link SurfaceTexture}. The returned
-     * {@link Preview.PreviewSurfaceProvider} is responsible for creating the
+     * {@link Preview.SurfaceProvider} is responsible for creating the
      * {@link SurfaceTexture}. The {@link SurfaceTexture} may not be safe to use with
      * {@link TextureView}
      * Example:
@@ -61,24 +60,24 @@ public final class SurfaceTextureProvider {
      *
      * @param surfaceTextureCallback callback called when the SurfaceTexture is ready to be
      *                               set/released.
-     * @return a {@link Preview.PreviewSurfaceProvider} to be used with
-     * {@link Preview#setPreviewSurfaceProvider(Preview.PreviewSurfaceProvider)}.
+     * @return a {@link Preview.SurfaceProvider} to be used with
+     * {@link Preview#setSurfaceProvider(Preview.SurfaceProvider)}.
      */
     @NonNull
-    public static Preview.PreviewSurfaceProvider createSurfaceTextureProvider(
+    public static Preview.SurfaceProvider createSurfaceTextureProvider(
             @NonNull SurfaceTextureCallback surfaceTextureCallback) {
-        return (resolution, safeToCancelFuture) -> {
+        return (surfaceRequest) -> {
             SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-            surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
-                    resolution.getHeight());
+            surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
+                    surfaceRequest.getResolution().getHeight());
             surfaceTexture.detachFromGLContext();
-            surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture, resolution);
+            surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture,
+                    surfaceRequest.getResolution());
             Surface surface = new Surface(surfaceTexture);
-            safeToCancelFuture.addListener(() -> {
+            surfaceRequest.setSurface(surface).addListener(() -> {
                 surface.release();
                 surfaceTextureCallback.onSafeToRelease(surfaceTexture);
             }, CameraXExecutors.directExecutor());
-            return Futures.immediateFuture(surface);
         };
     }
 

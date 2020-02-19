@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
@@ -83,8 +84,20 @@ class FragmentLifecycleTest : BaseTest() {
     }
 
     @Test
-    fun test_setCurrentItem() {
+    fun test_setCurrentItem_offscreenPageLimit_default() {
+        test_setCurrentItem_offscreenPageLimit(OFFSCREEN_PAGE_LIMIT_DEFAULT)
+    }
+
+    @Test
+    fun test_setCurrentItem_offscreenPageLimit_3() {
+        test_setCurrentItem_offscreenPageLimit(3)
+    }
+
+    private fun test_setCurrentItem_offscreenPageLimit(offscreenPageLimit: Int) {
         setUpTest(orientation).apply {
+            runOnUiThreadSync {
+                viewPager.offscreenPageLimit = offscreenPageLimit
+            }
             val expectedValues = stringSequence(totalPages).toMutableList()
             val adapter = adapterProvider.provider(expectedValues.toList()) // defensive copy
             setAdapterSync(adapter)
@@ -210,7 +223,9 @@ class FragmentLifecycleTest : BaseTest() {
     /**
      * Verifies the following:
      *  - Primary item Fragment is Resumed
+     *  - Primary item Fragment's menu is visible
      *  - Other Fragments are Started
+     *  - Other Fragments's menu is not visible
      *  - Correct page content is displayed
      *  - ViewPager2 currentItem is correct
      *  - A11y page actions are correct
@@ -226,7 +241,8 @@ class FragmentLifecycleTest : BaseTest() {
                 FragmentInfo(
                     it.tag!!,
                     it.stateString,
-                    it.isResumed
+                    it.isResumed,
+                    it.isMenuVisible
                 )
             }
 
@@ -236,17 +252,28 @@ class FragmentLifecycleTest : BaseTest() {
         val expectedTag = "f$expectedId"
         assertThat(resumed.first().tag, equalTo(expectedTag))
         assertThat(resumed.first().isResumed, equalTo(true))
+        assertThat(resumed.first().isMenuVisible, equalTo(true))
 
         fragmentInfo.filter { it.state != STATE_RESUMED }.forEach { fi ->
             assertThat(fi.state, equalTo(STATE_STARTED))
             assertThat(fi.isResumed, equalTo(false))
+            assertThat(fi.isMenuVisible, equalTo(false))
         }
 
-        assertBasicState(ix, text)
+        assertBasicState(
+            ix,
+            text,
+            performSelfCheck = viewPager.offscreenPageLimit == OFFSCREEN_PAGE_LIMIT_DEFAULT
+        )
     }
 }
 
-private data class FragmentInfo(val tag: String, val state: String, val isResumed: Boolean)
+private data class FragmentInfo(
+    val tag: String,
+    val state: String,
+    val isResumed: Boolean,
+    val isMenuVisible: Boolean
+)
 
 private fun fragmentStateToString(state: Int): String =
     FRAGMENT_LIFECYCLE_STATES.first { getFragmentFieldValue<Int>(it, null) == state }

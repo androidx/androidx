@@ -20,10 +20,9 @@ if (supportRoot == null) {
             " including this script")
 }
 
-apply from: "${supportRoot}/buildSrc/unbundled_check.gradle"
-
 def checkoutRoot = "${ext.supportRootFolder}/../.."
 ext.repos = new Properties()
+ext.repos.checkoutRoot = checkoutRoot
 ext.repos.prebuiltsRoot = "${checkoutRoot}/prebuilts"
 
 /**
@@ -56,14 +55,28 @@ def addMavenRepositories(RepositoryHandler handler) {
             includeGroup ""
         }
     }
+    def buildDokka = System.getenv("BUILD_DOKKA") != null
     handler.maven {
         url "${repos.prebuiltsRoot}/androidx/external"
         metadataSources {
             mavenPom()
             artifact()
         }
+        if (buildDokka) {
+            content {
+                excludeGroup "org.jetbrains.dokka"
+            }
+        }
     }
-    if (System.getenv("ALLOW_PUBLIC_REPOS") != null || (isUnbundledBuild(ext.supportRootFolder))) {
+    if (buildDokka) {
+        handler.maven {
+            url "${repos.checkoutRoot}/external/dokka/build/dist-maven"
+            content {
+                includeGroup "org.jetbrains.dokka"
+            }
+        }
+    }
+    if (System.getenv("ALLOW_PUBLIC_REPOS") != null) {
         handler.mavenCentral()
         handler.jcenter()
         handler.google()

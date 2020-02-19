@@ -19,6 +19,7 @@ package androidx.ui.test.util
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.gesture.util.VelocityTracker
@@ -28,7 +29,7 @@ import com.google.common.truth.Truth.assertThat
 
 class PointerInputRecorder {
 
-    data class DataPoint(val id: Int, val data: PointerInputData) {
+    data class DataPoint(val id: PointerId, val data: PointerInputData) {
         val timestamp get() = data.uptime!!
         val position get() = data.position!!
         val x get() = data.position!!.x

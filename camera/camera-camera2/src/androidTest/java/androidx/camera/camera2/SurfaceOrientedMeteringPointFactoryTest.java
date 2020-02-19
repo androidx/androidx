@@ -63,6 +63,9 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
         CameraX.shutdown().get();
     }
 

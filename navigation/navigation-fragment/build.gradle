@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":fragment:fragment"))
+    api("androidx.fragment:fragment:1.2.1")
     api(project(":navigation:navigation-runtime"))
 
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
@@ -46,7 +46,6 @@ dependencies {
 androidx {
     name = "Android Navigation Fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Fragment"

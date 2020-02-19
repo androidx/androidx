@@ -16,12 +16,11 @@
 
 package androidx.ui.res
 
+import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
-import androidx.ui.unit.Density
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 import androidx.ui.framework.test.R
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -42,7 +41,7 @@ class PrimitiveResourcesTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
+            Providers(ContextAmbient provides context) {
                 assertThat(integerResource(R.integer.integer_value)).isEqualTo(123)
             }
         }
@@ -53,7 +52,7 @@ class PrimitiveResourcesTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
+            Providers(ContextAmbient provides context) {
                 assertThat(integerArrayResource(R.array.integer_array))
                     .isEqualTo(intArrayOf(234, 345))
             }
@@ -65,7 +64,7 @@ class PrimitiveResourcesTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
+            Providers(ContextAmbient provides context) {
                 assertThat(booleanResource(R.bool.boolean_value)).isTrue()
             }
         }
@@ -76,10 +75,8 @@ class PrimitiveResourcesTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
-                withDensity(Density(context.resources.displayMetrics.density)) {
-                    assertThat(dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp)
-                }
+            Providers(ContextAmbient provides context) {
+                assertThat(dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp)
             }
         }
     }

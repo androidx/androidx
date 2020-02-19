@@ -61,6 +61,13 @@ class ColorPropKey(colorSpace: ColorSpace = ColorSpaces.Srgb) : PropKey<Color, A
 }
 
 /**
+ * Built-in property key for [Rect] properties.
+ */
+class RectPropKey : PropKey<Rect, AnimationVector4D> {
+    override val typeConverter = RectToVectorConverter
+}
+
+/**
  * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
  * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given [ColorSpace].
  */

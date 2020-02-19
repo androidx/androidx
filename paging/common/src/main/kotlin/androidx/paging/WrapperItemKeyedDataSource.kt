@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.arch.core.util.Function
 import java.util.IdentityHashMap
 
+@Suppress("DEPRECATION")
 internal class WrapperItemKeyedDataSource<K : Any, A : Any, B : Any>(
     private val source: ItemKeyedDataSource<K, A>,
     private val listFunction: Function<List<A>, List<B>>

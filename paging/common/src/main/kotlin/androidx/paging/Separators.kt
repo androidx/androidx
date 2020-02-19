@@ -19,8 +19,8 @@ package androidx.paging
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
+import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PageEvent.Insert
-import androidx.paging.PageEvent.StateUpdate
 
 /**
  * Create a TransformablePage with separators inside (ignoring edges)
@@ -158,5 +158,5 @@ internal fun <R : Any, T : R> PageEvent<T>.insertSeparators(
             placeholdersRemaining = placeholdersRemaining
         )
     }
-    is StateUpdate -> this as PageEvent<R>
+    is LoadStateUpdate -> this as PageEvent<R>
 }

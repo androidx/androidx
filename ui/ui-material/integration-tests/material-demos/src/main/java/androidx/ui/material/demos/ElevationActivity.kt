@@ -18,9 +18,9 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -56,11 +56,10 @@ class ElevationActivity : MaterialDemoActivity() {
 
 @Composable
 private fun ElevatedCard(elevation: Dp) {
-    val border = if (elevation == 0.dp) Border(Color.Gray, 1.dp) else null
     Card(
-        LayoutPadding(left = 10.dp, right = 10.dp, top = 20.dp, bottom = 20.dp),
+        LayoutPadding(start = 10.dp, end = 10.dp, top = 20.dp, bottom = 20.dp),
         shape = RoundedCornerShape(4.dp),
-        border = border,
+        border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
         Ripple(bounded = true) {

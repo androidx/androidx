@@ -17,9 +17,10 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.border.Border
-import androidx.ui.foundation.shape.border.DrawBorder
+import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.shift
@@ -27,28 +28,30 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 
 class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
     override fun emitContent() {
-        Container(width = 48.dp, height = 48.dp) {
-            DrawBorder(CircleShape, Border(Color.Cyan, 1.dp))
-            val padding = (48.dp - getInnerSize().value) / 2
-            DrawShape(PaddingShape(padding, CircleShape), Color.Cyan)
-        }
+        val padding = (48.dp - getInnerSize().value) / 2
+        Box(
+            LayoutSize(48.dp) + DrawBorder(Border(1.dp, Color.Cyan), CircleShape) +
+                    DrawBackground(
+                        color = Color.Cyan,
+                        shape = (PaddingShape(padding, CircleShape))
+                    )
+        )
     }
 }
 
 private data class PaddingShape(val padding: Dp, val shape: Shape) : Shape {
     override fun createOutline(size: PxSize, density: Density): Outline {
-        val twoPaddings = withDensity(density) { (padding * 2).toPx() }
+        val twoPaddings = with(density) { (padding * 2).toPx() }
         val sizeMinusPaddings = PxSize(size.width - twoPaddings, size.height - twoPaddings)
         val rawResult = shape.createOutline(sizeMinusPaddings, density)
         return rawResult.offset(twoPaddings / 2)

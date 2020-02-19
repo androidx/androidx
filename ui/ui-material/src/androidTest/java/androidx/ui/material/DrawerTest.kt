@@ -16,26 +16,37 @@
 
 package androidx.ui.material
 
+import android.os.SystemClock.sleep
 import androidx.compose.Model
+import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
+import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Clickable
 import androidx.ui.layout.Container
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
+import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.globalBounds
+import androidx.ui.test.sendClick
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.px
 import androidx.ui.unit.round
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 @Model
@@ -58,7 +69,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
         composeTestRule.runOnIdleCompose {
             assertThat(position!!.x.value).isEqualTo(0f)
@@ -75,7 +86,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
         val width = composeTestRule.displayMetrics.widthPixels
         composeTestRule.runOnIdleCompose {
@@ -85,7 +96,7 @@ class DrawerTest {
 
     @Test
     fun modalDrawer_testEndPadding_whenOpened() {
-        var size: PxSize? = null
+        var size: IntPxSize? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
                 Container(expanded = true) {
@@ -93,12 +104,12 @@ class DrawerTest {
                         size = coords.size
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
 
         val width = composeTestRule.displayMetrics.widthPixels
         composeTestRule.runOnIdleComposeWithDensity {
-            assertThat(size!!.width.round().value)
+            assertThat(size!!.width.value)
                 .isEqualTo(width - 56.dp.toPx().round().value)
         }
     }
@@ -113,7 +124,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
 
         val width = composeTestRule.displayMetrics.widthPixels
@@ -135,7 +146,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
         val height = composeTestRule.displayMetrics.heightPixels
         composeTestRule.runOnIdleCompose {
@@ -148,14 +159,66 @@ class DrawerTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 StaticDrawer {
-                    Container(expanded = true) {}
+                    Container(expanded = true, children = emptyContent())
                 }
             }
             .assertWidthEqualsTo(256.dp)
     }
 
     @Test
-    @Ignore("(malkov/mount): unignore this when b/136678145 is fixed")
+    @Ignore("failing in postsubmit, fix in b/148751721")
+    fun modalDrawer_openAndClose() {
+        var contentWidth: IntPx? = null
+        var openedLatch: CountDownLatch? = null
+        var closedLatch: CountDownLatch? = CountDownLatch(1)
+        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            TestTag("Drawer") {
+                Semantics(container = true) {
+                    ModalDrawerLayout(drawerState.state, { drawerState.state = it },
+                        drawerContent = {
+                            OnChildPositioned({ info ->
+                                val pos = info.localToGlobal(PxPosition.Origin)
+                                if (pos.x == 0.px) {
+                                    // If fully opened, mark the openedLatch if present
+                                    openedLatch?.countDown()
+                                } else if (-pos.x.round() == contentWidth) {
+                                    // If fully closed, mark the closedLatch if present
+                                    closedLatch?.countDown()
+                                }
+                            }) {
+                                Container(expanded = true, children = emptyContent())
+                            }
+                        },
+                        bodyContent = {
+                            OnChildPositioned({ contentWidth = it.size.width }) {
+                                Container(expanded = true, children = emptyContent())
+                            }
+                        })
+                }
+            }
+        }
+        // Drawer should start in closed state
+        assertThat(closedLatch!!.await(5, TimeUnit.SECONDS)).isTrue()
+
+        // When the drawer state is set to Opened
+        openedLatch = CountDownLatch(1)
+        composeTestRule.runOnIdleCompose {
+            drawerState.state = DrawerState.Opened
+        }
+        // Then the drawer should be opened
+        assertThat(openedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+
+        // When the drawer state is set to Closed
+        closedLatch = CountDownLatch(1)
+        composeTestRule.runOnIdleCompose {
+            drawerState.state = DrawerState.Closed
+        }
+        // Then the drawer should be closed
+        assertThat(closedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
     fun modalDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
@@ -167,20 +230,20 @@ class DrawerTest {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         })
                 }
             }
         }
 
-        findByTag("Drawer")
-            .doClick()
+        // Click in the middle of the drawer (which is the middle of the body)
+        findByTag("Drawer").doGesture { sendClick() }
 
         composeTestRule.runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
@@ -188,9 +251,14 @@ class DrawerTest {
 
             drawerState.state = DrawerState.Opened
         }
+        sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
 
-        findByTag("Drawer")
-            .doClick()
+        // Click on the left-center pixel of the drawer
+        findByTag("Drawer").doGesture {
+            val left = 1.px
+            val centerY = globalBounds.height / 2
+            sendClick(PxPosition(left, centerY))
+        }
 
         composeTestRule.runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(1)
@@ -199,7 +267,63 @@ class DrawerTest {
     }
 
     @Test
-    @Ignore("(malkov/mount): unignore this when b/136678145 is fixed")
+    @Ignore("failing in postsubmit, fix in b/148751721")
+    fun bottomDrawer_openAndClose() {
+        var contentHeight: IntPx? = null
+        var openedHeight: IntPx? = null
+        var openedLatch: CountDownLatch? = null
+        var closedLatch: CountDownLatch? = CountDownLatch(1)
+        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            TestTag("Drawer") {
+                Semantics(container = true) {
+                    BottomDrawerLayout(drawerState.state, { drawerState.state = it },
+                        drawerContent = {
+                            OnChildPositioned({ info ->
+                                val pos = info.localToGlobal(PxPosition.Origin)
+                                if (pos.y.round() == openedHeight) {
+                                    // If fully opened, mark the openedLatch if present
+                                    openedLatch?.countDown()
+                                } else if (pos.y.round() == contentHeight) {
+                                    // If fully closed, mark the closedLatch if present
+                                    closedLatch?.countDown()
+                                }
+                            }) {
+                                Container(expanded = true, children = emptyContent())
+                            }
+                        },
+                        bodyContent = {
+                            OnChildPositioned({
+                                contentHeight = it.size.height
+                                openedHeight = it.size.height * BottomDrawerOpenFraction
+                            }) {
+                                Container(expanded = true, children = emptyContent())
+                            }
+                        })
+                }
+            }
+        }
+        // Drawer should start in closed state
+        assertThat(closedLatch!!.await(5, TimeUnit.SECONDS)).isTrue()
+
+        // When the drawer state is set to Opened
+        openedLatch = CountDownLatch(1)
+        composeTestRule.runOnIdleCompose {
+            drawerState.state = DrawerState.Opened
+        }
+        // Then the drawer should be opened
+        assertThat(openedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+
+        // When the drawer state is set to Closed
+        closedLatch = CountDownLatch(1)
+        composeTestRule.runOnIdleCompose {
+            drawerState.state = DrawerState.Closed
+        }
+        // Then the drawer should be closed
+        assertThat(closedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
     fun bottomDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
@@ -211,37 +335,40 @@ class DrawerTest {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         })
                 }
             }
         }
 
-        findByTag("Drawer")
-            .doClick()
+        // Click in the middle of the drawer (which is the middle of the body)
+        findByTag("Drawer").doGesture { sendClick() }
 
         composeTestRule.runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
         }
 
-        // TODO (malkov/pavlis) : uncomment this when custom onClick location will be implemented
-//        composeTestRule.runOnUiThread {
-//            drawerState.state = DrawerState.Opened
-//        }
-//        Thread.sleep(100L)
-//
-//        findByTag("Drawer")
-//            .doClick()
-//
-//
-//        Truth.assertThat(drawerClicks).isEqualTo(1)
-//        Truth.assertThat(bodyClicks).isEqualTo(1)
+        composeTestRule.runOnUiThread {
+            drawerState.state = DrawerState.Opened
+        }
+        sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
+
+        // Click on the bottom-center pixel of the drawer
+        findByTag("Drawer").doGesture {
+            val bounds = globalBounds
+            val centerX = bounds.width / 2
+            val bottom = bounds.height - 1.px
+            sendClick(PxPosition(centerX, bottom))
+        }
+
+        assertThat(drawerClicks).isEqualTo(1)
+        assertThat(bodyClicks).isEqualTo(1)
     }
 }

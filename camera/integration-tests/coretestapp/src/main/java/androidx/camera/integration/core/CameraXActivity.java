@@ -20,6 +20,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
+import android.content.ContentValues;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -30,6 +31,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -50,7 +52,9 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
@@ -72,9 +76,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -132,7 +133,7 @@ public class CameraXActivity extends AppCompatActivity
     @SuppressWarnings("WeakerAccess")
     ListenableFuture<Void> mSurfaceReleaseFuture;
     @SuppressWarnings("WeakerAccess")
-    CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
+    SurfaceRequest mSurfaceRequest;
 
 
     // Espresso testing variables
@@ -145,6 +146,7 @@ public class CameraXActivity extends AppCompatActivity
 
     /**
      * Retrieve idling resource that waits for image received by analyzer).
+     *
      * @return idline resource for image capture
      */
     @VisibleForTesting
@@ -155,6 +157,7 @@ public class CameraXActivity extends AppCompatActivity
 
     /**
      * Retrieve idling resource that waits view to get texture update.
+     *
      * @return idline resource for image capture
      */
     @VisibleForTesting
@@ -175,8 +178,8 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     /**
-     * Retrieve idling resource that waits for capture to complete (save or error).
-     * */
+     * Retrieve idling resource that waits for view to display frames before proceeding.
+     */
     @VisibleForTesting
     public void resetViewIdlingResource() {
         mPreviewFrameCount.set(0);
@@ -223,22 +226,22 @@ public class CameraXActivity extends AppCompatActivity
                 .build();
         Log.d(TAG, "enablePreview");
 
-        mPreview.setPreviewSurfaceProvider(
-                (resolution, surfaceReleaseFuture) -> {
-                    mResolution = resolution;
-                    mSurfaceReleaseFuture = surfaceReleaseFuture;
+        mPreview.setSurfaceProvider(
+                (surfaceRequest) -> {
+                    mResolution = surfaceRequest.getResolution();
 
-                    return CallbackToFutureAdapter.getFuture(
-                            completer -> {
-                                completer.addCancellationListener(() -> {
-                                    Preconditions.checkState(mSurfaceCompleter == completer);
-                                    mSurfaceCompleter = null;
+                    if (mSurfaceRequest != null) {
+                        mSurfaceRequest.setWillNotComplete();
+                    }
+                    mSurfaceRequest = surfaceRequest;
+                    mSurfaceRequest.addRequestCancellationListener(
+                            ContextCompat.getMainExecutor(mTextureView.getContext()), () -> {
+                                if (mSurfaceRequest != null && mSurfaceRequest == surfaceRequest) {
+                                    mSurfaceRequest = null;
                                     mSurfaceReleaseFuture = null;
-                                }, ContextCompat.getMainExecutor(mTextureView.getContext()));
-                                mSurfaceCompleter = completer;
-                                tryToProvidePreviewSurface();
-                                return "provide preview surface";
+                                }
                             });
+                    tryToProvidePreviewSurface();
                 });
 
         resetViewIdlingResource();
@@ -480,8 +483,6 @@ public class CameraXActivity extends AppCompatActivity
         }
 
         Button button = this.findViewById(R.id.Picture);
-        final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-        final File dir = this.getExternalFilesDir(null);
         button.setOnClickListener(
                 new View.OnClickListener() {
                     long mStartCaptureTime = 0;
@@ -491,16 +492,23 @@ public class CameraXActivity extends AppCompatActivity
                         mImageSavedIdlingResource.increment();
 
                         mStartCaptureTime = SystemClock.elapsedRealtime();
-                        mImageCapture.takePicture(
-                                new File(
-                                        dir,
-                                        formatter.format(Calendar.getInstance().getTime())
-                                                + ".jpg"),
+                        createDefaultPictureFolderIfNotExist();
+                        ContentValues contentValues = new ContentValues();
+                        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+                        ImageCapture.OutputFileOptions outputFileOptions =
+                                new ImageCapture.OutputFileOptions.Builder(
+                                        getContentResolver(),
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                        contentValues).build();
+                        mImageCapture.takePicture(outputFileOptions,
                                 ContextCompat.getMainExecutor(CameraXActivity.this),
                                 new ImageCapture.OnImageSavedCallback() {
                                     @Override
-                                    public void onImageSaved(@NonNull File file) {
-                                        Log.d(TAG, "Saved image to " + file);
+                                    public void onImageSaved(
+                                            @NonNull ImageCapture.OutputFileResults
+                                                    outputFileResults) {
+                                        Log.d(TAG, "Saved image to "
+                                                + outputFileResults.getSavedUri());
                                         try {
                                             mImageSavedIdlingResource.decrement();
                                         } catch (IllegalStateException e) {
@@ -521,11 +529,8 @@ public class CameraXActivity extends AppCompatActivity
                                     }
 
                                     @Override
-                                    public void onError(
-                                            @ImageCapture.ImageCaptureError int error,
-                                            @NonNull String message,
-                                            Throwable cause) {
-                                        Log.e(TAG, "Failed to save image.", cause);
+                                    public void onError(@NonNull ImageCaptureException exception) {
+                                        Log.e(TAG, "Failed to save image.", exception.getCause());
                                         try {
                                             mImageSavedIdlingResource.decrement();
                                         } catch (IllegalStateException e) {
@@ -553,7 +558,6 @@ public class CameraXActivity extends AppCompatActivity
                 rebindUseCases();
             }
         });
-
     }
 
     void disableImageCapture() {
@@ -755,7 +759,7 @@ public class CameraXActivity extends AppCompatActivity
 
             /**
              * If a surface has been provided to the camera (meaning
-             * {@link CameraXActivity#mSurfaceCompleter} is null), but the camera
+             * {@link CameraXActivity#mSurfaceRequest} is null), but the camera
              * is still using it (meaning {@link CameraXActivity#mSurfaceReleaseFuture} is
              * not null), a listener must be added to
              * {@link CameraXActivity#mSurfaceReleaseFuture} to ensure the surface
@@ -767,7 +771,7 @@ public class CameraXActivity extends AppCompatActivity
             @Override
             public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
                 mSurfaceTexture = null;
-                if (mSurfaceCompleter == null && mSurfaceReleaseFuture != null) {
+                if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
                     mSurfaceReleaseFuture.addListener(surfaceTexture::release,
                             ContextCompat.getMainExecutor(mTextureView.getContext()));
                     return false;
@@ -845,23 +849,22 @@ public class CameraXActivity extends AppCompatActivity
           - The surfaceCompleter has been set (after CallbackToFutureAdapter
           .Resolver#attachCompleter is invoked).
          */
-        if (mResolution == null || mSurfaceTexture == null || mSurfaceCompleter == null) {
+        if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
             return;
         }
 
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
 
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceReleaseFuture;
+        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.setSurface(surface);
+        mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             surface.release();
             if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
                 mSurfaceReleaseFuture = null;
             }
         }, ContextCompat.getMainExecutor(mTextureView.getContext()));
-
-        mSurfaceCompleter.set(surface);
-        mSurfaceCompleter = null;
+        mSurfaceRequest = null;
 
         transformPreview(mResolution);
     }
@@ -952,6 +955,14 @@ public class CameraXActivity extends AppCompatActivity
             }
         }
         return true;
+    }
+
+    private void createDefaultPictureFolderIfNotExist() {
+        File pictureFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        if (!pictureFolder.exists()) {
+            pictureFolder.mkdir();
+        }
     }
 
     /** Tries to acquire all the necessary permissions through a dialog. */

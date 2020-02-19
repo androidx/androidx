@@ -30,6 +30,9 @@ object SemanticsProperties {
 
     val AccessibilityValue = SemanticsPropertyKey<String>("AccessibilityValue")
 
+    val AccessibilityRangeInfo =
+        SemanticsPropertyKey<AccessibilityRangeInfo>("AccessibilityRangeInfo")
+
     val Enabled = SemanticsPropertyKey<Boolean>("Enabled")
 
     val Hidden = SemanticsPropertyKey<Boolean>("Hidden")
@@ -56,6 +59,9 @@ var SemanticsPropertyReceiver.accessibilityLabel by SemanticsProperties.Accessib
 
 var SemanticsPropertyReceiver.accessibilityValue by SemanticsProperties.AccessibilityValue
 
+var SemanticsPropertyReceiver.accessibilityValueRange
+        by SemanticsProperties.AccessibilityRangeInfo
+
 var SemanticsPropertyReceiver.enabled by SemanticsProperties.Enabled
 
 var SemanticsPropertyReceiver.hidden by SemanticsProperties.Hidden
@@ -81,6 +87,32 @@ var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
 
 // TODO(b/138173613): Use this for merging labels
 /*
+
+    /**
+    * U+202A LEFT-TO-RIGHT EMBEDDING
+    *
+    * Treat the following text as embedded left-to-right.
+    *
+    * Use [PDF] to end the embedding.
+    */
+    private const val LRE = "\u202A"
+
+    /**
+     * U+202B RIGHT-TO-LEFT EMBEDDING
+     *
+     * Treat the following text as embedded right-to-left.
+     *
+     * Use [PDF] to end the embedding.
+     */
+    private const val RLE = "\u202B"
+
+    /**
+     * U+202C POP DIRECTIONAL FORMATTING
+     *
+     * End the scope of the last [LRE], [RLE], [RLO], or [LRO].
+     */
+    private const val PDF = "\u202C"
+
 private fun concatStrings(
     thisString: String?,
     otherString: String?,
@@ -92,8 +124,8 @@ private fun concatStrings(
     var nestedLabel = otherString
     if (thisTextDirection != otherTextDirection && otherTextDirection != null) {
         nestedLabel = when (otherTextDirection) {
-            TextDirection.Rtl -> "${Unicode.RLE}$nestedLabel${Unicode.PDF}"
-            TextDirection.Ltr -> "${Unicode.LRE}$nestedLabel${Unicode.PDF}"
+            TextDirection.Rtl -> "${RLE}$nestedLabel${PDF}"
+            TextDirection.Ltr -> "${LRE}$nestedLabel${PDF}"
         }
     }
     if (thisString.isNullOrEmpty())

@@ -20,7 +20,6 @@ import androidx.compose.FrameManager.framed
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.layout.DpConstraints
-import androidx.ui.test.assertIsVisible
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
@@ -87,7 +86,6 @@ class SliderTest {
             }
 
         findByTag(tag)
-            .assertIsVisible()
             .assertValueEquals("0.0")
 
         composeTestRule.runOnUiThread {
@@ -95,7 +93,6 @@ class SliderTest {
         }
 
         findByTag(tag)
-            .assertIsVisible()
             .assertValueEquals("0.5")
     }
 

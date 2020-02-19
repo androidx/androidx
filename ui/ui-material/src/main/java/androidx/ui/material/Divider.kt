@@ -38,6 +38,6 @@ fun Divider(
     height: Dp = 1.dp,
     indent: Dp = 0.dp
 ) {
-    val indentMod = if (indent.value != 0f) LayoutPadding(left = indent) else Modifier.None
+    val indentMod = if (indent.value != 0f) LayoutPadding(start = indent) else Modifier.None
     ColoredRect(color, modifier + indentMod, height = height)
 }

@@ -21,15 +21,7 @@ import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.setContent
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Spacer
-import androidx.ui.material.Tab
-import androidx.ui.material.TabRow
-import androidx.ui.material.studies.Scaffold
-import androidx.ui.unit.dp
+import androidx.ui.material.Scaffold
 
 /**
  * This Activity recreates the Rally Material Study from
@@ -42,45 +34,23 @@ class RallyActivity : Activity() {
             RallyApp()
         }
     }
+}
 
-    @Composable
-    fun RallyApp() {
-        RallyTheme {
-            val allScreens = RallyScreenState.values().toList()
-            var currentScreen by state { RallyScreenState.Overview }
-            Scaffold(appBar = {
-                TabRow(allScreens, selectedIndex = currentScreen.ordinal) { i, screen ->
-                    Tab(text = screen.name, selected = currentScreen.ordinal == i) {
-                        currentScreen = screen
-                    }
-                }
-            }) {
-                currentScreen.body()
+@Composable
+fun RallyApp() {
+    RallyTheme {
+        val allScreens = RallyScreenState.values().toList()
+        var currentScreen by state { RallyScreenState.Overview }
+        Scaffold(
+            topAppBar = {
+                RallyTopAppBar(
+                    allScreens = allScreens,
+                    onTabSelected = { screen -> currentScreen = screen },
+                    currentScreen = currentScreen
+                )
             }
+        ) {
+            currentScreen.body()
         }
     }
-}
-
-@Composable
-fun RallyBody() {
-    VerticalScroller {
-        Column(modifier = LayoutPadding(16.dp)) {
-            RallyAlertCard()
-            Spacer(LayoutHeight(10.dp))
-            RallyAccountsOverviewCard()
-            Spacer(LayoutHeight(10.dp))
-            RallyBillsOverviewCard()
-        }
-    }
-}
-
-private enum class RallyScreenState {
-    Overview, Accounts, Bills
-}
-
-@Composable
-private fun RallyScreenState.body() = when (this) {
-    RallyScreenState.Overview -> RallyBody()
-    RallyScreenState.Accounts -> RallyAccountsCard()
-    RallyScreenState.Bills -> RallyBillsCard()
 }

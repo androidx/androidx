@@ -25,9 +25,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -494,7 +494,7 @@ public class RecyclerViewCacheTest {
             @Override
             public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
                 // verify unbound view doesn't get
-                assertNotEquals(RecyclerView.NO_POSITION, holder.getAdapterPosition());
+                assertNotEquals(RecyclerView.NO_POSITION, holder.getAbsoluteAdapterPosition());
             }
         };
         mRecyclerView.setAdapter(adapter);
@@ -519,7 +519,7 @@ public class RecyclerViewCacheTest {
         assertTrue(mRecyclerView.getRecycledViewPool().getRecycledViewCount(0) == 1);
         RecyclerView.ViewHolder pooledHolder = mRecyclerView.getRecycledViewPool()
                 .mScrap.get(0).mScrapHeap.get(0);
-        assertEquals(RecyclerView.NO_POSITION, pooledHolder.getAdapterPosition());
+        assertEquals(RecyclerView.NO_POSITION, pooledHolder.getAbsoluteAdapterPosition());
     }
 
     @Test
@@ -853,7 +853,7 @@ public class RecyclerViewCacheTest {
 
         @Override
         public void onViewRecycled(@NonNull ViewHolder holder) {
-            mSavedStates.set(holder.getAdapterPosition(),
+            mSavedStates.set(holder.getAbsoluteAdapterPosition(),
                     holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
         }
 
@@ -1194,8 +1194,8 @@ public class RecyclerViewCacheTest {
 
         @Override
         public void onViewRecycled(@NonNull ViewHolder holder) {
-            if (holder.getAdapterPosition() >= 0) {
-                mSavedStates.set(holder.getAdapterPosition(),
+            if (holder.getAbsoluteAdapterPosition() >= 0) {
+                mSavedStates.set(holder.getAbsoluteAdapterPosition(),
                         holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
             }
         }

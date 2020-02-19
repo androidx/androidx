@@ -91,28 +91,6 @@
 
     <issue
         id="RestrictedApi"
-        message="UseCase.getAttachedSurfaceResolution can only be called from within the same library group (groupId=androidx.camera)"
-        errorLine1="        Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="226"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="UseCase.getAttachedSurfaceResolution can only be called from within the same library group (groupId=androidx.camera)"
-        errorLine1="        Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="226"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
         message="VideoCapture can only be called from within the same library group (groupId=androidx.camera)"
         errorLine1="        mVideoCapture = new VideoCapture(config);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">

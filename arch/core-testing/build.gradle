@@ -50,7 +50,6 @@ android {
 androidx {
     name = "Android Core-Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ARCH_CORE_TESTING
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Core-Testing"

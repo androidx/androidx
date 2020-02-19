@@ -343,7 +343,7 @@ class PagePresenterTest {
         val callback = PresenterCallbackCapture()
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
-        assertEquals(events + listOf(StateEvent(START, Idle)), callback.getAllAndClear())
+        assertEvents(events + listOf(StateEvent(START, Idle)), callback.getAllAndClear())
 
         // assert final list state
         val finalData = initialPages.take(initialPages.size - pagesToDrop).reversed().flatten()

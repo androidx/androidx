@@ -30,12 +30,12 @@ import androidx.ui.layout.TableColumnWidth
 import androidx.ui.layout.TableMeasurable
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.withDensity
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -48,7 +48,7 @@ import kotlin.math.pow
 @RunWith(JUnit4::class)
 class TableTest : LayoutTest() {
     @Test
-    fun testTable() = withDensity(density) {
+    fun testTable() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -57,8 +57,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -92,13 +92,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(tableWidth, size * rows),
+            IntPxSize(tableWidth, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(tableWidth / columns, size),
+                    IntPxSize(tableWidth / columns, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -110,7 +110,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_flex() = withDensity(density) {
+    fun testTable_withColumnWidth_flex() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -119,8 +119,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -159,13 +159,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(tableWidth, size * rows),
+            IntPxSize(tableWidth, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(tableWidth * flexes[j] / totalFlex, size),
+                    IntPxSize(tableWidth * flexes[j] / totalFlex, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -177,15 +177,15 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_wrap() = withDensity(density) {
+    fun testTable_withColumnWidth_wrap() = with(density) {
         val rows = 8
         val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -217,13 +217,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(size, size),
+                    IntPxSize(size, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -235,7 +235,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_wrap_flexible() = withDensity(density) {
+    fun testTable_withColumnWidth_wrap_flexible() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -244,8 +244,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -286,13 +286,13 @@ class TableTest : LayoutTest() {
         val availableSpace = (tableWidth - size * columns).coerceAtLeast(IntPx.Zero)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(size, size),
+                    IntPxSize(size, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -306,15 +306,15 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_minIntrinsic() = withDensity(density) {
+    fun testTable_withColumnWidth_minIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -349,13 +349,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(size, size),
+                    IntPxSize(size, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -367,15 +367,15 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_maxIntrinsic() = withDensity(density) {
+    fun testTable_withColumnWidth_maxIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -410,13 +410,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(size, size),
+                    IntPxSize(size, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -428,15 +428,15 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_fixed() = withDensity(density) {
+    fun testTable_withColumnWidth_fixed() = with(density) {
         val rows = 8
         val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -471,13 +471,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(size, size),
+                    IntPxSize(size, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -489,7 +489,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_fraction() = withDensity(density) {
+    fun testTable_withColumnWidth_fraction() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -498,8 +498,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -537,13 +537,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(tableWidth * fractions.sum(), size * rows),
+            IntPxSize(tableWidth * fractions.sum(), size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(tableWidth * fractions[j], size),
+                    IntPxSize(tableWidth * fractions[j], size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -555,7 +555,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_min() = withDensity(density) {
+    fun testTable_withColumnWidth_min() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -566,8 +566,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -612,13 +612,13 @@ class TableTest : LayoutTest() {
         }
 
         assertEquals(
-            PxSize(expectedWidths.sum(), size * rows),
+            IntPxSize(expectedWidths.sum(), size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(expectedWidths[j], size),
+                    IntPxSize(expectedWidths[j], size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -630,7 +630,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_max() = withDensity(density) {
+    fun testTable_withColumnWidth_max() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -641,8 +641,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -687,13 +687,13 @@ class TableTest : LayoutTest() {
         }
 
         assertEquals(
-            PxSize(expectedWidths.sum(), size * rows),
+            IntPxSize(expectedWidths.sum(), size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(expectedWidths[j], size),
+                    IntPxSize(expectedWidths[j], size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -705,7 +705,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_min_oneWrap() = withDensity(density) {
+    fun testTable_withColumnWidth_min_oneWrap() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -714,8 +714,8 @@ class TableTest : LayoutTest() {
         val halfSize = 32.ipx
         val halfSizeDp = halfSize.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -752,13 +752,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(halfSize * columns, size * rows),
+            IntPxSize(halfSize * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(halfSize, size),
+                    IntPxSize(halfSize, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -770,7 +770,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_max_oneWrap() = withDensity(density) {
+    fun testTable_withColumnWidth_max_oneWrap() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -779,8 +779,8 @@ class TableTest : LayoutTest() {
         val halfSize = 32.ipx
         val halfSizeDp = halfSize.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -817,13 +817,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(halfSize, size),
+                    IntPxSize(halfSize, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -835,15 +835,15 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_min_twoWraps() = withDensity(density) {
+    fun testTable_withColumnWidth_min_twoWraps() = with(density) {
         val rows = 8
         val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -877,13 +877,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(size, size),
+                    IntPxSize(size, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -895,15 +895,15 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_max_twoWraps() = withDensity(density) {
+    fun testTable_withColumnWidth_max_twoWraps() = with(density) {
         val rows = 8
         val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -937,13 +937,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(size, size),
+                    IntPxSize(size, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -955,7 +955,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidth_custom() = withDensity(density) {
+    fun testTable_withColumnWidth_custom() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -964,8 +964,8 @@ class TableTest : LayoutTest() {
         val halfSize = 32.ipx
         val halfSizeDp = halfSize.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -1010,13 +1010,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size * columns, size * rows),
+            IntPxSize(size * columns, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(if (i == 0) size else halfSize, size),
+                    IntPxSize(if (i == 0) size else halfSize, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -1028,7 +1028,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withDifferentRowHeights() = withDensity(density) {
+    fun testTable_withDifferentRowHeights() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1039,8 +1039,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -1077,13 +1077,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(tableWidth, size * rows),
+            IntPxSize(tableWidth, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(tableWidth / columns, if (j % 2 == 0) size else halfSize),
+                    IntPxSize(tableWidth / columns, if (j % 2 == 0) size else halfSize),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -1095,7 +1095,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withDifferentColumnWidths() = withDensity(density) {
+    fun testTable_withDifferentColumnWidths() = with(density) {
         val rows = 8
         val columns = 5
 
@@ -1106,8 +1106,8 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val tableSize = Ref<IntPxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
@@ -1153,13 +1153,13 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(tableWidth, size * rows),
+            IntPxSize(tableWidth, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             // Wrap column 0
             assertEquals(
-                PxSize(halfSize, size),
+                IntPxSize(halfSize, size),
                 childSize[i][0].value
             )
             assertEquals(
@@ -1168,7 +1168,7 @@ class TableTest : LayoutTest() {
             )
             // Flex column 1
             assertEquals(
-                PxSize((tableWidth / 2 - size - halfSize) / 4, size),
+                IntPxSize((tableWidth / 2 - size - halfSize) / 4, size),
                 childSize[i][1].value
             )
             assertEquals(
@@ -1177,7 +1177,7 @@ class TableTest : LayoutTest() {
             )
             // Flex column 2
             assertEquals(
-                PxSize((tableWidth / 2 - size - halfSize) * 3 / 4, size),
+                IntPxSize((tableWidth / 2 - size - halfSize) * 3 / 4, size),
                 childSize[i][2].value
             )
             assertEquals(
@@ -1186,7 +1186,7 @@ class TableTest : LayoutTest() {
             )
             // Fixed column 3
             assertEquals(
-                PxSize(size, size),
+                IntPxSize(size, size),
                 childSize[i][3].value
             )
             assertEquals(
@@ -1195,7 +1195,7 @@ class TableTest : LayoutTest() {
             )
             // Fraction column 4
             assertEquals(
-                PxSize(tableWidth / 2, size),
+                IntPxSize(tableWidth / 2, size),
                 childSize[i][4].value
             )
             assertEquals(
@@ -1206,7 +1206,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withDecorations() = withDensity(density) {
+    fun testTable_withDecorations() = with(density) {
         val rows = 8
         val columns = 8
         val decorations = 3
@@ -1216,10 +1216,10 @@ class TableTest : LayoutTest() {
         val tableWidth = 256.ipx
         val tableWidthDp = tableWidth.toDp()
 
-        val tableSize = Ref<PxSize>()
-        val decorationSize = Array(decorations) { Ref<PxSize>() }
+        val tableSize = Ref<IntPxSize>()
+        val decorationSize = Array(decorations) { Ref<IntPxSize>() }
         val decorationPosition = Array(decorations) { Ref<PxPosition>() }
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childSize = Array(rows) { Array(columns) { Ref<IntPxSize>() } }
         val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
         val tableLatch = CountDownLatch(1)
         val decorationsLatch = CountDownLatch(decorations)
@@ -1268,12 +1268,12 @@ class TableTest : LayoutTest() {
         itemsLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(tableWidth, size * rows),
+            IntPxSize(tableWidth, size * rows),
             tableSize.value
         )
         for (i in 0 until decorations) {
             assertEquals(
-                PxSize(tableWidth, size * rows),
+                IntPxSize(tableWidth, size * rows),
                 decorationSize[i].value
             )
             assertEquals(
@@ -1284,7 +1284,7 @@ class TableTest : LayoutTest() {
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(tableWidth / columns, size),
+                    IntPxSize(tableWidth / columns, size),
                     childSize[i][j].value
                 )
                 assertEquals(
@@ -1296,7 +1296,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_flex() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_flex() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1341,7 +1341,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_wrap() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_wrap() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1386,7 +1386,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_wrap_flexible() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_wrap_flexible() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1431,7 +1431,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_minIntrinsic() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_minIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1476,7 +1476,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_maxIntrinsic() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_maxIntrinsic() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1521,7 +1521,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_fixed() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_fixed() = with(density) {
         val rows = 8
         val columns = 8
 
@@ -1568,7 +1568,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_hasCorrectIntrinsicMeasurements_fraction() = withDensity(density) {
+    fun testTable_hasCorrectIntrinsicMeasurements_fraction() = with(density) {
         val rows = 8
         val columns = 8
 

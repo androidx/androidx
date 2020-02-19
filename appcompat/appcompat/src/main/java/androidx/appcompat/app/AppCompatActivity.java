@@ -47,12 +47,22 @@ import androidx.core.app.TaskStackBuilder;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * Base class for activities that use the
- * <a href="{@docRoot}tools/extras/support-library.html">support library</a> action bar features.
+ * Base class for activities that wish to use some of the newer platform features on older
+ * Android devices. Some of these backported features include:
  *
- * <p>You can add an {@link androidx.appcompat.app.ActionBar} to your activity when running on API level 7 or higher
- * by extending this class for your activity and setting the activity theme to
- * {@link androidx.appcompat.R.style#Theme_AppCompat Theme.AppCompat} or a similar theme.
+ * <ul>
+ *     <li>Using the action bar, including action items, navigation modes and more with
+ *     the {@link #setSupportActionBar(Toolbar)} API.</li>
+ *     <li>Built-in switching between light and dark themes by using the
+ *     {@link androidx.appcompat.R.style#Theme_AppCompat_DayNight Theme.AppCompat.DayNight} theme
+ *     and {@link AppCompatDelegate#setDefaultNightMode(int)} API.</li>
+ *     <li>Integration with <code>DrawerLayout</code> by using the
+ *     {@link #getDrawerToggleDelegate()} API.</li>
+ * </ul>
+ *
+ * <p>Note that every activity that extends this class has to be themed with
+ * {@link androidx.appcompat.R.style#Theme_AppCompat Theme.AppCompat} or a theme that extends
+ * that theme.</p>
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>

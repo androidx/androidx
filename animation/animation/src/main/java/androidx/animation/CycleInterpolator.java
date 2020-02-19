@@ -32,10 +32,22 @@ import androidx.annotation.Nullable;
  *
  */
 public class CycleInterpolator implements Interpolator {
+
+    /**
+     * Creates a new instance of {@link CycleInterpolator}.
+     *
+     * @param cycles  The cycles to repeat.
+     */
     public CycleInterpolator(float cycles) {
         mCycles = cycles;
     }
 
+    /**
+     * Creates a new instance of {@link CycleInterpolator} from XML.
+     *
+     * @param context The context.
+     * @param attrs The {@link AttributeSet} from XML.
+     */
     public CycleInterpolator(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context.getResources(), context.getTheme(), attrs);
     }

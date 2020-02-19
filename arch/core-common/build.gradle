@@ -38,10 +38,8 @@ targetCompatibility = JavaVersion.VERSION_1_7
 androidx {
     name = "Android Arch-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ARCH_CORE
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Common"
     url = AndroidXExtension.ARCHITECTURE_URL
-    trackRestrictedAPIs = false
 }

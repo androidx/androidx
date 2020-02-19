@@ -16,10 +16,9 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.ui.graphics.Canvas
 import androidx.ui.tooling.InspectionMode
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 
 /**
@@ -28,17 +27,17 @@ import androidx.ui.unit.PxSize
  * Example usage:
  * @sample androidx.ui.framework.samples.DrawSample
  *
- *  The [onPaint] lambda uses a [DensityScope] receiver scope, to allow easy translation
+ *  The [onPaint] lambda uses a [Density] receiver scope, to allow easy translation
  *  between [Dp], [Sp], and [Px]. The `parentSize` parameter indicates the layout size of
  *  the parent.
  */
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 inline fun Draw(
-    noinline onPaint: DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit
+    noinline onPaint: Density.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
-    if (ambient(InspectionMode)) {
+    if (InspectionMode.current) {
         RepaintBoundaryNode(name = null) {
             DrawNode(onPaint = onPaint)
         }
@@ -62,7 +61,7 @@ inline fun Draw(
     noinline onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
-    if (ambient(InspectionMode)) {
+    if (InspectionMode.current) {
         RepaintBoundaryNode(name = null) {
             DrawNode(onPaintWithChildren = onPaint) {
                 children()

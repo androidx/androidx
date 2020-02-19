@@ -21,58 +21,17 @@ import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.constrain
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
-import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.LinearGradientShader
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.Shader
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.TextUnit
-import androidx.ui.unit.ipx
-import androidx.ui.unit.sp
-import kotlin.math.ceil
-import kotlin.math.roundToInt
-
-/** The default font size if none is specified. */
-private val DefaultFontSize: TextUnit = 14.sp
-
-/**
- * Resolve text style to be able to pass to underlying paragraphs.
- *
- * We need to pass non-null font size to underlying paragraph.
- */
-private fun resolveTextStyle(style: TextStyle?, layoutDirection: LayoutDirection): TextStyle {
-    val textDirectionAlgorithm = style?.textDirectionAlgorithm
-        ?: resolveTextDirectionAlgorithm(layoutDirection, null)
-
-    val fontSize = when (style?.fontSize) {
-        null -> DefaultFontSize
-        TextUnit.Inherit -> DefaultFontSize
-        else -> style.fontSize
-    }
-
-    return when {
-        style == null -> TextStyle(
-            fontSize = fontSize,
-            textDirectionAlgorithm = textDirectionAlgorithm
-        )
-        style.textDirectionAlgorithm != textDirectionAlgorithm ||
-        style.fontSize != fontSize -> style.copy(
-            fontSize = fontSize,
-            textDirectionAlgorithm = textDirectionAlgorithm
-        )
-        else -> style
-    }
-}
+import androidx.ui.unit.ceil
+import androidx.ui.unit.px
 
 /**
  * An object that paints text onto a [Canvas].
@@ -114,7 +73,7 @@ private fun resolveTextStyle(style: TextStyle?, layoutDirection: LayoutDirection
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextDelegate(
     val text: AnnotatedString,
-    style: TextStyle? = null,
+    style: TextStyle,
     val maxLines: Int = Int.MAX_VALUE,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
@@ -123,9 +82,7 @@ class TextDelegate(
     val resourceLoader: Font.ResourceLoader
 ) {
 
-    val style: TextStyle = resolveTextStyle(style, layoutDirection)
-
-    private var overflowShader: Shader? = null
+    val style: TextStyle = resolveDefaults(style, layoutDirection)
 
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
@@ -140,14 +97,14 @@ class TextDelegate(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: IntPx get() = assumeIntrinsics { it.minIntrinsicWidth.toIntPx() }
+    val minIntrinsicWidth: IntPx get() = assumeIntrinsics { it.minIntrinsicWidth.px.ceil() }
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.toIntPx() }
+    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.px.ceil() }
 
     init {
         assert(maxLines > 0)
@@ -205,16 +162,23 @@ class TextDelegate(
         if (prevResult != null && prevResult.canReuse(
                 text, style, maxLines, softWrap, overflow, density, layoutDirection,
                 resourceLoader, constraints)) {
-            return prevResult
+            return with(prevResult) {
+                copy(
+                    layoutInput = layoutInput.copy(constraints = constraints),
+                    size = constraints.constrain(
+                        IntPxSize(multiParagraph.width.px.ceil(), multiParagraph.height.px.ceil())
+                    )
+                )
+            }
         }
 
         val multiParagraph = layoutText(minWidth.value.toFloat(), maxWidth.value.toFloat())
 
         val size = constraints.constrain(
-            IntPxSize(multiParagraph.width.toIntPx(), multiParagraph.height.toIntPx())
+            IntPxSize(multiParagraph.width.px.ceil(), multiParagraph.height.px.ceil())
         )
 
-        val result = TextLayoutResult(
+        return TextLayoutResult(
             TextLayoutInput(
                 text,
                 style,
@@ -228,10 +192,7 @@ class TextDelegate(
             ),
             multiParagraph,
             size
-        ).also {
-            overflowShader = createOverflowShader(it)
-        }
-        return result
+        )
     }
 
     /**
@@ -244,37 +205,11 @@ class TextDelegate(
      * the default black background color), so if you are writing an application with a white
      * background, the text will not be visible by default.
      *
-     * To set the text style, specify a [SpanStyle] when creating the [TextSpan] that you pass to
+     * To set the text style, specify a [SpanStyle] when creating the [AnnotatedString] that you pass to
      * the [TextDelegate] constructor or to the [text] property.
      */
     fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
-        val width = textLayoutResult.size.width.value.toFloat()
-        val height = textLayoutResult.size.height.value.toFloat()
-
-        if (textLayoutResult.hasVisualOverflow) {
-            val bounds = Rect.fromLTWH(0f, 0f, width, height)
-            if (overflowShader != null) {
-                // This layer limits what the shader below blends with to be just the text
-                // (as opposed to the text and its background).
-                canvas.saveLayer(bounds, Paint())
-            } else {
-                canvas.save()
-            }
-            canvas.clipRect(bounds)
-        }
-
-        textLayoutResult.multiParagraph.paint(canvas)
-
-        if (textLayoutResult.hasVisualOverflow) {
-            if (overflowShader != null) {
-                val bounds = Rect.fromLTWH(0f, 0f, width, height)
-                val paint = Paint()
-                paint.blendMode = BlendMode.multiply
-                paint.shader = overflowShader
-                canvas.drawRect(bounds, paint)
-            }
-            canvas.restore()
-        }
+        TextPainter.paint(canvas, textLayoutResult)
     }
 
     /**
@@ -298,75 +233,4 @@ class TextDelegate(
         val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
         canvas.drawPath(selectionPath, Paint().apply { this.color = color })
     }
-
-    /**
-     * Draws the cursor at the given character offset.
-     *
-     * @param offset the cursor offset in the text.
-     * @param canvas the target canvas.
-     */
-    fun paintCursor(offset: Int, canvas: Canvas, textLayoutResult: TextLayoutResult) {
-        val cursorRect = textLayoutResult.multiParagraph.getCursorRect(offset)
-        canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
-    }
 }
-
-private fun TextDelegate.createOverflowShader(textLayoutResult: TextLayoutResult): Shader? {
-    return if (textLayoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
-        val paragraph = Paragraph(
-            text = "\u2026", // horizontal ellipsis
-            spanStyles = listOf(),
-            style = style,
-            density = density,
-            resourceLoader = resourceLoader,
-            constraints = ParagraphConstraints(Float.POSITIVE_INFINITY)
-        )
-
-        val fadeWidth = paragraph.maxIntrinsicWidth
-        val fadeHeight = paragraph.height
-        val width = textLayoutResult.size.width.value.toFloat()
-
-        if (textLayoutResult.didOverflowWidth) {
-            // FIXME: Should only fade the last line, i.e., should use last line's direction.
-            // (b/139496055)
-            val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
-                Pair(fadeWidth, 0.0f)
-            } else {
-                Pair(width - fadeWidth, width)
-            }
-            LinearGradientShader(
-                Offset(fadeStart, 0.0f),
-                Offset(fadeEnd, 0.0f),
-                listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
-            )
-        } else {
-            val fadeEnd = textLayoutResult.size.height.value.toFloat()
-            val fadeStart = fadeEnd - fadeHeight
-            LinearGradientShader(
-                Offset(0.0f, fadeStart),
-                Offset(0.0f, fadeEnd),
-                listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
-            )
-        }
-    } else {
-        null
-    }
-}
-
-/**
- * If [textDirectionAlgorithm] is null returns a [TextDirectionAlgorithm] based on
- * [layoutDirection].
- */
-@VisibleForTesting
-internal fun resolveTextDirectionAlgorithm(
-    layoutDirection: LayoutDirection,
-    textDirectionAlgorithm: TextDirectionAlgorithm?
-): TextDirectionAlgorithm {
-    return textDirectionAlgorithm
-        ?: when (layoutDirection) {
-            LayoutDirection.Ltr -> TextDirectionAlgorithm.ContentOrLtr
-            LayoutDirection.Rtl -> TextDirectionAlgorithm.ContentOrRtl
-        }
-}
-
-private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx

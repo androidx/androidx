@@ -1,0 +1,6 @@
+attr autofillInlineSuggestionChip
+attr autofillInlineSuggestionEndIconStyle
+attr autofillInlineSuggestionStartIconStyle
+attr autofillInlineSuggestionSubtitle
+attr autofillInlineSuggestionTitle
+style Theme_AutofillInlineSuggestion

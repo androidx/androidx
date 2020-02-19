@@ -191,7 +191,7 @@ class BufferedServiceConnection {
         try {
             mMessenger.send(message);
         } catch (RemoteException e) {
-            sLogger.atSevere().log("Error sending message", e);
+            sLogger.atSevere().withCause(e).log("Error sending message");
         }
     }
 

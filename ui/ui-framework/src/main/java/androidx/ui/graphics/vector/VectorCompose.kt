@@ -21,8 +21,8 @@ import androidx.compose.compositionReference
 import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
-import androidx.ui.core.ambientDensity
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -35,7 +35,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.withDensity
 import kotlin.math.ceil
 
 /**
@@ -73,8 +72,9 @@ fun DrawVector(
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
-    val widthPx = withDensity(ambientDensity()) { defaultWidth.toPx() }
-    val heightPx = withDensity(ambientDensity()) { defaultHeight.toPx() }
+    val density = DensityAmbient.current
+    val widthPx = with(density) { defaultWidth.toPx() }
+    val heightPx = with(density) { defaultHeight.toPx() }
 
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight

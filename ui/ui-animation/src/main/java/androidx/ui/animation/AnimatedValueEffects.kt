@@ -21,11 +21,9 @@ import androidx.animation.AnimatedValue
 import androidx.animation.AnimationClockObservable
 import androidx.animation.TwoWayConverter
 import androidx.compose.Model
-import androidx.animation.ValueHolder
 import androidx.animation.AnimationVector
 import androidx.animation.AnimationVector4D
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.graphics.Color
@@ -43,8 +41,8 @@ import androidx.ui.graphics.Color
 fun <T, V : AnimationVector> animatedValue(
     initVal: T,
     converter: TwoWayConverter<T, V>,
-    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
-): AnimatedValue<T, V> = remember { AnimatedValue(AnimValueHolder(initVal), converter, clock) }
+    clock: AnimationClockObservable = AnimationClockAmbient.current
+): AnimatedValue<T, V> = remember { AnimatedValueModel(initVal, converter, clock) }
 
 /**
  * The animatedValue effect creates an [AnimatedFloat] and positionally memoizes it. When the
@@ -56,9 +54,9 @@ fun <T, V : AnimationVector> animatedValue(
 @Composable
 fun animatedFloat(
     initVal: Float,
-    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+    clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedFloat =
-    remember { AnimatedFloat(AnimValueHolder(initVal), clock) }
+    remember { AnimatedFloatModel(initVal, clock) }
 
 /**
  * The animatedValue effect creates an [AnimatedValue] of [Color] and positionally memoizes it. When
@@ -70,17 +68,41 @@ fun animatedFloat(
 @Composable
 fun animatedColor(
     initVal: Color,
-    clock: AnimationClockObservable = ambient(AnimationClockAmbient)
+    clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedValue<Color, AnimationVector4D> =
     remember {
-        AnimatedValue(
-            valueHolder = AnimValueHolder(initVal),
+        AnimatedValueModel(
+            value = initVal,
             typeConverter = ColorToVectorConverter(initVal.colorSpace),
             clock = clock
         )
     }
 
+/**
+ * Model class for [AnimatedValue]. This class tracks the value field change, so that composables
+ * that read from this field can get promptly recomposed as the animation updates the value.
+ *
+ * @param value The overridden value field that can only be mutated by animation
+ * @param typeConverter The converter for converting any value of type [T] to an
+ *                      [AnimationVector] type
+ * @param clock The animation clock that will be used to drive the animation
+ */
 @Model
-private class AnimValueHolder<T>(
-    override var value: T
-) : ValueHolder<T>
+class AnimatedValueModel<T, V : AnimationVector>(
+    override var value: T,
+    typeConverter: TwoWayConverter<T, V>,
+    clock: AnimationClockObservable
+) : AnimatedValue<T, V>(typeConverter, clock)
+
+/**
+ * Model class for [AnimatedFloat]. This class tracks the value field change, so that composables
+ * that read from this field can get promptly recomposed as the animation updates the value.
+ *
+ * @param value The overridden value field that can only be mutated by animation
+ * @param clock The animation clock that will be used to drive the animation
+ */
+@Model
+class AnimatedFloatModel(
+    override var value: Float,
+    clock: AnimationClockObservable
+) : AnimatedFloat(clock)

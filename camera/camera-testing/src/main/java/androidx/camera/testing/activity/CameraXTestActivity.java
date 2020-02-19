@@ -90,7 +90,7 @@ public class CameraXTestActivity extends AppCompatActivity {
                 .setTargetName("Preview")
                 .build();
         TextureView textureView = findViewById(R.id.textureView);
-        mPreview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
+        mPreview.setSurfaceProvider(createSurfaceTextureProvider(
                 new SurfaceTextureProvider.SurfaceTextureCallback() {
                     @Override
                     public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,

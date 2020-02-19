@@ -21,24 +21,24 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
+import androidx.ui.core.enforce
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -49,14 +49,14 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class AlignTest : LayoutTest() {
     @Test
-    fun testAlign() = withDensity(density) {
+    fun testAlign() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.BottomRight) {
@@ -79,9 +79,9 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px, root.height.px), alignSize.value)
+        assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
             PxPosition(root.width.px - size, root.height.px - size),
             childPosition.value
@@ -89,14 +89,14 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test2DAlignedModifier() = withDensity(density) {
+    fun test2DAlignedModifier() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Container {
@@ -105,7 +105,7 @@ class AlignTest : LayoutTest() {
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
-                Container(modifier = LayoutAlign.BottomRight + LayoutSize(sizeDp, sizeDp)) {
+                Container(LayoutSize.Fill + LayoutAlign.BottomRight + LayoutSize(sizeDp, sizeDp)) {
                     SaveLayoutInfo(
                         size = childSize,
                         position = childPosition,
@@ -119,9 +119,9 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px, root.height.px), alignSize.value)
+        assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
             PxPosition(root.width.px - size, root.height.px - size),
             childPosition.value
@@ -129,14 +129,14 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test1DAlignedModifier() = withDensity(density) {
+    fun test1DAlignedModifier() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Container {
@@ -145,7 +145,7 @@ class AlignTest : LayoutTest() {
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
-                Container(LayoutAlign.End + LayoutHeight.Fill + LayoutWidth(sizeDp)) {
+                Container(LayoutSize.Fill + LayoutAlign.End + LayoutWidth(sizeDp)) {
                     SaveLayoutInfo(
                         size = childSize,
                         position = childPosition,
@@ -159,21 +159,39 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px, root.height.px), alignSize.value)
+        assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, root.height.ipx), childSize.value)
+        assertEquals(IntPxSize(size, root.height.ipx), childSize.value)
         assertEquals(PxPosition(root.width.px - size, 0.px), childPosition.value)
     }
 
     @Test
-    fun testAlign_wrapsContent_whenMeasuredWithInfiniteConstraints() = withDensity(density) {
+    fun testModifier_wrapsContent() = with(density) {
+        val contentSize = 50.dp
+        val size = Ref<IntPxSize>()
+        val latch = CountDownLatch(1)
+        show {
+            Container {
+                Container {
+                    SaveLayoutInfo(size, Ref(), latch)
+                    Container(LayoutAlign.TopLeft + LayoutSize(contentSize)) {}
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(IntPxSize(contentSize.toIntPx(), contentSize.toIntPx()), size.value)
+    }
+
+    @Test
+    fun testAlign_wrapsContent_whenMeasuredWithInfiniteConstraints() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -206,23 +224,23 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(size, size), alignSize.value)
+        assertEquals(IntPxSize(size, size), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
-    fun testAlignedModifier_wrapsContent_whenMeasuredWithInfiniteConstraints() = withDensity(
+    fun testAlignedModifier_wrapsContent_whenMeasuredWithInfiniteConstraints() = with(
         density
     ) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -255,10 +273,62 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(size, size), alignSize.value)
+        assertEquals(IntPxSize(size, size), alignSize.value)
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+    }
+
+    @Test
+    fun testLayoutAlignModifier_respectsMinConstraints() = with(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+        val doubleSizeDp = sizeDp * 2
+        val doubleSize = doubleSizeDp.toIntPx()
+
+        val positionedLatch = CountDownLatch(2)
+        val wrapSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
+        val childPosition = Ref<PxPosition>()
+        show {
+            Container(LayoutAlign.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    wrapSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Layout(
+                        children = {
+                            Container(LayoutAlign.Center + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize,
+                                    position = childPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        },
+                        measureBlock = { measurables, incomingConstraints ->
+                            val measurable = measurables.first()
+                            val constraints = Constraints(
+                                minWidth = doubleSizeDp.toIntPx(),
+                                minHeight = doubleSizeDp.toIntPx()
+                            ).enforce(incomingConstraints)
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(PxPosition.Origin)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(IntPxSize(doubleSize, doubleSize), wrapSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
+        assertEquals(
+            PxPosition((doubleSize - size) / 2, (doubleSize - size) / 2),
+            childPosition.value
+        )
     }
 
     // TODO(popam): this should be unit test instead
@@ -292,7 +362,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlign_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testAlign_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Align(alignment = Alignment.TopLeft) {
                 Container(LayoutAspectRatio(2f)) { }
@@ -314,7 +384,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test2DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun test2DAlignedModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutAlign.TopLeft + LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -341,7 +411,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutAlign.CenterVertically + LayoutAspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -369,7 +439,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlign_hasCorrectIntrinsicMeasurements_whenNoChildren() = withDensity(density) {
+    fun testAlign_hasCorrectIntrinsicMeasurements_whenNoChildren() = with(density) {
         testIntrinsics(@Composable {
             Align(alignment = Alignment.TopLeft) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -385,7 +455,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlign_alignsCorrectly_whenOddDimensions_endAligned() = withDensity(density) {
+    fun testAlign_alignsCorrectly_whenOddDimensions_endAligned() = with(density) {
         // Given a 100 x 100 pixel container, we want to make sure that when aligning a 1 x 1 pixel
         // child to both ends (bottom, and right) we correctly position children at the last
         // possible pixel, and avoid rounding issues. Previously we first centered the coordinates,
@@ -397,9 +467,9 @@ class AlignTest : LayoutTest() {
         val childSizeIpx = childSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -433,7 +503,7 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(childSizeIpx, childSizeIpx), childSize.value)
+        assertEquals(IntPxSize(childSizeIpx, childSizeIpx), childSize.value)
         assertEquals(
             PxPosition(
                 alignSize.value!!.width - childSizeIpx,
@@ -444,7 +514,7 @@ class AlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignedModifier_alignsCorrectly_whenOddDimensions_endAligned() = withDensity(density) {
+    fun testAlignedModifier_alignsCorrectly_whenOddDimensions_endAligned() = with(density) {
         // Given a 100 x 100 pixel container, we want to make sure that when aligning a 1 x 1 pixel
         // child to both ends (bottom, and right) we correctly position children at the last
         // possible pixel, and avoid rounding issues. Previously we first centered the coordinates,
@@ -456,9 +526,9 @@ class AlignTest : LayoutTest() {
         val childSizeIpx = childSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val alignSize = Ref<PxSize>()
+        val alignSize = Ref<IntPxSize>()
         val alignPosition = Ref<PxPosition>()
-        val childSize = Ref<PxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Layout(
@@ -469,7 +539,8 @@ class AlignTest : LayoutTest() {
                             position = alignPosition,
                             positionedLatch = positionedLatch
                         )
-                        Container(LayoutAlign.BottomRight + LayoutSize(childSizeDp, childSizeDp)) {
+                        Container(LayoutSize.Fill + LayoutAlign.BottomRight +
+                                LayoutSize(childSizeDp, childSizeDp)) {
                             SaveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
@@ -490,7 +561,7 @@ class AlignTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(childSizeIpx, childSizeIpx), childSize.value)
+        assertEquals(IntPxSize(childSizeIpx, childSizeIpx), childSize.value)
         assertEquals(
             PxPosition(
                 alignSize.value!!.width - childSizeIpx,

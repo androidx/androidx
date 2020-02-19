@@ -37,14 +37,16 @@ import androidx.ui.semantics.onClick
 @Composable
 fun Clickable(
     onClick: (() -> Unit)? = null,
+    onClickLabel: String? = null,
     consumeDownOnStart: Boolean = false,
     children: @Composable() () -> Unit
 ) {
     Semantics(
+        container = true,
         properties = {
             enabled = (onClick != null)
             if (onClick != null) {
-                onClick(action = onClick)
+                onClick(action = onClick, label = onClickLabel)
             }
         }
     ) {

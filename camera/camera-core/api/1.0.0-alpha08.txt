@@ -50,8 +50,8 @@ package androidx.camera.core {
   }
 
   public final class CameraXConfig {
-    field public static final androidx.camera.core.impl.Config.Option<java.lang.Class<?>!> OPTION_TARGET_CLASS;
-    field public static final androidx.camera.core.impl.Config.Option<java.lang.String!> OPTION_TARGET_NAME;
+    field public static final androidx.camera.core.Config.Option<java.lang.Class<?>!>! OPTION_TARGET_CLASS;
+    field public static final androidx.camera.core.Config.Option<java.lang.String!>! OPTION_TARGET_NAME;
   }
 
   public static final class CameraXConfig.Builder {
@@ -66,6 +66,7 @@ package androidx.camera.core {
   }
 
   public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
+    ctor public DisplayOrientedMeteringPointFactory(android.content.Context, androidx.camera.core.CameraSelector, float, float);
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraSelector, float, float);
   }
 
@@ -85,12 +86,12 @@ package androidx.camera.core {
   }
 
   public static class FocusMeteringAction.Builder {
-    ctor public FocusMeteringAction.Builder(androidx.camera.core.MeteringPoint);
-    ctor public FocusMeteringAction.Builder(androidx.camera.core.MeteringPoint, int);
     method public androidx.camera.core.FocusMeteringAction.Builder addPoint(androidx.camera.core.MeteringPoint);
     method public androidx.camera.core.FocusMeteringAction.Builder addPoint(androidx.camera.core.MeteringPoint, int);
     method public androidx.camera.core.FocusMeteringAction build();
     method public androidx.camera.core.FocusMeteringAction.Builder disableAutoCancel();
+    method public static androidx.camera.core.FocusMeteringAction.Builder from(androidx.camera.core.MeteringPoint);
+    method public static androidx.camera.core.FocusMeteringAction.Builder from(androidx.camera.core.MeteringPoint, int);
     method public androidx.camera.core.FocusMeteringAction.Builder setAutoCancelDuration(@IntRange(from=1) long, java.util.concurrent.TimeUnit);
   }
 

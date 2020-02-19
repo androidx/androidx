@@ -28,7 +28,7 @@ import java.util.List;
  * Simple Customer DAO for Room Customer list sample.
  */
 @Dao
-interface CustomerDao {
+public interface CustomerDao {
 
     /**
      * Insert a customer

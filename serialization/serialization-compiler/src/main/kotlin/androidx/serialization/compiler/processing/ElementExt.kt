@@ -20,8 +20,10 @@ import com.google.auto.common.MoreElements
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.util.SimpleElementVisitor6
 import kotlin.reflect.KClass
 
 /** Casts this element to a [TypeElement] using [MoreElements.asType]. */
@@ -38,6 +40,33 @@ internal fun Element.asVariableElement(): VariableElement {
 internal fun Element.isPrivate(): Boolean {
     return Modifier.PRIVATE in modifiers
 }
+
+/**
+ * Determines if this element is visible to its own package.
+ *
+ * A private element or an element enclosed within a private element is not visible to its package.
+ */
+internal fun Element.isVisibleToPackage(): Boolean {
+    return accept(IsVisibleToPackageVisitor, null)
+}
+
+private object IsVisibleToPackageVisitor : SimpleElementVisitor6<Boolean, Nothing?>() {
+    override fun visitPackage(e: PackageElement, p: Nothing?): Boolean {
+        return true
+    }
+
+    override fun defaultAction(e: Element, p: Nothing?): Boolean {
+        return if (e.isPrivate()) {
+            false
+        } else {
+            e.enclosingElement.accept(this, null)
+        }
+    }
+}
+
+/** Gets the enclosing package element using [MoreElements.getPackage]. */
+internal val Element.packageElement: PackageElement
+    get() = MoreElements.getPackage(this)
 
 /** Get an annotation mirror on this element, throwing if it is not directly present. */
 internal operator fun Element.get(annotationClass: KClass<out Annotation>): AnnotationMirror {

@@ -51,7 +51,6 @@ package androidx.ui.core {
   }
 
   public abstract sealed class AlignmentLine {
-    method public final boolean getHorizontal();
   }
 
   public final class AlignmentLineKt {
@@ -74,9 +73,9 @@ package androidx.ui.core {
   }
 
   public static final class Constraints.Companion {
-    method public androidx.ui.core.Constraints tightConstraints(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
-    method public androidx.ui.core.Constraints tightConstraintsForHeight(androidx.ui.unit.IntPx height);
-    method public androidx.ui.core.Constraints tightConstraintsForWidth(androidx.ui.unit.IntPx width);
+    method public androidx.ui.core.Constraints fixed(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
+    method public androidx.ui.core.Constraints fixedHeight(androidx.ui.unit.IntPx height);
+    method public androidx.ui.core.Constraints fixedWidth(androidx.ui.unit.IntPx width);
   }
 
   public final class ConstraintsKt {
@@ -84,17 +83,11 @@ package androidx.ui.core {
     method public static androidx.ui.core.Constraints enforce(androidx.ui.core.Constraints, androidx.ui.core.Constraints otherConstraints);
     method public static boolean getHasBoundedHeight(androidx.ui.core.Constraints);
     method public static boolean getHasBoundedWidth(androidx.ui.core.Constraints);
-    method public static boolean getHasTightHeight(androidx.ui.core.Constraints);
-    method public static boolean getHasTightWidth(androidx.ui.core.Constraints);
-    method public static boolean isTight(androidx.ui.core.Constraints);
+    method public static boolean getHasFixedHeight(androidx.ui.core.Constraints);
+    method public static boolean getHasFixedWidth(androidx.ui.core.Constraints);
     method public static boolean isZero(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints looseMax(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints looseMin(androidx.ui.core.Constraints);
     method public static androidx.ui.core.Constraints offset(androidx.ui.core.Constraints, androidx.ui.unit.IntPx horizontal = 0.ipx, androidx.ui.unit.IntPx vertical = 0.ipx);
     method public static boolean satisfiedBy(androidx.ui.core.Constraints, androidx.ui.unit.IntPxSize size);
-    method public static androidx.ui.core.Constraints tightMax(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints tightMin(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints withTight(androidx.ui.core.Constraints, androidx.ui.unit.IntPx? width = null, androidx.ui.unit.IntPx? height = null);
   }
 
   public final class ConsumedData {
@@ -105,6 +98,13 @@ package androidx.ui.core {
     method public androidx.ui.core.ConsumedData copy(androidx.ui.unit.PxPosition positionChange, boolean downChange);
     method public boolean getDownChange();
     method public androidx.ui.unit.PxPosition getPositionChange();
+  }
+
+  public interface CustomEvent {
+  }
+
+  public interface CustomEventDispatcher {
+    method public void dispatchCustomEvent(androidx.ui.core.CustomEvent event);
   }
 
   public enum Direction {
@@ -119,11 +119,11 @@ package androidx.ui.core {
   }
 
   public final class DrawModifierKt {
-    method public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.DensityScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
     method public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
   }
 
-  public interface DrawReceiver extends androidx.ui.unit.DensityScope {
+  public interface DrawReceiver extends androidx.ui.unit.Density {
     method public void drawChildren();
   }
 
@@ -145,20 +145,23 @@ package androidx.ui.core {
 
   public interface LayoutCoordinates {
     method public androidx.ui.unit.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.unit.PxPosition childLocal);
+    method public operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
-    method public androidx.ui.unit.PxPosition getPosition();
-    method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> getProvidedAlignmentLines();
-    method public androidx.ui.unit.PxSize getSize();
+    method public java.util.Set<androidx.ui.core.AlignmentLine> getProvidedAlignmentLines();
+    method public androidx.ui.unit.IntPxSize getSize();
     method public androidx.ui.unit.PxPosition globalToLocal(androidx.ui.unit.PxPosition global);
+    method public boolean isAttached();
     method public androidx.ui.unit.PxPosition localToGlobal(androidx.ui.unit.PxPosition local);
     method public androidx.ui.unit.PxPosition localToRoot(androidx.ui.unit.PxPosition local);
+    property public abstract boolean isAttached;
     property public abstract androidx.ui.core.LayoutCoordinates? parentCoordinates;
-    property public abstract androidx.ui.unit.PxPosition position;
-    property public abstract java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> providedAlignmentLines;
-    property public abstract androidx.ui.unit.PxSize size;
+    property public abstract java.util.Set<androidx.ui.core.AlignmentLine> providedAlignmentLines;
+    property public abstract androidx.ui.unit.IntPxSize size;
   }
 
   public final class LayoutCoordinatesKt {
+    method public static inline androidx.ui.unit.PxBounds getBoundsInRoot(androidx.ui.core.LayoutCoordinates);
+    method public static inline androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getGlobalPosition(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }
@@ -169,23 +172,30 @@ package androidx.ui.core {
   }
 
   public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
-    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.DensityScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.DensityScope, androidx.ui.core.Constraints constraints);
-    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.DensityScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.DensityScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
+    method public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
+    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
   }
 
-  public abstract class MeasureScope implements androidx.ui.unit.DensityScope {
+  public abstract class MeasureScope implements androidx.ui.core.ModifierScope {
     ctor public MeasureScope();
+    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public final androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public void setAmbientLayoutDirection(androidx.ui.core.LayoutDirection p);
+    method public void setLayoutDirection(androidx.ui.core.LayoutDirection p);
+    property public androidx.ui.core.LayoutDirection ambientLayoutDirection;
+    property public androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public static interface MeasureScope.LayoutResult {
@@ -219,8 +229,15 @@ package androidx.ui.core {
     field public static final androidx.ui.core.Modifier.None! INSTANCE;
   }
 
+  public interface ModifierScope extends androidx.ui.unit.Density {
+    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
+    property public abstract androidx.ui.core.LayoutDirection ambientLayoutDirection;
+    property public abstract androidx.ui.core.LayoutDirection layoutDirection;
+  }
+
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
-    method public default Object? modifyParentData(androidx.ui.unit.DensityScope, Object? parentData);
+    method public default Object? modifyParentData(androidx.ui.unit.Density, Object? parentData);
   }
 
   public abstract class Placeable {
@@ -251,16 +268,23 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.PointerEventPass PreUp;
   }
 
+  public final class PointerId {
+    ctor public PointerId(long value);
+    method public long component1();
+    method public androidx.ui.core.PointerId copy(long value);
+    method public long getValue();
+  }
+
   public final class PointerInputChange {
-    ctor public PointerInputChange(int id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
-    method public int component1();
+    ctor public PointerInputChange(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
+    method public androidx.ui.core.PointerId component1();
     method public androidx.ui.core.PointerInputData component2();
     method public androidx.ui.core.PointerInputData component3();
     method public androidx.ui.core.ConsumedData component4();
-    method public androidx.ui.core.PointerInputChange copy(int id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
+    method public androidx.ui.core.PointerInputChange copy(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
     method public androidx.ui.core.ConsumedData getConsumed();
     method public androidx.ui.core.PointerInputData getCurrent();
-    method public int getId();
+    method public androidx.ui.core.PointerId getId();
     method public androidx.ui.core.PointerInputData getPrevious();
   }
 
@@ -329,6 +353,15 @@ package androidx.ui.semantics {
     method public String? getLabel();
   }
 
+  public final class AccessibilityRangeInfo {
+    ctor public AccessibilityRangeInfo(float current, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> range);
+    method public float component1();
+    method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> component2();
+    method public androidx.ui.semantics.AccessibilityRangeInfo copy(float current, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> range);
+    method public float getCurrent();
+    method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getRange();
+  }
+
   public class SemanticsPropertyKey<T> implements kotlin.properties.ReadWriteProperty<androidx.ui.semantics.SemanticsPropertyReceiver,T> {
     ctor public SemanticsPropertyKey(String name);
     method public final String getName();
@@ -347,13 +380,15 @@ package androidx.ui.testutils {
 
   public final class PointerInputTestUtilKt {
     method public static androidx.ui.core.PointerInputChange consume(androidx.ui.core.PointerInputChange, float dx = 0f, float dy = 0f, boolean downChange = false);
-    method public static androidx.ui.core.PointerInputChange down(int id = 0, androidx.ui.unit.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
+    method public static androidx.ui.core.PointerInputChange down(long id, androidx.ui.unit.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
     method public static androidx.ui.core.PointerInputChange invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChanges, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange![] pointerInputChanges, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
+    method public static void invokeOverAllPasses(kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>, androidx.ui.core.CustomEvent event);
     method public static androidx.ui.core.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChange, androidx.ui.core.PointerEventPass pointerEventPass, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange![] pointerInputChanges, androidx.ui.core.PointerEventPass pointerEventPass, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static androidx.ui.core.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChange, androidx.ui.core.PointerEventPass![] pointerEventPasses, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, java.util.List<androidx.ui.core.PointerInputChange> pointerInputChanges, java.util.List<? extends androidx.ui.core.PointerEventPass> pointerEventPasses, androidx.ui.unit.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
+    method public static void invokeOverPasses(kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>, androidx.ui.core.CustomEvent event, java.util.List<? extends androidx.ui.core.PointerEventPass> pointerEventPasses);
     method public static androidx.ui.core.PointerInputChange moveBy(androidx.ui.core.PointerInputChange, androidx.ui.unit.Duration duration, float dx = 0f, float dy = 0f);
     method public static androidx.ui.core.PointerInputChange moveTo(androidx.ui.core.PointerInputChange, androidx.ui.unit.Duration duration, float x = 0f, float y = 0f);
     method public static androidx.ui.core.PointerInputChange up(androidx.ui.core.PointerInputChange, androidx.ui.unit.Duration duration);

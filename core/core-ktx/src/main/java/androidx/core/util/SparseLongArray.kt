@@ -48,7 +48,7 @@ inline fun SparseLongArray.containsKey(key: Int) = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
 @RequiresApi(18)
-inline fun SparseLongArray.containsValue(value: Long) = indexOfValue(value) != -1
+inline fun SparseLongArray.containsValue(value: Long) = indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 @RequiresApi(18)
@@ -57,7 +57,7 @@ inline fun SparseLongArray.getOrDefault(key: Int, defaultValue: Long) = get(key,
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
 @RequiresApi(18)
 inline fun SparseLongArray.getOrElse(key: Int, defaultValue: () -> Long) =
-    indexOfKey(key).let { if (it != -1) valueAt(it) else defaultValue() }
+    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
 /** Return true when the collection contains no elements. */
 @RequiresApi(18)
@@ -71,7 +71,7 @@ inline fun SparseLongArray.isNotEmpty() = size() != 0
 @RequiresApi(18)
 fun SparseLongArray.remove(key: Int, value: Long): Boolean {
     val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
+    if (index >= 0 && value == valueAt(index)) {
         removeAt(index)
         return true
     }

@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "Android ContentAccess - Runtime"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.CONTENTACCESS
     mavenGroup = LibraryGroups.CONTENTACCESS
     inceptionYear = "2019"
     description = "This library is the runtime component for ContentAccess, a Jetpack library for" +

@@ -30,7 +30,7 @@ import javax.lang.model.element.VariableElement
 
 /** Base type for schema compiled from the processing environment. */
 internal sealed class ProcessingType : ComplexType {
-    /** The type element this Serialization type is derived from. */
+    /** Type element this Serialization type is derived from. */
     abstract val element: TypeElement
 }
 
@@ -41,7 +41,7 @@ internal data class Enum(
     override val name: TypeName = element.toTypeName()
 ) : ProcessingType(), SchemaEnum {
     data class Value(
-        /** The element representing the annotated enum constant. */
+        /** Element representing the annotated enum constant. */
         val element: VariableElement,
         override val id: Int,
         override val name: String = element.simpleName.toString()
@@ -57,7 +57,13 @@ internal data class Message(
     data class Field(
         override val id: Int,
         override val name: String,
-        override val type: Type
+        override val type: Type,
+        /** Accessor for reading this field. */
+        val reader: FieldReader,
+        /** Accessor for writing to this field. */
+        val writer: FieldWriter,
+        /** Whether a field should be set to null instead of a default instance when omitted. */
+        val nullable: Boolean = false
     ) : SchemaMessage.Field
 }
 
@@ -69,7 +75,7 @@ internal data class Service(
     override val descriptor: String = name.canonicalName
 ) : ProcessingType(), SchemaService {
     data class Action(
-        /** The element representing the annotated action method. */
+        /** Element representing the annotated action method. */
         val element: ExecutableElement,
         override val id: Int,
         override val name: String = element.simpleName.toString(),

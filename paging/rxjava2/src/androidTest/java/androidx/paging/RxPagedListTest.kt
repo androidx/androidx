@@ -34,6 +34,7 @@ class RxPagedListTest {
 
     @Test
     fun observable_config() {
+        @Suppress("DEPRECATION")
         val observable = dataSourceFactory.toObservable(config)
         val first = observable.blockingFirst()
         assertNotNull(first)
@@ -42,6 +43,7 @@ class RxPagedListTest {
 
     @Test
     fun observable_pageSize() {
+        @Suppress("DEPRECATION")
         val observable = dataSourceFactory.toObservable(20)
         val first = observable.blockingFirst()
         assertNotNull(first)
@@ -50,6 +52,7 @@ class RxPagedListTest {
 
     @Test
     fun flowable_config() {
+        @Suppress("DEPRECATION")
         val flowable = dataSourceFactory.toFlowable(config)
         val first = flowable.blockingFirst()
         assertNotNull(first)
@@ -58,6 +61,7 @@ class RxPagedListTest {
 
     @Test
     fun flowable_pageSize() {
+        @Suppress("DEPRECATION")
         val flowable = dataSourceFactory.toFlowable(20)
         val first = flowable.blockingFirst()
         assertNotNull(first)
@@ -65,6 +69,7 @@ class RxPagedListTest {
     }
 
     companion object {
+        @Suppress("DEPRECATION")
         private val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,

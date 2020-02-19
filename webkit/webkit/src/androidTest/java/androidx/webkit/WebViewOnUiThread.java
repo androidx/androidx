@@ -72,18 +72,31 @@ public class WebViewOnUiThread {
      */
     private WebView mWebView;
 
+    /**
+     * Whether mWebView is owned by this instance, and should be destroyed in cleanUp.
+     */
+    private boolean mOwnsWebView;
+
+    /**
+     * Create a new WebViewOnUiThread that owns its own WebView instance.
+     */
     public WebViewOnUiThread() {
-        this(WebkitUtils.onMainThreadSync(() -> {
-            return new WebView(ApplicationProvider.getApplicationContext());
-        }));
+        this(createWebView(), true);
     }
 
     /**
      * Create a new WebViewOnUiThread wrapping the provided {@link WebView}.
+     *
+     * The caller is responsible for destroying the WebView instance.
      */
     public WebViewOnUiThread(final WebView webView) {
+        this(webView, false);
+    }
+
+    private WebViewOnUiThread(final WebView webView, final boolean ownsWebView) {
         WebkitUtils.onMainThreadSync(() -> {
             mWebView = webView;
+            mOwnsWebView = ownsWebView;
             mWebView.setWebViewClient(new WaitForLoadedClient(WebViewOnUiThread.this));
             mWebView.setWebChromeClient(new WaitForProgressClient(WebViewOnUiThread.this));
         });
@@ -105,6 +118,10 @@ public class WebViewOnUiThread {
     /**
      * Called after a test is complete and the WebView should be disengaged from
      * the tests.
+     *
+     * If the associated webview is owned by this object, then it will be destroyed.
+     * It is the caller's responsibility to ensure that it has been detached from
+     * the view hierarchy, if needed.
      */
     public void cleanUp() {
         WebkitUtils.onMainThreadSync(() -> {
@@ -112,7 +129,9 @@ public class WebViewOnUiThread {
             mWebView.clearCache(true);
             mWebView.setWebChromeClient(null);
             mWebView.setWebViewClient(null);
-            mWebView.destroy();
+            if (mOwnsWebView) {
+                mWebView.destroy();
+            }
         });
     }
 

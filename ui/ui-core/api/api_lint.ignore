@@ -1,75 +1,7 @@
 // Baseline format: 1.0
-AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTRB(float, float, float, float):
-    Acronyms should not be capitalized in method names: was `fromLTRB`, should this be `fromLtrb`?
-AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTWH(float, float, float, float):
-    Acronyms should not be capitalized in method names: was `fromLTWH`, should this be `fromLtwh`?
-
-
-ArrayReturn: androidx.ui.graphics.BrushKt#HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, float, androidx.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.unit.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange, androidx.ui.core.PointerEventPass[], androidx.ui.unit.IntPxSize) parameter #2:
     Method parameter should be Collection<PointerEventPass> (or subclass) instead of raw array; was `androidx.ui.core.PointerEventPass[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.core.PointerEventPass, androidx.ui.unit.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
-
-
-AutoBoxing: androidx.ui.vectormath64.Matrix4#scale(Object, Float, Float) parameter #1:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.vectormath64.Matrix4#scale(Object, Float, Float) parameter #2:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.vectormath64.Matrix4Kt#getAsScale(androidx.ui.vectormath64.Matrix4):
-    Must avoid boxed primitives (`java.lang.Float`)
-
-
-DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(androidx.ui.vectormath64.MatrixColumn):
-    Method Matrix3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(int):
-    Method Matrix3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Matrix4#get(int):
-    Method Matrix4.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector2#get(androidx.ui.vectormath64.VectorComponent):
-    Method Vector2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector2#get(int):
-    Method Vector2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector2#set(androidx.ui.vectormath64.VectorComponent, float):
-    Method Vector2.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector2#set(int, float):
-    Method Vector2.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector3#get(androidx.ui.vectormath64.VectorComponent):
-    Method Vector3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector3#get(int):
-    Method Vector3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector3#set(androidx.ui.vectormath64.VectorComponent, float):
-    Method Vector3.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector3#set(int, float):
-    Method Vector3.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector4#get(int):
-    Method Vector4.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.vectormath64.Vector4#set(int, float):
-    Method Vector4.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
-KotlinOperator: androidx.ui.engine.geometry.RRect#contains(androidx.ui.engine.geometry.Offset):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.engine.geometry.Rect#contains(androidx.ui.engine.geometry.Offset):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.engine.geometry.Size#contains(androidx.ui.engine.geometry.Offset):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.graphics.Path#contains(androidx.ui.engine.geometry.Offset):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-
-
-MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
-    androidx.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
-
-
-TopLevelBuilder: androidx.ui.graphics.vector.PathBuilder:
-    Builder should be defined as inner class: androidx.ui.graphics.vector.PathBuilder

@@ -16,18 +16,25 @@
 
 package androidx.work.lint
 
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 
 object Stubs {
-    val WORK_MANAGER_CONFIGURATION_PROVIDER: TestFile = kotlin(
-        "androidx/work/Configuration.kt",
+    val WORK_MANAGER_CONFIGURATION_PROVIDER: TestFile = java(
+        "androidx/work/Configuration.java",
         """
-                 package androidx.work
+                 package androidx.work;
+
                  class Configuration {
-                   interface Provider {
-                     fun getWorkManagerConfiguration(): Configuration
-                   }
+                    static class Builder {
+                        void setJobSchedulerJobIdRange(int minId, int maxId) {
+
+                        }
+                    }
+                    interface Provider {
+                        Configuration getWorkManagerConfiguration();
+                    }
                  }
             """
     )
@@ -45,6 +52,15 @@ object Stubs {
             """
     )
         .indented().within("src")
+
+    val LISTENABLE_WORKER: TestFile = kotlin(
+        "androidx/work/ListenableWorker.kt",
+        """
+            package androidx.work
+
+            open class ListenableWorker
+        """
+    ).indented().within("src")
 
     val WORK_REQUEST: TestFile = kotlin(
         "androidx/work/WorkRequest.kt",
@@ -64,12 +80,74 @@ object Stubs {
         """
     ).indented().within("src")
 
-    val PERIODIC_WORK_REQUEST: TestFile = kotlin(
-        "androidx/work/PeriodicWorkRequest.kt",
+    val PERIODIC_WORK_REQUEST: TestFile = java(
+        "androidx/work/PeriodicWorkRequest.java",
+        """
+            package androidx.work;
+
+            import androidx.work.ListenableWorker;
+            import java.time.Duration;
+            import java.util.concurrent.TimeUnit;
+
+            class PeriodicWorkRequest extends WorkRequest {
+                static class Builder {
+                    public Builder(ListenableWorker worker, long interval, TimeUnit unit) {
+                        
+                    }
+                    public Builder(ListenableWorker worker, Duration duration) {
+                        
+                    }
+                    public Builder(
+                        ListenableWorker worker,
+                        long interval, TimeUnit intervalUnit, 
+                        long flex,
+                        TimeUnit flexUnits) {
+                        
+                    }
+                    public Builder(
+                        ListenableWorker worker,
+                        Duration intervalDuration,
+                        Duration flexDuration) {
+
+                    }
+                }
+            }
+        """
+    ).indented().within("src")
+
+    val NOTIFICATION: TestFile = kotlin(
+        "android/app/Notification.kt",
+        """
+            package android.app
+
+            class Notification {
+            }
+        """
+    ).indented().within("src")
+
+    val JOB_SERVICE: TestFile = kotlin(
+        "android/app/job/JobService.kt",
+        """
+            package android.app.job
+
+            open class JobService {
+
+            }
+        """
+    ).indented().within("src")
+
+    val FOREGROUND_INFO: TestFile = kotlin(
+        "androidx/work/ForegroundInfo.kt",
         """
             package androidx.work
 
-            class PeriodicWorkRequest: WorkRequest()
+            import android.app.Notification
+
+            class ForegroundInfo(id: Int, notification: Notification, serviceType: Int) {
+                constructor(id: Int, notification: Notification) {
+                   this(id, notification, 0)
+                }
+            }
         """
     ).indented().within("src")
 

@@ -2,13 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     def supportRootFolder = project.projectDir.getParentFile()
-    apply from: "unbundled_check.gradle"
     repositories {
         maven {
             url "${supportRootFolder}/../../prebuilts/androidx/external"
-        }
-        if (isUnbundledBuild(supportRootFolder)) {
-            jcenter()
         }
     }
 
@@ -31,6 +27,7 @@ apply from: "out.gradle"
 init.chooseOutDir()
 
 ext.supportRootFolder = project.projectDir.getParentFile()
+apply from: "local_dokka.gradle"
 apply from: 'repos.gradle'
 apply from: "build_dependencies.gradle"
 apply plugin: "kotlin"
@@ -54,8 +51,12 @@ dependencies {
     implementation build_libs.error_prone_gradle
     implementation build_libs.dokka_gradle
     implementation build_libs.kotlin.gradle_plugin
+    implementation build_libs.kotlinpoet
     implementation gradleApi()
     implementation project("jetpad-integration")
+    // needed by inspection plugin
+    implementation "com.google.protobuf:protobuf-gradle-plugin:0.8.8"
+    implementation "org.anarres.jarjar:jarjar-gradle:1.0.1"
 }
 
 apply plugin: "java-gradle-plugin"
@@ -67,6 +68,8 @@ sourceSets {
     main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
     main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main" +
             "/resources"
+
+    main.java.srcDirs += "${supportRootFolder}/ui/ui-material/icons/generator/src/main/kotlin"
 }
 
 gradlePlugin {

@@ -16,75 +16,104 @@
 
 package androidx.ui.foundation
 
+import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
-import androidx.animation.ExponentialDecay
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.core.Alignment
+import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
-import androidx.ui.unit.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.unit.Px
 import androidx.ui.core.RepaintBoundary
-import androidx.ui.unit.ipx
-import androidx.ui.unit.min
-import androidx.ui.unit.px
-import androidx.ui.unit.round
-import androidx.ui.unit.toPx
-import androidx.ui.foundation.animation.AnimatedValueHolder
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Draggable
+import androidx.ui.foundation.gestures.Scrollable
+import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.Container
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.ipx
+import androidx.ui.unit.min
+import androidx.ui.unit.px
+import androidx.ui.unit.toPx
+import kotlin.math.roundToInt
+
+/**
+ * Create and [remember] the state for a [VerticalScroller] or [HorizontalScroller] based on the
+ * currently appropriate scroll configuration to allow changing scroll position or observing
+ * scroll behavior.
+ *
+ * @param initial initial scroller position to start with
+ */
+@Composable
+fun ScrollerPosition(
+    initial: Float = 0f
+): ScrollerPosition {
+    val clock = AnimationClockAmbient.current
+    val config = FlingConfig()
+    return remember(clock, config) {
+        ScrollerPosition(flingConfig = config, initial = initial, animationClock = clock)
+    }
+}
 
 /**
  * This is the state of a [VerticalScroller] and [HorizontalScroller] that
  * allows the developer to change the scroll position by calling methods on this object.
+ *
+ * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
+ * @param initial initial scroller position to start with
+ * @param animationClock clock observable to run animation on. Consider querying
+ * [AnimationClockAmbient] to get current composition value
  */
 @Model
-class ScrollerPosition(initial: Float = 0f) {
+class ScrollerPosition(
+    /** Configuration that specifies fling logic when scrolling ends with velocity. */
+    flingConfig: FlingConfig,
+    initial: Float = 0f,
+    animationClock: AnimationClockObservable
+) {
 
-    internal val holder = AnimatedValueHolder(-initial)
+    private val consumeDelta: (Float) -> Float = {
+        val reverseDelta = -it
+        val newValue = value + reverseDelta
+        val max = maxPosition
+        val min = 0f
+        val consumed = when {
+            newValue > max -> max - value
+            newValue < min -> min - value
+            else -> reverseDelta
+        }
+        value += consumed
+        -consumed
+    }
+
+    internal val scrollableState =
+        ScrollableState(consumeDelta, flingConfig, animationClock)
 
     /**
-     * maxPosition this scroller that consume this ScrollerPosition can reach, or [Px.Infinity]
-     * if still unknown
+     * current scroller position value
      */
-    var maxPosition: Px = Px.Infinity
-        internal set
-
-    /**
-     * current position for scroller
-     */
-    val value: Px
-        get() = -holder.value.px
-
-    // TODO(b/145693559) This will likely be rendered obsolete when AnimatedFloat exposes a +state
-    //  "isAnimating" or "isRunning" property.
-    /**
-     * whether this [ScrollerPosition] is currently animating
-     */
-    var isAnimating: Boolean = false
+    var value = initial
         private set
 
     /**
-     * Fling configuration that specifies fling logic when scrolling ends with velocity.
-     *
-     * See [FlingConfig] for more info.
+     * whether this [ScrollerPosition] is currently animating/flinging
      */
-    var flingConfig = FlingConfig(
-        decayAnimation = ExponentialDecay(
-            frictionMultiplier = ScrollerDefaultFriction,
-            absVelocityThreshold = ScrollerVelocityThreshold
-        )
-    )
+    val isAnimating
+        get() = scrollableState.isAnimating
+
+    /**
+     * maxPosition this scroller that consume this ScrollerPosition can reach, or
+     * [Float.POSITIVE_INFINITY] if still unknown
+     */
+    var maxPosition: Float = Float.POSITIVE_INFINITY
+        internal set
 
     /**
      * Smooth scroll to position in pixels
@@ -93,14 +122,10 @@ class ScrollerPosition(initial: Float = 0f) {
      */
     // TODO (malkov/tianliu) : think about allowing to scroll with custom animation timings/curves
     fun smoothScrollTo(
-        value: Px,
+        value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        isAnimating = true
-        holder.animatedFloat.animateTo(-value.value) { endReason, finishValue ->
-            isAnimating = false
-            onEnd(endReason, finishValue)
-        }
+        smoothScrollBy(value - this.value, onEnd)
     }
 
     /**
@@ -109,10 +134,10 @@ class ScrollerPosition(initial: Float = 0f) {
      * @param value delta to scroll by
      */
     fun smoothScrollBy(
-        value: Px,
+        value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        smoothScrollTo(this.value + value, onEnd)
+        scrollableState.smoothScrollBy(value, onEnd)
     }
 
     /**
@@ -120,8 +145,8 @@ class ScrollerPosition(initial: Float = 0f) {
      *
      * @param value target value to jump to
      */
-    fun scrollTo(value: Px) {
-        holder.animatedFloat.snapTo(-value.value)
+    fun scrollTo(value: Float) {
+        this.value = value
     }
 
     /**
@@ -129,36 +154,8 @@ class ScrollerPosition(initial: Float = 0f) {
      *
      * @param value delta to jump by
      */
-    fun scrollBy(value: Px) {
+    fun scrollBy(value: Float) {
         scrollTo(this.value + value)
-    }
-
-    /**
-     * Starts a fling animation with the specified starting velocity and the previously set
-     * [flingConfig]
-     *
-     * @param startVelocity Starting velocity of the fling animation
-     */
-    fun fling(startVelocity: Float) {
-
-        // TODO(b/146054789): It would be more efficient to create and cache this object whenever
-        //  the `flingConfig` property is set, but doing so currently causes a
-        //  `java.lang.IllegalStateException: Not in a frame` exception, which is a bug
-        //  and is tracked by b/146054789.
-        val flingConfig = FlingConfig(
-            flingConfig.decayAnimation,
-            { endReason, endValue, remainingVelocity ->
-                isAnimating = false
-                flingConfig.onAnimationEnd?.invoke(endReason, endValue, remainingVelocity)
-            },
-            flingConfig.adjustTarget
-        )
-
-        isAnimating = true
-        holder.fling(
-            flingConfig,
-            startVelocity
-        )
     }
 }
 
@@ -180,7 +177,7 @@ class ScrollerPosition(initial: Float = 0f) {
  */
 @Composable
 fun VerticalScroller(
-    scrollerPosition: ScrollerPosition = remember { ScrollerPosition() },
+    scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
@@ -210,7 +207,7 @@ fun VerticalScroller(
  */
 @Composable
 fun HorizontalScroller(
-    scrollerPosition: ScrollerPosition = remember { ScrollerPosition() },
+    scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier.None,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
@@ -228,38 +225,25 @@ private fun Scroller(
 ) {
     val direction =
         if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
-    Semantics(properties = {
+    Semantics(container = true, properties = {
         if (isScrollable) {
             ScrollTo(action = { x, y ->
                 if (isVertical) {
-                    scrollerPosition.scrollBy(y)
+                    scrollerPosition.scrollBy(y.value)
                 } else {
-                    scrollerPosition.scrollBy(x)
+                    scrollerPosition.scrollBy(x.value)
                 }
             })
         }
     }) {
-        Draggable(
-            dragValue = scrollerPosition.holder,
-            onDragStarted = {
-                scrollerPosition.scrollTo(scrollerPosition.value)
-            },
-            onDragValueChangeRequested = {
-                scrollerPosition.holder.animatedFloat.snapTo(it)
-            },
-            onDragStopped = {
-                scrollerPosition.fling(it)
-            },
+        Scrollable(
+            scrollableState = scrollerPosition.scrollableState,
             dragDirection = direction,
-            isValueAnimating = scrollerPosition.isAnimating,
             enabled = isScrollable
         ) {
             ScrollerLayout(
                 scrollerPosition = scrollerPosition,
-                onMaxPositionChanged = {
-                    scrollerPosition.holder.setBounds(-it.value, 0f)
-                    scrollerPosition.maxPosition = it
-                },
+                onMaxPositionChanged = { scrollerPosition.maxPosition = it },
                 modifier = modifier,
                 isVertical = isVertical,
                 child = child
@@ -272,7 +256,7 @@ private fun Scroller(
 private fun ScrollerLayout(
     scrollerPosition: ScrollerPosition,
     modifier: Modifier,
-    onMaxPositionChanged: (Px) -> Unit,
+    onMaxPositionChanged: (Float) -> Unit,
     isVertical: Boolean,
     child: @Composable() () -> Unit
 ) {
@@ -310,16 +294,13 @@ private fun ScrollerLayout(
                 val scrollHeight = childHeight - height.toPx()
                 val scrollWidth = childWidth - width.toPx()
                 val side = if (isVertical) scrollHeight else scrollWidth
-                if (side != scrollerPosition.maxPosition) {
-                    onMaxPositionChanged(side)
+                if (side != scrollerPosition.maxPosition.px) {
+                    onMaxPositionChanged(side.value)
                 }
-                val xOffset = if (isVertical) 0.ipx else -scrollerPosition.value.round()
-                val yOffset = if (isVertical) -scrollerPosition.value.round() else 0.ipx
-                placeable?.place(xOffset, yOffset)
+                val xOffset = if (isVertical) 0 else -scrollerPosition.value.roundToInt()
+                val yOffset = if (isVertical) -scrollerPosition.value.roundToInt() else 0
+                placeable?.place(xOffset.ipx, yOffset.ipx)
             }
         }
     )
 }
-
-private val ScrollerDefaultFriction = 0.35f
-private val ScrollerVelocityThreshold = 1000f

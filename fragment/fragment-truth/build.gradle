@@ -49,7 +49,6 @@ dependencies {
 androidx {
     name = "Fragment Truth Extensions"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.FRAGMENT
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2019"
     description = "Truth extensions for Fragments"

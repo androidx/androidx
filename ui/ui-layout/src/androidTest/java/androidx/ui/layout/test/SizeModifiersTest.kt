@@ -31,11 +31,11 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.withDensity
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -47,12 +47,12 @@ import java.util.concurrent.TimeUnit
 class SizeModifiersTest : LayoutTest() {
 
     @Test
-    fun testSize_withWidthSizeModifiers() = withDensity(density) {
+    fun testSize_withWidthSizeModifiers() = with(density) {
         val sizeDp = 50.dp
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(6)
-        val size = MutableList(6) { Ref<PxSize>() }
+        val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -86,32 +86,32 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
 
-        assertEquals(PxSize(0.ipx, sizeIpx), size[1].value)
+        assertEquals(IntPxSize(0.ipx, sizeIpx), size[1].value)
         assertEquals(PxPosition(0.ipx, sizeIpx), position[1].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 2), position[2].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[3].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 3), position[3].value)
 
-        assertEquals(PxSize((sizeDp * 2).toIntPx(), sizeIpx), size[4].value)
+        assertEquals(IntPxSize((sizeDp * 2).toIntPx(), sizeIpx), size[4].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 4), position[4].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[5].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[5].value)
         assertEquals(PxPosition(0.ipx, sizeIpx * 5), position[5].value)
     }
 
     @Test
-    fun testSize_withHeightSizeModifiers() = withDensity(density) {
+    fun testSize_withHeightSizeModifiers() = with(density) {
         val sizeDp = 10.dp
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(6)
-        val size = MutableList(6) { Ref<PxSize>() }
+        val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -142,32 +142,32 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
 
-        assertEquals(PxSize(sizeIpx, 0.ipx), size[1].value)
+        assertEquals(IntPxSize(sizeIpx, 0.ipx), size[1].value)
         assertEquals(PxPosition(sizeIpx, 0.ipx), position[1].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
         assertEquals(PxPosition(sizeIpx * 2, 0.ipx), position[2].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[3].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
         assertEquals(PxPosition(sizeIpx * 3, 0.ipx), position[3].value)
 
-        assertEquals(PxSize(sizeIpx, (sizeDp * 2).toIntPx()), size[4].value)
+        assertEquals(IntPxSize(sizeIpx, (sizeDp * 2).toIntPx()), size[4].value)
         assertEquals(PxPosition(sizeIpx * 4, 0.ipx), position[4].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[5].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[5].value)
         assertEquals(PxPosition(sizeIpx * 5, 0.ipx), position[5].value)
     }
 
     @Test
-    fun testSize_withSizeModifiers() = withDensity(density) {
+    fun testSize_withSizeModifiers() = with(density) {
         val sizeDp = 50.dp
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(5)
-        val size = MutableList(5) { Ref<PxSize>() }
+        val size = MutableList(5) { Ref<IntPxSize>() }
         val position = MutableList(5) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -192,30 +192,30 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[1].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[1].value)
         assertEquals(PxPosition(sizeIpx, 0.ipx), position[1].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
         assertEquals(PxPosition(sizeIpx * 2, 0.ipx), position[2].value)
 
-        assertEquals(PxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()), size[3].value)
+        assertEquals(IntPxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()), size[3].value)
         assertEquals(PxPosition(sizeIpx * 3, 0.ipx), position[3].value)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[4].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[4].value)
         assertEquals(PxPosition((sizeDp * 5).toIntPx(), 0.ipx), position[4].value)
     }
 
     @Test
-    fun testSizeModifiers_respectMaxConstraint() = withDensity(density) {
+    fun testSizeModifiers_respectMaxConstraint() = with(density) {
         val sizeDp = 100.dp
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val constrainedBoxSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
+        val constrainedBoxSize = Ref<IntPxSize>()
+        val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -239,18 +239,18 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size, size), constrainedBoxSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(IntPxSize(size, size), constrainedBoxSize.value)
+        assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(PxPosition.Origin, childPosition.value)
     }
 
     @Test
-    fun testMaxModifiers_withInfiniteValue() = withDensity(density) {
+    fun testMaxModifiers_withInfiniteValue() = with(density) {
         val sizeDp = 20.dp
         val sizeIpx = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(4)
-        val size = MutableList(4) { Ref<PxSize>() }
+        val size = MutableList(4) { Ref<IntPxSize>() }
         val position = MutableList(4) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopLeft) {
@@ -281,14 +281,14 @@ class SizeModifiersTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[0].value)
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[1].value)
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[2].value)
-        assertEquals(PxSize(sizeIpx, sizeIpx), size[3].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[1].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
     }
 
     @Test
-    fun testMinWidthModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testMinWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutWidth.Min(10.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -318,7 +318,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxWidthModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testMaxWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutWidth.Max(20.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -348,7 +348,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testMinHeightModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testMinHeightModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutHeight.Min(30.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -378,7 +378,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxHeightModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testMaxHeightModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutHeight.Max(40.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -408,7 +408,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testWidthModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutWidth(10.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -438,7 +438,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testHeightModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testHeightModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutHeight(10.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -468,7 +468,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testWidthHeightModifiers_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testWidthHeightModifiers_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(
                 LayoutWidth.Min(10.dp) + LayoutWidth.Max(20.dp) + LayoutHeight.Min(30.dp) +
@@ -501,7 +501,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testMinSizeModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testMinSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutSize.Min(20.dp, 30.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -531,7 +531,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testMaxSizeModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testMaxSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutSize.Max(40.dp, 50.dp)) {
                 Container(LayoutAspectRatio(1f)) { }
@@ -561,7 +561,7 @@ class SizeModifiersTest : LayoutTest() {
     }
 
     @Test
-    fun testSizeModifier_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+    fun testSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(LayoutSize(40.dp, 50.dp)) {
                 Container(LayoutAspectRatio(1f)) { }

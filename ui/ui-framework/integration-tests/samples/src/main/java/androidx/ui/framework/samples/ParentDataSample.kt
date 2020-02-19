@@ -20,7 +20,9 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -28,7 +30,7 @@ import androidx.ui.unit.dp
 fun ParentDataSample() {
     val parentDataComposable = @Composable {
         ParentData(data = 5) {
-            SizedRectangle(color = Color.Blue, width = 50.dp, height = 50.dp)
+            Box(LayoutSize(50.dp), backgroundColor = Color.Blue)
         }
     }
     Layout(parentDataComposable) { measurables, constraints ->

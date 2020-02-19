@@ -42,9 +42,13 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.google.common.truth.Truth;
+
 import org.hamcrest.MatcherAssert;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -499,6 +503,42 @@ public class MigrationTest {
         db.close();
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void missingAddedIndex() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 11);
+        database.close();
+        Context targetContext = ApplicationProvider.getApplicationContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .addMigrations(new EmptyMigration(11, 12))
+                .build();
+        try {
+            db.dao().loadAllEntity1s();
+            Assert.fail("expected a missing migration exception");
+        } catch (IllegalStateException ex) {
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Migration didn't properly handle"
+            );
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void missingAddedIndex_viaMigrationTesting() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 11);
+        database.close();
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, 12, false, new EmptyMigration(11, 12));
+            Assert.fail("expected a missing migration exception");
+        } catch (IllegalStateException ex) {
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Migration didn't properly handle"
+            );
+        }
+    }
+
     private void testFailure(int startVersion, int endVersion) throws IOException {
         final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, startVersion);
         db.close();
@@ -609,6 +649,14 @@ public class MigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_11_12 = new Migration(11, 12) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_Entity1_addedInV10` "
+                    + "ON `Entity1` (`addedInV10`)");
+        }
+    };
+
     /**
      * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
@@ -649,7 +697,7 @@ public class MigrationTest {
 
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
             MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11};
+            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {

@@ -89,6 +89,13 @@ suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
  */
 private suspend fun RoomDatabase.createTransactionContext(): CoroutineContext {
     val controlJob = Job()
+    // make sure to tie the control job to this context to avoid blocking the transaction if
+    // context get cancelled before we can even start using this job. Otherwise, the acquired
+    // transaction thread will forever wait for the controlJob to be cancelled.
+    // see b/148181325
+    coroutineContext[Job]?.invokeOnCompletion {
+        controlJob.cancel()
+    }
     val dispatcher = transactionExecutor.acquireTransactionThread(controlJob)
     val transactionElement = TransactionElement(controlJob, dispatcher)
     val threadLocalElement =
@@ -101,8 +108,8 @@ private suspend fun RoomDatabase.createTransactionContext(): CoroutineContext {
  * coroutines to the acquired thread. The [controlJob] is used to control the release of the
  * thread by cancelling the job.
  */
-private suspend fun Executor.acquireTransactionThread(controlJob: Job): ContinuationInterceptor =
-    suspendCancellableCoroutine { continuation ->
+private suspend fun Executor.acquireTransactionThread(controlJob: Job): ContinuationInterceptor {
+    return suspendCancellableCoroutine { continuation ->
         continuation.invokeOnCancellation {
             // We got cancelled while waiting to acquire a thread, we can't stop our attempt to
             // acquire a thread, but we can cancel the controlling job so once it gets acquired it
@@ -121,11 +128,12 @@ private suspend fun Executor.acquireTransactionThread(controlJob: Job): Continua
             // Couldn't acquire a thread, cancel coroutine.
             continuation.cancel(
                 IllegalStateException(
-                    "Unable to acquire a thread to perform the database transaction.", ex)
+                    "Unable to acquire a thread to perform the database transaction.", ex
+                )
             )
         }
     }
-
+}
 /**
  * A [CoroutineContext.Element] that indicates there is an on-going database transaction.
  *

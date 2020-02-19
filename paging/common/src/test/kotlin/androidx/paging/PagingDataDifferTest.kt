@@ -34,6 +34,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 
 @RunWith(JUnit4::class)
 @UseExperimental(ExperimentalCoroutinesApi::class)
@@ -50,6 +51,51 @@ class PagingDataDifferTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    @UseExperimental(FlowPreview::class)
+    fun collectFrom_static() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val differ = SimpleDiffer()
+            val receiver = object : UiReceiver {
+                val hintsAdded = mutableListOf<ViewportHint>()
+                var didRetry = false
+                var didRefresh = false
+
+                override fun addHint(hint: ViewportHint) {
+                    hintsAdded.add(hint)
+                }
+
+                override fun retry() {
+                    didRetry = true
+                }
+
+                override fun refresh() {
+                    didRefresh = true
+                }
+            }
+
+            val job1 = launch {
+                differ.collectFrom(infinitelySuspendingPagingData(receiver), dummyPresenterCallback)
+            }
+            advanceUntilIdle()
+            job1.cancel()
+
+            val job2 = launch {
+                differ.collectFrom(PagingData.empty(), dummyPresenterCallback)
+            }
+            advanceUntilIdle()
+            job2.cancel()
+
+            // Static replacement should also replace the UiReceiver from previous generation.
+            differ.retry()
+            differ.refresh()
+            advanceUntilIdle()
+
+            assertFalse { receiver.didRetry }
+            assertFalse { receiver.didRefresh }
+        }
     }
 
     @Test
@@ -79,9 +125,9 @@ class PagingDataDifferTest {
     }
 }
 
-private fun infinitelySuspendingPagingData() = PagingData<Int>(
+private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) = PagingData<Int>(
     flow { emit(suspendCancellableCoroutine { }) },
-    dummyReceiver
+    receiver
 )
 
 private class SimpleDiffer : PagingDataDiffer<Int>() {

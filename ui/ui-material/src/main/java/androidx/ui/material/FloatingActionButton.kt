@@ -28,8 +28,8 @@ import androidx.ui.graphics.Image
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.ripple.Ripple
@@ -149,16 +149,19 @@ fun FloatingActionButton(
         elevation = elevation,
         minSize = ExtendedFabHeight) {
         if (icon == null) {
-            Padding(left = ExtendedFabTextPadding, right = ExtendedFabTextPadding) {
-                Text(text = text, style = textStyle)
-            }
+            Text(
+                text = text,
+                style = textStyle,
+                modifier = LayoutPadding(
+                    start = ExtendedFabTextPadding,
+                    end = ExtendedFabTextPadding
+                )
+            )
         } else {
-            Padding(left = ExtendedFabIconPadding, right = ExtendedFabTextPadding) {
-                Row {
-                    SimpleImage(image = icon)
-                    Spacer(LayoutWidth(ExtendedFabIconPadding))
-                    Text(text = text, style = textStyle)
-                }
+            Row(LayoutPadding(start = ExtendedFabIconPadding, end = ExtendedFabTextPadding)) {
+                SimpleImage(image = icon)
+                Spacer(LayoutWidth(ExtendedFabIconPadding))
+                Text(text = text, style = textStyle)
             }
         }
     }

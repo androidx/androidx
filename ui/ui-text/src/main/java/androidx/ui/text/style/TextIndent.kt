@@ -31,7 +31,14 @@ import androidx.ui.text.lerpTextUnitInheritable
 data class TextIndent(
     val firstLine: TextUnit = 0.sp,
     val restLine: TextUnit = 0.sp
-)
+) {
+    companion object {
+        /**
+         * Constant fot no text indent.
+         */
+        val None = TextIndent()
+    }
+}
 
 /**
  * Linearly interpolate between two [TextIndent]s.

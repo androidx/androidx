@@ -16,6 +16,8 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -269,6 +271,7 @@ public abstract class Keyframe<T> implements Cloneable {
         return mValueType;
     }
 
+    @SuppressLint("NoClone") /* Platform API */
     @NonNull
     @Override
     public abstract Keyframe<T> clone();

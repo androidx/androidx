@@ -74,7 +74,7 @@ class SqliteInspectorTestEnvironment : ExternalResource() {
     suspend fun awaitDatabaseOpenedEvent(databaseName: String): DatabaseOpenedEvent {
         while (true) {
             val event = receiveEvent().databaseOpened
-            if (event.name.endsWith("/$databaseName")) {
+            if (event.name == databaseName) {
                 return event
             }
         }

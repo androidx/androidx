@@ -22,18 +22,19 @@ import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 
-private enum class ButtonState {
+enum class ButtonState {
     Released,
     Pressed,
     Disabled
 }
 
-private val Radius = FloatPropKey()
-private val Alpha = FloatPropKey()
-private val Background = FloatPropKey()
-
 @Sampled
 fun TransitionSpecWith3Properties() {
+
+    val Radius = FloatPropKey()
+    val Alpha = FloatPropKey()
+    val Background = FloatPropKey()
+
     transitionDefinition {
         // This defines animations for 3 properties: Radius, Alpha, and Background.
         transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
@@ -58,6 +59,7 @@ fun TransitionSpecWith3Properties() {
 
 @Sampled
 fun TransitionSpecWithPairs() {
+
     transitionDefinition<ButtonState> {
         transition(
             ButtonState.Released to ButtonState.Pressed,

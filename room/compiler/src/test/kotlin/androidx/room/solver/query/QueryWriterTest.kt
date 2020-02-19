@@ -44,6 +44,7 @@ class QueryWriterTest {
                 package foo.bar;
                 import androidx.room.*;
                 import java.util.*;
+                import com.google.common.collect.ImmutableList;
                 @Dao
                 abstract class MyClass {
                 """
@@ -166,6 +167,18 @@ class QueryWriterTest {
         singleQueryMethod("""
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract List<Integer> selectAllIds(long time, List<Integer> ids);
+                """) { writer ->
+            val scope = testCodeGenScope()
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
+            assertThat(scope.generate().toString().trim(), `is`(collectionOut))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun aLongAndIntegerImmutableList() {
+        singleQueryMethod("""
+                @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
+                abstract ImmutableList<Integer> selectAllIds(long time, List<Integer> ids);
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)

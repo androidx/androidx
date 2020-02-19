@@ -40,7 +40,6 @@ android {
 androidx {
     name = "Android Arch-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ARCH_RUNTIME
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Runtime"

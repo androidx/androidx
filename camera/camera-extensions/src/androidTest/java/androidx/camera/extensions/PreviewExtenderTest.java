@@ -63,7 +63,6 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -154,7 +153,7 @@ public class PreviewExtenderTest {
             @Override
             public void run() {
                 // To set the update listener and Preview will change to active state.
-                useCase.setPreviewSurfaceProvider(
+                useCase.setSurfaceProvider(
                         createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
                 CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, useCase);
@@ -233,7 +232,7 @@ public class PreviewExtenderTest {
             @Override
             public void run() {
                 // To set the update listener and Preview will change to active state.
-                preview.setPreviewSurfaceProvider(
+                preview.setSurfaceProvider(
                         createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
                 CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, preview);
@@ -285,7 +284,7 @@ public class PreviewExtenderTest {
             @Override
             public void run() {
                 // To set the update listener and Preview will change to active state.
-                preview.setPreviewSurfaceProvider(
+                preview.setSurfaceProvider(
                         createSurfaceTextureProvider(NO_OP_SURFACE_TEXTURE_CALLBACK));
 
                 CameraX.bindToLifecycle(mFakeLifecycle, cameraSelector, preview);
@@ -347,7 +346,7 @@ public class PreviewExtenderTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void canAddCameraIdFilterToConfigBuilder() {
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
         when(mockPreviewExtenderImpl.getProcessorType()).thenReturn(

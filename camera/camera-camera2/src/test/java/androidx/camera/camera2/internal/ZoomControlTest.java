@@ -199,7 +199,7 @@ public class ZoomControlTest {
         CountDownLatch latch = new CountDownLatch(1);
         ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.1f);
 
-        float targetRatio = mZoomControl.getZoomRatio().getValue();
+        float targetRatio = mZoomControl.getZoomState().getValue().getZoomRatio();
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(targetRatio));
         mCaptureResultListener.onCaptureResult(result);
 
@@ -281,7 +281,7 @@ public class ZoomControlTest {
         ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.1f);
         ListenableFuture<Void> listenableFuture2 = mZoomControl.setLinearZoom(0.2f);
         ListenableFuture<Void> listenableFuture3 = mZoomControl.setLinearZoom(0.3f);
-        float ratioForPercentage = mZoomControl.getZoomRatio().getValue();
+        float ratioForPercentage = mZoomControl.getZoomState().getValue().getZoomRatio();
 
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(ratioForPercentage));
         mCaptureResultListener.onCaptureResult(result);
@@ -479,8 +479,8 @@ public class ZoomControlTest {
         zoomControl.setActive(true);
 
         zoomControl.setZoomRatio(3.0f);
-        assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
-        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.0f);
+        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
+        assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.0f);
     }
 
     @Test
@@ -500,8 +500,8 @@ public class ZoomControlTest {
         zoomControl.setActive(true);
 
         zoomControl.setZoomRatio(0.2f);
-        assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
-        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.0f);
+        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
+        assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.0f);
     }
 
 
@@ -522,9 +522,9 @@ public class ZoomControlTest {
         zoomControl.setActive(true);
 
         zoomControl.setLinearZoom(0.4f);
-        assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
+        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
         // percentage is updated correctly but the zoomRatio is always 1.0f if zoom not supported.
-        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.4f);
+        assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.4f);
     }
 
     @Test
@@ -545,9 +545,9 @@ public class ZoomControlTest {
 
         zoomControl.setLinearZoom(0.3f);
         zoomControl.setLinearZoom(-0.2f);
-        assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
+        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
         // percentage not changed but the zoomRatio is always 1.0f if zoom not supported.
-        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.3f);
+        assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.3f);
     }
 
     @Test
@@ -568,8 +568,8 @@ public class ZoomControlTest {
 
         zoomControl.setLinearZoom(0.3f);
         zoomControl.setLinearZoom(1.2f);
-        assertThat(zoomControl.getZoomRatio().getValue()).isEqualTo(1.0f);
+        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
         // percentage not changed but the zoomRatio is always 1.0f if zoom not supported.
-        assertThat(zoomControl.getLinearZoom().getValue()).isEqualTo(0.3f);
+        assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.3f);
     }
 }

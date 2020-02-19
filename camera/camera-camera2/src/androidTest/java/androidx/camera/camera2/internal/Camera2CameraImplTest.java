@@ -21,8 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.assertTrue;
 
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -39,6 +39,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -190,10 +191,12 @@ public final class Camera2CameraImplTest {
     public void onlineUseCase() {
         mCamera2CameraImpl.open();
 
-        mCamera2CameraImpl.addOnlineUseCase(Collections.<UseCase>singletonList(createUseCase()));
+        UseCase useCase = createUseCase();
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase));
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
 
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase));
         mCamera2CameraImpl.release();
     }
 
@@ -210,19 +213,21 @@ public final class Camera2CameraImplTest {
     @Test
     public void onlineAndActiveUseCase() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
         verify(mMockOnImageAvailableListener, timeout(4000).atLeastOnce())
                 .onImageAvailable(any(ImageReader.class));
+
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
     public void removeOnlineUseCase() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
 
-        mCamera2CameraImpl.removeOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
@@ -231,8 +236,8 @@ public final class Camera2CameraImplTest {
     @Test
     public void unopenedCamera() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
-        mCamera2CameraImpl.removeOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
@@ -240,8 +245,8 @@ public final class Camera2CameraImplTest {
     @Test
     public void closedCamera() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
-        mCamera2CameraImpl.removeOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
@@ -253,10 +258,12 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.release();
         mCamera2CameraImpl.open();
 
-        mCamera2CameraImpl.addOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
@@ -265,91 +272,43 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.open();
         mCamera2CameraImpl.release();
 
-        mCamera2CameraImpl.addOnlineUseCase(Collections.<UseCase>singletonList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
-    public void addOnline_OneUseCase() throws InterruptedException {
-        blockHandler();
-
+    public void addOnline_oneUseCase_isOnline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
 
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
 
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
-    public void addOnline_SameUseCases() {
-        blockHandler();
-
+    public void addOnline_sameUseCases_staysOnline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
+        boolean onlineAfterFirstAdd = mCamera2CameraImpl.isUseCaseOnline(useCase1);
 
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
 
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-    }
-
-
-    @Test
-    public void addOnline_alreadyOnline() throws InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        //Usecase1 is online now.
+        assertThat(onlineAfterFirstAdd).isTrue();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
 
-        blockHandler();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        // Surface is attached when (1) UseCase added to online (2) Camera session opened
-        // So here we need to wait until camera close before we start to verify the attach count
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        // Surface is only attached once.
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
-    public void addOnline_twoUseCases() throws InterruptedException {
-        blockHandler();
-
+    public void addOnline_twoUseCases_bothComeOnline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
         UseCase useCase2 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase2));
-
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-        assertThat(getUseCaseSurface(useCase2).getAttachedCount()).isEqualTo(1);
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isFalse();
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
@@ -358,155 +317,45 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
-    public void addOnline_fromPendingOffline() throws InterruptedException {
-        blockHandler();
-
-        // First make UseCase online
-        UseCase useCase = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase));
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        blockHandler();
-        // Then make it offline but pending for Camera thread to run it.
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase));
-
-        // Then add the same UseCase .
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase)).isTrue();
-
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        assertThat(getUseCaseSurface(useCase).getAttachedCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase));
-    }
-
-    @Test
-    public void removeOnline_notOnline() throws InterruptedException {
-        blockHandler();
-
+    public void removeOnline_offlineUseCase_staysOffline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        // It should not be detached so the attached count should still be 0
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
-    }
-
-    @Test
-    public void removeOnline_fromPendingOnline() throws InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
     }
 
     @Test
-    public void removeOnline_fromOnlineUseCases() throws InterruptedException {
-        blockHandler();
-
+    public void removeOneOnlineUseCase_fromOnlineUseCases_onlyTakesSingleUseCaseOffline() {
         UseCase useCase1 = createUseCase();
         UseCase useCase2 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        boolean useCase1isOnlineAfterFirstAdd = mCamera2CameraImpl.isUseCaseOnline(useCase1);
+        boolean useCase2isOnlineAfterFirstAdd = mCamera2CameraImpl.isUseCaseOnline(useCase2);
 
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
-        blockHandler();
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
+        assertThat(useCase1isOnlineAfterFirstAdd).isTrue();
+        assertThat(useCase2isOnlineAfterFirstAdd).isTrue();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
 
-        // Surface is attached when (1) UseCase added to online (2) Camera session opened
-        // So here we need to wait until camera close before we start to verify the attach count
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
-        assertThat(getUseCaseSurface(useCase2).getAttachedCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase2));
     }
 
     @Test
-    public void removeOnline_twoSameUseCase() throws InterruptedException {
-        blockHandler();
-
+    public void removeSameOnlineUseCaseTwice_onlyTakesSameUseCaseOffline() {
         UseCase useCase1 = createUseCase();
         UseCase useCase2 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
-        // remove twice
-        blockHandler();
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
+        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
 
-        unblockHandler();
-        // Surface is attached when (1) UseCase added to online (2) Camera session opened
-        // So here we need to wait until camera close before we start to verify the attach count
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
-    }
-
-    @Test
-    public void onlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount()
-            throws ExecutionException, InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        changeUseCaseSurface(useCase1);
-        mCamera2CameraImpl.onUseCaseUpdated(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        // Wait for camera to be released to ensure it has finished closing
-        ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
-        releaseFuture.get();
-
-        assertThat(surface1).isNotEqualTo(surface2);
-
-        // Old surface was removed from Camera
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
-        // New surface is still in Camera
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase2));
     }
 
     @Test
@@ -531,82 +380,12 @@ public final class Camera2CameraImplTest {
 
         assertThat(surface1).isNotEqualTo(surface2);
 
-        // Old surface was removed from Camera
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
-        // New surface is still in Camera
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-    }
-
-    @Test
-    public void onlineUseCase_changeSurface_onUseCaseActive_correctAttachCount()
-            throws ExecutionException, InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        changeUseCaseSurface(useCase1);
-        mCamera2CameraImpl.onUseCaseActive(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        // Wait for camera to be released to ensure it has finished closing
-        ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
-        releaseFuture.get();
-
-        assertThat(surface1).isNotEqualTo(surface2);
-
-        // Old surface was removed from Camera
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
-        // New surface is still in Camera
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-    }
-
-
-    @Test
-    public void offlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount()
-            throws ExecutionException, InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        UseCase useCase2 = createUseCase();
-        // useCase1 is offline.
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase2));
-
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        changeUseCaseSurface(useCase1);
-        mCamera2CameraImpl.onUseCaseUpdated(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
-
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        assertThat(surface1).isNotEqualTo(surface2);
-
-        // No attachment because useCase1 is offline.
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
-        assertThat(surface2.getAttachedCount()).isEqualTo(0);
-
-        // make useCase1 online
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-
-        // Wait for camera to be released to ensure it has finished closing
-        ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
-        releaseFuture.get();
-
-        // only surface2 is attached.
-        assertThat(surface1.getAttachedCount()).isEqualTo(0);
-        assertThat(surface2.getAttachedCount()).isEqualTo(1);
-
+        // Old surface is decremented when CameraCaptueSession is closed by new
+        // CameraCaptureSession.
+        assertThat(surface1.getUseCount()).isEqualTo(0);
+        // New surface is decremented when CameraCaptueSession is closed by
+        // mCamera2CameraImpl.release()
+        assertThat(surface2.getUseCount()).isEqualTo(0);
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
     }
 
@@ -641,6 +420,8 @@ public final class Camera2CameraImplTest {
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(captureCallback, timeout(3000).times(1))
                 .onCaptureCompleted(any(CameraCaptureResult.class));
+
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1, useCase2));
     }
 
     @Test
@@ -677,6 +458,8 @@ public final class Camera2CameraImplTest {
         // CameraCaptureCallback.onCaptureCompleted() is not called and there is no crash.
         verify(captureCallback, times(0))
                 .onCaptureCompleted(any(CameraCaptureResult.class));
+
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
     }
 
     @Test
@@ -863,7 +646,7 @@ public final class Camera2CameraImplTest {
         TestUseCase useCase1 = spy((TestUseCase) createUseCase());
         TestUseCase useCase2 = spy((TestUseCase) createUseCase());
 
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
@@ -873,6 +656,8 @@ public final class Camera2CameraImplTest {
 
         verify(useCase1, times(1)).onStateOnline(eq(mCameraId));
         verify(useCase2, times(1)).onStateOnline(eq(mCameraId));
+
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1, useCase2));
     }
 
     @Test
@@ -918,10 +703,12 @@ public final class Camera2CameraImplTest {
 
         UseCase useCase1 = createUseCase();
 
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
 
         assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
+
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
@@ -978,10 +765,9 @@ public final class Camera2CameraImplTest {
         private final ImageReader.OnImageAvailableListener mImageAvailableListener;
         HandlerThread mHandlerThread = new HandlerThread("HandlerThread");
         Handler mHandler;
-        ImageReader mImageReader;
         FakeUseCaseConfig mConfig;
-        List<ImageReader> mPreviousReaders = new ArrayList<>();
         private String mCameraId;
+        private DeferrableSurface mDeferrableSurface;
 
         TestUseCase(
                 @NonNull FakeUseCaseConfig config,
@@ -1005,26 +791,26 @@ public final class Camera2CameraImplTest {
             updateSuggestedResolution(suggestedResolutionMap);
         }
 
+        public void close() {
+            mHandler.removeCallbacksAndMessages(null);
+            mHandlerThread.quitSafely();
+            if (mDeferrableSurface != null) {
+                mDeferrableSurface.close();
+            }
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            close();
+        }
+
         // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
         @Override
         protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
                 @Nullable CameraInfo cameraInfo) {
             return new FakeUseCaseConfig.Builder()
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
-        }
-
-        void close() {
-            mHandler.removeCallbacksAndMessages(null);
-            mHandlerThread.quitSafely();
-            for (ImageReader reader : mPreviousReaders) {
-                reader.close();
-            }
-
-            mPreviousReaders.clear();
-
-            if (mImageReader != null) {
-                mImageReader.close();
-            }
         }
 
         @Override
@@ -1035,26 +821,30 @@ public final class Camera2CameraImplTest {
             SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            if (mImageReader != null) {
-                // Hold on to the previous reader so its Surface stays alive and it can be closed
-                // later.
-                mPreviousReaders.add(mImageReader);
+            if (mDeferrableSurface != null) {
+                mDeferrableSurface.close();
             }
-            mImageReader =
+            ImageReader imageReader =
                     ImageReader.newInstance(
                             resolution.getWidth(),
                             resolution.getHeight(),
                             ImageFormat.YUV_420_888, /*maxImages*/
                             2);
-            mImageReader.setOnImageAvailableListener(mImageAvailableListener, mHandler);
-            builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+            imageReader.setOnImageAvailableListener(mImageAvailableListener, mHandler);
+            Surface surface = imageReader.getSurface();
+            mDeferrableSurface = new ImmediateSurface(surface);
+            mDeferrableSurface.getTerminationFuture().addListener(() -> {
+                surface.release();
+                imageReader.close();
+            }, CameraXExecutors.directExecutor());
+            builder.addSurface(mDeferrableSurface);
 
             attachToCamera(mCameraId, builder.build());
             return suggestedResolutionMap;
         }
     }
 
-    private final class SettableObservable<T> implements Observable<T> {
+    private static final class SettableObservable<T> implements Observable<T> {
 
         private final Object mLock = new Object();
         @GuardedBy("mLock")

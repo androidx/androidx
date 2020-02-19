@@ -26,6 +26,7 @@ plugins {
     id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-android-extensions")
 }
 
 dependencies {
@@ -38,6 +39,7 @@ dependencies {
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
+    testImplementation(KOTLIN_COROUTINES_CORE)
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

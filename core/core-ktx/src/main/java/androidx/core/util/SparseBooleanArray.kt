@@ -41,14 +41,14 @@ operator fun SparseBooleanArray.plus(other: SparseBooleanArray): SparseBooleanAr
 inline fun SparseBooleanArray.containsKey(key: Int) = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
-inline fun SparseBooleanArray.containsValue(value: Boolean) = indexOfValue(value) != -1
+inline fun SparseBooleanArray.containsValue(value: Boolean) = indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 inline fun SparseBooleanArray.getOrDefault(key: Int, defaultValue: Boolean) = get(key, defaultValue)
 
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
 inline fun SparseBooleanArray.getOrElse(key: Int, defaultValue: () -> Boolean) =
-    indexOfKey(key).let { if (it != -1) valueAt(it) else defaultValue() }
+    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
 /** Return true when the collection contains no elements. */
 inline fun SparseBooleanArray.isEmpty() = size() == 0
@@ -59,7 +59,7 @@ inline fun SparseBooleanArray.isNotEmpty() = size() != 0
 /** Removes the entry for [key] only if it is mapped to [value]. */
 fun SparseBooleanArray.remove(key: Int, value: Boolean): Boolean {
     val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
+    if (index >= 0 && value == valueAt(index)) {
         // Delete by key because of https://issuetracker.google.com/issues/70934959.
         delete(key)
         return true

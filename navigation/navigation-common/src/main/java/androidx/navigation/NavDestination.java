@@ -470,7 +470,7 @@ public class NavDestination {
         if (mActions == null) {
             return;
         }
-        mActions.delete(actionId);
+        mActions.remove(actionId);
     }
 
     /**

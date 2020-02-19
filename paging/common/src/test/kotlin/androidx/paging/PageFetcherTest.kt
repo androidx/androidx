@@ -22,7 +22,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -31,6 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
@@ -80,7 +85,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refreshFromPagingSource() = testScope.runBlockingTest {
+    fun refresh_fromPagingSource() = testScope.runBlockingTest {
         var pagingSource: PagingSource<Int, Int>? = null
         val pagingSourceFactory = { TestPagingSource().also { pagingSource = it } }
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
@@ -103,7 +108,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refreshCallsInvalidate() = testScope.runBlockingTest {
+    fun refresh_callsInvalidate() = testScope.runBlockingTest {
         var pagingSource: PagingSource<Int, Int>? = null
         val pagingSourceFactory = { TestPagingSource().also { pagingSource = it } }
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
@@ -124,6 +129,73 @@ class PageFetcherTest {
         assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
         assertTrue { didCallInvalidate }
         fetcherState.job.cancel()
+    }
+
+    @Test
+    fun refresh_closesCollection() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+
+        var pagingDataCount = 0
+        var didFinish = false
+        val job = launch {
+            pageFetcher.flow.collect { pagedData ->
+                pagingDataCount++
+                pagedData.flow
+                    .onCompletion {
+                        didFinish = true
+                    }
+                    // Return immediately to avoid blocking cancellation. This is analogous to
+                    // logic which would process a single PageEvent and doesn't suspend
+                    // indefinitely, which is what we expect to happen.
+                    .collect { }
+            }
+        }
+
+        advanceUntilIdle()
+
+        pageFetcher.refresh()
+        advanceUntilIdle()
+
+        assertEquals(2, pagingDataCount)
+        assertTrue { didFinish }
+        job.cancel()
+    }
+
+    @Test
+    fun refresh_closesUncollectedPageEventCh() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+
+        val pagingDatas = mutableListOf<PagingData<Int>>()
+        val didFinish = mutableListOf<Boolean>()
+        val job = launch {
+            pageFetcher.flow.collectIndexed { index, pagingData ->
+                pagingDatas.add(pagingData)
+                if (index != 1) {
+                    pagingData.flow
+                        .onStart {
+                            didFinish.add(false)
+                        }
+                        .onCompletion {
+                            if (index < 2) didFinish[index] = true
+                        }
+                        // Return immediately to avoid blocking cancellation. This is analogous to
+                        // logic which would process a single PageEvent and doesn't suspend
+                        // indefinitely, which is what we expect to happen.
+                        .collect { }
+                }
+            }
+        }
+
+        advanceUntilIdle()
+
+        pageFetcher.refresh()
+        pageFetcher.refresh()
+        advanceUntilIdle()
+
+        assertEquals(3, pagingDatas.size)
+        assertFailsWith<ClosedSendChannelException> { pagingDatas[1].flow.collect { } }
+        assertEquals(listOf(true, false), didFinish)
+        job.cancel()
     }
 
     @Test

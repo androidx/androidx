@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.internal.compat;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
@@ -71,7 +70,6 @@ public final class CameraManagerCompat {
      * @param callback the new callback to send camera availability notices to
      * @throws IllegalArgumentException if the executor is {@code null}.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void registerAvailabilityCallback(
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull CameraManager.AvailabilityCallback callback) {

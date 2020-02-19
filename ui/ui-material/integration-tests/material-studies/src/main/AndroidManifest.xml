@@ -18,26 +18,14 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         package="androidx.ui.material.studies">
 
-    <application
-        android:label="Material Studies"
-        android:supportsRtl="true"
-        android:allowBackup="false" android:icon="@drawable/material_logo">
-
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+    <application>
         <activity android:name=".rally.RallyActivity"
                   android:theme="@android:style/Theme.NoTitleBar"
                   android:configChanges="orientation|screenSize"
-                  android:label="Rally">
+                  android:label="Material Studies/Rally">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.material.studies.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
     </application>

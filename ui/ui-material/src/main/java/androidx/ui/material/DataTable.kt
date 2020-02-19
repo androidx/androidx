@@ -24,12 +24,12 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Text
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
 import androidx.ui.layout.Arrangement
@@ -300,13 +300,12 @@ internal data class HeaderRowInfo(
  *
  * @sample androidx.ui.material.samples.DataTableWithSorting
  *
- * @param rows The data to show in each row (excluding the header row).
  * @param columns The number of columns in the table.
  * @param numeric Whether the given column represents numeric data.
  * @param dataRowHeight The height of each row (excluding the header row).
  * @param headerRowHeight The height of the header row.
  * @param cellSpacing The padding to apply around each cell.
- * @param border The style used for the table borders.
+ * @param border [Border] class that specifies border appearance, such as size or color.
  * @param selectedColor The color used to indicate selected rows.
  * @param pagination Contains the pagination configuration. To disable pagination, set this to null.
  * @param sorting Contains the sorting configuration. To disable sorting, set this to null.
@@ -318,7 +317,7 @@ fun DataTable(
     dataRowHeight: Dp = DataRowHeight,
     headerRowHeight: Dp = HeaderRowHeight,
     cellSpacing: EdgeInsets = CellSpacing,
-    border: Border = Border(color = BorderColor, width = BorderWidth),
+    border: Border = Border(color = BorderColor, size = BorderWidth),
     selectedColor: Color = MaterialTheme.colors().primary.copy(alpha = 0.08f),
     pagination: DataTablePagination? = null,
     sorting: DataTableSorting? = null,
@@ -463,7 +462,7 @@ fun DataTable(
                         measurables.forEach { measurable ->
                             val i = measurable.parentData as Int
                             val placeable = measurable.measure(
-                                Constraints.tightConstraints(
+                                Constraints.fixed(
                                     width = constraints.maxWidth,
                                     height = verticalOffsets[i + 2] - verticalOffsets[i + 1]
                                 )

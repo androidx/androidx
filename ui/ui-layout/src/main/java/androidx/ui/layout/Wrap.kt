@@ -18,12 +18,7 @@ package androidx.ui.layout
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.looseMin
-import androidx.ui.unit.DensityScope
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -42,7 +37,7 @@ fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () ->
     Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.looseMin())
+        val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
 
         // Try to be as small as possible.
         val layoutWidth = max(placeable?.width ?: 0.ipx, constraints.minWidth)
@@ -56,37 +51,5 @@ fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () ->
                 placeable.place(position.x, position.y)
             }
         }
-    }
-}
-
-/**
- * A layout modifier that tries to size itself to the size of the target component.
- * To achieve this, the modifier measures the target layout with the max incoming constraints
- * and zero min constraints, and then sizes itself to the measured size. If the measured size of
- * the target layout is smaller than the incoming min constraints, the modified component will
- * size itself to min incoming constraints and place its content in the center.
- */
-val LayoutWrapped: LayoutModifier = object : LayoutModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints.looseMin()
-
-    override fun DensityScope.modifySize(
-        constraints: Constraints,
-        childSize: IntPxSize
-    ): IntPxSize {
-        val width = max(childSize.width, constraints.minWidth)
-        val height = max(childSize.height, constraints.minHeight)
-        return IntPxSize(width, height)
-    }
-
-    override fun DensityScope.modifyPosition(
-        childSize: IntPxSize,
-        containerSize: IntPxSize
-    ): IntPxPosition {
-        return Alignment.Center.align(
-            IntPxSize(
-                containerSize.width - childSize.width,
-                containerSize.height - childSize.height
-            )
-        )
     }
 }

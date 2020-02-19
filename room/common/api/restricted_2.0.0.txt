@@ -107,15 +107,6 @@ package androidx.room {
     method public abstract String[] projection() default {};
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class RoomMasterTable {
-    method public static String! createInsertQuery(String!);
-    field public static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)";
-    field public static final String DEFAULT_ID = "42";
-    field public static final String NAME = "room_master_table";
-    field public static final String READ_QUERY = "SELECT identity_hash FROM room_master_table WHERE id = 42 LIMIT 1";
-    field public static final String TABLE_NAME = "room_master_table";
-  }
-
   public class RoomWarnings {
     ctor @Deprecated public RoomWarnings();
     field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";

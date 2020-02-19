@@ -19,16 +19,15 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
-import androidx.ui.core.WithDensity
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.LongPressTimeout
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.areAlmostEqualTo
@@ -54,16 +53,17 @@ private val expectedDuration = LongPressTimeout + 100.milliseconds
 private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit) {
     Align(alignment = Alignment.BottomRight) {
         TestTag(tag) {
-            Semantics {
+            Semantics(container = true) {
                 LongPressGestureDetector(onLongPress = onLongPress) {
-                    PointerInputWrapper(
+                    PointerInput(
                         pointerInputHandler = recorder::onPointerInput,
                         cancelHandler = {}
                     ) {
-                        WithDensity {
-                            Container(width = width.toDp(), height = height.toDp()) {
-                                DrawShape(RectangleShape, Color.Yellow)
-                            }
+                        with(DensityAmbient.current) {
+                            Box(
+                                LayoutSize(width.toDp(), height.toDp()),
+                                backgroundColor = Color.Yellow
+                            )
                         }
                     }
                 }

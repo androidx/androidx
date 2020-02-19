@@ -15,16 +15,14 @@
  */
 package androidx.ui.core
 
-import androidx.compose.Ambient
 import androidx.compose.Composable
-import androidx.compose.ambient
-import androidx.compose.compositionReference
+import androidx.compose.Providers
+import androidx.compose.StructurallyEqual
+import androidx.compose.ambientOf
 import androidx.compose.onCommit
-import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.selection.Selectable
-import androidx.ui.core.selection.SelectionRegistrar
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.selection.TextSelectionDelegate
 import androidx.ui.graphics.Color
@@ -34,15 +32,15 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
-import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
-import androidx.ui.text.toAnnotatedString
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
+import androidx.ui.unit.round
 
 private const val DefaultSoftWrap: Boolean = true
 private const val DefaultMaxLines = Int.MAX_VALUE
@@ -50,46 +48,6 @@ private val DefaultOverflow: TextOverflow = TextOverflow.Clip
 
 /** The default selection color if none is specified. */
 internal val DefaultSelectionColor = Color(0x6633B5E5)
-
-/**
- * The Text composable displays text that uses multiple different styles. The text to display is
- * described using a tree of [Span], each of which has an associated style that is used
- * for that subtree. The text might break across multiple lines or might all be displayed on the
- * same line depending on the layout constraints.
- *
- * @param modifier Modifier to apply to this layout node.
- * @param style Style configuration for the text such as color, font, line height etc.
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- * [overflow] and [TextAlign] may have unexpected effects.
- * @param overflow How visual overflow should be handled.
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if
- * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- */
-@Composable
-fun Text(
-    modifier: Modifier = Modifier.None,
-    style: TextStyle? = null,
-    softWrap: Boolean = DefaultSoftWrap,
-    overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int = DefaultMaxLines,
-    child: @Composable TextSpanScope.() -> Unit
-) {
-    val rootTextSpan = remember { TextSpan() }
-    val ref = compositionReference()
-    compose(rootTextSpan, ref, child)
-    onDispose { disposeComposition(rootTextSpan, ref) }
-
-    Text(
-        text = rootTextSpan.toAnnotatedString(),
-        modifier = modifier,
-        style = style,
-        softWrap = softWrap,
-        overflow = overflow,
-        maxLines = maxLines
-    )
-}
 
 /**
  * Simplified version of [Text] component with minimal set of customizations.
@@ -104,6 +62,7 @@ fun Text(
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
  */
 @Composable
 fun Text(
@@ -112,7 +71,8 @@ fun Text(
     style: TextStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int = DefaultMaxLines
+    maxLines: Int = DefaultMaxLines,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     Text(
         text = AnnotatedString(text),
@@ -120,7 +80,8 @@ fun Text(
         style = style,
         softWrap = softWrap,
         overflow = overflow,
-        maxLines = maxLines
+        maxLines = maxLines,
+        onTextLayout = onTextLayout
     )
 }
 
@@ -138,6 +99,7 @@ fun Text(
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
  */
 @Composable
 fun Text(
@@ -146,7 +108,8 @@ fun Text(
     style: TextStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int = DefaultMaxLines
+    maxLines: Int = DefaultMaxLines,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     require(maxLines > 0) { "maxLines should be greater than 0" }
     // States
@@ -157,11 +120,11 @@ fun Text(
 
     // Ambients
     // selection registrar, if no SelectionContainer is added ambient value will be null
-    val selectionRegistrar: SelectionRegistrar? = ambient(SelectionRegistrarAmbient)
-    val density = ambientDensity()
-    val resourceLoader = ambient(FontLoaderAmbient)
-    val layoutDirection = ambient(LayoutDirectionAmbient)
-    val themeStyle = ambient(CurrentTextStyleAmbient)
+    val selectionRegistrar = SelectionRegistrarAmbient.current
+    val density = DensityAmbient.current
+    val resourceLoader = FontLoaderAmbient.current
+    val layoutDirection = LayoutDirectionAmbient.current
+    val themeStyle = CurrentTextStyleAmbient.current
 
     val mergedStyle = themeStyle.merge(style)
 
@@ -176,7 +139,8 @@ fun Text(
             softWrap,
             overflow,
             maxLines,
-            density
+            density,
+            layoutDirection
         ) {
             TextDelegate(
                 text = text,
@@ -189,12 +153,34 @@ fun Text(
                 resourceLoader = resourceLoader
             )
         }
-        val layoutResultState = state<TextLayoutResult?> { null }
+        val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
 
         val children = @Composable {
             // Get the layout coordinates of the text composable. This is for hit test of
             // cross-composable selection.
-            OnPositioned(onPositioned = { layoutCoordinates.value = it })
+            OnPositioned(
+                onPositioned = {
+                    val oldLayoutCoordinates = layoutCoordinates.value
+                    layoutCoordinates.value = it
+
+                    if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
+                        it.isAttached
+                    ) {
+                        selectionRegistrar?.onPositionChange()
+                    }
+
+                    if (oldLayoutCoordinates != null && oldLayoutCoordinates.isAttached &&
+                        it.isAttached
+                    ) {
+                        if (
+                            oldLayoutCoordinates.localToGlobal(PxPosition.Origin) !=
+                            it.localToGlobal(PxPosition.Origin)
+                        ) {
+                            selectionRegistrar?.onPositionChange()
+                        }
+                    }
+                }
+            )
             Draw { canvas, _ ->
                 layoutResultState.value?.let { layoutResult ->
                     selectionRange.value?.let {
@@ -228,8 +214,9 @@ fun Text(
 
             val layoutResult = textDelegate.layout(constraints, layoutResultState.value)
             if (layoutResultState.value != layoutResult) {
-                layoutResultState.value = layoutResult
+                onTextLayout(layoutResult)
             }
+            layoutResultState.value = layoutResult
 
             layout(
                 layoutResult.size.width,
@@ -237,9 +224,16 @@ fun Text(
                 // Provide values for the alignment lines defined by text - the first
                 // and last baselines of the text. These can be used by parent layouts
                 // to position this text or align this and other texts by baseline.
+                //
+                // Note: we use round to make IntPx but any rounding doesn't work well here since
+                // the layout system works with integer pixels but baseline can be in a middle of
+                // the pixel. So any rounding doesn't offer the pixel perfect baseline. We use
+                // round just because the Android framework is doing float-to-int conversion with
+                // round.
+                // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/android/graphics/Paint.cpp;l=635?q=Paint.cpp
                 mapOf(
-                    FirstBaseline to layoutResult.firstBaseline,
-                    LastBaseline to layoutResult.lastBaseline
+                    FirstBaseline to layoutResult.firstBaseline.round(),
+                    LastBaseline to layoutResult.lastBaseline.round()
                 )
             ) {}
         }
@@ -250,7 +244,8 @@ fun Text(
             softWrap,
             overflow,
             maxLines,
-            density
+            density,
+            layoutDirection
         ) {
             // if no SelectionContainer is added as parent selectionRegistrar will be null
             val id: Selectable? = selectionRegistrar?.let {
@@ -281,7 +276,7 @@ val FirstBaseline = HorizontalAlignmentLine(::min)
  */
 val LastBaseline = HorizontalAlignmentLine(::max)
 
-internal val CurrentTextStyleAmbient = Ambient.of { TextStyle() }
+internal val CurrentTextStyleAmbient = ambientOf(StructurallyEqual) { TextStyle() }
 
 /**
  * This component is used to set the current value of the Text style ambient. The given style will
@@ -291,9 +286,9 @@ internal val CurrentTextStyleAmbient = Ambient.of { TextStyle() }
  */
 @Composable
 fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Unit) {
-    val style = ambient(CurrentTextStyleAmbient)
+    val style = CurrentTextStyleAmbient.current
     val mergedStyle = style.merge(value)
-    CurrentTextStyleAmbient.Provider(value = mergedStyle, children = children)
+    Providers(CurrentTextStyleAmbient provides mergedStyle, children = children)
 }
 
 /**
@@ -302,4 +297,4 @@ fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Uni
  * styled explicitly.
  */
 @Composable
-fun currentTextStyle(): TextStyle = ambient(CurrentTextStyleAmbient)
+fun currentTextStyle(): TextStyle = CurrentTextStyleAmbient.current

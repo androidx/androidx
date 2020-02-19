@@ -243,7 +243,11 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
 
         private final MutableOptionsBundle mMutableConfig;
 
-        /** Creates a new Builder object. */
+        /** Creates a new Builder object.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder() {
             this(MutableOptionsBundle.create());
         }

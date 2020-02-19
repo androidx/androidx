@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 import java.util.ArrayList
 
+@Suppress("DEPRECATION")
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 class ListDataSource<T : Any>(list: List<T>) : PositionalDataSource<T>() {
     private val list: List<T> = ArrayList(list)

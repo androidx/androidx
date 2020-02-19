@@ -32,7 +32,6 @@ package androidx.loader.content {
     method public void onCanceled(D?);
     method protected D? onLoadInBackground();
     method public void setUpdateThrottle(long);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void waitForLoader();
   }
 
   public class CursorLoader extends androidx.loader.content.AsyncTaskLoader<android.database.Cursor> {

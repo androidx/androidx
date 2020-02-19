@@ -27,7 +27,3 @@ object JsBase64Encoder : Base64Encoder {
         return ByteArray(string.length) { string[it].toByte() }
     }
 }
-
-fun main(args: Array<String>) {
-    println(JsBase64Encoder.encodeToString(byteArrayOf(75, 111, 116, 108, 105, 110)))
-}

@@ -94,10 +94,10 @@ public class TimeAnimator extends ValueAnimator {
          * along with information about the elapsed time.</p>
          *
          * @param animation The animator sending out the notification.
-         * @param totalTime The total time elapsed since the animator started, in milliseconds.
-         * @param deltaTime The time elapsed since the previous frame, in milliseconds.
+         * @param totalTimeMs The total time elapsed since the animator started, in milliseconds.
+         * @param deltaTimeMs The time elapsed since the previous frame, in milliseconds.
          */
-        void onTimeUpdate(@NonNull TimeAnimator animation, long totalTime, long deltaTime);
+        void onTimeUpdate(@NonNull TimeAnimator animation, long totalTimeMs, long deltaTimeMs);
 
     }
 }

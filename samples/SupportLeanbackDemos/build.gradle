@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":leanback"))
-    implementation(project(":leanback-preference"))
+    implementation(project(":leanback:leanback"))
+    implementation(project(":leanback:leanback-preference"))
     implementation 'com.google.code.gson:gson:2.6.2'
 }
 

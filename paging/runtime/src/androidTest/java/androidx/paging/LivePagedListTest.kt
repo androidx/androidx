@@ -62,6 +62,7 @@ class LivePagedListTest {
 
     @Test
     fun toLiveData_pagingSourcePageSize() {
+        @Suppress("DEPRECATION")
         val livePagedList = pagingSourceFactory.toLiveData(24)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
@@ -69,6 +70,7 @@ class LivePagedListTest {
     }
 
     companion object {
+        @Suppress("DEPRECATION")
         private val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,
@@ -76,19 +78,16 @@ class LivePagedListTest {
             ) {
             }
 
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-            }
+            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {}
         }
 
         private val dataSourceFactory = object : DataSource.Factory<Int, String>() {
-            override fun create(): DataSource<Int, String> {
-                return dataSource
-            }
+            override fun create(): DataSource<Int, String> = dataSource
         }
 
-        private val pagingSource = LegacyPagingSource(dataSource, Dispatchers.Main)
-
-        private val pagingSourceFactory = { pagingSource }
+        private val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(
+            fetchDispatcher = Dispatchers.Main
+        )
 
         private val config = Config(10)
     }

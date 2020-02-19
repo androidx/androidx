@@ -16,22 +16,24 @@
 
 package androidx.ui.material.ripple
 
+import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.Recompose
-import androidx.compose.ambient
-import androidx.compose.remember
 import androidx.compose.onDispose
+import androidx.compose.remember
 import androidx.ui.animation.transitionsEnabled
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
+import androidx.ui.core.AnimationClockAmbient
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.graphics.Color
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.center
+import androidx.ui.unit.toPxSize
 
 /**
  * Ripple is a visual indicator for a pressed state.
@@ -48,6 +50,7 @@ import androidx.ui.unit.center
  * based on the target layout size.
  * @param color The Ripple color is usually the same color used by the text or iconography in the
  * component. If null is provided the color will be calculated by [RippleTheme.defaultColor].
+ * @param clock The animation clock observable that will drive this ripple effect
  * @param enabled The ripple effect will not start if false is provided.
  */
 @Composable
@@ -56,17 +59,18 @@ fun Ripple(
     radius: Dp? = null,
     color: Color? = null,
     enabled: Boolean = true,
+    clock: AnimationClockObservable = AnimationClockAmbient.current,
     children: @Composable() () -> Unit
 ) {
-    val density = ambientDensity()
+    val density = DensityAmbient.current
     val state = remember { RippleState() }
-    val theme = ambient(CurrentRippleTheme)
+    val theme = RippleThemeAmbient.current
 
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
         PressIndicatorGestureDetector(
             onStart = { position ->
                 if (enabled && transitionsEnabled) {
-                    state.handleStart(position, theme.factory, density, bounded, radius)
+                    state.handleStart(position, theme.factory, density, bounded, radius, clock)
                 }
             },
             onStop = { state.handleFinish(false) },
@@ -80,7 +84,8 @@ fun Ripple(
         val finalColor = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
         Draw { canvas, _ ->
             if (state.effects.isNotEmpty()) {
-                val position = state.coordinates!!.position
+                val position = state.coordinates!!.parentCoordinates
+                    ?.childToLocal(state.coordinates!!, PxPosition.Origin) ?: PxPosition.Origin
                 canvas.translate(position.x.value, position.y.value)
                 state.effects.forEach { it.draw(canvas, finalColor) }
                 canvas.translate(-position.x.value, -position.y.value)
@@ -107,12 +112,13 @@ private class RippleState {
         factory: RippleEffectFactory,
         density: Density,
         bounded: Boolean,
-        radius: Dp?
+        radius: Dp?,
+        clock: AnimationClockObservable
     ) {
         val coordinates = checkNotNull(coordinates) {
             "handleStart() called before the layout coordinates were provided!"
         }
-        val position = if (bounded) touchPosition else coordinates.size.center()
+        val position = if (bounded) touchPosition else coordinates.size.toPxSize().center()
         val onAnimationFinished = { effect: RippleEffect ->
             effects.remove(effect)
             if (currentEffect == effect) {
@@ -125,6 +131,7 @@ private class RippleState {
             density,
             radius,
             bounded,
+            clock,
             recompose,
             onAnimationFinished
         )

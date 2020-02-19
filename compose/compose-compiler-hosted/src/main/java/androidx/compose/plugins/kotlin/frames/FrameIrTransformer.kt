@@ -16,6 +16,7 @@
 
 package androidx.compose.plugins.kotlin.frames
 
+import androidx.compose.plugins.kotlin.compiler.lower.ModuleLoweringPass
 import org.jetbrains.kotlin.backend.common.FileLoweringPass
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -109,6 +110,9 @@ import org.jetbrains.kotlin.psi2ir.generators.GeneratorContext
 import androidx.compose.plugins.kotlin.frames.analysis.FrameMetadata
 import androidx.compose.plugins.kotlin.frames.analysis.FrameWritableSlices
 import androidx.compose.plugins.kotlin.frames.analysis.FrameWritableSlices.FRAMED_DESCRIPTOR
+import org.jetbrains.kotlin.backend.common.BackendContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.expressions.IrFieldAccessExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
 import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
@@ -146,7 +150,12 @@ import org.jetbrains.kotlin.utils.Printer
  */
 class FrameIrTransformer(val context: JvmBackendContext) :
     IrElementTransformerVoidWithContext(),
-    FileLoweringPass {
+    FileLoweringPass,
+    ModuleLoweringPass {
+
+    override fun lower(module: IrModuleFragment) {
+        module.transformChildrenVoid(this)
+    }
 
     private class FieldRewriteInformation(
         val getter: IrSimpleFunction?,
@@ -471,7 +480,7 @@ class FrameIrTransformer(val context: JvmBackendContext) :
                             data: Nothing?
                         ): IrExpression {
                             val newExpression =
-                                if (expression.descriptor == irFramedProperty.descriptor) {
+                                if (expression.symbol.descriptor == irFramedProperty.descriptor) {
                                     syntheticGetField(
                                         irRecordField,
                                         toRecord(
@@ -515,7 +524,7 @@ class FrameIrTransformer(val context: JvmBackendContext) :
                             expression: IrSetField,
                             data: Nothing?
                         ): IrExpression {
-                            val newExpression = if (expression.descriptor ==
+                            val newExpression = if (expression.symbol.descriptor ==
                                 irFramedProperty.descriptor) {
                                 syntheticSetField(
                                     irRecordField,
@@ -688,7 +697,7 @@ class IrClassBuilder(
             IrDeclarationOrigin.DELEGATE,
             initializerSymbol
         ).apply {
-            body = context.createIrBuilder(initializerSymbol).irBlockBody {
+            body = DeclarationIrBuilder(context, initializerSymbol).irBlockBody {
                 this@irBlockBody.block(this@apply)
             }
         }
@@ -737,7 +746,7 @@ class IrClassBuilder(
             constructorSymbol,
             irClass.defaultType
         ).apply {
-            body = context.createIrBuilder(constructorSymbol).irBlockBody {
+            body = DeclarationIrBuilder(context, constructorSymbol).irBlockBody {
                 createParameterDeclarations()
                 this@irBlockBody.block(this@apply)
             }
@@ -812,7 +821,7 @@ class IrClassBuilder(
             methodDescriptor,
             realReturnType ?: context.irBuiltIns.unitType
         ).apply {
-            body = context.createIrBuilder(symbol).irBlockBody {
+            body = DeclarationIrBuilder(context, symbol).irBlockBody {
                 createParameterDeclarations()
                 this@irBlockBody.block(this@apply)
             }

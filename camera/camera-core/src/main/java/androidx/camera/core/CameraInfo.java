@@ -122,62 +122,15 @@ public interface CameraInfo {
     LiveData<Integer> getTorchState();
 
     /**
-     * Returns a {@link LiveData} of current zoom ratio.
+     * Returns a {@link LiveData} of {@link ZoomState}.
      *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     *
-     * <p>Setting zoomRatio or linearZoom will both trigger the change event.
-     *
-     * @return a {@link LiveData} containing current zoom ratio.
+     * <p>The LiveData will be updated whenever the set zoom state has been changed. This can
+     * occur when the application updates the zoom via {@link CameraControl#setZoomRatio(float)}
+     * or {@link CameraControl#setLinearZoom(float)}. The zoom state can also change anytime a
+     * camera starts up, for example when a {@link UseCase} is bound to it.
      */
     @NonNull
-    LiveData<Float> getZoomRatio();
-
-    /**
-     * Returns a {@link LiveData} of the maximum zoom ratio.
-     *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     *
-     * <p>While the value is fixed most of the time, enabling extension could change the maximum
-     * zoom ratio.
-     *
-     * @return a {@link LiveData} containing the maximum zoom ratio value.
-     */
-    @NonNull
-    LiveData<Float> getMaxZoomRatio();
-
-    /**
-     * Returns a {@link LiveData} of the minimum zoom ratio.
-     *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     *
-     * <p>While the value is fixed most of the time, enabling extension could change the minimum
-     * zoom ratio value.
-     *
-     * @return a {@link LiveData} containing the minimum zoom ratio value.
-     */
-    @NonNull
-    LiveData<Float> getMinZoomRatio();
-
-    /**
-     * Returns a {@link LiveData} of current linearZoom which is in range [0..1].
-     * LinearZoom 0 represents the minimum zoom while linearZoom 1.0 represents the maximum zoom.
-     *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     * <p>Setting zoomRatio or linearZoom will both trigger the change event.
-     *
-     * @return a {@link LiveData} containing current linearZoom.
-     */
-    @NonNull
-    LiveData<Float> getLinearZoom();
+    LiveData<ZoomState> getZoomState();
 
     /**
      * Returns the implementation type of the camera, this depends on the {@link CameraXConfig}

@@ -22,6 +22,7 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.lerp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
@@ -135,7 +136,7 @@ class SpanStyleTest {
 
     @Test
     fun `constructor with customized fontFamily`() {
-        val fontFamily = FontFamily(genericFamily = "sans-serif")
+        val fontFamily = FontFamily.SansSerif
 
         val style = SpanStyle(fontFamily = fontFamily)
 
@@ -172,7 +173,7 @@ class SpanStyleTest {
 
     @Test
     fun `merge with other's fontFamily is null should use this' fontFamily`() {
-        val style = SpanStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
+        val style = SpanStyle(fontFamily = FontFamily.SansSerif)
 
         val newSpanStyle = style.merge(SpanStyle(fontFamily = null))
 
@@ -181,8 +182,8 @@ class SpanStyleTest {
 
     @Test
     fun `merge with other's fontFamily is set should use other's fontFamily`() {
-        val style = SpanStyle(fontFamily = FontFamily(genericFamily = "sans-serif"))
-        val otherStyle = SpanStyle(fontFamily = FontFamily(genericFamily = "serif"))
+        val style = SpanStyle(fontFamily = FontFamily.SansSerif)
+        val otherStyle = SpanStyle(fontFamily = FontFamily.Serif)
 
         val newSpanStyle = style.merge(otherStyle)
 
@@ -394,8 +395,8 @@ class SpanStyleTest {
 
     @Test
     fun `lerp fontFamily with a and b are not Null and t is smaller than half`() {
-        val fontFamily1 = FontFamily(genericFamily = "sans-serif")
-        val fontFamily2 = FontFamily(genericFamily = "serif")
+        val fontFamily1 = FontFamily.SansSerif
+        val fontFamily2 = FontFamily.Serif
         val t = 0.3f
         val style1 = SpanStyle(fontFamily = fontFamily1)
         val style2 = SpanStyle(fontFamily = fontFamily2)
@@ -407,8 +408,8 @@ class SpanStyleTest {
 
     @Test
     fun `lerp fontFamily with a and b are not Null and t is larger than half`() {
-        val fontFamily1 = FontFamily(genericFamily = "sans-serif")
-        val fontFamily2 = FontFamily(genericFamily = "serif")
+        val fontFamily1 = FontFamily.SansSerif
+        val fontFamily2 = FontFamily.Serif
         val t = 0.8f
         val style1 = SpanStyle(fontFamily = fontFamily1)
         val style2 = SpanStyle(fontFamily = fontFamily2)

@@ -64,13 +64,13 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_onDoubleTapNotCalled() {
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(down())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         verify(onDoubleTap, never()).invoke(any())
     }
 
     @Test
     fun pointerInputHandler_downUp_onDoubleTapNotCalled() {
-        val down = down(duration = 0.milliseconds)
+        val down = down(0, 0.milliseconds)
         val up = down.up(duration = 1.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
@@ -81,9 +81,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownWithinTimeout_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down2 = down(2, 100.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(up)
@@ -95,9 +95,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownOutsideTimeout_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 101.milliseconds)
+        val down2 = down(2, 101.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(up)
@@ -109,9 +109,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownOutsideTimeoutUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 101.milliseconds)
+        val down2 = down(2, 101.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
@@ -125,10 +125,10 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveConsumedUpDownInsideTimeoutUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val moveConsumed = down1.moveTo(1.milliseconds, x = 1f).consume(dx = 1f)
         val up1 = moveConsumed.up(duration = 2.milliseconds)
-        val down2 = down(duration = 101.milliseconds)
+        val down2 = down(2, 101.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
@@ -143,9 +143,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownInsideTimeoutMoveConsumedUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down2 = down(2, 100.milliseconds)
         val moveConsumed = down2.moveTo(101.milliseconds, x = 1f).consume(dx = 1f)
         val up2 = moveConsumed.up(duration = 102.milliseconds)
 
@@ -167,7 +167,7 @@ class DoubleTapGestureDetectorTest {
         val move1B = down1B.moveTo(1.milliseconds)
         val up1A = moveConsumed1A.up(duration = 2.milliseconds)
         val up1B = move1B.up(duration = 2.milliseconds)
-        val down2 = down(duration = 101.milliseconds)
+        val down2 = down(2, 101.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1A, down1B)
@@ -182,7 +182,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUp2DownInsideTimeout1MoveConsumedUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up2 = down1.up(duration = 1.milliseconds)
         val down2A = down(0, 100.milliseconds)
         val down2B = down(1, 100.milliseconds)
@@ -203,7 +203,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downConsumedUpDownWithinTimeoutUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds).consumeDownChange()
+        val down1 = down(1, 0.milliseconds).consumeDownChange()
         val up1 = down1.up(duration = 1.milliseconds)
         val down2 = down(0, 100.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
@@ -219,7 +219,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpConsumedDownWithinTimeoutUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds).consumeDownChange()
         val down2 = down(0, 100.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
@@ -235,7 +235,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownConsumedWithinTimeoutUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
         val down2 = down(0, 100.milliseconds).consumeDownChange()
         val up2 = down2.up(duration = 102.milliseconds)
@@ -251,7 +251,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownWithinTimeoutUpConsumed_onDoubleTapNotCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
         val down2 = down(0, 100.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds).consumeDownChange()
@@ -341,9 +341,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownInsideTimeoutUp_onDoubleTapCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down2 = down(2, 100.milliseconds)
         val up2 = down2.up(duration = 101.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
@@ -357,10 +357,10 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveUpDownInsideTimeoutUp_onDoubleTapCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val move = down1.moveTo(1.milliseconds, x = 1f)
         val up1 = move.up(duration = 2.milliseconds)
-        val down2 = down(duration = 101.milliseconds)
+        val down2 = down(2, 101.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
@@ -375,9 +375,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownInsideTimeoutMoveUp_onDoubleTapCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 10.milliseconds)
+        val down2 = down(2, 10.milliseconds)
         val move = down2.moveTo(101.milliseconds, x = 1f)
         val up2 = move.up(duration = 102.milliseconds)
 
@@ -399,7 +399,7 @@ class DoubleTapGestureDetectorTest {
         val move1B = down1B.moveTo(1.milliseconds)
         val up1A = move1A.up(duration = 2.milliseconds)
         val up1B = move1B.up(duration = 2.milliseconds)
-        val down2 = down(duration = 101.milliseconds)
+        val down2 = down(2, 101.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1A, down1B)
@@ -414,7 +414,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUp2DownInsideTimeout1MoveUp_onDoubleTapCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
         val down2A = down(0, 100.milliseconds)
         val down2B = down(1, 100.milliseconds)
@@ -485,10 +485,10 @@ class DoubleTapGestureDetectorTest {
     // the second wait doesn't cause the gesture detector to reset to an idle state.
     @Test
     fun pointerInputHandler_downUpWaitHalfDownWaitHalfUp_onDoubleTapCalled() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
         val wait1 = 50L
-        val down2 = down(duration = 51.milliseconds)
+        val down2 = down(2, 51.milliseconds)
         val wait2 = 50L
         val up2 = down2.up(duration = 101.milliseconds)
 
@@ -506,9 +506,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownUpAllAtOrigin_onDoubleTapCalledWithOrigin() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down2 = down(2, 100.milliseconds)
         val up2 = down2.up(duration = 101.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
@@ -522,9 +522,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownMoveUp_onDoubleTapCalledWithFinalMovePosition() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down2 = down(2, 100.milliseconds)
         val move2 = down2.moveTo(101.milliseconds, 3f, 5f)
         val up2 = move2.up(duration = 102.milliseconds)
 
@@ -540,7 +540,7 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUp2Down2Move1UpThen1Up_onDoubleTapCalledWithFinalFingerPosition() {
-        val down1 = down(duration = 0.milliseconds)
+        val down1 = down(1, 0.milliseconds)
         val up1 = down1.up(duration = 1.milliseconds)
         val down2A = down(0, 100.milliseconds)
         val down2B = down(1, 100.milliseconds)
@@ -565,14 +565,14 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_downNotConsumed() {
-        val down = down()
+        val down = down(0, 0.milliseconds)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         assertThat(result.consumed.downChange).isFalse()
     }
 
     @Test
     fun pointerInputHandler_downUp_upNotConsumed() {
-        val down = down()
+        val down = down(0, 0.milliseconds)
         val up = down.up(1.milliseconds)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(up)
@@ -581,9 +581,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownInsideTimeout_lastDownNotConsumed() {
-        val down = down()
+        val down = down(0, 0.milliseconds)
         val up = down.up(1.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down2 = down(2, 100.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(up)
@@ -595,9 +595,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownOutsideTimeoutUp_lastUpNotConsumed() {
-        val down = down()
+        val down = down(0, 0.milliseconds)
         val up = down.up(1.milliseconds)
-        val down2 = down(duration = 101.milliseconds)
+        val down2 = down(2, 101.milliseconds)
         val up2 = down2.up(duration = 102.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
@@ -611,9 +611,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpDownInsideTimeoutUp_lastUpConsumed() {
-        val down = down()
+        val down = down(0, 0.milliseconds)
         val up = down.up(1.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down2 = down(2, 100.milliseconds)
         val up2 = down2.up(duration = 101.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down)
@@ -629,9 +629,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun cancelHandler_downUpCancelWaitDownUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 100.milliseconds)
+        val down1 = down(0, duration = 100.milliseconds)
         val up1 = down1.up(duration = 101.milliseconds)
-        val down2 = down(duration = 200.milliseconds)
+        val down2 = down(1, duration = 200.milliseconds)
         val up2 = down2.up(duration = 201.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
@@ -646,9 +646,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun cancelHandler_downUpWaitCancelDownUp_onDoubleTapNotCalled() {
-        val down1 = down(duration = 100.milliseconds)
+        val down1 = down(1, 100.milliseconds)
         val up1 = down1.up(duration = 101.milliseconds)
-        val down2 = down(duration = 200.milliseconds)
+        val down2 = down(2, 200.milliseconds)
         val up2 = down2.up(duration = 201.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down1)
@@ -663,9 +663,9 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun cancelHandler_cancelDownUpDownUp_onDoubleTapCalledOnce() {
-        val down1 = down(duration = 100.milliseconds)
+        val down1 = down(0, duration = 100.milliseconds)
         val up1 = down1.up(duration = 101.milliseconds)
-        val down2 = down(duration = 200.milliseconds)
+        val down2 = down(1, duration = 200.milliseconds)
         val up2 = down2.up(duration = 201.milliseconds)
 
         mRecognizer.cancelHandler()
@@ -680,10 +680,10 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun cancelHandler_downCancelDownUpDownUp_onDoubleTapCalledOnce() {
-        val down0 = down(duration = 99.milliseconds)
-        val down1 = down(duration = 100.milliseconds)
+        val down0 = down(0, duration = 99.milliseconds)
+        val down1 = down(1, duration = 100.milliseconds)
         val up1 = down1.up(duration = 101.milliseconds)
-        val down2 = down(duration = 200.milliseconds)
+        val down2 = down(2, duration = 200.milliseconds)
         val up2 = down2.up(duration = 201.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
@@ -699,11 +699,11 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun cancelHandler_downUpCancelDownUpDownUp_onDoubleTapCalledOnce() {
-        val down0 = down(duration = 98.milliseconds)
+        val down0 = down(0, duration = 98.milliseconds)
         val up0 = down0.up(duration = 99.milliseconds)
-        val down1 = down(duration = 100.milliseconds)
+        val down1 = down(1, duration = 100.milliseconds)
         val up1 = down1.up(duration = 101.milliseconds)
-        val down2 = down(duration = 200.milliseconds)
+        val down2 = down(2, duration = 200.milliseconds)
         val up2 = down2.up(duration = 201.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
@@ -720,12 +720,12 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun cancelHandler_downUpDownCancelDownUpDownUp_onDoubleTapCalledOnce() {
-        val down0 = down(duration = 97.milliseconds)
+        val down0 = down(0, duration = 97.milliseconds)
         val up0 = down0.up(duration = 98.milliseconds)
-        val down1 = down(duration = 99.milliseconds)
-        val down2 = down(duration = 100.milliseconds)
+        val down1 = down(1, 99.milliseconds)
+        val down2 = down(2, 100.milliseconds)
         val up2 = down2.up(duration = 101.milliseconds)
-        val down3 = down(duration = 200.milliseconds)
+        val down3 = down(3, 200.milliseconds)
         val up3 = down3.up(duration = 201.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
@@ -743,14 +743,14 @@ class DoubleTapGestureDetectorTest {
 
     @Test
     fun cancelHandler_downUpDownUpCancelDownUpDownUp_onDoubleTapCalledTwice() {
-        val down0 = down(duration = 0.milliseconds)
+        val down0 = down(0, 0.milliseconds)
         val up0 = down0.up(duration = 1.milliseconds)
-        val down1 = down(duration = 100.milliseconds)
+        val down1 = down(1, 100.milliseconds)
         val up1 = down1.up(duration = 101.milliseconds)
 
-        val down2 = down(duration = 200.milliseconds)
+        val down2 = down(2, 200.milliseconds)
         val up2 = down2.up(duration = 201.milliseconds)
-        val down3 = down(duration = 300.milliseconds)
+        val down3 = down(3, 300.milliseconds)
         val up3 = down3.up(duration = 301.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)
@@ -774,14 +774,14 @@ class DoubleTapGestureDetectorTest {
     // firing.
     @Test
     fun cancelHandler_downUpWaitCancelDownWaitUpDownUp_onDoubleTapCalledOnce() {
-        val down0 = down(duration = 0.milliseconds)
+        val down0 = down(0, 0.milliseconds)
         val up0 = down0.up(duration = 1.milliseconds)
         val delay0 = 50L
         // Cancel happens here
-        val down1 = down(duration = 51.milliseconds)
+        val down1 = down(1, 51.milliseconds)
         val delay1 = 50L
         val up1 = down1.up(duration = 101.milliseconds)
-        val down2 = down(duration = 102.milliseconds)
+        val down2 = down(2, 102.milliseconds)
         val up2 = down2.up(duration = 103.milliseconds)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(down0)

@@ -45,8 +45,8 @@ internal class PagerState<Key : Any, Value : Any>(
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
     private var initialPageIndex = 0
-    private var placeholdersStart = COUNT_UNDEFINED
-    private var placeholdersEnd = COUNT_UNDEFINED
+    internal var placeholdersStart = COUNT_UNDEFINED
+    internal var placeholdersEnd = COUNT_UNDEFINED
 
     internal var prependLoadId = 0
         private set
@@ -78,7 +78,7 @@ internal class PagerState<Key : Any, Value : Any>(
      * Note: This method should be called after state updated by [insert]
      *
      * TODO: Move this into Pager, which owns pageEventCh, since this logic is sensitive to its
-     * implementation.
+     *  implementation.
      */
     internal fun Page<Key, Value>.toPageEvent(
         loadType: LoadType,
@@ -166,6 +166,9 @@ internal class PagerState<Key : Any, Value : Any>(
         check(pages.size >= pageCount) {
             "invalid drop count. have ${pages.size} but wanted to drop $pageCount"
         }
+
+        loadStates[loadType] = Idle
+
         when (loadType) {
             START -> {
                 repeat(pageCount) { _pages.removeAt(0) }
@@ -187,6 +190,11 @@ internal class PagerState<Key : Any, Value : Any>(
     }
 
     fun dropInfo(loadType: LoadType): DropInfo? {
+        // Never drop below 2 pages as this can cause UI flickering with certain configs and it's
+        // much more important to protect against this behaviour over respecting a config where
+        // maxSize is set unusually (probably incorrectly) strict.
+        if (pages.size <= 2) return null
+
         when (loadType) {
             REFRESH -> throw IllegalArgumentException(
                 "Drop LoadType must be START or END, but got $loadType"
@@ -223,28 +231,6 @@ internal class PagerState<Key : Any, Value : Any>(
         }
 
         return null
-    }
-
-    /**
-     * @param indexInPage Index in [Page] with index [pageIndex]
-     * @param pageIndex Index in [pages]
-     *
-     * @return Information needed to request a refresh key from [PagingSource] via
-     * [PagingSource.getRefreshKeyFromPage] if available, null otherwise, which should direct the
-     * [PageFetcher] to simply use initialKey.
-     */
-    internal fun refreshInfo(indexInPage: Int, pageIndex: Int): RefreshInfo<Key, Value>? {
-        if (pages.isEmpty()) return null
-
-        // Try to find the page and use prev page's next key
-        return when {
-            pageIndex < 0 -> RefreshInfo(0, pages.first())
-            pageIndex > pages.size -> {
-                val lastPage = pages.last()
-                RefreshInfo(lastPage.data.size - 1, lastPage)
-            }
-            else -> RefreshInfo(indexInPage, pages[pageIndex])
-        }
     }
 
     /**
@@ -301,8 +287,3 @@ internal class PagerState<Key : Any, Value : Any>(
 }
 
 internal class DropInfo(val pageCount: Int, val placeholdersRemaining: Int)
-
-internal class RefreshInfo<Key : Any, Value : Any>(
-    val indexInPage: Int,
-    val page: Page<Key, Value>
-)

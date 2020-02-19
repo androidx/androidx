@@ -56,11 +56,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
      */
     private inner class TestPagingSource(val listData: List<Item> = ITEMS) :
         PagingSource<Int, Item>() {
-        override fun getRefreshKeyFromPage(
-            indexInPage: Int,
-            page: Page<Int, Item>
-        ): Int? {
-            return page.data[indexInPage].pos
+        override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
+            return state.closestItemToPosition(state.anchorPosition).pos
         }
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
@@ -871,7 +868,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         )
         verifyRange(0, 20, pagedList)
 
-        // lastKey is initialized to middle of initial load
+        // lastKey should return result of PagingSource.getRefreshKey after loading 20 items.
         assertEquals(10, pagedList.lastKey)
 
         // but in practice will be immediately overridden by quick loadAround call

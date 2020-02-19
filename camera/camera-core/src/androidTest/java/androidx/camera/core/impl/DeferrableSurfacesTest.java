@@ -54,6 +54,7 @@ public class DeferrableSurfacesTest {
 
     private ScheduledExecutorService mScheduledExecutorService;
     private List<CallbackToFutureAdapter.Completer<Surface>> mCompleterList = new ArrayList<>();
+    private List<DeferrableSurface> mFakeDeferrableSurfaces = new ArrayList<>();
 
     @Before
     public void setup() {
@@ -65,6 +66,11 @@ public class DeferrableSurfacesTest {
         for (CallbackToFutureAdapter.Completer<Surface> completer : mCompleterList) {
             completer.setCancelled();
         }
+
+        for (DeferrableSurface surface : mFakeDeferrableSurfaces) {
+            surface.close();
+        }
+
         mCompleterList.clear();
         mScheduledExecutorService.shutdown();
     }
@@ -72,13 +78,7 @@ public class DeferrableSurfacesTest {
     @Test
     @MediumTest
     public void getSurfaceTimeoutTest() {
-        DeferrableSurface fakeDeferrableSurface = new DeferrableSurface() {
-            @Override
-            @NonNull
-            public ListenableFuture<Surface> provideSurface() {
-                return getFakeProcessingListenableFuture();
-            }
-        };
+        DeferrableSurface fakeDeferrableSurface = getFakeDeferrableSurface();
 
         List<DeferrableSurface> surfaces = Arrays.asList(fakeDeferrableSurface);
         ListenableFuture<List<Surface>> listenableFuture =
@@ -95,6 +95,72 @@ public class DeferrableSurfacesTest {
         assertThat(throwableCaptor.getValue()).isInstanceOf(TimeoutException.class);
     }
 
+    @Test
+    public void tryIncrementAll_canIncrementAllCounts() {
+        DeferrableSurface fakeSurface0 = getFakeDeferrableSurface();
+        DeferrableSurface fakeSurface1 = getFakeDeferrableSurface();
+        DeferrableSurface fakeSurface2 = getFakeDeferrableSurface();
+
+        int initialCount0 = fakeSurface0.getUseCount();
+        int initialCount1 = fakeSurface1.getUseCount();
+        int initialCount2 = fakeSurface2.getUseCount();
+
+        boolean success = DeferrableSurfaces.tryIncrementAll(Arrays.asList(fakeSurface0,
+                fakeSurface1,
+                fakeSurface2));
+
+        assertThat(success).isTrue();
+        assertThat(fakeSurface0.getUseCount()).isEqualTo(initialCount0 + 1);
+        assertThat(fakeSurface1.getUseCount()).isEqualTo(initialCount1 + 1);
+        assertThat(fakeSurface2.getUseCount()).isEqualTo(initialCount2 + 1);
+
+        DeferrableSurfaces.decrementAll(Arrays.asList(fakeSurface0,
+                fakeSurface1,
+                fakeSurface2));
+    }
+
+    @Test
+    public void incrementAll_onClosedSurface_willThrowWithClosedSurface() {
+        DeferrableSurface fakeSurface0 = getFakeDeferrableSurface();
+        DeferrableSurface fakeSurface1 = getFakeDeferrableSurface();
+        DeferrableSurface fakeSurface2 = getFakeDeferrableSurface();
+
+        fakeSurface1.close();
+
+        DeferrableSurface.SurfaceClosedException ex = null;
+        try {
+            DeferrableSurfaces.incrementAll(Arrays.asList(fakeSurface0, fakeSurface1,
+                    fakeSurface2));
+        } catch (DeferrableSurface.SurfaceClosedException e) {
+            ex = e;
+        }
+
+        assertThat(ex).isNotNull();
+        assertThat(ex.getDeferrableSurface()).isSameInstanceAs(fakeSurface1);
+    }
+
+    @Test
+    public void tryIncrementAll_onClosedSurface_causesUseCountToStayConstant() {
+        DeferrableSurface fakeSurface0 = getFakeDeferrableSurface();
+        DeferrableSurface fakeSurface1 = getFakeDeferrableSurface();
+        DeferrableSurface fakeSurface2 = getFakeDeferrableSurface();
+
+        int initialCount0 = fakeSurface0.getUseCount();
+        int initialCount1 = fakeSurface1.getUseCount();
+        int initialCount2 = fakeSurface2.getUseCount();
+
+        fakeSurface2.close();
+
+        boolean success = DeferrableSurfaces.tryIncrementAll(Arrays.asList(fakeSurface0,
+                fakeSurface1,
+                fakeSurface2));
+
+        assertThat(success).isFalse();
+        assertThat(fakeSurface0.getUseCount()).isEqualTo(initialCount0);
+        assertThat(fakeSurface1.getUseCount()).isEqualTo(initialCount1);
+        assertThat(fakeSurface2.getUseCount()).isEqualTo(initialCount2);
+    }
+
     /**
      * Return a {@link ListenableFuture} which will never complete.
      */
@@ -106,5 +172,19 @@ public class DeferrableSurfacesTest {
             mCompleterList.add(completer);
             return "FakeProcessingListenableFuture";
         });
+    }
+
+    @NonNull
+    private DeferrableSurface getFakeDeferrableSurface() {
+        DeferrableSurface surface = new DeferrableSurface() {
+            @Override
+            @NonNull
+            public ListenableFuture<Surface> provideSurface() {
+                return getFakeProcessingListenableFuture();
+            }
+        };
+
+        mFakeDeferrableSurfaces.add(surface);
+        return surface;
     }
 }

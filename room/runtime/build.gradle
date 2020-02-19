@@ -71,7 +71,6 @@ android.libraryVariants.all { variant ->
 androidx {
     name = "Android Room-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Runtime"

@@ -31,6 +31,8 @@ fun OneLineListItems(icon24x24: Image, icon40x40: Image, icon56x56: Image) {
     Column {
         ListItem(text = "One line list item with no icon")
         Divider()
+        ListItem(text = "פריט ברשימה אחת עם תמונה.", icon = icon24x24)
+        Divider()
         ListItem(text = "One line list item with 24x24 icon", icon = icon24x24)
         Divider()
         ListItem(text = "One line list item with 40x40 icon", icon = icon40x40)

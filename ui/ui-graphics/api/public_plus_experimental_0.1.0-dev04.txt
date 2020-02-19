@@ -317,6 +317,10 @@ package androidx.ui.graphics {
     property public final androidx.ui.graphics.PaintingStyle style;
   }
 
+  public final class PaintKt {
+    field public static final float DefaultAlpha = 1.0f;
+  }
+
   public enum PaintingStyle {
     enum_constant public static final androidx.ui.graphics.PaintingStyle fill;
     enum_constant public static final androidx.ui.graphics.PaintingStyle stroke;
@@ -456,6 +460,12 @@ package androidx.ui.graphics {
     method public androidx.ui.unit.Px getBlurRadius();
     method public androidx.ui.graphics.Color getColor();
     method public androidx.ui.geometry.Offset getOffset();
+    field public static final androidx.ui.graphics.Shadow.Companion! Companion;
+  }
+
+  public static final class Shadow.Companion {
+    method public androidx.ui.graphics.Shadow getNone();
+    property public final androidx.ui.graphics.Shadow None;
   }
 
   public final class ShadowKt {
@@ -469,6 +479,8 @@ package androidx.ui.graphics {
   public final class SolidColor implements androidx.ui.graphics.Brush {
     ctor public SolidColor(androidx.ui.graphics.Color value);
     method public void applyTo(androidx.ui.graphics.Paint p);
+    method public androidx.ui.graphics.Color component1();
+    method public androidx.ui.graphics.SolidColor copy(androidx.ui.graphics.Color value);
     method public androidx.ui.graphics.Color getValue();
   }
 
@@ -696,6 +708,42 @@ package androidx.ui.graphics.colorspace {
 
 }
 
+package androidx.ui.graphics.painter {
+
+  public final class ColorPainter extends androidx.ui.graphics.painter.Painter {
+    ctor public ColorPainter(androidx.ui.graphics.Color color);
+    method public androidx.ui.graphics.Color component1();
+    method public androidx.ui.graphics.painter.ColorPainter copy(androidx.ui.graphics.Color color);
+    method public androidx.ui.graphics.Color getColor();
+    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    property public androidx.ui.unit.PxSize intrinsicSize;
+  }
+
+  public final class ImagePainter extends androidx.ui.graphics.painter.Painter {
+    ctor public ImagePainter(androidx.ui.graphics.Image image);
+    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.Image image);
+    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    property public androidx.ui.unit.PxSize intrinsicSize;
+  }
+
+  public final class ImagePainterKt {
+  }
+
+  public abstract class Painter {
+    ctor public Painter();
+    method protected boolean applyAlpha(float alpha);
+    method protected boolean applyColorFilter(androidx.ui.graphics.ColorFilter? colorFilter);
+    method protected boolean applyRtl(boolean rtl);
+    method public final void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public abstract androidx.ui.unit.PxSize getIntrinsicSize();
+    method protected abstract void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    property public abstract androidx.ui.unit.PxSize intrinsicSize;
+  }
+
+}
+
 package androidx.ui.graphics.vector {
 
   public final class PathBuilder {
@@ -720,34 +768,6 @@ package androidx.ui.graphics.vector {
     method public androidx.ui.graphics.vector.PathBuilder reflectiveQuadToRelative(float x1, float y1);
     method public androidx.ui.graphics.vector.PathBuilder verticalLineTo(float y);
     method public androidx.ui.graphics.vector.PathBuilder verticalLineToRelative(float y);
-  }
-
-  public enum PathCommand {
-    method public final char toKey();
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand ArcTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand Close;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand CurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand HorizontalLineTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand LineTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand MoveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand QuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand ReflectiveCurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand ReflectiveQuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeArcTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeClose;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeCurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeHorizontalTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeLineTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeMoveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeQuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeReflectiveCurveTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeReflectiveQuadTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeVerticalTo;
-    enum_constant public static final androidx.ui.graphics.vector.PathCommand VerticalLineTo;
-  }
-
-  public final class PathCommandKt {
-    method public static androidx.ui.graphics.vector.PathCommand toPathCommand(char);
   }
 
   public abstract sealed class PathNode {

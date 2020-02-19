@@ -16,7 +16,6 @@
 @file:Suppress("PLUGIN_ERROR")
 package androidx.compose
 
-import android.app.Activity
 import android.widget.TextView
 import androidx.compose.frames.AbstractRecord
 import androidx.compose.frames.Framed
@@ -29,7 +28,6 @@ import androidx.compose.frames.currentFrame
 import androidx.compose.frames.inFrame
 import androidx.compose.frames.open
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.ActivityTestRule
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import org.junit.After
@@ -121,25 +119,20 @@ class TestState<T>(value: T) : Framed {
 }
 
 @RunWith(AndroidJUnit4::class)
-class ModelViewTests {
-
+class ModelViewTests: BaseComposeTest() {
     @After
     fun teardown() {
         Compose.clearRoots()
     }
 
     @get:Rule
-    val activityRule = ActivityTestRule(TestActivity::class.java)
+    override val activityRule = makeTestActivityRule()
 
     @Test
     fun testModelView_Simple() {
         val tvId = 67
         compose {
-            emit(62, { context ->
-                TextView(context).apply {
-                    text = "Hello world!"; id = tvId
-                }
-            }) { }
+            TextView(text = "Hello world!", id = tvId)
         }.then { activity ->
             val tv = activity.root.findViewById(tvId) as TextView
             assertEquals("Hello world!", tv.text)
@@ -150,11 +143,7 @@ class ModelViewTests {
     fun testModelView_Simple_Recompose() {
         val tvId = 71
         compose {
-            emit(73, { context ->
-                TextView(context).apply {
-                    text = "Hello world!"; id = tvId
-                }
-            }) { }
+            TextView(text = "Hello world!", id = tvId)
         }.then { activity ->
             val tv = activity.root.findViewById(tvId) as TextView
             assertEquals("Hello world!", tv.text)
@@ -175,19 +164,9 @@ class ModelViewTests {
             )
         }
 
-        @Suppress("PLUGIN_WARNING")
         compose {
-            call(147, { true }) {
-
-                (Observe {
-                    emit(93, { context -> TextView(context).apply { id = tvIdName } }) {
-                        set(president.name) { text = it }
-                    }
-                    emit(94, { context -> TextView(context).apply { id = tvIdAge } }) {
-                        set(president.age) { text = it.toString() }
-                    }
-                })
-            }
+            TextView(id = tvIdName, text = president.name)
+            TextView(id = tvIdAge, text = president.age)
         }.then {
             val tvName = it.findViewById(tvIdName) as TextView
             val tvAge = it.findViewById(tvIdAge) as TextView
@@ -220,30 +199,16 @@ class ModelViewTests {
         }
         val displayLincoln = frame { TestState(true) }
 
-        @Suppress("PLUGIN_WARNING")
-        fun ViewComposer.display(person: Person) {
-            call(167, { true }) {
-                @Suppress("PLUGIN_ERROR")
-                (Observe {
-        emit(93, { context -> TextView(context) }) {
-            set(person.name) { text = it }
-        }
-        emit(94, { context -> TextView(context) }) {
-            set(person.age) { text = it.toString() }
-        }
-    })
-            }
+        @Composable fun display(person: Person) {
+            TextView(text = person.name)
+            TextView(text = person.age)
         }
 
-        @Suppress("PLUGIN_WARNING")
         compose {
-            call(185, { true }) {
-                @Suppress("PLUGIN_ERROR")
-                (Observe {
-        display(washington)
-        if (displayLincoln.value)
-            display(lincoln)
-    })
+            Observe {
+                display(washington)
+                if (displayLincoln.value)
+                    display(lincoln)
             }
         }.then {
             displayLincoln.value = false
@@ -256,7 +221,6 @@ class ModelViewTests {
 
     // b/122548164
     @Test
-    @Suppress("PLUGIN_WARNING")
     fun testObserverEntering() {
         val president = frame {
             Person(
@@ -266,35 +230,17 @@ class ModelViewTests {
         }
         val tvName = 204
 
-        fun ViewComposer.display(person: Person) {
-            call(167, { true }) {
-                (Observe {
-                    emit(93, { context -> TextView(context).apply { id = tvName } }) {
-                        set(person.name) { text = it }
-                    }
-                    emit(94, { context -> TextView(context) }) {
-                        set(person.age) { text = it.toString() }
-                    }
-                })
-                if (person.name == PRESIDENT_NAME_16) {
-                    (Observe {
-                        emit(211, { context -> TextView(context) }) {
-                            set(person.name) { text = it }
-                        }
-                        emit(211, { context -> TextView(context) }) {
-                            set(person.age) { text = it.toString() }
-                        }
-                    })
-                }
+        @Composable fun display(person: Person) {
+            TextView(id = tvName, text = person.name)
+            TextView(text = person.age)
+            if (person.name == PRESIDENT_NAME_16) {
+                TextView(text = person.name)
+                TextView(text = person.age)
             }
         }
 
         compose {
-            call(219, { true }) {
-                (Observe {
-                    display(president)
-                })
-            }
+            display(president)
         }.then { activity ->
             assertEquals(PRESIDENT_NAME_1, (activity.findViewById(tvName) as TextView).text)
             president.name = PRESIDENT_NAME_16
@@ -304,7 +250,6 @@ class ModelViewTests {
     }
 
     @Test
-    @Suppress("PLUGIN_WARNING")
     fun testModelUpdatesNextFrameVisibility() {
         val president = frame {
             Person(
@@ -314,37 +259,17 @@ class ModelViewTests {
         }
         val tvName = 204
 
-        fun ViewComposer.display(person: Person) {
-            call(167, { true }) {
-                (Observe {
-                    emit(93, { context -> TextView(context).apply { id = tvName } }) {
-                        set(person.name) { text = it }
-                    }
-                    emit(94, { context -> TextView(context) }) {
-                        set(person.age) {
-                            text = it.toString()
-                        }
-                    }
-                })
-                if (person.name == PRESIDENT_NAME_16) {
-                    (Observe {
-                        emit(211, { context -> TextView(context) }) {
-                            set(person.name) { text = it }
-                        }
-                        emit(211, { context -> TextView(context) }) {
-                            set(person.age) { text = it.toString() }
-                        }
-                    })
-                }
+        @Composable fun display(person: Person) {
+            TextView(id = tvName, text = person.name)
+            TextView(text = person.age)
+            if (person.name == PRESIDENT_NAME_16) {
+                TextView(text = person.name)
+                TextView(text = person.age)
             }
         }
 
         compose {
-            call(219, { true }) {
-                (Observe {
-                    display(president)
-                })
-            }
+            display(president)
         }.then { activity ->
             assertEquals(PRESIDENT_NAME_1, (activity.findViewById(tvName) as TextView).text)
             // schedule commit and recompose by this change, all for next frame
@@ -353,38 +278,6 @@ class ModelViewTests {
             assertEquals(PRESIDENT_NAME_1, (activity.findViewById(tvName) as TextView).text)
         }.then { activity ->
             assertEquals(PRESIDENT_NAME_16, (activity.findViewById(tvName) as TextView).text)
-        }
-    }
-
-    private class Root(val block: ViewComposer.() -> Unit) : Component() {
-        override fun compose() {
-            composer.block()
-        }
-    }
-
-    fun compose(block: ViewComposer.() -> Unit) =
-        CompositionModelTest(block, activityRule.activity)
-
-    class CompositionModelTest(val composable: ViewComposer.() -> Unit, val activity: Activity) {
-        inner class ActiveTest(val activity: Activity) {
-            fun then(block: (activity: Activity) -> Unit): ActiveTest {
-                activity.waitForAFrame()
-                activity.uiThread {
-                    block(activity)
-                }
-                return this
-            }
-        }
-
-        fun then(block: (activity: Activity) -> Unit): ActiveTest {
-            activity.show {
-                composer.composable()
-            }
-            activity.waitForAFrame()
-            activity.uiThread {
-                block(activity)
-            }
-            return ActiveTest(activity)
         }
     }
 }

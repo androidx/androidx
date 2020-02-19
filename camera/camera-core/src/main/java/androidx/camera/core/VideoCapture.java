@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
 import android.location.Location;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -42,6 +41,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -263,7 +263,6 @@ public class VideoCapture extends UseCase {
      * @param executor     The executor in which the callback methods will be run.
      * @param callback     Callback for when the recorded video saving completion or failure.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void startRecording(@NonNull File saveLocation,
             @NonNull Executor executor, @NonNull OnVideoSavedCallback callback) {
         mIsFirstVideoSampleWrite.set(false);
@@ -283,7 +282,6 @@ public class VideoCapture extends UseCase {
      * @param executor     The executor in which the callback methods will be run.
      * @param callback     Callback for when the recorded video saving completion or failure.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void startRecording(
             @NonNull File saveLocation, @NonNull Metadata metadata,
             @NonNull Executor executor,
@@ -306,6 +304,7 @@ public class VideoCapture extends UseCase {
             return;
         }
 
+        CameraInternal boundCamera = getBoundCamera();
         String cameraId = getBoundCameraId();
         Size resolution = getAttachedSurfaceResolution(cameraId);
         try {
@@ -323,7 +322,7 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        CameraInfoInternal cameraInfoInternal = boundCamera.getCameraInfoInternal();
         int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
                 ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
 
@@ -426,23 +425,17 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        final Surface surface = mCameraSurface;
         final MediaCodec videoEncoder = mVideoEncoder;
 
-        mDeferrableSurface.setOnSurfaceDetachedListener(
-                CameraXExecutors.mainThreadExecutor(),
-                new DeferrableSurface.OnSurfaceDetachedListener() {
-                    @Override
-                    public void onSurfaceDetached() {
+        // Calling close should allow termination future to complete and close the surface with
+        // the listener that was added after constructing the DeferrableSurface.
+        mDeferrableSurface.close();
+        mDeferrableSurface.getTerminationFuture().addListener(
+                () -> {
                         if (releaseVideoEncoder && videoEncoder != null) {
                             videoEncoder.release();
                         }
-
-                        if (surface != null) {
-                            surface.release();
-                        }
-                    }
-                });
+                }, CameraXExecutors.mainThreadExecutor());
 
         if (releaseVideoEncoder) {
             mVideoEncoder = null;
@@ -489,11 +482,18 @@ public class VideoCapture extends UseCase {
         if (mCameraSurface != null) {
             releaseCameraSurface(false);
         }
-        mCameraSurface = mVideoEncoder.createInputSurface();
+        Surface cameraSurface = mVideoEncoder.createInputSurface();
+        mCameraSurface = cameraSurface;
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+        }
         mDeferrableSurface = new ImmediateSurface(mCameraSurface);
+        mDeferrableSurface.getTerminationFuture().addListener(
+                cameraSurface::release, CameraXExecutors.mainThreadExecutor()
+        );
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 
@@ -885,6 +885,8 @@ public class VideoCapture extends UseCase {
     /** Listener containing callbacks for video file I/O events. */
     public interface OnVideoSavedCallback {
         /** Called when the video has been successfully saved. */
+        // TODO: Should remove file argument to match ImageCapture.OnImageSavedCallback
+        //  #onImageSaved()
         void onVideoSaved(@NonNull File file);
 
         /** Called when an error occurs while attempting to save the video. */

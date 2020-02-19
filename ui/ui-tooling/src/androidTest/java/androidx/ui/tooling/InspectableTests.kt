@@ -26,7 +26,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
+import androidx.ui.unit.ipx
 import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -60,10 +60,10 @@ class InspectableTests : ToolingTest() {
         assertNotNull(group)
 
         // The group should have a non-empty bounding box
-        assertEquals(0.px, group!!.box.top)
-        assertEquals(0.px, group.box.left)
-        assertNotEquals(0.px, group.box.right)
-        assertNotEquals(0.px, group.box.bottom)
+        assertEquals(0.ipx, group!!.box.top)
+        assertEquals(0.ipx, group.box.left)
+        assertNotEquals(0.ipx, group.box.right)
+        assertNotEquals(0.ipx, group.box.bottom)
 
         // Now find the group containing the DrawNode
         val nodeGroup = findDrawNodeGroup(group)
@@ -120,6 +120,7 @@ class InspectableTests : ToolingTest() {
 
 fun Iterable<SlotTable>.findGroupForFile(fileName: String) =
     map { it.findGroupForFile(fileName) }.filterNotNull().firstOrNull()
+
 fun SlotTable.findGroupForFile(fileName: String) = asTree().findGroupForFile(fileName)
 fun Group.findGroupForFile(fileName: String): Group? {
     val position = position

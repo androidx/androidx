@@ -18,8 +18,8 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
-import androidx.ui.core.WithDensity
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Color
@@ -35,12 +35,11 @@ fun SimpleImage(
     image: Image,
     tint: Color? = null
 ) {
-    // TODO b/132071873: WithDensity should be able to use the DSL syntax
-    WithDensity(block = {
+    with(DensityAmbient.current) {
         Container(width = image.width.toDp(), height = image.height.toDp()) {
             DrawImage(image, tint)
         }
-    })
+    }
 }
 
 /**

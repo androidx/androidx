@@ -55,10 +55,14 @@ import java.util.concurrent.TimeUnit
  * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
 class BenchmarkState {
-    /** @hide */
+    /** @suppress */
     @Suppress("ConvertSecondaryConstructorToPrimary")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor()
+
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    var traceUniqueName = "benchmark"
 
     private var warmupIteration = 0 // increasing iteration count during warmup
 
@@ -129,7 +133,7 @@ class BenchmarkState {
     /**
      * Used for testing in other modules
      *
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getMin(): Long = stats.min
@@ -209,15 +213,30 @@ class BenchmarkState {
     }
 
     private fun beginBenchmark() {
-        if (ENABLE_PROFILING && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            // TODO: support data dir for old platforms
-            val f = File(
-                InstrumentationRegistry.getInstrumentation().context.dataDir,
-                "benchprof"
-            )
-            Log.d(TAG, "Tracing to: " + f.absolutePath)
-            Debug.startMethodTracingSampling(f.absolutePath, 16 * 1024 * 1024, 100)
+        when (Arguments.profilingMode) {
+            ProfilingMode.Sampled, ProfilingMode.Method -> {
+                val path = File(
+                    Arguments.testOutputDir,
+                    "$traceUniqueName-${Arguments.profilingMode}.trace"
+                ).absolutePath
+
+                Log.d(TAG, "Profiling output file: $path")
+
+                val bufferSize = 16 * 1024 * 1024
+                if (Arguments.profilingMode == ProfilingMode.Sampled &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                ) {
+                    Debug.startMethodTracingSampling(path, bufferSize, 100)
+                } else {
+                    Debug.startMethodTracing(path, bufferSize, 0)
+                }
+            }
+            ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
+                Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
+            }
+            else -> {}
         }
+
         maxIterations = OVERRIDE_ITERATIONS ?: computeIterationsFromWarmup()
         pausedDurationNs = 0
         iterationsRemaining = maxIterations
@@ -230,8 +249,14 @@ class BenchmarkState {
 
     private fun endBenchmark() {
         endTraceSection() // paired with start in beginBenchmark()
-        if (ENABLE_PROFILING) {
-            Debug.stopMethodTracing()
+        when (Arguments.profilingMode) {
+            ProfilingMode.Sampled, ProfilingMode.Method -> {
+                Debug.stopMethodTracing()
+            }
+            ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
+                Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
+            }
+            else -> {}
         }
         ThreadPriority.resetBumpedThread()
         warmupManager.logInfo()
@@ -292,7 +317,7 @@ class BenchmarkState {
      * in the inlined loop. On recent Android Platform versions, ART inlines these accessors anyway,
      * but we want to be sure it's as simple as possible.
      *
-     * @hide
+     * @suppress
      */
     @Suppress("NOTHING_TO_INLINE")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -337,9 +362,7 @@ class BenchmarkState {
     internal fun keepRunningInternal(): Boolean {
         when (state) {
             NOT_STARTED -> {
-                if (Errors.UNSUPPRESSED_WARNING_MESSAGE != null) {
-                    throw AssertionError(Errors.UNSUPPRESSED_WARNING_MESSAGE)
-                }
+                Errors.throwIfError()
                 if (!firstBenchmark && Arguments.startupMode) {
                     throw AssertionError(
                         "Error - multiple benchmarks in startup mode. Only one " +
@@ -471,7 +494,7 @@ class BenchmarkState {
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun report(
@@ -495,26 +518,34 @@ class BenchmarkState {
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
         private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
 
-        private const val ENABLE_PROFILING = false
-
         private const val NOT_STARTED = 0 // The benchmark has not started yet.
         private const val WARMUP = 1 // The benchmark is warming up.
         private const val RUNNING = 2 // The benchmark is running.
         private const val FINISHED = 3 // The benchmark has stopped.
 
+        private const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
+
         // Values determined empirically.
         @VisibleForTesting
         internal val REPEAT_COUNT = when {
             Arguments.dryRunMode -> 1
+            Arguments.profilingMode == ProfilingMode.ConnectedAllocation -> 1
             Arguments.startupMode -> 10
             else -> 50
         }
-        private val OVERRIDE_ITERATIONS = when {
-            Arguments.dryRunMode || Arguments.startupMode -> 1
-            else -> null
+
+        private val OVERRIDE_ITERATIONS = if (
+            Arguments.dryRunMode ||
+            Arguments.startupMode ||
+            Arguments.profilingMode == ProfilingMode.ConnectedAllocation
+        ) 1 else null
+
+        private val TARGET_TEST_DURATION_NS = when (Arguments.profilingMode) {
+            ProfilingMode.None, ProfilingMode.Method -> TimeUnit.MICROSECONDS.toNanos(500)
+            // longer measurements while profiling to ensure we have enough data
+            else -> TimeUnit.MILLISECONDS.toNanos(20)
         }
-        private val TARGET_TEST_DURATION_NS = TimeUnit.MICROSECONDS.toNanos(500)
-        private const val MAX_TEST_ITERATIONS = 1000000
+        private const val MAX_TEST_ITERATIONS = 1_000_000
         private const val MIN_TEST_ITERATIONS = 1
 
         private const val THROTTLE_MAX_RETRIES = 3

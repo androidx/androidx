@@ -20,34 +20,33 @@ import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.focus.FocusDetailedState
 import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.ActiveParent
 import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
-import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toPx
-import androidx.ui.unit.toPxPosition
-import androidx.ui.unit.toPxSize
+import androidx.ui.unit.round
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+
+/**
+ * Enable to log changes to the ComponentNode tree.  This logging is quite chatty.
+ */
+private const val DebugChanges = false
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects
@@ -55,7 +54,10 @@ import kotlin.reflect.KProperty
  * through them.
  */
 interface Owner {
+
     val density: Density
+
+    val semanticsOwner: SemanticsOwner
 
     /**
      * `true` when layout should draw debug bounds.
@@ -68,6 +70,13 @@ interface Owner {
      * necessary.
      */
     fun onInvalidate(drawNode: DrawNode)
+
+    /**
+     * Called from a [LayoutNode], this registers with the underlying view system that a
+     * redraw of the given [layoutNode] is required. It may cause other nodes to redraw, if
+     * necessary. Note that [LayoutNode]s are able to draw due to draw modifiers applied to them.
+     */
+    fun onInvalidate(layoutNode: LayoutNode)
 
     /**
      * Called by [LayoutNode] to indicate the new size of [layoutNode].
@@ -142,6 +151,11 @@ interface Owner {
      */
     fun callDraw(canvas: Canvas, node: ComponentNode, parentSize: PxSize)
 
+    /**
+     * Iterates through all LayoutNodes that have requested layout and measures and lays them out
+     */
+    fun measureAndLayout()
+
     val measureIteration: Long
 }
 
@@ -152,6 +166,7 @@ interface Owner {
  * All other components are not represented in the backing hierarchy.
  */
 sealed class ComponentNode : Emittable {
+
     internal val children = mutableListOf<ComponentNode>()
 
     /**
@@ -232,8 +247,24 @@ sealed class ComponentNode : Emittable {
         }
         ErrorMessages.ComponentNodeHasParent.validateState(instance.parent == null)
         ErrorMessages.OwnerAlreadyAttached.validateState(instance.owner == null)
+
+        if (DebugChanges) {
+            println("$instance added to $this at index $index")
+        }
+
         instance.parent = this
         children.add(index, instance)
+
+        val containingLayout = containingLayoutNode
+        if (containingLayout != null) {
+            if (instance is LayoutNode) {
+                instance.layoutNodeWrapper.wrappedBy = containingLayout.innerLayoutNodeWrapper
+            } else {
+                visitLayoutChildren {
+                    it.layoutNodeWrapper.wrappedBy = containingLayout.innerLayoutNodeWrapper
+                }
+            }
+        }
 
         val owner = this.owner
         if (owner != null) {
@@ -249,6 +280,10 @@ sealed class ComponentNode : Emittable {
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
             val child = children.removeAt(i)
+            if (DebugChanges) {
+                println("$child removed from $this at index $i")
+            }
+
             if (attached) {
                 child.detach()
             }
@@ -260,12 +295,26 @@ sealed class ComponentNode : Emittable {
         if (from == to) {
             return // nothing to do
         }
+        var shouldInvalidateSemanticsComponentNode = false
         for (i in 0 until count) {
             // if "from" is after "to," the from index moves because we're inserting before it
             val fromIndex = if (from > to) from + i else from
             val toIndex = if (from > to) to + i else to + count - 2
             val child = children.removeAt(fromIndex)
+
+            if (DebugChanges) {
+                println("$child moved in $this from index $fromIndex to $toIndex")
+            }
+
             children.add(toIndex, child)
+
+            if (child.hasSemanticsComponentNodeInTree()) {
+                shouldInvalidateSemanticsComponentNode = true
+            }
+        }
+
+        if (shouldInvalidateSemanticsComponentNode) {
+            invalidateSemanticsComponentNode()
         }
         containingLayoutNode?.layoutChildrenDirty = true
     }
@@ -308,6 +357,51 @@ sealed class ComponentNode : Emittable {
         owner.onDetach(this)
         this.owner = null
         depth = 0
+    }
+
+    internal open fun invalidateSemanticsComponentNode() {
+        if (parent == null) {
+            // We're at the top, invalidate the root so that it picks up changes
+            owner?.semanticsOwner?.invalidateSemanticsRoot()
+        }
+
+        parent?.invalidateSemanticsComponentNode()
+    }
+
+    internal open fun hasSemanticsComponentNodeInTree(): Boolean {
+        visitChildren {
+            if (it.hasSemanticsComponentNodeInTree()) {
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun toString(): String {
+        return "${simpleIdentityToString(this)} children: ${children.size}"
+    }
+
+    /**
+     * Call this method from the debugger to see a dump of the ComponentNode tree structure
+     */
+    private fun debugTreeToString(depth: Int = 0): String {
+        val tree = StringBuilder()
+        for (i in 0 until depth) {
+            tree.append("  ")
+        }
+        tree.append("|-")
+        tree.append(toString())
+        tree.append('\n')
+
+        for (child in children) {
+            tree.append(child.debugTreeToString(depth + 1))
+        }
+
+        if (depth == 0) {
+            // Delete trailing newline
+            tree.deleteCharAt(tree.length - 1)
+        }
+        return tree.toString()
     }
 }
 
@@ -373,10 +467,31 @@ class RepaintBoundaryNode(val name: String?) : ComponentNode() {
  * Backing node for handling pointer events.
  */
 class PointerInputNode : ComponentNode() {
+
+    /**
+     * Invoked right after the [PointerInputNode] is hit by a pointer during hit testing.
+     *
+     * @See CustomEventDispatcher
+     */
+    var initHandler: ((CustomEventDispatcher) -> Unit)? = null
+
     /**
      * Invoked when pointers that previously hit this PointerInputNode have changed.
      */
     var pointerInputHandler: PointerInputHandler = { event, _, _ -> event }
+
+    /**
+     * Invoked when a [CustomEvent] is dispatched by a [PointerInputNode].
+     *
+     * Dispatch occurs over all passes of [PointerEventPass].
+     *
+     * The [CustomEvent] is the event being dispatched. The [PointerEventPass] is the pass that
+     * dispatch is currently on.
+     *
+     * @see CustomEvent
+     * @see PointerEventPass
+     */
+    var customEventHandler: ((CustomEvent, PointerEventPass) -> Unit)? = null
 
     /**
      * Invoked to notify the handler that no more calls to pointerInputHandler will be made, until
@@ -417,7 +532,9 @@ class FocusNode : ComponentNode() {
     private lateinit var _recompose: () -> Unit
     var recompose: () -> Unit
         get() = _recompose
-        set(value) { _recompose = value }
+        set(value) {
+            _recompose = value
+        }
 
     /**
      * The focus state for the current component. When the component is in the [Active] state, it
@@ -682,7 +799,7 @@ class DrawNode : ComponentNode() {
             invalidate()
         }
 
-    var onPaint: (DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
+    var onPaint: (Density.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
         set(value) {
             field = value
             invalidate()
@@ -710,15 +827,11 @@ class DrawNode : ComponentNode() {
     }
 }
 
-private val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
-private val Origin = IntPxPosition(IntPx.Zero, IntPx.Zero)
-
 /**
  * Backing node for Layout component.
  *
  * Measuring a [LayoutNode] as a [Measurable] will measure the node's content as adjusted by
- * [modifier]. All layout state such as [modifiedSize] and [modifiedPosition] also reflect
- * the modified state of the node.
+ * [modifier].
  */
 class LayoutNode : ComponentNode(), Measurable {
     interface MeasureBlocks {
@@ -736,7 +849,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
         fun minIntrinsicWidth(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
@@ -745,7 +858,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
         fun minIntrinsicHeight(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ): IntPx
@@ -754,7 +867,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
         fun maxIntrinsicWidth(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ): IntPx
@@ -763,33 +876,33 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
         fun maxIntrinsicHeight(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ): IntPx
     }
 
-    abstract class NoIntristicsMeasureBlocks(private val error: String) : MeasureBlocks {
+    abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ) = error(error)
 
         override fun minIntrinsicHeight(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ) = error(error)
 
         override fun maxIntrinsicWidth(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx
         ) = error(error)
 
         override fun maxIntrinsicHeight(
-            densityScope: DensityScope,
+            modifierScope: ModifierScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx
         ) = error(error)
@@ -811,19 +924,32 @@ class LayoutNode : ComponentNode(), Measurable {
             }
         }
 
+    var ambientLayoutDirection = LayoutDirection.Ltr
+        internal set(value) {
+            if (value != field) {
+                field = value
+                measureScope.layoutDirection = value
+                measureScope.ambientLayoutDirection = value
+            }
+        }
+
     /**
      * The scope used to run the [MeasureBlocks.measure] [MeasureBlock].
      */
-    val measureScope: MeasureScope = object : InnerMeasureScope() {
-        override val density: Density
+    val measureScope: MeasureScope = object : InnerMeasureScope(), Density {
+        private val ownerDensity: Density
             get() = owner?.density ?: Density(1f)
+        override val density: Float
+            get() = ownerDensity.density
+        override val fontScale: Float
+            get() = ownerDensity.fontScale
         override val layoutNode: LayoutNode = this@LayoutNode
     }
 
     /**
      * The constraints used the last time [layout] was called.
      */
-    var constraints: Constraints = Constraints.tightConstraints(IntPx.Zero, IntPx.Zero)
+    var constraints: Constraints = Constraints.fixed(IntPx.Zero, IntPx.Zero)
 
     /**
      * Implementation oddity around composition; used to capture a reference to this
@@ -838,12 +964,12 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The measured width of this layout and all of its [modifier]s. Shortcut for `size.width`.
      */
-    val width: IntPx get() = modifiedSize.width
+    val width: IntPx get() = layoutNodeWrapper.width
 
     /**
      * The measured height of this layout and all of its [modifier]s. Shortcut for `size.height`.
      */
-    val height: IntPx get() = modifiedSize.height
+    val height: IntPx get() = layoutNodeWrapper.height
 
     /**
      * The alignment lines of this layout, inherited + intrinsic
@@ -856,37 +982,6 @@ class LayoutNode : ComponentNode(), Measurable {
     internal val providedAlignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
 
     /**
-     * The measured size of this layout and all of its [modifier]s.
-     */
-    val modifiedSize: IntPxSize get() = layoutNodeWrapper.size
-
-    /**
-     * The horizontal position of this layout and all of its [modifier]s within its parent.
-     */
-    val x: IntPx get() = modifiedPosition.x
-
-    /**
-     * The vertical position of this layout and all of its [modifier]s within its parent.
-     */
-    val y: IntPx get() = modifiedPosition.y
-
-    /**
-     * The position of this layout and all of its [modifier] within its parent.
-     */
-    val modifiedPosition: IntPxPosition get() = layoutNodeWrapper.position
-
-    /**
-     * The position of the inner layout node content
-     */
-    var contentPosition: IntPxPosition = IntPxPosition.Origin
-        private set
-
-    /**
-     * The size of the inner layout node content
-     */
-    val contentSize: IntPxSize get() = innerLayoutNodeWrapper.size
-
-    /**
      * Whether or not this has been placed in the hierarchy.
      */
     var isPlaced = false
@@ -896,11 +991,19 @@ class LayoutNode : ComponentNode(), Measurable {
      * `true` when the parent's size depends on this LayoutNode's size
      */
     var affectsParentSize: Boolean = true
+        private set
 
     /**
      * `true` when inside [measure]
      */
     var isMeasuring: Boolean = false
+        private set
+
+    /**
+     * `true` when inside [layout]
+     */
+    var isLayingOut: Boolean = false
+        private set
 
     /**
      * `true` when the current node is positioned during the measure pass,
@@ -913,14 +1016,22 @@ class LayoutNode : ComponentNode(), Measurable {
      * the measurement has been complete ([place] has been called).
      */
     var needsRemeasure = false
-        internal set
+        internal set(value) {
+            require(!isMeasuring)
+            require(!isLayingOut)
+            field = value
+        }
 
     /**
      * `true` when the layout has been measured or dirtied because the layout
      * lambda accessed a model that has been dirtied.
      */
     var needsRelayout = false
-        internal set
+        internal set(value) {
+            require(!isMeasuring)
+            require(!isLayingOut)
+            field = value
+        }
 
     /**
      * `true` when the parent reads our alignment lines
@@ -966,7 +1077,8 @@ class LayoutNode : ComponentNode(), Measurable {
      * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
      * is not called multiple times within a measure pass.
      */
-    private var measureIteration = 0L
+    internal var measureIteration = 0L
+        private set
 
     /**
      * Identifies when [layoutChildren] needs to be recalculated or if it can use
@@ -1005,7 +1117,7 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The parentData [DataNode] for this LayoutNode.
      */
-    private var parentDataNode: DataNode<*>? = null
+    internal var parentDataNode: DataNode<*>? = null
         get() {
             if (parentDataDirty) {
                 // walk up to find ParentData
@@ -1024,8 +1136,8 @@ class LayoutNode : ComponentNode(), Measurable {
             return field
         }
 
-    private val innerLayoutNodeWrapper: LayoutNodeWrapper = InnerPlaceable()
-    private var layoutNodeWrapper = innerLayoutNodeWrapper
+    internal val innerLayoutNodeWrapper: LayoutNodeWrapper = InnerPlaceable(this)
+    internal var layoutNodeWrapper = innerLayoutNodeWrapper
 
     /**
      * The [Modifier] currently applied to this node.
@@ -1054,318 +1166,48 @@ class LayoutNode : ComponentNode(), Measurable {
             // this is if no wrapping actually occurs above because no LayoutModifiers are
             // present in the modifier chain.
             if (oldPlaceable != layoutNodeWrapper) {
+                oldPlaceable.detach()
                 requestRemeasure()
             }
+            val containing = parentLayoutNode
+            if (containing != null) {
+                layoutNodeWrapper.wrappedBy = containing.innerLayoutNodeWrapper
+            }
         }
 
     /**
-     * Measurable and Placeable type that has a position.
+     * Coordinates of just the contents of the LayoutNode, after being affected by all modifiers.
      */
-    private abstract class LayoutNodeWrapper : Placeable(), Measurable {
-        protected open val wrapped: LayoutNodeWrapper? = null
-        var position = Origin
-
-        private var dirtySize: Boolean = false
-        fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
-        override var size: IntPxSize = Unmeasured
-            protected set(value) {
-                if (field != value) dirtySize = true
-                field = value
-            }
-
-        /**
-         * Calculate and set the content position based on the given offset and any internal
-         * positioning.
-         */
-        abstract fun calculateContentPosition(offset: IntPxPosition)
-
-        /**
-         * Assigns a layout size to this [LayoutNodeWrapper] given the assigned innermost size
-         * from the call to [MeasureScope.layout]. Assigns and returns [modifiedSize].
-         */
-        abstract fun layoutSize(innermostSize: IntPxSize): IntPxSize
-
-        /**
-         * Places the modified child.
-         */
-        abstract fun place(position: IntPxPosition)
-
-        /**
-         * Places the modified child.
-         */
-        final override fun performPlace(position: IntPxPosition) {
-            place(position)
-            dirtySize = false
-        }
-
-        /**
-         * Draws the content of the LayoutNode
-         */
-        abstract fun draw(canvas: Canvas, density: Density)
-    }
-
-    /**
-     * [LayoutNodeWrapper] with default implementations for methods.
-     */
-    private abstract class DelegatingLayoutNodeWrapper : LayoutNodeWrapper() {
-        abstract override val wrapped: LayoutNodeWrapper
-        override fun calculateContentPosition(offset: IntPxPosition) =
-            wrapped.calculateContentPosition(position + offset)
-        override fun layoutSize(innermostSize: IntPxSize) = wrapped.layoutSize(innermostSize)
-        override fun draw(canvas: Canvas, density: Density) = wrapped.draw(canvas, density)
-        override fun get(line: AlignmentLine): IntPx? = wrapped[line]
-        override fun place(position: IntPxPosition) = wrapped.place(position)
-        override fun measure(constraints: Constraints): Placeable {
-            wrapped.measure(constraints)
-            return this
-        }
-        override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
-        override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
-        override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
-        override fun maxIntrinsicHeight(width: IntPx) = wrapped.maxIntrinsicHeight(width)
-        override val parentData: Any? get() = wrapped.parentData
-    }
-
-    private inner class InnerPlaceable : LayoutNodeWrapper(), DensityScope {
-        override fun measure(constraints: Constraints): Placeable {
-            val layoutResult = measureBlocks.measure(measureScope, layoutChildren, constraints)
-            handleLayoutResult(layoutResult)
-            return this
-        }
-
-        override val parentData: Any?
-            get() = parentDataNode?.value
-
-        override fun minIntrinsicWidth(height: IntPx): IntPx =
-            measureBlocks.minIntrinsicWidth(measureScope, layoutChildren, height)
-
-        override fun minIntrinsicHeight(width: IntPx): IntPx =
-            measureBlocks.minIntrinsicHeight(measureScope, layoutChildren, width)
-
-        override fun maxIntrinsicWidth(height: IntPx): IntPx =
-            measureBlocks.maxIntrinsicWidth(measureScope, layoutChildren, height)
-
-        override fun maxIntrinsicHeight(width: IntPx): IntPx =
-            measureBlocks.maxIntrinsicHeight(measureScope, layoutChildren, width)
-
-        override fun place(position: IntPxPosition) {
-            isPlaced = true
-            this.position = position
-            val oldContentPosition = contentPosition
-            layoutNodeWrapper.calculateContentPosition(IntPxPosition.Origin)
-            if (oldContentPosition != contentPosition) {
-                owner?.onPositionChange(this@LayoutNode)
-            }
-            placeChildren()
-        }
-
-        override val density: Density get() = measureScope.density
-
-        override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
-            size = innermostSize
-            return innermostSize
-        }
-
-        override operator fun get(line: AlignmentLine): IntPx? {
-            return calculateAlignmentLines()[line]
-        }
-
-        override fun calculateContentPosition(offset: IntPxPosition) {
-            contentPosition = position + offset
-        }
-
-        override fun draw(canvas: Canvas, density: Density) {
-            val x = position.x.value.toFloat()
-            val y = position.y.value.toFloat()
-            canvas.translate(x, y)
-            val owner = requireOwner()
-            val sizePx = size.toPxSize()
-            children.forEach { child -> owner.callDraw(canvas, child, sizePx) }
-            if (owner.showLayoutBounds) {
-                val rect = Rect(
-                    left = 0.5f,
-                    top = 0.5f,
-                    right = size.width.value.toFloat() - 0.5f,
-                    bottom = size.height.value.toFloat() - 0.5f
-                )
-                canvas.drawRect(rect, innerBoundsPaint)
-            }
-            canvas.translate(-x, -y)
-        }
-    }
-
-    private open inner class ModifiedParentDataNode(
-        override val wrapped: LayoutNodeWrapper,
-        val parentDataModifier: ParentDataModifier
-    ) : DelegatingLayoutNodeWrapper() {
-        override val parentData: Any?
-            get() = with(parentDataModifier) {
-                /**
-                 * ParentData provided through the parentData node will override the data provided
-                 * through a modifier
-                 */
-                parentDataNode?.value ?: measureScope.modifyParentData(wrapped.parentData)
-            }
-
-        override var size: IntPxSize
-            get() = if (super.size == Unmeasured) wrapped.size else super.size
-
-            set(value) {
-                super.size = value
-            }
-    }
-
-    private inner class ModifiedLayoutNode(
-        override val wrapped: LayoutNodeWrapper,
-        val layoutModifier: LayoutModifier
-    ) : DelegatingLayoutNodeWrapper() {
-        /**
-         * The [Placeable] returned by measuring [wrapped] in [measure].
-         * Used to avoid creating more wrapper objects than necessary since [ModifiedLayoutNode]
-         * also
-         */
-        private var measuredPlaceable: Placeable? = null
-
-        /**
-         * The [Constraints] used in the current measurement of this modified node wrapper.
-         * See [withMeasuredConstraints]
-         */
-        private var measuredConstraints: Constraints? = null
-
-        /**
-         * Sets [measuredConstraints] for the duration of [block].
-         */
-        private inline fun <R> withMeasuredConstraints(
-            constraints: Constraints,
-            block: () -> R
-        ): R = try {
-            measuredConstraints = constraints
-            block()
-        } finally {
-            measuredConstraints = null
-        }
-
-        override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
-            val measureResult = withMeasuredConstraints(constraints) {
-                wrapped.measure(measureScope.modifyConstraints(constraints))
-            }
-            measuredPlaceable = measureResult
-            this@ModifiedLayoutNode
-        }
-
-        override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
-            measureScope.minIntrinsicWidthOf(wrapped, height)
-        }
-
-        override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
-            measureScope.maxIntrinsicWidthOf(wrapped, height)
-        }
-
-        override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
-            measureScope.minIntrinsicHeightOf(wrapped, width)
-        }
-
-        override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
-            measureScope.maxIntrinsicHeightOf(wrapped, width)
-        }
-
-        override fun place(position: IntPxPosition) {
-            this.position = position
-            val placeable = measuredPlaceable ?: error("Placeable not measured")
-            val relativePosition = with(layoutModifier) {
-                measureScope.modifyPosition(placeable.size, size)
-            }
-            placeable.place(relativePosition)
-        }
-
-        override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
-            var lineValue = measureScope.modifyAlignmentLine(line, wrapped[line])
-            if (lineValue != null) {
-                lineValue += if (line.horizontal) wrapped.position.y else wrapped.position.x
-            }
-            lineValue
-        }
-
-        override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
-            val constraints = measuredConstraints ?: error("must be called during measurement")
-            measureScope.modifySize(constraints, wrapped.layoutSize(innermostSize)).also {
-                size = it
-            }
-        }
-
-        override fun calculateContentPosition(offset: IntPxPosition) {
-            wrapped.calculateContentPosition(position + offset)
-        }
-
-        override fun draw(canvas: Canvas, density: Density) {
-            val x = position.x.value.toFloat()
-            val y = position.y.value.toFloat()
-            canvas.translate(x, y)
-            wrapped.draw(canvas, density)
-            if (requireOwner().showLayoutBounds) {
-                val rect = Rect(
-                    left = 0.5f,
-                    top = 0.5f,
-                    right = size.width.value.toFloat() - 0.5f,
-                    bottom = size.height.value.toFloat() - 0.5f
-                )
-                canvas.drawRect(rect, modifierBoundsPaint)
-            }
-            canvas.translate(-x, -y)
-        }
-    }
-
-    private class ModifiedDrawNode(
-        override val wrapped: LayoutNodeWrapper,
-        val drawModifier: DrawModifier
-    ) : DelegatingLayoutNodeWrapper(), () -> Unit {
-        private var density: Density? = null
-        private var canvas: Canvas? = null
-
-        override var size: IntPxSize
-            get() = wrapped.size
-            set(_) = error("Cannot set the size of a draw modifier")
-
-        override fun place(position: IntPxPosition) {
-            this.position = position
-            wrapped.place(IntPxPosition.Origin)
-        }
-
-        override fun draw(canvas: Canvas, density: Density) {
-            val x = position.x.value.toFloat()
-            val y = position.y.value.toFloat()
-            canvas.translate(x, y)
-            this.density = density
-            this.canvas = canvas
-            val pxSize = size.toPxSize()
-            drawModifier.draw(density, this, canvas, pxSize)
-            this.density = null
-            this.canvas = null
-            canvas.translate(-x, -y)
-        }
-
-        // This is the implementation of drawContent()
-        override fun invoke() {
-            wrapped.draw(canvas!!, density!!)
-        }
-    }
-
-    internal val coordinates: LayoutCoordinates = LayoutNodeCoordinates(this)
+    // TODO(mount): remove this
+    val coordinates: LayoutCoordinates
+        get() = innerLayoutNodeWrapper
 
     override fun attach(owner: Owner) {
         super.attach(owner)
         requestRemeasure()
         parentDataDirty = true
         parentLayoutNode?.layoutChildrenDirty = true
+        onAttach?.invoke(owner)
     }
+
+    /**
+     * Callback to be executed whenever the [LayoutNode] is attached to a new [Owner].
+     */
+    var onAttach: ((Owner) -> Unit)? = null
 
     override fun detach() {
         parentLayoutNode?.layoutChildrenDirty = true
         parentLayoutNode?.requestRemeasure()
         parentDataDirty = true
         alignmentLinesQueryOwner = null
+        onDetach?.invoke(owner!!)
         super.detach()
     }
+
+    /**
+     * Callback to be executed whenever the [LayoutNode] is detached from an [Owner].
+     */
+    var onDetach: ((Owner) -> Unit)? = null
 
     override fun measure(constraints: Constraints): Placeable {
         val owner = requireOwner()
@@ -1374,25 +1216,21 @@ class LayoutNode : ComponentNode(), Measurable {
             "measure() may not be called multiple times on the same Measurable"
         }
         measureIteration = iteration
+        val parent = parentLayoutNode
+        // The more idiomatic, `if (parentLayoutNode?.isMeasuring == true)` causes boxing
+        affectsParentSize = parent != null && parent.isMeasuring == true
         if (this.constraints == constraints && !needsRemeasure) {
-            val parent = parentLayoutNode
-            if (parent != null && parent.isMeasuring) {
-                affectsParentSize = true
-            }
             return layoutNodeWrapper // we're already measured to this size, don't do anything
         }
 
+        needsRemeasure = false
         isMeasuring = true
         dirtyAlignmentLines = true
-        layoutChildren.forEach { child ->
-            child.affectsParentSize = false
-        }
         this.constraints = constraints
         owner.observeMeasureModelReads(this) {
             layoutNodeWrapper.measure(constraints)
         }
         isMeasuring = false
-        needsRemeasure = false
         needsRelayout = true
         return layoutNodeWrapper
     }
@@ -1417,8 +1255,26 @@ class LayoutNode : ComponentNode(), Measurable {
 
     fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
 
-    fun placeChildren() {
+    /**
+     * Returns the alignment line value for a given alignment line without affecting whether
+     * the flag for whether the alignment line was read.
+     */
+    fun getAlignmentLine(line: AlignmentLine): IntPx? {
+        val linePos = alignmentLines[line] ?: return null
+        var pos = PxPosition(linePos, linePos)
+        var wrapper = innerLayoutNodeWrapper
+        while (wrapper != layoutNodeWrapper) {
+            pos = wrapper.toParentPosition(pos)
+            wrapper = wrapper.wrappedBy!!
+        }
+        pos = wrapper.toParentPosition(pos)
+        return if (line is HorizontalAlignmentLine) pos.y.round() else pos.x.round()
+    }
+
+    fun layout() {
         if (needsRelayout) {
+            needsRelayout = false
+            isLayingOut = true
             val owner = requireOwner()
             owner.observeLayoutModelReads(this) {
                 layoutChildren.forEach { child ->
@@ -1437,16 +1293,13 @@ class LayoutNode : ComponentNode(), Measurable {
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
             }
-            needsRelayout = false
 
             if (alignmentLinesRequired && dirtyAlignmentLines) {
                 alignmentLines.clear()
                 layoutChildren.forEach { child ->
                     if (!child.isPlaced) return@forEach
-                    child.alignmentLines.entries.forEach { (childLine, linePosition) ->
-                        val offset = child.contentPosition
-                        val linePositionInContainer = linePosition +
-                                    if (childLine.horizontal) offset.y else offset.x
+                    child.alignmentLines.keys.forEach { childLine ->
+                        val linePositionInContainer = child.getAlignmentLine(childLine)!!
                         // If the line was already provided by a previous child, merge the values.
                         alignmentLines[childLine] = if (childLine in alignmentLines) {
                             childLine.merge(
@@ -1461,6 +1314,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 alignmentLines += providedAlignmentLines
                 dirtyAlignmentLines = false
             }
+            isLayingOut = false
         }
     }
 
@@ -1470,7 +1324,7 @@ class LayoutNode : ComponentNode(), Measurable {
         alignmentLinesQueriedSinceLastLayout = true
         if (dirtyAlignmentLines) {
             needsRelayout = true
-            placeChildren()
+            layout()
         }
         return alignmentLines
     }
@@ -1480,12 +1334,6 @@ class LayoutNode : ComponentNode(), Measurable {
             IntPxSize(layoutResult.width, layoutResult.height)
         )
 
-        // The more idiomatic, `if (parentLayoutNode?.isMeasuring == true)` causes boxing
-        val parent = parentLayoutNode
-        @Suppress("SimplifyBooleanWithConstants")
-        if (parent != null && parent.isMeasuring == true) {
-            affectsParentSize = true
-        }
         if (layoutNodeWrapper.hasDirtySize()) {
             owner?.onSizeChange(this@LayoutNode)
         }
@@ -1495,10 +1343,17 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     /**
-     * Used by `ComplexLayoutState` to request a new measurement + layout pass from the owner.
+     * Used to request a new measurement + layout pass from the owner.
      */
     fun requestRemeasure() {
         owner?.onRequestMeasure(this)
+    }
+
+    /**
+     * Used to request a new draw pass from the owner.
+     */
+    fun onInvalidate() {
+        owner?.onInvalidate(this)
     }
 
     /**
@@ -1517,19 +1372,11 @@ class LayoutNode : ComponentNode(), Measurable {
         walkOnChildPositioned(this, this.coordinates)
     }
 
+    override fun toString(): String {
+        return "${super.toString()} measureBlocks: $measureBlocks"
+    }
+
     internal companion object {
-        val innerBoundsPaint = Paint().also { paint ->
-            paint.color = Color.Red
-            paint.strokeWidth = 1f
-            paint.style = PaintingStyle.stroke
-        }
-
-        val modifierBoundsPaint = Paint().also { paint ->
-            paint.color = Color.Blue
-            paint.strokeWidth = 1f
-            paint.style = PaintingStyle.stroke
-        }
-
         @Suppress("UNCHECKED_CAST")
         private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
             node.visitChildren { child ->
@@ -1559,7 +1406,7 @@ class LayoutNode : ComponentNode(), Measurable {
             }
         }
 
-        private val ErrorMeasureBlocks = object : NoIntristicsMeasureBlocks(
+        private val ErrorMeasureBlocks = object : NoIntrinsicsMeasureBlocks(
             error = "Undefined intrinsics block and it is required"
         ) {
             override fun measure(
@@ -1601,53 +1448,152 @@ private class InvalidatingProperty<T>(private var value: T) :
 }
 
 class SemanticsComponentNode(
-    // TODO(ryanmentley): probably take away these default values
-    semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration(),
-    /**
-     * If [container] is true, this composable will introduce a new
-     * node in the semantics tree. Otherwise, the semantics will be
-     * merged with the semantics of any ancestors (if the ancestor allows that).
-     *
-     * Whether descendants of this composable can add their semantic information to the
-     * [SemanticsNode][androidx.ui.core.semantics.SemanticNode] introduced by this configuration is
-     * controlled by [explicitChildNodes].
-     */
-    @Suppress("KDocUnresolvedReference")
-    container: Boolean = false,
-    /**
-     * Whether descendants of this composable are allowed to add semantic information
-     * to the [SemanticsNode][androidx.ui.core.semantics.SemanticNode] annotated by this composable.
-     *
-     * When set to false descendants are allowed to annotate [SemanticNodes][androidx.ui.core
-     * .semantics.SemanticNode] of
-     * their parent with the semantic information they want to contribute to the
-     * semantic tree.
-     * When set to true the only way for descendants to contribute semantic
-     * information to the semantic tree is to introduce new explicit
-     * [SemanticNodes][androidx.ui.core.semantics.SemanticNode] to the tree.
-     *
-     * If the semantics properties of this node include
-     * [scopesRoute][androidx.ui.semantics.SemanticsProperties.scopesRoute] set to
-     * true, then [explicitChildNodes] must be true also.
-     *
-     * This setting is often used in combination with [SemanticsConfiguration.isSemanticBoundary]
-     * to create semantic boundaries that are either writable or not for children.
-     */
-    @Suppress("KDocUnresolvedReference")
-    explicitChildNodes: Boolean = false
+    val id: Int,
+    // IMPORTANT: this *must* have the same name as localSemanticsConfiguration (which must be
+    // public) in order to ensure that changes to it are assigned through that property, rather
+    // than treating this as pivotal and recreating the whole subtree (there's a test for this).
+    localSemanticsConfiguration: SemanticsConfiguration
 ) : ComponentNode() {
-    private var needsSemanticsUpdate = true
+    var localSemanticsConfiguration: SemanticsConfiguration
+            by InvalidatingProperty(localSemanticsConfiguration)
 
-    var container: Boolean by InvalidatingProperty(container)
+    private var topNodeOfConfig: SemanticsComponentNode? = null
+    private var _semanticsNode: SemanticsNode? = null
 
-    var explicitChildNodes: Boolean by InvalidatingProperty(explicitChildNodes)
+    val semanticsNode: SemanticsNode
+        get() {
+            // If we're being asked for this, we should be the top node of the config
+            check(topNodeOfConfig == null)
+            var node = _semanticsNode
+            if (node == null) {
+                node = SemanticsNode(id, mergedSemanticsConfiguration, this)
+                _semanticsNode = node
+            }
 
-    // TODO(ryanmentley): this should be smarter and invalidate less
-    var semanticsConfiguration: SemanticsConfiguration
-            by InvalidatingProperty(semanticsConfiguration)
+            return node
+        }
+
+    private var _mergedSemanticsConfiguration: SemanticsConfiguration? = null
+    private val mergedSemanticsConfiguration: SemanticsConfiguration
+        get() {
+            // If we're being asked for this, we should be the top node
+            check(topNodeOfConfig == null)
+            var config = _mergedSemanticsConfiguration
+            if (config == null) {
+                config = buildSemanticsConfiguration()
+                _mergedSemanticsConfiguration = config
+            }
+            return config
+        }
 
     internal fun markNeedsSemanticsUpdate() {
-        needsSemanticsUpdate = true
+        val topNodeOfConfig = topNodeOfConfig
+        if (topNodeOfConfig != null) {
+            // Need to invalidate from the node that owns the SemanticsNode
+            topNodeOfConfig.markNeedsSemanticsUpdate()
+            // Break the association - it will be regenerated if still correct
+            this.topNodeOfConfig = null
+        } else if (_mergedSemanticsConfiguration != null) {
+            // If we are the node that owns a SemanticsNode
+            _mergedSemanticsConfiguration = null
+            _semanticsNode?.invalidateChildren() // TODO(ryanmentley): this is overkill
+            if (_semanticsNode?.attached == true) {
+                _semanticsNode?.detach()
+            }
+            _semanticsNode = null
+        } else {
+            // Walk up until we hit another semantics component node
+            // TODO(ryanmentley): this is also overkill, we can be smarter about boundaries
+            // TODO: could this be smarter?  it'll always walk after the first time being marked
+            parent?.invalidateSemanticsComponentNode()
+        }
+    }
+
+    override fun invalidateSemanticsComponentNode() {
+        markNeedsSemanticsUpdate()
+    }
+
+    override fun hasSemanticsComponentNodeInTree(): Boolean {
+        return true
+    }
+
+    override fun attach(owner: Owner) {
+        super.attach(owner)
+        parent?.invalidateSemanticsComponentNode()
+    }
+
+    override fun detach() {
+        super.detach()
+        parent?.invalidateSemanticsComponentNode()
+    }
+
+    override fun toString(): String {
+        return "${super.toString()} localConfig: $localSemanticsConfiguration"
+    }
+
+    private fun ComponentNode.markNeedsSemanticsUpdate() {
+        when {
+            this is SemanticsComponentNode -> markNeedsSemanticsUpdate()
+            parent is LayoutNode -> return
+            else -> {
+                check(parent != null) {
+                    "Hit top of hierarchy looking for a layout or" +
+                            " semantics node - should not happen"
+                }
+                parent!!.markNeedsSemanticsUpdate()
+            }
+        }
+    }
+
+    /**
+     * "Merges" together the [SemanticsConfiguration]s that will apply to the child [LayoutNode].
+     *
+     * This ignores semantic boundaries (because they only apply once the node is built), and currently does not
+     * validate that a [LayoutNode] actually exists as a child (though this is not contractual)
+     */
+    private fun buildSemanticsConfiguration(
+        parentConfig: SemanticsConfiguration? = null,
+        topNodeOfConfig: SemanticsComponentNode? = null
+    ): SemanticsConfiguration {
+        // Either both are null, or neither is null
+        check((parentConfig == null) == (topNodeOfConfig == null)) {
+            "Trying to build a semantics configuration with incorrect parameters: " +
+                    "parentConfig=$parentConfig, topNodeOfConfig=$topNodeOfConfig"
+        }
+
+        val config: SemanticsConfiguration
+        if (parentConfig != null && topNodeOfConfig != null) {
+            config = parentConfig
+            this.topNodeOfConfig = topNodeOfConfig
+            parentConfig.absorb(localSemanticsConfiguration, ignoreAlreadySet = true)
+        } else {
+            check(topNodeOfConfig == null) // We are the top node of our config
+            config = localSemanticsConfiguration.copy()
+        }
+        val childNode = findChildSemanticsComponentNode()
+
+        // Recursively build the node, if we have children
+        childNode?.buildSemanticsConfiguration(config, topNodeOfConfig ?: this)
+
+        return config
+    }
+
+    /**
+     * This function finds one or zero child [SemanticsComponentNode]s that are between this node
+     * and any [LayoutNode]s, as there is no logical behavior if a single Semantics node wraps
+     * multiple child nodes, and this is the most efficient thing to implement (once we find one,
+     * we can stop looking)
+     */
+    private fun ComponentNode.findChildSemanticsComponentNode(): SemanticsComponentNode? {
+        // TODO(ryanmentley): Should this have an option to validate that there is at most one in debug mode?
+        visitChildren { child ->
+            when (child) {
+                is SemanticsComponentNode -> return child // Found one
+                is LayoutNode -> return@visitChildren // Stop on LayoutNodes
+                else -> return child.findChildSemanticsComponentNode() // Keep searching
+            }
+        }
+        return null // Didn't find any
     }
 }
 
@@ -1690,146 +1636,6 @@ fun ComponentNode.add(child: ComponentNode) {
 class Ref<T> {
     var value: T? = null
 }
-
-/**
- * Converts a [PxPosition] relative to a global context into a [PxPosition] that is relative
- * to this [LayoutNode].
- *
- * If [withOwnerOffset] is true (which is the default), the [global] parameter is interpreted as
- * being a position relative to the application window. Otherwise, the [global] parameter is
- * interpreted to be relative to the root of the compose context.
- */
-fun LayoutNode.globalToLocal(global: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
-    var x: Px = global.x
-    var y: Px = global.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x -= pos.x.toPx()
-        y -= pos.y.toPx()
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x -= ownerPosition.x
-        y -= ownerPosition.y
-    }
-    return PxPosition(x, y)
-}
-
-/**
- * Converts an [PxPosition] that is relative to this [LayoutNode] into one that is relative to
- * a more global context.
- *
- * If [withOwnerOffset] is true (which is the default), the return value will be relative to the
- * application window.  Otherwise, the location is relative to the root of the compose context.
- */
-fun LayoutNode.localToGlobal(local: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
-    var x: Px = local.x
-    var y: Px = local.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x += pos.x.toPx()
-        y += pos.y.toPx()
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x += ownerPosition.x
-        y += ownerPosition.y
-    }
-    return PxPosition(x, y)
-}
-
-/**
- * Converts a [IntPxPosition] relative to a global context into a [IntPxPosition] that is relative
- * to this [LayoutNode].
- *
- * If [withOwnerOffset] is true (which is the default), the [global] parameter is interpreted as
- * being a position relative to the application window. Otherwise, the [global] parameter is
- * interpreted to be relative to the root of the compose context.
- */
-fun LayoutNode.globalToLocal(global: IntPxPosition, withOwnerOffset: Boolean = true):
-        IntPxPosition {
-    var x: IntPx = global.x
-    var y: IntPx = global.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x -= pos.x
-        y -= pos.y
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x -= ownerPosition.x
-        y -= ownerPosition.y
-    }
-    return IntPxPosition(x, y)
-}
-
-/**
- * Converts an [IntPxPosition] that is relative to this [LayoutNode] into one that is relative to
- * a more global context.
- *
- * If [withOwnerOffset] is true (which is the default), the return value will be relative to the
- * app window.  Otherwise, the location is relative to the root of the compose context.
- */
-fun LayoutNode.localToGlobal(local: IntPxPosition, withOwnerOffset: Boolean = true): IntPxPosition {
-    var x: IntPx = local.x
-    var y: IntPx = local.y
-    var node: LayoutNode? = this
-    while (node != null) {
-        val pos = node.contentPosition
-        x += pos.x
-        y += pos.y
-        node = node.parentLayoutNode
-    }
-    if (withOwnerOffset) {
-        val ownerPosition = requireOwner().calculatePosition()
-        x += ownerPosition.x
-        y += ownerPosition.y
-    }
-    return IntPxPosition(x, y)
-}
-
-/**
- * Converts a child LayoutNode position into a local position within this LayoutNode.
- */
-fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPosition {
-    if (child === this) {
-        return childLocal
-    }
-    var x: Px = childLocal.x
-    var y: Px = childLocal.y
-    var node: LayoutNode? = child
-    while (true) {
-        checkNotNull(node) {
-            "Current layout is not an ancestor of the provided child layout"
-        }
-        val pos = node.contentPosition
-        x += pos.x.toPx()
-        y += pos.y.toPx()
-        node = node.parentLayoutNode
-        if (node === this) {
-            // found the node
-            break
-        }
-    }
-    return PxPosition(x, y)
-}
-
-/**
- * Calculates the position of this [LayoutNode] relative to the root of the ui tree.
- */
-fun LayoutNode.positionRelativeToRoot() = localToGlobal(IntPxPosition.Origin, false)
-
-/**
- * Calculates the position of this [LayoutNode] relative to the provided ancestor.
- */
-fun LayoutNode.positionRelativeToAncestor(ancestor: LayoutNode) =
-    ancestor.childToLocal(this, PxPosition.Origin)
 
 /**
  * Executes [block] on first level of [LayoutNode] descendants of this ComponentNode.
@@ -1885,9 +1691,77 @@ fun ComponentNode.findClosestParentNode(selector: (ComponentNode) -> Boolean): C
 }
 
 /**
+ * Executes [selector] on every parent of this [SemanticsNode] and returns the closest
+ * [SemanticsNode] to return `true` from [selector] or null if [selector] returns false
+ * for all ancestors.
+ */
+fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): SemanticsNode? {
+    // TODO(b/143866294): move this to the testing side after the hierarchy isn't flattened anymore
+    var currentParent = parent
+    while (currentParent != null) {
+        if (currentParent.isSemanticBoundary && selector(currentParent)) {
+            return currentParent
+        } else {
+            currentParent = currentParent.parent
+        }
+    }
+
+    return null
+}
+
+/**
  * Returns `true` if this ComponentNode has no descendant [LayoutNode]s.
  */
 fun ComponentNode.hasNoLayoutDescendants() = findLastLayoutChild { true } == null
+
+internal fun ComponentNode.findChildSemanticsComponentNodes(): List<SemanticsComponentNode> {
+    // Stopping at SCNs, find all child SCNs of our node
+    val childSemanticsComponentNodes: MutableList<SemanticsComponentNode> = mutableListOf()
+    for (child in children) {
+        findChildSemanticsComponentNodesRecursive(childSemanticsComponentNodes, child)
+    }
+    return childSemanticsComponentNodes
+}
+
+private fun ComponentNode.findChildSemanticsComponentNodesRecursive(
+    list: MutableList<SemanticsComponentNode>,
+    node: ComponentNode
+) {
+    when (node) {
+        is SemanticsComponentNode -> {
+            list.add(node)
+            // Stop, we're done
+        }
+        else -> {
+            for (child in node.children) {
+                findChildSemanticsComponentNodesRecursive(list, child)
+            }
+        }
+    }
+}
+
+internal fun ComponentNode.findFirstLayoutNodeInTree(): LayoutNode? {
+    if (this is LayoutNode) {
+        return this
+    }
+    visitChildren { child ->
+        if (child is LayoutNode) {
+            return child
+        } else {
+            val layoutChild = child.findFirstLayoutNodeInTree()
+            if (layoutChild != null) {
+                return layoutChild
+            } // else, keep looking through the other children
+        }
+    }
+
+    return null
+}
+
+internal fun ComponentNode.requireFirstLayoutNodeInTree(): LayoutNode {
+    return findFirstLayoutNodeInTree()
+        ?: throw IllegalStateException("This component has no layout children")
+}
 
 /**
  * DataNodeKey for ParentData
@@ -1904,32 +1778,3 @@ val OnPositionedKey = DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnPositi
  */
 val OnChildPositionedKey =
     DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
-
-/**
- * A LayoutCoordinates implementation based on LayoutNode.
- */
-private class LayoutNodeCoordinates(
-    private val layoutNode: LayoutNode
-) : LayoutCoordinates {
-
-    override val position get() = layoutNode.contentPosition.toPxPosition()
-
-    override val size get() = layoutNode.contentSize.toPxSize()
-
-    override val providedAlignmentLines get() = layoutNode.providedAlignmentLines
-
-    override val parentCoordinates get() = layoutNode.parentLayoutNode?.coordinates
-
-    override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
-
-    override fun localToGlobal(local: PxPosition) = layoutNode.localToGlobal(local)
-
-    override fun localToRoot(local: PxPosition) = layoutNode.localToGlobal(local, false)
-
-    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
-        if (child !is LayoutNodeCoordinates) {
-            throw IllegalArgumentException("Incorrect child provided.")
-        }
-        return layoutNode.childToLocal(child.layoutNode, childLocal)
-    }
-}

@@ -16,13 +16,16 @@
 
 package androidx.compose.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.remember
+import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.material.Button
 
 @Composable
+@Sampled
 fun recomposeSample() {
     class LoginState(var username: String, var password: String) {
         fun login() = Api.login(username, password)
@@ -47,7 +50,9 @@ fun recomposeSample() {
                     recompose()
                 }
             )
-            Button(text = "Login", onClick = { model.login() })
+            Button(onClick = { model.login() }) {
+                Text("Login")
+            }
         }
     }
 }

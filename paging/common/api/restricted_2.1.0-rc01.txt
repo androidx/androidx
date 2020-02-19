@@ -178,12 +178,5 @@ package androidx.paging {
     field public final int startPosition;
   }
 
-  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class TiledDataSource<T> extends androidx.paging.PositionalDataSource<T> {
-    method @Deprecated @WorkerThread public abstract int countItems();
-    method @Deprecated public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T!>);
-    method @Deprecated @WorkerThread public abstract java.util.List<T!>? loadRange(int, int);
-    method @Deprecated public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T!>);
-  }
-
 }
 

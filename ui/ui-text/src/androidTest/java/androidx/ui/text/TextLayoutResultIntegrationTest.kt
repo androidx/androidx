@@ -24,13 +24,11 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.isZero
-import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,14 +45,15 @@ class TextLayoutResultIntegrationTest {
 
     @Test
     fun width_getter() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val text = "Hello"
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                density = density,
+                style = TextStyle.Empty,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -75,6 +74,7 @@ class TextLayoutResultIntegrationTest {
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -87,14 +87,15 @@ class TextLayoutResultIntegrationTest {
 
     @Test
     fun height_getter() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val text = "hello"
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                density = density,
+                style = TextStyle.Empty,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -109,6 +110,7 @@ class TextLayoutResultIntegrationTest {
     fun layout_build_layoutResult() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = "Hello"),
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -129,6 +131,7 @@ class TextLayoutResultIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = annotatedString,
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -142,7 +145,7 @@ class TextLayoutResultIntegrationTest {
 
     @Test
     fun getPositionForOffset_other_Character() {
-        withDensity(density) {
+        with(density) {
             val fontSize = 20.sp
             val characterIndex = 2 // Start from 0.
             val text = "Hello"
@@ -154,7 +157,8 @@ class TextLayoutResultIntegrationTest {
 
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                density = density,
+                style = TextStyle.Empty,
+                density = this,
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
@@ -175,6 +179,7 @@ class TextLayoutResultIntegrationTest {
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
+            style = TextStyle.Empty,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -183,30 +188,6 @@ class TextLayoutResultIntegrationTest {
         val layoutResult = textDelegate.layout(Constraints())
 
         assertThat(layoutResult.hasVisualOverflow).isFalse()
-
-        // paint should not throw exception
-        textDelegate.paint(Canvas(android.graphics.Canvas()), layoutResult)
-    }
-
-    @Test
-    fun hasOverflowShaderFadeHorizontallyTrue() {
-        val text = "Hello World".repeat(15)
-        val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(text, spanStyle)
-
-        val textDelegate = TextDelegate(
-            text = annotatedString,
-            overflow = TextOverflow.Fade,
-            softWrap = false,
-            maxLines = 1,
-            density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
-        )
-
-        val layoutResult = textDelegate.layout(Constraints(maxWidth = 100.ipx))
-
-        assertThat(layoutResult.hasVisualOverflow).isTrue()
 
         // paint should not throw exception
         textDelegate.paint(Canvas(android.graphics.Canvas()), layoutResult)

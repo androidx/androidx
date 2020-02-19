@@ -152,7 +152,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     public void testPlayVideoOnTextureView() throws Throwable {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
-
+        if (setViewTypeMayCrash()) {
+            return;
+        }
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
         setPlayerWrapper(playerWrapper);
@@ -181,6 +183,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     public void testPlayVideoWithVisibilityChange() throws Throwable {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
+        if (setViewTypeMayCrash()) {
+            return;
+        }
 
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
@@ -240,6 +245,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
     @Test
     public void testSetViewType() throws Throwable {
+        if (setViewTypeMayCrash()) {
+            return;
+        }
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
 
@@ -413,6 +421,15 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             Bitmap afterBitmap = getVideoScreenshot();
             assertEquals(expectRendering, !afterBitmap.sameAs(beforeBitmap));
         }
+    }
+
+    private boolean setViewTypeMayCrash() {
+        // TODO(b/143496920): Remove this method which is a guard to avoid crash.
+        // Need to skip the tests, which call VV#setViewType(), on the emulator with API 26.
+        if (Build.DEVICE.startsWith("generic_") && Build.VERSION.SDK_INT == 26) {
+            return true;
+        }
+        return false;
     }
 
     private Bitmap getVideoScreenshot() {

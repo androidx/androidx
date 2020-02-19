@@ -54,6 +54,7 @@ import androidx.room.solver.query.parameter.QueryParameterAdapter
 import androidx.room.solver.query.result.ArrayQueryResultAdapter
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.GuavaOptionalQueryResultAdapter
+import androidx.room.solver.query.result.ImmutableListQueryResultAdapter
 import androidx.room.solver.query.result.InstantQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.OptionalQueryResultAdapter
@@ -98,6 +99,7 @@ import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
+import com.google.common.collect.ImmutableList
 import java.util.LinkedList
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.TypeKind
@@ -409,6 +411,10 @@ class TypeAdapterStore private constructor(
                 val typeArg = declared.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return OptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
+            } else if (MoreTypes.isTypeOf(ImmutableList::class.java, typeMirror)) {
+                val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
+                val rowAdapter = findRowAdapter(typeArg, query) ?: return null
+                return ImmutableListQueryResultAdapter(rowAdapter)
             } else if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
                 val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null

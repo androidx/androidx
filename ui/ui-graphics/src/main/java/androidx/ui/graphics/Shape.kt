@@ -24,6 +24,8 @@ import androidx.ui.unit.PxSize
  */
 interface Shape {
     /**
+     * Creates [Outline] of this shape for the given [size].
+     *
      * @param size the size of the shape boundary.
      * @param density the current density of the screen.
      *

@@ -16,27 +16,21 @@
 
 package androidx.compose.plugins.kotlin
 
-import android.app.Activity
-import android.os.Bundle
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.Component
-import androidx.compose.Compose
-import androidx.compose.runWithCurrent
+import androidx.compose.Composer
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.kotlin.backend.common.output.OutputFile
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
 import java.net.URLClassLoader
 
+@Ignore("b/148457543")
 @RunWith(ComposeRobolectricTestRunner::class)
 @Config(
     manifest = Config.NONE,
@@ -46,7 +40,139 @@ import java.net.URLClassLoader
 class KtxCrossModuleTests : AbstractCodegenTest() {
 
     @Test
-    fun testRemappedTypes(): Unit = ensureSetup(composerParam = true) {
+    fun testCrossinlineEmittable(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/A.kt" to """
+                    package x
+
+                    import androidx.compose.Composable
+                    import android.widget.LinearLayout
+
+                    @Composable inline fun row(crossinline children: @Composable() () -> Unit) {
+                        LinearLayout {
+                            children()
+                        }
+                    }
+                 """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                    package b
+
+                    import androidx.compose.Composable
+                    import x.row
+
+                    @Composable fun Test() {
+                        row { }
+                    }
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testConstCrossModule(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/A.kt" to """
+                    package x
+
+                    const val MyConstant: String = ""
+                 """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                    package b
+
+                    import x.MyConstant
+
+                    fun Test(foo: String = MyConstant) {
+                        print(foo)
+                    }
+                """
+                )
+            )
+        ) {
+            assert(it.contains("LDC \"\""))
+            assert(!it.contains("INVOKESTATIC x/AKt.getMyConstant"))
+        }
+    }
+
+    @Test
+    fun testNonCrossinlineComposable(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/A.kt" to """
+                    package x
+
+                    import androidx.compose.Composable
+                    import androidx.compose.Pivotal
+
+                    @Composable
+                    inline fun <T> key(
+                        block: @Composable() () -> T
+                    ): T = block()
+                 """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                    package b
+
+                    import androidx.compose.Composable
+                    import x.key
+
+                    @Composable fun Test() {
+                        key { }
+                    }
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testNonCrossinlineComposableNoGenerics(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/A.kt" to """
+                    package x
+
+                    import androidx.compose.Composable
+                    import androidx.compose.Pivotal
+
+                    @Composable
+                    inline fun key(
+                        @Suppress("UNUSED_PARAMETER")
+                        @Pivotal
+                        v1: Int,
+                        block: @Composable() () -> Int
+                    ): Int = block()
+                 """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                    package b
+
+                    import androidx.compose.Composable
+                    import x.key
+
+                    @Composable fun Test() {
+                        key(123) { 456 }
+                    }
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testRemappedTypes(): Unit = ensureSetup {
         compile(
             "TestG", mapOf(
                 "library module" to mapOf(
@@ -82,7 +208,186 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
     }
 
     @Test
-    fun testSimpleXModuleCall(): Unit = ensureSetup(composerParam = true) {
+    fun testInlineIssue(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/C.kt" to """
+                    fun ghi() {
+                        abc {}
+                    }
+                    """,
+                    "x/A.kt" to """
+                    inline fun abc(fn: () -> Unit) {
+                        fn()
+                    }
+                    """,
+                    "x/B.kt" to """
+                    fun def() {
+                        abc {}
+                    }
+                    """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testInlineComposableProperty(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/A.kt" to """
+                    package x
+
+                    import androidx.compose.Composable
+
+                    class Foo {
+                      @Composable val value: Int get() = 123
+                    }
+                 """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                    package b
+
+                    import androidx.compose.Composable
+                    import x.Foo
+
+                    val foo = Foo()
+
+                    @Composable fun Test() {
+                        print(foo.value)
+                    }
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testNestedInlineIssue(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/C.kt" to """
+                    fun ghi() {
+                        abc {
+                            abc {
+
+                            }
+                        }
+                    }
+                    """,
+                    "x/A.kt" to """
+                    inline fun abc(fn: () -> Unit) {
+                        fn()
+                    }
+                    """,
+                    "x/B.kt" to """
+                    fun def() {
+                        abc {
+                            abc {
+
+                            }
+                        }
+                    }
+                    """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testComposerIntrinsicInline(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/C.kt" to """
+                    import androidx.compose.Composable
+
+                    @Composable
+                    fun ghi() {
+                        val x = abc()
+                        print(x)
+                    }
+                    """,
+                    "x/A.kt" to """
+                    import androidx.compose.Composable
+                    import androidx.compose.currentComposer
+
+                    @Composable
+                    inline fun abc(): Any {
+                        return currentComposer
+                    }
+                    """,
+                    "x/B.kt" to """
+                    import androidx.compose.Composable
+
+                    @Composable
+                    fun def() {
+                        val x = abc()
+                        print(x)
+                    }
+                    """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testComposableOrderIssue(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "C.kt" to """
+                    import androidx.compose.*
+
+                    @Composable
+                    fun b() {
+                        a()
+                    }
+                    """,
+                    "A.kt" to """
+                    import androidx.compose.*
+
+                    @Composable
+                    fun a() {
+
+                    }
+                    """,
+                    "B.kt" to """
+                    import androidx.compose.*
+
+                    @Composable
+                    fun c() {
+                        a()
+                    }
+
+                    """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testSimpleXModuleCall(): Unit = ensureSetup {
         compile(
             "TestG", mapOf(
                 "library module" to mapOf(
@@ -113,7 +418,36 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
     }
 
     @Test
-    fun testInstanceXModuleCall(): Unit = ensureSetup(composerParam = true) {
+    fun testJvmFieldIssue(): Unit = ensureSetup {
+        compile(
+            "TestG", mapOf(
+                "library module" to mapOf(
+                    "x/C.kt" to """
+                    fun Test2() {
+                      bar = 10
+                      print(bar)
+                    }
+                    """,
+                    "x/A.kt" to """
+                      @JvmField var bar: Int = 0
+                    """,
+                    "x/B.kt" to """
+                    fun Test() {
+                      bar = 10
+                      print(bar)
+                    }
+                    """
+                ),
+                "Main" to mapOf(
+                    "b/B.kt" to """
+                """
+                )
+            )
+        )
+    }
+
+    @Test
+    fun testInstanceXModuleCall(): Unit = ensureSetup {
         compile(
             "TestH", mapOf(
                 "library module" to mapOf(
@@ -144,7 +478,7 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
     }
 
     @Test
-    fun testXModuleProperty(): Unit = ensureSetup(composerParam = true) {
+    fun testXModuleProperty(): Unit = ensureSetup {
         compile(
             "TestI", mapOf(
                 "library module" to mapOf(
@@ -170,8 +504,9 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
             )
         )
     }
+
     @Test
-    fun testXModuleInterface(): Unit = ensureSetup(composerParam = true) {
+    fun testXModuleInterface(): Unit = ensureSetup {
         compile(
             "TestJ", mapOf(
                 "library module" to mapOf(
@@ -205,116 +540,30 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
     }
 
     @Test
-    fun testCrossModule_SimpleCompositionxxx(): Unit = ensureSetup {
-
-        compose(
-            "TestF", mapOf(
+    fun testXModuleCtorComposableParam(): Unit = ensureSetup {
+        compile(
+            "TestJ", mapOf(
                 "library module" to mapOf(
-                    "my/test/lib/InternalComp.kt" to """
-                    package my.test.lib
+                    "a/Foo.kt" to """
+                    package a
 
-                import androidx.compose.Composable
-                import androidx.compose.composer
-                import androidx.compose.Emittable
-                import androidx.ui.core.DataNode
-                import androidx.ui.core.ParentData
-                import androidx.ui.core.ParentDataKey
+                    import androidx.compose.*
 
-                class Bar
-
-                class XDataNodeKey<T>(val name: String)
-
-                class XDataNode<T>(var key: XDataNodeKey<T>, var value: T) : Emittable {
-                    override fun emitInsertAt(index: Int, instance: Emittable) {
-
-                    }
-
-                    override fun emitRemoveAt(index: Int, count: Int) {
-
-                    }
-
-                    override fun emitMove(from: Int, to: Int, count: Int) {
-
-                    }
-                }
-
-                val Key1 = XDataNodeKey<String>("foo")
-                val Key2 = XDataNodeKey<Bar>("bar")
-
-        class ViewEmitWrapper(context: android.content.Context) : android.view.View(context) {
-            var emittable: Emittable? = null
-        }
-
-        class EmitViewWrapper : Emittable {
-            var view: android.view.View? = null
-            override fun emitInsertAt(index: Int, instance: Emittable) {
-
-            }
-
-            override fun emitRemoveAt(index: Int, count: Int) {
-
-            }
-
-            override fun emitMove(from: Int, to: Int, count: Int) {
-
-            }
-        }
-
+                    class Foo(val bar: @Composable() () -> Unit)
                  """
                 ),
                 "Main" to mapOf(
-                    "my/test/app/Main.kt" to """
-                   package my.test.app
+                    "B.kt" to """
+                    import a.Foo
+                    import androidx.compose.*
 
-                   import android.widget.*
-                   import androidx.compose.*
-                   import my.test.lib.*
-
-                   var doRecompose: () -> Unit = {}
-
-                   class TestF {
-                       @Composable
-                       fun compose() {
-
-                       composer.registerAdapter { parent, child ->
-                            when (parent) {
-                                is android.view.ViewGroup -> when (child) {
-                                    is android.view.View -> child
-                                    is Emittable -> ViewEmitWrapper(composer.context).apply { 
-                                    emittable = child }
-                                    else -> null
-                                }
-                                is Emittable -> when (child) {
-                                    is android.view.View -> EmitViewWrapper().apply { view = child }
-                                    is Emittable -> child
-                                    else -> null
-                                }
-                                else -> null
-                            }
-                        }
-
-                         Recompose { recompose ->
-                           Foo()
-                         }
-                       }
-
-                       fun advance() {
-                         doRecompose()
-                       }
-                   }
-
-                   @Composable
-                   fun Foo() {
-                    val s = ""
-                    val b = Bar()
-                    XDataNode(key = Key2, value = b)
-                   }
+                    @Composable fun Example(bar: @Composable() () -> Unit) {
+                        val foo = Foo(bar)
+                    }
                 """
                 )
             )
-        ).then {
-            assert(true)
-        }
+        )
     }
 
     @Test
@@ -525,7 +774,8 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
     fun compile(
         mainClassName: String,
         modules: Map<String, Map<String, String>>,
-        dumpClasses: Boolean = false
+        dumpClasses: Boolean = false,
+        validate: ((String) -> Unit)? = null
     ): List<OutputFile> {
         val libraryClasses = (modules.filter { it.key != "Main" }.map {
             // Setup for compile
@@ -550,16 +800,22 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
             ?: error("No Main module specified"), dumpClasses).allGeneratedFiles
 
         // Load the files looking for mainClassName
-        return (libraryClasses + appClasses).filter {
+        val outputFiles = (libraryClasses + appClasses).filter {
             it.relativePath.endsWith(".class")
         }
+
+        if (validate != null) {
+            validate(outputFiles.joinToString("\n") { it.asText().replace('$', '%') })
+        }
+
+        return outputFiles
     }
 
     fun compose(
         mainClassName: String,
         modules: Map<String, Map<String, String>>,
         dumpClasses: Boolean = false
-    ): MultiCompositionTest {
+    ): RobolectricComposeTester {
         val allClasses = compile(mainClassName, modules, dumpClasses)
         val loader = URLClassLoader(emptyArray(), this.javaClass.classLoader)
         val instanceClass = run {
@@ -577,9 +833,11 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
 
         val instanceOfClass = instanceClass.newInstance()
         val advanceMethod = instanceClass.getMethod("advance")
-        val composeMethod = instanceClass.getMethod("compose")
+        val composeMethod = instanceClass.getMethod("compose", Composer::class.java)
 
-        return composeMulti({ composeMethod.invoke(instanceOfClass) }) {
+        return composeMulti({
+            composeMethod.invoke(instanceOfClass, it)
+        }) {
             advanceMethod.invoke(instanceOfClass)
         }
     }
@@ -598,7 +856,6 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
     }
 
     override fun setUp() {
-        isSetup = true
         if (disableIrAndKtx) {
             super.setUp()
         } else {
@@ -627,73 +884,12 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
     )
 
     override val additionalPaths: List<File> = listOf(classesDirectory)
-
-    private var isSetup = false
-    private fun <T> ensureSetup(composerParam: Boolean = false, block: () -> T): T {
-        val current = ComposeFlags.COMPOSER_PARAM
-        try {
-            ComposeFlags.COMPOSER_PARAM = composerParam
-            if (!isSetup) setUp()
-            return block()
-        } finally {
-            ComposeFlags.COMPOSER_PARAM = current
-        }
-    }
 }
 
 fun OutputFile.writeToDir(directory: File) =
     FileUtil.writeToFile(File(directory, relativePath), asByteArray())
 
 fun Collection<OutputFile>.writeToDir(directory: File) = forEach { it.writeToDir(directory) }
-
-private fun composeMulti(composable: () -> Unit, advance: () -> Unit) =
-    MultiCompositionTest(composable, advance)
-
-private class MultiTestActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(LinearLayout(this).apply { id = ROOT_ID })
-    }
-}
-
-private val Activity.root get() = findViewById(ROOT_ID) as ViewGroup
-
-private class MultiRoot : Component() {
-    override fun compose() {}
-}
-
-class MultiCompositionTest(val composable: () -> Unit, val advance: () -> Unit) {
-
-    inner class ActiveTest(val activity: Activity) {
-
-        fun then(block: (activity: Activity) -> Unit): ActiveTest {
-            advance()
-            val scheduler = RuntimeEnvironment.getMasterScheduler()
-            scheduler.advanceToLastPostedRunnable()
-            block(activity)
-            return this
-        }
-    }
-
-    fun then(block: (activity: Activity) -> Unit): ActiveTest {
-        val controller = Robolectric.buildActivity(MultiTestActivity::class.java)
-
-        // Compose the root scope
-        val activity = controller.create().get()
-        val root = activity.root
-        val component = MultiRoot()
-        val cc = Compose.createCompositionContext(root.context, root, component, null)
-        cc.composer.runWithCurrent {
-            val composer = cc.composer
-            composer.startRoot()
-            composable()
-            composer.endRoot()
-            composer.applyChanges()
-        }
-        block(activity)
-        return ActiveTest(activity)
-    }
-}
 
 private fun tmpDir(name: String): File {
     return FileUtil.createTempDirectory(name, "", false).canonicalFile

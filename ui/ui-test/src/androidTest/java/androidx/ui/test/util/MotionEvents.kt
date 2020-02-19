@@ -16,10 +16,9 @@
 
 package androidx.ui.test.util
 
-import android.content.ContextWrapper
 import android.view.MotionEvent
-import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.android.CollectedProviders
 import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
@@ -35,10 +34,10 @@ internal class MotionEventRecorder : SemanticsTreeProvider {
     }
 
     fun asCollectedProviders(): CollectedProviders {
-        return CollectedProviders(ContextWrapper(null), setOf(this))
+        return CollectedProviders(setOf(this))
     }
 
-    override fun getAllSemanticNodes(): List<SemanticsTreeNode> {
+    override fun getAllSemanticNodes(): List<SemanticsNode> {
         throw NotImplementedError()
     }
 

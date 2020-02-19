@@ -34,6 +34,7 @@ import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -48,6 +49,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -60,25 +63,11 @@ public final class ProcessingSurfaceTest {
 
     private static final Size RESOLUTION = new Size(640, 480);
     private static final int FORMAT = ImageFormat.YUV_420_888;
-    private static final CallbackDeferrableSurface NO_OP_CALLBACK_DEFERRABLE_SURFACE =
-            new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
-                    new Preview.PreviewSurfaceProvider() {
-                @NonNull
-                @Override
-                public ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
-                                @NonNull ListenableFuture<Void> surfaceReleaseFuture) {
-                    ImageReaderProxy imageReaderProxy =
-                            ImageReaderProxys.createIsolatedReader(
-                                    resolution.getWidth(), resolution.getHeight(),
-                                    ImageFormat.YUV_420_888, 2);
-                    return Futures.immediateFuture(imageReaderProxy.getSurface());
-                }
-            });
 
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
     private CaptureStage mCaptureStage = new CaptureStage.DefaultCaptureStage();
-
+    private List<ProcessingSurface> mProcessingSurfaces = new ArrayList<>();
 
     /*
      * Capture processor that simply writes out an empty image to exercise the pipeline
@@ -122,13 +111,17 @@ public final class ProcessingSurfaceTest {
 
     @After
     public void tearDown() {
-        mBackgroundThread.getLooper().quit();
+        for (ProcessingSurface processingSurface : mProcessingSurfaces) {
+            processingSurface.close();
+        }
+        mProcessingSurfaces.clear();
+        mBackgroundThread.getLooper().quitSafely();
     }
 
     @Test
     public void validInputSurface() throws ExecutionException, InterruptedException {
         ProcessingSurface processingSurface = createProcessingSurface(
-                NO_OP_CALLBACK_DEFERRABLE_SURFACE);
+                newImmediateSurfaceDeferrableSurface());
 
         Surface surface = processingSurface.getSurface().get();
 
@@ -143,29 +136,26 @@ public final class ProcessingSurfaceTest {
 
         // Create ProcessingSurface with user Surface.
         ProcessingSurface processingSurface = createProcessingSurface(
-                new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
-                        new Preview.PreviewSurfaceProvider() {
-                            @NonNull
-                            @Override
-                            public ListenableFuture<Surface> provideSurface(
-                                    @NonNull Size resolution,
-                                    @NonNull ListenableFuture<Void> surfaceReleaseFuture) {
-                                ImageReaderProxy imageReaderProxy =
-                                        ImageReaderProxys.createIsolatedReader(
-                                                resolution.getWidth(), resolution.getHeight(),
-                                                ImageFormat.YUV_420_888, 2);
+                new DeferrableSurface() {
+                    @NonNull
+                    @Override
+                    protected ListenableFuture<Surface> provideSurface() {
+                        ImageReaderProxy imageReaderProxy =
+                                ImageReaderProxys.createIsolatedReader(
+                                        RESOLUTION.getWidth(), RESOLUTION.getHeight(),
+                                        ImageFormat.YUV_420_888, 2);
 
-                                imageReaderProxy.setOnImageAvailableListener(
-                                        new ImageReaderProxy.OnImageAvailableListener() {
-                                            @Override
-                                            public void onImageAvailable(
-                                                    @NonNull ImageReaderProxy imageReader) {
-                                                frameReceivedSemaphore.release();
-                                            }
-                                        }, CameraXExecutors.directExecutor());
-                                return Futures.immediateFuture(imageReaderProxy.getSurface());
-                            }
-                        }));
+                        imageReaderProxy.setOnImageAvailableListener(
+                                new ImageReaderProxy.OnImageAvailableListener() {
+                                    @Override
+                                    public void onImageAvailable(
+                                            @NonNull ImageReaderProxy imageReader) {
+                                        frameReceivedSemaphore.release();
+                                    }
+                                }, CameraXExecutors.directExecutor());
+                        return Futures.immediateFuture(imageReaderProxy.getSurface());
+                    }
+                });
 
         // Act: Send one frame to processingSurface.
         triggerImage(processingSurface, 1);
@@ -174,22 +164,10 @@ public final class ProcessingSurfaceTest {
         assertThat(frameReceivedSemaphore.tryAcquire(3, TimeUnit.SECONDS)).isTrue();
     }
 
-    private ProcessingSurface createProcessingSurface(
-            CallbackDeferrableSurface callbackDeferrableSurface) {
-        return new ProcessingSurface(
-                RESOLUTION.getWidth(),
-                RESOLUTION.getHeight(),
-                FORMAT,
-                mBackgroundHandler,
-                mCaptureStage,
-                mCaptureProcessor,
-                callbackDeferrableSurface);
-    }
-
     @Test
     public void getSurfaceThrowsExceptionWhenClosed() {
         ProcessingSurface processingSurface =
-                createProcessingSurface(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
+                createProcessingSurface(newImmediateSurfaceDeferrableSurface());
 
         processingSurface.close();
 
@@ -210,9 +188,9 @@ public final class ProcessingSurfaceTest {
     @Test(expected = IllegalStateException.class)
     public void getCameraCaptureCallbackThrowsExceptionWhenReleased() {
         ProcessingSurface processingSurface =
-                createProcessingSurface(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
+                createProcessingSurface(newImmediateSurfaceDeferrableSurface());
 
-        processingSurface.release();
+        processingSurface.close();
 
         // Exception should be thrown here
         processingSurface.getCameraCaptureCallback();
@@ -236,5 +214,28 @@ public final class ProcessingSurfaceTest {
         cameraCaptureResult.setTag(mCaptureStage.getId());
         callback.onCaptureCompleted(cameraCaptureResult);
 
+    }
+
+    private ProcessingSurface createProcessingSurface(
+            DeferrableSurface deferrableSurface) {
+        ProcessingSurface processingSurface = new ProcessingSurface(
+                RESOLUTION.getWidth(),
+                RESOLUTION.getHeight(),
+                FORMAT,
+                mBackgroundHandler,
+                mCaptureStage,
+                mCaptureProcessor,
+                deferrableSurface);
+        mProcessingSurfaces.add(processingSurface);
+        return processingSurface;
+    }
+
+    private DeferrableSurface newImmediateSurfaceDeferrableSurface() {
+        ImageReaderProxy imageReaderProxy =
+                ImageReaderProxys.createIsolatedReader(
+                        RESOLUTION.getWidth(), RESOLUTION.getHeight(),
+                        ImageFormat.YUV_420_888, 2);
+
+        return new ImmediateSurface(imageReaderProxy.getSurface());
     }
 }

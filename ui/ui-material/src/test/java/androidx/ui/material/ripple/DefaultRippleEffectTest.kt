@@ -19,7 +19,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,11 +44,11 @@ class DefaultRippleEffectTest {
         val height = 160f
         val size = PxSize(width.px, height.px)
         val density = Density(2f)
-        val expectedRadius = withDensity(density) {
+        val expectedRadius = with(density) {
             // 10 is an extra offset from spec
             halfDistance(width, height) + 10.dp.toPx().value
         }
-        val result = withDensity(density) { getRippleTargetRadius(size) }
+        val result = with(density) { getRippleTargetRadius(size) }
         assertThat(result).isEqualTo(expectedRadius.px)
     }
 

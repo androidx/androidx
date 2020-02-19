@@ -19,7 +19,7 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
-import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
@@ -30,6 +30,7 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
+import androidx.ui.unit.round
 import androidx.ui.unit.toOffset
 
 /**
@@ -68,16 +69,11 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         hitPathTracker.refreshPathInformation(additionalPointerOffset)
 
         // Dispatch the PointerInputChanges to the hit PointerInputNodes.
-        var changes = pointerInputChangeEvent.changes
-        hitPathTracker.apply {
-            changes = dispatchChanges(changes, PointerEventPass.InitialDown, PointerEventPass.PreUp)
-            changes = dispatchChanges(changes, PointerEventPass.PreDown, PointerEventPass.PostUp)
-            dispatchChanges(changes, PointerEventPass.PostDown)
-        }
+        hitPathTracker.dispatchChanges(pointerInputChangeEvent.changes)
 
         // Remove hit paths from the tracker due to up events.
         pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
-            hitPathTracker.removePointerId(it.id)
+            hitPathTracker.removeHitPath(it.id)
         }
     }
 
@@ -91,8 +87,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
      */
     fun processCancel() {
         pointerInputChangeEventProducer.clear()
-        hitPathTracker.dispatchCancel()
-        hitPathTracker.clear()
+        hitPathTracker.processCancel()
     }
 
     /**
@@ -217,7 +212,7 @@ private data class HitTestBoundingBoxResult(val boundingBox: Rect?, val hit: Boo
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
  */
 private class PointerInputChangeEventProducer {
-    private val previousPointerInputData: MutableMap<Int, PointerInputData> = mutableMapOf()
+    private val previousPointerInputData: MutableMap<PointerId, PointerInputData> = mutableMapOf()
 
     /**
      * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
@@ -285,3 +280,17 @@ private fun Rect(position: IntPxPosition, size: IntPxSize): Rect {
 private fun Rect.translate(offset: IntPxPosition): Rect {
     return translate(offset.x.value.toFloat(), offset.y.value.toFloat())
 }
+
+// TODO(shepshapard): Remove these when transitioning to modifiers
+private val LayoutNode.contentPosition: IntPxPosition
+    get() {
+        val parent =
+            parentLayoutNode ?: return innerLayoutNodeWrapper.localToRoot(PxPosition.Origin).round()
+        return parent.innerLayoutNodeWrapper.childToLocal(
+            innerLayoutNodeWrapper,
+            PxPosition.Origin
+        ).round()
+    }
+
+private val LayoutNode.contentSize: IntPxSize
+    get() = innerLayoutNodeWrapper.size

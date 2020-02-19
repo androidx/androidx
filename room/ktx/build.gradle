@@ -46,7 +46,6 @@ dependencies {
 androidx {
     name = "Android Room Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2019"
     description = "Android Room Kotlin Extensions"

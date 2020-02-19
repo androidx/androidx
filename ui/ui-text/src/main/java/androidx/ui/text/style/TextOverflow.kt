@@ -21,9 +21,6 @@ enum class TextOverflow {
     /** Clip the overflowing text to fix its container. */
     Clip,
 
-    /** Fade the overflowing text to transparent. */
-    Fade,
-
     /** Use an ellipsis to indicate that the text has overflowed. */
     Ellipsis,
 }

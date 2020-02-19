@@ -18,24 +18,25 @@ package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.ambientDensity
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.withDensity
 
 @Sampled
 @Composable
 fun WithConstraintsSample() {
     WithConstraints { constraints ->
         val rectangleHeight = 100.dp
-        val threshold = withDensity(ambientDensity()) { (rectangleHeight * 2).toIntPx() }
+        val threshold = with(DensityAmbient.current) { (rectangleHeight * 2).toIntPx() }
         if (constraints.maxHeight < threshold) {
-            SizedRectangle(color = Color.Blue, width = 50.dp, height = rectangleHeight)
+            Box(LayoutSize(50.dp, rectangleHeight), backgroundColor = Color.Blue)
         } else {
             Column {
-                SizedRectangle(color = Color.Blue, width = 50.dp, height = rectangleHeight)
-                SizedRectangle(color = Color.Gray, width = 50.dp, height = rectangleHeight)
+                Box(LayoutSize(50.dp, rectangleHeight), backgroundColor = Color.Blue)
+                Box(LayoutSize(50.dp, rectangleHeight), backgroundColor = Color.Gray)
             }
         }
     }

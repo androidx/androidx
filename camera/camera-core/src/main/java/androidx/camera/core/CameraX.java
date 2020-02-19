@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
@@ -49,6 +50,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -781,17 +783,45 @@ public final class CameraX {
                 }
             }
 
-            // Attempt initialization through Application
+            // Attempt initialization through Application or Resources
             if (instanceFuture == null) {
                 Application app = (Application) context.getApplicationContext();
+                CameraXConfig.Provider configProvider = null;
                 if (app instanceof CameraXConfig.Provider) {
-                    initializeLocked(app, ((CameraXConfig.Provider) app).getCameraXConfig());
-                    instanceFuture = getInstanceLocked();
+                    // Use the application to initialize
+                    configProvider = (CameraXConfig.Provider) app;
                 } else {
-                    throw new IllegalStateException("CameraX is not initialized properly. Either "
-                            + "CameraX.initialize() needs to have been called or the CameraXConfig"
-                            + ".Provider interface must be implemented by your Application class.");
+                    // Try to initialize through the Resources' default config provider
+                    try {
+                        Resources resources = app.getResources();
+                        String defaultProviderClassName =
+                                resources.getString(
+                                        R.string.androidx_camera_default_config_provider);
+                        Class<?> providerClass =
+                                Class.forName(defaultProviderClassName);
+                        configProvider = (CameraXConfig.Provider) providerClass
+                                .getDeclaredConstructor()
+                                .newInstance();
+                    } catch (Resources.NotFoundException
+                            | ClassNotFoundException
+                            | InstantiationException
+                            | InvocationTargetException
+                            | NoSuchMethodException
+                            | IllegalAccessException e) {
+                        Log.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
+                                + "resources", e);
+                    }
                 }
+
+                if (configProvider == null) {
+                    throw new IllegalStateException("CameraX is not initialized properly. Either "
+                            + "the CameraXConfig.Provider interface must be implemented by your "
+                            + "Application class or a CameraXConfig must be explicitly provided "
+                            + "for initialization.");
+                }
+
+                initializeLocked(app, configProvider.getCameraXConfig());
+                instanceFuture = getInstanceLocked();
             }
 
             return instanceFuture;

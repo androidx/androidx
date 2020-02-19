@@ -25,6 +25,8 @@ import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
+import androidx.compose.Composition
+import androidx.compose.Providers
 import androidx.compose.disposeComposition
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
@@ -35,10 +37,11 @@ import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.tables
-import androidx.ui.unit.Px
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
+import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
-import java.lang.reflect.Modifier
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -51,10 +54,11 @@ const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
-    val bounds: PxBounds,
+    val methodName: String,
+    val bounds: IntPxBounds,
     val children: List<ViewInfo>
 ) {
-    fun hasBounds(): Boolean = bounds.bottom != Px.Zero && bounds.right != Px.Zero
+    fun hasBounds(): Boolean = bounds.bottom != IntPx.Zero && bounds.right != IntPx.Zero
 
     fun allChildren(): List<ViewInfo> =
         children + children.flatMap { it.allChildren() }
@@ -65,6 +69,17 @@ data class ViewInfo(
             |bottom=${bounds.bottom.value}, right=${bounds.right.value}),
             |childrenCount=${children.size})""".trimMargin()
 }
+
+/**
+ * Regular expression that matches and extracts the key information as serialized in
+ * [KeySourceInfo#recordSourceKeyInfo]. The expression supports two formats for backwards
+ * compatibility:
+ *
+ *  - fileName:lineNumber
+ *  - methodName (fileName:lineNumber)
+ */
+private val KEY_INFO_REGEX =
+    """(?<method>[\w\\.$]*?)\s?\(?(?<fileName>[\w.]+):(?<lineNumber>\d+)\)?""".toRegex()
 
 /**
  * View adapter that renders a `@Composable`. The `@Composable` is found by
@@ -92,6 +107,8 @@ internal class ComposeViewAdapter : FrameLayout {
         style = Paint.Style.STROKE
         color = Color.Red.toArgb()
     }
+
+    private var composition: Composition? = null
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init(attrs)
@@ -129,8 +146,6 @@ internal class ComposeViewAdapter : FrameLayout {
         hasNullSourcePosition() && children.isEmpty()
 
     private fun Group.toViewInfo(): ViewInfo {
-        val fileName = (key as? String)?.substringBefore(":") ?: ""
-
         if (children.size == 1 && hasNullSourcePosition()) {
             // There is no useful information in this intermediate node, remove.
             return children.single().toViewInfo()
@@ -140,7 +155,15 @@ internal class ComposeViewAdapter : FrameLayout {
             .filter { !it.isNullGroup() }
             .map { it.toViewInfo() }
 
-        return ViewInfo(fileName, lineNumber, box, childrenViewInfo)
+        val match = KEY_INFO_REGEX.matchEntire(key as? String ?: "")
+            ?: return ViewInfo("", -1, "", box, childrenViewInfo)
+
+        // TODO: Use group names instead of indexing once it's supported
+        return ViewInfo(match.groups[2]?.value ?: "",
+            match.groups[3]?.value?.toInt() ?: -1,
+            match.groups[1]?.value ?: "",
+            box,
+            childrenViewInfo)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -163,13 +186,15 @@ internal class ComposeViewAdapter : FrameLayout {
         }
 
         viewInfos
-            .flatMap { it.allChildren() }
+            .flatMap { listOf(it) + it.allChildren() }
             .forEach {
                 if (it.hasBounds()) {
                     canvas?.apply {
-                        translate(paddingLeft.toFloat(), paddingTop.toFloat())
-                        drawRect(it.bounds.toRect().toFrameworkRect(), debugBoundsPaint)
-                        translate(-paddingLeft.toFloat(), -paddingTop.toFloat())
+                        val pxBounds = PxBounds(it.bounds.left.toPx(),
+                            it.bounds.top.toPx(),
+                            it.bounds.right.toPx(),
+                            it.bounds.bottom.toPx())
+                        drawRect(pxBounds.toRect().toFrameworkRect(), debugBoundsPaint)
                     }
                 }
             }
@@ -183,7 +208,7 @@ internal class ComposeViewAdapter : FrameLayout {
         // We need to replace the FontResourceLoader to avoid using ResourcesCompat.
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
-        FontLoaderAmbient.Provider(value = LayoutlibFontResourceLoader(context)) {
+        Providers(FontLoaderAmbient provides LayoutlibFontResourceLoader(context)) {
             Inspectable(children)
         }
     }
@@ -205,28 +230,12 @@ internal class ComposeViewAdapter : FrameLayout {
     ) {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
-        setContent {
+        composition = setContent {
             WrapPreview {
-                try {
-                    // We need to delay the reflection instantiation of the class until we are
-                    // in the composable to ensure all the right initialization has happened
-                    // and the Composable class loads correctly.
-                    val composableClass = Class.forName(className)
-                    val method = composableClass.getDeclaredMethod(methodName)
-                    method.isAccessible = true
-
-                    if (Modifier.isStatic(method.modifiers)) {
-                        // This is a top level or static method
-                        method.invoke(null)
-                    } else {
-                        // The method is part of a class. We try to instantiate the class with an
-                        // empty constructor.
-                        val instance = composableClass.getConstructor().newInstance()
-                        method.invoke(instance)
-                    }
-                } catch (e: ReflectiveOperationException) {
-                    throw ClassNotFoundException("Composable Method not found", e)
-                }
+                // We need to delay the reflection instantiation of the class until we are in the
+                // composable to ensure all the right initialization has happened and the Composable
+                // class loads correctly.
+                invokeComposableViaReflection(className, methodName)
             }
         }
     }
@@ -236,6 +245,8 @@ internal class ComposeViewAdapter : FrameLayout {
      */
     internal fun dispose() {
         disposeComposition()
+        composition?.dispose()
+        composition = null
     }
 
     private fun init(attrs: AttributeSet) {

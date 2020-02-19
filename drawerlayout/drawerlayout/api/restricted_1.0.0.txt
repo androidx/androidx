@@ -26,7 +26,6 @@ package androidx.drawerlayout.widget {
     method public void openDrawer(int);
     method public void openDrawer(int, boolean);
     method public void removeDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setChildInsets(Object!, boolean);
     method public void setDrawerElevation(float);
     method @Deprecated public void setDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener!);
     method public void setDrawerLockMode(int);

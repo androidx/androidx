@@ -69,7 +69,7 @@ fun AlertDialog(
     text: @Composable() () -> Unit,
     confirmButton: @Composable() () -> Unit,
     dismissButton: @Composable() (() -> Unit)? = null,
-    buttonLayout: AlertDialogButtonLayout = AlertDialogButtonLayout.SideBySide
+    buttonLayout: AlertDialogButtonLayout = SideBySide
 ) {
     AlertDialog(
         onCloseRequest = onCloseRequest,
@@ -162,7 +162,7 @@ private fun AlertDialogButtonLayout(
     buttonLayout: AlertDialogButtonLayout
 ) {
     Container(LayoutWidth.Fill, padding = ButtonsPadding, alignment = Alignment.CenterRight) {
-        if (buttonLayout == AlertDialogButtonLayout.SideBySide) {
+        if (buttonLayout == SideBySide) {
             Row(arrangement = Arrangement.End) {
                 if (dismissButton != null) {
                     dismissButton()

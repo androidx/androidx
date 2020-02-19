@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.arch.core.util.Function
 
+@Suppress("DEPRECATION")
 internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
     private val source: PageKeyedDataSource<K, A>,
     private val listFunction: Function<List<A>, List<B>>

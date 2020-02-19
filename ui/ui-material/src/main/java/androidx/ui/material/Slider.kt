@@ -16,21 +16,25 @@
 
 package androidx.ui.material
 
+import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
+import androidx.animation.DefaultAnimationClock
 import androidx.animation.TargetAnimation
 import androidx.animation.TweenBuilder
 import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.foundation.animation.AnimatedValueHolder
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.animation.FlingConfig
+import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -43,8 +47,8 @@ import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Spacer
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
@@ -54,7 +58,6 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import androidx.ui.unit.toRect
-import androidx.ui.unit.withDensity
 import androidx.ui.util.lerp
 import kotlin.math.abs
 
@@ -72,7 +75,9 @@ import kotlin.math.abs
 class SliderPosition(
     initial: Float = 0f,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    @IntRange(from = 0) steps: Int = 0
+    @IntRange(from = 0) steps: Int = 0,
+    // TODO: remove this default
+    animatedClock: AnimationClockObservable = DefaultAnimationClock()
 ) {
 
     internal val startValue: Float = valueRange.start
@@ -90,7 +95,7 @@ class SliderPosition(
     var value: Float
         get() = scale(startPx, endPx, holder.value, startValue, endValue)
         set(value) {
-            holder.animatedFloat.snapTo(scale(startValue, endValue, value, startPx, endPx))
+            holder.snapTo(scale(startValue, endValue, value, startPx, endPx))
         }
 
     private var endPx = Float.MAX_VALUE
@@ -109,10 +114,11 @@ class SliderPosition(
                 it
             )
         }
-        holder.animatedFloat.snapTo(newValue)
+        holder.snapTo(newValue)
     }
 
-    internal val holder = AnimatedValueHolder(scale(startValue, endValue, initial, startPx, endPx))
+    internal val holder =
+        AnimatedFloatModel(scale(startValue, endValue, initial, startPx, endPx), animatedClock)
 
     internal val tickFractions: List<Float> =
         if (steps == 0) emptyList() else List(steps + 2) { it.toFloat() / (steps + 1) }
@@ -155,52 +161,54 @@ fun Slider(
     onValueChangeEnd: () -> Unit = {},
     color: Color = MaterialTheme.colors().primary
 ) {
-    Container(modifier = modifier) {
-        WithConstraints { constraints ->
-            val maxPx = constraints.maxWidth.value.toFloat()
-            val minPx = 0f
-            position.setBounds(minPx, maxPx)
+    Semantics(container = true, mergeAllDescendants = true) {
+        Container(modifier = modifier) {
+            WithConstraints { constraints ->
+                val maxPx = constraints.maxWidth.value.toFloat()
+                val minPx = 0f
+                position.setBounds(minPx, maxPx)
 
-            fun Float.toSliderPosition(): Float =
-                scale(minPx, maxPx, this, position.startValue, position.endValue)
+                fun Float.toSliderPosition(): Float =
+                    scale(minPx, maxPx, this, position.startValue, position.endValue)
 
-            val flingConfig =
-                if (position.anchorsPx.isNotEmpty()) {
-                    SliderFlingConfig(position, position.anchorsPx) { endValue ->
-                        onValueChange(endValue.toSliderPosition())
+                val flingConfig =
+                    if (position.anchorsPx.isNotEmpty()) {
+                        SliderFlingConfig(position, position.anchorsPx) { endValue ->
+                            onValueChange(endValue.toSliderPosition())
+                            onValueChangeEnd()
+                        }
+                    } else {
+                        null
+                    }
+                val gestureEndAction = { velocity: Float ->
+                    if (flingConfig != null) {
+                        position.holder.fling(flingConfig, velocity)
+                    } else {
                         onValueChangeEnd()
                     }
-                } else {
-                    null
                 }
-            val gestureEndAction = { velocity: Float ->
-                if (flingConfig != null) {
-                    position.holder.fling(flingConfig, velocity)
-                } else {
-                    onValueChangeEnd()
-                }
-            }
-            val pressed = state { false }
-            PressGestureDetector(
-                onPress = { pos ->
-                    onValueChange(pos.x.value.toSliderPosition())
-                    pressed.value = true
-                },
-                onRelease = {
-                    pressed.value = false
-                    gestureEndAction(0f)
-                }) {
-                Draggable(
-                    dragDirection = DragDirection.Horizontal,
-                    dragValue = position.holder,
-                    onDragStarted = { pressed.value = true },
-                    onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
-                    onDragStopped = { velocity ->
-                        pressed.value = false
-                        gestureEndAction(velocity)
+                val pressed = state { false }
+                PressGestureDetector(
+                    onPress = { pos ->
+                        onValueChange(pos.x.value.toSliderPosition())
+                        pressed.value = true
                     },
-                    children = { SliderImpl(position, color, maxPx, pressed.value) }
-                )
+                    onRelease = {
+                        pressed.value = false
+                        gestureEndAction(0f)
+                    }) {
+                    Draggable(
+                        dragDirection = DragDirection.Horizontal,
+                        dragValue = position.holder,
+                        onDragStarted = { pressed.value = true },
+                        onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
+                        onDragStopped = { velocity ->
+                            pressed.value = false
+                            gestureEndAction(velocity)
+                        },
+                        children = { SliderImpl(position, color, maxPx, pressed.value) }
+                    )
+                }
             }
         }
     }
@@ -208,7 +216,7 @@ fun Slider(
 
 @Composable
 private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pressed: Boolean) {
-    val widthDp = withDensity(ambientDensity()) {
+    val widthDp = with(DensityAmbient.current) {
         width.px.toDp()
     }
     Semantics(container = true, properties = { accessibilityValue = "${position.value}" }) {
@@ -221,7 +229,7 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
             DrawTrack(color, position)
-            Padding(left = offset) {
+            Box(LayoutPadding(start = offset)) {
                 Ripple(bounded = false) {
                     Surface(
                         shape = CircleShape,
@@ -284,6 +292,7 @@ private fun scale(a1: Float, b1: Float, x1: Float, a2: Float, b2: Float) =
 private fun calcFraction(a: Float, b: Float, pos: Float) =
     (if (b - a == 0f) 0f else (pos - a) / (b - a)).coerceIn(0f, 1f)
 
+@Composable
 private fun SliderFlingConfig(
     value: SliderPosition,
     anchors: List<Float>,

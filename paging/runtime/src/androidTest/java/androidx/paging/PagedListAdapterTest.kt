@@ -43,6 +43,7 @@ class PagedListAdapterTest {
         .setBackgroundThreadExecutor(diffThread)
         .build()
 
+    @Suppress("DEPRECATION")
     inner class Adapter(
         private val onChangedLegacy: AsyncPagedListDiffer.PagedListListener<String>? = null,
         private val onChanged: AsyncPagedListDiffer.PagedListListener<String>? = null
@@ -75,10 +76,10 @@ class PagedListAdapterTest {
 
     @Test
     fun initialState() {
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val listenerLegacy = mock(AsyncPagedListDiffer.PagedListListener::class.java)
                 as AsyncPagedListDiffer.PagedListListener<String>
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val listener = mock(AsyncPagedListDiffer.PagedListListener::class.java)
                 as AsyncPagedListDiffer.PagedListListener<String>
 
@@ -116,7 +117,9 @@ class PagedListAdapterTest {
     }
 
     private fun verifyZeroInteractions(
+        @Suppress("DEPRECATION")
         legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
+        @Suppress("DEPRECATION")
         listener: AsyncPagedListDiffer.PagedListListener<String>
     ) {
         verifyZeroInteractions(legacyListener)
@@ -124,7 +127,9 @@ class PagedListAdapterTest {
     }
 
     private fun verifyNoMoreInteractions(
+        @Suppress("DEPRECATION")
         legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
+        @Suppress("DEPRECATION")
         listener: AsyncPagedListDiffer.PagedListListener<String>
     ) {
         verifyNoMoreInteractions(legacyListener)
@@ -132,7 +137,9 @@ class PagedListAdapterTest {
     }
 
     private fun verifyOnCurrentListChanged(
+        @Suppress("DEPRECATION")
         legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
+        @Suppress("DEPRECATION")
         listener: AsyncPagedListDiffer.PagedListListener<String>,
         previousList: PagedList<String>?,
         currentList: PagedList<String>?
@@ -145,10 +152,10 @@ class PagedListAdapterTest {
     fun callbacks() {
         val callback = mock(Runnable::class.java)
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val legacyListener = mock(AsyncPagedListDiffer.PagedListListener::class.java)
                 as AsyncPagedListDiffer.PagedListListener<String>
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val listener = mock(AsyncPagedListDiffer.PagedListListener::class.java)
                 as AsyncPagedListDiffer.PagedListListener<String>
 

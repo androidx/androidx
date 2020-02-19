@@ -18,6 +18,7 @@ package androidx.camera.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
@@ -37,9 +38,25 @@ import java.util.concurrent.Executor;
  */
 public class PreviewView extends FrameLayout {
 
-    private Implementation mImplementation;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Implementation mImplementation;
 
     private ImplementationMode mImplementationMode;
+
+    private final DisplayManager.DisplayListener mDisplayListener =
+            new DisplayManager.DisplayListener() {
+        @Override
+        public void onDisplayAdded(int displayId) {
+        }
+
+        @Override
+        public void onDisplayRemoved(int displayId) {
+        }
+        @Override
+        public void onDisplayChanged(int displayId) {
+            mImplementation.onDisplayChanged();
+        }
+    };
 
     public PreviewView(@NonNull Context context) {
         this(context, null);
@@ -73,6 +90,26 @@ public class PreviewView extends FrameLayout {
             attributes.recycle();
         }
         setUp();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        final DisplayManager displayManager =
+                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
+        if (displayManager != null) {
+            displayManager.registerDisplayListener(mDisplayListener, getHandler());
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        final DisplayManager displayManager =
+                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
+        if (displayManager != null) {
+            displayManager.unregisterDisplayListener(mDisplayListener);
+        }
     }
 
     private void setUp() {
@@ -116,12 +153,12 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Gets the {@link Preview.PreviewSurfaceProvider} to be used with
-     * {@link Preview#setPreviewSurfaceProvider(Executor, Preview.PreviewSurfaceProvider)}.
+     * Gets the {@link Preview.SurfaceProvider} to be used with
+     * {@link Preview#setSurfaceProvider(Executor, Preview.SurfaceProvider)}.
      */
     @NonNull
-    public Preview.PreviewSurfaceProvider getPreviewSurfaceProvider() {
-        return mImplementation.getPreviewSurfaceProvider();
+    public Preview.SurfaceProvider getPreviewSurfaceProvider() {
+        return mImplementation.getSurfaceProvider();
     }
 
     /**
@@ -137,10 +174,18 @@ public class PreviewView extends FrameLayout {
         void init(@NonNull FrameLayout parent);
 
         /**
-         * Gets the {@link Preview.PreviewSurfaceProvider} to be used with {@link Preview}.
+         * Gets the {@link Preview.SurfaceProvider} to be used with {@link Preview}.
          */
         @NonNull
-        Preview.PreviewSurfaceProvider getPreviewSurfaceProvider();
+        Preview.SurfaceProvider getSurfaceProvider();
+
+        /**
+         *  Notifies that the display properties have changed.
+         *
+         *  <p>Implementation might need to adjust transform by latest display properties such as
+         *  display orientation in order to show the preview correctly.
+         */
+        void onDisplayChanged();
     }
 
     /**
@@ -175,6 +220,52 @@ public class PreviewView extends FrameLayout {
             }
             throw new IllegalArgumentException("Unsupported implementation mode " + id);
         }
+    }
+
+    /** Options for scaling the preview vis-à-vis its container {@link PreviewView}. */
+    public enum ScaleType {
+        /**
+         * Scale the preview, maintaining the source aspect ratio, so it fills the entire
+         * {@link PreviewView}, and align it to the top left corner of the view.
+         * This may cause the preview to be cropped if the camera preview aspect ratio does not
+         * match that of its container {@link PreviewView}.
+         */
+        FILL_START,
+        /**
+         * Scale the preview, maintaining the source aspect ratio, so it fills the entire
+         * {@link PreviewView}, and center it inside the view.
+         * This may cause the preview to be cropped if the camera preview aspect ratio does not
+         * match that of its container {@link PreviewView}.
+         */
+        FILL_CENTER,
+        /**
+         * Scale the preview, maintaining the source aspect ratio, so it fills the entire
+         * {@link PreviewView}, and align it to the bottom right corner of the view.
+         * This may cause the preview to be cropped if the camera preview aspect ratio does not
+         * match that of its container {@link PreviewView}.
+         */
+        FILL_END,
+        /**
+         * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
+         * within the {@link PreviewView}, and align it to the top left corner of the view.
+         * Both dimensions of the preview will be equal or less than the corresponding dimensions
+         * of its container {@link PreviewView}.
+         */
+        FIT_START,
+        /**
+         * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
+         * within the {@link PreviewView}, and center it inside the view.
+         * Both dimensions of the preview will be equal or less than the corresponding dimensions
+         * of its container {@link PreviewView}.
+         */
+        FIT_CENTER,
+        /**
+         * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
+         * within the {@link PreviewView}, and align it to the bottom right corner of the view.
+         * Both dimensions of the preview will be equal or less than the corresponding dimensions
+         * of its container {@link PreviewView}.
+         */
+        FIT_END
     }
 }
 

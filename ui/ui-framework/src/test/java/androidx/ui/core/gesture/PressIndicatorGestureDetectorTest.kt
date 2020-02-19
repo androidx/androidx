@@ -61,14 +61,16 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downConsumed_onStartNotCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down().consumeDownChange())
+        recognizer.pointerInputHandler
+            .invokeOverAllPasses(down(0, 0.milliseconds).consumeDownChange())
         verify(recognizer.onStart!!, never()).invoke(any())
     }
 
     @Test
     fun pointerInputHandler_disabledDown_onStartNotCalled() {
         recognizer.setEnabled(false)
-        recognizer.pointerInputHandler.invokeOverAllPasses(down().consumeDownChange())
+        recognizer.pointerInputHandler
+            .invokeOverAllPasses(down(0, 0.milliseconds).consumeDownChange())
         verify(recognizer.onStart!!, never()).invoke(any())
     }
 
@@ -76,7 +78,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_onStartCalledOnce() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         verify(recognizer.onStart!!).invoke(any())
     }
 
@@ -124,7 +126,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveConsumedUp_onStopNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f).consume(1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -136,7 +138,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downConsumedUp_onStopNotCalled() {
-        var pointer = down().consumeDownChange()
+        var pointer = down(0, 0.milliseconds).consumeDownChange()
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -158,7 +160,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downDisabledUp_onStopNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
         pointer = pointer.up(100.milliseconds)
@@ -169,7 +171,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downDisabledEnabledUp_onStopNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
         recognizer.setEnabled(true)
@@ -183,7 +185,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUp_onStopCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -193,7 +195,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpConsumed_onStopCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds).consumeDownChange()
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -203,7 +205,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveUp_onStopCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -229,7 +231,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downConsumedMoveConsumed_onCancelNotCalled() {
-        var pointer = down().consumeDownChange()
+        var pointer = down(0, 0.milliseconds).consumeDownChange()
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -239,7 +241,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUp_onCancelNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -249,7 +251,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveUp_onCancelNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -276,7 +278,7 @@ class PressIndicatorGestureDetectorTest {
     @Test
     fun pointerInputHandler_notEnabledDownNotEnabled_onCancelNotCalled() {
         recognizer.setEnabled(false)
-        recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         recognizer.setEnabled(false)
 
         verify(recognizer.onCancel!!, never()).invoke()
@@ -286,7 +288,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveConsumed_onCancelCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -296,7 +298,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveConsumedMoveConsumed_onCancelCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -434,7 +436,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downDisabled_onCancelCalledOnce() {
-        val pointer = down()
+        val pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
 
@@ -445,7 +447,8 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_downPositionIsCorrect() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down(x = 13f, y = 17f))
+        recognizer.pointerInputHandler
+            .invokeOverAllPasses(down(0, 0.milliseconds, x = 13f, y = 17f))
         verify(recognizer.onStart!!).invoke(PxPosition(13.px, 17f.px))
     }
 
@@ -453,7 +456,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_downChangeConsumedDuringPostUp() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         pointer = recognizer.pointerInputHandler.invokeOverPasses(
             pointer,
             PointerEventPass.InitialDown,
@@ -473,7 +476,7 @@ class PressIndicatorGestureDetectorTest {
     @Test
     fun pointerInputHandler_disabledDown_noDownChangeConsumed() {
         recognizer.setEnabled(false)
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         pointer = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         assertThat(pointer.consumed.downChange, `is`(false))
     }
@@ -489,7 +492,8 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun cancelHandler_downConsumedCancel_noCallbacksCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down().consumeDownChange())
+        recognizer.pointerInputHandler
+            .invokeOverAllPasses(down(0, 0.milliseconds).consumeDownChange())
         recognizer.cancelHandler.invoke()
 
         verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
@@ -497,7 +501,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun cancelHandler_downCancel_justStartAndCancelCalledInOrderOnce() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         recognizer.cancelHandler.invoke()
 
         inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
@@ -509,7 +513,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun cancelHandler_downUpCancel_justStartAndStopCalledInOrderOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -524,7 +528,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun cancelHandler_downMoveCancel_justStartAndCancelCalledInOrderOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(50.milliseconds, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -539,7 +543,7 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun cancelHandler_downMoveConsumedCancel_justStartAndCancelCalledInOrderOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(50.milliseconds, 1f).consume(1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -554,10 +558,10 @@ class PressIndicatorGestureDetectorTest {
 
     @Test
     fun cancelHandler_downThenCancelThenDown_justStartCancelStartCalledInOrderOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.cancelHandler.invoke()
-        pointer = down()
+        pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
         inOrder(recognizer.onStart!!, recognizer.onCancel!!) {

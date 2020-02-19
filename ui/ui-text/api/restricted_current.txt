@@ -243,6 +243,22 @@ package androidx.ui.text {
     method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
+  public interface InlineElement {
+    method public androidx.ui.text.InlineElementMetrics getInlineElementMetrics();
+    property public abstract androidx.ui.text.InlineElementMetrics inlineElementMetrics;
+  }
+
+  public final class InlineElementMetrics {
+    ctor public InlineElementMetrics(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.TextVerticalAlign textVerticalAlign);
+    method public androidx.ui.unit.TextUnit component1();
+    method public androidx.ui.unit.TextUnit component2();
+    method public androidx.ui.text.TextVerticalAlign component3();
+    method public androidx.ui.text.InlineElementMetrics copy(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.TextVerticalAlign textVerticalAlign);
+    method public androidx.ui.unit.TextUnit getHeight();
+    method public androidx.ui.text.TextVerticalAlign getTextVerticalAlign();
+    method public androidx.ui.unit.TextUnit getWidth();
+  }
+
   public final class Locale {
     ctor public Locale(String languageTag);
     method public String getLanguage();
@@ -300,6 +316,7 @@ package androidx.ui.text {
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
+    method public float getLineTop(int lineIndex);
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public int getMaxLines();
@@ -347,6 +364,7 @@ package androidx.ui.text {
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
+    method public float getLineTop(int lineIndex);
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
@@ -458,7 +476,14 @@ package androidx.ui.text {
     method public static String toUpperCase(String, androidx.ui.text.LocaleList localeList);
   }
 
-  public final class TextDelegateKt {
+  public final class TextFieldValue {
+    ctor public TextFieldValue(String text, androidx.ui.text.TextRange selection);
+    ctor public TextFieldValue();
+    method public String component1();
+    method public androidx.ui.text.TextRange component2();
+    method public androidx.ui.text.TextFieldValue copy(String text, androidx.ui.text.TextRange selection);
+    method public androidx.ui.text.TextRange getSelection();
+    method public String getText();
   }
 
   public final class TextLayoutHelperKt {
@@ -493,27 +518,31 @@ package androidx.ui.text {
     method public androidx.ui.text.TextLayoutResult copy(androidx.ui.text.TextLayoutInput layoutInput, androidx.ui.text.MultiParagraph multiParagraph, androidx.ui.unit.IntPxSize size);
     method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
     method public androidx.ui.geometry.Rect getBoundingBox(int offset);
+    method public androidx.ui.geometry.Rect getCursorRect(int offset);
     method public boolean getDidOverflowHeight();
     method public boolean getDidOverflowWidth();
-    method public androidx.ui.unit.IntPx getFirstBaseline();
+    method public androidx.ui.unit.Px getFirstBaseline();
     method public boolean getHasVisualOverflow();
     method public androidx.ui.unit.Px getHorizontalPosition(int offset, boolean usePrimaryDirection);
-    method public androidx.ui.unit.IntPx getLastBaseline();
+    method public androidx.ui.unit.Px getLastBaseline();
     method public androidx.ui.text.TextLayoutInput getLayoutInput();
     method public androidx.ui.unit.Px getLineBottom(int lineIndex);
     method public int getLineForOffset(int offset);
     method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
+    method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public androidx.ui.unit.IntPxSize getSize();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     property public final boolean didOverflowHeight;
     property public final boolean didOverflowWidth;
-    property public final androidx.ui.unit.IntPx firstBaseline;
+    property public final androidx.ui.unit.Px firstBaseline;
     property public final boolean hasVisualOverflow;
-    property public final androidx.ui.unit.IntPx lastBaseline;
+    property public final androidx.ui.unit.Px lastBaseline;
   }
 
-  public final class TextLayoutResultKt {
+  public final class TextPainter {
+    method public void paint(androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
+    field public static final androidx.ui.text.TextPainter! INSTANCE;
   }
 
   public final class TextRange {
@@ -538,18 +567,6 @@ package androidx.ui.text {
 
   public final class TextRangeKt {
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
-  }
-
-  public final class TextSpan {
-    ctor public TextSpan(androidx.ui.text.SpanStyle? style, String? text, java.util.List<androidx.ui.text.TextSpan> children);
-    ctor public TextSpan();
-    method public java.util.List<androidx.ui.text.TextSpan> getChildren();
-    method public androidx.ui.text.SpanStyle? getStyle();
-    method public String? getText();
-  }
-
-  public final class TextSpanKt {
-    method public static androidx.ui.text.AnnotatedString toAnnotatedString(androidx.ui.text.TextSpan);
   }
 
   public final class TextStyle {
@@ -597,44 +614,82 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.ParagraphStyle other);
     method public androidx.ui.text.ParagraphStyle toParagraphStyle();
     method public androidx.ui.text.SpanStyle toSpanStyle();
+    field public static final androidx.ui.text.TextStyle.Companion! Companion;
+  }
+
+  public static final class TextStyle.Companion {
+    method public androidx.ui.text.TextStyle getEmpty();
+    property public final androidx.ui.text.TextStyle Empty;
   }
 
   public final class TextStyleKt {
     method public static androidx.ui.text.TextStyle lerp(androidx.ui.text.TextStyle start, androidx.ui.text.TextStyle stop, float fraction);
+    method public static androidx.ui.text.TextStyle resolveDefaults(androidx.ui.text.TextStyle style, androidx.ui.core.LayoutDirection direction);
+  }
+
+  public enum TextVerticalAlign {
+    enum_constant public static final androidx.ui.text.TextVerticalAlign AboveBaseline;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign Bottom;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign Center;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign TextBottom;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign TextCenter;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign TextTop;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign Top;
   }
 
 }
 
 package androidx.ui.text.font {
 
-  public final class Font {
-    ctor public Font(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
-    method public String component1();
-    method public androidx.ui.text.font.FontWeight component2();
-    method public androidx.ui.text.font.FontStyle component3();
-    method public androidx.ui.text.font.Font copy(String name, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
-    method public String getName();
+  public abstract sealed class FileBasedFontFamily extends androidx.ui.text.font.FontFamily {
+  }
+
+  public interface Font {
     method public androidx.ui.text.font.FontStyle getStyle();
     method public androidx.ui.text.font.FontWeight getWeight();
+    property public abstract androidx.ui.text.font.FontStyle style;
+    property public abstract androidx.ui.text.font.FontWeight weight;
   }
 
   public static interface Font.ResourceLoader {
     method public Object load(androidx.ui.text.font.Font font);
   }
 
-  public final class FontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
-    ctor public FontFamily(String genericFamily);
-    ctor public FontFamily(androidx.ui.text.font.Font font);
-    ctor public FontFamily(java.util.List<androidx.ui.text.font.Font> fonts);
-    ctor public FontFamily(androidx.ui.text.font.Font... fonts);
-    method public String? component1();
-    method public java.util.List<androidx.ui.text.font.Font> component2();
+  public abstract sealed class FontFamily {
+    field public static final androidx.ui.text.font.FontFamily.Companion! Companion;
+  }
+
+  public static final class FontFamily.Companion {
+    method public androidx.ui.text.font.GenericFontFamily getCursive();
+    method public androidx.ui.text.font.SystemFontFamily getDefault();
+    method public androidx.ui.text.font.GenericFontFamily getMonospace();
+    method public androidx.ui.text.font.GenericFontFamily getSansSerif();
+    method public androidx.ui.text.font.GenericFontFamily getSerif();
+    property public final androidx.ui.text.font.GenericFontFamily Cursive;
+    property public final androidx.ui.text.font.SystemFontFamily Default;
+    property public final androidx.ui.text.font.GenericFontFamily Monospace;
+    property public final androidx.ui.text.font.GenericFontFamily SansSerif;
+    property public final androidx.ui.text.font.GenericFontFamily Serif;
+  }
+
+  public final class FontFamilyKt {
+    method public static androidx.ui.text.font.FontListFontFamily fontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
+    method public static androidx.ui.text.font.FontListFontFamily fontFamily(androidx.ui.text.font.Font... fonts);
+  }
+
+  public final class FontKt {
+    method public static androidx.ui.text.font.FontListFontFamily asFontFamily(androidx.ui.text.font.Font);
+    method public static androidx.ui.text.font.Font font(int resId, androidx.ui.text.font.FontWeight weight = FontWeight.Normal, androidx.ui.text.font.FontStyle style = androidx.ui.text.font.FontStyle.Normal);
+  }
+
+  public final class FontListFontFamily extends androidx.ui.text.font.FileBasedFontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
+    ctor public FontListFontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
+    method public java.util.List<androidx.ui.text.font.Font> component1();
     method public boolean contains(androidx.ui.text.font.Font element);
     method public boolean containsAll(java.util.Collection<?> elements);
-    method public androidx.ui.text.font.FontFamily copy(String? genericFamily, java.util.List<androidx.ui.text.font.Font> fonts);
+    method public androidx.ui.text.font.FontListFontFamily copy(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public androidx.ui.text.font.Font get(int index);
     method public java.util.List<androidx.ui.text.font.Font> getFonts();
-    method public String? getGenericFamily();
     method public int getSize();
     method public int indexOf(androidx.ui.text.font.Font element);
     method public boolean isEmpty();
@@ -643,22 +698,6 @@ package androidx.ui.text.font {
     method public java.util.ListIterator<androidx.ui.text.font.Font> listIterator();
     method public java.util.ListIterator<androidx.ui.text.font.Font> listIterator(int index);
     method public java.util.List<androidx.ui.text.font.Font> subList(int fromIndex, int toIndex);
-    field public static final androidx.ui.text.font.FontFamily.Companion! Companion;
-  }
-
-  public static final class FontFamily.Companion {
-    method public androidx.ui.text.font.FontFamily getCursive();
-    method public androidx.ui.text.font.FontFamily getMonospace();
-    method public androidx.ui.text.font.FontFamily getSansSerif();
-    method public androidx.ui.text.font.FontFamily getSerif();
-    property public final androidx.ui.text.font.FontFamily Cursive;
-    property public final androidx.ui.text.font.FontFamily Monospace;
-    property public final androidx.ui.text.font.FontFamily SansSerif;
-    property public final androidx.ui.text.font.FontFamily Serif;
-  }
-
-  public final class FontKt {
-    method public static androidx.ui.text.font.FontFamily asFontFamily(androidx.ui.text.font.Font);
   }
 
   public enum FontStyle {
@@ -708,6 +747,24 @@ package androidx.ui.text.font {
     method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight start, androidx.ui.text.font.FontWeight stop, float fraction);
   }
 
+  public final class GenericFontFamily extends androidx.ui.text.font.SystemFontFamily {
+    method public String getName();
+  }
+
+  public final class ResourceFont implements androidx.ui.text.font.Font {
+    ctor public ResourceFont(int resId, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
+    method public int component1();
+    method public androidx.ui.text.font.FontWeight component2();
+    method public androidx.ui.text.font.FontStyle component3();
+    method public androidx.ui.text.font.ResourceFont copy(int resId, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
+    method public int getResId();
+    method public androidx.ui.text.font.FontStyle getStyle();
+    method public androidx.ui.text.font.FontWeight getWeight();
+  }
+
+  public abstract sealed class SystemFontFamily extends androidx.ui.text.font.FontFamily {
+  }
+
 }
 
 package androidx.ui.text.platform {
@@ -734,8 +791,10 @@ package androidx.ui.text.style {
   }
 
   public static final class BaselineShift.Companion {
+    method public androidx.ui.text.style.BaselineShift getNone();
     method public androidx.ui.text.style.BaselineShift getSubscript();
     method public androidx.ui.text.style.BaselineShift getSuperscript();
+    property public final androidx.ui.text.style.BaselineShift None;
     property public final androidx.ui.text.style.BaselineShift Subscript;
     property public final androidx.ui.text.style.BaselineShift Superscript;
   }
@@ -809,6 +868,12 @@ package androidx.ui.text.style {
     method public androidx.ui.text.style.TextIndent copy(androidx.ui.unit.TextUnit firstLine, androidx.ui.unit.TextUnit restLine);
     method public androidx.ui.unit.TextUnit getFirstLine();
     method public androidx.ui.unit.TextUnit getRestLine();
+    field public static final androidx.ui.text.style.TextIndent.Companion! Companion;
+  }
+
+  public static final class TextIndent.Companion {
+    method public androidx.ui.text.style.TextIndent getNone();
+    property public final androidx.ui.text.style.TextIndent None;
   }
 
   public final class TextIndentKt {
@@ -818,7 +883,6 @@ package androidx.ui.text.style {
   public enum TextOverflow {
     enum_constant public static final androidx.ui.text.style.TextOverflow Clip;
     enum_constant public static final androidx.ui.text.style.TextOverflow Ellipsis;
-    enum_constant public static final androidx.ui.text.style.TextOverflow Fade;
   }
 
 }

@@ -41,6 +41,11 @@ import androidx.ui.util.lerp
          * Default baseline shift for subscript
          */
         val Subscript = BaselineShift(-0.5f)
+
+        /**
+         * Constant for no baseline shift.
+         */
+        val None = BaselineShift(0.0f)
     }
 }
 

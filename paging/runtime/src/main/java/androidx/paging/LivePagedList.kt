@@ -18,9 +18,9 @@ package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -109,7 +109,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
 }
 
 /**
- * Constructs a `LiveData<PagedList>`, from this `DataSource.Factory`, convenience for
+ * Constructs a `LiveData<PagedList>`, from this [DataSource.Factory], convenience for
  * [LivePagedListBuilder].
  *
  * No work (such as loading) is done immediately, the creation of the first [PagedList] is deferred
@@ -122,7 +122,25 @@ internal class LivePagedList<Key : Any, Value : Any>(
  *
  * @see LivePagedListBuilder
  */
-@Deprecated("DataSource is deprecated and has been replaced by PagingSource")
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """LivePagingData(
+            PagingConfig(
+                config.pageSize,
+                config.prefetchDistance,
+                config.enablePlaceholders,
+                config.initialLoadSizeHint,
+                config.maxSize
+            ),
+            initialLoadKey,
+            this.asPagingSourceFactory(fetchExecutor.asCoroutineDispatcher())
+        )""",
+        "androidx.paging.LivePagingData",
+        "androidx.paging.PagingConfig",
+        "kotlinx.coroutines.asCoroutineDispatcher"
+    )
+)
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
@@ -151,7 +169,19 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
-@Deprecated("DataSource is deprecated and has been replaced by PagingSource")
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """LivePagingData(
+            PagingConfig(pageSize),
+            initialLoadKey,
+            this.asPagingSourceFactory(fetchExecutor.asCoroutineDispatcher())
+        )""",
+        "androidx.paging.LivePagingData",
+        "androidx.paging.PagingConfig",
+        "kotlinx.coroutines.asCoroutineDispatcher"
+    )
+)
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
@@ -185,6 +215,24 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """LivePagingData(
+            PagingConfig(
+                config.pageSize,
+                config.prefetchDistance,
+                config.enablePlaceholders,
+                config.initialLoadSizeHint,
+                config.maxSize
+            ),
+            initialLoadKey,
+            this
+        )""",
+        "androidx.paging.LivePagingData",
+        "androidx.paging.PagingConfig"
+    )
+)
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
@@ -222,6 +270,18 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@Deprecated(
+    message = "PagedList is deprecated and has been replaced by PagingData",
+    replaceWith = ReplaceWith(
+        """LivePagingData(
+            PagingConfig(pageSize),
+            initialLoadKey,
+            this
+        )""",
+        "androidx.paging.LivePagingData",
+        "androidx.paging.PagingConfig"
+    )
+)
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
