@@ -23,6 +23,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.camera.view.PreviewView;
+import androidx.camera.view.preview.transform.transformation.Transformation;
 
 final class ScaleTypeTransform {
 
@@ -30,8 +31,7 @@ final class ScaleTypeTransform {
     }
 
     /**
-     * Converts a {@link PreviewView.ScaleType} to a
-     * {@link androidx.camera.view.preview.transform.Transformation}.
+     * Converts a {@link PreviewView.ScaleType} to a {@link Transformation}.
      */
     static Transformation getTransformation(@NonNull final View container, @NonNull final View view,
             @NonNull final Size bufferSize, @NonNull final PreviewView.ScaleType scaleType) {

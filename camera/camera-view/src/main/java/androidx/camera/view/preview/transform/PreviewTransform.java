@@ -23,6 +23,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.view.PreviewView;
+import androidx.camera.view.preview.transform.transformation.Transformation;
 
 /**
  * Transforms the camera preview using a supported {@link PreviewView.ScaleType} or a custom
@@ -73,8 +74,8 @@ public final class PreviewTransform {
             @NonNull final View view) {
         view.setScaleX(transformation.getScaleX());
         view.setScaleY(transformation.getScaleY());
-        view.setX(transformation.getOriginX());
-        view.setY(transformation.getOriginY());
+        view.setTranslationX(transformation.getTransX());
+        view.setTranslationY(transformation.getTransY());
         view.setRotation(transformation.getRotation());
     }
 }
