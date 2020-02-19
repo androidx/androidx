@@ -55,7 +55,7 @@ class ColoredRectTest {
         val height = 71.dp
         composeTestRule
             .setContentAndCollectSizes(
-                parentConstraints = DpConstraints.tightConstraints(
+                parentConstraints = DpConstraints.fixed(
                     width,
                     height
                 )

@@ -16,7 +16,6 @@
 
 package androidx.camera.core.impl;
 
-import android.annotation.SuppressLint;
 import android.os.SystemClock;
 
 import androidx.annotation.GuardedBy;
@@ -107,7 +106,6 @@ public final class LiveDataObservable<T> implements Observable<T> {
         });
     }
 
-    @SuppressLint("LambdaLast") // Remove after https://issuetracker.google.com/135275901
     @Override
     public void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer) {
         synchronized (mObservers) {

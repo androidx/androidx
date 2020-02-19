@@ -212,7 +212,7 @@ interface Canvas {
 
      *
      * (Incidentally, rather than using [clipRRect] to draw
-     * rounded rectangles like this, prefer the [drawRRect] method.
+     * rounded rectangles like this, prefer the [drawRoundRect] method.
      *
      * ## Performance considerations
      *
@@ -343,16 +343,15 @@ interface Canvas {
      * Draws a rounded rectangle with the given [Paint]. Whether the rectangle is
      * filled or stroked (or both) is controlled by [Paint.style].
      */
-    fun drawRRect(rrect: RRect, paint: Paint)
-
-    /**
-     * Draws a shape consisting of the difference between two rounded rectangles
-     * with the given [Paint]. Whether this shape is filled or stroked (or both)
-     * is controlled by [Paint.style].
-     *
-     * This shape is almost but not quite entirely unlike an annulus.
-     */
-    fun drawDoubleRoundRect(outer: RRect, inner: RRect, paint: Paint)
+    fun drawRoundRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        radiusX: Float,
+        radiusY: Float,
+        paint: Paint
+    )
 
     /**
      * Draws an axis-aligned oval that fills the given axis-aligned rectangle

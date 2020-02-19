@@ -44,7 +44,7 @@ class SpDeviceTest {
     fun convertSpPx() {
         val dm = activity.resources.displayMetrics
         val sp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, dm)
-        withDensity(Density(activity)) {
+        with(Density(activity)) {
             assertEquals(sp10InPx, 10.sp.toPx().value, 0.01f)
             assertEquals(10f, Px(sp10InPx).toSp().value, 0.01f)
         }
@@ -52,7 +52,7 @@ class SpDeviceTest {
 
     @Test
     fun convertSpDp() {
-        withDensity(Density(activity)) {
+        with(Density(activity)) {
             val px10InSp = Px(10f).toSp()
             val px10InDp = Px(10f).toDp()
             assertEquals(px10InDp.value, px10InSp.toDp().value, 0.01f)

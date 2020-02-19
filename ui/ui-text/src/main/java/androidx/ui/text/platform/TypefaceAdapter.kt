@@ -19,12 +19,16 @@ package androidx.ui.text.platform
 import android.graphics.Typeface
 import android.os.Build
 import androidx.collection.LruCache
+import androidx.ui.text.font.DefaultFontFamily
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.FontListFontFamily
 import androidx.ui.text.font.FontMatcher
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.GenericFontFamily
+import androidx.ui.text.font.font
 
 /**
  * Creates a Typeface based on generic font family or a custom [FontFamily].
@@ -72,20 +76,25 @@ internal open class TypefaceAdapter(
         val cachedTypeface = typefaceCache.get(cacheKey)
         if (cachedTypeface != null) return cachedTypeface
 
-        val typeface = if (fontFamily != null && fontFamily.isNotEmpty()) {
-            create(
+        val typeface = when (fontFamily) {
+            is FontListFontFamily -> create(
                 fontFamily = fontFamily,
                 fontWeight = fontWeight,
                 fontStyle = fontStyle,
                 fontSynthesis = fontSynthesis
             )
-        } else {
-            // there is no option to control fontSynthesis in framework for system fonts
-            create(
-                genericFontFamily = fontFamily?.genericFamily,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle
-            )
+            is GenericFontFamily ->
+                create(
+                    genericFontFamily = fontFamily.name,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle
+                )
+            is DefaultFontFamily, null ->
+                create(
+                    genericFontFamily = null,
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle
+                )
         }
 
         // For system Typeface, on different framework versions Typeface might not be cached,
@@ -149,14 +158,14 @@ internal open class TypefaceAdapter(
      *
      * @param fontStyle the font style to create the typeface in
      * @param fontWeight the font weight to create the typeface in
-     * @param fontFamily [FontFamily] that contains the list of [Font]s
+     * @param fontFamily [FontFamily] that contains the list of [font]s
      * @param fontSynthesis [FontSynthesis] which attributes of the font family to synthesize
      *        custom fonts for if they are not already present in the font family
      */
     private fun create(
         fontStyle: FontStyle = FontStyle.Normal,
         fontWeight: FontWeight = FontWeight.Normal,
-        fontFamily: FontFamily,
+        fontFamily: FontListFontFamily,
         fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
         val font = fontMatcher.matchFont(fontFamily, fontWeight, fontStyle)

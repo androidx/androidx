@@ -49,7 +49,6 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.core.os.HandlerCompat;
-import androidx.lifecycle.Observer;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -128,26 +127,26 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     public void setZoomRatio_getValueIsCorrect_InUIThread() {
         final float newZoomRatio = 2.0f;
-        assumeTrue(newZoomRatio <= mZoomControl.getMaxZoomRatio().getValue());
+        assumeTrue(newZoomRatio <= mZoomControl.getZoomState().getValue().getZoomRatio());
 
         // We can only ensure new value is reflected immediately on getZoomRatio on UI thread
         // because of the nature of LiveData.
         mZoomControl.setZoomRatio(newZoomRatio);
-        assertThat(mZoomControl.getZoomRatio().getValue()).isEqualTo(newZoomRatio);
+        assertThat(mZoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(newZoomRatio);
     }
 
     @Test
     @UiThreadTest
     public void setZoomRatio_largerThanMax_zoomUnmodified() {
         mZoomControl.setZoomRatio(2.0f);
-        float maxZoomRatio = mZoomControl.getMaxZoomRatio().getValue();
+        float maxZoomRatio = mZoomControl.getZoomState().getValue().getMaxZoomRatio();
         mZoomControl.setZoomRatio(maxZoomRatio + 1.0f);
-        assertThat(mZoomControl.getZoomRatio().getValue()).isEqualTo(2.0f);
+        assertThat(mZoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(2.0f);
     }
 
     @Test
     public void setZoomRatio_largerThanMax_OutOfRangeException() {
-        float maxZoomRatio = mZoomControl.getMaxZoomRatio().getValue();
+        float maxZoomRatio = mZoomControl.getZoomState().getValue().getMaxZoomRatio();
         ListenableFuture<Void> result = mZoomControl.setZoomRatio(maxZoomRatio + 1.0f);
 
         assertThrowOutOfRangeExceptionOnListenableFuture(result);
@@ -169,14 +168,14 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     public void setZoomRatio_smallerThanMin_zoomUnmodified() {
         mZoomControl.setZoomRatio(2.0f);
-        float minZoomRatio = mZoomControl.getMinZoomRatio().getValue();
+        float minZoomRatio = mZoomControl.getZoomState().getValue().getMinZoomRatio();
         mZoomControl.setZoomRatio(minZoomRatio - 1.0f);
-        assertThat(mZoomControl.getZoomRatio().getValue()).isEqualTo(2.0f);
+        assertThat(mZoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(2.0f);
     }
 
     @Test
     public void setZoomRatio_smallerThanMin_OutOfRangeException() {
-        float minZoomRatio = mZoomControl.getMinZoomRatio().getValue();
+        float minZoomRatio = mZoomControl.getZoomState().getValue().getMinZoomRatio();
         ListenableFuture<Void> result = mZoomControl.setZoomRatio(minZoomRatio - 1.0f);
         assertThrowOutOfRangeExceptionOnListenableFuture(result);
     }
@@ -232,10 +231,10 @@ public final class ZoomControlDeviceTest {
     @Test
     public void setLinearZoomBy0_isSameAsMinRatio() {
         mZoomControl.setLinearZoom(0);
-        float ratioAtPercentage0 = mZoomControl.getZoomRatio().getValue();
+        float ratioAtPercentage0 = mZoomControl.getZoomState().getValue().getZoomRatio();
 
-        mZoomControl.setZoomRatio(mZoomControl.getMinZoomRatio().getValue());
-        float ratioAtMinZoomRatio = mZoomControl.getZoomRatio().getValue();
+        mZoomControl.setZoomRatio(mZoomControl.getZoomState().getValue().getMinZoomRatio());
+        float ratioAtMinZoomRatio = mZoomControl.getZoomState().getValue().getZoomRatio();
 
         assertThat(ratioAtPercentage0).isEqualTo(ratioAtMinZoomRatio);
     }
@@ -244,10 +243,10 @@ public final class ZoomControlDeviceTest {
     @Test
     public void setLinearZoomBy1_isSameAsMaxRatio() {
         mZoomControl.setLinearZoom(1);
-        float ratioAtPercentage1 = mZoomControl.getZoomRatio().getValue();
+        float ratioAtPercentage1 = mZoomControl.getZoomState().getValue().getZoomRatio();
 
-        mZoomControl.setZoomRatio(mZoomControl.getMaxZoomRatio().getValue());
-        float ratioAtMaxZoomRatio = mZoomControl.getZoomRatio().getValue();
+        mZoomControl.setZoomRatio(mZoomControl.getZoomState().getValue().getMaxZoomRatio());
+        float ratioAtMaxZoomRatio = mZoomControl.getZoomState().getValue().getZoomRatio();
 
         assertThat(ratioAtPercentage1).isEqualTo(ratioAtMaxZoomRatio);
     }
@@ -298,7 +297,7 @@ public final class ZoomControlDeviceTest {
     public void setLinearZoom_largerThan1_zoomUnmodified() {
         mZoomControl.setLinearZoom(0.5f);
         mZoomControl.setLinearZoom(1.1f);
-        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0.5f);
+        assertThat(mZoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.5f);
     }
 
     @Test
@@ -312,7 +311,7 @@ public final class ZoomControlDeviceTest {
     public void setLinearZoom_smallerThan0_zoomUnmodified() {
         mZoomControl.setLinearZoom(0.5f);
         mZoomControl.setLinearZoom(-0.1f);
-        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0.5f);
+        assertThat(mZoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.5f);
     }
 
     @Test
@@ -324,10 +323,7 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     @Test
     public void getterLiveData_defaultValueIsNonNull() {
-        assertThat(mZoomControl.getZoomRatio().getValue()).isNotNull();
-        assertThat(mZoomControl.getLinearZoom().getValue()).isNotNull();
-        assertThat(mZoomControl.getMaxZoomRatio().getValue()).isNotNull();
-        assertThat(mZoomControl.getMinZoomRatio().getValue()).isNotNull();
+        assertThat(mZoomControl.getZoomState().getValue()).isNotNull();
     }
 
     @UiThreadTest
@@ -340,16 +336,13 @@ public final class ZoomControlDeviceTest {
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         lifecycleOwner.startAndResume();
 
-        mZoomControl.getZoomRatio().observe(lifecycleOwner, new Observer<Float>() {
-            @Override
-            public void onChanged(Float value) {
-                if (value == 1.2f) {
-                    latch1.countDown();
-                } else if (value == 1.5f) {
-                    latch2.countDown();
-                } else if (value == 2.0f) {
-                    latch3.countDown();
-                }
+        mZoomControl.getZoomState().observe(lifecycleOwner, (value) -> {
+            if (value.getZoomRatio() == 1.2f) {
+                latch1.countDown();
+            } else if (value.getZoomRatio() == 1.5f) {
+                latch2.countDown();
+            } else if (value.getZoomRatio() == 2.0f) {
+                latch3.countDown();
             }
         });
 
@@ -370,12 +363,9 @@ public final class ZoomControlDeviceTest {
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         lifecycleOwner.startAndResume();
 
-        mZoomControl.getZoomRatio().observe(lifecycleOwner, new Observer<Float>() {
-            @Override
-            public void onChanged(Float value) {
-                if (value != 1.0f) {
-                    latch.countDown();
-                }
+        mZoomControl.getZoomState().observe(lifecycleOwner, (value) -> {
+            if (value.getZoomRatio() != 1.0f) {
+                latch.countDown();
             }
         });
 
@@ -396,16 +386,13 @@ public final class ZoomControlDeviceTest {
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         lifecycleOwner.startAndResume();
 
-        mZoomControl.getLinearZoom().observe(lifecycleOwner, new Observer<Float>() {
-            @Override
-            public void onChanged(Float value) {
-                if (value == 0.1f) {
-                    latch1.countDown();
-                } else if (value == 0.2f) {
-                    latch2.countDown();
-                } else if (value == 0.3f) {
-                    latch3.countDown();
-                }
+        mZoomControl.getZoomState().observe(lifecycleOwner, (value) -> {
+            if (value.getLinearZoom() == 0.1f) {
+                latch1.countDown();
+            } else if (value.getLinearZoom() == 0.2f) {
+                latch2.countDown();
+            } else if (value.getLinearZoom() == 0.3f) {
+                latch3.countDown();
             }
         });
 
@@ -426,12 +413,9 @@ public final class ZoomControlDeviceTest {
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         lifecycleOwner.startAndResume();
 
-        mZoomControl.getLinearZoom().observe(lifecycleOwner, new Observer<Float>() {
-            @Override
-            public void onChanged(Float value) {
-                if (value != 0f) {
-                    latch.countDown();
-                }
+        mZoomControl.getZoomState().observe(lifecycleOwner, (value) -> {
+            if (value.getLinearZoom() != 0f) {
+                latch.countDown();
             }
         });
 
@@ -445,27 +429,27 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     @Test
     public void getZoomRatioDefaultValue() {
-        assertThat(mZoomControl.getZoomRatio().getValue()).isEqualTo(
+        assertThat(mZoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(
                 ZoomControl.DEFAULT_ZOOM_RATIO);
     }
 
     @UiThreadTest
     @Test
     public void getZoomPercentageDefaultValue() {
-        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0);
+        assertThat(mZoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0);
     }
 
     @UiThreadTest
     @Test
     public void getMaxZoomRatio_isMaxDigitalZoom() {
-        float maxZoom = mZoomControl.getMaxZoomRatio().getValue();
+        float maxZoom = mZoomControl.getZoomState().getValue().getMaxZoomRatio();
         assertThat(maxZoom).isEqualTo(getMaxDigitalZoom());
     }
 
     @UiThreadTest
     @Test
     public void getMinZoomRatio_isOne() {
-        float maxZoom = mZoomControl.getMinZoomRatio().getValue();
+        float maxZoom = mZoomControl.getZoomState().getValue().getMinZoomRatio();
         assertThat(maxZoom).isEqualTo(1f);
     }
 
@@ -476,7 +460,7 @@ public final class ZoomControlDeviceTest {
 
     @Test
     public void getMaxZoomRatio_isEqualToMaxDigitalZoom() {
-        float maxZoom = mZoomControl.getMaxZoomRatio().getValue();
+        float maxZoom = mZoomControl.getZoomState().getValue().getMaxZoomRatio();
 
         assertThat(maxZoom).isEqualTo(getMaxDigitalZoom());
     }
@@ -489,8 +473,8 @@ public final class ZoomControlDeviceTest {
 
         mZoomControl.setActive(false);
 
-        assertThat(mZoomControl.getZoomRatio().getValue()).isEqualTo(
+        assertThat(mZoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(
                 ZoomControl.DEFAULT_ZOOM_RATIO);
-        assertThat(mZoomControl.getLinearZoom().getValue()).isEqualTo(0);
+        assertThat(mZoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0);
     }
 }

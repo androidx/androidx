@@ -102,6 +102,7 @@ class TakePictureTest {
 
         // Returns to Home to restart next test.
         mDevice.pressHome()
+        mDevice.waitForIdle(3000)
     }
 
     private fun checkPreviewReady() {

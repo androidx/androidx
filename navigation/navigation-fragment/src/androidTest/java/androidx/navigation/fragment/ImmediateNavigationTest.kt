@@ -89,8 +89,8 @@ class NavigateOnResumeFragment : Fragment() {
         // Only automatically navigate in onResume the first time to avoid getting
         // stuck in a loop
         if (shouldNavigateInOnResume) {
-            NavHostFragment.findNavController(this).navigate(R.id.deep_link_test)
             shouldNavigateInOnResume = false
+            NavHostFragment.findNavController(this).navigate(R.id.deep_link_test)
         }
     }
 }

@@ -64,7 +64,7 @@ public class WebViewClientCompatTest {
     }
 
     @After
-    public void cleanUp() throws IOException {
+    public void tearDown() throws IOException {
         if (mWebViewOnUiThread != null) {
             mWebViewOnUiThread.cleanUp();
         }

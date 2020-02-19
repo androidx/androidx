@@ -19,15 +19,16 @@ package androidx.ui.material.surface
 import androidx.compose.Composable
 import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.core.Draw
 import androidx.ui.core.DrawShadow
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
+import androidx.ui.foundation.Border
+import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.ProvideContentColor
-import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
-import androidx.ui.foundation.shape.border.Border
-import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
@@ -75,7 +76,7 @@ import kotlin.math.ln
  * @param contentColor The preferred content color provided by this Surface to its children.
  * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
  * the theme, this will keep the same value set above this Surface.
- * @param border Optional border to draw on top of the shape.
+ * @param border Optional border to draw on top of the surface
  * @param elevation The z-coordinate at which to place this surface. This controls
  * the size of the shadow below the surface.
  */
@@ -89,20 +90,33 @@ fun Surface(
     elevation: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
-    SurfaceLayout(modifier) {
+    val borderModifier =
+        if (border != null) DrawBorder(border, shape) else Modifier.None
+    SurfaceLayout(modifier + borderModifier) {
         if (elevation > 0.dp) {
             DrawShadow(shape = shape, elevation = elevation)
         }
         val backgroundColor = getBackgroundColorForElevation(color, elevation)
-        DrawShape(shape = shape, color = backgroundColor)
+        val background = DrawBackground(shape = shape, color = backgroundColor)
+        Draw { canvas, size ->
+            background.draw(this, {}, canvas, size)
+        }
         Clip(shape = shape) {
             ProvideContentColor(contentColor, children)
         }
-        if (border != null) {
-            DrawBorder(shape = shape, border = border)
-        }
     }
 }
+
+/**
+ * primarySurface represents the background color of components that are [ColorPalette.primary]
+ * in light theme, and [ColorPalette.surface] in dark theme, such as [androidx.ui.material.TabRow]
+ * and [androidx.ui.material.TopAppBar]. This is to reduce brightness of large surfaces in dark
+ * theme, aiding contrast and readability. See
+ * [Dark Theme](https://material.io/design/color/dark-theme.html#custom-application).
+ *
+ * @return [ColorPalette.primary] if in light theme, else [ColorPalette.surface]
+ */
+val ColorPalette.primarySurface: Color get() = if (isLight) primary else surface
 
 /**
  * A simple layout which just reserves a space for a [Surface].

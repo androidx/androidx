@@ -274,17 +274,11 @@ class FlattenedPageEventStorageTest {
                 is Drop -> {
                     throw IllegalStateException("shouldn't have any drops")
                 }
-                is PageEvent.StateUpdate -> {
+                is PageEvent.LoadStateUpdate -> {
                     when (event.loadType) {
-                        REFRESH -> snapshot.copy(
-                            refreshState = event.loadState
-                        )
-                        START -> snapshot.copy(
-                            startState = event.loadState
-                        )
-                        END -> snapshot.copy(
-                            endState = event.loadState
-                        )
+                        REFRESH -> snapshot.copy(refreshState = event.loadState)
+                        START -> snapshot.copy(startState = event.loadState)
+                        END -> snapshot.copy(endState = event.loadState)
                     }
                 }
             }

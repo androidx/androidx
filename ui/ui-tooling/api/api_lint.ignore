@@ -1,17 +1,3 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.ui.tooling.CallGroup#CallGroup(Object, androidx.ui.unit.PxBounds, Object[], androidx.ui.tooling.Group[]) parameter #2:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.ui.tooling.CallGroup#CallGroup(Object, androidx.ui.unit.PxBounds, Object[], androidx.ui.tooling.Group[]) parameter #3:
-    Method parameter should be Collection<Group> (or subclass) instead of raw array; was `androidx.ui.tooling.Group[]`
-ArrayReturn: androidx.ui.tooling.Group#getChildren():
-    Method should return Collection<Group> (or subclass) instead of raw array; was `androidx.ui.tooling.Group[]`
-ArrayReturn: androidx.ui.tooling.Group#getData():
-    Method should return Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.ui.tooling.NodeGroup#NodeGroup(Object, Object, androidx.ui.unit.PxBounds, Object[], androidx.ui.tooling.Group[]) parameter #3:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.ui.tooling.NodeGroup#NodeGroup(Object, Object, androidx.ui.unit.PxBounds, Object[], androidx.ui.tooling.Group[]) parameter #4:
-    Method parameter should be Collection<Group> (or subclass) instead of raw array; was `androidx.ui.tooling.Group[]`
-
-
 MissingNullability: androidx.ui.tooling.InspectableKt#getTables():
     Missing nullability on method `getTables` return

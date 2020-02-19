@@ -52,13 +52,13 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_onReleaseNotCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         verify(recognizer.onRelease!!, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downConsumedUp_onReleaseNotCalled() {
-        var pointer = down().consumeDownChange()
+        var pointer = down(0, 0.milliseconds).consumeDownChange()
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -68,7 +68,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveConsumedUp_onReleaseNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f).consume(5f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -80,7 +80,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUpConsumed_onReleaseNotCalled() {
-        var pointer = down().consumeDownChange()
+        var pointer = down(0, 0.milliseconds).consumeDownChange()
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds).consumeDownChange()
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -90,7 +90,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeXUp_onReleaseNotCalled() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, -1f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -102,7 +102,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveXUp_onReleaseNotCalled() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -114,7 +114,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeYUp_onReleaseNotCalled() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, -1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -126,7 +126,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveYUp_onReleaseNotCalled() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -139,7 +139,7 @@ class PressReleasedGestureDetectorTest {
     @Test
     fun pointerInputHandler_disabledDownUp_onReleaseNotCalled() {
         recognizer.setEnabled(false)
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -150,7 +150,7 @@ class PressReleasedGestureDetectorTest {
     @Test
     fun pointerInputHandler_disabledDownEnabledUp_onReleaseNotCalled() {
         recognizer.setEnabled(false)
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(true)
         pointer = pointer.up(100.milliseconds)
@@ -161,7 +161,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downDisabledUp_onReleaseNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
         pointer = pointer.up(100.milliseconds)
@@ -174,7 +174,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downUp_onReleaseCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -184,7 +184,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveUp_onReleaseCalledOnce() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -196,13 +196,13 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsUpDownUp_onReleaseCalledOnce() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
-        pointer = down(duration = 150.milliseconds, x = 0f, y = 0f)
+        pointer = down(1, duration = 150.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(200.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -212,7 +212,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downEnabledUp_onReleaseCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(true)
         pointer = pointer.up(100.milliseconds)
@@ -226,14 +226,16 @@ class PressReleasedGestureDetectorTest {
     @Test
     fun pointerInputHandler_consumeDownOnStartIsFalse_downChangeNotConsumed() {
         recognizer.consumeDownOnStart = false
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        val pointerEventChange =
+            recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
     }
 
     @Test
     fun pointerInputHandler_disabledAndConsumeDownOnStartIsDefault_downChangeNotConsumed() {
         recognizer.setEnabled(false)
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        val pointerEventChange =
+            recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
     }
 
@@ -241,7 +243,8 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_consumeDownOnStartIsDefault_downChangeConsumed() {
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(down())
+        val pointerEventChange =
+            recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         assertThat(pointerEventChange.consumed.downChange, `is`(true))
     }
 
@@ -250,7 +253,7 @@ class PressReleasedGestureDetectorTest {
     @Test
     fun pointerInputHandler_disabledDownUp_upChangeNotConsumed() {
         recognizer.setEnabled(false)
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -261,7 +264,7 @@ class PressReleasedGestureDetectorTest {
     @Test
     fun pointerInputHandler_disabledDownEnabledUp_upChangeNotConsumed() {
         recognizer.setEnabled(false)
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(true)
         pointer = pointer.up(100.milliseconds)
@@ -272,7 +275,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downDisabledUp_upChangeNotConsumed() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
         pointer = pointer.up(100.milliseconds)
@@ -283,7 +286,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeXUp_upChangeNotConsumed() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, -1f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -296,7 +299,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveXUp_upChangeNotConsumed() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -309,7 +312,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeYUp_upChangeNotConsumed() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, -1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -322,7 +325,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveYUp_upChangeNotConsumed() {
-        var pointer = down(x = 0f, y = 0f)
+        var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
@@ -338,7 +341,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_upChangeConsumed() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
         val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
@@ -349,7 +352,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_downChangeConsumedDuringPostUp() {
-        var pointerEventChange = down()
+        var pointerEventChange = down(0, 0.milliseconds)
         pointerEventChange = recognizer.pointerInputHandler.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.InitialDown,
@@ -368,7 +371,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_upChangeConsumedDuringPostUp() {
-        val pointer = down()
+        val pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         var pointerEventChange = pointer.up(100.milliseconds)
         pointerEventChange = recognizer.pointerInputHandler.invokeOverPasses(
@@ -391,7 +394,7 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun cancelationHandler_downCancelUp_onReleaseNotCalled() {
-        var pointer = down()
+        var pointer = down(0, 0.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
         recognizer.cancelHandler()
         pointer = pointer.up(100.milliseconds)

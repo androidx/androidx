@@ -23,7 +23,7 @@ interface Brush {
     fun applyTo(p: Paint)
 }
 
-class SolidColor(val value: Color) : Brush {
+data class SolidColor(val value: Color) : Brush {
     override fun applyTo(p: Paint) {
         p.color = value
     }

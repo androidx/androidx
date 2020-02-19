@@ -11,45 +11,29 @@ RemovedClass: androidx.media2.common.MediaMetadata.RatingKey:
     Removed class androidx.media2.common.MediaMetadata.RatingKey
 RemovedClass: androidx.media2.common.MediaMetadata.TextKey:
     Removed class androidx.media2.common.MediaMetadata.TextKey
+RemovedClass: androidx.media2.common.ParcelImplListSlice:
+    Removed class androidx.media2.common.ParcelImplListSlice
+RemovedClass: androidx.media2.common.SessionPlayer.BuffState:
+    Removed class androidx.media2.common.SessionPlayer.BuffState
 RemovedClass: androidx.media2.common.SessionPlayer.PlayerResult.ResultCode:
     Removed class androidx.media2.common.SessionPlayer.PlayerResult.ResultCode
+RemovedClass: androidx.media2.common.SessionPlayer.PlayerState:
+    Removed class androidx.media2.common.SessionPlayer.PlayerState
+RemovedClass: androidx.media2.common.SessionPlayer.RepeatMode:
+    Removed class androidx.media2.common.SessionPlayer.RepeatMode
+RemovedClass: androidx.media2.common.SessionPlayer.ShuffleMode:
+    Removed class androidx.media2.common.SessionPlayer.ShuffleMode
 
 
 RemovedField: androidx.media2.common.MediaMetadata#METADATA_KEY_RADIO_FREQUENCY:
     Removed field androidx.media2.common.MediaMetadata.METADATA_KEY_RADIO_FREQUENCY
 RemovedField: androidx.media2.common.MediaMetadata#METADATA_KEY_RADIO_PROGRAM_NAME:
     Removed field androidx.media2.common.MediaMetadata.METADATA_KEY_RADIO_PROGRAM_NAME
-RemovedField: androidx.media2.common.SubtitleData#MIMETYPE_TEXT_CEA_608:
-    Removed field androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_608
-RemovedField: androidx.media2.common.SubtitleData#MIMETYPE_TEXT_CEA_708:
-    Removed field androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_708
-RemovedField: androidx.media2.common.SubtitleData#MIMETYPE_TEXT_VTT:
-    Removed field androidx.media2.common.SubtitleData.MIMETYPE_TEXT_VTT
 
 
-RemovedMethod: androidx.media2.common.MediaParcelUtils#MediaParcelUtils():
-    Removed constructor androidx.media2.common.MediaParcelUtils()
-RemovedMethod: androidx.media2.common.SessionPlayer#deselectTrackInternal(androidx.media2.common.SessionPlayer.TrackInfo):
-    Removed method androidx.media2.common.SessionPlayer.deselectTrackInternal(androidx.media2.common.SessionPlayer.TrackInfo)
-RemovedMethod: androidx.media2.common.SessionPlayer#getSelectedTrackInternal(int):
-    Removed method androidx.media2.common.SessionPlayer.getSelectedTrackInternal(int)
-RemovedMethod: androidx.media2.common.SessionPlayer#getTrackInfoInternal():
-    Removed method androidx.media2.common.SessionPlayer.getTrackInfoInternal()
-RemovedMethod: androidx.media2.common.SessionPlayer#getVideoSizeInternal():
-    Removed method androidx.media2.common.SessionPlayer.getVideoSizeInternal()
-RemovedMethod: androidx.media2.common.SessionPlayer#selectTrackInternal(androidx.media2.common.SessionPlayer.TrackInfo):
-    Removed method androidx.media2.common.SessionPlayer.selectTrackInternal(androidx.media2.common.SessionPlayer.TrackInfo)
-RemovedMethod: androidx.media2.common.SessionPlayer#setSurfaceInternal(android.view.Surface):
-    Removed method androidx.media2.common.SessionPlayer.setSurfaceInternal(android.view.Surface)
-RemovedMethod: androidx.media2.common.SessionPlayer.PlayerCallback#onTrackInfoChanged(androidx.media2.common.SessionPlayer, java.util.List<androidx.media2.common.SessionPlayer.TrackInfo>):
-    Removed method androidx.media2.common.SessionPlayer.PlayerCallback.onTrackInfoChanged(androidx.media2.common.SessionPlayer,java.util.List<androidx.media2.common.SessionPlayer.TrackInfo>)
-RemovedMethod: androidx.media2.common.SessionPlayer.PlayerCallback#onVideoSizeChangedInternal(androidx.media2.common.SessionPlayer, androidx.media2.common.MediaItem, androidx.media2.common.VideoSize):
-    Removed method androidx.media2.common.SessionPlayer.PlayerCallback.onVideoSizeChangedInternal(androidx.media2.common.SessionPlayer,androidx.media2.common.MediaItem,androidx.media2.common.VideoSize)
-RemovedMethod: androidx.media2.common.SessionPlayer.TrackInfo#TrackInfo(int, androidx.media2.common.MediaItem, int, android.media.MediaFormat):
-    Removed constructor androidx.media2.common.SessionPlayer.TrackInfo(int,androidx.media2.common.MediaItem,int,android.media.MediaFormat)
-RemovedMethod: androidx.media2.common.SessionPlayer.TrackInfo#getMediaItem():
-    Removed method androidx.media2.common.SessionPlayer.TrackInfo.getMediaItem()
-
-
-RemovedPackage: androidx.media2.common.futures:
-    Removed package androidx.media2.common.futures
+RemovedMethod: androidx.media2.common.FileMediaItem#decreaseRefCount():
+    Removed method androidx.media2.common.FileMediaItem.decreaseRefCount()
+RemovedMethod: androidx.media2.common.FileMediaItem#increaseRefCount():
+    Removed method androidx.media2.common.FileMediaItem.increaseRefCount()
+RemovedMethod: androidx.media2.common.MediaMetadata#getObject(String):
+    Removed method androidx.media2.common.MediaMetadata.getObject(String)

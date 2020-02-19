@@ -24,12 +24,11 @@ import androidx.ui.core.Ref
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.withDensity
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -40,7 +39,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class AspectRatioModifierTest : LayoutTest() {
     @Test
-    fun testAspectRatioModifier_intrinsicDimensions() = withDensity(density) {
+    fun testAspectRatioModifier_intrinsicDimensions() = with(density) {
         testIntrinsics(@Composable {
             Container(modifier = LayoutAspectRatio(2f), width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -72,29 +71,29 @@ class AspectRatioModifierTest : LayoutTest() {
 
     @Test
     fun testAspectRatio_sizesCorrectly() {
-        assertEquals(PxSize(30.px, 30.px), getSize(1f, Constraints(maxWidth = 30.ipx)))
-        assertEquals(PxSize(30.px, 15.px), getSize(2f, Constraints(maxWidth = 30.ipx)))
+        assertEquals(IntPxSize(30.ipx, 30.ipx), getSize(1f, Constraints(maxWidth = 30.ipx)))
+        assertEquals(IntPxSize(30.ipx, 15.ipx), getSize(2f, Constraints(maxWidth = 30.ipx)))
         assertEquals(
-            PxSize(10.px, 10.px),
+            IntPxSize(10.ipx, 10.ipx),
             getSize(1f, Constraints(maxWidth = 30.ipx, maxHeight = 10.ipx))
         )
         assertEquals(
-            PxSize(20.px, 10.px),
+            IntPxSize(20.ipx, 10.ipx),
             getSize(2f, Constraints(maxWidth = 30.ipx, maxHeight = 10.ipx))
         )
         assertEquals(
-            PxSize(10.px, 5.px),
+            IntPxSize(10.ipx, 5.ipx),
             getSize(2f, Constraints(minWidth = 10.ipx, minHeight = 5.ipx))
         )
         assertEquals(
-            PxSize(20.px, 10.px),
+            IntPxSize(20.ipx, 10.ipx),
             getSize(2f, Constraints(minWidth = 5.ipx, minHeight = 10.ipx))
         )
     }
 
-    private fun getSize(aspectRatio: Float, childContraints: Constraints): PxSize {
+    private fun getSize(aspectRatio: Float, childContraints: Constraints): IntPxSize {
         val positionedLatch = CountDownLatch(1)
-        val size = Ref<PxSize>()
+        val size = Ref<IntPxSize>()
         val position = Ref<PxPosition>()
         show {
             Layout(@Composable {

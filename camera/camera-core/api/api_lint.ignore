@@ -1,9 +1,3 @@
 // Baseline format: 1.0
-HiddenTypeParameter: androidx.camera.core.CameraXConfig#OPTION_TARGET_CLASS:
-    Field CameraXConfig.OPTION_TARGET_CLASS references hidden type androidx.camera.core.impl.Config.Option<java.lang.Class<?>>.
-HiddenTypeParameter: androidx.camera.core.CameraXConfig#OPTION_TARGET_NAME:
-    Field CameraXConfig.OPTION_TARGET_NAME references hidden type androidx.camera.core.impl.Config.Option<java.lang.String>.
-
-
 TopLevelBuilder: androidx.camera.core.ExtendableBuilder:
     Builder should be defined as inner class: androidx.camera.core.ExtendableBuilder

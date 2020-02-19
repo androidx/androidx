@@ -17,7 +17,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item app:alpha="?android:disabledAlpha"
-          android:color="?colorPrimary"
+          android:color="@color/custom"
           android:state_enabled="false"/>
-    <item android:color="?colorPrimary"/>
+    <item android:color="@color/custom"/>
 </selector>

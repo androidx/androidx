@@ -19,7 +19,6 @@ package androidx.ui.res
 import androidx.annotation.ArrayRes
 import androidx.annotation.StringRes
 import androidx.compose.Composable
-import androidx.compose.ambient
 import androidx.ui.core.ContextAmbient
 
 /**
@@ -30,7 +29,7 @@ import androidx.ui.core.ContextAmbient
  */
 @Composable
 fun stringResource(@StringRes id: Int): String {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     return context.resources.getString(id)
 }
 
@@ -43,7 +42,7 @@ fun stringResource(@StringRes id: Int): String {
  */
 @Composable
 fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     return context.resources.getString(id, *formatArgs)
 }
 
@@ -55,6 +54,6 @@ fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
  */
 @Composable
 fun stringArrayResource(@ArrayRes id: Int): Array<String> {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     return context.resources.getStringArray(id)
 }

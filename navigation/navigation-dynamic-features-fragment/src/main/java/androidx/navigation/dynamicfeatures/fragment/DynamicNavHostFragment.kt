@@ -17,10 +17,10 @@
 package androidx.navigation.dynamicfeatures.fragment
 
 import androidx.navigation.NavController
+import androidx.navigation.dynamicfeatures.DynamicActivityNavigator
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator
 import androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator
 import androidx.navigation.dynamicfeatures.DynamicInstallManager
-import androidx.navigation.dynamicfeatures.activity.DynamicActivityNavigator
 import androidx.navigation.dynamicfeatures.fragment.ui.DefaultProgressFragment
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.plusAssign

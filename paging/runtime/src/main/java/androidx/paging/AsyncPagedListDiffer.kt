@@ -27,9 +27,6 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.CopyOnWriteArrayList
 
-typealias OnCurrentListChanged<T> =
-            (previousList: PagedList<T>?, currentList: PagedList<T>?) -> Unit
-
 /**
  * Helper object for mapping a [androidx.paging.PagedList] into a
  * [RecyclerView.Adapter][androidx.recyclerview.widget.RecyclerView.Adapter].
@@ -115,6 +112,13 @@ typealias OnCurrentListChanged<T> =
  *
  * @param T Type of the PagedLists this differ will receive.
  */
+@Deprecated(
+    message = "AsyncPagedListDiffer is deprecated and has been replaced by AsyncPagingDataDiffer",
+    replaceWith = ReplaceWith(
+        "AsyncPagingDataDiffer<T>",
+        "androidx.paging.AsyncPagingDataDiffer"
+    )
+)
 open class AsyncPagedListDiffer<T : Any> {
     /**
      * updateCallback notifications must only be notified *after* new data and item count are stored
@@ -213,17 +217,49 @@ open class AsyncPagedListDiffer<T : Any> {
     }
 
     /**
-     * Convenience for `AsyncPagedListDiffer(new AdapterListUpdateCallback(adapter),
-     * new AsyncDifferConfig.Builder<T>(diffCallback).build();`
+     * Convenience for
+     *
+     * ```
+     * AsyncPagedListDiffer(
+     *     AdapterListUpdateCallback(adapter),
+     *     AsyncDifferConfig.Builder<T>(diffCallback).build()
+     * )
+     * ```
      *
      * @param adapter Adapter that will receive update signals.
      * @param diffCallback The [DiffUtil.ItemCallback] instance to compare items in the list.
      */
+    @Deprecated(
+        message = "PagedList is deprecated and has been replaced by PagingData",
+        replaceWith = ReplaceWith(
+            """AsyncPagingDataDiffer(
+                Dispatchers.Main,
+                Dispatchers.IO,
+                diffCallback,
+                listUpdateCallback
+            )""",
+            "androidx.paging.AsyncPagingDataDiffer",
+            "kotlinx.coroutines.Dispatchers"
+        )
+    )
     constructor(adapter: RecyclerView.Adapter<*>, diffCallback: DiffUtil.ItemCallback<T>) {
         updateCallback = AdapterListUpdateCallback(adapter)
         config = AsyncDifferConfig.Builder(diffCallback).build()
     }
 
+    @Deprecated(
+        message = "PagedList is deprecated and has been replaced by PagingData",
+        replaceWith = ReplaceWith(
+            """AsyncPagingDataDiffer(
+                Dispatchers.Main,
+                Dispatchers.IO,
+                config.diffCallback,
+                listUpdateCallback
+            )""",
+            "androidx.paging.AsyncPagingDataDiffer",
+            "kotlinx.coroutines.Dispatchers"
+        )
+    )
     constructor(listUpdateCallback: ListUpdateCallback, config: AsyncDifferConfig<T>) {
         updateCallback = listUpdateCallback
         this.config = config

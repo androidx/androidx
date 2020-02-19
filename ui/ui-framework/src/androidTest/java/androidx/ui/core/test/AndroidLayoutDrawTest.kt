@@ -27,7 +27,10 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.Compose
+import androidx.compose.FrameManager
 import androidx.compose.Model
+import androidx.compose.Providers
+import androidx.compose.emptyContent
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -40,9 +43,12 @@ import androidx.ui.core.Draw
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
+import androidx.ui.core.ModifierScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
@@ -53,7 +59,6 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.draw
 import androidx.ui.core.drawWithContent
 import androidx.ui.core.globalPosition
-import androidx.ui.core.looseMin
 import androidx.ui.core.offset
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
@@ -64,7 +69,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -101,6 +105,8 @@ class AndroidLayoutDrawTest {
     val activityTestRule = ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
+    @get:Rule
+    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 
@@ -392,8 +398,8 @@ class AndroidLayoutDrawTest {
         val childrenCount = 3
         val childConstraints = arrayOf(
             Constraints(),
-            Constraints.tightConstraintsForWidth(50.ipx),
-            Constraints.tightConstraintsForHeight(50.ipx)
+            Constraints.fixedWidth(50.ipx),
+            Constraints.fixedHeight(50.ipx)
         )
         val headerChildrenCount = 1
         val footerChildrenCount = 2
@@ -404,17 +410,17 @@ class AndroidLayoutDrawTest {
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[0], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {}, modifier = LayoutTag("header"))
+                    }, children = emptyContent(), modifier = LayoutTag("header"))
                 }
                 val footer = @Composable {
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[1], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {}, modifier = LayoutTag("footer"))
+                    }, children = emptyContent(), modifier = LayoutTag("footer"))
                     Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[2], constraints)
                         layout(0.ipx, 0.ipx) {}
-                    }, children = {}, modifier = LayoutTag("footer"))
+                    }, children = emptyContent(), modifier = LayoutTag("footer"))
                 }
 
                 Layout({ header(); footer() }) { measurables, _ ->
@@ -441,12 +447,12 @@ class AndroidLayoutDrawTest {
             activity.setContentInFrameLayout {
                 val header = @Composable {
                     ParentData(data = 0) {
-                        Layout(children = {}) { _, _ -> layout(0.ipx, 0.ipx) {} }
+                        Layout(children = emptyContent()) { _, _ -> layout(0.ipx, 0.ipx) {} }
                     }
                 }
                 val footer = @Composable {
                     ParentData(data = 1) {
-                        Layout(children = {}) { _, _ -> layout(0.ipx, 0.ipx) {} }
+                        Layout(children = emptyContent()) { _, _ -> layout(0.ipx, 0.ipx) {} }
                     }
                 }
 
@@ -465,9 +471,12 @@ class AndroidLayoutDrawTest {
 
         setContentView(root)
         Compose.composeInto(root.root, context = this) {
-            ContextAmbient.Provider(value = this) {
-                DensityAmbient.Provider(value = Density(this), children = composable)
-            }
+            Providers(
+                ContextAmbient provides this,
+                DensityAmbient provides Density(this),
+                LayoutDirectionAmbient provides LayoutDirection.Ltr,
+                children = composable
+            )
         }
     }
 
@@ -1538,7 +1547,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 Layout(children = {
-                    Layout(children = {}) { _, _ ->
+                    Layout(children = emptyContent()) { _, _ ->
                         latch.countDown()
                         layout(model.size, model.size) {}
                     }
@@ -1567,7 +1576,7 @@ class AndroidLayoutDrawTest {
             activity.setContentInFrameLayout {
                 Layout(children = {
                     RepaintBoundary {
-                        Layout(children = {}) { _, _ ->
+                        Layout(children = emptyContent()) { _, _ ->
                             latch.countDown()
                             layout(model.size, model.size) {}
                         }
@@ -1848,7 +1857,7 @@ class AndroidLayoutDrawTest {
                     canvas.drawRect(Rect(10f, 10f, 20f, 20f), paint)
                     drawLatch.countDown()
                 }
-                FixedSize(30.ipx, colorModifier) {}
+                FixedSize(30.ipx, colorModifier)
             }
         }
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
@@ -1869,9 +1878,7 @@ class AndroidLayoutDrawTest {
                 )
                 ) {
                     Padding(10.ipx) {
-                        FixedSize(10.ipx,
-                            background(color = innerColor)
-                        ) {}
+                        FixedSize(10.ipx, background(color = innerColor))
                     }
                 }
             }
@@ -2022,10 +2029,52 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    @Test
+    fun requestRemeasureForAlreadyMeasuredChildWhileTheParentIsStillMeasuring() {
+        val drawlatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(children = {
+                    val state = state { false }
+                    var lastLayoutValue: Boolean = false
+                    Layout(children = {
+                        Draw { _, _ ->
+                            // this verifies the layout was remeasured before being drawn
+                            assertTrue(lastLayoutValue)
+                            drawlatch.countDown()
+                        }
+                    }) { _, _ ->
+                        lastLayoutValue = state.value
+                        // this registers the value read
+                        if (!state.value) {
+                            // change the value right inside the measure block
+                            // it will cause one more remeasure pass as we also read this value
+                            state.value = true
+                        }
+                        layout(100.ipx, 100.ipx) {}
+                    }
+                    FixedSize(30.ipx, children = emptyContent())
+                }) { measurables, constraints ->
+                    val (first, second) = measurables
+                    val firstPlaceable = first.measure(constraints)
+                    // switch frame, as inside the measure block we changed the model value
+                    // this will trigger requestRemeasure on this first layout
+                    FrameManager.nextFrame()
+                    val secondPlaceable = second.measure(constraints)
+                    layout(30.ipx, 30.ipx) {
+                        firstPlaceable.place(0.ipx, 0.ipx)
+                        secondPlaceable.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
+        assertTrue(drawlatch.await(1, TimeUnit.SECONDS))
+    }
+
     private val AlignTopLeft = object : LayoutModifier {
-        override fun DensityScope.modifyConstraints(constraints: Constraints) =
-            constraints.looseMin()
-        override fun DensityScope.modifySize(
+        override fun ModifierScope.modifyConstraints(constraints: Constraints) =
+            constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+        override fun ModifierScope.modifySize(
             constraints: Constraints,
             childSize: IntPxSize
         ) = IntPxSize(constraints.maxWidth, constraints.maxHeight)
@@ -2254,10 +2303,10 @@ fun AtLeastSize(
 fun FixedSize(
     size: IntPx,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit = {}
+    children: @Composable() () -> Unit = emptyContent()
 ) {
     Layout(children = children, modifier = modifier) { measurables, _ ->
-        val newConstraints = Constraints.tightConstraints(size, size)
+        val newConstraints = Constraints.fixed(size, size)
         val placeables = measurables.map { m ->
             m.measure(newConstraints)
         }
@@ -2298,7 +2347,7 @@ fun Align(children: @Composable() () -> Unit) {
 }
 
 @Composable
-fun Padding(size: IntPx, children: @Composable() () -> Unit) {
+internal fun Padding(size: IntPx, children: @Composable() () -> Unit) {
     Layout(
         measureBlock = { measurables, constraints ->
             val totalDiff = size * 2
@@ -2335,7 +2384,7 @@ fun TwoMeasureLayout(
     Layout(children = children) { measurables, _ ->
         val testConstraints = Constraints()
         measurables.forEach { it.measure(testConstraints) }
-        val childConstraints = Constraints.tightConstraints(size, size)
+        val childConstraints = Constraints.fixed(size, size)
         try {
             val placeables2 = measurables.map { it.measure(childConstraints) }
             fail("Measuring twice on the same Measurable should throw an exception")
@@ -2481,30 +2530,30 @@ data class PaddingModifier(
     val bottom: IntPx = 0.ipx
 ) : LayoutModifier {
 
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.minIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
                 (left + right)
 
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.maxIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
                 (left + right)
 
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.minIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
                 (top + bottom)
 
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.maxIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
                 (top + bottom)
 
-    override fun DensityScope.modifyConstraints(
+    override fun ModifierScope.modifyConstraints(
         constraints: Constraints
     ) = constraints.offset(
         horizontal = -left - right,
         vertical = -top - bottom
     )
 
-    override fun DensityScope.modifySize(
+    override fun ModifierScope.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ) = IntPxSize(
@@ -2514,7 +2563,7 @@ data class PaddingModifier(
             .coerceIn(constraints.minHeight, constraints.maxHeight)
     )
 
-    override fun DensityScope.modifyPosition(
+    override fun ModifierScope.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ) = IntPxPosition(left, top)
@@ -2625,7 +2674,7 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
         paint.style = PaintingStyle.fill
     }
 
-    override fun DensityScope.modifyPosition(
+    override fun ModifierScope.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ): IntPxPosition {
@@ -2635,11 +2684,11 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
         )
     }
 
-    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
-        return Constraints.tightConstraints(10.ipx, 10.ipx)
+    override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints {
+        return Constraints.fixed(10.ipx, 10.ipx)
     }
 
-    override fun DensityScope.modifySize(
+    override fun ModifierScope.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ): IntPxSize {

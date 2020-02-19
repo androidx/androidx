@@ -39,6 +39,7 @@ dependencies {
     implementation project(":ui:ui-util")
     api project(":ui:ui-core")
     api project(":ui:ui-foundation")
+    api project(":ui:ui-material-icons-core")
     api project(":ui:ui-text")
 
     implementation project(":ui:ui-framework")

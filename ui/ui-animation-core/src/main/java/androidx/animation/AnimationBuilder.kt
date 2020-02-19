@@ -178,8 +178,10 @@ abstract class DurationBasedAnimationBuilder<T> : AnimationBuilder<T>() {
  */
 class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
     /**
-     * Easing (a.k.a interpolator) for the Tween animation.
-     * Default: [FastOutSlowInEasing]
+     * Easing function for the Tween animation. Default: [FastOutSlowInEasing]
+     *
+     * Easing functions define the rate of change of the value being animated. They allow animation
+     * to accelerate or decelerate in a specific pattern.
      */
     var easing: Easing = FastOutSlowInEasing
 

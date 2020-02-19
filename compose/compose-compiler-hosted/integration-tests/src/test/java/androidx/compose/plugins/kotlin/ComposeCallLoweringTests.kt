@@ -19,15 +19,14 @@ package androidx.compose.plugins.kotlin
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.Composer
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -191,11 +190,11 @@ class ComposeCallLoweringTests : AbstractCodegenTest() {
             """
                 import androidx.compose.*
 
-                val x = Ambient.of<Int> { 123 }
+                val x = ambientOf<Int> { 123 }
 
                 @Composable
                 fun test() {
-                    x.Provider(456) {
+                    Providers(x provides 456) {
 
                     }
                 }
@@ -222,16 +221,14 @@ class ComposeCallLoweringTests : AbstractCodegenTest() {
     fun testReceiverLambda2(): Unit = ensureSetup {
         codegen(
             """
-                import androidx.compose.*
-
                 class DensityScope(val density: Density)
 
                 class Density
 
-                val DensityAmbient = Ambient.of<Density>()
+                val DensityAmbient = ambientOf<Density>()
 
                 @Composable
-                fun ambientDensity() = ambient(DensityAmbient)
+                fun ambientDensity() = DensityAmbient.current
 
                 @Composable
                 fun WithDensity(block: @Composable DensityScope.() -> Unit) {
@@ -313,7 +310,7 @@ class ComposeCallLoweringTests : AbstractCodegenTest() {
     fun testInlinedComposable(): Unit = ensureSetup {
         codegen(
             """
-        @Composable 
+        @Composable
         inline fun Foo(crossinline children: @Composable() () -> Unit) {
                 children()
         }
@@ -462,7 +459,6 @@ fun <T> B(foo: T, bar: String) { }
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.Composable
-import androidx.compose.composer
 
 class WebContext {
     var webView: WebView? = null
@@ -555,271 +551,6 @@ fun WebComponent(
                     }
                 }
             """
-        )
-    }
-
-    @Test
-    @Ignore("b/142488002")
-    fun testReceiverScopeComposer(): Unit = ensureSetup {
-        codegen(
-            """
-            import androidx.compose.Applier
-            import androidx.compose.ApplyAdapter
-            import androidx.compose.Component
-            import androidx.compose.Composable
-            import androidx.compose.Composer
-            import androidx.compose.ComposerUpdater
-            import androidx.compose.CompositionContext
-            import androidx.compose.CompositionReference
-            import androidx.compose.Effect
-            import androidx.compose.Recomposer
-            import androidx.compose.SlotTable
-            import androidx.compose.ViewValidator
-            import androidx.compose.cache
-
-            class TextSpan(
-                val style: String? = null,
-                val text: String? = null,
-                val children: MutableList<TextSpan> = mutableListOf()
-            )
-
-            /**
-             * This adapter is used by [TextSpanComposer] to build the [TextSpan] tree.
-             * @see ApplyAdapter
-             */
-            internal class TextSpanApplyAdapter : ApplyAdapter<TextSpan> {
-                override fun TextSpan.start(instance: TextSpan) {}
-
-                override fun TextSpan.end(instance: TextSpan, parent: TextSpan) {}
-
-                override fun TextSpan.insertAt(index: Int, instance: TextSpan) {
-                    children.add(index, instance)
-                }
-
-                override fun TextSpan.removeAt(index: Int, count: Int) {
-                    repeat(count) {
-                        children.removeAt(index)
-                    }
-                }
-
-                override fun TextSpan.move(from: Int, to: Int, count: Int) {
-                    if (from == to) return
-
-                    if (from > to) {
-                        val moved = mutableListOf<TextSpan>()
-                        repeat(count) {
-                            moved.add(children.removeAt(from))
-                        }
-                        children.addAll(to, moved)
-                    } else {
-                        // Number of elements between to and from is smaller than count, can't move.
-                        if (count > to - from) return
-                        repeat(count) {
-                            val node = children.removeAt(from)
-                            children.add(to - 1, node)
-                        }
-                    }
-                }
-            }
-
-            typealias TextSpanUpdater<T> = ComposerUpdater<TextSpan, T>
-
-            /**
-             * The composer of [TextSpan].
-             */
-            class TextSpanComposer internal constructor(
-                root: TextSpan,
-                recomposer: Recomposer
-            ) : Composer<TextSpan>(SlotTable(), Applier(root, TextSpanApplyAdapter()), recomposer)
-
-            @PublishedApi
-            internal val invocation = Object()
-
-            class TextSpanComposition(val composer: TextSpanComposer) {
-                @Suppress("NOTHING_TO_INLINE")
-                inline operator fun <V> Effect<V>.unaryPlus(): V = resolve(this@TextSpanComposition.composer)
-
-                inline fun emit(
-                    key: Any,
-                    /*crossinline*/
-                    ctor: () -> TextSpan,
-                    update: TextSpanUpdater<TextSpan>.() -> Unit
-                ) = with(composer) {
-                    startNode(key)
-                    @Suppress("UNCHECKED_CAST") val node = if (inserting) ctor().also { emitNode(it) }
-                    else useNode()
-                    TextSpanUpdater(this, node).update()
-                    endNode()
-                }
-
-                inline fun emit(
-                    key: Any,
-                    /*crossinline*/
-                    ctor: () -> TextSpan,
-                    update: TextSpanUpdater<TextSpan>.() -> Unit,
-                    children: () -> Unit
-                ) = with(composer) {
-                    startNode(key)
-                    @Suppress("UNCHECKED_CAST")val node = if (inserting) ctor().also { emitNode(it) }
-                    else useNode()
-                    TextSpanUpdater(this, node).update()
-                    children()
-                    endNode()
-                }
-
-                @Suppress("NOTHING_TO_INLINE")
-                inline fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
-
-                inline fun call(
-                    key: Any,
-                    /*crossinline*/
-                    invalid: ViewValidator.() -> Boolean,
-                    block: () -> Unit
-                ) = with(composer) {
-                    startGroup(key)
-                    if (ViewValidator(composer).invalid() || inserting) {
-                        startGroup(invocation)
-                        block()
-                        endGroup()
-                    } else {
-                        skipCurrentGroup()
-                    }
-                    endGroup()
-                }
-
-                inline fun <T> call(
-                    key: Any,
-                    /*crossinline*/
-                    ctor: () -> T,
-                    /*crossinline*/
-                    invalid: ViewValidator.(f: T) -> Boolean,
-                    block: (f: T) -> Unit
-                ) = with(composer) {
-                    startGroup(key)
-                    val f = cache(true, ctor)
-                    if (ViewValidator(this).invalid(f) || inserting) {
-                        startGroup(invocation)
-                        block(f)
-                        endGroup()
-                    } else {
-                        skipCurrentGroup()
-                    }
-                    endGroup()
-                }
-            }
-
-            /**
-             * As the name indicates, [Root] object is associated with a [TextSpan] tree root. It contains
-             * necessary information used to compose and recompose [TextSpan] tree. It's created and stored
-             * when the [TextSpan] container is composed for the first time.
-             */
-            private class Root : Component() {
-                fun update() = composer.compose()
-                lateinit var scope: TextSpanScope
-                lateinit var composer: CompositionContext
-                lateinit var composable: @Composable() TextSpanScope.() -> Unit
-                @Suppress("PLUGIN_ERROR")
-                override fun compose() {
-                    with(scope.composer.composer) {
-                        startGroup(0)
-                        scope.composable()
-                        endGroup()
-                    }
-                }
-            }
-
-            /**
-             *  The map used store the [Root] object for [TextSpan] trees.
-             */
-            private val TEXTSPAN_ROOT_COMPONENTS = HashMap<TextSpan, Root>()
-
-            /**
-             * Get the [Root] object of the given [TextSpan] root node.
-             */
-            private fun getRootComponent(node: TextSpan): Root? {
-                return TEXTSPAN_ROOT_COMPONENTS[node]
-            }
-
-            /**
-             * Store the [Root] object of [node].
-             */
-            private fun setRoot(node: TextSpan, component: Root) {
-                TEXTSPAN_ROOT_COMPONENTS[node] = component
-            }
-
-            /**
-             * Compose a [TextSpan] tree.
-             * @param container The root of [TextSpan] tree where the children TextSpans will be attached to.
-             * @param parent The parent composition reference, if applicable. Default is null.
-             * @param composable The composable function to compose the children of [container].
-             * @see CompositionReference
-             */
-            @Suppress("PLUGIN_ERROR")
-            fun compose(
-                container: TextSpan,
-                parent: CompositionReference? = null,
-                composable: @Composable() TextSpanScope.() -> Unit
-            ) {
-                var root = getRootComponent(container)
-                if (root == null) {
-                    lateinit var composer: TextSpanComposer
-                    root = Root()
-                    setRoot(container, root)
-                    root.composer = CompositionContext.prepare(root, parent) {
-                        TextSpanComposer(container, this).also { composer = it }
-                    }
-                    root.scope = TextSpanScope(TextSpanComposition(composer))
-                    root.composable = composable
-
-                    root.update()
-                } else {
-                    root.composable = composable
-
-                    root.update()
-                }
-            }
-
-            /**
-             * Cleanup when the [TextSpan] is no longer used.
-             *
-             * @param container The root of the [TextSpan] to be disposed.
-             * @param parent The [CompositionReference] used together with [container] when [composer] is
-             * called.
-             */
-            fun disposeComposition(
-                container: TextSpan,
-                parent: CompositionReference? = null
-            ) {
-                // temporary easy way to call correct lifecycles on everything
-                compose(container, parent) {}
-                TEXTSPAN_ROOT_COMPONENTS.remove(container)
-            }
-
-            /**
-             * The receiver class of the children of Text and TextSpan. Such that [Span] can only be used
-             * within [Text] and [TextSpan].
-             */
-            class TextSpanScope internal constructor(val composer: TextSpanComposition)
-
-            @Composable
-            fun TextSpanScope.Span(
-                text: String? = null,
-                style: String? = null,
-                child: @Composable TextSpanScope.() -> Unit
-            ) {
-                TextSpan(text = text, style = style) {
-                    child()
-                }
-            }
-
-            @Composable
-            fun TextSpanScope.Span(
-                text: String? = null,
-                style: String? = null
-            ) {
-                TextSpan(text = text, style = style)
-            }
-        """
         )
     }
 
@@ -1406,18 +1137,24 @@ fun WebComponent(
         }
     }
 
-    private var isSetup = false
-    override fun setUp() {
-        isSetup = true
-        super.setUp()
+    @Test
+    fun testInlineClassesAsComposableParameters(): Unit = ensureSetup {
+        codegen(
+            """
+                inline class WrappedInt(val int: Int)
+
+                @Composable fun Pass(wrappedInt: WrappedInt) {
+                  wrappedInt.int
+                }
+
+                @Composable fun Bar() {
+                  Pass(WrappedInt(1))
+                }
+            """
+        )
     }
 
-    private fun <T> ensureSetup(block: () -> T): T {
-        if (!isSetup) setUp()
-        return block()
-    }
-
-    fun codegen(text: String, dumpClasses: Boolean = false): Unit = ensureSetup {
+    fun codegen(text: String, dumpClasses: Boolean = false) {
         codegenNoImports(
             """
            import android.content.Context
@@ -1429,36 +1166,11 @@ fun WebComponent(
         """, dumpClasses)
     }
 
-    fun codegenNoImports(text: String, dumpClasses: Boolean = false): Unit = ensureSetup {
+    fun codegenNoImports(text: String, dumpClasses: Boolean = false) {
         val className = "Test_${uniqueNumber++}"
         val fileName = "$className.kt"
 
         classLoader(text, fileName, dumpClasses)
-    }
-
-    fun assertInterceptions(srcText: String) = ensureSetup {
-        val (text, carets) = extractCarets(srcText)
-
-        val environment = myEnvironment ?: error("Environment not initialized")
-
-        val ktFile = KtPsiFactory(environment.project).createFile(text)
-        val bindingContext = JvmResolveUtil.analyze(
-            ktFile,
-            environment
-        ).bindingContext
-
-        carets.forEachIndexed { index, (offset, calltype) ->
-            val resolvedCall = resolvedCallAtOffset(bindingContext, ktFile, offset)
-                ?: error("No resolved call found at index: $index, offset: $offset. Expected " +
-                        "$calltype.")
-
-            when (calltype) {
-                "<normal>" -> assert(!resolvedCall.isCall() && !resolvedCall.isEmit())
-                "<emit>" -> assert(resolvedCall.isEmit())
-                "<call>" -> assert(resolvedCall.isCall())
-                else -> error("Call type of $calltype not recognized.")
-            }
-        }
     }
 
     fun compose(
@@ -1466,7 +1178,7 @@ fun WebComponent(
         composeCode: String,
         valuesFactory: () -> Map<String, Any> = { emptyMap() },
         dumpClasses: Boolean = false
-    ): CompositionTest {
+    ): RobolectricComposeTester {
         val className = "TestFCS_${uniqueNumber++}"
         val fileName = "$className.kt"
 
@@ -1521,12 +1233,12 @@ fun WebComponent(
         }
 
         val instanceOfClass = instanceClass.newInstance()
-        val testMethod = instanceClass.getMethod("test", *parameterTypes)
+        val testMethod = instanceClass.getMethod("test", *parameterTypes, Composer::class.java)
 
         return compose {
             val values = valuesFactory()
-            val arguments = values.map { it.value }.toTypedArray()
-            testMethod.invoke(instanceOfClass, *arguments)
+            val arguments = values.map { it.value as Any }.toTypedArray()
+            testMethod.invoke(instanceOfClass, *arguments, it)
         }
     }
 

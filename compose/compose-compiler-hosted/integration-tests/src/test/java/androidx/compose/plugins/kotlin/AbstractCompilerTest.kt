@@ -22,6 +22,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import junit.framework.TestCase
+import org.jetbrains.annotations.Contract
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -70,6 +71,11 @@ abstract class AbstractCompilerTest : TestCase() {
         classFileFactory = null
         Disposer.dispose(myTestRootDisposable)
         super.tearDown()
+    }
+
+    fun ensureSetup(block: () -> Unit) {
+        setUp()
+        block()
     }
 
     @After
@@ -176,7 +182,7 @@ abstract class AbstractCompilerTest : TestCase() {
     protected fun getTestName(lowercaseFirstLetter: Boolean): String =
         getTestName(this.name ?: "", lowercaseFirstLetter)
     protected fun getTestName(name: String, lowercaseFirstLetter: Boolean): String {
-        val trimmedName = StringUtil.trimStart(name, "test")
+        val trimmedName = trimStart(name, "test")
         return if (StringUtil.isEmpty(trimmedName)) "" else lowercaseFirstLetter(
             trimmedName,
             lowercaseFirstLetter
@@ -216,11 +222,19 @@ abstract class AbstractCompilerTest : TestCase() {
     companion object {
         val homeDir by lazy { File(computeHomeDirectory()).absolutePath }
         val projectRoot by lazy { File(homeDir, "../../../../..").absolutePath }
+        val kotlinHome by lazy {
+            File(projectRoot, "prebuilts/androidx/external/org/jetbrains/kotlin/")
+        }
+        val outDir by lazy {
+            File(System.getenv("OUT_DIR") ?: File(projectRoot, "out").absolutePath)
+        }
+        val composePluginJar by lazy {
+
+            File(outDir, "ui/compose/compose-compiler/build/jarjar/compose-compiler.jar")
+        }
 
         fun kotlinRuntimeJar(module: String) = File(
-            projectRoot,
-                "prebuilts/androidx/external/org/jetbrains/kotlin/$module/" +
-                        "$KOTLIN_RUNTIME_VERSION/$module-$KOTLIN_RUNTIME_VERSION.jar")
+            kotlinHome, "$module/$KOTLIN_RUNTIME_VERSION/$module-$KOTLIN_RUNTIME_VERSION.jar")
 
         init {
             System.setProperty("idea.home",
@@ -276,4 +290,11 @@ fun newConfiguration(): CompilerConfiguration {
     })
 
     return configuration
+}
+
+@Contract(pure = true)
+fun trimStart(s: String, prefix: String): String {
+    return if (s.startsWith(prefix)) {
+        s.substring(prefix.length)
+    } else s
 }

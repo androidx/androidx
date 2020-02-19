@@ -1,2 +1,0 @@
-- Huawei (HDR, Portrait): Mate 20 series, P30 series, Honor Magic 2, Honor View 20
-- Samsung (HDR, Night, Beauty, Auto): Galaxy Note 10 series

@@ -35,10 +35,10 @@ import androidx.ui.text.TextStyle
  * @sample androidx.ui.framework.samples.PasswordTextFieldSample
  *
  * @param value The text to be shown in the [TextField]. If you want to specify cursor location or
- * selection range, use [TextField] with [EditorModel] instead.
+ * selection range, use [TextField] with [TextFieldValue] instead.
  * @param onValueChange Called when the input service updates the text. When the input service
  * update the text, this callback is called with the updated text. If you want to observe the cursor
- * location or selection range, use [TextField] with [EditorModel] instead.
+ * location or selection range, use [TextField] with [TextFieldValue] instead.
  * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param mask The character shown instead of plaint text.
  * @param imeAction The IME action. This IME action is honored by IME and may show specific icons

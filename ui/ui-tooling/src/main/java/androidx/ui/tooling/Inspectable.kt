@@ -17,9 +17,9 @@
 package androidx.ui.tooling
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.SlotTable
-import androidx.compose.ambient
-import androidx.compose.composer
+import androidx.compose.currentComposer
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -29,9 +29,9 @@ import java.util.WeakHashMap
  */
 @Composable
 fun Inspectable(children: @Composable() () -> Unit) {
-    composer.collectKeySourceInformation()
-    tables.add(composer.slotTable)
-    InspectionMode.Provider(true, children)
+    currentComposer.collectKeySourceInformation()
+    tables.add(currentComposer.slotTable)
+    Providers(InspectionMode provides true, children = children)
 }
 
 val tables = Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())
@@ -42,7 +42,7 @@ val tables = Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())
  */
 @Composable
 fun InInspectionModeOnly(children: @Composable() () -> Unit) {
-    if (ambient(InspectionMode)) {
+    if (InspectionMode.current) {
         children()
     }
 }

@@ -50,8 +50,8 @@ class MutuallyExclusiveSetItemTest {
             }
         }
 
-        Truth.assertThat(findAll { isInMutuallyExclusiveGroup }.size).isEqualTo(1)
-        findAll { isInMutuallyExclusiveGroup }.first()
+        Truth.assertThat(findAll(isInMutuallyExclusiveGroup()).size).isEqualTo(1)
+        findAll(isInMutuallyExclusiveGroup()).first()
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
                     inMutuallyExclusiveGroup = true,
@@ -69,7 +69,7 @@ class MutuallyExclusiveSetItemTest {
             }
         }
 
-        find { isInMutuallyExclusiveGroup }
+        find(isInMutuallyExclusiveGroup())
             .assertIsUnselected()
             .doClick()
             .assertIsSelected()
@@ -86,7 +86,7 @@ class MutuallyExclusiveSetItemTest {
             }
         }
 
-        find { isInMutuallyExclusiveGroup }
+        find(isInMutuallyExclusiveGroup())
             .assertIsUnselected()
             .doClick()
             .assertIsUnselected()

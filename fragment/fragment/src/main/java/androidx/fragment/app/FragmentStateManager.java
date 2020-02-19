@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.CancellationSignal;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
@@ -46,6 +47,8 @@ class FragmentStateManager {
     private final Fragment mFragment;
 
     private int mFragmentManagerState = Fragment.INITIALIZING;
+    private CancellationSignal mEnterAnimationCancellationSignal;
+    private CancellationSignal mExitAnimationCancellationSignal;
 
     /**
      * Create a FragmentStateManager from a brand new Fragment instance.
@@ -175,9 +178,18 @@ class FragmentStateManager {
                 // actually added to the layout (mInLayout).
                 maxState = Math.max(mFragmentManagerState, Fragment.CREATED);
             } else {
-                // But don't allow their state to progress upward beyond CREATED
-                // if they're not in a layout
-                maxState = Math.min(maxState, Fragment.CREATED);
+                if (mFragmentManagerState < Fragment.ACTIVITY_CREATED) {
+                    // But while they are not in the layout, don't allow their
+                    // state to progress upward until the FragmentManager state
+                    // is at least ACTIVITY_CREATED. This ensures they get the onInflate()
+                    // callback before being attached or created.
+                    maxState = Math.min(maxState, mFragment.mState);
+                } else {
+                    // Once the FragmentManager state is at least ACTIVITY_CREATED
+                    // their state can progress up to CREATED as we assume that
+                    // they are not ever going to be in layout
+                    maxState = Math.min(maxState, Fragment.CREATED);
+                }
             }
         }
         // Fragments that are not currently added will sit in the CREATED state.
@@ -221,7 +233,10 @@ class FragmentStateManager {
             if (newState > mFragment.mState) {
                 // Moving upward
                 int nextStep = mFragment.mState + 1;
-                // TODO cancel exit animations
+                // Cancel any ongoing exit animations as we're moving the state upward
+                if (mExitAnimationCancellationSignal != null) {
+                    mExitAnimationCancellationSignal.cancel();
+                }
                 switch (nextStep) {
                     case Fragment.ATTACHED:
                         attach();
@@ -234,6 +249,13 @@ class FragmentStateManager {
                         createView();
                         activityCreated();
                         restoreViewState();
+                        if (mFragment.mContainer != null) {
+                            SpecialEffectsController controller = SpecialEffectsController
+                                    .getOrCreateController(mFragment.mContainer);
+                            mEnterAnimationCancellationSignal = new CancellationSignal();
+                            controller.enqueueAdd(this,
+                                    mEnterAnimationCancellationSignal);
+                        }
                         break;
                     case Fragment.STARTED:
                         start();
@@ -245,6 +267,10 @@ class FragmentStateManager {
             } else {
                 // Moving downward
                 int nextStep = mFragment.mState - 1;
+                // Cancel any ongoing enter animations as we're moving the state downward
+                if (mEnterAnimationCancellationSignal != null) {
+                    mEnterAnimationCancellationSignal.cancel();
+                }
                 switch (nextStep) {
                     case Fragment.STARTED:
                         pause();
@@ -257,8 +283,15 @@ class FragmentStateManager {
                             Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                         }
                         // TODO call saveViewState()
-                        // TODO start exit animations
-                        // TODO destroy the view
+                        if (mFragment.mContainer != null) {
+                            SpecialEffectsController controller = SpecialEffectsController
+                                    .getOrCreateController(mFragment.mContainer);
+                            mExitAnimationCancellationSignal = new CancellationSignal();
+                            controller.enqueueRemove(this,
+                                    mExitAnimationCancellationSignal);
+                        }
+                        // TODO wait for the special effects to finish
+                        destroyFragmentView();
                         break;
                     case Fragment.ATTACHED:
                         // TODO move this into destroy()
@@ -298,6 +331,7 @@ class FragmentStateManager {
                     mFragment.mSavedFragmentState), null, mFragment.mSavedFragmentState);
             if (mFragment.mView != null) {
                 mFragment.mView.setSaveFromParentEnabled(false);
+                mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
                 if (mFragment.mHidden) mFragment.mView.setVisibility(View.GONE);
                 mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
                 mDispatcher.dispatchOnFragmentViewCreated(
@@ -567,6 +601,18 @@ class FragmentStateManager {
         if (mStateArray.size() > 0) {
             mFragment.mSavedViewState = mStateArray;
         }
+    }
+
+    void destroyFragmentView() {
+        mFragment.performDestroyView();
+        mDispatcher.dispatchOnFragmentViewDestroyed(mFragment, false);
+        mFragment.mContainer = null;
+        mFragment.mView = null;
+        // Set here to ensure that Observers are called after
+        // the Fragment's view is set to null
+        mFragment.mViewLifecycleOwner = null;
+        mFragment.mViewLifecycleOwnerLiveData.setValue(null);
+        mFragment.mInLayout = false;
     }
 
     void destroy() {

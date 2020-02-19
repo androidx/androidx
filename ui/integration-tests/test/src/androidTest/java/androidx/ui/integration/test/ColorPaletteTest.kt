@@ -55,11 +55,6 @@ class ColorPaletteTest {
 
                 testCase.toggleState()
 
-                // TODO: b/143769776
-                // Currently changing a @Model value that causes another @Model value to change
-                // results in two recompositions - so we need to pump two frames here.
-                doFrame()
-                assertLastRecomposeHadChanges()
                 doFrame()
                 assertLastRecomposeHadChanges()
 

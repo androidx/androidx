@@ -102,7 +102,7 @@ public final class EncryptedFile {
          */
         AES256_GCM_HKDF_4KB(StreamingAeadKeyTemplates.AES256_GCM_HKDF_4KB);
 
-        private KeyTemplate mStreamingAeadKeyTemplate;
+        private final KeyTemplate mStreamingAeadKeyTemplate;
 
         FileEncryptionScheme(KeyTemplate keyTemplate) {
             mStreamingAeadKeyTemplate = keyTemplate;

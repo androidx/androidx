@@ -23,24 +23,28 @@ import androidx.animation.AnimationClockObservable
 import androidx.animation.DefaultAnimationClock
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
-import androidx.compose.Ambient
-import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.Compose
-import androidx.compose.CompositionContext
+import androidx.compose.Composition
 import androidx.compose.CompositionReference
+import androidx.compose.FrameManager
 import androidx.compose.Observe
-import androidx.compose.ambient
+import androidx.compose.Providers
+import androidx.compose.StructurallyEqual
+import androidx.compose.ViewComposer
+import androidx.compose.ambientOf
 import androidx.compose.compositionReference
+import androidx.compose.currentComposer
+import androidx.compose.invalidate
 import androidx.compose.remember
 import androidx.compose.onPreCommit
-import androidx.compose.state
+import androidx.compose.staticAmbientOf
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
+import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
@@ -56,7 +60,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
 
     AndroidComposeView(ref = rootRef) {
         var reference: CompositionReference? = null
-        var cc: CompositionContext? = null
+        var cc: Composition? = null
 
         // This is a temporary solution until we get proper subcomposition APIs in place.
         // Right now, we want to enforce a sort of "depth-first" ordering of recompositions,
@@ -84,7 +88,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
             }
         }
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-        val context = rootRef.value?.context ?: composer.context
+        val context = rootRef.value?.context ?: (currentComposer as ViewComposer).context
 
         // If this value is inlined where it is used, an error that includes 'Precise Reference:
         // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
@@ -104,20 +108,14 @@ fun ComposeView(children: @Composable() () -> Unit) {
  */
 fun Activity.setContent(
     content: @Composable() () -> Unit
-): CompositionContext? {
+): Composition {
+    FrameManager.ensureStarted()
     val composeView = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidComposeView
         ?: AndroidComposeView(this).also { setContentView(it) }
 
-    // If this value is inlined where it is used, an error that includes 'Precise Reference:
-    // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
-    val coroutineContext = Dispatchers.Main
-    return Compose.composeInto(composeView.root, this) {
-        WrapWithAmbients(composeView, this, coroutineContext) {
-            WrapWithSelectionContainer(content)
-        }
-    }
+    return doSetContent(composeView, this, content)
 }
 
 /**
@@ -136,22 +134,24 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
  */
 fun ViewGroup.setContent(
     content: @Composable() () -> Unit
-): CompositionContext? {
+): Composition {
     val composeView =
         if (childCount > 0) { getChildAt(0) as? AndroidComposeView } else { removeAllViews(); null }
         ?: AndroidComposeView(context).also { addView(it) }
-
-    // If this value is inlined where it is used, an error that includes 'Precise Reference:
-    // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
-    val coroutineContext = Dispatchers.Main
-    return Compose.composeInto(composeView.root, context) {
-        WrapWithAmbients(composeView, context, coroutineContext) {
-            WrapWithSelectionContainer(content)
-        }
-    }
+    return doSetContent(composeView, context, content)
 }
 
-private typealias AmbientProvider = @Composable() (@Composable() () -> Unit) -> Unit
+private fun doSetContent(
+    composeView: AndroidComposeView,
+    context: Context,
+    content: @Composable() () -> Unit
+): Composition = Compose.composeInto(composeView.root, context) {
+    val currentComposer = currentComposer as ViewComposer
+    remember { currentComposer.adapters?.register(AndroidViewAdapter) }
+    WrapWithAmbients(composeView, context, Dispatchers.Main) {
+        WrapWithSelectionContainer(content)
+    }
+}
 
 @Composable
 private fun WrapWithAmbients(
@@ -163,129 +163,73 @@ private fun WrapWithAmbients(
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidComposeView case
     val focusManager = remember { FocusManager() }
-    val configuration = state { context.applicationContext.resources.configuration }
+    val configuration = context.applicationContext.resources.configuration
+
+    // onConfigurationChange is the correct hook to update configuration, however it is
+    // possible that the configuration object itself may come from a wrapped
+    // context / themed activity, and may not actually reflect the system. So instead we
+    // use this hook to grab the applicationContext's configuration, which accurately
+    // reflects the state of the application / system.
+    composeView.configurationChangeObserver = invalidate
 
     // We don't use the attached View's layout direction here since that layout direction may not
     // be resolved since the composables may be composed without attaching to the RootViewImpl.
     // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
     // configuration) as a default layout direction.
-    val layoutDirection = when (configuration.value.layoutDirection) {
+    val layoutDirection = when (configuration.layoutDirection) {
         android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
         android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
         // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
         // Fallback to LTR for unexpected return value.
         else -> LayoutDirection.Ltr
     }
-    remember {
-        composeView.configurationChangeObserver = {
-            // onConfigurationChange is the correct hook to update configuration, however it is
-            // possible that the configuration object itself may come from a wrapped
-            // context / themed activity, and may not actually reflect the system. So instead we
-            // use this hook to grab the applicationContext's configuration, which accurately
-            // reflects the state of the application / system.
-            configuration.value = context.applicationContext.resources.configuration
-        }
-    }
 
     val defaultAnimationClock = remember { DefaultAnimationClock() }
 
-    // Fold all the nested function in order to provide the desired ambient properties
-    // Having a lot of methods nested one inside the other will cause a Compile error. The name of
-    // the file generated will be unsupported by the compiler because it is too large.
-    listOf<AmbientProvider>(
-        { children ->
-            ContextAmbient.Provider(value = context, children = children)
-        },
-        { children ->
-            CoroutineContextAmbient.Provider(value = coroutineContext, children = children)
-        },
-        { children ->
-            DensityAmbient.Provider(value = Density(context), children = children)
-        },
-        { children ->
-            FocusManagerAmbient.Provider(value = focusManager, children = children)
-        },
-        { children ->
-            TextInputServiceAmbient.Provider(
-                value = composeView.textInputService,
-                children = children
-            )
-        },
-        { children ->
-            FontLoaderAmbient.Provider(
-                value = composeView.fontLoader,
-                children = children
-            )
-        },
-        { children ->
-            AutofillTreeAmbient.Provider(value = composeView.autofillTree, children = children)
-        },
-        { children ->
-            AutofillAmbient.Provider(value = composeView.autofill, children = children)
-        },
-        { children ->
-            ConfigurationAmbient.Provider(value = configuration.value, children = children)
-        },
-        { children ->
-            AndroidComposeViewAmbient.Provider(value = composeView, children = children)
-        },
-        { children ->
-            LayoutDirectionAmbient.Provider(value = layoutDirection, children = children)
-        },
-        { children ->
-            AnimationClockAmbient.Provider(value = defaultAnimationClock, children = children)
-        }
-    ).fold(content, { current, ambient ->
-        { ambient(current) }
-    }).invoke()
+    Providers(
+        ContextAmbient provides context,
+        CoroutineContextAmbient provides coroutineContext,
+        DensityAmbient provides Density(context),
+        FocusManagerAmbient provides focusManager,
+        TextInputServiceAmbient provides composeView.textInputService,
+        FontLoaderAmbient provides composeView.fontLoader,
+        HapticFeedBackAmbient provides composeView.hapticFeedBack,
+        AutofillTreeAmbient provides composeView.autofillTree,
+        ConfigurationAmbient provides context.applicationContext.resources.configuration,
+        AndroidComposeViewAmbient provides composeView,
+        LayoutDirectionAmbient provides layoutDirection,
+        AnimationClockAmbient provides defaultAnimationClock,
+        children = content
+    )
 }
 
-val ContextAmbient = Ambient.of<Context>()
+val ContextAmbient = staticAmbientOf<Context>()
 
-val DensityAmbient = Ambient.of<Density>()
+val DensityAmbient = ambientOf<Density>(StructurallyEqual)
 
-val CoroutineContextAmbient = Ambient.of<CoroutineContext>()
+val CoroutineContextAmbient = ambientOf<CoroutineContext>()
 
-val ConfigurationAmbient = Ambient.of<Configuration>()
+val ConfigurationAmbient = ambientOf<Configuration>(StructurallyEqual)
 
 // TODO(b/139866476): The AndroidComposeView should not be exposed via ambient
-val AndroidComposeViewAmbient = Ambient.of<AndroidComposeView>()
+val AndroidComposeViewAmbient = staticAmbientOf<AndroidComposeView>()
 
-val AutofillAmbient = Ambient.of<Autofill?>()
+val AutofillAmbient = ambientOf<Autofill?>()
 
 // This will ultimately be replaced by Autofill Semantics (b/138604305).
-val AutofillTreeAmbient = Ambient.of<AutofillTree>()
+val AutofillTreeAmbient = staticAmbientOf<AutofillTree>()
 
-val LayoutDirectionAmbient = Ambient.of<LayoutDirection>()
+val LayoutDirectionAmbient = ambientOf<LayoutDirection>()
 
-val FocusManagerAmbient = Ambient.of<FocusManager>()
+val FocusManagerAmbient = ambientOf<FocusManager>()
 
-val TextInputServiceAmbient = Ambient.of<TextInputService?>()
+val TextInputServiceAmbient = staticAmbientOf<TextInputService?>()
 
-val AnimationClockAmbient = Ambient.of<AnimationClockObservable>()
+val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 
-val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
-
-/**
- * [ambient] to get a [Density] object from an internal [DensityAmbient].
- *
- * Note: this is an experiment with the ways to achieve a read-only public [Ambient]s.
- */
-@Composable
-fun ambientDensity() = ambient(DensityAmbient)
+val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
 
 /**
- * A component to be able to convert dimensions between each other.
- * A [Density] object will be take from an ambient.
- *
- * Usage example:
- *   WithDensity {
- *     Draw() { canvas, _ ->
- *       canvas.drawRect(Rect(0, 0, dpHeight.toPx(), dpWidth.toPx()), paint)
- *     }
- *   }
+ * The ambient to provide haptic feedback to the user.
  */
-@Composable
-fun WithDensity(block: @Composable DensityScope.() -> Unit) {
-    DensityScope(ambientDensity()).block()
-}
+val HapticFeedBackAmbient = staticAmbientOf<HapticFeedback>()

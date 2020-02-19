@@ -19,11 +19,10 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Dialog
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -36,9 +35,7 @@ fun DialogSample() {
     if (openDialog.value) {
         Dialog(onCloseRequest = { openDialog.value = false }) {
             // Draw a rectangle shape with rounded corners inside the dialog
-            Container(width = dialogWidth, height = dialogHeight) {
-                DrawShape(CircleShape, Color.White)
-            }
+            Box(LayoutSize(dialogWidth, dialogHeight), backgroundColor = Color.White)
         }
     }
 }

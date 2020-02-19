@@ -35,7 +35,7 @@ import androidx.annotation.RestrictTo
  */
 
 /**
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun beginTraceSection(sectionName: String) {
@@ -45,7 +45,7 @@ fun beginTraceSection(sectionName: String) {
 }
 
 /**
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun endTraceSection() {

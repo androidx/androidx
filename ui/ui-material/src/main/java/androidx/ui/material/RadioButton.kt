@@ -22,29 +22,26 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
 import androidx.ui.core.Text
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Radius
-import androidx.ui.geometry.shift
-import androidx.ui.geometry.shrink
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 /**
@@ -129,11 +126,14 @@ class RadioGroupScope internal constructor() {
         onSelect: () -> Unit,
         children: @Composable() () -> Unit
     ) {
-        Container {
-            Ripple(bounded = true) {
-                MutuallyExclusiveSetItem(
-                    selected = selected,
-                    onClick = { if (!selected) onSelect() }, children = children)
+        Semantics(container = true, mergeAllDescendants = true) {
+            Container {
+                Ripple(bounded = true) {
+                    MutuallyExclusiveSetItem(
+                        selected = selected,
+                        onClick = { if (!selected) onSelect() }, children = children
+                    )
+                }
             }
         }
     }
@@ -158,15 +158,15 @@ class RadioGroupScope internal constructor() {
         textStyle: TextStyle? = null
     ) {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
-            Padding(padding = DefaultRadioItemPadding) {
-                Row(LayoutWidth.Fill) {
+            // TODO: remove this Box when Ripple becomes a modifier.
+            Box {
+                Row(LayoutWidth.Fill + LayoutPadding(DefaultRadioItemPadding)) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
-                    Padding(left = DefaultRadioLabelOffset) {
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography().body1.merge(textStyle)
-                        )
-                    }
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography().body1.merge(textStyle),
+                        modifier = LayoutPadding(start = DefaultRadioLabelOffset)
+                    )
                 }
             }
         }
@@ -193,24 +193,26 @@ fun RadioButton(
     onSelect: (() -> Unit)?,
     color: Color = MaterialTheme.colors().secondary
 ) {
+    val radioPaint = remember { Paint() }
     Wrap {
         Ripple(bounded = false) {
             MutuallyExclusiveSetItem(
                 selected = selected, onClick = { if (!selected) onSelect?.invoke() }
             ) {
-                Padding(padding = RadioButtonPadding) {
-                    Container(width = RadioButtonSize, height = RadioButtonSize) {
-                        val unselectedColor =
-                            MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
-                        val definition = remember(color, unselectedColor) {
-                            generateTransitionDefinition(color, unselectedColor)
-                        }
-                        Transition(definition = definition, toState = selected) { state ->
-                            DrawRadioButton(
-                                color = state[ColorProp],
-                                outerRadius = state[OuterRadiusProp],
-                                innerRadius = state[InnerRadiusProp],
-                                gap = state[GapProp]
+                Box(LayoutPadding(RadioButtonPadding)) {
+                    val unselectedColor =
+                        MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
+                    val definition = remember(color, unselectedColor) {
+                        generateTransitionDefinition(color, unselectedColor)
+                    }
+                    Transition(definition = definition, toState = selected) { state ->
+                        Canvas(modifier = LayoutSize(RadioButtonSize)) {
+                            drawRadio(
+                                state[ColorProp],
+                                state[OuterRadiusProp],
+                                state[InnerRadiusProp],
+                                state[GapProp],
+                                radioPaint
                             )
                         }
                     }
@@ -220,50 +222,40 @@ fun RadioButton(
     }
 }
 
-@Composable
-private fun DrawRadioButton(color: Color, outerRadius: Dp, innerRadius: Dp, gap: Dp) {
-    Draw { canvas, parentSize ->
-        drawRadio(canvas, parentSize, color, outerRadius, innerRadius, gap)
-    }
-}
-
-private fun DensityScope.drawRadio(
-    canvas: Canvas,
-    parentSize: PxSize,
+private fun CanvasScope.drawRadio(
     color: Color,
     outerRadius: Dp,
     innerRadius: Dp,
-    gap: Dp
+    gap: Dp,
+    paint: Paint
 ) {
-    val p = Paint()
-    p.isAntiAlias = true
-    p.color = color
-    p.style = PaintingStyle.fill
+    paint.isAntiAlias = true
+    paint.color = color
 
     // TODO(malkov): currently Radio gravity is always CENTER but we need to be flexible
-    val centerW = parentSize.width.value / 2
-    val centerH = parentSize.height.value / 2
+    val centerW = size.width.value / 2
+    val centerH = size.height.value / 2
     val outerPx = outerRadius.toPx().value
     val innerPx = innerRadius.toPx().value
 
-    val circleOffset = Offset(centerW - outerPx, centerH - outerPx)
-    val outer = RRect(
-        0f,
-        0f,
-        outerPx * 2,
-        outerPx * 2,
-        Radius.circular(outerPx)
-    ).shift(circleOffset)
-
+    val center = Offset(centerW, centerH)
     if (gap == 0.dp) {
-        val inner = outer.shrink(outerPx - innerPx)
-        canvas.drawDoubleRoundRect(outer, inner, p)
+        val strokeWidth = outerPx - innerPx
+        paint.style = PaintingStyle.stroke
+        paint.strokeWidth = strokeWidth
+        drawCircle(center, outerPx - strokeWidth / 2, paint)
     } else {
-        val inner = outer.shrink(RadioStrokeWidth.toPx().value)
-        canvas.drawDoubleRoundRect(outer, inner, p)
-        val radioOuter = inner.shrink(gap.toPx().value)
-        val radioInner = outer.shrink(outerPx - innerPx)
-        canvas.drawDoubleRoundRect(radioOuter, radioInner, p)
+        val strokeWidth = RadioStrokeWidth.toPx().value
+        paint.style = PaintingStyle.stroke
+        paint.strokeWidth = strokeWidth
+        drawCircle(center, outerPx - strokeWidth / 2, paint)
+
+        val gapWidth = gap.toPx().value
+        val circleRadius = outerPx - strokeWidth - gapWidth
+        val innerCircleStrokeWidth = circleRadius - innerPx
+
+        paint.strokeWidth = innerCircleStrokeWidth
+        drawCircle(center, circleRadius - innerCircleStrokeWidth / 2, paint)
     }
 }
 

@@ -16,13 +16,13 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.semantics.SemanticsNode
 
 internal fun SemanticsNodeInteraction(
-    semanticsTreeNode: SemanticsTreeNode,
+    node: SemanticsNode,
     semanticsTreeInteraction: SemanticsTreeInteraction
 ): SemanticsNodeInteraction {
-    return SemanticsNodeInteraction(listOf(semanticsTreeNode), semanticsTreeInteraction)
+    return SemanticsNodeInteraction(listOf(node), semanticsTreeInteraction)
 }
 
 /**
@@ -35,58 +35,100 @@ internal fun SemanticsNodeInteraction(
  *    .assertIsOn()
  */
 class SemanticsNodeInteraction internal constructor(
-    private val semanticsTreeNodes: List<SemanticsTreeNode>,
+    nodes: List<SemanticsNode>,
     internal val semanticsTreeInteraction: SemanticsTreeInteraction
 ) {
+    private val nodeIds: List<Int> = nodes.map { it.id }.toList()
 
-    internal val semanticsTreeNode: SemanticsTreeNode
-    get() {
-        if (semanticsTreeNodes.size != 1) {
-            // TODO(b/133217292)
-            throw AssertionError(
-                "Found '${semanticsTreeNodes.size}' nodes but exactly '1' was expected!")
-        }
-        return semanticsTreeNodes.first()
+    /**
+     * Anytime we refresh semantics we capture it here. This is then presented to the user in case
+     * their tests fails deu to a missing node. This helps to see what was the last state of the
+     * node before it disappeared. We dump it to string because trying to dump the node later can
+     * result in failure as it gets detached from its layout.
+     */
+    private var lastSeenSemantics: String? = nodes.firstOrNull()?.toStringInfo()
+
+    internal fun fetchSemanticsNodes(): List<SemanticsNode> {
+        return semanticsTreeInteraction.getNodesByIds(nodeIds)
+    }
+
+    /**
+     * Returns the semantics node captured by this object.
+     *
+     * Note: Accessing this object involves synchronization with your UI. If you are accessing this
+     * multiple times in one atomic operation, it is better to cache the result instead of calling
+     * this API multiple times.
+     *
+     * This will fail if there is 0 or multiple nodes matching.
+     *
+     * @throws AssertionError if 0 or multiple nodes found.
+     */
+    fun fetchSemanticsNode(errorMessageOnFail: String? = null): SemanticsNode {
+        return fetchOneOrDie(errorMessageOnFail)
     }
 
     /**
      * Asserts that no item was found or that the item is no longer in the hierarchy.
      *
+     * This will synchronize with the UI and fetch all the nodes again to ensure it has latest data.
+     *
      * @throws [AssertionError] if the assert fails.
      */
     fun assertDoesNotExist() {
-        if (semanticsTreeNodes.isEmpty()) {
-            return
-        }
-
-        if (semanticsTreeNodes.size > 1) {
-            // TODO(b/133217292)
-            throw AssertionError(
-                "Found '${semanticsTreeNodes.size}' components that match, expected '0' components")
-        }
-
-        // We have exactly one
-        if (semanticsTreeInteraction.contains(semanticsTreeNodes[0].data)) {
-            // TODO(b/133217292)
-            throw AssertionError("Assert failed: The component does exist!")
+        val nodes = fetchSemanticsNodes()
+        if (nodes.isNotEmpty()) {
+            throw AssertionError(buildErrorMessageForCountMismatch(
+                errorMessage = "Failed: assertDoesNotExist.",
+                selector = semanticsTreeInteraction.selector,
+                foundNodes = nodes,
+                expectedCount = 0
+            ))
         }
     }
 
     /**
      * Asserts that the component was found and is part of the component tree.
      *
+     * This will synchronize with the UI and fetch all the nodes again to ensure it has latest data.
+     * If you are using [fetchSemanticsNode] you don't need to call this. In fact you would just
+     * introduce additional overhead.
+     *
+     * @param errorMessageOnFail Error message prefix to be added to the message in case this
+     * asserts fails. This is typically used by operations that rely on this assert. Example prefix
+     * could be: "Failed to perform doOnClick.".
+     *
      * @throws [AssertionError] if the assert fails.
      */
-    fun assertExists() {
-        if (semanticsTreeNodes.size != 1) {
-            // TODO(b/133217292)
-            throw AssertionError(
-                "Found '${semanticsTreeNodes.size}' components that match, expected '1' components")
+    fun assertExists(errorMessageOnFail: String? = null): SemanticsNodeInteraction {
+        fetchOneOrDie(errorMessageOnFail)
+        return this
+    }
+
+    private fun fetchOneOrDie(errorMessageOnFail: String? = null): SemanticsNode {
+        val nodes = fetchSemanticsNodes()
+
+        if (nodes.size != 1) {
+            val finalErrorMessage = errorMessageOnFail
+                ?: "Failed: assertExists."
+
+            if (nodes.isEmpty() && lastSeenSemantics != null) {
+                // This means that node we used to have is no longer in the tree.
+                throw AssertionError(buildErrorMessageForNodeMissingInTree(
+                    errorMessage = finalErrorMessage,
+                    selector = semanticsTreeInteraction.selector,
+                    lastSeenSemantics = lastSeenSemantics!!
+                ))
+            }
+
+            throw AssertionError(buildErrorMessageForCountMismatch(
+                errorMessage = finalErrorMessage,
+                foundNodes = nodes,
+                expectedCount = 1,
+                selector = semanticsTreeInteraction.selector
+            ))
         }
 
-        if (!semanticsTreeInteraction.contains(semanticsTreeNodes[0].data)) {
-            // TODO(b/133217292)
-            throw AssertionError("The component does not exist!")
-        }
+        lastSeenSemantics = nodes.first().toStringInfo()
+        return nodes.first()
     }
 }

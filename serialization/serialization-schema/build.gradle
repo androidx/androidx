@@ -18,7 +18,6 @@ import static androidx.build.dependencies.DependenciesKt.*
 
 import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -27,7 +26,6 @@ plugins {
 }
 
 dependencies {
-    api(project(":serialization:serialization-annotation"))
     implementation(KOTLIN_STDLIB)
 
     testImplementation(JUNIT)
@@ -39,8 +37,7 @@ androidx {
     publish = Publish.NONE
     toolingProject = true
     compilationTarget = CompilationTarget.HOST
-    mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
-    inceptionYear = "2019"
+    inceptionYear = "2020"
     description = "A model of an AndroidX Serialization schema"
 }

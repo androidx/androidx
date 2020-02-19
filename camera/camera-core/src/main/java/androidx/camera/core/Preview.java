@@ -63,6 +63,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ConfigProvider;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageInfoProcessor;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
@@ -78,8 +79,6 @@ import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.core.util.Preconditions;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -89,7 +88,7 @@ import java.util.concurrent.Executor;
  * A use case that provides a camera preview stream for displaying on-screen.
  *
  * <p>The preview stream is connected to the {@link Surface} provided via
- * {@link PreviewSurfaceProvider}. The application decides how the {@link Surface} is shown,
+ * {@link SurfaceProvider}. The application decides how the {@link Surface} is shown,
  * and is responsible for managing the {@link Surface} lifecycle after providing it.
  *
  * <p> To display the preview with the correct orientation, app needs to take different actions
@@ -128,7 +127,7 @@ import java.util.concurrent.Executor;
  *     </code>
  * </pre>
  */
-public class Preview extends UseCase {
+public final class Preview extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -144,7 +143,7 @@ public class Preview extends UseCase {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
-    PreviewSurfaceProvider mPreviewSurfaceProvider;
+    SurfaceProvider mSurfaceProvider;
     @SuppressWarnings("WeakerAccess") /* Synthetic Accessor */
     @Nullable
     Executor mPreviewSurfaceProviderExecutor;
@@ -152,9 +151,7 @@ public class Preview extends UseCase {
     @Nullable
     private Size mLatestResolution;
 
-    // Synthetic Accessor
-    @SuppressWarnings("WeakerAccess")
-    SurfaceHolder mSurfaceHolder;
+    private DeferrableSurface mSessionDeferrableSurface;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -175,9 +172,9 @@ public class Preview extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
-        final CallbackDeferrableSurface callbackDeferrableSurface = new CallbackDeferrableSurface(
-                resolution, mPreviewSurfaceProviderExecutor,
-                mPreviewSurfaceProvider);
+        SurfaceRequest surfaceRequest = new SurfaceRequest(resolution);
+        mPreviewSurfaceProviderExecutor.execute(
+                () -> mSurfaceProvider.onSurfaceRequested(surfaceRequest));
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
             // TODO: To allow user to use an Executor for the processing.
@@ -196,13 +193,12 @@ public class Preview extends UseCase {
                             mProcessingPreviewHandler,
                             captureStage,
                             captureProcessor,
-                            callbackDeferrableSurface);
+                            surfaceRequest.getDeferrableSurface());
 
             sessionConfigBuilder.addCameraCaptureCallback(
                     processingSurface.getCameraCaptureCallback());
 
-            mSurfaceHolder = processingSurface;
-            sessionConfigBuilder.addSurface(processingSurface);
+            mSessionDeferrableSurface = processingSurface;
             sessionConfigBuilder.setTag(captureStage.getId());
         } else {
             final ImageInfoProcessor processor = config.getImageInfoProcessor(null);
@@ -220,14 +216,13 @@ public class Preview extends UseCase {
                     }
                 });
             }
-            mSurfaceHolder = callbackDeferrableSurface;
-            sessionConfigBuilder.addSurface(callbackDeferrableSurface);
+            mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         }
+        sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
-                callbackDeferrableSurface.release();
 
                 // Ensure the bound camera has not changed before resetting.
                 // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
@@ -247,38 +242,23 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Gets {@link PreviewSurfaceProvider}
-     *
-     * <p> Setting the callback will signal to the camera that the use case is ready to receive
-     * data.
-     *
-     * @return the last set callback or {@code null} if no listener is set
-     */
-    @UiThread
-    @Nullable
-    public PreviewSurfaceProvider getPreviewSurfaceProvider() {
-        Threads.checkMainThread();
-        return mPreviewSurfaceProvider;
-    }
-
-    /**
-     * Sets a {@link PreviewSurfaceProvider} to provide Surface for Preview.
+     * Sets a {@link SurfaceProvider} to provide a {@link Surface} for Preview.
      *
      * <p> Setting the provider will signal to the camera that the use case is ready to receive
      * data.
      *
-     * @param executor               on which the previewSurfaceProvider will be triggered.
-     * @param previewSurfaceProvider PreviewSurfaceProvider that provides a Preview.
+     * @param executor        on which the surfaceProvider will be invoked.
+     * @param surfaceProvider SurfaceProvider that provides a {@link Surface} for Preview.
      */
     @UiThread
-    public void setPreviewSurfaceProvider(@NonNull Executor executor,
-            @Nullable PreviewSurfaceProvider previewSurfaceProvider) {
+    public void setSurfaceProvider(@NonNull Executor executor,
+            @Nullable SurfaceProvider surfaceProvider) {
         Threads.checkMainThread();
-        if (previewSurfaceProvider == null) {
-            mPreviewSurfaceProvider = null;
+        if (surfaceProvider == null) {
+            mSurfaceProvider = null;
             notifyInactive();
         } else {
-            mPreviewSurfaceProvider = previewSurfaceProvider;
+            mSurfaceProvider = surfaceProvider;
             mPreviewSurfaceProviderExecutor = executor;
             notifyActive();
             if (mLatestResolution != null) {
@@ -289,24 +269,24 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Sets a {@link PreviewSurfaceProvider} to provide Surface for Preview.
+     * Sets a {@link SurfaceProvider} to provide a {@link Surface} for Preview.
      *
      * <p> Setting the provider will signal to the camera that the use case is ready to receive
      * data. The provider will be triggered on main thread.
      *
-     * @param previewSurfaceProvider PreviewSurfaceProvider that provides a Preview.
+     * @param surfaceProvider PreviewSurfaceProvider that provides a Preview.
      */
     @UiThread
-    public void setPreviewSurfaceProvider(@Nullable PreviewSurfaceProvider previewSurfaceProvider) {
-        setPreviewSurfaceProvider(CameraXExecutors.mainThreadExecutor(), previewSurfaceProvider);
+    public void setSurfaceProvider(@Nullable SurfaceProvider surfaceProvider) {
+        setSurfaceProvider(CameraXExecutors.mainThreadExecutor(), surfaceProvider);
     }
 
     /**
-     * Checks if {@link PreviewSurfaceProvider} is set by the user.
+     * Checks if {@link SurfaceProvider} is set by the user.
      */
     @SuppressWarnings("WeakerAccess")
     boolean isPreviewSurfaceProviderSet() {
-        return mPreviewSurfaceProvider != null && mPreviewSurfaceProviderExecutor != null;
+        return mSurfaceProvider != null && mPreviewSurfaceProviderExecutor != null;
     }
 
 
@@ -314,6 +294,23 @@ public class Preview extends UseCase {
             @NonNull Size resolution) {
         Preconditions.checkState(isPreviewSurfaceProviderSet());
         attachToCamera(cameraId, createPipeline(cameraId, config, resolution).build());
+    }
+
+    /**
+     * Returns the rotation that the intended target resolution is expressed in.
+     *
+     * <p>
+     * The rotation is set when constructing an {@link Preview} instance using
+     * {@link Preview.Builder#setTargetRotation(int)}. If not set, the target rotation defaults to
+     * the value of {@link Display#getRotation()} of the default display at the time the use case
+     * is created.
+     * </p>
+     *
+     * @return The rotation of the intended target.
+     */
+    @ImageOutputConfig.RotationValue
+    public int getTargetRotation() {
+        return ((PreviewConfig) getUseCaseConfig()).getTargetRotation();
     }
 
     @NonNull
@@ -381,8 +378,8 @@ public class Preview extends UseCase {
     @Override
     public void clear() {
         notifyInactive();
-        if (mSurfaceHolder != null) {
-            mSurfaceHolder.release();
+        if (mSessionDeferrableSurface != null) {
+            mSessionDeferrableSurface.close();
         }
         super.clear();
     }
@@ -419,86 +416,65 @@ public class Preview extends UseCase {
      * will be called by CameraX when it needs a Surface for Preview. It also signals when the
      * Surface is no longer in use by CameraX.
      *
-     * @see Preview#setPreviewSurfaceProvider(Executor, PreviewSurfaceProvider)
+     * @see Preview#setSurfaceProvider(Executor, SurfaceProvider)
      */
-    public interface PreviewSurfaceProvider {
-
+    public interface SurfaceProvider {
         /**
-         * Provides preview output Surface with the given resolution.
+         * Called when a new {@link Surface} has been requested by the camera.
          *
-         * <p> This is called when {@link Preview} needs a valid {@link Surface}. e.g. when the
-         * Preview is bound to lifecycle. The Surface should either be backed by a
-         * {@link SurfaceTexture} or a {@link android.view.SurfaceHolder}.
+         * <p>This is called every time a new surface is required to keep the preview running.
+         * The camera may repeatedly request surfaces throughout usage of a Preview use case, but
+         * only a single request will be active at a time.
          *
-         * <p>If the {@link Surface} is backed by a {@link SurfaceTexture}, both the
-         * {@link Surface} and the {@link ListenableFuture} need to be recreated each time this
-         * is invoked. The implementer is also responsible to hold a reference to the
-         * {@link SurfaceTexture} since the weak reference from {@link Surface} does not prevent
-         * it from being garbage collected.
+         * <p>A request is considered active until it is
+         * {@linkplain SurfaceRequest#setSurface(Surface) set},
+         * {@linkplain SurfaceRequest#setWillNotComplete()} marked as 'will not complete'}, or
+         * {@linkplain SurfaceRequest#addRequestCancellationListener(Executor, Runnable) cancelled
+         * by the camera}. After one of these conditions occurs, a request is considered
+         * completed.
          *
-         * <p>If the {@link Surface} is backed by a {@link SurfaceView}, the
-         * {@link android.graphics.PixelFormat} should always be the default
-         * {@link android.graphics.PixelFormat#OPAQUE}.
-         *
-         * <p>The application will need to crop and rotate the Surface to fit the UI.
-         *
-         * <p>The resolution that is requested by CameraX will be the sensor resolution, based on
-         * the capabilities of the camera Preview is attached to. The approximate resolution used
-         * for the sensor can be controlled via
-         * {@link Preview.Builder#setTargetResolution(Size)}}. However, the final
-         * resolution that is used might need to be cropped in order to fit the view.
-         *
-         * <p> Undefined behavior may occur if the Surface does not have the requested resolution
-         * or is released before surfaceReleaseFuture completes. So care must be taken when to
-         * using a {@link SurfaceView} or a {@link TextureView} to handle rotation to display
-         * orientation, since they automatically resize and release the Surface.
+         * <p>Once a request is successfully completed, if a new request is made it will only
+         * occur after the listenable future returned by
+         * {@link SurfaceRequest#setSurface(Surface)} has completed.
          *
          * Example:
          *
          * <pre>
-         * class MyPreviewSurfaceProvider implements PreviewSurfaceProvider {
-         *     SurfaceTexture mSurfaceTexture;
+         * class MyGlSurfaceProvider implements Preview.SurfaceProvider {
+         *     // This executor must have also been used with Preview.setSurfaceProvider() to
+         *     // ensure onSurfaceRequested() is called on our GL thread.
+         *     Executor mGlExecutor;
          *
          *     {@literal @}Override
-         *     public ListenableFuture{@literal <}Surface{@literal >} provideSurface(
-         *         {@literal @}NonNull Size resolution,
-         *         {@literal @}NonNull ListenableFuture{@literal <}Void{@literal >}
-         *         surfaceReleaseFuture) {
-         *         // Create the ListenableFuture for the Surface
-         *         mSurfaceTexture = new SurfaceTexture(0);
-         *         mSurfaceTexture.detachFromGLContext();
-         *         ListenableFuture<Surface> surfaceFuture = CallbackToFutureAdapter.getFuture(
-         *             completer -> completer.set(new Surface(mSurfaceTexture));
+         *     public void onSurfaceRequested(@NonNull SurfaceRequest request) {
+         *         // If our GL thread/context is shutting down. Signal we will not fulfill
+         *         // the request.
+         *         if (isShuttingDown()) {
+         *             request.setWillNotComplete();
+         *             return;
+         *         }
          *
-         *         Futures.addCallback(surfaceReleaseFuture,
-         *             new FutureCallback{@literal <}Void{@literal >}() {
-         *             {@literal @}Override
-         *             public void onSuccess(Void result) {
-         *                 // mSurfaceTexture is no longer used by the camera so it is safe to
-         *                 // release
-         *                 mSurfaceTexture.release();
-         *             }
+         *         // Create the surface and attempt to provide it to the camera.
+         *         Surface surface = resetGlInputSurface(request.getResolution());
          *
-         *             {@literal @}Override
-         *             public void onFailure(Throwable t) {
-         *                 // Should never fail
-         *             }
-         *         }, Executors.newSingleThreadExecutor());
-         *
-         *         return surfaceFuture;
+         *         // Provide the surface.
+         *         ListenableFuture<Void> sessionFuture = request.setSurface(surface);
+         *         // Attach a listener that will be called to clean up the surface.
+         *         sessionFuture.addListener(() -> {
+         *             // In all cases (even errors), we can clean up the state. As an
+         *             // optimization, we could also optionally check for errors on the
+         *             // ListenableFuture since we may be able to reuse the surface on
+         *             // subsequent surface requests.
+         *             closeGlInputSurface(surface);
+         *         }, mGlExecutor);
          *     }
          * }
          * </pre>
          *
-         * @param resolution           the resolution required by CameraX, which is in image sensor
-         *                             coordinate system.
-         * @param surfaceReleaseFuture it's safe to release the returned Surface return by the
-         *                             method, after this {@link ListenableFuture} finishes.
-         * @return A ListenableFuture that contains the implementer created Surface.
+         * @param request  the request for a surface which contains the requirements of the
+         *                 surface and methods for completing the request.
          */
-        @NonNull
-        ListenableFuture<Surface> provideSurface(@NonNull Size resolution,
-                @NonNull ListenableFuture<Void> surfaceReleaseFuture);
+        void onSurfaceRequested(@NonNull SurfaceRequest request);
     }
 
     /**
@@ -672,7 +648,7 @@ public class Preview extends UseCase {
          * <p>This method will remove any value set by setTargetAspectRatio().
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link Preview.PreviewSurfaceProvider#provideSurface(Size, ListenableFuture)}.
+         * {@link SurfaceRequest#getResolution()}.
          *
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
@@ -702,7 +678,7 @@ public class Preview extends UseCase {
          * Application code should check the resulting output's resolution.
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link Preview.PreviewSurfaceProvider#provideSurface(Size, ListenableFuture)}.
+         * {@link SurfaceRequest#getResolution()}.
          *
          * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
          * priority.

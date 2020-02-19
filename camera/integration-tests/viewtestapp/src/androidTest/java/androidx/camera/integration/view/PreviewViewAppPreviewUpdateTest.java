@@ -47,6 +47,7 @@ import org.junit.runner.RunWith;
 @LargeTest
 public final class PreviewViewAppPreviewUpdateTest {
     private static final int WAIT_TIMEOUT = 10000;
+    private static final int MAX_TIMEOUT_MS = 3000;
     private final UiDevice mDevice = UiDevice.getInstance(getInstrumentation());
     private Intent mIntent =
             new Intent("androidx.camera.integration.view.action.PREVIEWVIEWAPP");
@@ -137,9 +138,11 @@ public final class PreviewViewAppPreviewUpdateTest {
 
     private void pressHomeButton() {
         mDevice.pressHome();
+        mDevice.waitForIdle(MAX_TIMEOUT_MS);
     }
 
     private void pressBackButton() {
         mDevice.pressBack();
+        mDevice.waitForIdle(MAX_TIMEOUT_MS);
     }
 }

@@ -14,6 +14,10 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraInfo getCameraInfo();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class CameraCaptureResults {
+    method public static androidx.camera.core.impl.CameraCaptureResult? retrieveCameraCaptureResult(androidx.camera.core.ImageInfo);
+  }
+
   public interface CameraControl {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelFocusAndMetering();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
@@ -27,28 +31,45 @@ package androidx.camera.core {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CameraControl.OperationCanceledException(String, Throwable);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface CameraFactory {
+    method public String? cameraIdForLensFacing(@androidx.camera.core.CameraSelector.LensFacing int) throws androidx.camera.core.CameraInfoUnavailableException;
+    method public java.util.Set<java.lang.String!> getAvailableCameraIds() throws androidx.camera.core.CameraInfoUnavailableException;
+    method public androidx.camera.core.impl.CameraInternal getCamera(String) throws androidx.camera.core.CameraInfoUnavailableException;
+    method public androidx.camera.core.impl.LensFacingCameraIdFilter getLensFacingCameraIdFilter(@androidx.camera.core.CameraSelector.LensFacing int);
+  }
+
+  public static interface CameraFactory.Provider {
+    method public androidx.camera.core.CameraFactory newInstance(android.content.Context);
+  }
+
   public interface CameraInfo {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.CameraInfo.ImplementationType public String getImplementationType();
     method public androidx.lifecycle.LiveData<java.lang.Float!> getLinearZoom();
     method public androidx.lifecycle.LiveData<java.lang.Float!> getMaxZoomRatio();
     method public androidx.lifecycle.LiveData<java.lang.Float!> getMinZoomRatio();
     method public int getSensorRotationDegrees();
-    method public int getSensorRotationDegrees(int);
+    method public int getSensorRotationDegrees(@androidx.camera.core.ImageOutputConfig.RotationValue int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method public androidx.lifecycle.LiveData<java.lang.Float!> getZoomRatio();
     method public boolean hasFlashUnit();
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String IMPLEMENTATION_TYPE_CAMERA2 = "androidx.camera.camera2";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String IMPLEMENTATION_TYPE_CAMERA2_LEGACY = "androidx.camera.camera2.legacy";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String IMPLEMENTATION_TYPE_FAKE = "androidx.camera.fake";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String IMPLEMENTATION_TYPE_UNKNOWN = "<unknown>";
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @StringDef(open=true, value={androidx.camera.core.CameraInfo.IMPLEMENTATION_TYPE_UNKNOWN, androidx.camera.core.CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY, androidx.camera.core.CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, androidx.camera.core.CameraInfo.IMPLEMENTATION_TYPE_FAKE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CameraInfo.ImplementationType {
   }
 
   public final class CameraInfoUnavailableException extends java.lang.Exception {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CameraInfoUnavailableException(String!, Throwable!);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CameraInfoUnavailableException(String!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class CameraOrientationUtil {
+    method public static int getRelativeImageRotation(int, int, boolean);
+    method public static int surfaceRotationToDegrees(@androidx.camera.core.ImageOutputConfig.RotationValue int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class CameraRepository {
+    ctor public CameraRepository();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> deinit();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraInternal! getCamera(String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void init(androidx.camera.core.CameraFactory!);
+    method public void onGroupActive(androidx.camera.core.UseCaseGroup!);
+    method public void onGroupInactive(androidx.camera.core.UseCaseGroup!);
   }
 
   public final class CameraSelector {
@@ -75,13 +96,13 @@ package androidx.camera.core {
   @MainThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class CameraX {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCase!...);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static java.util.Collection<androidx.camera.core.UseCase!>? getActiveUseCases();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.impl.CameraFactory getCameraFactory();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.CameraFactory getCameraFactory();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.impl.CameraInfoInternal getCameraInfo(String!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static String? getCameraWithCameraSelector(androidx.camera.core.CameraSelector);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static String? getCameraWithLensFacing(@androidx.camera.core.CameraSelector.LensFacing int) throws androidx.camera.core.CameraInfoUnavailableException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static android.content.Context getContext();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.CameraSelector.LensFacing public static int getDefaultLensFacing() throws androidx.camera.core.CameraInfoUnavailableException;
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <C extends androidx.camera.core.impl.UseCaseConfig<?>> C? getDefaultUseCaseConfig(Class<C!>!, androidx.camera.core.CameraInfo?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <C extends androidx.camera.core.UseCaseConfig<?>> C? getDefaultUseCaseConfig(Class<C!>!, Integer?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.CameraX!> getOrCreateInstance(android.content.Context);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.impl.CameraDeviceSurfaceManager getSurfaceManager();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static boolean hasCamera(androidx.camera.core.CameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
@@ -93,22 +114,22 @@ package androidx.camera.core {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void unbindAll();
   }
 
-  public final class CameraXConfig implements androidx.camera.core.impl.Config {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean containsOption(androidx.camera.core.impl.Config.Option<?>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void findOptions(String, androidx.camera.core.impl.Config.OptionMatcher);
+  public final class CameraXConfig implements androidx.camera.core.Config {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean containsOption(androidx.camera.core.Config.Option<?>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void findOptions(String, androidx.camera.core.Config.OptionMatcher);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.concurrent.Executor? getCameraExecutor(java.util.concurrent.Executor?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraFactory.Provider? getCameraFactoryProvider(androidx.camera.core.impl.CameraFactory.Provider?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraFactory.Provider? getCameraFactoryProvider(androidx.camera.core.CameraFactory.Provider?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraDeviceSurfaceManager.Provider? getDeviceSurfaceManagerProvider(androidx.camera.core.impl.CameraDeviceSurfaceManager.Provider?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.CameraX!>? getTargetClass(Class<androidx.camera.core.CameraX!>?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.CameraX!> getTargetClass();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String? getTargetName(String?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String getTargetName();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.UseCaseConfigFactory.Provider? getUseCaseConfigFactoryProvider(androidx.camera.core.impl.UseCaseConfigFactory.Provider?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<androidx.camera.core.impl.Config.Option<?>!> listOptions();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.impl.Config.Option<ValueT!>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.impl.Config.Option<ValueT!>, ValueT?);
-    field public static final androidx.camera.core.impl.Config.Option<java.lang.Class<?>!> OPTION_TARGET_CLASS;
-    field public static final androidx.camera.core.impl.Config.Option<java.lang.String!> OPTION_TARGET_NAME;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCaseConfigFactory.Provider? getUseCaseConfigFactoryProvider(androidx.camera.core.UseCaseConfigFactory.Provider?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<androidx.camera.core.Config.Option<?>!> listOptions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>, ValueT?);
+    field public static final androidx.camera.core.Config.Option<java.lang.Class<?>!>! OPTION_TARGET_CLASS;
+    field public static final androidx.camera.core.Config.Option<java.lang.String!>! OPTION_TARGET_NAME;
   }
 
   public static final class CameraXConfig.Builder {
@@ -116,11 +137,11 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraXConfig.Builder setCameraFactoryProvider(androidx.camera.core.impl.CameraFactory.Provider);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraXConfig.Builder setCameraFactoryProvider(androidx.camera.core.CameraFactory.Provider);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraXConfig.Builder setDeviceSurfaceManagerProvider(androidx.camera.core.impl.CameraDeviceSurfaceManager.Provider);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraXConfig.Builder setTargetClass(Class<androidx.camera.core.CameraX!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraXConfig.Builder setTargetName(String);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraXConfig.Builder setUseCaseConfigFactoryProvider(androidx.camera.core.impl.UseCaseConfigFactory.Provider);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CameraXConfig.Builder setUseCaseConfigFactoryProvider(androidx.camera.core.UseCaseConfigFactory.Provider);
   }
 
   public static interface CameraXConfig.Provider {
@@ -131,14 +152,136 @@ package androidx.camera.core {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String TAG = "CameraX-";
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface CaptureBundle {
+    method public java.util.List<androidx.camera.core.CaptureStage!>! getCaptureStages();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class CaptureConfig {
+    method public static androidx.camera.core.CaptureConfig! defaultEmptyCaptureConfig();
+    method public java.util.List<androidx.camera.core.impl.CameraCaptureCallback!>! getCameraCaptureCallbacks();
+    method public androidx.camera.core.Config! getImplementationOptions();
+    method public java.util.List<androidx.camera.core.DeferrableSurface!>! getSurfaces();
+    method public Object! getTag();
+    method public int getTemplateType();
+    method public boolean isUseRepeatingSurface();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class CaptureConfig.Builder {
+    ctor public CaptureConfig.Builder();
+    method public void addAllCameraCaptureCallbacks(java.util.Collection<androidx.camera.core.impl.CameraCaptureCallback!>!);
+    method public void addCameraCaptureCallback(androidx.camera.core.impl.CameraCaptureCallback!);
+    method public void addImplementationOptions(androidx.camera.core.Config!);
+    method public void addSurface(androidx.camera.core.DeferrableSurface!);
+    method public androidx.camera.core.CaptureConfig! build();
+    method public void clearSurfaces();
+    method public static androidx.camera.core.CaptureConfig.Builder! createFrom(androidx.camera.core.UseCaseConfig<?>!);
+    method public static androidx.camera.core.CaptureConfig.Builder! from(androidx.camera.core.CaptureConfig!);
+    method public androidx.camera.core.Config! getImplementationOptions();
+    method public java.util.Set<androidx.camera.core.DeferrableSurface!> getSurfaces();
+    method public void removeSurface(androidx.camera.core.DeferrableSurface!);
+    method public void setImplementationOptions(androidx.camera.core.Config!);
+    method public void setTag(Object!);
+    method public void setTemplateType(int);
+    method public void setUseRepeatingSurface(boolean);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface CaptureConfig.OptionUnpacker {
+    method public void unpack(androidx.camera.core.UseCaseConfig<?>!, androidx.camera.core.CaptureConfig.Builder!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface CaptureProcessor {
+    method public void onOutputSurface(android.view.Surface!, int);
+    method public void onResolutionUpdate(android.util.Size!);
+    method public void process(androidx.camera.core.ImageProxyBundle!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface CaptureStage {
+    method public androidx.camera.core.CaptureConfig! getCaptureConfig();
+    method public int getId();
+  }
+
+  public static final class CaptureStage.DefaultCaptureStage implements androidx.camera.core.CaptureStage {
+    method public androidx.camera.core.CaptureConfig! getCaptureConfig();
+    method public int getId();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface Config {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean containsOption(androidx.camera.core.Config.Option<?>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void findOptions(String!, androidx.camera.core.Config.OptionMatcher!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<androidx.camera.core.Config.Option<?>!>! listOptions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT! retrieveOption(androidx.camera.core.Config.Option<ValueT!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>!, ValueT?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract static class Config.Option<T> {
+    method public static <T> androidx.camera.core.Config.Option<T!>! create(String!, Class<?>!);
+    method public static <T> androidx.camera.core.Config.Option<T!>! create(String!, Class<?>!, Object?);
+    method public abstract String! getId();
+    method public abstract Object? getToken();
+    method public abstract Class<T!>! getValueClass();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface Config.OptionMatcher {
+    method public boolean onOptionMatched(androidx.camera.core.Config.Option<?>!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ConfigProvider<C extends androidx.camera.core.Config> {
+    method public C! getConfig(Integer?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class DeferrableSurface {
+    ctor public DeferrableSurface();
+    method public final void close();
+    method public final com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> getSurface();
+    method public void notifySurfaceAttached();
+    method public void notifySurfaceDetached();
+    method public void setOnSurfaceDetachedListener(java.util.concurrent.Executor, androidx.camera.core.DeferrableSurface.OnSurfaceDetachedListener);
+    field protected static final String TAG = "DeferrableSurface";
+  }
+
+  public static interface DeferrableSurface.OnSurfaceDetachedListener {
+    method public void onSurfaceDetached();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class DeferrableSurface.SurfaceClosedException extends java.lang.Exception {
+    ctor public DeferrableSurface.SurfaceClosedException(String, Throwable, androidx.camera.core.DeferrableSurface);
+    ctor public DeferrableSurface.SurfaceClosedException(String, androidx.camera.core.DeferrableSurface);
+    method public androidx.camera.core.DeferrableSurface getDeferrableSurface();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class DeferrableSurfaces {
+    method public static com.google.common.util.concurrent.ListenableFuture<java.util.List<android.view.Surface!>!> surfaceListWithTimeout(java.util.Collection<androidx.camera.core.DeferrableSurface!>, boolean, long, java.util.concurrent.Executor, java.util.concurrent.ScheduledExecutorService);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class DeviceProperties {
+    ctor public DeviceProperties();
+    method public static androidx.camera.core.DeviceProperties! create();
+    method public static androidx.camera.core.DeviceProperties! create(String!, String!, int);
+    method public abstract String! manufacturer();
+    method public abstract String! model();
+    method public abstract int sdkVersion();
+  }
+
   public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
+    ctor public DisplayOrientedMeteringPointFactory(android.content.Context, androidx.camera.core.CameraSelector, float, float);
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraSelector, float, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected android.graphics.PointF convertPoint(float, float);
   }
 
   public interface ExtendableBuilder<T> {
     method public T build();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.MutableConfig getMutableConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.MutableConfig getMutableConfig();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ExtendableUseCaseConfigFactory implements androidx.camera.core.UseCaseConfigFactory {
+    ctor public ExtendableUseCaseConfigFactory();
+    method public <C extends androidx.camera.core.UseCaseConfig<?>> C? getConfig(Class<C!>, Integer?);
+    method public <C extends androidx.camera.core.Config> void installDefaultProvider(Class<C!>, androidx.camera.core.ConfigProvider<C!>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class FlashModeHelper {
+    method public static String nameOf(@androidx.camera.core.ImageCapture.FlashMode int);
+    method @androidx.camera.core.ImageCapture.FlashMode public static int valueOf(String?);
   }
 
   public final class FocusMeteringAction {
@@ -153,12 +296,12 @@ package androidx.camera.core {
   }
 
   public static class FocusMeteringAction.Builder {
-    ctor public FocusMeteringAction.Builder(androidx.camera.core.MeteringPoint);
-    ctor public FocusMeteringAction.Builder(androidx.camera.core.MeteringPoint, @androidx.camera.core.FocusMeteringAction.MeteringMode int);
     method public androidx.camera.core.FocusMeteringAction.Builder addPoint(androidx.camera.core.MeteringPoint);
     method public androidx.camera.core.FocusMeteringAction.Builder addPoint(androidx.camera.core.MeteringPoint, @androidx.camera.core.FocusMeteringAction.MeteringMode int);
     method public androidx.camera.core.FocusMeteringAction build();
     method public androidx.camera.core.FocusMeteringAction.Builder disableAutoCancel();
+    method public static androidx.camera.core.FocusMeteringAction.Builder from(androidx.camera.core.MeteringPoint);
+    method public static androidx.camera.core.FocusMeteringAction.Builder from(androidx.camera.core.MeteringPoint, @androidx.camera.core.FocusMeteringAction.MeteringMode int);
     method public androidx.camera.core.FocusMeteringAction.Builder setAutoCancelDuration(@IntRange(from=1) long, java.util.concurrent.TimeUnit);
   }
 
@@ -172,10 +315,11 @@ package androidx.camera.core {
   }
 
   public final class ImageAnalysis extends androidx.camera.core.UseCase {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void clear();
     method public void clearAnalyzer();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
-    method public void setTargetRotation(int);
+    method public void setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.ImageAnalysis.Defaults! DEFAULT_CONFIG;
     field public static final int STRATEGY_BLOCK_PRODUCER = 1; // 0x1
     field public static final int STRATEGY_KEEP_ONLY_LATEST = 0; // 0x0
@@ -188,21 +332,23 @@ package androidx.camera.core {
   @IntDef({androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST, androidx.camera.core.ImageAnalysis.STRATEGY_BLOCK_PRODUCER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ImageAnalysis.BackpressureStrategy {
   }
 
-  public static final class ImageAnalysis.Builder implements androidx.camera.core.impl.UseCaseConfig.Builder<androidx.camera.core.ImageAnalysis,androidx.camera.core.impl.ImageAnalysisConfig,androidx.camera.core.ImageAnalysis.Builder> {
+  public static final class ImageAnalysis.Builder implements androidx.camera.core.ImageOutputConfig.Builder<androidx.camera.core.ImageAnalysis.Builder> androidx.camera.core.UseCaseConfig.Builder<androidx.camera.core.ImageAnalysis,androidx.camera.core.ImageAnalysisConfig,androidx.camera.core.ImageAnalysis.Builder> {
     ctor public ImageAnalysis.Builder();
     method public androidx.camera.core.ImageAnalysis build();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.ImageAnalysis.Builder fromConfig(androidx.camera.core.impl.ImageAnalysisConfig);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.MutableConfig getMutableConfig();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.ImageAnalysisConfig getUseCaseConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.ImageAnalysis.Builder fromConfig(androidx.camera.core.ImageAnalysisConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.MutableConfig getMutableConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysisConfig getUseCaseConfig();
     method public androidx.camera.core.ImageAnalysis.Builder setBackgroundExecutor(java.util.concurrent.Executor);
     method public androidx.camera.core.ImageAnalysis.Builder setBackpressureStrategy(@androidx.camera.core.ImageAnalysis.BackpressureStrategy int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setCaptureOptionUnpacker(androidx.camera.core.impl.CaptureConfig.OptionUnpacker);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setDefaultCaptureConfig(androidx.camera.core.impl.CaptureConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setCameraIdFilter(androidx.camera.core.impl.CameraIdFilter);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setDefaultCaptureConfig(androidx.camera.core.CaptureConfig);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setDefaultResolution(android.util.Size);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setDefaultSessionConfig(androidx.camera.core.impl.SessionConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setDefaultSessionConfig(androidx.camera.core.SessionConfig);
     method public androidx.camera.core.ImageAnalysis.Builder setImageQueueDepth(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setLensFacing(@androidx.camera.core.CameraSelector.LensFacing int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setMaxResolution(android.util.Size);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setSessionOptionUnpacker(androidx.camera.core.impl.SessionConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setSurfaceOccupancyPriority(int);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetAspectRatio(@androidx.camera.core.AspectRatio.Ratio int);
@@ -210,21 +356,75 @@ package androidx.camera.core {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setTargetClass(Class<androidx.camera.core.ImageAnalysis!>);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetName(String);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetResolution(android.util.Size);
-    method public androidx.camera.core.ImageAnalysis.Builder setTargetRotation(int);
+    method public androidx.camera.core.ImageAnalysis.Builder setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageAnalysis.Builder setUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class ImageAnalysis.Defaults {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class ImageAnalysis.Defaults implements androidx.camera.core.ConfigProvider<androidx.camera.core.ImageAnalysisConfig> {
     ctor public ImageAnalysis.Defaults();
-    method public androidx.camera.core.impl.ImageAnalysisConfig getConfig(androidx.camera.core.CameraInfo?);
+    method public androidx.camera.core.ImageAnalysisConfig getConfig(Integer?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ImageAnalysisConfig implements androidx.camera.core.ImageOutputConfig androidx.camera.core.UseCaseConfig<androidx.camera.core.ImageAnalysis> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean containsOption(androidx.camera.core.Config.Option<?>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void findOptions(String, androidx.camera.core.Config.OptionMatcher);
+    method public java.util.concurrent.Executor? getBackgroundExecutor(java.util.concurrent.Executor?);
+    method public java.util.concurrent.Executor getBackgroundExecutor();
+    method @androidx.camera.core.ImageAnalysis.BackpressureStrategy public int getBackpressureStrategy(@androidx.camera.core.ImageAnalysis.BackpressureStrategy int);
+    method @androidx.camera.core.ImageAnalysis.BackpressureStrategy public int getBackpressureStrategy();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter? getCameraIdFilter(androidx.camera.core.impl.CameraIdFilter?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter getCameraIdFilter();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker? getCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig? getDefaultCaptureConfig(androidx.camera.core.CaptureConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig getDefaultCaptureConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getDefaultResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getDefaultResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig? getDefaultSessionConfig(androidx.camera.core.SessionConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig getDefaultSessionConfig();
+    method public int getImageQueueDepth(int);
+    method public int getImageQueueDepth();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Integer? getLensFacing(Integer?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.CameraSelector.LensFacing public int getLensFacing();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getMaxResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getMaxResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker? getSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker getSessionOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>? getSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!> getSupportedResolutions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority();
+    method @androidx.camera.core.AspectRatio.Ratio public int getTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational? getTargetAspectRatioCustom(android.util.Rational?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational getTargetAspectRatioCustom();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.ImageAnalysis!>? getTargetClass(Class<androidx.camera.core.ImageAnalysis!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.ImageAnalysis!> getTargetClass();
+    method public String? getTargetName(String?);
+    method public String getTargetName();
+    method public android.util.Size? getTargetResolution(android.util.Size?);
+    method public android.util.Size getTargetResolution();
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation(int);
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback? getUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback getUseCaseEventCallback();
+    method public boolean hasTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<androidx.camera.core.Config.Option<?>!> listOptions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>, ValueT?);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.util.concurrent.Executor!>! OPTION_BACKGROUND_EXECUTOR;
+    field public static final androidx.camera.core.Config.Option<androidx.camera.core.impl.CameraIdFilter!>! OPTION_CAMERA_ID_FILTER;
+    field public static final androidx.camera.core.Config.Option<java.lang.Integer!>! OPTION_LENS_FACING;
+    field public static final androidx.camera.core.Config.Option<java.lang.Class<?>!>! OPTION_TARGET_CLASS;
+    field public static final androidx.camera.core.Config.Option<java.lang.String!>! OPTION_TARGET_NAME;
   }
 
   public class ImageCapture extends androidx.camera.core.UseCase {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void clear();
     method @androidx.camera.core.ImageCapture.FlashMode public int getFlashMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
     method public void setFlashMode(@androidx.camera.core.ImageCapture.FlashMode int);
     method public void setTargetAspectRatioCustom(android.util.Rational);
-    method public void setTargetRotation(int);
+    method public void setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     method public void takePicture(java.io.File, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method public void takePicture(java.io.File, androidx.camera.core.ImageCapture.Metadata, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
@@ -241,26 +441,27 @@ package androidx.camera.core {
     field public static final int FLASH_MODE_ON = 1; // 0x1
   }
 
-  public static final class ImageCapture.Builder implements androidx.camera.core.impl.UseCaseConfig.Builder<androidx.camera.core.ImageCapture,androidx.camera.core.impl.ImageCaptureConfig,androidx.camera.core.ImageCapture.Builder> {
+  public static final class ImageCapture.Builder implements androidx.camera.core.ImageOutputConfig.Builder<androidx.camera.core.ImageCapture.Builder> androidx.camera.core.UseCaseConfig.Builder<androidx.camera.core.ImageCapture,androidx.camera.core.ImageCaptureConfig,androidx.camera.core.ImageCapture.Builder> {
     ctor public ImageCapture.Builder();
     method public androidx.camera.core.ImageCapture build();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.ImageCapture.Builder fromConfig(androidx.camera.core.impl.ImageCaptureConfig);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.MutableConfig getMutableConfig();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.ImageCaptureConfig getUseCaseConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.ImageCapture.Builder fromConfig(androidx.camera.core.ImageCaptureConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.MutableConfig getMutableConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCaptureConfig getUseCaseConfig();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setBufferFormat(int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCameraSelector(androidx.camera.core.CameraSelector);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCaptureBundle(androidx.camera.core.impl.CaptureBundle);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCameraIdFilter(androidx.camera.core.impl.CameraIdFilter);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCaptureBundle(androidx.camera.core.CaptureBundle);
     method public androidx.camera.core.ImageCapture.Builder setCaptureMode(@androidx.camera.core.ImageCapture.CaptureMode int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCaptureOptionUnpacker(androidx.camera.core.impl.CaptureConfig.OptionUnpacker);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCaptureProcessor(androidx.camera.core.impl.CaptureProcessor);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setDefaultCaptureConfig(androidx.camera.core.impl.CaptureConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setCaptureProcessor(androidx.camera.core.CaptureProcessor);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setDefaultCaptureConfig(androidx.camera.core.CaptureConfig);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setDefaultResolution(android.util.Size);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setDefaultSessionConfig(androidx.camera.core.impl.SessionConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setDefaultSessionConfig(androidx.camera.core.SessionConfig);
     method public androidx.camera.core.ImageCapture.Builder setFlashMode(@androidx.camera.core.ImageCapture.FlashMode int);
     method public androidx.camera.core.ImageCapture.Builder setIoExecutor(java.util.concurrent.Executor);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setLensFacing(@androidx.camera.core.CameraSelector.LensFacing int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setMaxCaptureStages(int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setMaxResolution(android.util.Size);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setSessionOptionUnpacker(androidx.camera.core.impl.SessionConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setSurfaceOccupancyPriority(int);
     method public androidx.camera.core.ImageCapture.Builder setTargetAspectRatio(@androidx.camera.core.AspectRatio.Ratio int);
@@ -268,16 +469,16 @@ package androidx.camera.core {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setTargetClass(Class<androidx.camera.core.ImageCapture!>);
     method public androidx.camera.core.ImageCapture.Builder setTargetName(String);
     method public androidx.camera.core.ImageCapture.Builder setTargetResolution(android.util.Size);
-    method public androidx.camera.core.ImageCapture.Builder setTargetRotation(int);
+    method public androidx.camera.core.ImageCapture.Builder setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.ImageCapture.Builder setUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback);
   }
 
   @IntDef({androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY, androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ImageCapture.CaptureMode {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class ImageCapture.Defaults {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class ImageCapture.Defaults implements androidx.camera.core.ConfigProvider<androidx.camera.core.ImageCaptureConfig> {
     ctor public ImageCapture.Defaults();
-    method public androidx.camera.core.impl.ImageCaptureConfig getConfig(androidx.camera.core.CameraInfo?);
+    method public androidx.camera.core.ImageCaptureConfig! getConfig(Integer?);
   }
 
   @IntDef({androidx.camera.core.ImageCapture.FLASH_MODE_AUTO, androidx.camera.core.ImageCapture.FLASH_MODE_ON, androidx.camera.core.ImageCapture.FLASH_MODE_OFF}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ImageCapture.FlashMode {
@@ -307,10 +508,118 @@ package androidx.camera.core {
     method public void onImageSaved(java.io.File);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ImageCaptureConfig implements androidx.camera.core.ImageOutputConfig androidx.camera.core.UseCaseConfig<androidx.camera.core.ImageCapture> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean containsOption(androidx.camera.core.Config.Option<?>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void findOptions(String, androidx.camera.core.Config.OptionMatcher);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Integer? getBufferFormat(Integer?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Integer getBufferFormat();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter? getCameraIdFilter(androidx.camera.core.impl.CameraIdFilter?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter getCameraIdFilter();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureBundle? getCaptureBundle(androidx.camera.core.CaptureBundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureBundle getCaptureBundle();
+    method @androidx.camera.core.ImageCapture.CaptureMode public int getCaptureMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker? getCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureProcessor? getCaptureProcessor(androidx.camera.core.CaptureProcessor?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureProcessor getCaptureProcessor();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig? getDefaultCaptureConfig(androidx.camera.core.CaptureConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig getDefaultCaptureConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getDefaultResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getDefaultResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig? getDefaultSessionConfig(androidx.camera.core.SessionConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig getDefaultSessionConfig();
+    method @androidx.camera.core.ImageCapture.FlashMode public int getFlashMode();
+    method public java.util.concurrent.Executor? getIoExecutor(java.util.concurrent.Executor?);
+    method public java.util.concurrent.Executor getIoExecutor();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Integer? getLensFacing(Integer?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.CameraSelector.LensFacing public int getLensFacing();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getMaxCaptureStages(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getMaxCaptureStages();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getMaxResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getMaxResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker? getSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker getSessionOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>? getSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!> getSupportedResolutions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority();
+    method @androidx.camera.core.AspectRatio.Ratio public int getTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational? getTargetAspectRatioCustom(android.util.Rational?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational getTargetAspectRatioCustom();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.ImageCapture!>? getTargetClass(Class<androidx.camera.core.ImageCapture!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.ImageCapture!> getTargetClass();
+    method public String? getTargetName(String?);
+    method public String getTargetName();
+    method public android.util.Size? getTargetResolution(android.util.Size?);
+    method public android.util.Size getTargetResolution();
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation(int);
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback? getUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback getUseCaseEventCallback();
+    method public boolean hasCaptureMode();
+    method public boolean hasTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<androidx.camera.core.Config.Option<?>!> listOptions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>, ValueT?);
+    field public static final androidx.camera.core.Config.Option<androidx.camera.core.impl.CameraIdFilter!>! OPTION_CAMERA_ID_FILTER;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.util.concurrent.Executor!>! OPTION_IO_EXECUTOR;
+    field public static final androidx.camera.core.Config.Option<java.lang.Integer!>! OPTION_LENS_FACING;
+    field public static final androidx.camera.core.Config.Option<java.lang.Class<?>!>! OPTION_TARGET_CLASS;
+    field public static final androidx.camera.core.Config.Option<java.lang.String!>! OPTION_TARGET_NAME;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ImageFormatConstants {
+    field public static final int INTERNAL_DEFINED_IMAGE_FORMAT_JPEG = 33; // 0x21
+    field public static final int INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE = 34; // 0x22
+  }
+
   public interface ImageInfo {
     method public int getRotationDegrees();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Object? getTag();
     method public long getTimestamp();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ImageInfoProcessor {
+    method public androidx.camera.core.CaptureStage! getCaptureStage();
+    method public boolean process(androidx.camera.core.ImageInfo!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ImageOutputConfig {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getDefaultResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getDefaultResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getMaxResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getMaxResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>? getSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!> getSupportedResolutions();
+    method @androidx.camera.core.AspectRatio.Ratio public int getTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational? getTargetAspectRatioCustom(android.util.Rational?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational getTargetAspectRatioCustom();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getTargetResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getTargetResolution();
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation(int);
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation();
+    method public boolean hasTargetAspectRatio();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int INVALID_ROTATION = -1; // 0xffffffff
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<android.util.Size!>! OPTION_DEFAULT_RESOLUTION;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<android.util.Size!>! OPTION_MAX_RESOLUTION;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>!>! OPTION_SUPPORTED_RESOLUTIONS;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.lang.Integer!>! OPTION_TARGET_ASPECT_RATIO;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<android.util.Rational!>! OPTION_TARGET_ASPECT_RATIO_CUSTOM;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<android.util.Size!>! OPTION_TARGET_RESOLUTION;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.lang.Integer!>! OPTION_TARGET_ROTATION;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface ImageOutputConfig.Builder<B> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setDefaultResolution(android.util.Size);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setMaxResolution(android.util.Size);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>);
+    method public B setTargetAspectRatio(@androidx.camera.core.AspectRatio.Ratio int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setTargetAspectRatioCustom(android.util.Rational);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setTargetResolution(android.util.Size);
+    method public B setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
+  }
+
+  @IntDef({android.view.Surface.ROTATION_0, android.view.Surface.ROTATION_90, android.view.Surface.ROTATION_180, android.view.Surface.ROTATION_270}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ImageOutputConfig.RotationValue {
   }
 
   public interface ImageProxy extends java.lang.AutoCloseable {
@@ -330,6 +639,44 @@ package androidx.camera.core {
     method public int getRowStride();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ImageProxyBundle {
+    method public java.util.List<java.lang.Integer!> getCaptureIds();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.ImageProxy!> getImageProxy(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ImageReaderProxy {
+    method public androidx.camera.core.ImageProxy? acquireLatestImage();
+    method public androidx.camera.core.ImageProxy? acquireNextImage();
+    method public void close();
+    method public int getHeight();
+    method public int getImageFormat();
+    method public int getMaxImages();
+    method public android.view.Surface! getSurface();
+    method public int getWidth();
+    method public void setOnImageAvailableListener(androidx.camera.core.ImageReaderProxy.OnImageAvailableListener, android.os.Handler?);
+    method public void setOnImageAvailableListener(androidx.camera.core.ImageReaderProxy.OnImageAvailableListener, java.util.concurrent.Executor);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface ImageReaderProxy.OnImageAvailableListener {
+    method public void onImageAvailable(androidx.camera.core.ImageReaderProxy!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ImageReaderProxys {
+    method public static androidx.camera.core.ImageReaderProxy createIsolatedReader(int, int, int, int);
+    method public static androidx.camera.core.ImageReaderProxy createSharedReader(androidx.camera.core.impl.CameraDeviceSurfaceManager, String, int, int, int, int, java.util.concurrent.Executor);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ImmediateSurface extends androidx.camera.core.DeferrableSurface {
+    ctor public ImmediateSurface(android.view.Surface);
+    method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> provideSurface();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class LensFacingConverter {
+    method public static String nameOf(@androidx.camera.core.CameraSelector.LensFacing int);
+    method @androidx.camera.core.CameraSelector.LensFacing public static int valueOf(String?);
+    method public static Integer![] values();
+  }
+
   public class MeteringPoint {
     method public float getSize();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational? getSurfaceAspectRatio();
@@ -346,7 +693,31 @@ package androidx.camera.core {
     method public static float getDefaultPointSize();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface MutableConfig extends androidx.camera.core.Config {
+    method public <ValueT> void insertOption(androidx.camera.core.Config.Option<ValueT!>!, ValueT!);
+    method public <ValueT> ValueT? removeOption(androidx.camera.core.Config.Option<ValueT!>!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MutableOptionsBundle extends androidx.camera.core.OptionsBundle implements androidx.camera.core.MutableConfig {
+    method public static androidx.camera.core.MutableOptionsBundle! create();
+    method public static androidx.camera.core.MutableOptionsBundle! from(androidx.camera.core.Config!);
+    method public <ValueT> void insertOption(androidx.camera.core.Config.Option<ValueT!>!, ValueT!);
+    method public <ValueT> ValueT? removeOption(androidx.camera.core.Config.Option<ValueT!>!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class OptionsBundle implements androidx.camera.core.Config {
+    method public boolean containsOption(androidx.camera.core.Config.Option<?>);
+    method public static androidx.camera.core.OptionsBundle emptyBundle();
+    method public void findOptions(String, androidx.camera.core.Config.OptionMatcher);
+    method public static androidx.camera.core.OptionsBundle from(androidx.camera.core.Config);
+    method public java.util.Set<androidx.camera.core.Config.Option<?>!> listOptions();
+    method public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>);
+    method public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>, ValueT?);
+    field protected final java.util.TreeMap<androidx.camera.core.Config.Option<?>!,java.lang.Object!>! mOptions;
+  }
+
   public class Preview extends androidx.camera.core.UseCase {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void clear();
     method @UiThread public androidx.camera.core.Preview.PreviewSurfaceProvider? getPreviewSurfaceProvider();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
     method @UiThread public void setPreviewSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.PreviewSurfaceProvider?);
@@ -354,22 +725,23 @@ package androidx.camera.core {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Preview.Defaults! DEFAULT_CONFIG;
   }
 
-  public static final class Preview.Builder implements androidx.camera.core.impl.UseCaseConfig.Builder<androidx.camera.core.Preview,androidx.camera.core.impl.PreviewConfig,androidx.camera.core.Preview.Builder> {
+  public static final class Preview.Builder implements androidx.camera.core.ImageOutputConfig.Builder<androidx.camera.core.Preview.Builder> androidx.camera.core.UseCaseConfig.Builder<androidx.camera.core.Preview,androidx.camera.core.PreviewConfig,androidx.camera.core.Preview.Builder> {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.Preview.Builder fromConfig(androidx.camera.core.impl.PreviewConfig);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.MutableConfig getMutableConfig();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.PreviewConfig getUseCaseConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.camera.core.Preview.Builder fromConfig(androidx.camera.core.PreviewConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.MutableConfig getMutableConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.PreviewConfig getUseCaseConfig();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setBackgroundExecutor(java.util.concurrent.Executor);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setCameraSelector(androidx.camera.core.CameraSelector);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setCaptureOptionUnpacker(androidx.camera.core.impl.CaptureConfig.OptionUnpacker);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setCaptureProcessor(androidx.camera.core.impl.CaptureProcessor);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setDefaultCaptureConfig(androidx.camera.core.impl.CaptureConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setCameraIdFilter(androidx.camera.core.impl.CameraIdFilter);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setCaptureProcessor(androidx.camera.core.CaptureProcessor);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setDefaultCaptureConfig(androidx.camera.core.CaptureConfig);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setDefaultResolution(android.util.Size);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setDefaultSessionConfig(androidx.camera.core.impl.SessionConfig);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setImageInfoProcessor(androidx.camera.core.impl.ImageInfoProcessor);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setDefaultSessionConfig(androidx.camera.core.SessionConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setImageInfoProcessor(androidx.camera.core.ImageInfoProcessor);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setLensFacing(@androidx.camera.core.CameraSelector.LensFacing int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setMaxResolution(android.util.Size);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setSessionOptionUnpacker(androidx.camera.core.impl.SessionConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setSurfaceOccupancyPriority(int);
     method public androidx.camera.core.Preview.Builder setTargetAspectRatio(@androidx.camera.core.AspectRatio.Ratio int);
@@ -377,17 +749,131 @@ package androidx.camera.core {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setTargetClass(Class<androidx.camera.core.Preview!>);
     method public androidx.camera.core.Preview.Builder setTargetName(String);
     method public androidx.camera.core.Preview.Builder setTargetResolution(android.util.Size);
-    method public androidx.camera.core.Preview.Builder setTargetRotation(int);
+    method public androidx.camera.core.Preview.Builder setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.Preview.Builder setUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class Preview.Defaults {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class Preview.Defaults implements androidx.camera.core.ConfigProvider<androidx.camera.core.PreviewConfig> {
     ctor public Preview.Defaults();
-    method public androidx.camera.core.impl.PreviewConfig getConfig(androidx.camera.core.CameraInfo?);
+    method public androidx.camera.core.PreviewConfig! getConfig(Integer?);
   }
 
   public static interface Preview.PreviewSurfaceProvider {
     method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> provideSurface(android.util.Size, com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PreviewConfig implements androidx.camera.core.ImageOutputConfig androidx.camera.core.UseCaseConfig<androidx.camera.core.Preview> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean containsOption(androidx.camera.core.Config.Option<?>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void findOptions(String, androidx.camera.core.Config.OptionMatcher);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.concurrent.Executor? getBackgroundExecutor(java.util.concurrent.Executor?);
+    method public java.util.concurrent.Executor getBackgroundExecutor();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter? getCameraIdFilter(androidx.camera.core.impl.CameraIdFilter?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter getCameraIdFilter();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker? getCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureProcessor? getCaptureProcessor(androidx.camera.core.CaptureProcessor?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureProcessor getCaptureProcessor();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig? getDefaultCaptureConfig(androidx.camera.core.CaptureConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig getDefaultCaptureConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getDefaultResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getDefaultResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig? getDefaultSessionConfig(androidx.camera.core.SessionConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig getDefaultSessionConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Integer? getLensFacing(Integer?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.CameraSelector.LensFacing public int getLensFacing();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getMaxResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getMaxResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker? getSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker getSessionOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>? getSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!> getSupportedResolutions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority();
+    method @androidx.camera.core.AspectRatio.Ratio public int getTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational? getTargetAspectRatioCustom(android.util.Rational?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational getTargetAspectRatioCustom();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.Preview!>? getTargetClass(Class<androidx.camera.core.Preview!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.Preview!> getTargetClass();
+    method public String? getTargetName(String?);
+    method public String getTargetName();
+    method public android.util.Size? getTargetResolution(android.util.Size?);
+    method public android.util.Size getTargetResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback? getUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback getUseCaseEventCallback();
+    method public boolean hasTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<androidx.camera.core.Config.Option<?>!> listOptions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>, ValueT?);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.util.concurrent.Executor!>! OPTION_BACKGROUND_EXECUTOR;
+    field public static final androidx.camera.core.Config.Option<androidx.camera.core.impl.CameraIdFilter!>! OPTION_CAMERA_ID_FILTER;
+    field public static final androidx.camera.core.Config.Option<java.lang.Integer!>! OPTION_LENS_FACING;
+    field public static final androidx.camera.core.Config.Option<java.lang.Class<?>!>! OPTION_TARGET_CLASS;
+    field public static final androidx.camera.core.Config.Option<java.lang.String!>! OPTION_TARGET_NAME;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SessionConfig {
+    method public static androidx.camera.core.SessionConfig defaultEmptySessionConfig();
+    method public java.util.List<android.hardware.camera2.CameraDevice.StateCallback!> getDeviceStateCallbacks();
+    method public java.util.List<androidx.camera.core.SessionConfig.ErrorListener!> getErrorListeners();
+    method public androidx.camera.core.Config getImplementationOptions();
+    method public java.util.List<androidx.camera.core.impl.CameraCaptureCallback!> getRepeatingCameraCaptureCallbacks();
+    method public androidx.camera.core.CaptureConfig getRepeatingCaptureConfig();
+    method public java.util.List<android.hardware.camera2.CameraCaptureSession.StateCallback!> getSessionStateCallbacks();
+    method public java.util.List<androidx.camera.core.impl.CameraCaptureCallback!> getSingleCameraCaptureCallbacks();
+    method public java.util.List<androidx.camera.core.DeferrableSurface!> getSurfaces();
+    method public int getTemplateType();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class SessionConfig.Builder {
+    ctor public SessionConfig.Builder();
+    method public void addAllCameraCaptureCallbacks(java.util.Collection<androidx.camera.core.impl.CameraCaptureCallback!>);
+    method public void addAllDeviceStateCallbacks(java.util.Collection<android.hardware.camera2.CameraDevice.StateCallback!>);
+    method public void addAllRepeatingCameraCaptureCallbacks(java.util.Collection<androidx.camera.core.impl.CameraCaptureCallback!>);
+    method public void addAllSessionStateCallbacks(java.util.List<android.hardware.camera2.CameraCaptureSession.StateCallback!>);
+    method public void addCameraCaptureCallback(androidx.camera.core.impl.CameraCaptureCallback);
+    method public void addDeviceStateCallback(android.hardware.camera2.CameraDevice.StateCallback);
+    method public void addErrorListener(androidx.camera.core.SessionConfig.ErrorListener);
+    method public void addImplementationOptions(androidx.camera.core.Config);
+    method public void addNonRepeatingSurface(androidx.camera.core.DeferrableSurface);
+    method public void addRepeatingCameraCaptureCallback(androidx.camera.core.impl.CameraCaptureCallback);
+    method public void addSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback);
+    method public void addSurface(androidx.camera.core.DeferrableSurface);
+    method public androidx.camera.core.SessionConfig build();
+    method public void clearSurfaces();
+    method public static androidx.camera.core.SessionConfig.Builder createFrom(androidx.camera.core.UseCaseConfig<?>);
+    method public java.util.List<androidx.camera.core.impl.CameraCaptureCallback!> getSingleCameraCaptureCallbacks();
+    method public void removeSurface(androidx.camera.core.DeferrableSurface);
+    method public void setImplementationOptions(androidx.camera.core.Config!);
+    method public void setTag(Object!);
+    method public void setTemplateType(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface SessionConfig.ErrorListener {
+    method public void onError(androidx.camera.core.SessionConfig, androidx.camera.core.SessionConfig.SessionError);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface SessionConfig.OptionUnpacker {
+    method public void unpack(androidx.camera.core.UseCaseConfig<?>, androidx.camera.core.SessionConfig.Builder);
+  }
+
+  public enum SessionConfig.SessionError {
+    enum_constant public static final androidx.camera.core.SessionConfig.SessionError SESSION_ERROR_SURFACE_NEEDS_RESET;
+    enum_constant public static final androidx.camera.core.SessionConfig.SessionError SESSION_ERROR_UNKNOWN;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class SessionConfig.ValidatingBuilder {
+    ctor public SessionConfig.ValidatingBuilder();
+    method public void add(androidx.camera.core.SessionConfig);
+    method public androidx.camera.core.SessionConfig build();
+    method public boolean isValid();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SingleImageProxyBundle implements androidx.camera.core.ImageProxyBundle {
+    ctor public SingleImageProxyBundle(androidx.camera.core.ImageProxy);
+    method public java.util.List<java.lang.Integer!> getCaptureIds();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.ImageProxy!> getImageProxy(int);
   }
 
   public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
@@ -405,22 +891,22 @@ package androidx.camera.core {
   }
 
   public abstract class UseCase {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected UseCase(androidx.camera.core.impl.UseCaseConfig<?>);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected UseCase(androidx.camera.core.UseCaseConfig<?>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void addStateChangeCallback(androidx.camera.core.UseCase.StateChangeCallback);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected androidx.camera.core.impl.UseCaseConfig<?> applyDefaults(androidx.camera.core.impl.UseCaseConfig<?>, androidx.camera.core.impl.UseCaseConfig.Builder<?,?,?>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected androidx.camera.core.UseCaseConfig<?> applyDefaults(androidx.camera.core.UseCaseConfig<?>, androidx.camera.core.UseCaseConfig.Builder<?,?,?>?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void attachCameraControl(String!, androidx.camera.core.impl.CameraControlInternal!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void attachToCamera(String!, androidx.camera.core.impl.SessionConfig!);
-    method @CallSuper @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void clear();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void attachToCamera(String!, androidx.camera.core.SessionConfig!);
+    method @CallSuper @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void clear();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<java.lang.String!>! getAttachedCameraIds();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size! getAttachedSurfaceResolution(String!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraInternal? getBoundCamera();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected String getBoundCameraId();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected androidx.camera.core.impl.CameraControlInternal! getCameraControl(String!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected androidx.camera.core.impl.UseCaseConfig.Builder<?,?,?>? getDefaultBuilder(androidx.camera.core.CameraInfo?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected androidx.camera.core.UseCaseConfig.Builder<?,?,?>? getDefaultBuilder(Integer?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getImageFormat();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String getName();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.SessionConfig! getSessionConfig(String!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.UseCaseConfig<?>! getUseCaseConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig! getSessionConfig(String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCaseConfig<?>! getUseCaseConfig();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected boolean isCurrentlyBoundCamera(String);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void notifyActive();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void notifyInactive();
@@ -435,7 +921,7 @@ package androidx.camera.core {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void removeStateChangeCallback(androidx.camera.core.UseCase.StateChangeCallback);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void setImageFormat(int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void updateSuggestedResolution(java.util.Map<java.lang.String!,android.util.Size!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void updateUseCaseConfig(androidx.camera.core.impl.UseCaseConfig<?>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void updateUseCaseConfig(androidx.camera.core.UseCaseConfig<?>);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface UseCase.EventCallback {
@@ -450,10 +936,64 @@ package androidx.camera.core {
     method public void onUseCaseUpdated(androidx.camera.core.UseCase);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface UseCaseConfig<T extends androidx.camera.core.UseCase> extends androidx.camera.core.Config androidx.camera.core.UseCaseEventConfig {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker? getCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig? getDefaultCaptureConfig(androidx.camera.core.CaptureConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig getDefaultCaptureConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig? getDefaultSessionConfig(androidx.camera.core.SessionConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig getDefaultSessionConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker? getSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker getSessionOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<androidx.camera.core.CaptureConfig.OptionUnpacker!>! OPTION_CAPTURE_CONFIG_UNPACKER;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<androidx.camera.core.CaptureConfig!>! OPTION_DEFAULT_CAPTURE_CONFIG;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<androidx.camera.core.SessionConfig!>! OPTION_DEFAULT_SESSION_CONFIG;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<androidx.camera.core.SessionConfig.OptionUnpacker!>! OPTION_SESSION_CONFIG_UNPACKER;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.lang.Integer!>! OPTION_SURFACE_OCCUPANCY_PRIORITY;
+    field public static final androidx.camera.core.Config.Option<java.lang.Class<?>!>! OPTION_TARGET_CLASS;
+    field public static final androidx.camera.core.Config.Option<java.lang.String!>! OPTION_TARGET_NAME;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface UseCaseConfig.Builder<T extends androidx.camera.core.UseCase, C extends androidx.camera.core.UseCaseConfig<T>, B> extends androidx.camera.core.ExtendableBuilder<T> androidx.camera.core.UseCaseEventConfig.Builder<B> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public C getUseCaseConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setDefaultCaptureConfig(androidx.camera.core.CaptureConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setDefaultSessionConfig(androidx.camera.core.SessionConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setSurfaceOccupancyPriority(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface UseCaseConfigFactory {
+    method public <C extends androidx.camera.core.UseCaseConfig<?>> C? getConfig(Class<C!>, Integer?);
+  }
+
+  public static interface UseCaseConfigFactory.Provider {
+    method public androidx.camera.core.UseCaseConfigFactory newInstance(android.content.Context);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface UseCaseEventConfig {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback? getUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback getUseCaseEventCallback();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<androidx.camera.core.UseCase.EventCallback!>! OPTION_USE_CASE_EVENT_CALLBACK;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface UseCaseEventConfig.Builder<B> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public B setUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class UseCaseGroup {
+    ctor public UseCaseGroup();
+    method public boolean addUseCase(androidx.camera.core.UseCase!);
+    method public void clear();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class VideoCapture extends androidx.camera.core.UseCase {
-    ctor public VideoCapture(androidx.camera.core.impl.VideoCaptureConfig!);
+    ctor public VideoCapture(androidx.camera.core.VideoCaptureConfig!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void clear();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.String!,android.util.Size!> onSuggestedResolutionUpdated(java.util.Map<java.lang.String!,android.util.Size!>);
-    method public void setTargetRotation(int);
+    method public void setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
     method public void startRecording(java.io.File, java.util.concurrent.Executor, androidx.camera.core.VideoCapture.OnVideoSavedCallback);
     method public void startRecording(java.io.File, androidx.camera.core.VideoCapture.Metadata, java.util.concurrent.Executor, androidx.camera.core.VideoCapture.OnVideoSavedCallback);
     method public void stopRecording();
@@ -464,9 +1004,9 @@ package androidx.camera.core {
     field public static final int ERROR_UNKNOWN = 0; // 0x0
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class VideoCapture.Defaults {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class VideoCapture.Defaults implements androidx.camera.core.ConfigProvider<androidx.camera.core.VideoCaptureConfig> {
     ctor public VideoCapture.Defaults();
-    method public androidx.camera.core.impl.VideoCaptureConfig getConfig(androidx.camera.core.CameraInfo?);
+    method public androidx.camera.core.VideoCaptureConfig! getConfig(Integer?);
   }
 
   public static final class VideoCapture.Metadata {
@@ -482,12 +1022,146 @@ package androidx.camera.core {
   @IntDef({androidx.camera.core.VideoCapture.ERROR_UNKNOWN, androidx.camera.core.VideoCapture.ERROR_ENCODER, androidx.camera.core.VideoCapture.ERROR_MUXER, androidx.camera.core.VideoCapture.ERROR_RECORDING_IN_PROGRESS}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface VideoCapture.VideoCaptureError {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class VideoCaptureConfig implements androidx.camera.core.ImageOutputConfig androidx.camera.core.UseCaseConfig<androidx.camera.core.VideoCapture> {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean containsOption(androidx.camera.core.Config.Option<?>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void findOptions(String, androidx.camera.core.Config.OptionMatcher);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioBitRate(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioBitRate();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioChannelCount(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioChannelCount();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioMinBufferSize(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioMinBufferSize();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioRecordSource(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioRecordSource();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioSampleRate(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getAudioSampleRate();
+    method public java.util.concurrent.Executor? getBackgroundExecutor(java.util.concurrent.Executor?);
+    method public java.util.concurrent.Executor getBackgroundExecutor();
+    method public int getBitRate(int);
+    method public int getBitRate();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter? getCameraIdFilter(androidx.camera.core.impl.CameraIdFilter?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.CameraIdFilter getCameraIdFilter();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker? getCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig? getDefaultCaptureConfig(androidx.camera.core.CaptureConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.CaptureConfig getDefaultCaptureConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getDefaultResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getDefaultResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig? getDefaultSessionConfig(androidx.camera.core.SessionConfig?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig getDefaultSessionConfig();
+    method public int getIFrameInterval(int);
+    method public int getIFrameInterval();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Integer? getLensFacing(Integer?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.camera.core.CameraSelector.LensFacing public int getLensFacing();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getMaxResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getMaxResolution();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker? getSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.SessionConfig.OptionUnpacker getSessionOptionUnpacker();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>? getSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!> getSupportedResolutions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSurfaceOccupancyPriority();
+    method @androidx.camera.core.AspectRatio.Ratio public int getTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational? getTargetAspectRatioCustom(android.util.Rational?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Rational getTargetAspectRatioCustom();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.VideoCapture!>? getTargetClass(Class<androidx.camera.core.VideoCapture!>?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Class<androidx.camera.core.VideoCapture!> getTargetClass();
+    method public String? getTargetName(String?);
+    method public String getTargetName();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size? getTargetResolution(android.util.Size?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.util.Size getTargetResolution();
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation(int);
+    method @androidx.camera.core.ImageOutputConfig.RotationValue public int getTargetRotation();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback? getUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.UseCase.EventCallback getUseCaseEventCallback();
+    method public int getVideoFrameRate(int);
+    method public int getVideoFrameRate();
+    method public boolean hasTargetAspectRatio();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.Set<androidx.camera.core.Config.Option<?>!> listOptions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <ValueT> ValueT? retrieveOption(androidx.camera.core.Config.Option<ValueT!>, ValueT?);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.camera.core.Config.Option<java.util.concurrent.Executor!>! OPTION_BACKGROUND_EXECUTOR;
+    field public static final androidx.camera.core.Config.Option<androidx.camera.core.impl.CameraIdFilter!>! OPTION_CAMERA_ID_FILTER;
+    field public static final androidx.camera.core.Config.Option<java.lang.Integer!>! OPTION_LENS_FACING;
+    field public static final androidx.camera.core.Config.Option<java.lang.Class<?>!>! OPTION_TARGET_CLASS;
+    field public static final androidx.camera.core.Config.Option<java.lang.String!>! OPTION_TARGET_NAME;
+  }
+
+  public static final class VideoCaptureConfig.Builder implements androidx.camera.core.ImageOutputConfig.Builder<androidx.camera.core.VideoCaptureConfig.Builder> androidx.camera.core.UseCaseConfig.Builder<androidx.camera.core.VideoCapture,androidx.camera.core.VideoCaptureConfig,androidx.camera.core.VideoCaptureConfig.Builder> {
+    ctor public VideoCaptureConfig.Builder();
+    method public androidx.camera.core.VideoCapture build();
+    method public static androidx.camera.core.VideoCaptureConfig.Builder fromConfig(androidx.camera.core.VideoCaptureConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.MutableConfig getMutableConfig();
+    method public androidx.camera.core.VideoCaptureConfig getUseCaseConfig();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setAudioBitRate(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setAudioChannelCount(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setAudioMinBufferSize(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setAudioRecordSource(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setAudioSampleRate(int);
+    method public androidx.camera.core.VideoCaptureConfig.Builder setBackgroundExecutor(java.util.concurrent.Executor);
+    method public androidx.camera.core.VideoCaptureConfig.Builder setBitRate(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setCameraIdFilter(androidx.camera.core.impl.CameraIdFilter);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setCaptureOptionUnpacker(androidx.camera.core.CaptureConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setDefaultCaptureConfig(androidx.camera.core.CaptureConfig);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setDefaultResolution(android.util.Size);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setDefaultSessionConfig(androidx.camera.core.SessionConfig);
+    method public androidx.camera.core.VideoCaptureConfig.Builder setIFrameInterval(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setLensFacing(@androidx.camera.core.CameraSelector.LensFacing int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setMaxResolution(android.util.Size);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setSessionOptionUnpacker(androidx.camera.core.SessionConfig.OptionUnpacker);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setSupportedResolutions(java.util.List<android.util.Pair<java.lang.Integer!,android.util.Size![]!>!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setSurfaceOccupancyPriority(int);
+    method public androidx.camera.core.VideoCaptureConfig.Builder setTargetAspectRatio(@androidx.camera.core.AspectRatio.Ratio int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setTargetAspectRatioCustom(android.util.Rational);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setTargetClass(Class<androidx.camera.core.VideoCapture!>);
+    method public androidx.camera.core.VideoCaptureConfig.Builder setTargetName(String);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setTargetResolution(android.util.Size);
+    method public androidx.camera.core.VideoCaptureConfig.Builder setTargetRotation(@androidx.camera.core.ImageOutputConfig.RotationValue int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.VideoCaptureConfig.Builder setUseCaseEventCallback(androidx.camera.core.UseCase.EventCallback);
+    method public androidx.camera.core.VideoCaptureConfig.Builder setVideoFrameRate(int);
+  }
+
 }
 
-package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) androidx.camera.core.impl.annotation {
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.camera.core.impl {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class LiveDataObservable<T> implements androidx.camera.core.impl.Observable<T> {
+    ctor public LiveDataObservable();
+    method public void addObserver(java.util.concurrent.Executor, androidx.camera.core.impl.Observable.Observer<T!>);
+    method public com.google.common.util.concurrent.ListenableFuture<T!> fetchData();
+    method public androidx.lifecycle.LiveData<androidx.camera.core.impl.LiveDataObservable.Result<T!>!> getLiveData();
+    method public void postError(Throwable);
+    method public void postValue(T?);
+    method public void removeObserver(androidx.camera.core.impl.Observable.Observer<T!>);
+  }
+
+  public static final class LiveDataObservable.Result<T> {
+    method public boolean completedSuccessfully();
+    method public Throwable? getError();
+    method public T? getValue();
+  }
+
+}
+
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.camera.core.impl.annotation {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface ExecutedBy {
     method public abstract String value();
+  }
+
+}
+
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.camera.core.impl.utils {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MainThreadAsyncHandler {
+    method public static android.os.Handler! getInstance();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Threads {
+    method public static void checkBackgroundThread();
+    method public static void checkMainThread();
+    method public static boolean isBackgroundThread();
+    method public static boolean isMainThread();
   }
 
 }

@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +85,9 @@ import java.util.concurrent.ExecutionException;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        maxSdk = Build.VERSION_CODES.P //TODO (b/149669465) : Some robolectric tests will fail on Q
+)
 public final class Camera2DeviceSurfaceManagerTest {
     private static final String LEGACY_CAMERA_ID = "0";
     private static final String LIMITED_CAMERA_ID = "1";

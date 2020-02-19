@@ -83,16 +83,8 @@ data class Selection(
         if (other == null) return this
 
         var selection = this
-
-        other.start.layoutCoordinates?.let {
-            selection = selection.copy(start = other.start)
-        }
-
-        other.end.layoutCoordinates?.let {
-            selection = selection.copy(end = other.end)
-        }
-
-        selection = selection.copy(handlesCrossed = other.handlesCrossed)
+        if (handlesCrossed) selection = selection.copy(start = other.start)
+        else selection = selection.copy(end = other.end)
 
         return selection
     }

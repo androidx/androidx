@@ -415,6 +415,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     @Override
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder, int position) {
         final Preference preference = getItem(position);
+        holder.resetState();
         preference.onBindViewHolder(holder);
     }
 

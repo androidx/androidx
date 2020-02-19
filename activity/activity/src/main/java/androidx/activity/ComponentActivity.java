@@ -21,6 +21,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -77,7 +78,17 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             new OnBackPressedDispatcher(new Runnable() {
                 @Override
                 public void run() {
-                    ComponentActivity.super.onBackPressed();
+                    // Calling onBackPressed() on an Activity with its state saved can cause an
+                    // error on devices on API levels before 26. We catch that specific error and
+                    // throw all others.
+                    try {
+                        ComponentActivity.super.onBackPressed();
+                    } catch (IllegalStateException e) {
+                        if (!TextUtils.equals(e.getMessage(),
+                                "Can not perform this action after onSaveInstanceState")) {
+                            throw e;
+                        }
+                    }
                 }
             });
 

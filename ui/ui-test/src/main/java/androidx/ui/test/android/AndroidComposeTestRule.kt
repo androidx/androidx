@@ -186,7 +186,17 @@ class AndroidComposeTestRule<T : Activity>(
                 // Dispose the content
                 if (disposeContentHook != null) {
                     runOnUiThread {
-                        disposeContentHook!!()
+                        // NOTE: currently, calling dispose after an exception that happened during
+                        // composition is not a safe call. Compose runtime should fix this, and then
+                        // this call will be okay. At the moment, however, calling this could
+                        // itself produce an exception which will then obscure the original
+                        // exception. To fix this, we will just wrap this call in a try/catch of
+                        // its own
+                        try {
+                            disposeContentHook!!()
+                        } catch (e: Exception) {
+                            // ignore
+                        }
                         disposeContentHook = null
                     }
                 }

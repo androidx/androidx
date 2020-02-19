@@ -67,6 +67,7 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -147,8 +148,6 @@ public final class ImageAnalysis extends UseCase {
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
 
     @Nullable
-    private ImageReaderProxy mImageReader;
-    @Nullable
     private DeferrableSurface mDeferrableSurface;
 
     private final Object mAnalysisLock = new Object();
@@ -180,29 +179,34 @@ public final class ImageAnalysis extends UseCase {
             @NonNull ImageAnalysisConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
 
-        Executor backgroundExecutor = config.getBackgroundExecutor(
-                CameraXExecutors.highPriorityExecutor());
+        Executor backgroundExecutor = Preconditions.checkNotNull(config.getBackgroundExecutor(
+                CameraXExecutors.highPriorityExecutor()));
 
         int imageQueueDepth =
                 config.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER
                         ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
 
-        mImageReader =
+        ImageReaderProxy imageReaderProxy =
                 ImageReaderProxys.createIsolatedReader(
                         resolution.getWidth(),
                         resolution.getHeight(),
                         getImageFormat(),
                         imageQueueDepth);
 
-        tryUpdateRelativeRotation(cameraId);
+        tryUpdateRelativeRotation();
 
         mImageAnalysisAbstractAnalyzer.open();
-        mImageReader.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
+        imageReaderProxy.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
                 backgroundExecutor);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
-        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+        }
+        mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface());
+        mDeferrableSurface.getTerminationFuture().addListener(imageReaderProxy::close,
+                CameraXExecutors.mainThreadExecutor());
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 
@@ -232,25 +236,14 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void clearPipeline() {
         Threads.checkMainThread();
         mImageAnalysisAbstractAnalyzer.close();
 
-        final DeferrableSurface deferrableSurface = mDeferrableSurface;
-        mDeferrableSurface = null;
-        final ImageReaderProxy imageReaderProxy = mImageReader;
-        mImageReader = null;
-        if (deferrableSurface != null) {
-            deferrableSurface.setOnSurfaceDetachedListener(
-                    CameraXExecutors.mainThreadExecutor(),
-                    new DeferrableSurface.OnSurfaceDetachedListener() {
-                        @Override
-                        public void onSurfaceDetached() {
-                            if (imageReaderProxy != null) {
-                                imageReaderProxy.close();
-                            }
-                        }
-                    });
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+            mDeferrableSurface = null;
         }
     }
 
@@ -315,7 +308,7 @@ public final class ImageAnalysis extends UseCase {
             // Old
             // configuration lens facing should match new configuration.
             try {
-                tryUpdateRelativeRotation(getBoundCameraId());
+                tryUpdateRelativeRotation();
             } catch (Exception e) {
                 // Likely don't yet have permissions. This is expected if this method is called
                 // before
@@ -325,6 +318,25 @@ public final class ImageAnalysis extends UseCase {
                 Log.w(TAG, "Unable to get camera id for the use case.");
             }
         }
+    }
+
+    /**
+     * Returns the rotation of the intended target for images.
+     *
+     * <p>
+     * The rotation can be set when constructing an {@link ImageAnalysis} instance using
+     * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
+     * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation defaults to
+     * the value of {@link Display#getRotation()} of the default display at the time the use case
+     * is created.
+     * </p>
+     *
+     * @return The rotation of the intended target for images.
+     * @see ImageAnalysis#setTargetRotation(int)
+     */
+    @RotationValue
+    public int getTargetRotation() {
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getTargetRotation();
     }
 
     /**
@@ -352,6 +364,42 @@ public final class ImageAnalysis extends UseCase {
             }
             mSubscribedAnalyzer = analyzer;
         }
+    }
+
+    /**
+     * Returns the mode with which images are acquired from the {@linkplain ImageReader image
+     * producer}.
+     *
+     * <p>
+     * The backpressure strategy is set when constructing an {@link ImageAnalysis} instance using
+     * {@link ImageAnalysis.Builder#setBackpressureStrategy(int)}. If not set, it defaults to
+     * {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}.
+     * </p>
+     *
+     * @return The backpressure strategy applied to the image producer.
+     * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
+     */
+    @BackpressureStrategy
+    public int getBackpressureStrategy() {
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getBackpressureStrategy();
+    }
+
+    /**
+     * Returns the number of images available to the camera pipeline, including the image being
+     * analyzed, for the {@link #STRATEGY_BLOCK_PRODUCER} backpressure mode.
+     *
+     * <p>
+     * The image queue depth is set when constructing an {@link ImageAnalysis} instance using
+     * {@link ImageAnalysis.Builder#setImageQueueDepth(int)}. If not set, and this option is used
+     * by the backpressure strategy, the default will be a queue depth of 6 images.
+     * </p>
+     *
+     * @return The image queue depth for the {@link #STRATEGY_BLOCK_PRODUCER} backpressure mode.
+     * @see ImageAnalysis.Builder#setImageQueueDepth(int)
+     * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
+     */
+    public int getImageQueueDepth() {
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getImageQueueDepth();
     }
 
     @Override
@@ -410,19 +458,15 @@ public final class ImageAnalysis extends UseCase {
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
 
-        if (mImageReader != null) {
-            mImageReader.close();
-        }
-
         SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config, resolution);
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
         return suggestedResolutionMap;
     }
 
-    private void tryUpdateRelativeRotation(String cameraId) {
+    private void tryUpdateRelativeRotation() {
         ImageOutputConfig config = (ImageOutputConfig) getUseCaseConfig();
-        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        CameraInfoInternal cameraInfoInternal = getBoundCamera().getCameraInfoInternal();
         mImageAnalysisAbstractAnalyzer.setRelativeRotation(
                 cameraInfoInternal.getSensorRotationDegrees(
                         config.getTargetRotation(Surface.ROTATION_0)));
@@ -487,8 +531,7 @@ public final class ImageAnalysis extends UseCase {
          * {@link androidx.camera.camera2} implementation additional detail can be found in
          * {@link android.hardware.camera2.CameraDevice} documentation.
          *
-         * @param image           The image to analyze
-
+         * @param image The image to analyze
          * @see android.media.Image#getTimestamp()
          * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          */

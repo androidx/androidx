@@ -16,55 +16,16 @@
 
 package androidx.ui.layout
 
-import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
-import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.ModifierScope
 import androidx.ui.core.offset
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.min
-
-/**
- * Layout modifier that applies whitespace spacing on specified sides of the target layout.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.LayoutPaddingModifier
- */
-@Deprecated(
-    "use LayoutPadding",
-    replaceWith = ReplaceWith(
-        "LayoutPadding(left, top, right, bottom)",
-        "androidx.ui.layout.LayoutPadding"
-    )
-)
-fun Spacing(
-    left: Dp = 0.dp,
-    top: Dp = 0.dp,
-    right: Dp = 0.dp,
-    bottom: Dp = 0.dp
-): LayoutModifier = LayoutPadding(left = left, top = top, right = right, bottom = bottom)
-
-/**
- * Layout modifier that applies the same whitespace spacing of [all] dp on each side
- * of the target layout.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.LayoutPaddingAllModifier
- */
-@Deprecated(
-    "use LayoutPadding",
-    replaceWith = ReplaceWith(
-        "LayoutPadding(all)",
-        "androidx.ui.layout.LayoutPadding"
-    )
-)
-fun Spacing(all: Dp = 0.dp): LayoutModifier =
-    LayoutPadding(left = all, top = all, right = all, bottom = all)
 
 /**
  * Layout modifier that applies the same padding of [all] dp on each side of the target layout.
@@ -73,48 +34,54 @@ fun Spacing(all: Dp = 0.dp): LayoutModifier =
  * @sample androidx.ui.layout.samples.LayoutPaddingAllModifier
  */
 fun LayoutPadding(all: Dp): LayoutPadding = LayoutPadding(
-    left = all,
+    start = all,
     top = all,
-    right = all,
+    end = all,
     bottom = all
 )
 
 /**
- * A [LayoutModifier] that adds [left], [top], [right] and [bottom] padding
+ * A [LayoutModifier] that adds [start], [top], [end] and [bottom] padding
  * to the wrapped layout.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.LayoutPaddingModifier
  */
 data class LayoutPadding(
-    val left: Dp = 0.dp,
+    val start: Dp = 0.dp,
     val top: Dp = 0.dp,
-    val right: Dp = 0.dp,
+    val end: Dp = 0.dp,
     val bottom: Dp = 0.dp
 ) : LayoutModifier {
-    override fun DensityScope.modifyConstraints(
+    override fun ModifierScope.modifyConstraints(
         constraints: Constraints
     ) = constraints.offset(
-        horizontal = -left.toIntPx() - right.toIntPx(),
+        horizontal = -start.toIntPx() - end.toIntPx(),
         vertical = -top.toIntPx() - bottom.toIntPx()
     )
 
-    override fun DensityScope.modifySize(
+    override fun ModifierScope.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
     ) = IntPxSize(
-        (left.toIntPx() + childSize.width + right.toIntPx())
+        (start.toIntPx() + childSize.width + end.toIntPx())
             .coerceIn(constraints.minWidth, constraints.maxWidth),
         (top.toIntPx() + childSize.height + bottom.toIntPx())
             .coerceIn(constraints.minHeight, constraints.maxHeight)
     )
 
-    override fun DensityScope.modifyPosition(
+    override fun ModifierScope.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ) = IntPxPosition(left.toIntPx(), top.toIntPx())
+    ): IntPxPosition = if (layoutDirection == LayoutDirection.Ltr) {
+        IntPxPosition(start.toIntPx(), top.toIntPx())
+    } else {
+        IntPxPosition(end.toIntPx(), top.toIntPx())
+    }
 }
 
 /**
- * Describes a set of offsets from each of the four sides of a box. For example,
- * it is used to describe padding for the [Padding] composable.
+ * Describes a set of offsets from each of the four sides of a box.
  */
 @Immutable
 data class EdgeInsets(
@@ -124,84 +91,4 @@ data class EdgeInsets(
     val bottom: Dp = 0.dp
 ) {
     constructor(all: Dp) : this(all, all, all, all)
-}
-
-/**
- * Layout composable that takes a child composable and applies whitespace padding around it.
- * When passing layout constraints to its child, [Padding] shrinks the constraints by the
- * requested padding, causing the child to layout at a smaller size.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.PaddingComposableEdgeInsets
- */
-@Composable
-fun Padding(
-    padding: EdgeInsets,
-    children: @Composable() () -> Unit
-) {
-    Layout(children) { measurables, constraints ->
-        val measurable = measurables.firstOrNull()
-        if (measurable == null) {
-            layout(constraints.minWidth, constraints.minHeight) { }
-        } else {
-            val paddingLeft = padding.left.toIntPx()
-            val paddingTop = padding.top.toIntPx()
-            val paddingRight = padding.right.toIntPx()
-            val paddingBottom = padding.bottom.toIntPx()
-            val horizontalPadding = (paddingLeft + paddingRight)
-            val verticalPadding = (paddingTop + paddingBottom)
-
-            val newConstraints = constraints.offset(-horizontalPadding, -verticalPadding)
-            val placeable = measurable.measure(newConstraints)
-            val width =
-                min(placeable.width + horizontalPadding, constraints.maxWidth)
-            val height =
-                min(placeable.height + verticalPadding, constraints.maxHeight)
-
-            layout(width, height) {
-                placeable.place(paddingLeft, paddingTop)
-            }
-        }
-    }
-}
-
-/**
- * Layout composable that takes a child composable and applies whitespace padding around it.
- *
- * When passing layout constraints to its child, [Padding] shrinks the constraints by the
- * requested padding, causing the child to layout at a smaller size.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.PaddingComposable
- */
-@Composable
-fun Padding(
-    left: Dp = 0.dp,
-    top: Dp = 0.dp,
-    right: Dp = 0.dp,
-    bottom: Dp = 0.dp,
-    children: @Composable() () -> Unit
-) {
-    Padding(
-        padding = EdgeInsets(left = left, top = top, right = right, bottom = bottom),
-        children = children
-    )
-}
-
-/**
- * Layout composable that takes a child composable and applies
- * the same amount of whitespace padding around it.
- *
- * When passing layout constraints to its child, [Padding] shrinks the constraints by the
- * requested padding, causing the child to layout at a smaller size.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.PaddingComposableSameInset
- */
-@Composable
-fun Padding(
-    padding: Dp,
-    children: @Composable() () -> Unit
-) {
-    Padding(padding = EdgeInsets(padding), children = children)
 }

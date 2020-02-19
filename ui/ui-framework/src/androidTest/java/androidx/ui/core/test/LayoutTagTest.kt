@@ -16,6 +16,7 @@
 
 package androidx.ui.core.test
 
+import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
@@ -55,13 +56,18 @@ class LayoutTagTest {
             activity.setContent {
                 Layout(
                     {
-                        AtLeastSize(0.ipx, LayoutTag("first"), children = {})
-                        ParentData(LayoutTag("second")) { AtLeastSize(0.ipx, children = {}) }
+                        AtLeastSize(0.ipx, LayoutTag("first"), children = emptyContent())
+                        ParentData(LayoutTag("second")) {
+                            AtLeastSize(
+                                0.ipx,
+                                children = emptyContent()
+                            )
+                        }
                         ParentData(
                             object : LayoutTagParentData {
                                 override val tag = "third"
                             },
-                            children = { AtLeastSize(0.ipx, children = {}) }
+                            children = { AtLeastSize(0.ipx, children = emptyContent()) }
                         )
                     }
                 ) { measurables, _ ->

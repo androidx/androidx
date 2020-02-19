@@ -17,8 +17,11 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.layout.Center
@@ -26,17 +29,21 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
+import androidx.ui.unit.round
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -64,7 +71,7 @@ class LayoutPaddingTest : LayoutTest() {
      * available for both content and padding.
      */
     @Test
-    fun paddingAllAppliedToChild() = withDensity(density) {
+    fun paddingAllAppliedToChild() = with(density) {
         val padding = 10.dp
         testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
             TestBox(modifier = LayoutPadding(padding), body = child)
@@ -101,7 +108,7 @@ class LayoutPaddingTest : LayoutTest() {
      * unwilling to satisfy.
      */
     @Test
-    fun insufficientSpaceAvailable() = withDensity(density) {
+    fun insufficientSpaceAvailable() = with(density) {
         val padding = 30.dp
         testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
             TestBox(modifier = LayoutPadding(padding), body = child)
@@ -109,7 +116,7 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     @Test
-    fun intrinsicMeasurements() = withDensity(density) {
+    fun intrinsicMeasurements() = with(density) {
         val padding = 100.ipx.toDp()
 
         val latch = CountDownLatch(1)
@@ -167,20 +174,95 @@ class LayoutPaddingTest : LayoutTest() {
         Unit
     }
 
+    @Test
+    fun testRtlSupport() = with(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+        val padding1Dp = 5.dp
+        val padding2Dp = 10.dp
+        val padding3Dp = 15.dp
+        val padding1 = padding1Dp.toIntPx()
+        val padding2 = padding2Dp.toIntPx()
+        val padding3 = padding3Dp.toIntPx()
+
+        val drawLatch = CountDownLatch(3)
+        val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
+        val childPosition = Array(3) { PxPosition(0.px, 0.px) }
+
+        // ltr: P1 S P2 | S P3 | P1 S
+        // rtl: P2 S P1 | P3 S | S P1
+        val children = @Composable {
+            Stack(
+                LayoutPadding(start = padding1Dp, end = padding2Dp) +
+                        LayoutSize(sizeDp, sizeDp)
+            ) {
+                OnPositioned(onPositioned = { coordinates ->
+                    childSize[0] = coordinates.size
+                    childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                })
+            }
+
+            Stack(LayoutPadding(end = padding3Dp) + LayoutSize(sizeDp, sizeDp)) {
+                OnPositioned(onPositioned = { coordinates ->
+                    childSize[1] = coordinates.size
+                    childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                })
+            }
+
+            Stack(
+                LayoutPadding(start = padding1Dp) +
+                        LayoutSize(sizeDp, sizeDp)
+            ) {
+                OnPositioned(onPositioned = { coordinates ->
+                    childSize[2] = coordinates.size
+                    childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                })
+            }
+        }
+        show {
+            Row {
+                Providers(
+                    LayoutDirectionAmbient provides LayoutDirection.Rtl,
+                    children = children
+                )
+            }
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxPosition(padding2.toPx(), 0.px), childPosition[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
+
+        val paddings = padding1 + padding2 + padding3
+        assertEquals(
+            PxPosition(size.toPx() + paddings.toPx(), 0.px),
+            childPosition[1]
+        )
+        assertEquals(IntPxSize(size, size), childSize[1])
+
+        assertEquals(
+            PxPosition((size.toPx() * 2).round().toPx() + paddings, 0.px),
+            childPosition[2]
+        )
+        assertEquals(IntPxSize(size, size), childSize[2])
+    }
+
     private fun testPaddingIsAppliedImplementation(
         padding: Dp,
         paddingContainer: @Composable() (@Composable() () -> Unit) -> Unit
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
         val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = PxSize(-1.px, -1.px)
+        var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
-                ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
+                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     val children = @Composable {
                         Container {
                             OnPositioned(onPositioned = { coordinates ->
@@ -201,7 +283,7 @@ class LayoutPaddingTest : LayoutTest() {
         waitForDraw(root)
 
         val innerSize = (size - paddingPx * 2)
-        assertEquals(PxSize(innerSize, innerSize), childSize)
+        assertEquals(IntPxSize(innerSize, innerSize), childSize)
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
         assertEquals(
@@ -216,16 +298,16 @@ class LayoutPaddingTest : LayoutTest() {
         right: Dp,
         bottom: Dp,
         paddingContainer: @Composable() ((@Composable() () -> Unit) -> Unit)
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = PxSize(-1.px, -1.px)
+        var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
-                ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
+                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     val children = @Composable {
                         Container {
                             OnPositioned(onPositioned = { coordinates ->
@@ -250,7 +332,7 @@ class LayoutPaddingTest : LayoutTest() {
         val paddingTop = top.toIntPx()
         val paddingBottom = bottom.toIntPx()
         assertEquals(
-            PxSize(
+            IntPxSize(
                 size - paddingLeft - paddingRight,
                 size - paddingTop - paddingBottom
             ),
@@ -267,17 +349,17 @@ class LayoutPaddingTest : LayoutTest() {
     private fun testPaddingWithInsufficientSpaceImplementation(
         padding: Dp,
         paddingContainer: @Composable() (@Composable() () -> Unit) -> Unit
-    ) = withDensity(density) {
+    ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
         val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = PxSize(-1.px, -1.px)
+        var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
             Center {
-                ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
+                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     paddingContainer {
                         Container {
                             OnPositioned(onPositioned = { coordinates ->
@@ -295,7 +377,7 @@ class LayoutPaddingTest : LayoutTest() {
         val root = findAndroidComposeView()
         waitForDraw(root)
 
-        assertEquals(PxSize(0.px, 0.px), childSize)
+        assertEquals(IntPxSize(0.ipx, 0.ipx), childSize)
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
         assertEquals(PxPosition(left.toPx(), top.toPx()), childPosition)

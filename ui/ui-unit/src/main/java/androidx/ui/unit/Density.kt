@@ -20,15 +20,10 @@ import android.content.Context
 import androidx.ui.geometry.Rect
 
 /**
- * A density of the screen. Used for convert [Dp] to pixels.
- */
-data class Density(val density: Float, val fontScale: Float = 1f)
-
-/**
- * Creates a [Density] from this [Context]
+ * Creates a [Density] for this [Context].
  *
+ * @param context density values will be extracted from this [Context]
  */
-// TODO(Andrey): Move to android specific module
 fun Density(context: Context): Density =
     Density(
         context.resources.displayMetrics.density,
@@ -36,29 +31,40 @@ fun Density(context: Context): Density =
     )
 
 /**
- * If you have a [Density] object and you want to perform some conversions use this.
+ * A density of the screen. Used for convert [Dp] to pixels.
+ *
+ * @param density The logical density of the display. This is a scaling factor for the [Dp] unit.
+ * @param fontScale Current user preference for the scaling factor for fonts.
+ */
+fun Density(density: Float, fontScale: Float = 1f): Density =
+    DensityImpl(density, fontScale)
+
+private data class DensityImpl(
+    override val density: Float,
+    override val fontScale: Float
+) : Density
+
+/**
+ * A density of the screen. Used for the conversions between [Dp], [Px], [IntPx] and [TextUnit].
  *
  * @sample androidx.ui.unit.samples.WithDensitySample
  */
-inline fun <R> withDensity(density: Density, block: DensityScope.() -> R) =
-    DensityScope(density).block()
-
-/**
- * Used to add density resolution logic within a receiver scope.
- *
- * @see [withDensity] for a simple usage
- */
-interface DensityScope {
+interface Density {
 
     /**
-     * A [Density] object. Useful if you need to pass it as a param.
+     * The logical density of the display. This is a scaling factor for the [Dp] unit.
      */
-    val density: Density
+    val density: Float
 
     /**
-     * Convert [Dp] to [Px]. Pixels are used to paint to [Canvas].
+     * Current user preference for the scaling factor for fonts.
      */
-    fun Dp.toPx(): Px = Px(value * density.density)
+    val fontScale: Float
+
+    /**
+     * Convert [Dp] to [Px]. Pixels are used to paint to Canvas.
+     */
+    fun Dp.toPx(): Px = Px(value * density)
 
     /**
      * Convert [Dp] to [IntPx] by rounding
@@ -68,15 +74,15 @@ interface DensityScope {
     /**
      * Convert [Dp] to Sp. Sp is used for font size, etc.
      */
-    fun Dp.toSp(): TextUnit = TextUnit.Sp(value / density.fontScale)
+    fun Dp.toSp(): TextUnit = TextUnit.Sp(value / fontScale)
 
     /**
-     * Convert Sp to [Px]. Pixels are used to paint to [Canvas].
-     * @throws ArithmeticException if TextUnit other than SP unit is specified.
+     * Convert Sp to [Px]. Pixels are used to paint to Canvas.
+     * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
     fun TextUnit.toPx(): Px {
-        require(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
-        return Px(value * density.fontScale * density.density)
+        check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
+        return Px(value * fontScale * density)
     }
 
     /**
@@ -86,38 +92,38 @@ interface DensityScope {
 
     /**
      * Convert Sp to [Dp].
-     * @throws ArithmeticException if TextUnit other than SP unit is specified.
+     * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
     fun TextUnit.toDp(): Dp {
-        require(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
-        return Dp(value * density.fontScale)
+        check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
+        return Dp(value * fontScale)
     }
 
     /**
      * Convert [Px] to [Dp].
      */
-    fun Px.toDp(): Dp = (value / density.density).dp
+    fun Px.toDp(): Dp = (value / density).dp
 
     /**
      * Convert [Px] to Sp.
      */
-    fun Px.toSp(): TextUnit = (value / (density.fontScale * density.density)).sp
+    fun Px.toSp(): TextUnit = (value / (fontScale * density)).sp
 
     /**
      * Convert [IntPx] to [Dp].
      */
-    fun IntPx.toDp(): Dp = (value / density.density).dp
+    fun IntPx.toDp(): Dp = (value / density).dp
 
     /**
      * Convert [IntPx] to Sp.
      */
-    fun IntPx.toSp(): TextUnit = (value / (density.fontScale * density.density)).sp
+    fun IntPx.toSp(): TextUnit = (value / (fontScale * density)).sp
 
     /** Convert a [Float] pixel value to a Dp */
-    fun Float.toDp(): Dp = (this / density.density).dp
+    fun Float.toDp(): Dp = (this / density).dp
 
     /** Convert a [Float] pixel value to a Sp */
-    fun Float.toSp(): TextUnit = (this / (density.fontScale * density.density)).sp
+    fun Float.toSp(): TextUnit = (this / (fontScale * density)).sp
 
     /** Convert a [Int] pixel value to a Dp */
     fun Int.toDp(): Dp = toFloat().toDp()
@@ -143,13 +149,3 @@ interface DensityScope {
         )
     }
 }
-
-/**
- * Returns a [DensityScope] reflecting [density].
- */
-fun DensityScope(density: Density): DensityScope = DensityScopeImpl(density)
-
-/**
- * A simple implementation for [DensityScope].
- */
-private class DensityScopeImpl(override val density: Density) : DensityScope

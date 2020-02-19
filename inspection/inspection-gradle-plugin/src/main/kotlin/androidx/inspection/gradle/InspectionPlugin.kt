@@ -17,22 +17,70 @@
 package androidx.inspection.gradle
 
 import com.android.build.gradle.LibraryExtension
+import com.google.protobuf.gradle.GenerateProtoTask
+import com.google.protobuf.gradle.ProtobufConvention
+import com.google.protobuf.gradle.ProtobufPlugin
+import com.google.protobuf.gradle.generateProtoTasks
+import com.google.protobuf.gradle.protoc
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.getPlugin
+import java.io.File
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
  * resources are generated at build time
  */
 class InspectionPlugin : Plugin<Project> {
+    // project.register* are marked with @ExperimentalStdlibApi, because they use experimental
+    // string.capitalize call.
+    @ExperimentalStdlibApi
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
+        var foundReleaseVariant = false
         project.pluginManager.withPlugin("com.android.library") {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
             includeMetaInfServices(libExtension)
+            libExtension.libraryVariants.all { variant ->
+                if (variant.name == "release") {
+                    foundReleaseVariant = true
+                    val unzip = project.registerUnzipTask(variant)
+                    val jarJar = project.registerJarJarDependenciesTask(variant, unzip)
+                    project.registerDexInspectorTask(variant, libExtension, jarJar)
+                }
+            }
+            libExtension.sourceSets {
+                it.getByName("main").resources.srcDirs(File(project.rootDir, "src/main/proto"))
+            }
         }
+
+        project.apply(plugin = "com.google.protobuf")
+        project.plugins.all {
+            if (it is ProtobufPlugin) {
+                val protobufConvention = project.convention.getPlugin<ProtobufConvention>()
+                protobufConvention.protobuf.apply {
+                    protoc {
+                        this.artifact = "com.google.protobuf:protoc:3.10.0"
+                    }
+                    generateProtoTasks {
+                        all().forEach { task: GenerateProtoTask ->
+                            task.builtins.create("java") { options ->
+                                options.option("lite")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        project.dependencies {
+            add("implementation", "com.google.protobuf:protobuf-javalite:3.10.0")
+        }
+
         project.afterEvaluate {
             if (!foundLibraryPlugin) {
                 throw StopExecutionException(
@@ -43,10 +91,15 @@ class InspectionPlugin : Plugin<Project> {
                         .trimIndent()
                 )
             }
+            if (!foundReleaseVariant) {
+                throw StopExecutionException("The androidx.inspection plugin requires " +
+                        "release build variant.")
+            }
         }
     }
 }
 
 private fun includeMetaInfServices(library: LibraryExtension) {
     library.sourceSets.getByName("main").resources.include("META-INF/services/*")
+    library.sourceSets.getByName("main").resources.include("**/*.proto")
 }

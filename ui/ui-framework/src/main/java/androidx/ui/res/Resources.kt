@@ -24,7 +24,6 @@ import androidx.compose.Composable
 import androidx.compose.Handler
 import androidx.compose.LooperWrapper
 import androidx.compose.Model
-import androidx.compose.ambient
 import androidx.compose.remember
 import androidx.ui.core.ContextAmbient
 import java.util.concurrent.Executor
@@ -143,7 +142,7 @@ internal fun <T> loadResourceInternal(
     resourceCache: LruCache<String, Any>,
     loader: (Int) -> T
 ): DeferredResource<T> {
-    val context = ambient(ContextAmbient)
+    val context = ContextAmbient.current
     val value = remember { TypedValue() }
     context.resources.getValue(id, value, true)
     // We use the file path as a key of the request cache.

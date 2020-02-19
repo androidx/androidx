@@ -16,6 +16,7 @@
 
 package androidx.ui.material.ripple
 
+import androidx.animation.AnimationClockObservable
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
@@ -31,7 +32,6 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -43,13 +43,13 @@ import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.max
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.toOffset
+import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toRect
-import androidx.ui.unit.withDensity
 
 internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f
 
-internal fun DensityScope.getRippleTargetRadius(size: PxSize) =
+internal fun Density.getRippleTargetRadius(size: PxSize) =
     PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx()
 
 /**
@@ -63,6 +63,7 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
         density: Density,
         radius: Dp?,
         clipped: Boolean,
+        clock: AnimationClockObservable,
         requestRedraw: (() -> Unit),
         onAnimationFinished: ((RippleEffect) -> Unit)
     ): RippleEffect {
@@ -72,6 +73,7 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
             density,
             radius,
             clipped,
+            clock,
             requestRedraw,
             onAnimationFinished
         )
@@ -95,6 +97,7 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
  * @param density The [Density] object to convert the dimensions.
  * @param radius Effects grow up to this size.
  * @param clipped If true the effect should be clipped by the target layout bounds.
+ * @param clock The animation clock observable that will drive this ripple effect
  * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
  * @param onAnimationFinished Call when the effect animation has been finished.
  */
@@ -104,6 +107,7 @@ private class DefaultRippleEffect(
     density: Density,
     radius: Dp? = null,
     private val clipped: Boolean,
+    clock: AnimationClockObservable,
     private val requestRedraw: (() -> Unit),
     private val onAnimationFinished: ((RippleEffect) -> Unit)
 ) : RippleEffect {
@@ -114,19 +118,19 @@ private class DefaultRippleEffect(
     private val paint = Paint()
 
     init {
-        val surfaceSize = coordinates.size
+        val surfaceSize = coordinates.size.toPxSize()
         val startRadius = getRippleStartRadius(surfaceSize)
-        val targetRadius = withDensity(density) {
+        val targetRadius = with(density) {
             radius?.toPx() ?: getRippleTargetRadius(surfaceSize)
         }
 
-        val center = coordinates.size.center()
+        val center = coordinates.size.toPxSize().center()
         animation = RippleTransition.definition(
             startRadius = startRadius,
             endRadius = targetRadius,
             startCenter = startPosition,
             endCenter = center
-        ).createAnimation()
+        ).createAnimation(clock)
         animation.onUpdate = requestRedraw
         animation.onStateChangeFinished = { stage ->
             transitionState = stage
@@ -154,7 +158,7 @@ private class DefaultRippleEffect(
 
         if (clipped) {
             canvas.save()
-            canvas.clipRect(coordinates.size.toRect())
+            canvas.clipRect(coordinates.size.toPxSize().toRect())
         }
 
         val centerOffset = animation[RippleTransition.Center].toOffset()

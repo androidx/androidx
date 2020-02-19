@@ -19,28 +19,27 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.MutableState
-import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 
 private val colors = listOf(
@@ -114,7 +113,7 @@ fun SimpleHorizontalScrollerSample() {
 @Composable
 fun ControlledHorizontalScrollerSample() {
     // Create and own ScrollerPosition to call `smoothScrollTo` later
-    val position = remember { ScrollerPosition() }
+    val position = ScrollerPosition()
     val scrollable = state { true }
     Column {
         HorizontalScroller(
@@ -134,42 +133,43 @@ fun ControlledHorizontalScrollerSample() {
 
 @Composable
 private fun Square(index: Int) {
-    Container(width = 75.dp, height = 200.dp) {
-        DrawShape(RectangleShape, colors[index % colors.size])
+    Box(
+        modifier = LayoutSize(75.dp, 200.dp),
+        backgroundColor = colors[index % colors.size],
+        gravity = ContentGravity.Center
+    ) {
         Text(index.toString())
     }
 }
 
 @Composable
 private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<Boolean>) {
-    Padding(top = 20.dp) {
-        Table(3, alignment = { Alignment.Center }) {
-            tableRow {
-                Text("Scroll")
-                SquareButton("< -", Color.Red) {
-                    position.scrollTo(position.value - 1000.px)
-                }
-                SquareButton("--- >", Color.Green) {
-                    position.scrollBy(10000.px)
-                }
+    Table(3, alignment = { Alignment.Center }) {
+        tableRow {
+            Text("Scroll")
+            SquareButton("< -", Color.Red) {
+                position.scrollTo(position.value - 1000)
             }
-            tableRow {
-                Text("Smooth Scroll")
-                SquareButton("< -", Color.Red) {
-                    position.smoothScrollTo(position.value - 1000.px)
-                }
-                SquareButton("--- >", Color.Green) {
-                    position.smoothScrollBy(10000.px)
-                }
+            SquareButton("--- >", Color.Green) {
+                position.scrollBy(10000f)
             }
-            tableRow {
-                SquareButton("Scroll: ${scrollable.value}") {
-                    scrollable.value = !scrollable.value
-                }
-                // empty container to fill table
-                Container { }
-                Container { }
+        }
+        tableRow {
+            Text("Smooth Scroll")
+            SquareButton("< -", Color.Red) {
+                position.smoothScrollTo(position.value - 1000)
             }
+            SquareButton("--- >", Color.Green) {
+                position.smoothScrollBy(10000f)
+            }
+        }
+        tableRow {
+            SquareButton("Scroll: ${scrollable.value}") {
+                scrollable.value = !scrollable.value
+            }
+            // empty container to fill table
+            Container { }
+            Container { }
         }
     }
 }
@@ -177,11 +177,12 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
 @Composable
 private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: () -> Unit) {
     Clickable(onClick = onClick) {
-        Padding(5.dp) {
-            Container(height = 60.dp, width = 120.dp) {
-                DrawShape(RectangleShape, color)
-                Text(text, style = TextStyle(fontSize = 20.sp))
-            }
+        Box(
+            modifier = LayoutPadding(5.dp) + LayoutSize(120.dp, 60.dp),
+            backgroundColor = color,
+            gravity = ContentGravity.Center
+        ) {
+            Text(text, style = TextStyle(fontSize = 20.sp))
         }
     }
 }
@@ -203,9 +204,6 @@ private fun Text(text: String, textStyle: TextStyle) {
     }
 
     PressIndicatorGestureDetector(onStart = onPress, onStop = onRelease, onCancel = onRelease) {
-        Container {
-            DrawShape(RectangleShape, color.value)
-            Text(text, style = textStyle)
-        }
+        Text(text, modifier = DrawBackground(color = color.value), style = textStyle)
     }
 }

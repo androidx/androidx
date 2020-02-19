@@ -32,6 +32,7 @@ import androidx.test.filters.MediumTest;
 
 import com.google.common.collect.Lists;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,12 @@ public class SessionConfigTest {
     public void setup() {
         mMockSurface0 = new ImmediateSurface(mock(Surface.class));
         mMockSurface1 = new ImmediateSurface(mock(Surface.class));
+    }
+
+    @After
+    public void tearDown() {
+        mMockSurface0.close();
+        mMockSurface1.close();
     }
 
     @Test
@@ -293,7 +300,7 @@ public class SessionConfigTest {
 
     @Test
     public void combineTwoSessionsMultiValueSetValid() {
-        Option option = Option.create("multiValueSet", FakeMultiValueSet.class);
+        Option<FakeMultiValueSet> option = Option.create("multiValueSet", FakeMultiValueSet.class);
 
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
         MutableOptionsBundle options0 = MutableOptionsBundle.create();

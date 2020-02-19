@@ -17,6 +17,7 @@
 package androidx.camera.camera2;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.internal.Camera2CameraFactory;
 import androidx.camera.camera2.internal.Camera2DeviceSurfaceManager;
 import androidx.camera.camera2.internal.ImageAnalysisConfigProvider;
@@ -76,4 +77,17 @@ public final class Camera2Config {
 
         return appConfigBuilder.build();
     }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final class DefaultProvider implements CameraXConfig.Provider {
+
+        @NonNull
+        @Override
+        public CameraXConfig getCameraXConfig() {
+            return defaultConfig();
+        }
+    }
+
+
 }

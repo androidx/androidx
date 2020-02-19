@@ -17,6 +17,8 @@
 package androidx.build
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -45,22 +47,8 @@ abstract class ListTaskOutputsTask() : DefaultTask() {
         description = "Finds the outputs of every task and saves the resulting mapping into $f"
     }
 
-    fun addTask(task: Task) {
-        tasks.add(task)
-    }
-
     fun removePrefix(prefix: String) {
         removePrefixes.add(prefix + "/")
-    }
-
-    fun findTasksByOutput(): Map<File, Task> {
-        val tasksByOutput: MutableMap<File, Task> = hashMapOf()
-        for (otherTask in tasks) {
-            for (otherTaskOutput in otherTask.outputs.files.files) {
-                tasksByOutput.put(otherTaskOutput, otherTask)
-            }
-        }
-        return tasksByOutput
     }
 
     fun format(tasksByOutput: Map<File, Task>): String {
@@ -83,10 +71,58 @@ abstract class ListTaskOutputsTask() : DefaultTask() {
 
     @TaskAction
     fun exec() {
-        val tasksByOutput = findTasksByOutput()
+        val tasksByOutput = project.rootProject.findAllTasksByOutput()
         val text = format(tasksByOutput)
         val outputFile = outputFile.get()
         outputFile.writeText(text)
         logger.lifecycle("Wrote ${outputFile.path}")
     }
+}
+
+// TODO(149103692): remove all elements of this set
+val taskNamesKnownToDuplicateOutputs = setOf(
+    "generateReleaseNotes",
+    "jarRelease",
+    "jarDebug",
+    "kotlinSourcesJar",
+    "lint",
+    "lintFix",
+    "lintVital",
+    "sourceJar",
+    "zipResultsOfJvmTest",
+    "zipResultsOfTestDebugUnitTest",
+    "zipResultsOfTestReleaseUnitTest",
+    "zipResultsOfTestTipOfTreeDebugUnitTest",
+    "zipResultsOfTestTipOfTreeReleaseUnitTest",
+    "zipResultsOfTestPublicDebugUnitTest",
+    "zipResultsOfTestPublicReleaseUnitTest"
+)
+
+// For this project and all subprojects, collects all tasks and creates a map keyed by their output files
+fun Project.findAllTasksByOutput(): Map<File, Task> {
+    // find list of all tasks
+    val allTasks = mutableListOf<Task>()
+    project.allprojects { otherProject ->
+        otherProject.tasks.all { task ->
+            allTasks.add(task)
+        }
+    }
+
+    // group tasks by their outputs
+    val tasksByOutput: MutableMap<File, Task> = hashMapOf()
+    for (otherTask in allTasks) {
+        for (otherTaskOutput in otherTask.outputs.files.files) {
+            val existingTask = tasksByOutput[otherTaskOutput]
+            if (existingTask != null) {
+                if (!taskNamesKnownToDuplicateOutputs.contains(otherTask.name) ||
+                    !taskNamesKnownToDuplicateOutputs.contains(existingTask.name)) {
+                    throw GradleException("Output file " + otherTaskOutput +
+                        " was declared as an output of multiple tasks: " + otherTask + " and " +
+                        existingTask)
+                }
+            }
+            tasksByOutput.put(otherTaskOutput, otherTask)
+        }
+    }
+    return tasksByOutput
 }

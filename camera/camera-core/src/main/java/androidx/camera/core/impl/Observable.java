@@ -16,8 +16,6 @@
 
 package androidx.camera.core.impl;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -61,8 +59,6 @@ public interface Observable<T> {
      * @param executor The executor which will be used to notify the observer of new data.
      * @param observer The observer which will receive new data.
      */
-    @SuppressLint("LambdaLast")
-    // Remove after https://issuetracker.google.com/135275901
     void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer);
 
     /**

@@ -23,17 +23,16 @@ package androidx.compose
 
 @Composable
 inline fun <T> remember(calculation: () -> T): T =
-    currentComposerNonNull.cache(true, calculation)
+    currentComposer.cache(true, calculation)
 
 /**
  * Remember the value returned by [calculation] if [v1] is equal to the previous composition, otherwise
  * produce and remember a new value by calling [calculation].
  */
 @Composable
-inline fun <T, /*reified*/ V1> remember(v1: V1, calculation: () -> T) = currentComposerNonNull
-    .let {
-        it.cache(!it.changed(v1), calculation)
-    }
+inline fun <T, /*reified*/ V1> remember(v1: V1, calculation: () -> T): T {
+    return currentComposer.cache(!currentComposer.changed(v1), calculation)
+}
 
 /**
  * Remember the value returned by [calculation] if [v1] and [v2] are equal to the previous composition,
@@ -45,11 +44,9 @@ inline fun <T, /*reified*/ V1, /*reified*/ V2> remember(
     v2: V2,
     calculation: () -> T
 ): T {
-    return currentComposerNonNull.let {
-        var valid = !it.changed(v1)
-        valid = !it.changed(v2) && valid
-        it.cache(valid, calculation)
-    }
+    var valid = !currentComposer.changed(v1)
+    valid = !currentComposer.changed(v2) && valid
+    return currentComposer.cache(valid, calculation)
 }
 
 /**
@@ -63,12 +60,10 @@ inline fun <T, /*reified*/ V1, /*reified*/ V2, /*reified*/ V3> remember(
     v3: V3,
     calculation: () -> T
 ): T {
-    return currentComposerNonNull.let {
-        var valid = !it.changed(v1)
-        valid = !it.changed(v2) && valid
-        valid = !it.changed(v3) && valid
-        it.cache(valid, calculation)
-    }
+    var valid = !currentComposer.changed(v1)
+    valid = !currentComposer.changed(v2) && valid
+    valid = !currentComposer.changed(v3) && valid
+    return currentComposer.cache(valid, calculation)
 }
 
 /**
@@ -77,76 +72,7 @@ inline fun <T, /*reified*/ V1, /*reified*/ V2, /*reified*/ V3> remember(
  */
 @Composable
 inline fun <V> remember(vararg inputs: Any?, block: () -> V): V {
-    return currentComposerNonNull.let {
-        var valid = true
-        for (input in inputs) valid = !it.changed(input) && valid
-        it.cache(valid, block)
-    }
+    var valid = true
+    for (input in inputs) valid = !currentComposer.changed(input) && valid
+    return currentComposer.cache(valid, block)
 }
-
-/**
- * An Effect that positionally memoizes the result of a computation.
- *
- * @param calculation A function to produce the result
- * @return The result of the calculation, or the cached value from the composition
- */
-@Deprecated(
-    "memo has been renamed to remember",
-    ReplaceWith("remember", "androidx.compose.remember"),
-    DeprecationLevel.ERROR
-)
-@Composable
-/*inline*/ fun <T> memo(calculation: () -> T) = remember { calculation() }
-
-/**
- * An Effect that positionally memoizes the result of a computation.
- *
- * @param v1 An input to the memoization. If this value changes, the calculation will be re-executed.
- * @param calculation A function to produce the result
- * @return The result of the calculation, or the cached value from the composition
- */
-@Deprecated(
-    "memo has been renamed to remember",
-    ReplaceWith("remember", "androidx.compose.remember"),
-    DeprecationLevel.ERROR
-)
-@Composable
-/*inline*/ fun <T, /*reified*/ V1> memo(
-    v1: V1,
-    calculation: () -> T
-) = remember(v1) { calculation() }
-
-/**
- * An Effect that positionally memoizes the result of a computation.
- *
- * @param v1 An input to the memoization. If this value changes, the calculation will be re-executed.
- * @param v2 An input to the memoization. If this value changes, the calculation will be re-executed.
- * @param calculation A function to produce the result
- * @return The result of the calculation, or the cached value from the composition
- */
-@Deprecated(
-    "memo has been renamed to remember",
-    ReplaceWith("remember", "androidx.compose.remember"),
-    DeprecationLevel.ERROR
-)
-@Composable
-/*inline*/ fun <T, /*reified*/ V1, /*reified*/ V2> memo(
-    v1: V1,
-    v2: V2,
-    calculation: () -> T
-) = remember(v1, v2) { calculation() }
-
-/**
- * An Effect that positionally memoizes the result of a computation.
- *
- * @param inputs The inputs to the memoization. If any of these values change, the calculation will be re-executed.
- * @param calculation A function to produce the result
- * @return The result of the calculation, or the cached value from the composition
- */
-@Deprecated(
-    "memo has been renamed to remember",
-    ReplaceWith("remember", "androidx.compose.remember"),
-    DeprecationLevel.ERROR
-)
-@Composable
-fun <T> memo(vararg inputs: Any?, calculation: () -> T) = remember(*inputs) { calculation() }

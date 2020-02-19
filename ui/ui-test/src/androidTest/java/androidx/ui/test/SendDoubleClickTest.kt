@@ -19,16 +19,15 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.PointerInput
 import androidx.ui.core.PointerInputHandler
-import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.TestTag
-import androidx.ui.core.WithDensity
 import androidx.ui.core.gesture.DoubleTapGestureDetector
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.PointerInputRecorder
@@ -54,13 +53,14 @@ private const val tag = "widget"
 private fun Ui(onDoubleTap: (PxPosition) -> Unit, onPointerInput: PointerInputHandler) {
     Align(alignment = Alignment.BottomRight) {
         TestTag(tag) {
-            Semantics {
+            Semantics(container = true) {
                 DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {
-                    PointerInputWrapper(pointerInputHandler = onPointerInput, cancelHandler = {}) {
-                        WithDensity {
-                            Container(width = width.toDp(), height = height.toDp()) {
-                                DrawShape(RectangleShape, Color.Yellow)
-                            }
+                    PointerInput(pointerInputHandler = onPointerInput, cancelHandler = {}) {
+                        with(DensityAmbient.current) {
+                            Box(
+                                LayoutSize(width.toDp(), height.toDp()),
+                                backgroundColor = Color.Yellow
+                            )
                         }
                     }
                 }

@@ -16,8 +16,8 @@
 
 package androidx.build.gitclient
 
-import androidx.build.releasenotes.getAOSPLink
 import androidx.build.releasenotes.getBuganizerLink
+import androidx.build.releasenotes.getChangeIdAOSPLink
 import org.gradle.api.logging.Logger
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -59,7 +59,7 @@ class GitClientImpl(
      * The root location for git
      */
     private val workingDir: File,
-    private val logger: Logger? = null,
+    private val logger: Logger?,
     private val commandRunner: GitClient.CommandRunner = RealCommandRunner(
             workingDir = workingDir,
             logger = logger
@@ -149,8 +149,8 @@ class GitClientImpl(
         val authorEmailDelimiter: String = "_Author:"
         val dateDelimiter: String = "_Date:"
         val bodyDelimiter: String = "_Body:"
-        val localProjectDir: String = fullProjectDir.toString()
-            .removePrefix(gitRoot.toString())
+        val localProjectDir: String = fullProjectDir.relativeTo(gitRoot).toString()
+        val relativeProjectDir: String = fullProjectDir.relativeTo(workingDir).toString()
 
         var gitLogOptions: String =
             "--pretty=format:$commitStartDelimiter%n" +
@@ -168,13 +168,13 @@ class GitClientImpl(
         if (gitCommitRange.fromExclusive != "") {
             gitLogCmd = "$GIT_LOG_CMD_PREFIX $gitLogOptions " +
                     "${gitCommitRange.fromExclusive}..${gitCommitRange.untilInclusive}" +
-                    " -- $fullProjectDir"
+                    " -- ./$relativeProjectDir"
         } else {
             gitLogCmd = "$GIT_LOG_CMD_PREFIX $gitLogOptions ${gitCommitRange.untilInclusive} -n " +
-                    "${gitCommitRange.n} -- $fullProjectDir"
+                    "${gitCommitRange.n} -- ./$relativeProjectDir"
         }
         val gitLogString: String = commandRunner.execute(gitLogCmd)
-        return parseCommitLogString(
+        val commits = parseCommitLogString(
             gitLogString,
             commitStartDelimiter,
             commitSHADelimiter,
@@ -182,6 +182,11 @@ class GitClientImpl(
             authorEmailDelimiter,
             localProjectDir
         )
+        if (commits.size < 1) {
+            // Probably an error; log this
+            logger?.warn("No git commits found! Ran this command: '" + gitLogCmd + "' and received this output: '" + gitLogString + "'")
+        }
+        return commits
     }
 
     private class RealCommandRunner(
@@ -198,12 +203,21 @@ class GitClientImpl(
                 .start()
 
             proc.waitFor(1, TimeUnit.MINUTES)
-            val response = proc
+            val stdout = proc
                 .inputStream
                 .bufferedReader()
                 .readText()
-            logger?.info("Response: $response")
-            return response
+            val stderr = proc
+                .errorStream
+                .bufferedReader()
+                .readText()
+            val message = stdout + stderr
+            if (stderr != "") {
+                logger?.error("Response: $message")
+            } else {
+                logger?.info("Response: $message")
+            }
+            return stdout
         }
         override fun executeAndParse(command: String): List<String> {
             val response = execute(command)
@@ -279,44 +293,52 @@ data class Commit(
     var type: CommitType = CommitType.BUG_FIX
     var releaseNote: String = ""
     private val releaseNoteDelimiters: List<String> = listOf(
-        "Release notes:",
-        "Release Notes:",
-        "release notes:",
-        "Release note:"
+        "Relnote:"
     )
 
     init {
         val listedCommit: List<String> = gitCommit.split('\n')
         listedCommit.filter { line -> line.trim() != "" }.forEach { line ->
-            if (commitSHADelimiter in line) {
-                getSHAFromGitLine(line)
-            }
-            if (subjectDelimiter in line) {
-                getSummary(line)
-            }
-            if (changeIdDelimiter in line) {
-                getChangeIdFromGitLine(line)
-            }
-            if (authorEmailDelimiter in line) {
-                getAuthorEmailFromGitLine(line)
-            }
-            if ("Bug:" in line ||
-                "b/" in line ||
-                "bug:" in line ||
-                "Fixes:" in line ||
-                "fixes b/" in line
-            ) {
-                getBugsFromGitLine(line)
-            }
-            releaseNoteDelimiters.forEach { delimiter ->
-                if (delimiter in line) {
-                    getReleaseNotesFromGitLine(line, gitCommit)
-                }
-            }
-            if (projectDir.trim('/') in line) {
-                getFileFromGitLine(line)
-            }
+            processCommitLine(line)
         }
+    }
+
+    private fun processCommitLine(line: String) {
+          if (commitSHADelimiter in line) {
+              getSHAFromGitLine(line)
+              return
+          }
+          if (subjectDelimiter in line) {
+              getSummary(line)
+              return
+          }
+          if (changeIdDelimiter in line) {
+              getChangeIdFromGitLine(line)
+              return
+          }
+          if (authorEmailDelimiter in line) {
+              getAuthorEmailFromGitLine(line)
+              return
+          }
+          if ("Bug:" in line ||
+              "b/" in line ||
+              "bug:" in line ||
+              "Fixes:" in line ||
+              "fixes b/" in line
+          ) {
+              getBugsFromGitLine(line)
+              return
+          }
+          releaseNoteDelimiters.forEach { delimiter ->
+              if (delimiter in line) {
+                  getReleaseNotesFromGitLine(line, gitCommit)
+                  return
+              }
+          }
+          if (projectDir.trim('/') in line) {
+              getFileFromGitLine(line)
+              return
+          }
     }
 
     private fun isExternalAuthorEmail(authorEmail: String): Boolean {
@@ -445,7 +467,7 @@ data class Commit(
 
     fun getReleaseNoteString(): String {
         var releaseNoteString: String = releaseNote
-        releaseNoteString += " ${getAOSPLink(changeId)}"
+        releaseNoteString += " ${getChangeIdAOSPLink(changeId)}"
         bugs.forEach { bug ->
             releaseNoteString += " ${getBuganizerLink(bug)}"
         }
@@ -454,7 +476,7 @@ data class Commit(
 
     override fun toString(): String {
         var commitString: String = summary
-        commitString += " ${getAOSPLink(changeId)}"
+        commitString += " ${getChangeIdAOSPLink(changeId)}"
         bugs.forEach { bug ->
             commitString += " ${getBuganizerLink(bug)}"
         }

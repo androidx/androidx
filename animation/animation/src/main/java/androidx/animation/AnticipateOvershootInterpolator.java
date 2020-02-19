@@ -33,11 +33,17 @@ import androidx.annotation.Nullable;
 public class AnticipateOvershootInterpolator implements Interpolator {
     private final float mTension;
 
+    /**
+     * Creates a new instance of {@link AnticipateOvershootInterpolator} with slight anticipate and
+     * overshoot.
+     */
     public AnticipateOvershootInterpolator() {
         mTension = 2.0f * 1.5f;
     }
 
     /**
+     * Creates a new instance of {@link AnticipateOvershootInterpolator}.
+     *
      * @param tension Amount of anticipation/overshoot. When tension equals 0.0f,
      *                there is no anticipation/overshoot and the interpolator becomes
      *                a simple acceleration/deceleration interpolator.
@@ -47,6 +53,8 @@ public class AnticipateOvershootInterpolator implements Interpolator {
     }
 
     /**
+     * Creates a new instance of {@link AnticipateOvershootInterpolator}.
+     *
      * @param tension Amount of anticipation/overshoot. When tension equals 0.0f,
      *                there is no anticipation/overshoot and the interpolator becomes
      *                a simple acceleration/deceleration interpolator.

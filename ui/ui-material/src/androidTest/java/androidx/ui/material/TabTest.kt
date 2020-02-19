@@ -39,7 +39,6 @@ import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -128,9 +127,11 @@ class TabTest {
                             selectedIndex = state,
                             indicatorContainer = indicatorContainer
                         ) { index, text ->
-                            Tab(text = text, selected = state == index) {
-                                setState(index)
-                            }
+                            Tab(
+                                text = text,
+                                selected = state == index,
+                                onSelected = { setState(index) }
+                            )
                         }
                     }
                 }
@@ -145,25 +146,25 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowWidth to tabRowHeight
         }
 
         // Click the second tab
-        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+        findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
         composeTestRule.runOnIdleCompose {
-            withDensity(composeTestRule.density) {
+            with(composeTestRule.density) {
                 val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
                 val expectedPositionX = tabRowWidth / 2
-                assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+                assertThat(indicatorPositionX).isEqualTo(expectedPositionX.toPx())
 
                 val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-                val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+                val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
                 assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
             }
         }
@@ -198,9 +199,11 @@ class TabTest {
                         selectedIndex = state,
                         indicatorContainer = indicatorContainer
                     ) { index, text ->
-                        Tab(text = text, selected = state == index) {
-                            setState(index)
-                        }
+                        Tab(
+                            text = text,
+                            selected = state == index,
+                            onSelected = { setState(index) }
+                        )
                     }
                 }
             }
@@ -216,14 +219,14 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowHeight
         }
 
         // Click the second tab
-        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+        findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
@@ -233,7 +236,7 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
         }
     }
@@ -245,7 +248,7 @@ class TabTest {
                 TextTabs()
             }
 
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -264,7 +267,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -275,10 +278,10 @@ class TabTest {
         }.assertCountEquals(3)
 
         // Click the last tab
-        findAll { isInMutuallyExclusiveGroup }.last().doClick()
+        findAll(isInMutuallyExclusiveGroup()).last().doClick()
 
         // Now only the last tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == lastIndex) {
                     interaction.assertIsSelected()
@@ -296,7 +299,7 @@ class TabTest {
                 ScrollingTextTabs()
             }
 
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -315,7 +318,7 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 0) {
                     interaction.assertIsSelected()
@@ -326,10 +329,10 @@ class TabTest {
         }.assertCountEquals(10)
 
         // Click the second tab
-        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+        findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Now only the second tab should be selected
-        findAll { isInMutuallyExclusiveGroup }.apply {
+        findAll(isInMutuallyExclusiveGroup()).apply {
             forEachIndexed { index, interaction ->
                 if (index == 1) {
                     interaction.assertIsSelected()

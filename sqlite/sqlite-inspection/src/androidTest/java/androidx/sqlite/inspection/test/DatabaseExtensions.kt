@@ -45,8 +45,21 @@ fun Database.createInstance(temporaryFolder: TemporaryFolder): SQLiteDatabase {
     return db
 }
 
-fun Table.toCreateString(): String =
-    columns.joinToString(
+fun Table.toCreateString(): String {
+    val primaryKeyColumns = columns.filter { it.isPrimaryKey }
+    val primaryKeyPart =
+        if (primaryKeyColumns.isEmpty()) ""
+        else primaryKeyColumns
+            .sortedBy { it.primaryKey }
+            .joinToString(prefix = ",PRIMARY KEY(", postfix = ")") { it.name }
+
+    return columns.joinToString(
         prefix = "CREATE TABLE $name (",
-        postfix = ");"
-    ) { "${it.name} ${it.type}" }
+        postfix = "$primaryKeyPart );"
+    ) {
+        "${it.name} " +
+                "${it.type} " +
+                (if (it.isNotNull) "NOT NULL " else "") +
+                (if (it.isUnique) "UNIQUE " else "")
+    }
+}

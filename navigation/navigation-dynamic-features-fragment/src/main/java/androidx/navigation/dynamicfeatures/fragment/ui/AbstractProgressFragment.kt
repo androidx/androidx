@@ -90,6 +90,8 @@ abstract class AbstractProgressFragment : Fragment {
     }
 
     /**
+     * Navigates to an installed dynamic feature module or kicks off installation.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -124,7 +126,7 @@ abstract class AbstractProgressFragment : Fragment {
                 }
                 when (sessionState.status()) {
                     SplitInstallSessionStatus.INSTALLED -> {
-                        Log.i(TAG, "onChanged: INSTALLED")
+                        onInstalled()
                         navigate()
                     }
                     SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> try {
@@ -146,7 +148,6 @@ abstract class AbstractProgressFragment : Fragment {
                     SplitInstallSessionStatus.DOWNLOADING,
                     SplitInstallSessionStatus.INSTALLING,
                     SplitInstallSessionStatus.PENDING -> {
-                        Log.i(TAG, "onChanged: status ${sessionState.status()}")
                         onProgress(
                             sessionState.status(),
                             sessionState.bytesDownloaded(),
@@ -193,4 +194,10 @@ abstract class AbstractProgressFragment : Fragment {
      * @param errorCode contains the error code of the installation failure.
      */
     protected abstract fun onFailed(@SplitInstallErrorCode errorCode: Int)
+
+    /**
+     * Called when requested module has been successfully installed, just before the
+     * [NavController][androidx.navigation.NavController] navigates to the final destination.
+     */
+    protected open fun onInstalled() = Unit
 }

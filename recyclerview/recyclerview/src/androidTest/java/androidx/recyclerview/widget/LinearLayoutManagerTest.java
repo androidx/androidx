@@ -209,6 +209,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
+            @SuppressWarnings("deprecated") // using this for kitkat tests
             public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
@@ -216,7 +217,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 stl.addState(new int[]{android.R.attr.state_focused},
                         new ColorDrawable(Color.RED));
                 stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                //noinspection deprecation used to support kitkat tests
                 testViewHolder.itemView.setBackgroundDrawable(stl);
                 return testViewHolder;
             }
@@ -295,6 +295,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
+            @SuppressWarnings("deprecated") // using this for kitkat tests
             public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
@@ -302,7 +303,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 stl.addState(new int[]{android.R.attr.state_focused},
                         new ColorDrawable(Color.RED));
                 stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                //noinspection deprecation used to support kitkat tests
                 testViewHolder.itemView.setBackgroundDrawable(stl);
                 return testViewHolder;
             }
@@ -387,6 +387,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
+            @SuppressWarnings("deprecated") // using this for kitkat tests
             public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
@@ -394,7 +395,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 stl.addState(new int[]{android.R.attr.state_focused},
                         new ColorDrawable(Color.RED));
                 stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                //noinspection deprecation used to support kitkat tests
                 testViewHolder.itemView.setBackgroundDrawable(stl);
                 return testViewHolder;
             }
@@ -482,6 +482,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
+            @SuppressWarnings("deprecated") // using this for kitkat tests
             public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
@@ -489,7 +490,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 stl.addState(new int[]{android.R.attr.state_focused},
                         new ColorDrawable(Color.RED));
                 stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                //noinspection deprecation used to support kitkat tests
                 testViewHolder.itemView.setBackgroundDrawable(stl);
                 return testViewHolder;
             }
@@ -576,6 +576,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
+            @SuppressWarnings("deprecated") // using this for kitkat tests
             public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
@@ -583,7 +584,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 stl.addState(new int[]{android.R.attr.state_focused},
                         new ColorDrawable(Color.RED));
                 stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                //noinspection deprecation used to support kitkat tests
                 testViewHolder.itemView.setBackgroundDrawable(stl);
                 return testViewHolder;
             }
@@ -772,7 +772,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         for (int i = 0; i < childCount; i++) {
             View child = mLayoutManager.getChildAt(i);
             RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
-            if (holder.getAdapterPosition() == removePos) {
+            if (holder.getAbsoluteAdapterPosition() == removePos) {
                 toBeRemoved = holder;
             } else {
                 toBeMoved.add(holder);

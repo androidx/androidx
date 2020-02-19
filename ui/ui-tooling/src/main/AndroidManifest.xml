@@ -13,7 +13,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="androidx.ui.tooling">
-    <application/>
-</manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.tooling">
 
+    <application>
+        <activity
+            android:name=".preview.PreviewActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+    </application>
+
+</manifest>

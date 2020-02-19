@@ -16,13 +16,16 @@
 
 package androidx.compose.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
+import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.material.Button
 
 @Composable
+@Sampled
 fun modelSample() {
     @Model
     class LoginState(var username: String, var password: String) {
@@ -41,6 +44,8 @@ fun modelSample() {
             value = model.password,
             onValueChange = { model.password = it }
         )
-        Button(text = "Login", onClick = { model.login() })
+        Button(onClick = { model.login() }) {
+            Text("Login")
+        }
     }
 }

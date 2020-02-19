@@ -54,6 +54,7 @@ import androidx.media2.session.SessionResult;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSessionCompat;
 import androidx.media2.test.common.MockActivity;
+import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.filters.MediumTest;
 
@@ -469,6 +470,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         final int maxVolume = 100;
         final int currentVolume = 45;
 
+        final AtomicReference<MediaController.PlaybackInfo> infoOut = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
@@ -485,6 +487,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                         && volumeControlType == info.getControlType()
                         && maxVolume == info.getMaxVolume()
                         && currentVolume == info.getCurrentVolume()) {
+                    infoOut.set(info);
                     latch.countDown();
                 }
             }
@@ -492,6 +495,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         mController = createController(mSession.getSessionToken(), true, callback);
         mSession.setPlaybackToRemote(volumeControlType, maxVolume, currentVolume);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(infoOut.get(), mController.getPlaybackInfo());
     }
 
     @Test
@@ -507,6 +511,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         final int maxVolume = mAudioManager.getStreamMaxVolume(testLocalStreamType);
         final int currentVolume = mAudioManager.getStreamVolume(testLocalStreamType);
 
+        final AtomicReference<MediaController.PlaybackInfo> infoOut = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
@@ -517,12 +522,14 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                 assertEquals(RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE, info.getControlType());
                 assertEquals(maxVolume, info.getMaxVolume());
                 assertEquals(currentVolume, info.getCurrentVolume());
+                infoOut.set(info);
                 latch.countDown();
             }
         };
         mController = createController(mSession.getSessionToken(), true, callback);
         mSession.setPlaybackToLocal(testLocalStreamType);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(infoOut.get(), mController.getPlaybackInfo());
     }
 
     @Test
@@ -681,5 +688,13 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         mController = createController(mSession.getSessionToken(), true, callback);
         mSession.setCaptioningEnabled(true);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testConstructorWithoutCallback() throws InterruptedException {
+        MediaController controller = new MediaController.Builder(mContext)
+                .setSessionCompatToken(mSession.getSessionToken())
+                .build();
+        PollingCheck.waitFor(TIMEOUT_MS, () -> controller.isConnected());
     }
 }

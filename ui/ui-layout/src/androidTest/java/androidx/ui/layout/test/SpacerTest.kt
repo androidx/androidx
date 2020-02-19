@@ -25,11 +25,9 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
-import androidx.ui.unit.PxSize
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.round
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +46,7 @@ class SpacerTest : LayoutTest() {
 
     @Test
     fun fixedSpacer_Sizes() {
-        var size: PxSize? = null
+        var size: IntPxSize? = null
         val width = 40.dp
         val height = 71.dp
 
@@ -65,15 +63,15 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
-            Truth.assertThat(size?.width?.round()).isEqualTo(width.toIntPx())
+        with(density) {
+            Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
+            Truth.assertThat(size?.width).isEqualTo(width.toIntPx())
         }
     }
 
     @Test
     fun fixedSpacer_Sizes_WithSmallerContainer() {
-        var size: PxSize? = null
+        var size: IntPxSize? = null
         val width = 40.dp
         val height = 71.dp
 
@@ -99,15 +97,15 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(containerHeight.toIntPx())
-            Truth.assertThat(size?.width?.round()).isEqualTo(containerWidth.toIntPx())
+        with(density) {
+            Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
+            Truth.assertThat(size?.width).isEqualTo(containerWidth.toIntPx())
         }
     }
 
     @Test
     fun widthSpacer_Sizes() {
-        var size: PxSize? = null
+        var size: IntPxSize? = null
         val width = 71.dp
 
         val drawLatch = CountDownLatch(1)
@@ -123,15 +121,15 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(0.ipx)
-            Truth.assertThat(size?.width?.round()).isEqualTo(width.toIntPx())
+        with(density) {
+            Truth.assertThat(size?.height).isEqualTo(0.ipx)
+            Truth.assertThat(size?.width).isEqualTo(width.toIntPx())
         }
     }
 
     @Test
     fun widthSpacer_Sizes_WithSmallerContainer() {
-        var size: PxSize? = null
+        var size: IntPxSize? = null
         val width = 40.dp
 
         val drawLatch = CountDownLatch(1)
@@ -156,15 +154,15 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(0.ipx)
-            Truth.assertThat(size?.width?.round()).isEqualTo(containerWidth.toIntPx())
+        with(density) {
+            Truth.assertThat(size?.height).isEqualTo(0.ipx)
+            Truth.assertThat(size?.width).isEqualTo(containerWidth.toIntPx())
         }
     }
 
     @Test
     fun heightSpacer_Sizes() {
-        var size: PxSize? = null
+        var size: IntPxSize? = null
         val height = 7.dp
 
         val drawLatch = CountDownLatch(1)
@@ -180,15 +178,15 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
-            Truth.assertThat(size?.width?.round()).isEqualTo(0.ipx)
+        with(density) {
+            Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
+            Truth.assertThat(size?.width).isEqualTo(0.ipx)
         }
     }
 
     @Test
     fun heightSpacer_Sizes_WithSmallerContainer() {
-        var size: PxSize? = null
+        var size: IntPxSize? = null
         val height = 23.dp
 
         val drawLatch = CountDownLatch(1)
@@ -213,9 +211,9 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        withDensity(density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(containerHeight.toIntPx())
-            Truth.assertThat(size?.width?.round()).isEqualTo(0.ipx)
+        with(density) {
+            Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
+            Truth.assertThat(size?.width).isEqualTo(0.ipx)
         }
     }
 }

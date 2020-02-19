@@ -47,6 +47,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,10 +67,39 @@ final class SqliteInspector extends Inspector {
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
 
-    private static final String sQueryTableNames =
-            "SELECT name FROM sqlite_master WHERE type='table'";
-
-    private static final String sQueryTableInfo = "PRAGMA table_info(%s)";
+    // Note: this only works on API26+ because of pragma_* functions
+    // TODO: replace with a resource file
+    private static final String sQueryTableInfo = "select\n"
+            + "  m.type as type,\n"
+            + "  m.name as tableName,\n"
+            + "  ti.name as columnName,\n"
+            + "  ti.type as columnType,\n"
+            + "  [notnull],\n"
+            + "  pk,\n"
+            + "  ifnull([unique], 0) as [unique]\n"
+            + "from sqlite_master AS m, pragma_table_info(m.name) as ti\n"
+            + "left outer join\n"
+            + "  (\n"
+            + "    select tableName, name as columnName, ti.[unique]\n"
+            + "    from\n"
+            + "      (\n"
+            + "        select m.name as tableName, il.name as indexName, il.[unique]\n"
+            + "        from\n"
+            + "          sqlite_master AS m,\n"
+            + "          pragma_index_list(m.name) AS il,\n"
+            + "          pragma_index_info(il.name) as ii\n"
+            + "        where il.[unique] = 1\n"
+            + "        group by il.name\n"
+            + "        having count(*) = 1  -- countOfColumnsInIndex=1\n"
+            + "      )\n"
+            + "        as ti,  -- tableName|indexName|unique : unique=1 and "
+            + "countOfColumnsInIndex=1\n"
+            + "      pragma_index_info(ti.indexName)\n"
+            + "  )\n"
+            + "    as tci  -- tableName|columnName|unique : unique=1 and countOfColumnsInIndex=1\n"
+            + "  on tci.tableName = m.name and tci.columnName = ti.name\n"
+            + "where m.type in ('table')\n"
+            + "order by type, tableName, ti.cid  -- cid = columnId";
 
     // TODO: decide if to expose the 'android_metadata' table
     private static final Set<String> sHiddenTables = new HashSet<>(Collections.singletonList(
@@ -102,8 +132,10 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleTrackDatabases(CommandCallback callback) {
-        callback.reply(SqliteInspectorProtocol.Response.newBuilder().setTrackDatabases(
-                TrackDatabasesResponse.getDefaultInstance()).build().toByteArray());
+        callback.reply(Response.newBuilder()
+                .setTrackDatabases(TrackDatabasesResponse.getDefaultInstance())
+                .build().toByteArray()
+        );
 
         mEnvironment.registerExitHook(
                 SQLiteDatabase.class,
@@ -123,34 +155,46 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
-        final int databaseId = command.getDatabaseId();
-        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
-        if (database == null) {
-            replyNoDatabaseWithId(callback, databaseId);
-            return;
-        }
+        SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
+        if (database == null) return;
 
         callback.reply(querySchema(database).toByteArray());
     }
 
     private void handleQuery(QueryCommand command, CommandCallback callback) {
-        final int databaseId = command.getDatabaseId();
-        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
-        if (database == null) {
-            replyNoDatabaseWithId(callback, databaseId);
-            return;
-        }
+        SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
+        if (database == null) return;
 
         Cursor cursor = database.rawQuery(command.getQuery(), null);
         try {
+            List<String> columnNames = Arrays.asList(cursor.getColumnNames());
             callback.reply(Response.newBuilder()
-                    .setQuery(QueryResponse.newBuilder().addAllRows(convert(cursor)).build())
+                    .setQuery(QueryResponse.newBuilder()
+                            .addAllRows(convert(cursor))
+                            .addAllColumnNames(columnNames)
+                            .build())
                     .build()
                     .toByteArray()
             );
         } finally {
             cursor.close();
         }
+    }
+
+    /**
+     * Tries to find a database for an id. If no such database is found, it replies with an
+     * {@link ErrorOccurredResponse} via the {@code callback} provided.
+     *
+     * @return null if no database found for the provided id. A database reference otherwise.
+     */
+    @Nullable
+    private SQLiteDatabase handleDatabaseId(int databaseId, CommandCallback callback) {
+        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
+        if (database == null) {
+            replyNoDatabaseWithId(callback, databaseId);
+            return null;
+        }
+        return database;
     }
 
     private static List<Row> convert(Cursor cursor) {
@@ -170,7 +214,6 @@ final class SqliteInspector extends Inspector {
     private static CellValue readValue(Cursor cursor, int index) {
         CellValue.Builder builder = CellValue.newBuilder();
 
-        builder.setColumnName(cursor.getColumnName(index));
         switch (cursor.getType(index)) {
             case Cursor.FIELD_TYPE_NULL:
                 // no field to set
@@ -198,42 +241,53 @@ final class SqliteInspector extends Inspector {
     }
 
     private @NonNull Response querySchema(SQLiteDatabase database) {
-        List<String> tableNames = new ArrayList<>();
-        Cursor cursor = database.rawQuery(sQueryTableNames, null);
+        Cursor cursor = database.rawQuery(sQueryTableInfo, null);
         try {
+            GetSchemaResponse.Builder schemaBuilder = GetSchemaResponse.newBuilder();
+
+            int tableNameIx = cursor.getColumnIndex("tableName");
+            int columnNameIx = cursor.getColumnIndex("columnName");
+            int typeIx = cursor.getColumnIndex("columnType");
+            int pkIx = cursor.getColumnIndex("pk");
+            int notNullIx = cursor.getColumnIndex("notnull");
+            int uniqueIx = cursor.getColumnIndex("unique");
+
+            Table.Builder tableBuilder = null;
             while (cursor.moveToNext()) {
-                String table = cursor.getString(0);
-                if (!sHiddenTables.contains(table)) {
-                    tableNames.add(table);
+                String tableName = cursor.getString(tableNameIx);
+
+                // ignore certain tables
+                if (sHiddenTables.contains(tableName)) {
+                    continue;
                 }
+
+                // check if getting data for a new table or appending columns to the current one
+                if (tableBuilder == null || !tableBuilder.getName().equals(tableName)) {
+                    if (tableBuilder != null) {
+                        schemaBuilder.addTables(tableBuilder.build());
+                    }
+                    tableBuilder = Table.newBuilder();
+                    tableBuilder.setName(tableName);
+                }
+
+                // append column information to the current table info
+                tableBuilder.addColumns(Column.newBuilder()
+                        .setName(cursor.getString(columnNameIx))
+                        .setType(cursor.getString(typeIx))
+                        .setPrimaryKey(cursor.getInt(pkIx))
+                        .setIsNotNull(cursor.getInt(notNullIx) > 0)
+                        .setIsUnique(cursor.getInt(uniqueIx) > 0)
+                        .build()
+                );
             }
+            if (tableBuilder != null) {
+                schemaBuilder.addTables(tableBuilder.build());
+            }
+
+            return Response.newBuilder().setGetSchema(schemaBuilder.build()).build();
         } finally {
             cursor.close();
         }
-
-        GetSchemaResponse.Builder schemaBuilder = GetSchemaResponse.newBuilder();
-        for (String table : tableNames) {
-            Table.Builder tableBuilder = Table.newBuilder();
-            tableBuilder.setName(table);
-            String query = String.format(sQueryTableInfo, table);
-            Cursor tableInfo = database.rawQuery(query, null);
-            try {
-                int nameIndex = tableInfo.getColumnIndex("name");
-                int typeIndex = tableInfo.getColumnIndex("type");
-                while (tableInfo.moveToNext()) {
-                    Column column =
-                            Column.newBuilder()
-                                    .setName(tableInfo.getString(nameIndex))
-                                    .setType(tableInfo.getString(typeIndex))
-                                    .build();
-                    tableBuilder.addColumns(column);
-                }
-                schemaBuilder.addTables(tableBuilder.build());
-            } finally {
-                tableInfo.close();
-            }
-        }
-        return Response.newBuilder().setGetSchema(schemaBuilder.build()).build();
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -257,7 +311,7 @@ final class SqliteInspector extends Inspector {
                 .build();
     }
 
-    private Event createErrorOccurredEvent(IllegalArgumentException exception) {
+    private Event createErrorOccurredEvent(@NonNull Exception exception) {
         return Event.newBuilder().setErrorOccurred(
                 ErrorOccurredEvent.newBuilder()
                         .setMessage(exception.getMessage())
@@ -277,7 +331,7 @@ final class SqliteInspector extends Inspector {
     }
 
     @NonNull
-    private String stackTraceFromException(IllegalArgumentException exception) {
+    private String stackTraceFromException(Exception exception) {
         StringWriter writer = new StringWriter();
         exception.printStackTrace(new PrintWriter(writer));
         return writer.toString();

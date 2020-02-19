@@ -56,7 +56,6 @@ android {
 androidx {
     name = "Jetpack Camera Testing Library"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.CAMERA
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "Testing components for the Jetpack Camera Library, a library providing a " +

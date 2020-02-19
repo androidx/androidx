@@ -79,7 +79,7 @@ fun TriStateToggleable(
         consumeDownOnStart = false
     ) {
         // TODO(pavlis): Handle multiple states for Semantics
-        Semantics(properties = {
+        Semantics(container = true, properties = {
             this.accessibilityValue = when (value) {
                 // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
                 ToggleableState.On -> Strings.Checked

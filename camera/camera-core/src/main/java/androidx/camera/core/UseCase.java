@@ -48,8 +48,6 @@ import java.util.Set;
  * the Camera.
  */
 public abstract class UseCase {
-    private static final String TAG = "UseCase";
-
     /**
      * The set of {@link StateChangeCallback} that are currently listening state transitions of this
      * use case.

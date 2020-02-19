@@ -1,0 +1,15 @@
+// Signature format: 3.0
+package androidx.startup {
+
+  public final class AppInitializer {
+    method public static androidx.startup.AppInitializer getInstance(android.content.Context);
+    method public <T> T initializeComponent(Class<? extends androidx.startup.ComponentInitializer<T!>>);
+  }
+
+  public interface ComponentInitializer<T> {
+    method public T create(android.content.Context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.ComponentInitializer<?>>!> dependencies();
+  }
+
+}
+

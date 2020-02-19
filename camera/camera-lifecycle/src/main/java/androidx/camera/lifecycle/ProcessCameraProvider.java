@@ -20,6 +20,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -45,7 +46,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 
 /**
- * A {@link LifecycleCameraProvider} which can be used to bind to any {@link LifecycleOwner}
+ * A singleton which can be used to bind the lifecycle of cameras to any {@link LifecycleOwner}
  * within an application's process.
  *
  * <p>Only a single process camera provider can exist within a process, and it can be retrieved
@@ -65,7 +66,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
 
     /**
-     * Retrieves the {@link LifecycleCameraProvider} associated with the current process.
+     * Retrieves the {@link ProcessCameraProvider} associated with the current process.
      *
      * <p>The instance returned here can be used to bind use cases to any
      * {@link LifecycleOwner} with
@@ -218,6 +219,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *                                  camera to be used for the given use cases.
      */
     @SuppressWarnings("lambdaLast")
+    @MainThread
     @NonNull
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
@@ -230,11 +232,13 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         return CameraX.isBound(useCase);
     }
 
+    @MainThread
     @Override
     public void unbind(@NonNull UseCase... useCases) {
         CameraX.unbind(useCases);
     }
 
+    @MainThread
     @Override
     public void unbindAll() {
         CameraX.unbindAll();

@@ -18,7 +18,9 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
@@ -28,10 +30,10 @@ import androidx.ui.unit.dp
 @Composable
 fun SpacerExample() {
     Row {
-        SizedRectangle(color = Color.Red, width = 100.dp, height = 100.dp)
+        Box(LayoutSize(100.dp), backgroundColor = Color.Red)
         Spacer(modifier = LayoutWidth(20.dp))
-        SizedRectangle(color = Color.Magenta, width = 100.dp, height = 100.dp)
+        Box(LayoutSize(100.dp), backgroundColor = Color.Magenta)
         Spacer(modifier = LayoutFlexible(1f))
-        SizedRectangle(color = Color.Black, width = 100.dp, height = 100.dp)
+        Box(LayoutSize(100.dp), backgroundColor = Color.Black)
     }
 }

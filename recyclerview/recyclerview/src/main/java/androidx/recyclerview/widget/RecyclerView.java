@@ -146,14 +146,15 @@ import java.util.List;
  * is seeing.
  * <p>
  * The other set of position related methods are in the form of
- * <code>*AdapterPosition*</code>. (e.g. {@link ViewHolder#getAdapterPosition()},
+ * <code>*AdapterPosition*</code>. (e.g. {@link ViewHolder#getAbsoluteAdapterPosition()},
+ * {@link ViewHolder#getBindingAdapterPosition()},
  * {@link #findViewHolderForAdapterPosition(int)}) You should use these methods when you need to
  * work with up-to-date adapter positions even if they may not have been reflected to layout yet.
  * For example, if you want to access the item in the adapter on a ViewHolder click, you should use
- * {@link ViewHolder#getAdapterPosition()}. Beware that these methods may not be able to calculate
- * adapter positions if {@link Adapter#notifyDataSetChanged()} has been called and new layout has
- * not yet been calculated. For this reasons, you should carefully handle {@link #NO_POSITION} or
- * <code>null</code> results from these methods.
+ * {@link ViewHolder#getBindingAdapterPosition()}. Beware that these methods may not be able to
+ * calculate adapter positions if {@link Adapter#notifyDataSetChanged()} has been called and new
+ * layout has not yet been calculated. For this reasons, you should carefully handle
+ * {@link #NO_POSITION} or <code>null</code> results from these methods.
  * <p>
  * When writing a {@link LayoutManager} you almost always want to use layout positions whereas when
  * writing an {@link Adapter}, you probably want to use adapter positions.
@@ -366,7 +367,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     final Recycler mRecycler = new Recycler();
 
-    private SavedState mPendingSavedState;
+    SavedState mPendingSavedState;
 
     /**
      * Handles adapter updates
@@ -1394,9 +1395,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         mPendingSavedState = (SavedState) state;
         super.onRestoreInstanceState(mPendingSavedState.getSuperState());
-        if (mLayout != null && mPendingSavedState.mLayoutState != null) {
-            mLayout.onRestoreInstanceState(mPendingSavedState.mLayoutState);
-        }
+        // Historically, some app developers have used onRestoreInstanceState(State) in ways it
+        // was never intended. For example, some devs have used it to manually set a state they
+        // updated themselves such that passing the state here would cause a LayoutManager to
+        // receive it and update its internal state accordingly, even if state was already
+        // previously restored. Therefore, it is necessary to always call requestLayout to retain
+        // the functionality even if it otherwise seems like a strange thing to do.
+        // ¯\_(ツ)_/¯
+        requestLayout();
     }
 
     /**
@@ -3874,7 +3880,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // removed item.
             mState.mFocusedItemPosition = mDataSetHasChangedAfterLayout ? NO_POSITION
                     : (focusedVh.isRemoved() ? focusedVh.mOldPosition
-                            : focusedVh.getAdapterPosition());
+                            : focusedVh.getAbsoluteAdapterPosition());
             mState.mFocusedSubChildId = getDeepestFocusedViewWithId(focusedVh.itemView);
         }
     }
@@ -4124,13 +4130,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mAdapterHelper.consumeUpdatesInOnePass();
         mState.mItemCount = mAdapter.getItemCount();
         mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
-
+        if (mPendingSavedState != null && mAdapter.canRestoreState()) {
+            if (mPendingSavedState.mLayoutState != null) {
+                mLayout.onRestoreInstanceState(mPendingSavedState.mLayoutState);
+            }
+            mPendingSavedState = null;
+        }
         // Step 2: Run layout
         mState.mInPreLayout = false;
         mLayout.onLayoutChildren(mRecycler, mState);
 
         mState.mStructureChanged = false;
-        mPendingSavedState = null;
 
         // onLayoutChildren may have caused client code to disable item animations; re-check
         mState.mRunSimpleAnimations = mState.mRunSimpleAnimations && mItemAnimator != null;
@@ -4832,7 +4842,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     public int getChildAdapterPosition(@NonNull View child) {
         final ViewHolder holder = getChildViewHolderInt(child);
-        return holder != null ? holder.getAdapterPosition() : NO_POSITION;
+        return holder != null ? holder.getAbsoluteAdapterPosition() : NO_POSITION;
     }
 
     /**
@@ -4884,7 +4894,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * Note that when Adapter contents change, ViewHolder positions are not updated until the
      * next layout calculation. If there are pending adapter updates, the return value of this
      * method may not match your adapter contents. You can use
-     * #{@link ViewHolder#getAdapterPosition()} to get the current adapter position of a ViewHolder.
+     * #{@link ViewHolder#getBindingAdapterPosition()} to get the current adapter position
+     * of a ViewHolder. If the {@link Adapter} that is assigned to the RecyclerView is an adapter
+     * that combines other adapters (e.g. {@link MergeAdapter}), you can use the
+     * {@link ViewHolder#getBindingAdapter()}) to find the position relative to the {@link Adapter}
+     * that bound the {@link ViewHolder}.
      * <p>
      * When the ItemAnimator is running a change animation, there might be 2 ViewHolders
      * with the same layout position representing the same Item. In this case, the updated
@@ -4926,7 +4940,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null && !holder.isRemoved()
-                    && getAdapterPositionFor(holder) == position) {
+                    && getAdapterPositionInRecyclerView(holder) == position) {
                 if (mChildHelper.isHidden(holder.itemView)) {
                     hidden = holder;
                 } else {
@@ -5578,6 +5592,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 requestLayout();
             }
         }
+
+        @Override
+        public void onStateRestorationStrategyChanged() {
+            if (mPendingSavedState == null) {
+                return;
+            }
+            // If there is a pending saved state and the new mode requires us to restore it,
+            // we'll request a layout which will call the adapter to see if it can restore state
+            // and trigger state restoration
+            Adapter<?> adapter = mAdapter;
+            if (adapter != null && adapter.canRestoreState()) {
+                requestLayout();
+            }
+        }
     }
 
     /**
@@ -5997,6 +6025,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         @SuppressWarnings("unchecked")
         private boolean tryBindViewHolderByDeadline(@NonNull ViewHolder holder, int offsetPosition,
                 int position, long deadlineNs) {
+            holder.mBindingAdapter = null;
             holder.mOwnerRecyclerView = RecyclerView.this;
             final int viewType = holder.getItemViewType();
             long startBindNs = getNanoTime();
@@ -6504,6 +6533,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // from view holder lists.
             mViewInfoStore.removeViewHolder(holder);
             if (!cached && !recycled && transientStatePreventsRecycling) {
+                holder.mBindingAdapter = null;
                 holder.mOwnerRecyclerView = null;
             }
         }
@@ -6533,6 +6563,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (dispatchRecycled) {
                 dispatchViewRecycled(holder);
             }
+            holder.mBindingAdapter = null;
             holder.mOwnerRecyclerView = null;
             getRecycledViewPool().putRecycledView(holder);
         }
@@ -6980,6 +7011,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     public abstract static class Adapter<VH extends ViewHolder> {
         private final AdapterDataObservable mObservable = new AdapterDataObservable();
         private boolean mHasStableIds = false;
+        private StateRestorationStrategy mStateRestorationStrategy = StateRestorationStrategy.ALLOW;
 
         /**
          * Called when RecyclerView needs a new {@link ViewHolder} of the given type to represent
@@ -7015,8 +7047,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * invalidated or the new position cannot be determined. For this reason, you should only
          * use the <code>position</code> parameter while acquiring the related data item inside
          * this method and should not keep a copy of it. If you need the position of an item later
-         * on (e.g. in a click listener), use {@link ViewHolder#getAdapterPosition()} which will
-         * have the updated adapter position.
+         * on (e.g. in a click listener), use {@link ViewHolder#getBindingAdapterPosition()} which
+         * will have the updated adapter position.
          *
          * Override {@link #onBindViewHolder(ViewHolder, int, List)} instead if Adapter can
          * handle efficient partial bind.
@@ -7037,8 +7069,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * invalidated or the new position cannot be determined. For this reason, you should only
          * use the <code>position</code> parameter while acquiring the related data item inside
          * this method and should not keep a copy of it. If you need the position of an item later
-         * on (e.g. in a click listener), use {@link ViewHolder#getAdapterPosition()} which will
-         * have the updated adapter position.
+         * on (e.g. in a click listener), use {@link ViewHolder#getBindingAdapterPosition()} which
+         * will have the updated adapter position.
          * <p>
          * Partial bind vs full bind:
          * <p>
@@ -7059,6 +7091,31 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         public void onBindViewHolder(@NonNull VH holder, int position,
                 @NonNull List<Object> payloads) {
             onBindViewHolder(holder, position);
+        }
+
+        /**
+         * Returns the position of the given {@link ViewHolder} in the given {@link Adapter}.
+         *
+         * If the given {@link Adapter} is not part of this {@link Adapter},
+         * {@link RecyclerView#NO_POSITION} is returned.
+         *
+         * @param adapter    The adapter which is a sub adapter of this adapter or itself.
+         * @param viewHolder The ViewHolder whose local position in the given adapter will be
+         *                   returned.
+         * @return The local position of the given {@link ViewHolder} in this {@link Adapter}
+         * or {@link RecyclerView#NO_POSITION} if the {@link ViewHolder} is not bound to an item
+         * or the given {@link Adapter} is not part of this Adapter (if this Adapter merges other
+         * adapters).
+         */
+        public int findRelativeAdapterPositionIn(
+                @NonNull Adapter<? extends ViewHolder> adapter,
+                @NonNull ViewHolder viewHolder,
+                int localPosition
+        ) {
+            if (adapter == this) {
+                return localPosition;
+            }
+            return NO_POSITION;
         }
 
         /**
@@ -7089,24 +7146,38 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * {@link ViewHolder} contents with the item at the given position and also sets up some
          * private fields to be used by RecyclerView.
          *
+         * Adapters that merge other adapters should use
+         * {@link #bindViewHolder(ViewHolder, int)} when calling nested adapters so that
+         * RecyclerView can track which adapter bound the {@link ViewHolder} to return the correct
+         * position from {@link ViewHolder#getBindingAdapterPosition()} method.
+         * They should also override
+         * the {@link #findRelativeAdapterPositionIn(Adapter, ViewHolder, int)} method.
+         * @param holder The view holder whose contents should be updated
+         * @param position The position of the holder with respect to this adapter
          * @see #onBindViewHolder(ViewHolder, int)
          */
         public final void bindViewHolder(@NonNull VH holder, int position) {
-            holder.mPosition = position;
-            if (hasStableIds()) {
-                holder.mItemId = getItemId(position);
+            boolean rootBind = holder.mBindingAdapter == null;
+            if (rootBind) {
+                holder.mPosition = position;
+                if (hasStableIds()) {
+                    holder.mItemId = getItemId(position);
+                }
+                holder.setFlags(ViewHolder.FLAG_BOUND,
+                        ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
+                                | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
+                TraceCompat.beginSection(TRACE_BIND_VIEW_TAG);
             }
-            holder.setFlags(ViewHolder.FLAG_BOUND,
-                    ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
-                            | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
-            TraceCompat.beginSection(TRACE_BIND_VIEW_TAG);
+            holder.mBindingAdapter = this;
             onBindViewHolder(holder, position, holder.getUnmodifiedPayloads());
-            holder.clearPayload();
-            final ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
-            if (layoutParams instanceof RecyclerView.LayoutParams) {
-                ((LayoutParams) layoutParams).mInsetsDirty = true;
+            if (rootBind) {
+                holder.clearPayload();
+                final ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
+                if (layoutParams instanceof RecyclerView.LayoutParams) {
+                    ((LayoutParams) layoutParams).mInsetsDirty = true;
+                }
+                TraceCompat.endSection();
             }
-            TraceCompat.endSection();
         }
 
         /**
@@ -7183,7 +7254,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * <p>
          * RecyclerView calls this method right before clearing ViewHolder's internal data and
          * sending it to RecycledViewPool. This way, if ViewHolder was holding valid information
-         * before being recycled, you can call {@link ViewHolder#getAdapterPosition()} to get
+         * before being recycled, you can call {@link ViewHolder#getBindingAdapterPosition()} to get
          * its adapter position.
          *
          * @param holder The ViewHolder for the view being recycled
@@ -7526,6 +7597,91 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         public final void notifyItemRangeRemoved(int positionStart, int itemCount) {
             mObservable.notifyItemRangeRemoved(positionStart, itemCount);
+        }
+
+        /**
+         * Sets the state restoration strategy for the Adapter.
+         *
+         * By default, it is set to {@link StateRestorationStrategy#ALLOW} which means RecyclerView
+         * expects any set Adapter to be immediately capable of restoring the RecyclerView's saved
+         * scroll position.
+         * <p>
+         * This behaviour might be undesired if the Adapter's data is loaded asynchronously, and
+         * thus unavailable during initial layout (e.g. after Activity rotation). To avoid losing
+         * scroll position, you can change this to be either
+         * {@link StateRestorationStrategy#PREVENT_WHEN_EMPTY} or
+         * {@link StateRestorationStrategy#PREVENT}.
+         * Note that the former means your RecyclerView will restore state as soon as Adapter has
+         * 1 or more items while the latter requires you to call
+         * {@link #setStateRestorationStrategy(StateRestorationStrategy)} with either
+         * {@link StateRestorationStrategy#ALLOW} or
+         * {@link StateRestorationStrategy#PREVENT_WHEN_EMPTY} again when the Adapter is
+         * ready to restore its state.
+         * <p>
+         * RecyclerView will still layout even when State restoration is disabled. The behavior of
+         * how State is restored is up to the {@link LayoutManager}. All default LayoutManagers
+         * will override current state with restored state when state restoration happens (unless
+         * an explicit call to {@link LayoutManager#scrollToPosition(int)} is made).
+         * <p>
+         * Calling this method after state is restored will not have any effect other than changing
+         * the return value of {@link #getStateRestorationStrategy()}.
+         *
+         * @param strategy The saved state restoration strategy for this Adapter.
+         * @see #getStateRestorationStrategy()
+         */
+        public void setStateRestorationStrategy(@NonNull StateRestorationStrategy strategy) {
+            mStateRestorationStrategy = strategy;
+            mObservable.notifyStateRestorationStrategyChanged();
+        }
+
+        /**
+         * Returns when this Adapter wants to restore the state.
+         *
+         * @return The current {@link StateRestorationStrategy} for this Adapter. Defaults to
+         * {@link StateRestorationStrategy#ALLOW}.
+         * @see #setStateRestorationStrategy(StateRestorationStrategy)
+         */
+        @NonNull
+        public final StateRestorationStrategy getStateRestorationStrategy() {
+            return mStateRestorationStrategy;
+        }
+
+        /**
+         * Called by the RecyclerView to decide whether the SavedState should be given to the
+         * LayoutManager or not.
+         *
+         * @return {@code true} if the Adapter is ready to restore its state, {@code false}
+         * otherwise.
+         */
+        boolean canRestoreState() {
+            switch (mStateRestorationStrategy) {
+                case PREVENT: return false;
+                case PREVENT_WHEN_EMPTY: return getItemCount() > 0;
+                default: return true;
+            }
+        }
+
+        /**
+         * Defines how this Adapter wants to restore its state after a view reconstruction (e.g.
+         * configuration change).
+         */
+        public enum StateRestorationStrategy {
+            /**
+             * Adapter is ready to restore State immediately, RecyclerView will provide the state
+             * to the LayoutManager in the next layout pass.
+             */
+            ALLOW,
+            /**
+             * Adapter is ready to restore State when it has more than 0 items. RecyclerView will
+             * provide the state to the LayoutManager as soon as the Adapter has 1 or more items.
+             */
+            PREVENT_WHEN_EMPTY,
+            /**
+             * RecyclerView will not restore the state for the Adapter until a call to
+             * {@link #setStateRestorationStrategy(StateRestorationStrategy)} is made with either
+             * {@link #ALLOW} or {@link #PREVENT_WHEN_EMPTY}.
+             */
+            PREVENT
         }
     }
 
@@ -10021,7 +10177,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param oldAdapter The previous adapter instance. Will be null if there was previously no
          *                   adapter.
          * @param newAdapter The new adapter instance. Might be null if
-         *                   {@link #setAdapter(RecyclerView.Adapter)} is called with {@code null}.
+         *                   {@link RecyclerView#setAdapter(RecyclerView.Adapter)} is called with
+         *                   {@code null}.
          */
         public void onAdapterChanged(@Nullable Adapter oldAdapter, @Nullable Adapter newAdapter) {
         }
@@ -10293,7 +10450,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return null;
         }
 
-
+        /**
+         * Called when the RecyclerView is ready to restore the state based on a previous
+         * RecyclerView.
+         *
+         * Notice that this might happen after an actual layout, based on how Adapter prefers to
+         * restore State. See {@link Adapter#getStateRestorationStrategy()} for more information.
+         *
+         * @param state The parcelable that was returned by the previous LayoutManager's
+         *              {@link #onSaveInstanceState()} method.
+         */
         public void onRestoreInstanceState(Parcelable state) {
 
         }
@@ -10888,7 +11054,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *
          * RecyclerView calls this method right before clearing ViewHolder's internal data and
          * sending it to RecycledViewPool. This way, if ViewHolder was holding valid information
-         * before being recycled, you can call {@link ViewHolder#getAdapterPosition()} to get
+         * before being recycled, you can call {@link ViewHolder#getBindingAdapterPosition()} to get
          * its adapter position.
          *
          * @param holder The ViewHolder containing the view that was recycled
@@ -11067,6 +11233,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         RecyclerView mOwnerRecyclerView;
 
+        // The last adapter that bound this ViewHolder. It is cleaned before VH is recycled.
+        Adapter<? extends ViewHolder> mBindingAdapter;
+
         public ViewHolder(@NonNull View itemView) {
             if (itemView == null) {
                 throw new IllegalArgumentException("itemView may not be null");
@@ -11113,11 +11282,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         /**
          * @deprecated This method is deprecated because its meaning is ambiguous due to the async
-         * handling of adapter updates. You should use {@link #getLayoutPosition()} or
-         * {@link #getAdapterPosition()} depending on your use case.
+         * handling of adapter updates. You should use {@link #getLayoutPosition()},
+         * {@link #getBindingAdapterPosition()} or {@link #getAbsoluteAdapterPosition()}
+         * depending on your use case.
          *
          * @see #getLayoutPosition()
-         * @see #getAdapterPosition()
+         * @see #getBindingAdapterPosition()
+         * @see #getAbsoluteAdapterPosition()
          */
         @Deprecated
         public final int getPosition() {
@@ -11140,18 +11311,33 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * of the item.
          * <p>
          * If LayoutManager needs to call an external method that requires the adapter position of
-         * the item, it can use {@link #getAdapterPosition()} or
+         * the item, it can use {@link #getAbsoluteAdapterPosition()} or
          * {@link RecyclerView.Recycler#convertPreLayoutPositionToPostLayout(int)}.
          *
          * @return Returns the adapter position of the ViewHolder in the latest layout pass.
-         * @see #getAdapterPosition()
+         * @see #getBindingAdapterPosition()
+         * @see #getAbsoluteAdapterPosition()
          */
         public final int getLayoutPosition() {
             return mPreLayoutPosition == NO_POSITION ? mPosition : mPreLayoutPosition;
         }
 
+
         /**
-         * Returns the Adapter position of the item represented by this ViewHolder.
+         * @deprecated This method is confusing when adapters nest other adapters.
+         * If you are calling this in the context of an Adapter, you probably want to call
+         * {@link #getBindingAdapterPosition()} or if you want the position as {@link RecyclerView}
+         * sees it, you should call {@link #getAbsoluteAdapterPosition()}.
+         * @return {@link #getBindingAdapterPosition()}
+         */
+        @Deprecated
+        public final int getAdapterPosition() {
+            return getBindingAdapterPosition();
+        }
+
+        /**
+         * Returns the Adapter position of the item represented by this ViewHolder with respect to
+         * the {@link Adapter} that bound it.
          * <p>
          * Note that this might be different than the {@link #getLayoutPosition()} if there are
          * pending adapter updates but a new layout pass has not happened yet.
@@ -11166,17 +11352,89 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * <p>
          * Note that if you've called {@link RecyclerView.Adapter#notifyDataSetChanged()}, until the
          * next layout pass, the return value of this method will be {@link #NO_POSITION}.
-         *
+         * <p>
+         * If the {@link Adapter} that bound this {@link ViewHolder} is inside another
+         * {@link Adapter} (e.g. {@link MergeAdapter}), this position might be different than
+         * {@link #getAbsoluteAdapterPosition()}. If you would like to know the position that
+         * {@link RecyclerView} considers (e.g. for saved state), you should use
+         * {@link #getAbsoluteAdapterPosition()}.
          * @return The adapter position of the item if it still exists in the adapter.
          * {@link RecyclerView#NO_POSITION} if item has been removed from the adapter,
          * {@link RecyclerView.Adapter#notifyDataSetChanged()} has been called after the last
          * layout pass or the ViewHolder has already been recycled.
+         * @see #getAbsoluteAdapterPosition()
+         * @see #getLayoutPosition()
          */
-        public final int getAdapterPosition() {
+        public final int getBindingAdapterPosition() {
+            if (mBindingAdapter == null) {
+                return NO_POSITION;
+            }
             if (mOwnerRecyclerView == null) {
                 return NO_POSITION;
             }
-            return mOwnerRecyclerView.getAdapterPositionFor(this);
+            @SuppressWarnings("unchecked")
+            Adapter<? extends ViewHolder> rvAdapter = mOwnerRecyclerView.getAdapter();
+            if (rvAdapter == null) {
+                return NO_POSITION;
+            }
+            int globalPosition = mOwnerRecyclerView.getAdapterPositionInRecyclerView(this);
+            if (globalPosition == NO_POSITION) {
+                return NO_POSITION;
+            }
+            return rvAdapter.findRelativeAdapterPositionIn(mBindingAdapter, this, globalPosition);
+        }
+
+        /**
+         * Returns the Adapter position of the item represented by this ViewHolder with respect to
+         * the {@link RecyclerView}'s {@link Adapter}. If the {@link Adapter} that bound this
+         * {@link ViewHolder} is inside another adapter (e.g. {@link MergeAdapter}), this
+         * position might be different and will include
+         * the offsets caused by other adapters in the {@link MergeAdapter}.
+         * <p>
+         * Note that this might be different than the {@link #getLayoutPosition()} if there are
+         * pending adapter updates but a new layout pass has not happened yet.
+         * <p>
+         * RecyclerView does not handle any adapter updates until the next layout traversal. This
+         * may create temporary inconsistencies between what user sees on the screen and what
+         * adapter contents have. This inconsistency is not important since it will be less than
+         * 16ms but it might be a problem if you want to use ViewHolder position to access the
+         * adapter. Sometimes, you may need to get the exact adapter position to do
+         * some actions in response to user events. In that case, you should use this method which
+         * will calculate the Adapter position of the ViewHolder.
+         * <p>
+         * Note that if you've called {@link RecyclerView.Adapter#notifyDataSetChanged()}, until the
+         * next layout pass, the return value of this method will be {@link #NO_POSITION}.
+         * <p>
+         * Note that if you are querying the position as {@link RecyclerView} sees, you should use
+         * {@link #getAbsoluteAdapterPosition()} (e.g. you want to use it to save scroll
+         * state). If you are querying the position to access the {@link Adapter} contents,
+         * you should use {@link #getBindingAdapterPosition()}.
+         *
+         * @return The adapter position of the item from {@link RecyclerView}'s perspective if it
+         * still exists in the adapter and bound to a valid item.
+         * {@link RecyclerView#NO_POSITION} if item has been removed from the adapter,
+         * {@link RecyclerView.Adapter#notifyDataSetChanged()} has been called after the last
+         * layout pass or the ViewHolder has already been recycled.
+         * @see #getBindingAdapterPosition()
+         * @see #getLayoutPosition()
+         */
+        public final int getAbsoluteAdapterPosition() {
+            if (mOwnerRecyclerView == null) {
+                return NO_POSITION;
+            }
+            return mOwnerRecyclerView.getAdapterPositionInRecyclerView(this);
+        }
+
+        /**
+         * Returns the {@link Adapter} that last bound this {@link ViewHolder}.
+         * Might return {@code null} if this {@link ViewHolder} is not bound to any adapter.
+         *
+         * @return The {@link Adapter} that last bound this {@link ViewHolder} or {@code null} if
+         * this {@link ViewHolder} is not bound by any adapter (e.g. recycled).
+         */
+        @Nullable
+        public final Adapter<? extends ViewHolder> getBindingAdapter() {
+            return mBindingAdapter;
         }
 
         /**
@@ -11477,7 +11735,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mPendingAccessibilityImportanceChange.clear();
     }
 
-    int getAdapterPositionFor(ViewHolder viewHolder) {
+    int getAdapterPositionInRecyclerView(ViewHolder viewHolder) {
         if (viewHolder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID
                 | ViewHolder.FLAG_REMOVED | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN)
                 || !viewHolder.isBound()) {
@@ -11686,15 +11944,41 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
+         * @deprecated This method is confusing when nested adapters are used.
+         * If you are calling from the context of an {@link Adapter},
+         * use {@link #getBindingAdapterPosition()}. If you need the position that
+         * {@link RecyclerView} sees, use {@link #getAbsoluteAdapterPosition()}.
+         */
+        @Deprecated
+        public int getViewAdapterPosition() {
+            return mViewHolder.getBindingAdapterPosition();
+        }
+
+        /**
          * Returns the up-to-date adapter position that the view this LayoutParams is attached to
-         * corresponds to.
+         * corresponds to in the {@link RecyclerView}. If the {@link RecyclerView} has an
+         * {@link Adapter} that merges other adapters, this position will be with respect to the
+         * adapter that is assigned to the {@link RecyclerView}.
          *
-         * @return the up-to-date adapter position this view. It may return
-         * {@link RecyclerView#NO_POSITION} if item represented by this View has been removed or
+         * @return the up-to-date adapter position this view with respect to the RecyclerView. It
+         * may return {@link RecyclerView#NO_POSITION} if item represented by this View has been
+         * removed or
          * its up-to-date position cannot be calculated.
          */
-        public int getViewAdapterPosition() {
-            return mViewHolder.getAdapterPosition();
+        public int getAbsoluteAdapterPosition() {
+            return mViewHolder.getAbsoluteAdapterPosition();
+        }
+
+        /**
+         * Returns the up-to-date adapter position that the view this LayoutParams is attached to
+         * corresponds to with respect to the {@link Adapter} that bound this View.
+         *
+         * @return the up-to-date adapter position this view relative to the {@link Adapter} that
+         * bound this View. It may return {@link RecyclerView#NO_POSITION} if item represented by
+         * this View has been removed or its up-to-date position cannot be calculated.
+         */
+        public int getBindingAdapterPosition() {
+            return mViewHolder.getBindingAdapterPosition();
         }
     }
 
@@ -11726,6 +12010,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            // do nothing
+        }
+
+        /**
+         * Called when the {@link Adapter.StateRestorationStrategy} of the {@link Adapter} changed.
+         * When this method is called, the Adapter might be ready to restore its state if it has
+         * not already been restored.
+         *
+         * @see Adapter#getStateRestorationStrategy()
+         * @see Adapter#setStateRestorationStrategy(Adapter.StateRestorationStrategy)
+         */
+        public void onStateRestorationStrategyChanged() {
             // do nothing
         }
     }
@@ -12235,6 +12531,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // to avoid such problems, just march thru the list in the reverse order.
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onChanged();
+            }
+        }
+
+        public void notifyStateRestorationStrategyChanged() {
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onStateRestorationStrategyChanged();
             }
         }
 
@@ -13100,7 +13402,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             }
             if ((flags & FLAG_INVALIDATED) == 0) {
                 final int oldPos = viewHolder.getOldPosition();
-                final int pos = viewHolder.getAdapterPosition();
+                final int pos = viewHolder.getAbsoluteAdapterPosition();
                 if (oldPos != NO_POSITION && pos != NO_POSITION && oldPos != pos) {
                     flags |= FLAG_MOVED;
                 }

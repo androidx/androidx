@@ -23,11 +23,9 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.enforce
-import androidx.ui.core.hasTightHeight
-import androidx.ui.core.hasTightWidth
-import androidx.ui.core.looseMin
+import androidx.ui.core.hasFixedHeight
+import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.offset
-import androidx.ui.core.withTight
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
@@ -68,15 +66,19 @@ fun Container(
 ) {
     Layout(children, modifier) { measurables, incomingConstraints ->
         val containerConstraints = Constraints(constraints)
-            .withTight(width?.toIntPx(), height?.toIntPx())
-            .enforce(incomingConstraints)
+            .copy(
+                width?.toIntPx() ?: constraints.minWidth.toIntPx(),
+                width?.toIntPx() ?: constraints.maxWidth.toIntPx(),
+                height?.toIntPx() ?: constraints.minHeight.toIntPx(),
+                height?.toIntPx() ?: constraints.maxHeight.toIntPx()
+            ).enforce(incomingConstraints)
         val totalHorizontal = padding.left.toIntPx() + padding.right.toIntPx()
         val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
         val childConstraints = containerConstraints
-            .looseMin()
+            .copy(minWidth = 0.ipx, minHeight = 0.ipx)
             .offset(-totalHorizontal, -totalVertical)
         var placeable: Placeable? = null
-        val containerWidth = if ((containerConstraints.hasTightWidth || expanded) &&
+        val containerWidth = if ((containerConstraints.hasFixedWidth || expanded) &&
             containerConstraints.maxWidth.isFinite()
         ) {
             containerConstraints.maxWidth
@@ -84,7 +86,7 @@ fun Container(
             placeable = measurables.firstOrNull()?.measure(childConstraints)
             max((placeable?.width ?: 0.ipx) + totalHorizontal, containerConstraints.minWidth)
         }
-        val containerHeight = if ((containerConstraints.hasTightHeight || expanded) &&
+        val containerHeight = if ((containerConstraints.hasFixedHeight || expanded) &&
             containerConstraints.maxHeight.isFinite()
         ) {
             containerConstraints.maxHeight

@@ -20,38 +20,37 @@ import androidx.compose.Stable
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
+import androidx.ui.core.ModifierScope
 import androidx.ui.core.enforce
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.withTight
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.isFinite
 
 private data class SizeModifier(private val modifierConstraints: DpConstraints) : LayoutModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints) =
+    override fun ModifierScope.modifyConstraints(constraints: Constraints) =
         Constraints(modifierConstraints).enforce(constraints)
 
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.minIntrinsicWidth(height).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minWidth, constraints.maxWidth)
         }
 
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
         measurable.maxIntrinsicWidth(height).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minWidth, constraints.maxWidth)
         }
 
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.minIntrinsicHeight(width).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minHeight, constraints.maxHeight)
         }
 
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
         measurable.maxIntrinsicHeight(width).let {
             val constraints = Constraints(modifierConstraints)
             it.coerceIn(constraints.minHeight, constraints.maxHeight)
@@ -77,7 +76,7 @@ private data class SizeModifier(private val modifierConstraints: DpConstraints) 
 @Stable
 data class LayoutWidth(val width: Dp)
 // TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(DpConstraints.tightConstraintsForWidth(width)) {
+    : LayoutModifier by SizeModifier(DpConstraints.fixedWidth(width)) {
     init {
         require(width.isFinite()) { "width must be finite" }
         require(width >= Dp.Hairline) { "width must be >= 0.dp" }
@@ -143,9 +142,9 @@ data class LayoutWidth(val width: Dp)
      */
     @Stable
     object Fill : LayoutModifier {
-        override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints =
+        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints =
             if (constraints.hasBoundedWidth) {
-                constraints.withTight(width = constraints.maxWidth)
+                constraints.copy(minWidth = constraints.maxWidth, maxWidth = constraints.maxWidth)
             } else {
                 constraints
             }
@@ -171,7 +170,7 @@ data class LayoutWidth(val width: Dp)
 @Stable
 data class LayoutHeight(val height: Dp)
 // TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(DpConstraints.tightConstraintsForHeight(height)) {
+    : LayoutModifier by SizeModifier(DpConstraints.fixedHeight(height)) {
     init {
         require(height.isFinite()) { "height must be finite" }
         require(height >= Dp.Hairline) { "height must be >= 0.dp" }
@@ -239,9 +238,12 @@ data class LayoutHeight(val height: Dp)
      */
     @Stable
     object Fill : LayoutModifier {
-        override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints =
+        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints =
             if (constraints.hasBoundedHeight) {
-                constraints.withTight(height = constraints.maxHeight)
+                constraints.copy(
+                    minHeight = constraints.maxHeight,
+                    maxHeight = constraints.maxHeight
+                )
             } else {
                 constraints
             }
@@ -267,7 +269,7 @@ data class LayoutHeight(val height: Dp)
 @Stable
 data class LayoutSize(val width: Dp, val height: Dp)
 // TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(DpConstraints.tightConstraints(width, height)) {
+    : LayoutModifier by SizeModifier(DpConstraints.fixed(width, height)) {
 
     /**
      * [Modifies][LayoutModifier] a Compose UI layout element to have a square size of [size].
@@ -382,13 +384,18 @@ data class LayoutSize(val width: Dp, val height: Dp)
      */
     @Stable
     object Fill : LayoutModifier {
-        override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints =
+        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints =
             when {
-                constraints.hasBoundedWidth && constraints.hasBoundedHeight -> constraints
-                    .withTight(width = constraints.maxWidth, height = constraints.maxHeight)
-                constraints.hasBoundedWidth -> constraints.withTight(width = constraints.maxWidth)
-                constraints.hasBoundedHeight -> constraints.withTight(
-                    height = constraints.maxHeight)
+                constraints.hasBoundedWidth && constraints.hasBoundedHeight -> constraints.copy(
+                    minWidth = constraints.maxWidth,
+                    minHeight = constraints.maxHeight
+                )
+                constraints.hasBoundedWidth -> constraints.copy(
+                    minWidth = constraints.maxWidth
+                )
+                constraints.hasBoundedHeight -> constraints.copy(
+                    minHeight = constraints.maxHeight
+                )
                 else -> constraints
             }
     }

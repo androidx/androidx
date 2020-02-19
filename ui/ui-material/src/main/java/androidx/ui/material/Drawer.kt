@@ -16,18 +16,18 @@
 
 package androidx.ui.material
 
+import androidx.animation.AnimatedFloat
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.ambientDensity
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ValueHolder
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
@@ -43,7 +43,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.min
 import androidx.ui.unit.px
 import androidx.ui.unit.toRect
-import androidx.ui.unit.withDensity
 import androidx.ui.util.lerp
 
 /**
@@ -116,7 +115,7 @@ fun ModalDrawerLayout(
             if (!pxConstraints.hasBoundedWidth) {
                 throw IllegalStateException("Drawer shouldn't have infinite width")
             }
-            val constraints = withDensity(ambientDensity()) {
+            val constraints = with(DensityAmbient.current) {
                 DpConstraints(pxConstraints)
             }
             val minValue = -pxConstraints.maxWidth.value.toFloat()
@@ -183,7 +182,7 @@ fun BottomDrawerLayout(
             if (!pxConstraints.hasBoundedHeight) {
                 throw IllegalStateException("Drawer shouldn't have infinite height")
             }
-            val constraints = withDensity(ambientDensity()) {
+            val constraints = with(DensityAmbient.current) {
                 DpConstraints(pxConstraints)
             }
             val minValue = 0f
@@ -226,7 +225,7 @@ fun BottomDrawerLayout(
 
 @Composable
 private fun DrawerContent(
-    xOffset: ValueHolder<Float>,
+    xOffset: AnimatedFloat,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -243,7 +242,7 @@ private fun DrawerContent(
 
 @Composable
 private fun BottomDrawerContent(
-    yOffset: ValueHolder<Float>,
+    yOffset: AnimatedFloat,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -286,8 +285,8 @@ private fun Scrim(
 // TODO: consider make pretty and move to public
 @Composable
 private fun WithOffset(
-    xOffset: ValueHolder<Float>? = null,
-    yOffset: ValueHolder<Float>? = null,
+    xOffset: AnimatedFloat? = null,
+    yOffset: AnimatedFloat? = null,
     child: @Composable() () -> Unit
 ) {
     Layout(children = {
@@ -327,4 +326,4 @@ private val AnimationBuilder =
         stiffness = DrawerStiffness
     }
 
-private val BottomDrawerOpenFraction = 0.5f
+internal val BottomDrawerOpenFraction = 0.5f

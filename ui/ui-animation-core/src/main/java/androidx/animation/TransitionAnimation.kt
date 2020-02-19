@@ -20,11 +20,15 @@ import android.util.Log
 import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
 
 /**
- * [TransitionAnimation] is responsible for animating from one set of property values (i.e. one
- * [TransitionState]) to another. More specifically, it reads the property values out of the new
- * state that it is going to, as well as the animations defined for the properties, and run these
- * animations until all properties have reached their pre-defined values in the new state. When no
- * animation is specified for a property, a default [SpringAnimation] animation will be used.
+ * [TransitionAnimation] is the underlying animation used in [androidx.ui.animation.Transition] for
+ * animating from one set of property values (i.e. one [TransitionState]) to another. In compose,
+ * it is recommended to create such an animation using [androidx.ui.animation.Transition],
+ * instead of instantiating [TransitionAnimation] directly.
+ *
+ * [TransitionAnimation] reads the property values out of the start and end state,  as well as the
+ * animations defined for each state pair for each property, and run these animations until all
+ * properties have reached their pre-defined values in the new state. When no animation is specified
+ * for a property, a default [SpringAnimation] animation will be used.
  *
  * [TransitionAnimation] may be interrupted while the animation is on-going by a request to go
  * to another state. [TransitionAnimation] ensures that all the animating properties preserve their
@@ -32,6 +36,8 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  *
  * Once a [TransitionDefinition] is instantiated, a [TransitionAnimation] can be created via
  * [TransitionDefinition.createAnimation].
+ *
+ * @see [androidx.ui.animation.Transition]
  */
 class TransitionAnimation<T>(
     private val def: TransitionDefinition<T>,

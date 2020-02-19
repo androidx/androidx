@@ -17,9 +17,11 @@
 package androidx.compose.plugins.kotlin.compiler.lower
 
 import androidx.compose.plugins.kotlin.ComposeFqNames
+import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.FileLoweringPass
 import org.jetbrains.kotlin.backend.jvm.JvmBackendContext
 import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -28,14 +30,19 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 class ComposerIntrinsicTransformer(val context: JvmBackendContext) :
     IrElementTransformerVoid(),
-    FileLoweringPass {
+    FileLoweringPass,
+    ModuleLoweringPass {
+
+    override fun lower(module: IrModuleFragment) {
+        module.transformChildrenVoid(this)
+    }
 
     override fun lower(irFile: IrFile) {
         irFile.transformChildrenVoid(this)
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
-        if (expression.descriptor.fqNameSafe == ComposeFqNames.CurrentComposerIntrinsic) {
+        if (expression.symbol.descriptor.fqNameSafe == ComposeFqNames.CurrentComposerIntrinsic) {
             // since this call was transformed by the ComposerParamTransformer, the first argument
             // to this call is the composer itself. We just replace this expression with the
             // argument expression and we are good.

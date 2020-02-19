@@ -38,9 +38,12 @@ internal class TextSelectionDelegate(
         startPosition: PxPosition,
         endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
-        longPress: Boolean
+        longPress: Boolean,
+        previousSelection: Selection?,
+        isStartHandle: Boolean
     ): Selection? {
-        val layoutCoordinates = layoutCoordinates.value!!
+        val layoutCoordinates = layoutCoordinates.value
+        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
         val textLayoutResult = textLayoutResult.value ?: return null
 
         val relativePosition = containerLayoutCoordinates.childToLocal(
@@ -53,7 +56,9 @@ internal class TextSelectionDelegate(
             textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(startPx, endPx),
             layoutCoordinates = layoutCoordinates,
-            wordBasedSelection = longPress
+            wordBasedSelection = longPress,
+            previousSelection = previousSelection,
+            isStartHandle = isStartHandle
         )
 
         return if (selection == null) {
@@ -63,6 +68,12 @@ internal class TextSelectionDelegate(
             selectionRange.value = selection.toTextRange()
             return selection
         }
+    }
+
+    override fun getLayoutCoordinates(): LayoutCoordinates? {
+        val layoutCoordinates = layoutCoordinates.value
+        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
+        return layoutCoordinates
     }
 }
 
@@ -77,6 +88,8 @@ internal class TextSelectionDelegate(
  * the selection is modified by long press and drag gesture, the result selection will be
  * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
  * selection.
+ * @param previousSelection previous selection result
+ * @param isStartHandle true if the start handle is being dragged
  *
  * @return [Selection] of the current composable, or null if the composable is not selected.
  */
@@ -84,7 +97,9 @@ internal fun getTextSelectionInfo(
     textLayoutResult: TextLayoutResult,
     selectionCoordinates: Pair<PxPosition, PxPosition>,
     layoutCoordinates: LayoutCoordinates,
-    wordBasedSelection: Boolean
+    wordBasedSelection: Boolean,
+    previousSelection: Selection? = null,
+    isStartHandle: Boolean = true
 ): Selection? {
     val startPosition = selectionCoordinates.first
     val endPosition = selectionCoordinates.second
@@ -130,7 +145,9 @@ internal fun getTextSelectionInfo(
         textLayoutResult = textLayoutResult,
         lastOffset = lastOffset,
         layoutCoordinates = layoutCoordinates,
-        wordBasedSelection = wordBasedSelection
+        wordBasedSelection = wordBasedSelection,
+        previousSelection = previousSelection,
+        isStartHandle = isStartHandle
     )
 }
 
@@ -154,6 +171,8 @@ internal fun getTextSelectionInfo(
  * the selection is modified by long press and drag gesture, the result selection will be
  * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
  * selection.
+ * @param previousSelection previous selection result
+ * @param isStartHandle true if the start handle is being dragged
  *
  * @return [Selection] of the current composable, or null if the composable is not selected.
  */
@@ -168,7 +187,9 @@ private fun getRefinedSelectionInfo(
     textLayoutResult: TextLayoutResult,
     lastOffset: Int,
     layoutCoordinates: LayoutCoordinates,
-    wordBasedSelection: Boolean
+    wordBasedSelection: Boolean,
+    previousSelection: Selection? = null,
+    isStartHandle: Boolean = true
 ): Selection? {
     val shouldProcessAsSinglecomposable =
         containsWholeSelectionStart && containsWholeSelectionEnd
@@ -177,7 +198,10 @@ private fun getRefinedSelectionInfo(
         if (shouldProcessAsSinglecomposable) {
             processAsSingleComposable(
                 rawStartOffset = rawStartOffset,
-                rawEndOffset = rawEndOffset
+                rawEndOffset = rawEndOffset,
+                previousSelection = previousSelection,
+                isStartHandle = isStartHandle,
+                lastOffset = lastOffset
             )
         } else {
             processCrossComposable(
@@ -209,8 +233,6 @@ private fun getRefinedSelectionInfo(
     return getAssembledSelectionInfo(
         startOffset = startOffset,
         endOffset = endOffset,
-        containsWholeSelectionStart = containsWholeSelectionStart,
-        containsWholeSelectionEnd = containsWholeSelectionEnd,
         handlesCrossed = handlesCrossed,
         layoutCoordinates = layoutCoordinates,
         textLayoutResult = textLayoutResult
@@ -223,10 +245,6 @@ private fun getRefinedSelectionInfo(
  *
  * @param startOffset the final start offset to be returned.
  * @param endOffset the final end offset to be returned.
- * @param containsWholeSelectionStart a flag to check if current composable contains the overall
- * selection start
- * @param containsWholeSelectionEnd a flag to check if current composable contains the overall
- * selection end
  * @param handlesCrossed true if the selection handles are crossed
  * @param layoutCoordinates The [LayoutCoordinates] of the composable.
  * @param textLayoutResult a result of the text layout.
@@ -236,8 +254,6 @@ private fun getRefinedSelectionInfo(
 private fun getAssembledSelectionInfo(
     startOffset: Int,
     endOffset: Int,
-    containsWholeSelectionStart: Boolean,
-    containsWholeSelectionEnd: Boolean,
     handlesCrossed: Boolean,
     layoutCoordinates: LayoutCoordinates,
     textLayoutResult: TextLayoutResult
@@ -252,7 +268,7 @@ private fun getAssembledSelectionInfo(
             ),
             direction = textLayoutResult.getBidiRunDirection(startOffset),
             offset = startOffset,
-            layoutCoordinates = if (containsWholeSelectionStart) layoutCoordinates else null
+            layoutCoordinates = layoutCoordinates
         ),
         end = Selection.AnchorInfo(
             coordinates = getSelectionHandleCoordinates(
@@ -263,7 +279,7 @@ private fun getAssembledSelectionInfo(
             ),
             direction = textLayoutResult.getBidiRunDirection(max(endOffset - 1, 0)),
             offset = endOffset,
-            layoutCoordinates = if (containsWholeSelectionEnd) layoutCoordinates else null
+            layoutCoordinates = layoutCoordinates
         ),
         handlesCrossed = handlesCrossed
     )
@@ -279,20 +295,31 @@ private fun getAssembledSelectionInfo(
  * different location. If the selection anchors point the same location and this is true, the
  * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
  * to keep single character selected.
+ * @param previousSelection previous selection result
+ * @param isStartHandle true if the start handle is being dragged
+ * @param lastOffset last offset of the text. It's actually the length of the text.
  *
  * @return the final startOffset, endOffset of the selection, and if the start and end are
  * crossed each other.
  */
 private fun processAsSingleComposable(
     rawStartOffset: Int,
-    rawEndOffset: Int
+    rawEndOffset: Int,
+    previousSelection: Selection?,
+    isStartHandle: Boolean,
+    lastOffset: Int
 ): Triple<Int, Int, Boolean> {
     var startOffset = rawStartOffset
     var endOffset = rawEndOffset
     if (startOffset == endOffset) {
-        // If the start and end offset are at the same character, and it's not the
-        // initial selection, then bound to at least one character.
-        endOffset = startOffset + 1
+        val textRange = ensureAtLeastOneChar(
+            offset = rawStartOffset,
+            lastOffset = lastOffset,
+            previousSelection = previousSelection,
+            isStartHandle = isStartHandle
+        )
+        startOffset = textRange.start
+        endOffset = textRange.end
     }
     // Check if the start and end handles are crossed each other.
     val areHandlesCrossed = startOffset > endOffset
@@ -387,6 +414,65 @@ private fun updateWordBasedSelection(
     val end = if (handlesCrossed) endWordBoundary.start else endWordBoundary.end
 
     return Pair(start, end)
+}
+/**
+ * This method adjusts the raw start and end offset and bounds the selection to one character. The
+ * logic of bounding evaluates the last selection result, which handle is being dragged, and if
+ * selection reaches the boundary.
+ *
+ * @param offset unprocessed start and end offset calculated directly from input position, in
+ * this case start and offset equals to each other.
+ * @param lastOffset last offset of the text. It's actually the length of the text.
+ * @param previousSelection previous selection result
+ * @param isStartHandle true if the start handle is being dragged
+ *
+ * @return the adjusted [TextRange].
+ */
+private fun ensureAtLeastOneChar(
+    offset: Int,
+    lastOffset: Int,
+    previousSelection: Selection?,
+    isStartHandle: Boolean
+): TextRange {
+    var newStartOffset = offset
+    var newEndOffset = offset
+
+    // If the start and end offset are at the same character, and it's not the
+    // initial selection, then bound to at least one character.
+    previousSelection?.let {
+        if (isStartHandle) {
+            newStartOffset =
+                if (it.handlesCrossed) {
+                    if (newEndOffset == 0 || it.start.offset == newEndOffset + 1) {
+                        newEndOffset + 1
+                    } else {
+                        newEndOffset - 1
+                    }
+                } else {
+                    if (newEndOffset == lastOffset || it.start.offset == newEndOffset - 1) {
+                        newEndOffset - 1
+                    } else {
+                        newEndOffset + 1
+                    }
+                }
+        } else {
+            newEndOffset =
+                if (it.handlesCrossed) {
+                    if (newStartOffset == lastOffset || it.end.offset == newStartOffset - 1) {
+                        newStartOffset - 1
+                    } else {
+                        newStartOffset + 1
+                    }
+                } else {
+                    if (newStartOffset == 0 || it.end.offset == newStartOffset + 1) {
+                        newStartOffset + 1
+                    } else {
+                        newStartOffset - 1
+                    }
+                }
+        }
+    }
+    return TextRange(newStartOffset, newEndOffset)
 }
 
 /**

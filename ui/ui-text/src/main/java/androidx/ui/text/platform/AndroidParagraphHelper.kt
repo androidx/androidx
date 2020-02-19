@@ -41,11 +41,11 @@ import androidx.text.style.LineHeightSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
+import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.TextUnitType
 import androidx.ui.unit.sp
-import androidx.ui.unit.withDensity
 import androidx.ui.graphics.toArgb
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Locale
@@ -54,6 +54,7 @@ import androidx.ui.text.SpanStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
@@ -69,7 +70,7 @@ internal fun TextPaint.applySpanStyle(
 ): SpanStyle {
 
     when (style.fontSize.type) {
-        TextUnitType.Sp -> withDensity(density) {
+        TextUnitType.Sp -> with(density) {
             textSize = style.fontSize.toPx().value
         }
         TextUnitType.Em -> {
@@ -135,13 +136,22 @@ internal fun TextPaint.applySpanStyle(
     // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
     return SpanStyle(
-        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp) {
+        letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp &&
+                    style.letterSpacing.value != 0f) {
             style.letterSpacing
         } else {
             TextUnit.Inherit
         },
-        background = style.background,
-        baselineShift = style.baselineShift
+        background = if (style.background == Color.Transparent) {
+            null // No need to add transparent background for default text style.
+        } else {
+            style.background
+        },
+        baselineShift = if (style.baselineShift == BaselineShift.None) {
+            null
+        } else {
+            style.baselineShift
+        }
     )
 }
 
@@ -162,7 +172,7 @@ internal fun createStyledText(
     val deferredSpans = mutableListOf<Triple<Any, Int, Int>>()
 
     when (lineHeight.type) {
-        TextUnitType.Sp -> withDensity(density) {
+        TextUnitType.Sp -> with(density) {
             spannableString.setSpan(
                 LineHeightSpan(ceil(lineHeight.toPx().value).toInt()),
                 0,
@@ -184,7 +194,7 @@ internal fun createStyledText(
     textIndent?.let { indent ->
         if (indent.firstLine == 0.sp && indent.restLine == 0.sp) return@let
         if (indent.firstLine.isInherit || indent.restLine.isInherit) return@let
-        withDensity(density) {
+        with(density) {
             val firstLine = when (indent.firstLine.type) {
                 TextUnitType.Sp -> indent.firstLine.toPx().value
                 TextUnitType.Em -> indent.firstLine.value * contextFontSize
@@ -254,7 +264,7 @@ internal fun createStyledText(
         }
 
         when (style.fontSize.type) {
-            TextUnitType.Sp -> withDensity(density) {
+            TextUnitType.Sp -> with(density) {
                 spannableString.setSpan(
                     AbsoluteSizeSpan(style.fontSize.toPx().value.roundToInt(), true),
                     start,
@@ -314,7 +324,7 @@ internal fun createStyledText(
         }
 
         when (style.letterSpacing.type) {
-            TextUnitType.Sp -> withDensity(density) {
+            TextUnitType.Sp -> with(density) {
                 deferredSpans.add(
                     Triple(LetterSpacingSpanPx(style.letterSpacing.toPx().value), start, end)
                 )

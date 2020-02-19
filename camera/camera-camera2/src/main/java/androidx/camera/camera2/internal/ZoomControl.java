@@ -25,14 +25,13 @@ import android.os.Looper;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.CameraControl.OperationCanceledException;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.math.MathUtils;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -45,14 +44,13 @@ import com.google.common.util.concurrent.ListenableFuture;
  *
  * <p>It consists of setters and getters. Setters like {@link #setZoomRatio(float)} and
  * {@link #setLinearZoom(float)} return a {@link ListenableFuture} which apps can
- * use to await the async result.  Getters like {@link #getZoomRatio()},
- * {@link #getLinearZoom()}, {@link #getMaxZoomRatio()}, and {@link #getMinZoomRatio()}
- * return a {@link LiveData} which apps can get immediate value from by
+ * use to await the async result. The {@link #getZoomState()} getter returns a {@link LiveData}
+ * which apps can get immediate value from by
  * {@link LiveData#getValue()} or observe the changes by
  * {@link LiveData#observe(LifecycleOwner, Observer)}.
  *
- * <p>{@link #setZoomRatio(float)} accepts zoom ratio from {@link #getMinZoomRatio()} to
- * {@link #getMaxZoomRatio()}. Alternatively, app can call {@link #setLinearZoom(float)} to
+ * <p>{@link #setZoomRatio(float)} accepts zoom ratio from {@link ZoomState#getMinZoomRatio()} to
+ * {@link ZoomState#getMaxZoomRatio()}. Alternatively, app can call {@link #setLinearZoom(float)} to
  * specify the zoom by a [0..1] percentage. The linearZoom value is a float ranging from 0 to 1
  * representing the minimum zoom to maximum zoom respectively. The benefits of using linear zoom
  * is it ensures the FOV width/height is changed linearly.
@@ -68,15 +66,10 @@ final class ZoomControl {
     public static final float MIN_ZOOM = DEFAULT_ZOOM_RATIO;
 
     private final Camera2CameraControl mCamera2CameraControl;
-    private final CameraCharacteristics mCameraCharacteristics;
 
-    // MutableLiveData is thread-safe, thus no needs for synchronization.
-    private final MutableLiveData<Float> mZoomRatioLiveData;
-    private final MutableLiveData<Float> mMaxZoomRatioLiveData;
-    private final MutableLiveData<Float> mMinZoomRatioLiveData;
-    // Stores separate percentage data because we want to preserve the exact percentage value which
-    // developers pass to us. Inferring the percentage from zoomRatio could be different from it.
-    private final MutableLiveData<Float> mLinearZoomLiveData;
+    @GuardedBy("mActiveLock")
+    private final ZoomStateImpl mCurrentZoomState;
+    private final MutableLiveData<ZoomState> mZoomStateLiveData;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Object mCompleterLock = new Object();
@@ -99,12 +92,12 @@ final class ZoomControl {
     ZoomControl(@NonNull Camera2CameraControl camera2CameraControl,
             @NonNull CameraCharacteristics cameraCharacteristics) {
         mCamera2CameraControl = camera2CameraControl;
-        mCameraCharacteristics = cameraCharacteristics;
 
-        mZoomRatioLiveData = new MutableLiveData<>(DEFAULT_ZOOM_RATIO);
-        mMaxZoomRatioLiveData = new MutableLiveData<>(getMaxDigitalZoom());
-        mMinZoomRatioLiveData = new MutableLiveData<>(MIN_ZOOM);
-        mLinearZoomLiveData = new MutableLiveData<>(0f);
+        mCurrentZoomState = new ZoomStateImpl(getMaxDigitalZoom(cameraCharacteristics), MIN_ZOOM);
+
+        mCurrentZoomState.setZoomRatio(DEFAULT_ZOOM_RATIO);
+        mZoomStateLiveData = new MutableLiveData<>(ImmutableZoomState.create(mCurrentZoomState));
+
         camera2CameraControl.addCaptureResultListener(mCaptureResultListener);
     }
 
@@ -139,12 +132,12 @@ final class ZoomControl {
 
                 // Reset all values if zoomControl is inactive.
                 shouldResetDefault = true;
+                mCurrentZoomState.setZoomRatio(DEFAULT_ZOOM_RATIO);
+                updateLiveData(ImmutableZoomState.create(mCurrentZoomState));
             }
         }
 
         if (shouldResetDefault) {
-            setLiveDataValue(mZoomRatioLiveData, DEFAULT_ZOOM_RATIO);
-            setLiveDataValue(mLinearZoomLiveData, 0f);
             mCamera2CameraControl.setCropRegion(null);
         }
 
@@ -189,8 +182,8 @@ final class ZoomControl {
      *
      * <p>It modifies both current zoomRatio and linearZoom so if apps are observing
      * zoomRatio or linearZoom, they will get the update as well. If the ratio is
-     * smaller than {@link CameraInfo#getMinZoomRatio()} or larger than
-     * {@link CameraInfo#getMaxZoomRatio()}, the returned {@link ListenableFuture} will fail with
+     * smaller than {@link ZoomState#getMinZoomRatio()} or larger than
+     * {@link ZoomState#getMaxZoomRatio()} ()}, the returned {@link ListenableFuture} will fail with
      * {@link IllegalArgumentException} and it won't modify current zoom ratio. It is the
      * applications' duty to clamp the ratio.
      *
@@ -212,15 +205,14 @@ final class ZoomControl {
 
             // If the requested ratio is out of range, it will not modify zoom value but report
             // IllegalArgumentException in returned ListenableFuture.
-            if (ratio > getMaxZoomRatio().getValue() || ratio < getMinZoomRatio().getValue()) {
-                String outOfRangeDesc = "Requested zoomRatio " + ratio + " is not within valid "
-                        + "range [" + getMinZoomRatio().getValue() + " , "
-                        + getMaxZoomRatio().getValue() + "]";
-
-                return Futures.immediateFailedFuture(new IllegalArgumentException(outOfRangeDesc));
+            try {
+                mCurrentZoomState.setZoomRatio(ratio);
+            } catch (IllegalArgumentException e) {
+                return Futures.immediateFailedFuture(e);
             }
 
-            return setZoomRatioInternal(ratio, true);
+            updateLiveData(ImmutableZoomState.create(mCurrentZoomState));
+            return submitCameraZoomRatio(ratio);
         }
     }
 
@@ -235,44 +227,36 @@ final class ZoomControl {
                 (int) (top + cropHeight));
     }
 
+    /**
+     * Submits the request for updating the zoom ratio of the underlying camera instance.
+     *
+     * <p>When the returned {@link ListenableFuture} completes, either the zoom ratio will be
+     * updated or it will have failed, because some other action canceled the updating of the zoom.
+     */
     @NonNull
     @GuardedBy("mActiveLock")
-    private ListenableFuture<Void> setZoomRatioInternal(float ratio, boolean updatePercentage) {
+    private ListenableFuture<Void> submitCameraZoomRatio(float ratio) {
         Rect sensorRect = mCamera2CameraControl.getSensorRect();
-        if (sensorRect == null) {
-            throw new IllegalStateException("Cannot get sensor active array");
-        }
-
-        setLiveDataValue(mZoomRatioLiveData, ratio);
-        if (updatePercentage) {
-            setLiveDataValue(mLinearZoomLiveData, getPercentageByRatio(ratio));
-        }
-
         Rect targetRegion = getCropRectByRatio(sensorRect, ratio);
         mCamera2CameraControl.setCropRegion(targetRegion);
 
-        return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<Void>() {
-            @Nullable
-            @Override
-            public Object attachCompleter(
-                    @NonNull CallbackToFutureAdapter.Completer<Void> completer) throws Exception {
-                CallbackToFutureAdapter.Completer<Void> completerToCancel = null;
-                synchronized (mCompleterLock) {
-                    if (mPendingZoomRatioCompleter != null) {
-                        completerToCancel = mPendingZoomRatioCompleter;
-                        mPendingZoomRatioCompleter = null;
-                    }
-                    mPendingZoomCropRegion = targetRegion;
-                    mPendingZoomRatioCompleter = completer;
+        return CallbackToFutureAdapter.getFuture((completer) -> {
+            CallbackToFutureAdapter.Completer<Void> completerToCancel = null;
+            synchronized (mCompleterLock) {
+                if (mPendingZoomRatioCompleter != null) {
+                    completerToCancel = mPendingZoomRatioCompleter;
+                    mPendingZoomRatioCompleter = null;
                 }
-
-                if (completerToCancel != null) {
-                    completerToCancel.setException(
-                            new OperationCanceledException("There is a new zoomRatio being set"));
-                }
-
-                return "setZoomRatio";
+                mPendingZoomCropRegion = targetRegion;
+                mPendingZoomRatioCompleter = completer;
             }
+
+            if (completerToCancel != null) {
+                completerToCancel.setException(
+                        new OperationCanceledException("There is a new zoomRatio being set"));
+            }
+
+            return "setZoomRatio";
         });
     }
 
@@ -307,94 +291,37 @@ final class ZoomControl {
 
             // If the requested linearZoom is out of range, it will not modify zoom value but
             // report IllegalArgumentException in returned ListenableFuture.
-            if (linearZoom > 1.0f || linearZoom < 0f) {
-                String outOfRangeDesc = "Requested linearZoom " + linearZoom + " is not within"
-                        + " valid range [0..1]";
-                return Futures.immediateFailedFuture(new IllegalArgumentException(outOfRangeDesc));
+            try {
+                mCurrentZoomState.setLinearZoom(linearZoom);
+            } catch (IllegalArgumentException e) {
+                return Futures.immediateFailedFuture(e);
             }
 
-            float ratio = getRatioByPercentage(linearZoom);
-            setLiveDataValue(mLinearZoomLiveData, linearZoom);
-            return setZoomRatioInternal(ratio, false);
+            updateLiveData(ImmutableZoomState.create(mCurrentZoomState));
+            return submitCameraZoomRatio(mCurrentZoomState.getZoomRatio());
         }
     }
 
-    private <T> void setLiveDataValue(@NonNull MutableLiveData<T> liveData, T value) {
+    private void updateLiveData(ZoomState zoomState) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            liveData.setValue(value);
+            mZoomStateLiveData.setValue(zoomState);
         } else {
-            liveData.postValue(value);
+            mZoomStateLiveData.postValue(zoomState);
         }
     }
 
     /**
-     * Returns a {@link LiveData} of current zoom ratio.
+     * Returns a {@link LiveData} of the current {@link ZoomState}.
      *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     *
-     * <p>Setting zoom ratio or zoom percentage will both trigger the change event.
-     *
-     * @return a {@link LiveData} containing current zoom ratio.
+     * <p>Setting the zoom via {@link #setLinearZoom(float)} or {@link #setZoomRatio(float)} will
+     * trigger a change in the values of the LiveData.
      */
-    @NonNull
-    LiveData<Float> getZoomRatio() {
-        return mZoomRatioLiveData;
+    LiveData<ZoomState> getZoomState() {
+        return mZoomStateLiveData;
     }
 
-    /**
-     * Returns a {@link LiveData} of the maximum zoom ratio.
-     *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     *
-     * <p>While the value is fixed most of the time, enabling extension could change the maximum
-     * zoom ratio.
-     *
-     * @return a {@link LiveData} containing the maximum zoom ratio value.
-     */
-    @NonNull
-    LiveData<Float> getMaxZoomRatio() {
-        return mMaxZoomRatioLiveData;
-    }
-
-    /**
-     * Returns a {@link LiveData} of the minimum zoom ratio.
-     *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     *
-     * <p>While the value is fixed most of the time, enabling extension could change the minimum
-     * zoom ratio value.
-     *
-     * @return a {@link LiveData} containing the minimum zoom ratio value.
-     */
-    @NonNull
-    LiveData<Float> getMinZoomRatio() {
-        return mMinZoomRatioLiveData;
-    }
-
-    /**
-     * Returns a {@link LiveData} of current linearZoom which is in range [0..1].
-     * Percentage 0 represents the maximum zoom while percentage 1.0 represents the maximum zoom.
-     *
-     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
-     * null, it has default value in the beginning) or they can observe it via
-     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
-     * <p>Setting zoom ratio or zoom percentage will both trigger the change event.
-     *
-     * @return a {@link LiveData} containing current zoom percentage.
-     */
-    @NonNull
-    LiveData<Float> getLinearZoom() {
-        return mLinearZoomLiveData;
-    }
-
-    private float getMaxDigitalZoom() {
-        Float maxZoom = mCameraCharacteristics.get(
+    private static float getMaxDigitalZoom(CameraCharacteristics cameraCharacteristics) {
+        Float maxZoom = cameraCharacteristics.get(
                 CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
 
         if (maxZoom == null) {
@@ -402,49 +329,5 @@ final class ZoomControl {
         }
 
         return maxZoom;
-    }
-
-    private float getRatioByPercentage(float percentage) {
-        // Make sure 1.0f and 0.0 return exactly the same max/min ratio.
-        if (percentage == 1.0f) {
-            return getMaxDigitalZoom();
-        } else if (percentage == 0f) {
-            return MIN_ZOOM;
-        }
-        // This crop width is proportional to the real crop width.
-        // The real crop with = sensorWidth/ zoomRatio,  but we need the ratio only so we can
-        // assume sensorWidth as 1.0f.
-        double cropWidthInMaxZoom = 1.0f / getMaxZoomRatio().getValue();
-        double cropWidthInMinZoom = 1.0f / getMinZoomRatio().getValue();
-
-        double cropWidth = cropWidthInMinZoom + (cropWidthInMaxZoom - cropWidthInMinZoom)
-                * percentage;
-
-        double ratio = 1.0 / cropWidth;
-
-        return (float) MathUtils.clamp(ratio, getMinZoomRatio().getValue(),
-                getMaxZoomRatio().getValue());
-    }
-
-    private float getPercentageByRatio(float ratio) {
-        // if zoom is not supported, return 0
-        if (getMaxDigitalZoom() == MIN_ZOOM) {
-            return 0f;
-        }
-
-        // To make the min/max same value when doing conversion between ratio / percentage.
-        // We return the max/min value directly.
-        if (ratio == getMaxDigitalZoom()) {
-            return 1f;
-        } else if (ratio == MIN_ZOOM) {
-            return 0f;
-        }
-
-        float cropWidth = 1.0f / ratio;
-        float cropWidthInMaxZoom = 1.0f / getMaxZoomRatio().getValue();
-        float cropWidthInMinZoom = 1.0f / getMinZoomRatio().getValue();
-
-        return (cropWidth - cropWidthInMinZoom)
-                / (cropWidthInMaxZoom - cropWidthInMinZoom);
     }
 }

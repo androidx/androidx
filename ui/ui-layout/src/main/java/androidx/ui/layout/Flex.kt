@@ -27,11 +27,10 @@ import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -43,142 +42,18 @@ import androidx.ui.unit.toPx
 import kotlin.math.sign
 
 /**
- * Collects information about the children of a [FlexColumn] or [FlexColumn]
- * when its body is executed with a [FlexChildren] instance as argument.
- */
-class FlexChildren internal constructor() {
-    internal val childrenList = mutableListOf<@Composable() () -> Unit>()
-    fun expanded(@FloatRange(from = 0.0) flex: Float, children: @Composable() () -> Unit) {
-        if (flex < 0) {
-            throw IllegalArgumentException("flex must be >= 0")
-        }
-        childrenList += {
-            ParentData(
-                data = FlexChildProperties(flex = flex, fit = FlexFit.Tight),
-                children = children
-            )
-        }
-    }
-
-    fun flexible(@FloatRange(from = 0.0) flex: Float, children: @Composable() () -> Unit) {
-        if (flex < 0) {
-            throw IllegalArgumentException("flex must be >= 0")
-        }
-        childrenList += {
-            ParentData(
-                data = FlexChildProperties(flex = flex, fit = FlexFit.Loose),
-                children = children
-            )
-        }
-    }
-
-    fun inflexible(children: @Composable() () -> Unit) {
-        childrenList += @Composable {
-            ParentData(
-                data = FlexChildProperties(flex = 0f, fit = FlexFit.Loose),
-                children = children
-            )
-        }
-    }
-}
-
-/**
- * A composable that places its children in a horizontal sequence, assigning children widths
- * according to their flex weights.
- *
- * [FlexRow] children can be:
- * - [FlexChildren.inflexible] meaning that the child is not flex, and it should be measured first
- * to determine its size, before the expanded and flexible children are measured
- * - [FlexChildren.expanded] meaning that the child is flexible, and it should be assigned a width
- * according to its flex weight relative to its flexible children. The child is forced to occupy the
- * entire width assigned by the parent
- * - [FlexChildren.flexible] similar to [FlexChildren.expanded], but the child can leave unoccupied
- * width.
- *
- * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
- * Default is [MainAxisAlignment.Start].
- * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Start].
- * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [SizeMode.Wrap].
- */
-@Deprecated(
-    "Use Row layout instead.",
-    ReplaceWith("Row"),
-    DeprecationLevel.WARNING
-)
-@Composable
-fun FlexRow(
-    modifier: Modifier = Modifier.None,
-    mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: SizeMode = SizeMode.Wrap,
-    block: FlexChildren.() -> Unit
-) {
-    Flex(
-        orientation = LayoutOrientation.Horizontal,
-        mainAxisAlignment = mainAxisAlignment,
-        crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize,
-        modifier = modifier,
-        block = block
-    )
-}
-
-/**
- * A composable that places its children in a vertical sequence, assigning children heights
- * according to their flex weights.
- *
- * [FlexColumn] children can be:
- * - [FlexChildren.inflexible] meaning that the child is not flex, and it should be measured first
- * to determine its size, before the expanded and flexible children are measured
- * - [FlexChildren.expanded] meaning that the child is flexible, and it should be assigned a
- * height according to its flex weight relative to its flexible children. The child is forced
- * to occupy the entire height assigned by the parent
- * - [FlexChildren.flexible] similar to [FlexChildren.expanded], but the child can leave unoccupied
- * height.
- *
- * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
- * Default is [MainAxisAlignment.Start].
- * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Start].
- * @param crossAxisSize The size of the layout in the cross axis dimension.
- * Default is [SizeMode.Wrap].
- */
-@Deprecated(
-    "Use Column layout instead.",
-    ReplaceWith("Column"),
-    DeprecationLevel.WARNING
-)
-@Composable
-fun FlexColumn(
-    modifier: Modifier = Modifier.None,
-    mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
-    crossAxisSize: SizeMode = SizeMode.Wrap,
-    block: FlexChildren.() -> Unit
-) {
-    Flex(
-        orientation = LayoutOrientation.Vertical,
-        mainAxisAlignment = mainAxisAlignment,
-        crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize,
-        modifier = modifier,
-        block = block
-    )
-}
-
-/**
- * A FlexScope provides a scope for Inflexible/Flexible functions.
+ * Base class for scopes of [Row] and [Column], containing scoped modifiers.
  */
 @LayoutScopeMarker
 sealed class FlexScope {
     /**
-     * A layout modifier within a [Column] or [Row] that makes the target component flexible.
-     * It will be assigned a space according to its flex weight relative to the flexible siblings.
+     * A layout modifier within a [Column] or [Row] that makes the target component flexible in
+     * the main direction of the parent (vertically in [Column] and horizontally in [Row]).
+     * It will be assigned a space according to its flex weight, proportional to the flex
+     * weights of other flexible siblings. If a sibling is not flexible, its flex weight will be 0.
      * When [tight] is set to true, the target component is forced to occupy the entire space
      * assigned to it by the parent. [LayoutFlexible] children will be measured after all the
-     * [LayoutInflexible] ones have been measured, in order to divide the unclaimed space between
+     * inflexible ones have been measured, in order to divide the unclaimed space between
      * them.
      */
     fun LayoutFlexible(
@@ -194,31 +69,21 @@ sealed class FlexScope {
     }
 
     /**
-     * A layout modifier within a [Column] or [Row] that makes the target component inflexible.
-     * All [LayoutInflexible] children will be measured before the [LayoutFlexible] ones. They will
-     * be measured in the order they appear, without min constraints and with max constraints in
-     * the main direction of the layout (maxHeight for Column and maxWidth for Row) such that
-     * the sum of the space occupied by inflexible children will not exceed the incoming constraint
-     * of the [Column] or [Row]: for example the first child of a [Column] will be measured with
-     * maxHeight = column's maxHeight; the second child will be measured with maxHeight = column's
-     * maxHeight - first child's height, and so on.
-     */
-    val LayoutInflexible: ParentDataModifier = InflexibleModifier
-
-    internal companion object {
-        val InflexibleModifier: ParentDataModifier = FlexModifier(
-            FlexChildProperties(0f, FlexFit.Loose)
-        )
-    }
-
-    /**
-     * A layout modifier within a [Column] or [Row] that positions target component in a
-     * perpendicular direction according to the [AlignmentLine] which is provided through the
-     * [alignmentLineBlock].
-     * If target component is the only component with the specified RelativeToSiblings modifier
-     * within a Column or Row, then the component will be positioned using
-     * [LayoutGravity.Start][ColumnScope.Start] in Column or [LayoutGravity.Top][RowScope.Top] in
-     * Row respectively.
+     * A layout modifier within a [Column] or [Row] that positions its target component relative
+     * to all other elements within the container which have [LayoutGravity.RelativeToSiblings].
+     * The [alignmentLineBlock] accepts the [Placeable] of the targeted layout and returns the
+     * position, perpendicular to the layout direction, along which the target should align
+     * such that it coincides with the alignment lines of all other siblings with
+     * [LayoutGravity.RelativeToSiblings].
+     * Within a [Column] or [Row], all components with [LayoutGravity.RelativeToSiblings] will
+     * align using the specified [AlignmentLine]s or values obtained from [alignmentLineBlock]s,
+     * forming a sibling group. At least one element of the sibling group will be placed as it had
+     * [LayoutGravity.Start][ColumnScope.Start] in [Column] or [LayoutGravity.Top][RowScope.Top]
+     * in [Row], respectively, and the alignment of the other siblings will be then determined
+     * such that the alignment lines coincide. Note that if the target component is the only one
+     * with the [RelativeToSiblings] modifier specified, then the component will be positioned
+     * using [LayoutGravity.Start][ColumnScope.Start] in [Column] or
+     * [LayoutGravity.Top][RowScope.Top] in [Row] respectively.
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
@@ -233,29 +98,36 @@ sealed class FlexScope {
  * A ColumnScope provides a scope for the children of a [Column].
  */
 @Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
-class ColumnScope internal constructor() : FlexScope() {
+class ColumnScope private constructor() : FlexScope() {
     /**
-     * A layout modifier within a Column that positions target component in a horizontal direction
-     * so that its start edge is aligned to the start edge of the horizontal axis.
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * such that its start edge is aligned to the start edge of the [Column].
      */
     // TODO: Consider ltr/rtl.
     val LayoutGravity.Start: ParentDataModifier get() = StartGravityModifier
     /**
-     * A layout modifier within a Column that positions target component in a horizontal direction
-     * so that its center is in the middle of the horizontal axis.
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * such that its center is in the middle of the [Column].
      */
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
     /**
-     * A layout modifier within a Column that positions target component in a horizontal direction
-     * so that its end edge is aligned to the end edge of the horizontal axis.
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * such that its end edge is aligned to the end edge of the [Column].
      */
     val LayoutGravity.End: ParentDataModifier get() = EndGravityModifier
     /**
-     * A layout modifier within a [Column] that positions target component in a perpendicular
-     * direction according to the [AlignmentLine].
-     * If target component is the only component within a Column with the specified
-     * RelativeToSiblings modifier, or if the provided alignment line is not defined for the
-     * component, the component will be positioned using [LayoutGravity.Start].
+     * A layout modifier within a [Column] that positions its target component horizontally
+     * according to the specified [VerticalAlignmentLine], such that the position of the alignment
+     * line coincides with the alignment lines of all other siblings having their gravity set to
+     * [LayoutGravity.RelativeToSiblings].
+     * Within a [Column], all components with [LayoutGravity.RelativeToSiblings] will align
+     * horizontally using the specified [AlignmentLine]s or values obtained from
+     * [alignmentLineBlocks][FlexScope.RelativeToSiblings], forming a sibling group.
+     * At least one element of the sibling group will be placed as it had
+     * [LayoutGravity.Start][ColumnScope.Start] in [Column], and the alignment of the other
+     * siblings will be then determined such that the alignment lines coincide. Note that if
+     * the target component is the only one with the [RelativeToSiblings] modifier specified,
+     * then the component will be positioned using [LayoutGravity.Start][ColumnScope.Start].
      *
      * Example usage:
      *
@@ -265,6 +137,8 @@ class ColumnScope internal constructor() : FlexScope() {
         SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     internal companion object {
+        internal val Instance = ColumnScope()
+
         val StartGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Start)
         val CenterGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Center)
         val EndGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.End)
@@ -275,28 +149,35 @@ class ColumnScope internal constructor() : FlexScope() {
  * A RowScope provides a scope for the children of a [Row].
  */
 @Suppress("unused") // Note: Gravity object provides a scope only but is never used itself
-class RowScope internal constructor() : FlexScope() {
+class RowScope private constructor() : FlexScope() {
     /**
-     * A layout modifier within a Row that positions target component in a vertical direction
-     * so that its top edge is aligned to the top edge of the vertical axis.
+     * A layout modifier within a [Row] that positions its target component vertically
+     * such that its top edge is aligned to the top edge of the [Row].
      */
     val LayoutGravity.Top: ParentDataModifier get() = TopGravityModifier
     /**
-     * A layout modifier within a Row that positions target component in a vertical direction
-     * so that its center is in the middle of the vertical axis.
+     * A layout modifier within a Row that positions target component vertically
+     * such that its center is in the middle of the [Row].
      */
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
     /**
-     * A layout modifier within a Row that positions target component in a vertical direction
-     * so that its bottom edge is aligned to the bottom edge of the vertical axis.
+     * A layout modifier within a Row that positions target component vertically
+     * such that its bottom edge is aligned to the bottom edge of the [Row].
      */
     val LayoutGravity.Bottom: ParentDataModifier get() = BottomGravityModifier
     /**
-     * A layout modifier within a [Row] that positions target component in a perpendicular
-     * direction according to the [AlignmentLine].
-     * If target component is the only component within a Row with the specified
-     * RelativeToSiblings modifier, or if the provided alignment line is not defined for the
-     * component, the component will be positioned using [LayoutGravity.Top].
+     * A layout modifier within a [Row] that positions its target component vertically
+     * according to the specified [HorizontalAlignmentLine], such that the position of the alignment
+     * line coincides with the alignment lines of all other siblings having their gravity set to
+     * [LayoutGravity.RelativeToSiblings].
+     * Within a [Row], all components with [LayoutGravity.RelativeToSiblings] will align
+     * vertically using the specified [AlignmentLine]s or values obtained from
+     * [alignmentLineBlocks][FlexScope.RelativeToSiblings], forming a sibling group.
+     * At least one element of the sibling group will be placed as it had
+     * [LayoutGravity.Top][RowScope.Top] in [Row], and the alignment of the other
+     * siblings will be then determined such that the alignment lines coincide. Note that if
+     * the target component is the only one with the [RelativeToSiblings] modifier specified,
+     * then the component will be positioned using [LayoutGravity.Top][RowScope.Top].
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInRow
@@ -306,6 +187,8 @@ class RowScope internal constructor() : FlexScope() {
     ): ParentDataModifier = SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     internal companion object {
+        internal val Instance = RowScope()
+
         val TopGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Start)
         val CenterGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.Center)
         val BottomGravityModifier: ParentDataModifier = GravityModifier(CrossAxisAlignment.End)
@@ -313,11 +196,25 @@ class RowScope internal constructor() : FlexScope() {
 }
 
 /**
- * A composable that places its children in a horizontal sequence and is able to assign them widths
- * according to their flex weights provided through [androidx.ui.layout.FlexScope.LayoutFlexible]
- * modifier.
- * If [androidx.ui.layout.FlexScope.LayoutInflexible] or no modifier is provided, the child will be
- * treated as inflexible, and will be sized to its preferred width.
+ * A layout composable that places its children in a horizontal sequence.
+ *
+ * The layout model is able to assign children widths according to their flex weights provided
+ * using the [androidx.ui.layout.FlexScope.LayoutFlexible] modifier. If a child is not
+ * [flexible][androidx.ui.layout.FlexScope.LayoutFlexible], it will be considered inflexible
+ * and will be sized to its preferred width.
+ *
+ * When all children of a [Row] are inflexible, it will be as small as possible to fit its
+ * children one next to the other. In order to change the size of the [Row], use the
+ * [LayoutWidth] modifiers; to make it fill the available width [LayoutWidth.Fill] can be used.
+ * If at least one child of a [Row] is [flexible][FlexScope.LayoutFlexible], the [Row] will
+ * fill the available space, so there is no need for [LayoutWidth.Fill]. However, if [Row]'s
+ * size should be limited, the [LayoutWidth] or [LayoutWidth.Max] layout modifiers should be
+ * applied.
+ *
+ * When the size of the [Row] is larger than the sum of of its children sizes, an [arrangement]
+ * can be specified to define the positioning of the children inside the [Row]. See [Arrangement]
+ * for available positioning behaviors; a custom arrangement can also be defined using the
+ * constructor of [Arrangement].
  *
  * Example usage:
  *
@@ -338,16 +235,30 @@ fun Row(
         arrangement = arrangement,
         crossAxisAlignment = CrossAxisAlignment.Start,
         crossAxisSize = SizeMode.Wrap,
-        children = { RowScope().children() }
+        children = { RowScope.Instance.children() }
     )
 }
 
 /**
- * A composable that places its children in a vertical sequence and is able to assign them heights
- * according to their flex weights provided through [androidx.ui.layout.FlexScope.LayoutFlexible]
- * modifiers.
- * If [androidx.ui.layout.FlexScope.LayoutInflexible] or no modifier is provided, the child will be
- * treated as inflexible, and will be sized to its preferred height.
+ * A layout composable that places its children in a vertical sequence.
+ *
+ * The layout model is able to assign children heights according to their flex weights provided
+ * using the [androidx.ui.layout.FlexScope.LayoutFlexible] modifier. If a child is not
+ * [flexible][androidx.ui.layout.FlexScope.LayoutFlexible], it will be considered inflexible
+ * and will be sized to its preferred width.
+ *
+ * When all children of a [Column] are inflexible, it will be as small as possible to fit its
+ * children one on top of the other. In order to change the size of the [Column], use the
+ * [LayoutHeight] modifiers; to make it fill the available height [LayoutWidth.Fill] can be used.
+ * If at least one child of a [Column] is [flexible][FlexScope.LayoutFlexible], the [Column] will
+ * fill the available space, so there is no need for [LayoutWidth.Fill]. However, if [Column]'s
+ * size should be limited, the [LayoutHeight] or [LayoutHeight.Max] layout modifiers should be
+ * applied.
+ *
+ * When the size of the [Column] is larger than the sum of of its children sizes, an [arrangement]
+ * can be specified to define the positioning of the children inside the [Column]. See
+ * [Arrangement] for available positioning behaviors; a custom arrangement can also be defined
+ * using the constructor of [Arrangement].
  *
  * Example usage:
  *
@@ -368,7 +279,7 @@ fun Column(
         arrangement = arrangement,
         crossAxisAlignment = CrossAxisAlignment.Start,
         crossAxisSize = SizeMode.Wrap,
-        children = { ColumnScope().children() }
+        children = { ColumnScope.Instance.children() }
     )
 }
 
@@ -568,10 +479,6 @@ class CrossAxisAlignment private constructor(
          */
         val End = CrossAxisAlignment(null)
         /**
-         * Force children to occupy the entire cross axis space.
-         */
-        val Stretch = CrossAxisAlignment(null)
-        /**
          * Align children by their baseline.
          */
         fun AlignmentLine(alignmentLine: AlignmentLine) =
@@ -643,32 +550,6 @@ private val IntrinsicMeasurable.fit: FlexFit
 private val IntrinsicMeasurable.crossAxisAlignment: CrossAxisAlignment?
     get() = (parentData as? FlexChildProperties)?.crossAxisAlignment
 
-@Composable
-private fun Flex(
-    orientation: LayoutOrientation,
-    modifier: Modifier = Modifier.None,
-    mainAxisAlignment: MainAxisAlignment,
-    crossAxisSize: SizeMode,
-    crossAxisAlignment: CrossAxisAlignment,
-    block: FlexChildren.() -> Unit
-) {
-    val flexChildren: @Composable() () -> Unit = with(FlexChildren()) {
-        block()
-        val composable = @Composable {
-            childrenList.forEach { it() }
-        }
-        composable
-    }
-    FlexLayout(
-        orientation = orientation,
-        modifier = modifier,
-        arrangement = mainAxisAlignment.arrangement,
-        crossAxisSize = crossAxisSize,
-        crossAxisAlignment = crossAxisAlignment,
-        children = flexChildren
-    )
-}
-
 /**
  * Layout model that places its children in a horizontal or vertical sequence, according to the
  * specified orientation, while also looking at the flex weights of the children.
@@ -715,17 +596,10 @@ private fun FlexLayout(
                 val placeable = child.measure(
                     // Ask for preferred main axis size.
                     constraints.copy(
-                        mainAxisMin = 0.ipx,
-                        mainAxisMax = constraints.mainAxisMax - inflexibleSpace
-                    ).let {
-                        if (child.crossAxisAlignment == CrossAxisAlignment.Stretch ||
-                            crossAxisAlignment == CrossAxisAlignment.Stretch
-                        ) {
-                            it.stretchCrossAxis()
-                        } else {
-                            it.copy(crossAxisMin = IntPx.Zero)
-                        }
-                    }.toBoxConstraints(orientation)
+                        mainAxisMin = IntPx.Zero,
+                        mainAxisMax = constraints.mainAxisMax - inflexibleSpace,
+                        crossAxisMin = IntPx.Zero
+                    ).toBoxConstraints(orientation)
                 )
                 inflexibleSpace += placeable.mainAxisSize()
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
@@ -788,13 +662,7 @@ private fun FlexLayout(
                             IntPx.Zero
                         },
                         childMainAxisSize,
-                        if (child.crossAxisAlignment == CrossAxisAlignment.Stretch ||
-                            crossAxisAlignment == CrossAxisAlignment.Stretch
-                        ) {
-                            constraints.crossAxisMax
-                        } else {
-                            IntPx.Zero
-                        },
+                        IntPx.Zero,
                         constraints.crossAxisMax
                     ).toBoxConstraints(orientation)
                 )
@@ -843,7 +711,6 @@ private fun FlexLayout(
                     measurables[index].crossAxisAlignment ?: crossAxisAlignment
                 val crossAxis = when (childCrossAlignment) {
                     CrossAxisAlignment.Start -> IntPx.Zero
-                    CrossAxisAlignment.Stretch -> IntPx.Zero
                     CrossAxisAlignment.End -> {
                         crossAxisLayoutSize - placeable.crossAxisSize()
                     }
@@ -1060,7 +927,7 @@ private fun intrinsicCrossAxisSize(
 }
 
 private data class FlexModifier(val flexProperties: FlexChildProperties) : ParentDataModifier {
-    override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
+    override fun Density.modifyParentData(parentData: Any?): FlexChildProperties {
         return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
             it.flex = flexProperties.flex
             it.fit = flexProperties.fit
@@ -1069,11 +936,11 @@ private data class FlexModifier(val flexProperties: FlexChildProperties) : Paren
 }
 
 private sealed class SiblingsAlignedModifier : ParentDataModifier {
-    abstract override fun DensityScope.modifyParentData(parentData: Any?): Any?
+    abstract override fun Density.modifyParentData(parentData: Any?): Any?
 
     internal data class WithAlignmentLineBlock(val block: (Placeable) -> IntPx) :
         SiblingsAlignedModifier() {
-        override fun DensityScope.modifyParentData(parentData: Any?): Any? {
+        override fun Density.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
                 it.crossAxisAlignment =
                     CrossAxisAlignment.Relative(AlignmentLineProvider.Block(block))
@@ -1083,7 +950,7 @@ private sealed class SiblingsAlignedModifier : ParentDataModifier {
 
     internal data class WithAlignmentLine(val line: AlignmentLine) :
         SiblingsAlignedModifier() {
-        override fun DensityScope.modifyParentData(parentData: Any?): Any? {
+        override fun Density.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
                 it.crossAxisAlignment =
                     CrossAxisAlignment.Relative(AlignmentLineProvider.Value(line))
@@ -1093,7 +960,7 @@ private sealed class SiblingsAlignedModifier : ParentDataModifier {
 }
 
 private data class GravityModifier(val alignment: CrossAxisAlignment) : ParentDataModifier {
-    override fun DensityScope.modifyParentData(parentData: Any?): FlexChildProperties {
+    override fun Density.modifyParentData(parentData: Any?): FlexChildProperties {
         return ((parentData as? FlexChildProperties) ?: FlexChildProperties()).also {
             it.crossAxisAlignment = alignment
         }

@@ -548,7 +548,7 @@ public abstract class AppCompatDelegate {
      * the delegates to avoid unnecessary recreations when possible.</p>
      *
      * <p>If this method is called after any host components with attached
-     * {@link AppCompatDelegate}s have been 'started', a {@code uiMode} configuration change
+     * {@link AppCompatDelegate}s have been 'created', a {@code uiMode} configuration change
      * will occur in each. This may result in those components being recreated, depending
      * on their manifest configuration.</p>
      *
@@ -633,7 +633,7 @@ public abstract class AppCompatDelegate {
         return VectorEnabledTintResources.isCompatVectorFromResourcesEnabled();
     }
 
-    static void markStarted(@NonNull AppCompatDelegate delegate) {
+    static void addActiveDelegate(@NonNull AppCompatDelegate delegate) {
         synchronized (sActiveDelegatesLock) {
             // Remove any existing records pointing to the delegate.
             // There should not be any, but we'll make sure
@@ -643,7 +643,7 @@ public abstract class AppCompatDelegate {
         }
     }
 
-    static void markStopped(@NonNull AppCompatDelegate delegate) {
+    static void removeActiveDelegate(@NonNull AppCompatDelegate delegate) {
         synchronized (sActiveDelegatesLock) {
             // Remove any WeakRef records pointing to the delegate in the set
             removeDelegateFromActives(delegate);

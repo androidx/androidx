@@ -42,7 +42,6 @@ dependencies {
 androidx {
     name = "AndroidX Inspection Testing"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.INSPECTION
     mavenGroup = LibraryGroups.INSPECTION
     toolingProject = true
     inceptionYear = "2019"

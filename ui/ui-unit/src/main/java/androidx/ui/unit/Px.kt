@@ -24,6 +24,7 @@ import androidx.ui.util.lerp
 import androidx.ui.util.packFloats
 import androidx.ui.util.unpackFloat1
 import androidx.ui.util.unpackFloat2
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -32,7 +33,7 @@ import kotlin.math.sqrt
  * Dimension value represented in pixels (px). Component APIs specify their
  * dimensions such as line thickness in DP with Dp objects, while drawing and layout are done
  * in pixel dimensions. When specific pixel dimensions are required, create a Px and convert
- * it to Dp using [DensityScope.toDp]. Px are normally defined using [px], which can be applied to
+ * it to Dp using [Density.toDp]. Px are normally defined using [px], which can be applied to
  * [Int], [Double], and [Float].
  *     val leftMargin = 10.px
  *     val rightMargin = 10f.px
@@ -185,6 +186,8 @@ inline operator fun Int.times(other: Px) =
 inline fun min(a: Px, b: Px): Px = Px(value = min(a.value, b.value))
 
 inline fun max(a: Px, b: Px): Px = Px(value = max(a.value, b.value))
+
+inline fun abs(x: Px): Px = Px(abs(x.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
@@ -430,6 +433,7 @@ inline class PxInverse(val value: Float) : Comparable<PxInverse> {
 @UseExperimental(ExperimentalUnsignedTypes::class)
 @Immutable
 data class PxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+
     /**
      * The horizontal aspect of the size in [Px].
      */
@@ -483,6 +487,11 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
          * [PxSize] with zero values.
          */
         val Zero = PxSize(0.px, 0.px)
+
+        /**
+         * Default value indicating no specified size
+         */
+        val UnspecifiedSize = PxSize(Px.Infinity, Px.Infinity)
     }
 }
 
@@ -619,6 +628,14 @@ data class PxBounds(
     val right: Px,
     val bottom: Px
 )
+
+inline fun PxBounds(topLeft: PxPosition, size: PxSize) =
+    PxBounds(
+        left = topLeft.x,
+        top = topLeft.y,
+        right = topLeft.x + size.width,
+        bottom = topLeft.y + size.height
+    )
 
 /**
  * A width of this PxBounds in [Px].

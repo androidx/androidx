@@ -115,7 +115,7 @@ final class CameraXModule {
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        mPreview.setPreviewSurfaceProvider(null);
+                        mPreview.setSurfaceProvider(null);
                     }
                 }
             };
@@ -243,23 +243,22 @@ final class CameraXModule {
         mPreviewBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
         mPreview = mPreviewBuilder.build();
-        mPreview.setPreviewSurfaceProvider((resolution, safeToCancelFuture) -> {
+        mPreview.setSurfaceProvider(surfaceRequest -> {
             // The PreviewSurfaceProvider#createSurfaceFuture() might come asynchronously.
             // It cannot guarantee the callback time, so we store the resolution result in
             // the listenableFuture.
+            Size resolution = surfaceRequest.getResolution();
             mResolutionUpdateCompleter.set(resolution);
             // Create SurfaceTexture and Surface.
             SurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(0, resolution);
-            surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
-                    resolution.getHeight());
+            surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
             surfaceTexture.detachFromGLContext();
             CameraXModule.this.setSurfaceTexture(surfaceTexture);
             Surface surface = new Surface(surfaceTexture);
-            safeToCancelFuture.addListener(() -> {
+            surfaceRequest.setSurface(surface).addListener(() -> {
                 surface.release();
                 surfaceTexture.release();
             }, CameraXExecutors.directExecutor());
-            return Futures.immediateFuture(surface);
         });
 
         CameraSelector cameraSelector =
@@ -351,7 +350,10 @@ final class CameraXModule {
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
         metadata.setReversedHorizontal(
                 mCameraLensFacing != null && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
-        mImageCapture.takePicture(saveLocation, metadata, executor, callback);
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(saveLocation).setMetadata(
+                        metadata).build();
+        mImageCapture.takePicture(outputFileOptions, executor, callback);
     }
 
     public void startRecording(File file, Executor executor, final OnVideoSavedCallback callback) {
@@ -464,7 +466,7 @@ final class CameraXModule {
 
     public float getZoomRatio() {
         if (mCamera != null) {
-            return mCamera.getCameraInfo().getZoomRatio().getValue();
+            return mCamera.getCameraInfo().getZoomState().getValue().getZoomRatio();
         } else {
             return UNITY_ZOOM_SCALE;
         }
@@ -492,7 +494,7 @@ final class CameraXModule {
 
     public float getMinZoomRatio() {
         if (mCamera != null) {
-            return mCamera.getCameraInfo().getMinZoomRatio().getValue();
+            return mCamera.getCameraInfo().getZoomState().getValue().getMinZoomRatio();
         } else {
             return UNITY_ZOOM_SCALE;
         }
@@ -500,7 +502,7 @@ final class CameraXModule {
 
     public float getMaxZoomRatio() {
         if (mCamera != null) {
-            return mCamera.getCameraInfo().getMaxZoomRatio().getValue();
+            return mCamera.getCameraInfo().getZoomState().getValue().getMaxZoomRatio();
         } else {
             return ZOOM_NOT_SUPPORTED;
         }

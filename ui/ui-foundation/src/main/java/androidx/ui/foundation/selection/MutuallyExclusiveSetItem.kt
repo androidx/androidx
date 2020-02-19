@@ -43,6 +43,7 @@ fun MutuallyExclusiveSetItem(
     // TODO: when semantics can be merged, we should make this use Clickable internally rather
     //  than duplicating logic
     Semantics(
+        container = true,
         properties = {
             inMutuallyExclusiveGroup = true
             this.selected = selected

@@ -52,7 +52,7 @@ class TextLayoutHelperTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 resourceLoader = resourceLoader,
-                constraints = Constraints.tightConstraintsForWidth(100.ipx)
+                constraints = Constraints.fixedWidth(100.ipx)
             ),
             multiParagraph = mock(),
             size = IntPxSize(50.ipx, 50.ipx)
@@ -61,7 +61,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_same() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(),
@@ -77,7 +77,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_text() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, Android").toAnnotatedString(),
             style = TextStyle(),
@@ -93,7 +93,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_style() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(fontSize = 1.5.em),
@@ -109,7 +109,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_maxLines() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(),
@@ -125,7 +125,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_softWrap() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(),
@@ -141,7 +141,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_overflow() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(),
@@ -157,7 +157,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_density() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(),
@@ -173,7 +173,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_layoutDirection() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(),
@@ -189,7 +189,7 @@ class TextLayoutHelperTest {
 
     @Test
     fun testCanResue_different_resourceLoader() {
-        val constraints = Constraints.tightConstraintsForWidth(100.ipx)
+        val constraints = Constraints.fixedWidth(100.ipx)
         assertThat(referenceResult.canReuse(
             text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
             style = TextStyle(),
@@ -214,7 +214,7 @@ class TextLayoutHelperTest {
             density = Density(1.0f),
             layoutDirection = LayoutDirection.Ltr,
             resourceLoader = resourceLoader,
-            constraints = Constraints.tightConstraintsForWidth(200.ipx)
+            constraints = Constraints.fixedWidth(200.ipx)
         )).isFalse()
     }
 }

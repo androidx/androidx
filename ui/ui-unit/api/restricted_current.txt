@@ -14,23 +14,9 @@ package androidx.ui.unit {
     method public androidx.ui.unit.Dp getTop();
   }
 
-  public final class Density {
-    ctor public Density(float density, float fontScale);
-    method public float component1();
-    method public float component2();
-    method public androidx.ui.unit.Density copy(float density, float fontScale);
+  public interface Density {
     method public float getDensity();
     method public float getFontScale();
-  }
-
-  public final class DensityKt {
-    method public static androidx.ui.unit.Density Density(android.content.Context context);
-    method public static androidx.ui.unit.DensityScope DensityScope(androidx.ui.unit.Density density);
-    method public static inline <R> R! withDensity(androidx.ui.unit.Density density, kotlin.jvm.functions.Function1<? super androidx.ui.unit.DensityScope,? extends R> block);
-  }
-
-  public interface DensityScope {
-    method public androidx.ui.unit.Density getDensity();
     method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.TextUnit);
     method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.Px);
     method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.IntPx);
@@ -47,7 +33,13 @@ package androidx.ui.unit {
     method public default androidx.ui.unit.TextUnit toSp(androidx.ui.unit.IntPx);
     method public default androidx.ui.unit.TextUnit toSp(float);
     method public default androidx.ui.unit.TextUnit toSp(int);
-    property public abstract androidx.ui.unit.Density density;
+    property public abstract float density;
+    property public abstract float fontScale;
+  }
+
+  public final class DensityKt {
+    method public static androidx.ui.unit.Density Density(android.content.Context context);
+    method public static androidx.ui.unit.Density Density(float density, float fontScale = 1f);
   }
 
   public final class Dp implements java.lang.Comparable<androidx.ui.unit.Dp> {
@@ -73,8 +65,10 @@ package androidx.ui.unit {
   public static final class Dp.Companion {
     method public androidx.ui.unit.Dp getHairline();
     method public androidx.ui.unit.Dp getInfinity();
+    method public androidx.ui.unit.Dp getUnspecified();
     property public final androidx.ui.unit.Dp Hairline;
     property public final androidx.ui.unit.Dp Infinity;
+    property public final androidx.ui.unit.Dp Unspecified;
   }
 
   public final inline class DpCubed implements java.lang.Comparable<androidx.ui.unit.DpCubed> {
@@ -266,6 +260,7 @@ package androidx.ui.unit {
     method public static inline androidx.ui.unit.IntPxSize IntPxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
     method public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
     method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
+    method public static inline androidx.ui.unit.IntPx ceil(androidx.ui.unit.Px);
     method public static androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxSize);
     method public static inline androidx.ui.unit.IntPx coerceAtLeast(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx minimumValue);
     method public static inline androidx.ui.unit.IntPx coerceAtMost(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx maximumValue);
@@ -411,8 +406,10 @@ package androidx.ui.unit {
   }
 
   public final class PxKt {
+    method public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
     method public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.Px x, androidx.ui.unit.Px y);
     method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.Px width, androidx.ui.unit.Px height);
+    method public static inline androidx.ui.unit.Px abs(androidx.ui.unit.Px x);
     method public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);
     method public static inline androidx.ui.unit.Px coerceAtLeast(androidx.ui.unit.Px, androidx.ui.unit.Px minimumValue);
     method public static inline androidx.ui.unit.Px coerceAtMost(androidx.ui.unit.Px, androidx.ui.unit.Px maximumValue);
@@ -480,7 +477,9 @@ package androidx.ui.unit {
   }
 
   public static final class PxSize.Companion {
+    method public androidx.ui.unit.PxSize getUnspecifiedSize();
     method public androidx.ui.unit.PxSize getZero();
+    property public final androidx.ui.unit.PxSize UnspecifiedSize;
     property public final androidx.ui.unit.PxSize Zero;
   }
 

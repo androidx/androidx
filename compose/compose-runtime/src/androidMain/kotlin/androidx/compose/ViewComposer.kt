@@ -135,14 +135,23 @@ internal class ViewApplyAdapter(private val adapters: ViewAdapters? = null) :
     }
 }
 
+internal actual fun UiComposer(
+    context: Context,
+    root: Any,
+    slots: SlotTable,
+    recomposer: Recomposer
+): Composer<*> = ViewComposer(context, root, slots, recomposer)
+
 class ViewComposer(
-    val root: Any,
     val context: Context,
+    val root: Any,
+    slotTable: SlotTable,
     recomposer: Recomposer,
     val adapters: ViewAdapters? = ViewAdapters()
 ) : Composer<Any>(
-    SlotTable(),
-    Applier(root, ViewApplyAdapter(adapters)), recomposer
+    slotTable,
+    Applier(root, ViewApplyAdapter(adapters)),
+    recomposer
 ) {
     init {
         FrameManager.ensureStarted()
@@ -162,13 +171,13 @@ class ViewComposer(
         endNode()
     }
 
-    @Suppress("PLUGIN_ERROR", "UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
     inline fun <T : ViewGroup> emit(
         key: Any,
         /*crossinline*/
         ctor: (context: Context) -> T,
         update: ViewUpdater<T>.() -> Unit,
-        children: @Composable() () -> Unit
+        children: () -> Unit
     ) {
         startNode(key)
         val node = if (inserting) ctor(context).also { emitNode(it) }
@@ -192,13 +201,13 @@ class ViewComposer(
         endNode()
     }
 
-    @Suppress("PLUGIN_ERROR", "UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
     inline fun <T : Emittable> emit(
         key: Any,
         /*crossinline*/
         ctor: () -> T,
         update: ViewUpdater<T>.() -> Unit,
-        children: @Composable() () -> Unit
+        children: () -> Unit
     ) {
         startNode(key)
         val node = if (inserting) ctor().also { emitNode(it) }
@@ -207,130 +216,6 @@ class ViewComposer(
         children()
         endNode()
     }
-
-    @Suppress("PLUGIN_ERROR")
-    inline fun call(
-        key: Any,
-        invalid: ViewValidator.() -> Boolean,
-        block: @Composable() () -> Unit
-    ) {
-        startGroup(key)
-        if (ViewValidator(this).invalid() || inserting) {
-            startGroup(invocation)
-            block()
-            endGroup()
-        } else {
-            skipCurrentGroup()
-        }
-        endGroup()
-    }
-
-    inline fun <T> call(
-        key: Any,
-        /*crossinline*/
-        ctor: () -> T,
-        invalid: ViewValidator.(f: T) -> Boolean,
-        block: (f: T) -> Unit
-    ) {
-        startGroup(key)
-        val f = cache(true, ctor)
-        if (ViewValidator(this).invalid(f) || inserting) {
-            startGroup(invocation)
-            block(f)
-            endGroup()
-        } else {
-            skipCurrentGroup()
-        }
-        endGroup()
-    }
-
-    /*inline*/ fun observe(
-        key: Any,
-        block: (invalidate: (sync: Boolean) -> Unit) -> Unit
-    ) {
-        val invalidate = startJoin(key, false, block)
-        block(invalidate)
-        doneJoin(false)
-    }
-}
-
-/* inline */ class ViewValidator(val composer: Composer<*>) {
-    // TODO: Add more overloads for common primitive types like String and Float etc to avoid boxing
-    // and the immutable check
-    @Suppress("NOTHING_TO_INLINE")
-    fun changed(value: Int) = with(composer) {
-        if ((nextSlot() as? Int)?.let { value != it } ?: true || inserting) {
-            updateValue(value)
-            true
-        } else {
-            skipValue()
-            false
-        }
-    }
-
-    fun <T> changed(value: T) = with(composer) {
-        if (nextSlot() != value || inserting) {
-            updateValue(value)
-            true
-        } else {
-            skipValue()
-            false
-        }
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    fun updated(value: Int) = with(composer) {
-        inserting.let { inserting ->
-            if (((nextSlot() as? Int)?.let { it != value } ?: true) || inserting) {
-                updateValue(value)
-                !inserting
-            } else {
-                skipValue()
-                false
-            }
-        }
-    }
-
-    fun <T> updated(value: T) = with(composer) {
-        inserting.let { inserting ->
-            if (nextSlot() != value || inserting) {
-                updateValue(value)
-                !inserting
-            } else {
-                skipValue()
-                false
-            }
-        }
-    }
-
-    inline fun set(value: Int, /*crossinline*/ block: (value: Int) -> Unit): Boolean =
-        changed(value).also { if (it) block(value) }
-
-    inline fun <reified T> set(value: T, /*crossinline*/ block: (value: T) -> Unit): Boolean =
-        changed(value).also { if (it) block(value) }
-
-    inline fun update(value: Int, /*crossinline*/ block: (value: Int) -> Unit): Boolean =
-        updated(value).also { if (it) block(value) }
-
-    inline fun <reified T> update(value: T, /*crossinline*/ block: (value: T) -> Unit): Boolean =
-        updated(value).also { if (it) block(value) }
-
-    @Suppress("UNUSED")
-    fun <T> changedUnchecked(@Suppress("UNUSED_PARAMETER") value: T) = true
-
-    @Suppress("UNUSED")
-    inline fun <T> setUnchecked(value: T, block: (value: T) -> Unit): Boolean {
-        block(value)
-        return true
-    }
-
-    @Suppress("UNUSED")
-    inline fun <T> updateUnchecked(value: T, block: (value: T) -> Unit): Boolean {
-        block(value)
-        return true
-    }
-
-    /*inline*/ operator fun Boolean.plus(other: Boolean) = this || other
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -388,25 +273,25 @@ class ViewComposer(
     }
 }
 
-@PublishedApi
-internal actual val currentComposerNonNull
-    get() = currentComposer ?: emptyComposition()
+// NOTE(lmr): This API is no longer needed in any way by the compiler, but we still need this API
+// to be here to support versions of Android Studio that are still looking for it. Without it,
+// valid composable code will look broken in the IDE. Remove this after we have left some time to
+// get all versions of Studio upgraded.
+@Deprecated(
+    "This property should not be called directly. It is only used by the compiler.",
+    replaceWith = ReplaceWith("currentComposer")
+)
+val composer: ViewComposer get() = error(
+    "This property should not be called directly. It is only used by the compiler."
+)
 
-private fun emptyComposition(): Nothing =
-    error("Composition requires an active composition context")
-
-val composer get() = currentComposerNonNull as ViewComposer
-
-internal actual var currentComposer: Composer<*>? = null
-    private set
-
-actual fun <T> Composer<*>.runWithCurrent(block: () -> T): T {
-    val prev = currentComposer
+actual fun <T> Composer<*>.runWithComposing(block: () -> T): T {
+    val wasComposing = isComposing
     try {
-        currentComposer = this
+        isComposing = true
         return block()
     } finally {
-        currentComposer = prev
+        isComposing = wasComposing
     }
 }
 
@@ -415,11 +300,3 @@ fun ViewComposer.registerAdapter(
 ) = adapters?.register(adapter)
 
 typealias ViewUpdater<T> = ComposerUpdater<Any, T>
-
-internal actual fun createComposer(
-    root: Any,
-    context: Context,
-    recomposer: Recomposer
-): Composer<*> {
-    return ViewComposer(root, context, recomposer)
-}

@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Sample PagedList item Adapter, which uses a AsyncPagedListDiffer.
  */
+@SuppressWarnings("deprecation")
 class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolder> {
 
     PagedListItemAdapter() {

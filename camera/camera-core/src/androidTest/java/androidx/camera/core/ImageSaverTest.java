@@ -18,33 +18,49 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.net.Uri;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageSaver.OnImageSavedCallback;
 import androidx.camera.core.ImageSaver.SaveError;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -81,6 +97,15 @@ public class ImageSaverTest {
                     + "ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii"
                     + "gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=";
     // The image used here has a YUV_420_888 format.
+
+    private static final String TAG = "ImageSaverTest";
+    private static final String INVALID_DATA_PATH = "/";
+
+    @Rule
+    public GrantPermissionRule mStoragePermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE);
+
     @Mock
     private final ImageProxy mMockYuvImage = mock(ImageProxy.class);
     @Mock
@@ -105,23 +130,27 @@ public class ImageSaverTest {
     private final ImageSaver.OnImageSavedCallback mSyncCallback =
             new OnImageSavedCallback() {
                 @Override
-                public void onImageSaved(File file) {
-                    mMockCallback.onImageSaved(file);
+                public void onImageSaved(
+                        @NonNull ImageCapture.OutputFileResults outputFileResults) {
+                    mMockCallback.onImageSaved(outputFileResults);
                     mSemaphore.release();
                 }
 
                 @Override
                 public void onError(SaveError saveError, String message,
                         @Nullable Throwable cause) {
+                    Log.d(TAG, message, cause);
                     mMockCallback.onError(saveError, message, cause);
                     mSemaphore.release();
                 }
             };
 
     private ExecutorService mBackgroundExecutor;
+    private ContentResolver mContentResolver;
 
     @Before
     public void setup() {
+        createDefaultPictureFolderIfNotExist();
         // The YUV image's behavior.
         when(mMockYuvImage.getFormat()).thenReturn(ImageFormat.YUV_420_888);
         when(mMockYuvImage.getWidth()).thenReturn(WIDTH);
@@ -153,6 +182,8 @@ public class ImageSaverTest {
 
         // Set up a background executor for callbacks
         mBackgroundExecutor = Executors.newSingleThreadExecutor();
+
+        mContentResolver = ApplicationProvider.getApplicationContext().getContentResolver();
     }
 
     @After
@@ -160,14 +191,39 @@ public class ImageSaverTest {
         mBackgroundExecutor.shutdown();
     }
 
+    private void createDefaultPictureFolderIfNotExist() {
+        File pictureFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        if (!pictureFolder.exists()) {
+            pictureFolder.mkdir();
+        }
+    }
+
     private ImageSaver getDefaultImageSaver(ImageProxy image, File file) {
+        return getDefaultImageSaver(image,
+                new ImageCapture.OutputFileOptions.Builder(file).build());
+    }
+
+    private ImageSaver getDefaultImageSaver(@NonNull ImageProxy image) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+        return getDefaultImageSaver(image,
+                new ImageCapture.OutputFileOptions.Builder(mContentResolver,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build());
+    }
+
+    private ImageSaver getDefaultImageSaver(ImageProxy image, OutputStream outputStream) {
+        return getDefaultImageSaver(image,
+                new ImageCapture.OutputFileOptions.Builder(outputStream).build());
+    }
+
+    private ImageSaver getDefaultImageSaver(ImageProxy image,
+            ImageCapture.OutputFileOptions outputFileOptions) {
         return new ImageSaver(
                 image,
-                file,
+                outputFileOptions,
                 /*orientation=*/ 0,
-                /*reversedHorizontal=*/ false,
-                /*reversedVertical=*/ false,
-                /*location=*/ null,
                 mBackgroundExecutor,
                 mSyncCallback);
     }
@@ -177,13 +233,90 @@ public class ImageSaverTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        ImageSaver imageSaver = getDefaultImageSaver(mMockYuvImage, saveLocation);
-
-        imageSaver.run();
-
+        getDefaultImageSaver(mMockYuvImage, saveLocation).run();
         mSemaphore.acquire();
 
-        verify(mMockCallback).onImageSaved(any(File.class));
+        verify(mMockCallback).onImageSaved(any());
+    }
+
+    @Test
+    public void saveToUri() throws InterruptedException, FileNotFoundException {
+        // Act.
+        getDefaultImageSaver(mMockYuvImage).run();
+        mSemaphore.acquire();
+
+        // Assert.
+        // Verify success callback is called.
+        ArgumentCaptor<ImageCapture.OutputFileResults> outputFileResultsArgumentCaptor =
+                ArgumentCaptor.forClass(ImageCapture.OutputFileResults.class);
+        verify(mMockCallback).onImageSaved(outputFileResultsArgumentCaptor.capture());
+
+        // Verify save location Uri is available.
+        Uri saveLocationUri = outputFileResultsArgumentCaptor.getValue().getSavedUri();
+        assertThat(saveLocationUri).isNotNull();
+
+        // Loads image and verify width and height.
+        ParcelFileDescriptor pfd = mContentResolver.openFileDescriptor(saveLocationUri, "r");
+        Bitmap bitmap = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
+        assertThat(bitmap.getWidth()).isEqualTo(CROP_WIDTH);
+        assertThat(bitmap.getHeight()).isEqualTo(CROP_HEIGHT);
+    }
+
+    @Test
+    public void saveToUriWithInvalidDataColumn_onErrorCalled() throws InterruptedException {
+        // Arrange.
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+        contentValues.put(MediaStore.MediaColumns.DATA, INVALID_DATA_PATH);
+        ImageSaver imageSaver = getDefaultImageSaver(mMockYuvImage,
+                new ImageCapture.OutputFileOptions.Builder(mContentResolver,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build());
+
+        // Act.
+        imageSaver.run();
+        mSemaphore.acquire();
+
+        // Assert.
+        verify(mMockCallback).onError(eq(SaveError.FILE_IO_FAILED), any(), any());
+    }
+
+    @Test
+    public void saveToOutputStream() throws InterruptedException, IOException {
+        // Arrange.
+        File file = File.createTempFile("test", ".jpg");
+        file.deleteOnExit();
+
+        // Act.
+        try (OutputStream outputStream = new FileOutputStream(file)) {
+            getDefaultImageSaver(mMockYuvImage, outputStream).run();
+            mSemaphore.acquire();
+        }
+
+        // Assert.
+        verify(mMockCallback).onImageSaved(any());
+        // Loads image and verify width and height.
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+        assertThat(bitmap.getWidth()).isEqualTo(CROP_WIDTH);
+        assertThat(bitmap.getHeight()).isEqualTo(CROP_HEIGHT);
+    }
+
+    @Test
+    public void saveToClosedOutputStream_onErrorCalled() throws InterruptedException,
+            IOException {
+        // Arrange.
+        File file = File.createTempFile("test", ".jpg");
+        file.deleteOnExit();
+        OutputStream outputStream = new FileOutputStream(file);
+        outputStream.close();
+
+        // Act.
+        getDefaultImageSaver(mMockYuvImage, outputStream).run();
+        mSemaphore.acquire();
+
+        // Assert.
+        verify(mMockCallback).onError(eq(SaveError.FILE_IO_FAILED), anyString(),
+                any(Throwable.class));
     }
 
     @Test
@@ -191,13 +324,10 @@ public class ImageSaverTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
-
-        imageSaver.run();
-
+        getDefaultImageSaver(mMockJpegImage, saveLocation).run();
         mSemaphore.acquire();
 
-        verify(mMockCallback).onImageSaved(any(File.class));
+        verify(mMockCallback).onImageSaved(any());
     }
 
     @Test
@@ -205,10 +335,7 @@ public class ImageSaverTest {
         // Invalid filename should cause error
         File saveLocation = new File("/not/a/real/path.jpg");
 
-        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
-
-        imageSaver.run();
-
+        getDefaultImageSaver(mMockJpegImage, saveLocation).run();
         mSemaphore.acquire();
 
         verify(mMockCallback).onError(eq(SaveError.FILE_IO_FAILED), anyString(),
@@ -220,9 +347,7 @@ public class ImageSaverTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
-
-        imageSaver.run();
+        getDefaultImageSaver(mMockJpegImage, saveLocation).run();
 
         mSemaphore.acquire();
 
@@ -230,14 +355,11 @@ public class ImageSaverTest {
     }
 
     @Test
-    public void imageIsClosedOnError() throws InterruptedException, IOException {
+    public void imageIsClosedOnError() throws InterruptedException {
         // Invalid filename should cause error
         File saveLocation = new File("/not/a/real/path.jpg");
 
-        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
-
-        imageSaver.run();
-
+        getDefaultImageSaver(mMockJpegImage, saveLocation).run();
         mSemaphore.acquire();
 
         verify(mMockJpegImage).close();
@@ -247,22 +369,12 @@ public class ImageSaverTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        ImageSaver imageSaver =
-                new ImageSaver(
-                        image,
-                        saveLocation,
-                        /*orientation=*/ 0,
-                        /*reversedHorizontal=*/ false,
-                        /*reversedVertical=*/ false,
-                        /*location=*/ null,
-                        mBackgroundExecutor,
-                        mSyncCallback);
-        imageSaver.run();
-
+        getDefaultImageSaver(image, saveLocation).run();
         mSemaphore.acquire();
 
         Bitmap bitmap = BitmapFactory.decodeFile(saveLocation.getPath());
-        assertThat(bitmap.getWidth()).isEqualTo(bitmap.getHeight());
+        assertThat(bitmap.getWidth()).isEqualTo(CROP_WIDTH);
+        assertThat(bitmap.getHeight()).isEqualTo(CROP_HEIGHT);
     }
 
     @Test

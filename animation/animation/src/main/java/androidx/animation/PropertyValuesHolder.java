@@ -16,6 +16,7 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.Log;
@@ -178,8 +179,10 @@ public class PropertyValuesHolder implements Cloneable {
      * @see ObjectAnimator#ofMultiInt(Object, String, TypeConverter, TypeEvaluator, Object[])
      */
     @NonNull
-    public static PropertyValuesHolder ofMultiInt(@NonNull String propertyName,
-            @NonNull int[][] values) {
+    public static PropertyValuesHolder ofMultiInt(
+            @NonNull String propertyName,
+            @SuppressLint("ArrayReturn") /* Platform API */ @NonNull int[][] values
+    ) {
         if (values.length < 2) {
             throw new IllegalArgumentException("At least 2 values must be supplied");
         }
@@ -310,8 +313,10 @@ public class PropertyValuesHolder implements Cloneable {
      * @see ObjectAnimator#ofMultiFloat(Object, String, TypeConverter, TypeEvaluator, Object[])
      */
     @NonNull
-    public static PropertyValuesHolder ofMultiFloat(@NonNull String propertyName,
-            @NonNull float[][] values) {
+    public static PropertyValuesHolder ofMultiFloat(
+            @NonNull String propertyName,
+            @SuppressLint("ArrayReturn") /* Platform API */ @NonNull float[][] values
+    ) {
         if (values.length < 2) {
             throw new IllegalArgumentException("At least 2 values must be supplied");
         }
@@ -971,6 +976,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
     }
 
+    @SuppressLint("NoClone") /* Platform API */
     @NonNull
     @Override
     public PropertyValuesHolder clone() {

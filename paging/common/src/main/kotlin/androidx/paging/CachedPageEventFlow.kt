@@ -198,19 +198,15 @@ internal class FlattenedPageEventStorage<T : Any> {
     private val loadStates = mutableMapOf<LoadType, LoadState>()
     fun add(event: PageEvent<T>) {
         when (event) {
-            is PageEvent.Insert<T> -> {
-                handleInsert(event)
-            }
-            is PageEvent.StateUpdate<T> -> {
-                handleStatusUpdate(event)
-            }
-            is PageEvent.Drop<T> -> {
-                handlePageDrop(event)
-            }
+            is PageEvent.Insert<T> -> handleInsert(event)
+            is PageEvent.Drop<T> -> handlePageDrop(event)
+            is PageEvent.LoadStateUpdate<T> -> handleLoadStateUpdate(event)
         }
     }
 
     private fun handlePageDrop(event: PageEvent.Drop<T>) {
+        loadStates[event.loadType] = LoadState.Idle
+
         when (event.loadType) {
             LoadType.START -> {
                 placeholdersStart = event.placeholdersRemaining
@@ -226,10 +222,6 @@ internal class FlattenedPageEventStorage<T : Any> {
             }
             else -> throw IllegalArgumentException("page drop type must be start or end")
         }
-    }
-
-    private fun handleStatusUpdate(event: PageEvent.StateUpdate<T>) {
-        loadStates[event.loadType] = event.loadState
     }
 
     private fun handleInsert(event: PageEvent.Insert<T>) {
@@ -256,18 +248,12 @@ internal class FlattenedPageEventStorage<T : Any> {
         }
     }
 
+    private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
+        loadStates[event.loadType] = event.loadState
+    }
+
     fun getAsEvents(): List<PageEvent<T>> {
         val events = mutableListOf<PageEvent<T>>()
-        loadStates.forEach { entry ->
-            if (entry.value != LoadState.Idle) {
-                events.add(
-                    PageEvent.StateUpdate(
-                        loadType = entry.key,
-                        loadState = entry.value
-                    )
-                )
-            }
-        }
         if (pages.isNotEmpty()) {
             events.add(
                 PageEvent.Insert.Refresh(
@@ -277,7 +263,14 @@ internal class FlattenedPageEventStorage<T : Any> {
                     loadStates = loadStates.toMap() // copy
                 )
             )
+        } else {
+            loadStates.forEach { entry ->
+                if (entry.value == LoadState.Loading || entry.value is LoadState.Error) {
+                    events.add(PageEvent.LoadStateUpdate(entry.key, entry.value))
+                }
+            }
         }
+
         return events
     }
 }

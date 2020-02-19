@@ -24,7 +24,6 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -46,29 +45,12 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
         return checkedInApis.get() + listOf(builtApi.get())
     }
 
-    /**
-     * Whether to check restricted APIs too
-     */
-    @get:Input
-    var checkRestrictedAPIs = false
-
     @InputFiles
     fun getTaskInputs(): List<File> {
-        if (checkRestrictedAPIs) {
-            return allApiLocations().flatMap { it.files() }
-        }
-        return allApiLocations().flatMap { it.nonRestrictedFiles() }
+        return allApiLocations().flatMap { it.files() }
     }
 
-    /**
-     * A dummy output file so that Gradle will consider this task up-to-date after it runs once
-     */
-    @OutputFile
-    fun getDummyOutput(): File {
-        return getTaskInputs().first()
-    }
-
-    private fun summarizeDiff(a: File, b: File): String {
+    fun summarizeDiff(a: File, b: File): String {
         if (!a.exists()) {
             return "${a.toString()} does not exist"
         }
@@ -110,9 +92,7 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
         for (checkedInApi in checkedInApis.get()) {
             checkEqual(checkedInApi.publicApiFile, builtApi.get().publicApiFile)
             checkEqual(checkedInApi.experimentalApiFile, builtApi.get().experimentalApiFile)
-            if (checkRestrictedAPIs) {
-                checkEqual(checkedInApi.restrictedApiFile, builtApi.get().restrictedApiFile)
-            }
+            checkEqual(checkedInApi.restrictedApiFile, builtApi.get().restrictedApiFile)
         }
     }
 }

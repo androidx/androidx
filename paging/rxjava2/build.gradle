@@ -48,7 +48,6 @@ dependencies {
 androidx {
     name = "Android Paging RXJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.PAGING
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Android Paging RXJava2"

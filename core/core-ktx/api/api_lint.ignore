@@ -31,6 +31,10 @@ DocumentExceptions: androidx.core.view.ViewGroupKt#iterator(android.view.ViewGro
     Method ViewGroupKt.iterator appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
+NoByteOrShort: androidx.core.util.HalfKt#toHalf(short) parameter #0:
+    Should avoid odd sized primitives; use `int` instead of `short` in parameter $this$toHalf in androidx.core.util.HalfKt.toHalf(short $this$toHalf)
+
+
 PairedRegistration: androidx.core.animation.AnimatorKt#addListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>):
     Found addListener but not removeListener in androidx.core.animation.AnimatorKt
 PairedRegistration: androidx.core.animation.AnimatorKt#addPauseListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>):

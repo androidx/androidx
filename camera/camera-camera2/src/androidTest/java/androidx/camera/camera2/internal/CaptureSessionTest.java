@@ -22,7 +22,7 @@ import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 
 import static org.junit.Assume.assumeTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -184,6 +184,53 @@ public final class CaptureSessionTest {
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mSessionCameraCaptureCallback, timeout(3000).atLeastOnce())
                 .onCaptureCompleted(any(CameraCaptureResult.class));
+    }
+
+    @Test
+    public void openCaptureSessionWithClosedSurfaceFails() {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
+
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        DeferrableSurface surface = mTestParameters0.mSessionConfig.getSurfaces().get(0);
+        surface.close();
+
+        FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
+
+        Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
+                mCameraDeviceHolder.get()), mockFutureCallback,
+                CameraXExecutors.mainThreadExecutor());
+
+        verify(mockFutureCallback, timeout(3000)).onFailure(any(Throwable.class));
+    }
+
+    @Test
+    public void captureSessionIncreasesSurfaceUseCountAfterOpen_andDecreasesAfterRelease() {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
+
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        DeferrableSurface surface = mTestParameters0.mSessionConfig.getSurfaces().get(0);
+        int useCountBeforeOpen = surface.getUseCount();
+
+        FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
+
+        Futures.addCallback(captureSession.open(mTestParameters0.mSessionConfig,
+                mCameraDeviceHolder.get()), mockFutureCallback,
+                CameraXExecutors.mainThreadExecutor());
+
+        verify(mockFutureCallback, timeout(3000)).onSuccess(any());
+        int useCountAfterOpen = surface.getUseCount();
+
+        reset(mockFutureCallback);
+
+        captureSession.close();
+        Futures.addCallback(captureSession.release(false), mockFutureCallback,
+                CameraXExecutors.mainThreadExecutor());
+
+        verify(mockFutureCallback, timeout(3000)).onSuccess(any());
+        int useCountAfterRelease = surface.getUseCount();
+
+        assertThat(useCountAfterOpen).isGreaterThan(useCountBeforeOpen);
+        assertThat(useCountAfterRelease).isEqualTo(useCountBeforeOpen);
     }
 
     @Test
@@ -447,8 +494,9 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void surfaceOnDetachedListenerIsCalledWhenSessionIsClose()
+    public void surfaceTerminationFutureIsCalledWhenSessionIsClose()
             throws InterruptedException, ExecutionException {
+        mTestParameters0.setCloseSurfaceOnSessionClose(true);
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
@@ -456,23 +504,13 @@ public final class CaptureSessionTest {
 
         assertTrue(mTestParameters0.waitForData());
 
-        DeferrableSurface.OnSurfaceDetachedListener listener =
-                Mockito.mock(DeferrableSurface.OnSurfaceDetachedListener.class);
-        Executor executor = new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        };
-        mTestParameters0.mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
+        Runnable runnable = mock(Runnable.class);
+        mTestParameters0.mDeferrableSurface.getTerminationFuture().addListener(runnable,
+                CameraXExecutors.directExecutor());
 
-        ListenableFuture<Void> releaseFuture = captureSession.release(
-                /*abortInFlightCaptures=*/false);
+        captureSession.release(/*abortInFlightCaptures=*/false);
 
-        // Wait for release
-        assertFutureCompletes(releaseFuture, 5, TimeUnit.SECONDS);
-
-        Mockito.verify(listener, times(1)).onSurfaceDetached();
+        Mockito.verify(runnable, timeout(3000).times(1)).run();
     }
 
     @Test
@@ -887,6 +925,7 @@ public final class CaptureSessionTest {
 
         /** Clean up resources. */
         void tearDown() {
+            mDeferrableSurface.close();
             mImageReader.close();
             mHandlerThread.quitSafely();
         }

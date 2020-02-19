@@ -19,27 +19,24 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun LayoutPaddingModifier() {
     Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            SizedRectangle(
-                modifier = LayoutPadding(
-                    left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp
-                ),
-                color = Color.Blue,
-                width = 50.dp,
-                height = 50.dp
+        Stack(modifier = DrawBackground(Color.Gray)) {
+            Box(
+                LayoutPadding(start = 20.dp, top = 30.dp, end = 20.dp, bottom = 30.dp) +
+                        LayoutSize(50.dp),
+                backgroundColor = Color.Blue
             )
         }
     }
@@ -49,53 +46,8 @@ fun LayoutPaddingModifier() {
 @Composable
 fun LayoutPaddingAllModifier() {
     Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            SizedRectangle(
-                modifier = LayoutPadding(all = 20.dp),
-                color = Color.Blue,
-                width = 50.dp,
-                height = 50.dp
-            )
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun PaddingComposableEdgeInsets() {
-    Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            Padding(EdgeInsets(left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp)) {
-                SizedRectangle(color = Color.Blue, width = 50.dp, height = 50.dp)
-            }
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun PaddingComposable() {
-    Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            Padding(left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp) {
-                SizedRectangle(color = Color.Blue, width = 50.dp, height = 50.dp)
-            }
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun PaddingComposableSameInset() {
-    Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            Padding(padding = 20.dp) {
-                SizedRectangle(color = Color.Blue, width = 50.dp, height = 50.dp)
-            }
+        Stack(modifier = DrawBackground(Color.Gray)) {
+            Box(LayoutPadding(all = 20.dp) + LayoutSize(50.dp), backgroundColor = Color.Blue)
         }
     }
 }

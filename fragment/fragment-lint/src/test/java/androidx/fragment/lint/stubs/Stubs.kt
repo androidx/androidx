@@ -17,6 +17,7 @@
 package androidx.fragment.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 
 private val BACK_PRESSED_CALLBACK = java("""
     package androidx.activity;
@@ -74,13 +75,29 @@ private val OBSERVER = java("""
     public interface Observer<T> {}
 """)
 
+private val LIVEDATA_OBSERVE_EXTENSION = kotlin("androidx/lifecycle/LiveDataKt.kt", """
+    package androidx.lifecycle
+
+    import kotlin.jvm.functions.Function1
+
+    object LiveDataKt {
+        fun observe<T>(
+            liveData: LiveData<T>,
+            owner: LifecycleOwner,
+            onChanged: Function1<T, Unit>) {
+
+        }
+    }
+""").indented().within("src")
+
 // stubs for testing calls to LiveData.observe calls
 internal val LIVEDATA_STUBS = arrayOf(
     FRAGMENT,
     LIFECYCLE_OWNER,
     LIVEDATA,
     MUTABLE_LIVEDATA,
-    OBSERVER
+    OBSERVER,
+    LIVEDATA_OBSERVE_EXTENSION
 )
 
 // stubs for testing calls to OnBackPressedDispatcher.addCallback calls

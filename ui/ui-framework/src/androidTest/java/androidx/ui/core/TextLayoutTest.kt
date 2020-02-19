@@ -19,19 +19,23 @@ package androidx.ui.core
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.framework.test.R
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.Font
+import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
-import androidx.ui.unit.round
-import androidx.ui.unit.withDensity
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -48,8 +52,8 @@ import java.util.concurrent.TimeUnit
 class TextLayoutTest {
     @get:Rule
     internal val activityTestRule = ActivityTestRule(TestActivity::class.java)
-    private val fontFamily = Font(
-        name = "sample_font.ttf",
+    private val fontFamily = font(
+        resId = R.font.sample_font,
         weight = FontWeight.Normal,
         style = FontStyle.Normal
     ).asFontFamily()
@@ -63,10 +67,10 @@ class TextLayoutTest {
     }
 
     @Test
-    fun testTextLayout() = withDensity(density) {
+    fun testTextLayout() = with(density) {
         val layoutLatch = CountDownLatch(2)
-        val textSize = Ref<PxSize>()
-        val doubleTextSize = Ref<PxSize>()
+        val textSize = Ref<IntPxSize>()
+        val doubleTextSize = Ref<IntPxSize>()
         show {
             OnChildPositioned({ coordinates ->
                 textSize.value = coordinates.size
@@ -91,10 +95,10 @@ class TextLayoutTest {
     }
 
     @Test
-    fun testTextLayout_intrinsicMeasurements() = withDensity(density) {
+    fun testTextLayout_intrinsicMeasurements() = with(density) {
         val layoutLatch = CountDownLatch(2)
-        val textSize = Ref<PxSize>()
-        val doubleTextSize = Ref<PxSize>()
+        val textSize = Ref<IntPxSize>()
+        val doubleTextSize = Ref<IntPxSize>()
         show {
             OnChildPositioned({ coordinates ->
                 textSize.value = coordinates.size
@@ -110,9 +114,9 @@ class TextLayoutTest {
             }
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
-        val textWidth = textSize.value!!.width.round()
-        val textHeight = textSize.value!!.height.round()
-        val doubleTextWidth = doubleTextSize.value!!.width.round()
+        val textWidth = textSize.value!!.width
+        val textHeight = textSize.value!!.height
+        val doubleTextWidth = doubleTextSize.value!!.width
 
         val intrinsicsLatch = CountDownLatch(1)
         show {
@@ -149,7 +153,7 @@ class TextLayoutTest {
     }
 
     @Test
-    fun testTextLayout_providesBaselines() = withDensity(density) {
+    fun testTextLayout_providesBaselines() = with(density) {
         val layoutLatch = CountDownLatch(2)
         show {
             val text = @Composable {
@@ -175,12 +179,32 @@ class TextLayoutTest {
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
     }
 
+    @Test
+    fun testOnTextLayout() = with(density) {
+        val layoutLatch = CountDownLatch(2)
+        val callback = mock<(TextLayoutResult) -> Unit>()
+        show {
+            val text = @Composable {
+                Text("aa", onTextLayout = callback)
+            }
+            Layout(text) { measurables, _ ->
+                measurables.first().measure(Constraints())
+                layoutLatch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        verify(callback, times(1)).invoke(any())
+    }
+
     private fun show(composable: @Composable() () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent {
                     Layout(composable) { measurables, constraints ->
-                        val placeables = measurables.map { it.measure(constraints.looseMin()) }
+                        val placeables = measurables.map {
+                            it.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+                        }
                         layout(constraints.maxWidth, constraints.maxHeight) {
                             var top = 0.px
                             placeables.forEach {

@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUp
@@ -29,6 +29,7 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.positionChange
+import androidx.ui.core.PointerId
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
@@ -132,7 +133,7 @@ fun RawDragGestureDetector(
     recognizer.dragObserver = dragObserver
     recognizer.canStartDragging = canStartDragging
 
-    PointerInputWrapper(
+    PointerInput(
         pointerInputHandler = recognizer.pointerInputHandler,
         cancelHandler = recognizer.cancelHandler,
         children = children
@@ -140,8 +141,8 @@ fun RawDragGestureDetector(
 }
 
 internal class RawDragGestureRecognizer {
-    private val velocityTrackers: MutableMap<Int, VelocityTracker> = mutableMapOf()
-    private val downPositions: MutableMap<Int, PxPosition> = mutableMapOf()
+    private val velocityTrackers: MutableMap<PointerId, VelocityTracker> = mutableMapOf()
+    private val downPositions: MutableMap<PointerId, PxPosition> = mutableMapOf()
     private var started = false
     var canStartDragging: (() -> Boolean)? = null
     lateinit var dragObserver: DragObserver

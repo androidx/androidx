@@ -44,7 +44,6 @@ dependencies {
 androidx {
     name = "Media2 repackaged ExoPlayer dependency"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.MEDIA2_EXOPLAYER
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "Repackaged ExoPlayer for 'media2' artifact"

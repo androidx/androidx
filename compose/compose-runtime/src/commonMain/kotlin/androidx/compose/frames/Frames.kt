@@ -93,8 +93,8 @@ interface Framed {
 }
 
 typealias FrameReadObserver = (read: Any) -> Unit
-typealias FrameWriteObserver = (write: Any) -> Unit
-typealias FrameCommitObserver = (committed: Set<Any>) -> Unit
+typealias FrameWriteObserver = (write: Any, isNew: Boolean) -> Unit
+typealias FrameCommitObserver = (committed: Set<Any>, frame: Frame) -> Unit
 
 private val threadFrame = ThreadLocal<Frame>()
 
@@ -280,8 +280,9 @@ fun commit(frame: Frame) {
     // since the frame was last opened. There is a trivial cases that can be dismissed immediately,
     // no writes occurred.
     val modified = frame.modified
+    val id = frame.id
     val listeners = synchronized(sync) {
-        if (!openFrames.get(frame.id)) throw IllegalStateException("Frame not open")
+        if (!openFrames.get(id)) throw IllegalStateException("Frame not open")
         if (modified == null || modified.size == 0) {
             closeFrame(frame)
             emptyList()
@@ -299,8 +300,7 @@ fun commit(frame: Frame) {
 
             val current = openFrames
             val nextFrame = maxFrameId
-            val start = frame.invalid.set(frame.id)
-            val id = frame.id
+            val start = frame.invalid.set(id)
             for (framed in frame.modified) {
                 val first = framed.firstFrameRecord
                 if (readable(
@@ -318,7 +318,7 @@ fun commit(frame: Frame) {
     }
     if (modified != null)
         for (commitListener in listeners) {
-            commitListener(modified)
+            commitListener(modified, frame)
         }
 }
 
@@ -455,7 +455,7 @@ fun <T : Record> T.readable(framed: Framed): T {
 
 fun _readable(r: Record, framed: Framed): Record = r.readable(framed)
 fun _writable(r: Record, framed: Framed): Record = r.writable(framed)
-fun _created(framed: Framed) = threadFrame.get()?.writeObserver?.let { it(framed) }
+fun _created(framed: Framed) = threadFrame.get()?.writeObserver?.let { it(framed, true) }
 
 fun <T : Record> T.writable(framed: Framed): T {
     return this.writable(framed, currentFrame())
@@ -509,7 +509,7 @@ fun <T : Record> T.writable(framed: Framed, frame: Frame): T {
     if (readData.frameId == frame.id) return readData
 
     // The first write to an framed in frame
-    frame.writeObserver?.let { it(framed) }
+    frame.writeObserver?.let { it(framed, false) }
 
     // Otherwise, make a copy of the readable data and mark it as born in this frame, making it
     // writable.
@@ -538,3 +538,16 @@ fun <T : Record> T.writable(framed: Framed, frame: Frame): T {
 
     return newData
 }
+
+/**
+ * Returns the current record without notifying any [Frame.readObserver]s.
+ */
+@PublishedApi
+internal fun <T : Record> current(r: T, frame: Frame) = readable(r, frame.id, frame.invalid)
+
+/**
+ * Provides a [block] with the current record, without notifying any [Frame.readObserver]s.
+ *
+ * @see [Record.readable]
+ */
+inline fun <T : Record> T.withCurrent(block: (r: T) -> Unit) = block(current(this, currentFrame()))

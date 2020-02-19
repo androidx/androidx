@@ -433,8 +433,8 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         MoveRecord(RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
             this.from = from;
             this.to = to;
-            fromPos = from.getAdapterPosition();
-            toPos = to.getAdapterPosition();
+            fromPos = from.getAbsoluteAdapterPosition();
+            toPos = to.getAbsoluteAdapterPosition();
         }
     }
 }

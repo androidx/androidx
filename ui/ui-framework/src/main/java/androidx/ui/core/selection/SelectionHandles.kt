@@ -21,7 +21,6 @@ import androidx.compose.remember
 import androidx.ui.core.Constraints
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.withTight
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -81,7 +80,7 @@ private fun FixedDimension(
     children: @Composable() () -> Unit
 ) {
     Layout(children) { measurables, _ ->
-        val constraints = Constraints().withTight(width.toIntPx(), height.toIntPx())
+        val constraints = Constraints.fixed(width.toIntPx(), height.toIntPx())
         val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
         }

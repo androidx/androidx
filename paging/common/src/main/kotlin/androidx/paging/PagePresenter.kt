@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
@@ -30,7 +31,7 @@ import androidx.paging.PageEvent.Insert.Companion.Refresh
  * events that should all be dispatched to the presentation layer at once - as part of the same
  * frame.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface PresenterCallback {
@@ -123,7 +124,7 @@ internal class PagePresenter<T : Any>(
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
-            is PageEvent.StateUpdate -> {
+            is PageEvent.LoadStateUpdate -> {
                 callback.onStateUpdate(pageEvent.loadType, pageEvent.loadState)
             }
         }
@@ -264,9 +265,12 @@ internal class PagePresenter<T : Any>(
         }
     }
 
-    companion object {
-        fun <T : Any> initial(): PagePresenter<T> = PagePresenter(
-            Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Idle, END to Idle))
+    internal companion object {
+        private val INITIAL = PagePresenter<Any>(
+            Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Done, END to Done))
         )
+
+        @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
+        internal fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>
     }
 }

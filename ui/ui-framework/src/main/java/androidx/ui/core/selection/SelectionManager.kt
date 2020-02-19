@@ -19,6 +19,8 @@ package androidx.ui.core.selection
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
+import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
@@ -37,6 +39,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * called. This is what makes this a "controlled component".
      */
     var onSelectionChange: (Selection?) -> Unit = {}
+
+    /**
+     * [HapticFeedback] handle to perform haptic feedback.
+     */
+    var hapticFeedBack: HapticFeedback? = null
 
     /**
      * Layout Coordinates of the selection container.
@@ -70,7 +77,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * @param startPosition [PxPosition] for the start of the selection
      * @param endPosition [PxPosition] for the end of the selection
      * @param longPress the selection is a result of long press
-     * @param selection initial selection to start with
+     * @param previousSelection previous selection
      *
      * @return [Selection] object which is constructed by combining all Composables that are
      * selected.
@@ -80,21 +87,29 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         startPosition: PxPosition,
         endPosition: PxPosition,
         longPress: Boolean = false,
-        selection: Selection? = null
+        previousSelection: Selection? = null,
+        isStartHandle: Boolean = true
     ): Selection? {
-        val handlers = selectionRegistrar.selectables
-        return handlers.fold(selection) { mergedSelection: Selection?,
-                                          handler: Selectable ->
-            merge(
-                mergedSelection,
-                handler.getSelection(
-                    startPosition = startPosition,
-                    endPosition = endPosition,
-                    containerLayoutCoordinates = containerLayoutCoordinates,
-                    longPress = longPress
+
+        val newSelection = selectionRegistrar.sort(containerLayoutCoordinates)
+            .fold(null) { mergedSelection: Selection?,
+                          handler: Selectable ->
+                merge(
+                    mergedSelection,
+                    handler.getSelection(
+                        startPosition = startPosition,
+                        endPosition = endPosition,
+                        containerLayoutCoordinates = containerLayoutCoordinates,
+                        longPress = longPress,
+                        previousSelection = previousSelection,
+                        isStartHandle = isStartHandle
+                    )
                 )
-            )
-        }
+            }
+        if (previousSelection != newSelection) hapticFeedBack?.performHapticFeedback(
+            HapticFeedbackType.TextHandleMove
+        )
+        return newSelection
     }
 
     // This is for PressGestureDetector to cancel the selection.
@@ -103,7 +118,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         // cancel their individual selection.
         mergeSelections(
             startPosition = PxPosition((-1).px, (-1).px),
-            endPosition = PxPosition((-1).px, (-1).px)
+            endPosition = PxPosition((-1).px, (-1).px),
+            previousSelection = selection
         )
         if (selection != null) onSelectionChange(null)
     }
@@ -114,7 +130,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             val newSelection = mergeSelections(
                 startPosition = pxPosition,
                 endPosition = pxPosition,
-                longPress = true
+                longPress = true,
+                previousSelection = selection
             )
             if (newSelection != selection) onSelectionChange(newSelection)
             dragBeginPosition = pxPosition
@@ -137,7 +154,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 startPosition = dragBeginPosition,
                 endPosition = dragBeginPosition + dragTotalDistance,
                 longPress = true,
-                selection = selection
+                previousSelection = selection
             )
 
             if (newSelection != selection) onSelectionChange(newSelection)
@@ -216,7 +233,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 val finalSelection = mergeSelections(
                     startPosition = currentStart,
                     endPosition = currentEnd,
-                    selection = selection
+                    previousSelection = selection,
+                    isStartHandle = isStartHandle
                 )
                 onSelectionChange(finalSelection)
                 return dragDistance

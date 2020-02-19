@@ -19,14 +19,15 @@ package androidx.ui.framework.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Opacity
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutSize
+import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun OpacitySample() {
     Opacity(opacity = 0.5f) {
-        DrawShape(RectangleShape, Color.Red)
+        Box(LayoutSize(100.dp), backgroundColor = Color.Red)
     }
 }

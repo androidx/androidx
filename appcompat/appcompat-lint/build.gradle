@@ -26,16 +26,16 @@ plugins {
 }
 
 dependencies {
-    if (rootProject.hasProperty("android.injected.invoked.from.ide")) {
-        compileOnly LINT_API_LATEST
-    } else {
-        compileOnly LINT_API_MIN
-    }
+    compileOnly LINT_API_LATEST
     compileOnly KOTLIN_STDLIB
+
+    testImplementation KOTLIN_STDLIB
+    testImplementation LINT_CORE
+    testImplementation LINT_TESTS
 }
 
 androidx {
-    name = "Android Lifecycles Lint Checks"
+    name = "AppCompat Lint Checks"
     toolingProject = true
     publish = Publish.NONE
     mavenVersion = LibraryVersions.APPCOMPAT

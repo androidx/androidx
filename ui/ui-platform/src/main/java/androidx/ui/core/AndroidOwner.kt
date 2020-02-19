@@ -18,11 +18,11 @@ package androidx.ui.core
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.graphics.RenderNode
 import android.os.Build
 import android.os.Looper
+import android.util.Log
 import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.View
@@ -42,8 +42,12 @@ import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
+import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
+import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
-import androidx.ui.core.pointerinput.toPointerInputEvent
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
@@ -55,7 +59,6 @@ import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
-import androidx.ui.unit.DensityScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxSize
@@ -63,26 +66,26 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.px
-import androidx.ui.unit.toPxSize
-import androidx.ui.unit.withDensity
 
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
-import java.util.TreeSet
 import kotlin.math.roundToInt
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidComposeView constructor(context: Context) :
-    ViewGroup(context), Owner, SemanticsTreeProvider, DensityScope {
-    override var density: Density = Density(context)
+    ViewGroup(context), AndroidOwner, SemanticsTreeProvider {
+
+    override var density = Density(context)
         private set
 
     val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
     }
 
-    // LayoutNodes that need measure and layout, the value is true when measure is needed
-    private val relayoutNodes = TreeSet<LayoutNode>(DepthComparator)
+    // LayoutNodes that need measure and layout
+    private val relayoutNodes = DepthSortedSet<LayoutNode>(enableExtraAssertions)
+
+    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
 
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
@@ -93,12 +96,14 @@ class AndroidComposeView constructor(context: Context) :
     // RepaintBoundaryNodes that have had their boundary changed. When using Views,
     // the size/position of a View should change during layout, so this list
     // is kept separate from dirtyRepaintBoundaryNodes.
-    private val repaintBoundaryChanges = TreeSet<RepaintBoundaryNode>(DepthComparator)
+    private val repaintBoundaryChanges =
+        DepthSortedSet<RepaintBoundaryNode>(enableExtraAssertions)
 
     // RepaintBoundaryNodes that are dirty and should be redrawn. This is only
     // used when RenderNodes are active in Q+. When Views are used, the View
     // system tracks the dirty RenderNodes.
-    internal val dirtyRepaintBoundaryNodes = TreeSet<RepaintBoundaryNode>(DepthComparator)
+    internal val dirtyRepaintBoundaryNodes =
+        DepthSortedSet<RepaintBoundaryNode>(enableExtraAssertions)
 
     var ref: Ref<AndroidComposeView>? = null
         set(value) {
@@ -107,9 +112,11 @@ class AndroidComposeView constructor(context: Context) :
                 value.value = this
             }
         }
+
+    private val motionEventAdapter = MotionEventAdapter()
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
-    var constraints = Constraints.tightConstraints(width = IntPx.Zero, height = IntPx.Zero)
+    var constraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
     // private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
@@ -124,6 +131,12 @@ class AndroidComposeView constructor(context: Context) :
     val autofill: Autofill? get() = _autofill
 
     override var measureIteration: Long = 1L
+        get() {
+            require(duringMeasureLayout) {
+                "measureIteration should be only used during the measure/layout pass"
+            }
+            return field
+        }
         private set
 
     private val elevationHandler =
@@ -136,26 +149,16 @@ class AndroidComposeView constructor(context: Context) :
         }
 
     /**
-     * Flag to indicate that we're measuring and the nodes, requesting relayout should
-     * be added into [relayoutNodesDuringMeasureLayout].
+     * Flag to indicate that we're currently measuring.
      */
     private var duringMeasureLayout = false
     /**
-     * Stores the list of [LayoutNode]s passed to [requestRelayout] while we were
-     * already doing measure/layout stage. This usually happens when we start subcomposition
-     * from inside measure block(like in WithConstraints).
-     * Inside [requestRelayout] we can add a new item into the list we are currently iterating
-     * through inside [measureAndLayout]. To save on the list allocation and iterate through
-     * the copied list we temporary add items into this list instead.
+     * Stores the list of [LayoutNode]s scheduled to be remeasured in the next measure/layout pass.
+     * We were unable to mark them as needsRemeasure=true previously as this request happened
+     * during the previous measure/layout pass and they were already measured as part of it.
+     * See [onRequestMeasure] for more details.
      */
-    private val relayoutNodesDuringMeasureLayout = mutableListOf<LayoutNode>()
-
-    /**
-     * This is true when the apk is build with android:debuggable=true.
-     * We can enable some additional expensive assertions while in debug mode.
-     */
-    private val debugMode = 0 != context.applicationInfo.flags and
-            ApplicationInfo.FLAG_DEBUGGABLE
+    private val postponedMeasureRequests = mutableListOf<LayoutNode>()
 
     private val modelObserver = ModelObserver { command ->
         if (handler.looper === Looper.myLooper()) {
@@ -183,11 +186,25 @@ class AndroidComposeView constructor(context: Context) :
         invalidate()
     }
 
+    private val onPositionedDispatcher = OnPositionedDispatcher()
+
     override var showLayoutBounds = false
         /** @hide */
         @TestOnly
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set
+
+    private val consistencyChecker: LayoutTreeConsistencyChecker? =
+        if (enableExtraAssertions) {
+            LayoutTreeConsistencyChecker(
+                root,
+                { duringMeasureLayout },
+                relayoutNodes,
+                postponedMeasureRequests
+            )
+        } else {
+            null
+        }
 
     override fun pauseModelReadObserveration(block: () -> Unit) =
         modelObserver.pauseObservingReads(block)
@@ -207,6 +224,13 @@ class AndroidComposeView constructor(context: Context) :
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
         // ownerScope.launch {
         invalidateRepaintBoundary(drawNode)
+        // }
+    }
+
+    override fun onInvalidate(layoutNode: LayoutNode) {
+        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
+        // ownerScope.launch {
+        invalidateRepaintBoundary(layoutNode)
         // }
     }
 
@@ -250,7 +274,7 @@ class AndroidComposeView constructor(context: Context) :
      */
     private fun collectChildrenRepaintBoundaries(node: ComponentNode) {
         if (node is RepaintBoundaryNode) {
-            repaintBoundaryChanges += node
+            repaintBoundaryChanges.add(node)
         }
         if (node !is LayoutNode) {
             node.visitChildren(::collectChildrenRepaintBoundaries)
@@ -260,35 +284,65 @@ class AndroidComposeView constructor(context: Context) :
     override fun onRequestMeasure(layoutNode: LayoutNode) {
         trace("AndroidOwner:onRequestMeasure") {
             layoutNode.requireOwner()
+            if (enableExtraAssertions) {
+                Log.d("AndroidOwner", "onRequestMeasure on $layoutNode")
+            }
+            if (layoutNode.isMeasuring) {
+                // we're already measuring it, let's swallow. example when it happens: we compose
+                // DataNode inside WithConstraints, this calls onRequestMeasure on DataNode's
+                // parent, but this parent is WithConstraints which is currently measuring.
+                return
+            }
             if (layoutNode.needsRemeasure) {
                 // requestMeasure has already been called for this node
                 return
             }
-            layoutNode.needsRemeasure = true
 
             // find root of layout request:
             var layout = layoutNode
-            while (layout.parentLayoutNode != null && layout.parentLayoutNode != root &&
-                layout.affectsParentSize && !layout.isMeasuring
-            ) {
-                layout = layout.parentLayoutNode!!
-                if (layout.needsRemeasure) {
-                    // don't need to do anything else since the parent already needs measuring
+            while (layout.affectsParentSize && layout.parentLayoutNode != null) {
+                val parent = layout.parentLayoutNode!!
+                if (parent.isMeasuring || parent.isLayingOut) {
+                    if (layout.measureIteration == measureIteration) {
+                        // the node we want to remeasure is the child of the parent which is
+                        // currently being measured and this parent did already measure us as a
+                        // child. so we have to postpone the measure request till the end of
+                        // the measuring pass to remeasure our parent again after it.
+                        // this can happen if the already measured child was requested to be
+                        // remeasured for example if the used @Model has been modified and the
+                        // frame has been committed during the measuring pass.
+                        postponedMeasureRequests.add(layout)
+                    } else {
+                        // otherwise we finished. this child wasn't measured yet, will be
+                        // measured soon.
+                    }
+                    consistencyChecker?.assertConsistent()
                     return
+                } else {
+                    layout.markRemeasureRequested()
+                    if (parent.needsRemeasure) {
+                        // don't need to do anything else since the parent is already scheduled
+                        // for a remeasuring
+                        consistencyChecker?.assertConsistent()
+                        return
+                    }
+                    layout = parent
                 }
-                layout.needsRemeasure = true
             }
+            layout.markRemeasureRequested()
 
-            val parent = layout.parentLayoutNode
-            if (parent == null) {
-                requestRelayout(layout)
-            } else {
-                requestRelayout(parent)
-            }
+            requestRelayout(layout.parentLayoutNode ?: layout)
         }
     }
 
     private fun requestRelayout(layoutNode: LayoutNode) {
+        if (layoutNode.needsRelayout || (layoutNode.needsRemeasure && layoutNode !== root) ||
+                layoutNode.isLayingOut) {
+            // don't need to do anything else since the parent is already scheduled
+            // for a relayout (measure pass includes relayout), or is laying out right now
+            consistencyChecker?.assertConsistent()
+            return
+        }
         layoutNode.requireOwner()
         var nodeToRelayout = layoutNode
 
@@ -304,8 +358,10 @@ class AndroidComposeView constructor(context: Context) :
             }
         } else {
             var layout = layoutNode
-            while (layout != layoutNode.alignmentLinesQueryOwner && !layout.needsRelayout) {
-                layout.needsRelayout = true
+            while (layout != layoutNode.alignmentLinesQueryOwner &&
+                // and relayout or remeasure(includes relayout) is not scheduled already
+                !(layout.needsRelayout || layout.needsRemeasure)) {
+                layout.markRelayoutRequested()
                 layout.dirtyAlignmentLines = true
                 if (layout.parentLayoutNode == null) break
                 layout = layout.parentLayoutNode!!
@@ -314,19 +370,31 @@ class AndroidComposeView constructor(context: Context) :
             nodeToRelayout = layout
         }
 
-        nodeToRelayout.needsRelayout = true
-        if (duringMeasureLayout) {
-            relayoutNodesDuringMeasureLayout += nodeToRelayout
-        } else {
-            val noRelayoutScheduled = relayoutNodes.isEmpty()
-            relayoutNodes += nodeToRelayout
+        nodeToRelayout.markRelayoutRequested()
+        relayoutNodes.add(nodeToRelayout)
+        if (!duringMeasureLayout) {
             if (nodeToRelayout == root || constraints.isZero) {
-                nodeToRelayout.needsRemeasure = true
                 requestLayout()
-            } else if (noRelayoutScheduled) {
+            } else {
                 // Invalidate and catch measureAndLayout() in the dispatchDraw()
                 invalidateRepaintBoundary(nodeToRelayout)
             }
+        }
+        consistencyChecker?.assertConsistent()
+    }
+
+    private fun LayoutNode.markRemeasureRequested() {
+        needsRemeasure = true
+        if (needsRelayout) {
+            // cancel needsRelayout as remeasure includes relayout
+            needsRelayout = false
+        }
+    }
+
+    private fun LayoutNode.markRelayoutRequested() {
+        // remeasure includes relayout so we are ok
+        if (!needsRemeasure) {
+            needsRelayout = true
         }
     }
 
@@ -341,7 +409,7 @@ class AndroidComposeView constructor(context: Context) :
             }
             node.ownerData = ownerData
             ownerData.attach(node.parent?.repaintBoundary?.container)
-            repaintBoundaryChanges += node
+            repaintBoundaryChanges.add(node)
             node.parent?.let { invalidateRepaintBoundary(it) }
         }
     }
@@ -351,74 +419,73 @@ class AndroidComposeView constructor(context: Context) :
             is RepaintBoundaryNode -> {
                 node.container.detach()
                 node.ownerData = null
-                repaintBoundaryChanges -= node
-                dirtyRepaintBoundaryNodes -= node
+                repaintBoundaryChanges.remove(node)
+                dirtyRepaintBoundaryNodes.remove(node)
             }
             is LayoutNode -> {
-                if (!duringMeasureLayout) {
-                    // We can't change the contents of relayoutNodes during measure/layout, but
-                    // layout will clear its contents, as well as ignore any detached nodes
-                    relayoutNodes -= node
-                }
+                relayoutNodes.remove(node)
             }
         }
         modelObserver.clear(node)
     }
 
+    private val androidViewsHandler by lazy(LazyThreadSafetyMode.NONE) {
+        AndroidViewsHandler(context).also { addView(it) }
+    }
+
+    override fun addAndroidView(view: View, layoutNode: LayoutNode) {
+        androidViewsHandler.addView(view)
+        androidViewsHandler.layoutNode[view] = layoutNode
+    }
+
+    override fun removeAndroidView(view: View) {
+        androidViewsHandler.removeView(view)
+        androidViewsHandler.layoutNode.remove(view)
+    }
+
     /**
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out
      */
-    internal fun measureAndLayout() {
+    override fun measureAndLayout() {
         trace("AndroidOwner:measureAndLayout") {
-            if (!relayoutNodes.isEmpty()) {
-                try {
-                    duringMeasureLayout = true
+            if (relayoutNodes.isNotEmpty()) {
+                duringMeasureLayout = true
+                relayoutNodes.popEach { layoutNode ->
                     measureIteration++
-                    var topNode = relayoutNodes.first()
-                    while (relayoutNodes.isNotEmpty()) {
-                        relayoutNodes.forEach { layoutNode ->
-                            if (layoutNode.isAttached()) {
-                                if (layoutNode.needsRemeasure) {
-                                    val parent = layoutNode.parentLayoutNode
-                                    if (parent != null) {
-                                        // This should call measure and layout on the child
-                                        parent.needsRelayout = true
-                                        parent.placeChildren()
-                                    } else {
-                                        layoutNode.measure(layoutNode.constraints)
-                                        layoutNode.placeChildren()
-                                    }
-                                } else if (layoutNode.needsRelayout) {
-                                    layoutNode.placeChildren()
-                                }
-                            }
-                        }
-                        relayoutNodes.clear()
-                        if (relayoutNodesDuringMeasureLayout.isNotEmpty()) {
-                            relayoutNodesDuringMeasureLayout.forEach {
-                                // some of the nodes can be already measured/positioned.
-                                // for example the direct children of WithConstraints.
-                                if (it.needsRemeasure || it.needsRemeasure) {
-                                    relayoutNodes += it
-                                    if (it.depth > topNode.depth) {
-                                        topNode = it
-                                    }
-                                }
-                            }
-                            relayoutNodesDuringMeasureLayout.clear()
-                        }
+                    if (layoutNode === root) {
+                        // it is the root node - the only top node from relayoutNodes
+                        // which needs to be remeasured.
+                        layoutNode.measure(constraints)
                     }
-                    topNode.dispatchOnPositionedCallbacks()
-                } finally {
-                    duringMeasureLayout = false
+                    require(!layoutNode.needsRemeasure) {
+                        "$layoutNode shouldn't require remeasure. relayoutNodes " +
+                                "consists of the top nodes of the affected subtrees"
+                    }
+                    if (layoutNode.needsRelayout) {
+                        layoutNode.layout()
+                        onPositionedDispatcher.onNodePositioned(layoutNode)
+                        consistencyChecker?.assertConsistent()
+                    }
+                    // execute postponed `onRequestMeasure`
+                    if (postponedMeasureRequests.isNotEmpty()) {
+                        postponedMeasureRequests.forEach {
+                            if (it.isAttached()) {
+                                onRequestMeasure(it)
+                            }
+                        }
+                        postponedMeasureRequests.clear()
+                    }
                 }
+                duringMeasureLayout = false
+                onPositionedDispatcher.dispatch()
+                consistencyChecker?.assertConsistent()
             }
-            if (!repaintBoundaryChanges.isEmpty()) {
-                repaintBoundaryChanges.forEach { node ->
-                    val parentSize = node.parentLayoutNode!!.contentSize
-                    node.container.setSize(parentSize.width.value, parentSize.height.value)
-                }
-                repaintBoundaryChanges.clear()
+            repaintBoundaryChanges.popEach { node ->
+                val parentNode = node.parentLayoutNode!!
+                node.container.setSize(
+                    parentNode.innerLayoutNodeWrapper.width.value,
+                    parentNode.innerLayoutNodeWrapper.height.value
+                )
             }
         }
     }
@@ -428,15 +495,18 @@ class AndroidComposeView constructor(context: Context) :
             val targetWidth = convertMeasureSpec(widthMeasureSpec)
             val targetHeight = convertMeasureSpec(heightMeasureSpec)
 
-            val constraints = Constraints(
+            this.constraints = Constraints(
                 targetWidth.min, targetWidth.max,
                 targetHeight.min, targetHeight.max
             )
 
-            this.constraints = constraints
-
-            measureIteration++
-            root.measure(constraints)
+            relayoutNodes.add(root)
+            onPositionedDispatcher.disableDispatching {
+                // we want to postpone onPositioned callbacks until onLayout as LayoutCoordinates
+                // are currently wrong if you try to get the global(activity) coordinates -
+                // View is not yet laid out.
+                measureAndLayout()
+            }
             setMeasuredDimension(root.width.value, root.height.value)
         }
     }
@@ -454,8 +524,7 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        relayoutNodes.add(root)
-        measureAndLayout()
+        onPositionedDispatcher.dispatch()
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
@@ -481,7 +550,7 @@ class AndroidComposeView constructor(context: Context) :
                             receiver.childDrawn = false
                             receiver.canvas = canvas
                             receiver.parentSize = parentSize
-                            receiver.density = density
+                            receiver.currentDensity = density
                         }
                         onPaintWithChildren(receiver, canvas, parentSize)
                         if (!receiver.childDrawn) {
@@ -489,7 +558,7 @@ class AndroidComposeView constructor(context: Context) :
                         }
                     } else {
                         val onPaint = node.onPaint!!
-                        this.onPaint(canvas, parentSize)
+                        density.onPaint(canvas, parentSize)
                     }
                     node.needsPaint = false
                 }
@@ -533,15 +602,12 @@ class AndroidComposeView constructor(context: Context) :
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         measureAndLayout()
         val uiCanvas = Canvas(canvas)
-        val parentSize = root.contentSize.toPxSize()
+        val parentSize = PxSize(root.width, root.height)
         modelObserver.observeReads(Unit, onCommitAffectingRootDraw) {
             root.visitChildren { callDraw(uiCanvas, it, parentSize) }
         }
-        if (dirtyRepaintBoundaryNodes.isNotEmpty()) {
-            dirtyRepaintBoundaryNodes.forEach { node ->
-                node.container.updateDisplayList()
-            }
-            dirtyRepaintBoundaryNodes.clear()
+        dirtyRepaintBoundaryNodes.popEach { node ->
+            node.container.updateDisplayList()
         }
     }
 
@@ -554,7 +620,10 @@ class AndroidComposeView constructor(context: Context) :
         repaintBoundaryNode: RepaintBoundaryNode
     ) {
         val layoutNode = repaintBoundaryNode.parentLayoutNode!!
-        val parentSize = layoutNode.contentSize.toPxSize()
+        val parentSize = PxSize(
+            layoutNode.innerLayoutNodeWrapper.width,
+            layoutNode.innerLayoutNodeWrapper.height
+        )
         val uiCanvas = Canvas(canvas)
         observeDrawModelReads(repaintBoundaryNode) {
             repaintBoundaryNode.visitChildren { child ->
@@ -569,6 +638,7 @@ class AndroidComposeView constructor(context: Context) :
         modelObserver.enableModelUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
+        semanticsOwner.invalidateSemanticsRoot()
     }
 
     override fun onDetachedFromWindow() {
@@ -589,10 +659,11 @@ class AndroidComposeView constructor(context: Context) :
     // TODO(shepshapard): Test this method.
     override fun onTouchEvent(event: MotionEvent): Boolean {
         trace("AndroidOwner:onTouch") {
-            if (event.actionMasked == MotionEvent.ACTION_CANCEL) {
-                pointerInputEventProcessor.processCancel()
+            val pointerInputEvent = motionEventAdapter.processMotionEvent(event)
+            if (pointerInputEvent != null) {
+                pointerInputEventProcessor.process(pointerInputEvent, calculatePosition())
             } else {
-                pointerInputEventProcessor.process(event.toPointerInputEvent(), calculatePosition())
+                pointerInputEventProcessor.processCancel()
             }
         }
         // TODO(shepshapard): Only return if some aspect of the change was consumed.
@@ -610,8 +681,8 @@ class AndroidComposeView constructor(context: Context) :
         }
     }
 
-    override fun getAllSemanticNodes(): List<SemanticsTreeNode> {
-        return findAllSemanticNodesIn(root)
+    override fun getAllSemanticNodes(): List<SemanticsNode> {
+        return findAllSemanticNodesIn(semanticsOwner.rootSemanticsNode)
     }
 
     override fun sendEvent(event: MotionEvent) {
@@ -623,6 +694,12 @@ class AndroidComposeView constructor(context: Context) :
     val textInputService = TextInputService(textInputServiceAndroid)
 
     val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
+
+    /**
+     * Provide haptic feedback to the user. Use the Android version of haptic feedback.
+     */
+    val hapticFeedBack: HapticFeedback =
+        AndroidHapticFeedback(this)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
 
@@ -645,9 +722,12 @@ class AndroidComposeView constructor(context: Context) :
         private val drawNode: DrawNode,
         var canvas: Canvas,
         var parentSize: PxSize,
-        override var density: Density
-    ) : DensityScope, DrawReceiver {
+        var currentDensity: Density
+    ) : DrawReceiver {
         internal var childDrawn = false
+
+        override val density: Float get() = currentDensity.density
+        override val fontScale: Float get() = currentDensity.fontScale
 
         override fun drawChildren() {
             if (childDrawn) {
@@ -662,7 +742,7 @@ class AndroidComposeView constructor(context: Context) :
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
-    internal companion object {
+    companion object {
         private var systemPropertiesClass: Class<*>? = null
         private var getBooleanMethod: Method? = null
 
@@ -684,6 +764,12 @@ class AndroidComposeView constructor(context: Context) :
                 return false
             }
         }
+
+        /**
+         * Enables additional (and expensive to do in production) assertions. Useful to be set
+         * to true during the tests covering our core logic.
+         */
+        var enableExtraAssertions: Boolean = false
 
         private val RootMeasureBlocks = object : LayoutNode.MeasureBlocks {
             override fun measure(
@@ -717,30 +803,48 @@ class AndroidComposeView constructor(context: Context) :
             }
 
             override fun minIntrinsicWidth(
-                densityScope: DensityScope,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun minIntrinsicHeight(
-                densityScope: DensityScope,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicWidth(
-                densityScope: DensityScope,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicHeight(
-                densityScope: DensityScope,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx
             ) = error("Undefined intrinsics block and it is required")
         }
     }
+}
+
+/**
+ * Interface to be implemented by [Owner]s able to handle Android [View]s as part of
+ * their hierarchy.
+ */
+interface AndroidOwner : Owner {
+    /**
+     * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
+     * to the hierarchy.
+     */
+    fun addAndroidView(view: View, layoutNode: LayoutNode)
+
+    /**
+     * Called to inform the owner that an Android [View] was [detached][Owner.onDetach]
+     * from the hierarchy.
+     */
+    fun removeAndroidView(view: View)
 }
 
 private class ConstraintRange(val min: IntPx, val max: IntPx)
@@ -903,7 +1007,13 @@ private class RepaintBoundaryView(
             canvas.save()
             canvas.clipPath(clipPath)
         }
-        ownerView.callChildDraw(canvas, repaintBoundaryNode)
+        // as we call measure and layout in this callback sometimes it is possible
+        // the node we wanted to draw became detached already and it would be incorrect
+        // to draw the attached node so we just skip the drawing - this RepaintBoundaryView
+        // will be removed from the hierarchy anyway.
+        if (repaintBoundaryNode.isAttached()) {
+            ownerView.callChildDraw(canvas, repaintBoundaryNode)
+        }
         if (clipPath != null) {
             canvas.restore()
         }
@@ -928,7 +1038,7 @@ private class RepaintBoundaryView(
             dirty = true
         }
         alpha = repaintBoundaryNode.opacity
-        elevation = withDensity(density) { repaintBoundaryNode.elevation.toPx().value }
+        elevation = with(density) { repaintBoundaryNode.elevation.toPx().value }
     }
 
     override fun updateDisplayList() {
@@ -949,7 +1059,7 @@ private class RepaintBoundaryRenderNode(
         set(value) {
             if (value && !field) {
                 ownerView.invalidate()
-                ownerView.dirtyRepaintBoundaryNodes += repaintBoundaryNode
+                ownerView.dirtyRepaintBoundaryNodes.add(repaintBoundaryNode)
             }
             field = value
         }
@@ -1020,24 +1130,12 @@ private class RepaintBoundaryRenderNode(
             dirty = true
         }
         renderNode.alpha = repaintBoundaryNode.opacity
-        renderNode.elevation = withDensity(density) { repaintBoundaryNode.elevation.toPx().value }
+        renderNode.elevation = with(density) { repaintBoundaryNode.elevation.toPx().value }
         ownerView.invalidate()
     }
 }
 
 private val RepaintBoundaryNode.container: RepaintBoundary get() = ownerData as RepaintBoundary
-
-private val DepthComparator: Comparator<ComponentNode> = object : Comparator<ComponentNode> {
-    override fun compare(l1: ComponentNode, l2: ComponentNode): Int {
-        val depth1 = l1.depth
-        val depth2 = l2.depth
-        val depthDiff = depth1 - depth2
-        if (depthDiff != 0) {
-            return depthDiff
-        }
-        return System.identityHashCode(l1) - System.identityHashCode(l2)
-    }
-}
 
 /**
  * Resolves the Android [Outline] from the [Shape] of [RepaintBoundaryNode].
@@ -1124,12 +1222,8 @@ private class OutlineResolver(private val density: Density) {
 
     private fun updateCacheWithPath(composePath: Path) {
         val path = composePath.toFrameworkPath()
-        if (hasElevation) {
-            if (path.isConvex) {
-                cachedOutline.setConvexPath(path)
-            } else {
-                throw IllegalStateException("Only convex paths can be used for drawing the shadow!")
-            }
+        if (hasElevation && path.isConvex) {
+            cachedOutline.setConvexPath(path)
         } else {
             cachedOutline.setEmpty()
         }

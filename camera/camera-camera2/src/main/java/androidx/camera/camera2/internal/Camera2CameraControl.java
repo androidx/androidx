@@ -70,6 +70,7 @@ final class Camera2CameraControl implements CameraControlInternal {
     private final FocusMeteringControl mFocusMeteringControl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
+    private final AeFpsRange mAeFpsRange;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
     @ImageCapture.FlashMode
@@ -106,6 +107,7 @@ final class Camera2CameraControl implements CameraControlInternal {
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics);
         mTorchControl = new TorchControl(this, mCameraCharacteristics);
+        mAeFpsRange = new AeFpsRange(mCameraCharacteristics);
 
         // Initialize the session config
         mExecutor.execute(this::updateSessionConfig);
@@ -321,6 +323,8 @@ final class Camera2CameraControl implements CameraControlInternal {
 
         // AF Mode is assigned in mFocusMeteringControl.
         mFocusMeteringControl.addFocusMeteringOptions(builder);
+
+        mAeFpsRange.addAeFpsRangeOptions(builder);
 
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
         if (mIsTorchOn) {

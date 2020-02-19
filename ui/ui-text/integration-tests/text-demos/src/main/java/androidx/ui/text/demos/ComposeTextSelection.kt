@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
@@ -28,6 +27,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
@@ -56,38 +56,40 @@ fun TextDemoSelection() {
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
-        Text {
-            Span(
-                style = SpanStyle(
-                    color = Color(0xFFFF0000),
-                    fontSize = fontSize6,
-                    fontWeight = FontWeight.W200,
-                    fontStyle = FontStyle.Italic
-                )
-            ) {
-                Span(text = "$displayText   ")
-                Span(text = "$displayTextArabic   ")
-                Span(text = "$displayTextChinese   ")
-                Span(
-                    text = displayTextHindi,
-                    style = SpanStyle(
+        Text(
+            style = TextStyle(
+                color = Color(0xFFFF0000),
+                fontSize = fontSize6,
+                fontWeight = FontWeight.W200,
+                fontStyle = FontStyle.Italic
+            ),
+            text = AnnotatedString {
+                append(text = "$displayText   ")
+                append(text = "$displayTextArabic   ")
+                append(text = "$displayTextChinese   ")
+
+                pushStyle(
+                    SpanStyle(
                         color = Color(0xFF0000FF),
                         fontSize = fontSize10,
                         fontWeight = FontWeight.W800,
                         fontStyle = FontStyle.Normal
                     )
                 )
-                Span(text = "$arabicSentence")
-                Span(
-                    text = "\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。",
-                    style = SpanStyle(localeList = LocaleList("zh-CN"))
-                )
-                Span(
-                    text = "\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。",
-                    style = SpanStyle(localeList = LocaleList("ja-JP"))
-                )
+                append(displayTextHindi)
+                popStyle()
+
+                append(text = "$arabicSentence")
+
+                pushStyle(SpanStyle(localeList = LocaleList("zh-CN")))
+                append("\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。")
+                popStyle()
+
+                pushStyle(SpanStyle(localeList = LocaleList("ja-JP")))
+                append("\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。")
+                popStyle()
             }
-        }
+        )
     }
 }
 
@@ -136,15 +138,14 @@ fun TextDemoSelection2DArrayVertical() {
             for (i in 0..2) {
                 Row(LayoutWidth.Fill) {
                     for (j in 0..2) {
-                        Text {
-                            Span(
-                                text = text,
-                                style = SpanStyle(
-                                    color = colorList[i * 3 + j],
-                                    fontSize = fontSize6
-                                )
+                        Text(
+                            text = text,
+                            style = TextStyle(
+                                color = colorList[i * 3 + j],
+                                fontSize = fontSize6
                             )
-                        }
+
+                        )
                     }
                 }
             }

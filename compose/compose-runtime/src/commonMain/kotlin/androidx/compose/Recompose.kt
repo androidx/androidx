@@ -16,16 +16,6 @@
 
 package androidx.compose
 
-private class RecomposeHelper : Function0<Unit> {
-
-    var isComposing = false
-    var recompose: () -> Unit = { throw Error("Recompose not yet initialized") }
-
-    override fun invoke() {
-        recompose()
-    }
-}
-
 /**
  * [Recompose] is a component which passes a "recompose" function to its children which, when
  * invoked, will cause its children to recompose. This is useful if you are updating local state
@@ -46,17 +36,4 @@ private class RecomposeHelper : Function0<Unit> {
  * @see invalidate
  */
 @Composable
-fun Recompose(body: @Composable() (recompose: () -> Unit) -> Unit) {
-    val composer = currentComposerNonNull
-    val recomposer = RecomposeHelper()
-    val callback = composer.startJoin(0, false) {
-        recomposer.isComposing = true
-        body(recomposer)
-        recomposer.isComposing = false
-    }
-    recomposer.recompose = { if (!recomposer.isComposing) callback(false) }
-    recomposer.isComposing = true
-    body(recomposer)
-    recomposer.isComposing = false
-    composer.doneJoin(false)
-}
+fun Recompose(body: @Composable() (recompose: () -> Unit) -> Unit) = body(invalidate)

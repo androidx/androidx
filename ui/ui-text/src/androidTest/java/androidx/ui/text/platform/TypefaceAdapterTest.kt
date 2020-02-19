@@ -20,8 +20,6 @@ import android.os.Build
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.FontTestData.Companion.FONT_100_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.text.FontTestData.Companion.FONT_200_ITALIC
@@ -41,12 +39,16 @@ import androidx.ui.text.FontTestData.Companion.FONT_800_REGULAR
 import androidx.ui.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_900_REGULAR
 import androidx.ui.text.TestFontResourceLoader
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.font
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontMatcher
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontSynthesis
+import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.assertThat
+import androidx.ui.text.test.R
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -107,8 +109,8 @@ class TypefaceAdapterTest {
 
     @Test
     fun serifAndSansSerifPaintsDifferent() {
-        val typefaceSans = TypefaceAdapter().create(FontFamily("sans-serif"))
-        val typefaceSerif = TypefaceAdapter().create(FontFamily("serif"))
+        val typefaceSans = TypefaceAdapter().create(FontFamily.SansSerif)
+        val typefaceSerif = TypefaceAdapter().create(FontFamily.Serif)
 
         assertThat(typefaceSans).isNotNull()
         assertThat(typefaceSans).isNotNull()
@@ -236,7 +238,7 @@ class TypefaceAdapterTest {
     fun customSingleFont() {
         val defaultTypeface = TypefaceAdapter().create()
 
-        val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
 
         val typeface = TypefaceAdapter().create(fontFamily = fontFamily)
 
@@ -250,7 +252,7 @@ class TypefaceAdapterTest {
     fun customSingleFontBoldItalic() {
         val defaultTypeface = TypefaceAdapter().create()
 
-        val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -265,8 +267,8 @@ class TypefaceAdapterTest {
     }
 
     @Test
-    fun customSingleFontFamilyExactMatch() {
-        val fontFamily = FontFamily(
+    fun customSinglefontFamilyExactMatch() {
+        val fontFamily = fontFamily(
             FONT_100_REGULAR,
             FONT_100_ITALIC,
             FONT_200_REGULAR,
@@ -303,12 +305,12 @@ class TypefaceAdapterTest {
 
     @Test
     fun fontMatcherCalledForCustomFont() {
-        // customSingleFontFamilyExactMatch tests all the possible outcomes that FontMatcher
+        // customSinglefontFamilyExactMatch tests all the possible outcomes that FontMatcher
         // might return. Therefore for the best effort matching we just make sure that FontMatcher
         // is called.
         val fontWeight = FontWeight.W300
         val fontStyle = FontStyle.Italic
-        val fontFamily = FontFamily(FONT_200_ITALIC)
+        val fontFamily = fontFamily(FONT_200_ITALIC)
 
         val fontMatcher = mock<FontMatcher>()
         whenever(fontMatcher.matchFont(any(), any(), any()))
@@ -363,7 +365,7 @@ class TypefaceAdapterTest {
 
     @Test
     fun resultsAreCached_withCustomTypeface() {
-        val fontFamily = FontFamily("sans-serif")
+        val fontFamily = FontFamily.SansSerif
         val fontWeight = FontWeight.Normal
         val fontStyle = FontStyle.Italic
 
@@ -378,10 +380,10 @@ class TypefaceAdapterTest {
     fun cacheCanHoldTwoResults() {
         val typefaceAdapter = TypefaceAdapter()
 
-        val serifTypeface = typefaceAdapter.create(FontFamily("serif"))
-        val otherSerifTypeface = typefaceAdapter.create(FontFamily("serif"))
-        val sansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
-        val otherSansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
+        val serifTypeface = typefaceAdapter.create(FontFamily.Serif)
+        val otherSerifTypeface = typefaceAdapter.create(FontFamily.Serif)
+        val sansTypeface = typefaceAdapter.create(FontFamily.SansSerif)
+        val otherSansTypeface = typefaceAdapter.create(FontFamily.SansSerif)
 
         assertThat(serifTypeface).isSameInstanceAs(otherSerifTypeface)
         assertThat(sansTypeface).isSameInstanceAs(otherSansTypeface)
@@ -390,15 +392,13 @@ class TypefaceAdapterTest {
 
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotIncludedInTheApp() {
-        val fontFamily = FontFamily(Font("nonexistent.ttf"))
-
+        val fontFamily = fontFamily(font(-1))
         TypefaceAdapter().create(fontFamily)
     }
 
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotReadable() {
-        val fontFamily = FontFamily(Font("invalid_font.ttf"))
-
+        val fontFamily = fontFamily(font(R.font.invalid_font))
         TypefaceAdapter().create(fontFamily)
     }
 

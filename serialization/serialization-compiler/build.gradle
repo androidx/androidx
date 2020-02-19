@@ -18,7 +18,6 @@ import static androidx.build.dependencies.DependenciesKt.*
 
 import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 import org.gradle.internal.jvm.Jvm
@@ -63,8 +62,7 @@ androidx {
     publish = Publish.NONE
     toolingProject = true
     compilationTarget = CompilationTarget.HOST
-    mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
-    inceptionYear = "2019"
+    inceptionYear = "2020"
     description = "Annotation processor for AndroidX Serialization"
 }

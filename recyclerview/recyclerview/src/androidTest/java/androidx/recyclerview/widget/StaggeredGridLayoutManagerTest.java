@@ -17,8 +17,7 @@
 package androidx.recyclerview.widget;
 
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
-import static androidx.recyclerview.widget.StaggeredGridLayoutManager
-        .GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
+import static androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.HORIZONTAL;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams;
@@ -353,6 +352,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
                         Item item = mItems.get(position);
                         holder.mBoundItem = item;
@@ -363,7 +363,6 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         holder.itemView.setBackgroundDrawable(stl);
                         if (mOnBindCallback != null) {
                             mOnBindCallback.onBoundItem(holder, position);
@@ -392,9 +391,10 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         RecyclerView.ViewHolder containingViewHolder = mRecyclerView.findContainingViewHolder(
                 focusedChild);
         assertTrue("new focused view should have a larger position "
-                        + lastViewHolder.getAdapterPosition() + " vs "
-                        + containingViewHolder.getAdapterPosition(),
-                lastViewHolder.getAdapterPosition() < containingViewHolder.getAdapterPosition());
+                        + lastViewHolder.getAbsoluteAdapterPosition() + " vs "
+                        + containingViewHolder.getAbsoluteAdapterPosition(),
+                lastViewHolder.getAbsoluteAdapterPosition()
+                        < containingViewHolder.getAbsoluteAdapterPosition());
     }
 
     public void focusSearchFailure(boolean scrollDown) throws Throwable {
@@ -404,6 +404,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -414,7 +415,6 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation used to support kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -460,23 +460,27 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
             focusSearchAndWaitForScroll(focusedView, focusDir);
             focusedView = mRecyclerView.getFocusedChild();
             assertEquals(pos + 3,
-                    mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+                    mRecyclerView.getChildViewHolder(
+                            focusedView).getAbsoluteAdapterPosition());
             pos += 3;
         }
         for (int i : new int[]{18, 19, 20, 21, 23, 24}) {
             focusSearchAndWaitForScroll(focusedView, focusDir);
             focusedView = mRecyclerView.getFocusedChild();
-            assertEquals(i, mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+            assertEquals(i, mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition());
         }
         // now move right
         focusSearch(focusedView, View.FOCUS_RIGHT);
         waitForIdleScroll(mRecyclerView);
         focusedView = mRecyclerView.getFocusedChild();
-        assertEquals(25, mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+        assertEquals(25,
+                mRecyclerView.getChildViewHolder(focusedView).getAbsoluteAdapterPosition());
         for (int i : new int[]{28, 30}) {
             focusSearchAndWaitForScroll(focusedView, focusDir);
             focusedView = mRecyclerView.getFocusedChild();
-            assertEquals(i, mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+            assertEquals(i, mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition());
         }
     }
 
@@ -497,6 +501,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -507,7 +512,6 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation used to support kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -576,7 +580,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{4, 6}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_UP);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex = mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition();
             assertEquals("Focused view should be at adapter position " + i + " whereas it's at "
                     + actualFocusIndex, i, actualFocusIndex);
         }
@@ -587,7 +592,9 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{9, 11, 11, 11}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_UP);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex =
+                    mRecyclerView.getChildViewHolder(
+                            focusedView).getAbsoluteAdapterPosition();
             toVisible = mRecyclerView.findViewHolderForAdapterPosition(i);
 
             assertEquals("Focused view should not be changed, whereas it's now at "
@@ -611,6 +618,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -621,7 +629,6 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation used to support kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -689,7 +696,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{4, 6}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_DOWN);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex = mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition();
             assertEquals("Focused view should be at adapter position " + i + " whereas it's at "
                     + actualFocusIndex, i, actualFocusIndex);
         }
@@ -700,7 +708,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{9, 11, 11, 11}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_DOWN);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex = mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition();
             toVisible = mRecyclerView.findViewHolderForAdapterPosition(i);
 
             assertEquals("Focused view should not be changed, whereas it's now at "
@@ -729,6 +738,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 new GridTestAdapter(18, 1) {
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -739,7 +749,6 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation used to support kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -806,7 +815,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{4, 6}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_LEFT);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex = mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition();
             assertEquals("Focused view should be at adapter position " + i + " whereas it's at "
                     + actualFocusIndex, i, actualFocusIndex);
         }
@@ -817,7 +827,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{9, 11, 11, 11}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_LEFT);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex = mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition();
             toVisible = mRecyclerView.findViewHolderForAdapterPosition(i);
 
             assertEquals("Focused view should not be changed, whereas it's now at "
@@ -845,6 +856,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 new GridTestAdapter(18, 1) {
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -855,7 +867,6 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation used to support kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -923,7 +934,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{4, 6}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_RIGHT);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex = mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition();
             assertEquals("Focused view should be at adapter position " + i + " whereas it's at "
                     + actualFocusIndex, i, actualFocusIndex);
         }
@@ -934,7 +946,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         for (int i : new int[]{9, 11, 11, 11}) {
             focusSearchAndWaitForScroll(focusedView, View.FOCUS_RIGHT);
             focusedView = mRecyclerView.getFocusedChild();
-            actualFocusIndex = mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition();
+            actualFocusIndex = mRecyclerView.getChildViewHolder(
+                    focusedView).getAbsoluteAdapterPosition();
             toVisible = mRecyclerView.findViewHolderForAdapterPosition(i);
 
             assertEquals("Focused view should not be changed, whereas it's now at "

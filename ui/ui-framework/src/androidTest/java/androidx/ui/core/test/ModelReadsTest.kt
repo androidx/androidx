@@ -23,7 +23,6 @@ import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.ipx
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -369,7 +368,11 @@ class ModelReadsTest {
         rule.runOnUiThread {
             enableModel.value = false
         }
-        assertEquals(latch.await(200, TimeUnit.MILLISECONDS), triggeredByEnableSwitch)
+        if (triggeredByEnableSwitch) {
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+        } else {
+            assertFalse(latch.await(200, TimeUnit.MILLISECONDS))
+        }
 
         latch = CountDownLatch(1)
         rule.runOnUiThread {

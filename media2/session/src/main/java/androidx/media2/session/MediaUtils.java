@@ -40,7 +40,6 @@ import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SELECT_
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SURFACE;
 import static androidx.media2.session.SessionCommand.COMMAND_VERSION_1;
-import static androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -892,14 +891,15 @@ public class MediaUtils {
     public static SessionCommandGroup convertToSessionCommandGroup(long sessionFlags,
             @Nullable PlaybackStateCompat state) {
         SessionCommandGroup.Builder commandsBuilder = new SessionCommandGroup.Builder();
-        commandsBuilder.addAllPlayerBasicCommands(COMMAND_VERSION_CURRENT);
+
+        // MediaSessionCompat only support COMMAND_VERSION_1.
+        commandsBuilder.addAllPlayerBasicCommands(COMMAND_VERSION_1);
         boolean includePlaylistCommands = (sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0;
         if (includePlaylistCommands) {
-            // MediaSessionCompat only support playlist COMMAND_VERSION_1.
             commandsBuilder.addAllPlayerPlaylistCommands(COMMAND_VERSION_1);
         }
-        commandsBuilder.addAllVolumeCommands(COMMAND_VERSION_CURRENT);
-        commandsBuilder.addAllSessionCommands(COMMAND_VERSION_CURRENT);
+        commandsBuilder.addAllVolumeCommands(COMMAND_VERSION_1);
+        commandsBuilder.addAllSessionCommands(COMMAND_VERSION_1);
 
         commandsBuilder.removeCommand(new SessionCommand(COMMAND_CODE_PLAYER_SET_SPEED));
         commandsBuilder.removeCommand(new SessionCommand(COMMAND_CODE_PLAYER_SET_SURFACE));

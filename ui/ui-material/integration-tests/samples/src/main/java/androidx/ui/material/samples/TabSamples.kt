@@ -25,12 +25,12 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Text
-import androidx.ui.core.ambientDensity
+import androidx.ui.foundation.Border
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
-import androidx.ui.foundation.shape.border.Border
-import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Image
@@ -39,13 +39,14 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPx
-import androidx.ui.unit.withDensity
 
 @Sampled
 @Composable
@@ -54,7 +55,7 @@ fun TextTabs() {
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     Column {
         TabRow(items = titles, selectedIndex = state.value) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -70,7 +71,7 @@ fun IconTabs(image: Image) {
     val icons = listOf(image, image, image)
     Column {
         TabRow(items = icons, selectedIndex = state.value) { index, icon ->
-            Tab(icon = icon, selected = state.value == index) { state.value = index }
+            Tab(icon = icon, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -89,9 +90,9 @@ fun TextAndIconTabs(image: Image) {
     Column {
         TabRow(items = titlesAndIcons, selectedIndex = state.value) { index, data ->
             val (title, icon) = data
-            Tab(text = title, icon = icon, selected = state.value == index) {
+            Tab(text = title, icon = icon, selected = state.value == index, onSelected = {
                 state.value = index
-            }
+            })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -118,7 +119,7 @@ fun ScrollingTextTabs() {
     )
     Column {
         TabRow(items = titles, selectedIndex = state.value, scrollable = true) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -168,7 +169,7 @@ fun FancyIndicatorTabs() {
             selectedIndex = state.value,
             indicatorContainer = indicatorContainer
         ) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -194,7 +195,7 @@ fun FancyIndicatorContainerTabs() {
             selectedIndex = state.value,
             indicatorContainer = indicatorContainer
         ) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -230,7 +231,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
             indicatorContainer = indicatorContainer,
             scrollable = true
         ) { index, text ->
-            Tab(text = text, selected = state.value == index) { state.value = index }
+            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
         }
         Text(
             modifier = LayoutGravity.Center,
@@ -248,15 +249,17 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
         Container(height = 50.dp, padding = EdgeInsets(10.dp)) {
             Column(LayoutHeight.Fill) {
                 val color = if (selected) Color.Red else Color.Gray
-                ColoredRect(height = 10.dp, width = 10.dp, color = color,
-                    modifier = LayoutGravity.Center)
-                Padding(5.dp) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography().body1,
-                        modifier = LayoutGravity.Center
-                    )
-                }
+                ColoredRect(
+                    height = 10.dp,
+                    width = 10.dp,
+                    color = color,
+                    modifier = LayoutGravity.Center
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography().body1,
+                    modifier = LayoutPadding(5.dp) + LayoutGravity.Center
+                )
             }
         }
     }
@@ -267,11 +270,10 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
 fun FancyIndicator(color: Color) {
     // Draws a rounded rectangular with border around the Tab, with a 5.dp padding from the edges
     // Color is passed in as a parameter [color]
-    Padding(5.dp) {
-        Container(expanded = true) {
-            DrawBorder(RoundedCornerShape(5.dp), Border(color, 2.dp))
-        }
-    }
+    Stack(
+        LayoutPadding(5.dp) + LayoutSize.Fill +
+                DrawBorder(Border(2.dp, color), RoundedCornerShape(5.dp))
+    ) {}
 }
 
 @Sampled
@@ -320,15 +322,14 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Padding to set the 'offset'
     Container(expanded = true, alignment = Alignment.BottomLeft) {
         Transition(transitionDefinition, selectedIndex) { state ->
-            val offset = withDensity(ambientDensity()) { state[indicatorStart].toDp() }
-            val width = withDensity(ambientDensity()) {
+            val density = DensityAmbient.current
+            val offset = with(density) { state[indicatorStart].toDp() }
+            val width = with(density) {
                 (state[indicatorEnd] - state[indicatorStart]).toDp()
             }
-            Padding(left = offset) {
-                Container(width = width) {
-                    // Pass the current color to the indicator
-                    FancyIndicator(state[indicatorColor])
-                }
+            Container(width = width, modifier = LayoutPadding(start = offset)) {
+                // Pass the current color to the indicator
+                FancyIndicator(state[indicatorColor])
             }
         }
     }

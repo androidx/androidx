@@ -18,10 +18,10 @@ package androidx.ui.text.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.TextStyle
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.withStyle
 import androidx.ui.unit.sp
@@ -29,25 +29,18 @@ import androidx.ui.unit.sp
 @Sampled
 @Composable
 fun BaselineShiftSample() {
-    Text {
-        Span(text = "Hello", style = SpanStyle(fontSize = 20.sp)) {
-            Span(
-                text = "superscript",
-                style = SpanStyle(
-                    baselineShift = BaselineShift.Superscript,
-                    fontSize = 16.sp
-                )
-            ) {
-                Span(
-                    text = "subscript",
-                    style = SpanStyle(
-                        baselineShift = BaselineShift.Subscript,
-                        fontSize = 16.sp
-                    )
-                )
+    Text(
+        style = TextStyle(fontSize = 20.sp),
+        text = AnnotatedString {
+            append(text = "Hello")
+            withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {
+                append("superscript")
+                withStyle(SpanStyle(baselineShift = BaselineShift.Subscript)) {
+                    append("subscript")
+                }
             }
         }
-    }
+    )
 }
 
 @Sampled

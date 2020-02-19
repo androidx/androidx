@@ -45,7 +45,6 @@ android.libraryVariants.all { variant ->
 androidx {
     name = "Android DB"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.SQLITE
     mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2017"
     description = "Android DB"

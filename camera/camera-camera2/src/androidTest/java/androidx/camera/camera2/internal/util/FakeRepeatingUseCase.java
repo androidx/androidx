@@ -29,8 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
@@ -49,49 +47,19 @@ import java.util.Map;
 @RestrictTo(Scope.LIBRARY)
 public class FakeRepeatingUseCase extends FakeUseCase {
 
-    /** The repeating surface. */
-    private final ImageReader mImageReader =
-            ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
-
     private DeferrableSurface mDeferrableSurface;
 
-    public FakeRepeatingUseCase(@NonNull FakeUseCaseConfig configuration,
-            @NonNull CameraSelector cameraSelector) {
+    public FakeRepeatingUseCase(@NonNull FakeUseCaseConfig configuration) {
         super(configuration);
-
-        FakeUseCaseConfig configWithDefaults = (FakeUseCaseConfig) getUseCaseConfig();
-        mImageReader.setOnImageAvailableListener(
-                new ImageReader.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(ImageReader imageReader) {
-                        Image image = imageReader.acquireLatestImage();
-                        if (image != null) {
-                            image.close();
-                        }
-                    }
-                },
-                new Handler(Looper.getMainLooper()));
-
-        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
-        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
-        builder.addSurface(mDeferrableSurface);
-
-        String cameraId = CameraX.getCameraWithCameraSelector(cameraSelector);
-        attachToCamera(cameraId, builder.build());
-        notifyActive();
     }
 
     @Override
     protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(
-                        new SessionConfig.OptionUnpacker() {
-                            @Override
-                            public void unpack(@NonNull UseCaseConfig<?> useCaseConfig,
-                                    @NonNull SessionConfig.Builder sessionConfigBuilder) {
-                                // Set the template since it is currently required by implementation
-                                sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-                            }
+                        (useCaseConfig, sessionConfigBuilder) -> {
+                            // Set the template since it is currently required by implementation
+                            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
                         });
     }
 
@@ -99,14 +67,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     public void clear() {
         super.clear();
         if (mDeferrableSurface != null) {
-            mDeferrableSurface.setOnSurfaceDetachedListener(
-                    CameraXExecutors.mainThreadExecutor(),
-                    new DeferrableSurface.OnSurfaceDetachedListener() {
-                        @Override
-                        public void onSurfaceDetached() {
-                            mImageReader.close();
-                        }
-                    });
+            mDeferrableSurface.close();
         }
         mDeferrableSurface = null;
     }
@@ -115,6 +76,32 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
             @NonNull Map<String, Size> suggestedResolutionMap) {
+        FakeUseCaseConfig configWithDefaults = (FakeUseCaseConfig) getUseCaseConfig();
+
+        ImageReader imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+
+        imageReader.setOnImageAvailableListener(
+                reader -> {
+                    Image image = reader.acquireLatestImage();
+                    if (image != null) {
+                        image.close();
+                    }
+                },
+                new Handler(Looper.getMainLooper()));
+
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.close();
+        }
+        mDeferrableSurface = new ImmediateSurface(imageReader.getSurface());
+        mDeferrableSurface.getTerminationFuture().addListener(imageReader::close,
+                CameraXExecutors.mainThreadExecutor());
+        builder.addSurface(mDeferrableSurface);
+
+        String cameraId = getBoundCameraId();
+        attachToCamera(cameraId, builder.build());
+        notifyActive();
+
         return suggestedResolutionMap;
     }
 }

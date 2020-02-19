@@ -38,26 +38,36 @@ abstract class Recomposer {
             return threadRecomposer.get()
         }
 
-        internal fun recompose(component: Component, composer: Composer<*>) =
-            current().recompose(component, composer)
+        internal fun recompose(composable: @Composable() () -> Unit, composer: Composer<*>) =
+            current().recompose(composable, composer)
 
         private val threadRecomposer = ThreadLocal { createRecomposer() }
     }
 
     private val composers = mutableSetOf<Composer<*>>()
 
-    @Suppress("PLUGIN_WARNING")
-    private fun recompose(component: Component, composer: Composer<*>) {
-        composer.runWithCurrent {
-            val composerWasComposing = composer.isComposing
+    @Suppress("PLUGIN_WARNING", "PLUGIN_ERROR")
+    private fun recompose(composable: @Composable() () -> Unit, composer: Composer<*>) {
+        val composerWasComposing = composer.isComposing
+        val prevComposer = currentComposerInternal
+        try {
             try {
                 composer.isComposing = true
-                trace("Compose:recompose") {
-                    composer.startRoot()
-                    composer.startGroup(invocation)
-                    component()
-                    composer.endGroup()
-                    composer.endRoot()
+                currentComposerInternal = composer
+                FrameManager.composing {
+                    trace("Compose:recompose") {
+                        var complete = false
+                        try {
+                            composer.startRoot()
+                            composer.startGroup(invocation)
+                            invokeComposable(composer, composable)
+                            composer.endGroup()
+                            composer.endRoot()
+                            complete = true
+                        } finally {
+                            if (!complete) composer.abortRoot()
+                        }
+                    }
                 }
             } finally {
                 composer.isComposing = composerWasComposing
@@ -67,22 +77,27 @@ abstract class Recomposer {
             if (!composerWasComposing) {
                 FrameManager.nextFrame()
             }
+        } finally {
+            currentComposerInternal = prevComposer
         }
     }
 
     private fun performRecompose(composer: Composer<*>): Boolean {
         if (composer.isComposing) return false
-        return composer.runWithCurrent {
-            var hadChanges: Boolean
-            try {
-                composer.isComposing = true
-                hadChanges = composer.recompose()
-                composer.applyChanges()
-            } finally {
-                composer.isComposing = false
+        val prevComposer = currentComposerInternal
+        val hadChanges: Boolean
+        try {
+            currentComposerInternal = composer
+            composer.isComposing = true
+            hadChanges = FrameManager.composing {
+                composer.recompose()
             }
-            hadChanges
+            composer.applyChanges()
+        } finally {
+            composer.isComposing = false
+            currentComposerInternal = prevComposer
         }
+        return hadChanges
     }
 
     internal abstract fun hasPendingChanges(): Boolean
@@ -113,5 +128,3 @@ abstract class Recomposer {
     @TestOnly
     abstract fun recomposeSync()
 }
-
-internal expect fun createRecomposer(): Recomposer

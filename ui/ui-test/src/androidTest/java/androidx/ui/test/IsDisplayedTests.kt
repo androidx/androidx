@@ -30,7 +30,7 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
@@ -41,6 +41,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toRect
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -73,10 +74,10 @@ class IsDisplayedTests {
     private fun createScrollableContent() {
         composeTestRule.setContent {
             val style = TextStyle(fontSize = 30.sp)
-            Padding(padding = 10.dp) {
-                VerticalScroller {
-                    Column {
-                        for (i in 1..100) {
+            VerticalScroller(modifier = LayoutPadding(10.dp)) {
+                Column {
+                    for (i in 1..100) {
+                        Semantics(container = true) {
                             Text(text = i.toString(), style = style)
                         }
                     }
@@ -99,7 +100,9 @@ class IsDisplayedTests {
         composeTestRule.setContent {
             val lastNode = @Composable {
                 Center {
-                    Text("Foo")
+                    Semantics(container = true) {
+                        Text("Foo")
+                    }
                 }
             }
 
@@ -163,21 +166,21 @@ class IsDisplayedTests {
     fun rowTooSmall() {
         composeTestRule.setContent {
             val style = TextStyle(fontSize = 30.sp)
-            Padding(padding = 10.dp) {
-                Center {
-                    // TODO(popam): remove this when a modifier can be used instead
-                    Layout({
-                        Row {
-                            for (i in 1..100) {
+            Center {
+                // TODO(popam): remove this when a modifier can be used instead
+                Layout({
+                    Row {
+                        for (i in 1..100) {
+                            Semantics(container = true) {
                                 Text(text = i.toString(), style = style)
                             }
                         }
-                    }) { measurables, constraints ->
-                        val placeable =
-                            measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0.ipx, 0.ipx)
-                        }
+                    }
+                }) { measurables, constraints ->
+                    val placeable =
+                        measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
                     }
                 }
             }
@@ -193,14 +196,14 @@ class IsDisplayedTests {
         val tag = "myTag"
 
         composeTestRule.setContent {
-            Padding(padding = 10.dp) {
-                Semantics(properties = {
-                    ScrollTo(action = { _, _ ->
-                        wasScrollToCalled = true
-                    })
-                }) {
+            Semantics(container = true, properties = {
+                ScrollTo(action = { _, _ ->
+                    wasScrollToCalled = true
+                })
+            }) {
+                Container {
                     TestTag(tag) {
-                        Semantics {
+                        Semantics(container = true) {
                             Container { }
                         }
                     }
@@ -228,7 +231,7 @@ class IsDisplayedTests {
         val tag = "myTag"
 
         val drawRect = @Composable { color: Color ->
-            Semantics {
+            Semantics(container = true) {
                 Container(
                     width = 100.dp,
                     height = 100.dp
@@ -249,31 +252,31 @@ class IsDisplayedTests {
         }
 
         composeTestRule.setContent {
-            Padding(padding = 10.dp) {
-                Semantics(properties = {
-                    ScrollTo(action = { x, y ->
-                        currentScrollPositionY = y
-                        currentScrollPositionX = x
-                    })
-                }) {
-                    val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
-                    val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
-                    val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
+            // Need to make the "scrolling" container the semantics boundary so that it
+            // doesn't try to include the padding
+            Semantics(container = true, properties = {
+                ScrollTo(action = { x, y ->
+                    currentScrollPositionY = y
+                    currentScrollPositionX = x
+                })
+            }) {
+                val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
+                val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
+                val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
 
-                    Column {
-                        drawRect(red)
-                        drawRect(blue)
-                        TestTag(tag) {
-                            drawRect(green)
-                        }
+                Column {
+                    drawRect(red)
+                    drawRect(blue)
+                    TestTag(tag) {
+                        drawRect(green)
                     }
                 }
             }
         }
 
         composeTestRule.runOnIdleCompose {
-            Assert.assertTrue(currentScrollPositionY == 0.px)
-            Assert.assertTrue(currentScrollPositionX == 0.px)
+            assertThat(currentScrollPositionY).isEqualTo(0.px)
+            assertThat(currentScrollPositionX).isEqualTo(0.px)
         }
 
         findByTag(tag)
@@ -281,8 +284,8 @@ class IsDisplayedTests {
 
         composeTestRule.runOnIdleCompose {
             val expected = elementHeight * 2
-            Assert.assertTrue(currentScrollPositionY == expected)
-            Assert.assertTrue(currentScrollPositionX == 0.px)
+            assertThat(currentScrollPositionY).isEqualTo(expected)
+            assertThat(currentScrollPositionX).isEqualTo(0.px)
         }
     }
 }

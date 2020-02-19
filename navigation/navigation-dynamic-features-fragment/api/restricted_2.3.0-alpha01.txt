@@ -28,6 +28,7 @@ package androidx.navigation.dynamicfeatures.fragment.ui {
     ctor public AbstractProgressFragment(int contentLayoutId);
     method protected abstract void onCancelled();
     method protected abstract void onFailed(int errorCode);
+    method protected void onInstalled();
     method protected abstract void onProgress(int status, long bytesDownloaded, long bytesTotal);
   }
 

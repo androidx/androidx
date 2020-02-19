@@ -1,20 +1,6 @@
 // Signature format: 3.0
 package androidx.media2.common {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface BaseResult {
-    method public long getCompletionTime();
-    method public androidx.media2.common.MediaItem? getMediaItem();
-    method public int getResultCode();
-    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
-    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
-    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
-    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
-    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
-    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
-    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
-    field public static final int RESULT_SUCCESS = 0; // 0x0
-  }
-
   public class CallbackMediaItem extends androidx.media2.common.MediaItem {
     method public androidx.media2.common.DataSourceCallback getDataSourceCallback();
   }
@@ -34,13 +20,11 @@ package androidx.media2.common {
   }
 
   public class FileMediaItem extends androidx.media2.common.MediaItem {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public void close() throws java.io.IOException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void decreaseRefCount();
     method public long getFileDescriptorLength();
     method public long getFileDescriptorOffset();
     method public android.os.ParcelFileDescriptor getParcelFileDescriptor();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void increaseRefCount();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isClosed();
     field public static final long FD_LENGTH_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
   }
 
@@ -55,12 +39,9 @@ package androidx.media2.common {
   }
 
   public class MediaItem extends androidx.versionedparcelable.CustomVersionedParcelable {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void addOnMetadataChangedListener(java.util.concurrent.Executor!, androidx.media2.common.MediaItem.OnMetadataChangedListener!);
     method public long getEndPosition();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String? getMediaId();
     method public androidx.media2.common.MediaMetadata? getMetadata();
     method public long getStartPosition();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void removeOnMetadataChangedListener(androidx.media2.common.MediaItem.OnMetadataChangedListener!);
     method public void setMetadata(androidx.media2.common.MediaMetadata?);
     field public static final long POSITION_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
   }
@@ -71,10 +52,6 @@ package androidx.media2.common {
     method public androidx.media2.common.MediaItem.Builder setEndPosition(long);
     method public androidx.media2.common.MediaItem.Builder setMetadata(androidx.media2.common.MediaMetadata?);
     method public androidx.media2.common.MediaItem.Builder setStartPosition(long);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface MediaItem.OnMetadataChangedListener {
-    method public void onMetadataChanged(androidx.media2.common.MediaItem!);
   }
 
   public final class MediaMetadata extends androidx.versionedparcelable.CustomVersionedParcelable {
@@ -169,15 +146,6 @@ package androidx.media2.common {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE, androidx.media2.common.MediaMetadata.METADATA_KEY_ARTIST, androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM, androidx.media2.common.MediaMetadata.METADATA_KEY_AUTHOR, androidx.media2.common.MediaMetadata.METADATA_KEY_WRITER, androidx.media2.common.MediaMetadata.METADATA_KEY_COMPOSER, androidx.media2.common.MediaMetadata.METADATA_KEY_COMPILATION, androidx.media2.common.MediaMetadata.METADATA_KEY_DATE, androidx.media2.common.MediaMetadata.METADATA_KEY_GENRE, androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM_ARTIST, androidx.media2.common.MediaMetadata.METADATA_KEY_ART_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM_ART_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_TITLE, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID, androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_RADIO_PROGRAM_NAME}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface MediaMetadata.TextKey {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MediaParcelUtils {
-    ctor public MediaParcelUtils();
-    method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? fromParcelable(androidx.versionedparcelable.ParcelImpl);
-    method public static <T extends androidx.versionedparcelable.VersionedParcelable> java.util.List<T!> fromParcelableList(java.util.List<androidx.versionedparcelable.ParcelImpl!>);
-    method public static androidx.versionedparcelable.ParcelImpl toParcelable(androidx.versionedparcelable.VersionedParcelable?);
-    method public static java.util.List<androidx.versionedparcelable.ParcelImpl!> toParcelableList(java.util.List<? extends androidx.versionedparcelable.VersionedParcelable>);
-    field public static final String TAG = "MediaParcelUtils";
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ParcelImplListSlice implements android.os.Parcelable {
     ctor public ParcelImplListSlice(java.util.List<androidx.versionedparcelable.ParcelImpl!>);
     method public int describeContents();
@@ -193,7 +161,6 @@ package androidx.media2.common {
   public abstract class SessionPlayer implements java.lang.AutoCloseable {
     ctor public SessionPlayer();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> addPlaylistItem(int, androidx.media2.common.MediaItem);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> deselectTrackInternal(androidx.media2.common.SessionPlayer.TrackInfo);
     method public abstract androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public abstract long getBufferedPosition();
     method @androidx.media2.common.SessionPlayer.BuffState public abstract int getBufferingState();
@@ -209,10 +176,7 @@ package androidx.media2.common {
     method public abstract androidx.media2.common.MediaMetadata? getPlaylistMetadata();
     method @IntRange(from=androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX) public abstract int getPreviousMediaItemIndex();
     method @androidx.media2.common.SessionPlayer.RepeatMode public abstract int getRepeatMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrackInternal(@androidx.media2.common.SessionPlayer.TrackInfo.MediaTrackType int);
     method @androidx.media2.common.SessionPlayer.ShuffleMode public abstract int getShuffleMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!> getTrackInfoInternal();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.media2.common.VideoSize getVideoSizeInternal();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> pause();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> play();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> prepare();
@@ -220,14 +184,12 @@ package androidx.media2.common {
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> removePlaylistItem(@IntRange(from=0) int);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> replacePlaylistItem(int, androidx.media2.common.MediaItem);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> selectTrackInternal(androidx.media2.common.SessionPlayer.TrackInfo);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setMediaItem(androidx.media2.common.MediaItem);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackSpeed(float);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaylist(java.util.List<androidx.media2.common.MediaItem!>, androidx.media2.common.MediaMetadata?);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setRepeatMode(@androidx.media2.common.SessionPlayer.RepeatMode int);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setShuffleMode(@androidx.media2.common.SessionPlayer.ShuffleMode int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setSurfaceInternal(android.view.Surface?);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToNextPlaylistItem();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPlaylistItem(@IntRange(from=0) int);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPreviousPlaylistItem();
@@ -268,19 +230,21 @@ package androidx.media2.common {
     method public void onRepeatModeChanged(androidx.media2.common.SessionPlayer, @androidx.media2.common.SessionPlayer.RepeatMode int);
     method public void onSeekCompleted(androidx.media2.common.SessionPlayer, long);
     method public void onShuffleModeChanged(androidx.media2.common.SessionPlayer, @androidx.media2.common.SessionPlayer.ShuffleMode int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onSubtitleData(androidx.media2.common.SessionPlayer, androidx.media2.common.MediaItem, androidx.media2.common.SessionPlayer.TrackInfo, androidx.media2.common.SubtitleData);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onTrackDeselected(androidx.media2.common.SessionPlayer, androidx.media2.common.SessionPlayer.TrackInfo);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onTrackInfoChanged(androidx.media2.common.SessionPlayer, java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onTrackSelected(androidx.media2.common.SessionPlayer, androidx.media2.common.SessionPlayer.TrackInfo);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onVideoSizeChangedInternal(androidx.media2.common.SessionPlayer, androidx.media2.common.MediaItem, androidx.media2.common.VideoSize);
   }
 
-  public static class SessionPlayer.PlayerResult implements androidx.media2.common.BaseResult {
+  public static class SessionPlayer.PlayerResult {
     ctor public SessionPlayer.PlayerResult(int, androidx.media2.common.MediaItem?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!>! createFuture(int);
     method public long getCompletionTime();
     method public androidx.media2.common.MediaItem? getMediaItem();
     method @androidx.media2.common.SessionPlayer.PlayerResult.ResultCode public int getResultCode();
+    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
+    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
+    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
+    field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
   @IntDef(flag=false, value={androidx.media2.common.BaseResult.RESULT_SUCCESS, androidx.media2.common.BaseResult.RESULT_ERROR_UNKNOWN, androidx.media2.common.BaseResult.RESULT_ERROR_INVALID_STATE, androidx.media2.common.BaseResult.RESULT_ERROR_BAD_VALUE, androidx.media2.common.BaseResult.RESULT_ERROR_PERMISSION_DENIED, androidx.media2.common.BaseResult.RESULT_ERROR_IO, androidx.media2.common.BaseResult.RESULT_ERROR_NOT_SUPPORTED, androidx.media2.common.BaseResult.RESULT_INFO_SKIPPED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionPlayer.PlayerResult.ResultCode {
@@ -293,33 +257,6 @@ package androidx.media2.common {
   }
 
   @IntDef({androidx.media2.common.SessionPlayer.SHUFFLE_MODE_NONE, androidx.media2.common.SessionPlayer.SHUFFLE_MODE_ALL, androidx.media2.common.SessionPlayer.SHUFFLE_MODE_GROUP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionPlayer.ShuffleMode {
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class SessionPlayer.TrackInfo extends androidx.versionedparcelable.CustomVersionedParcelable {
-    ctor public SessionPlayer.TrackInfo(int, androidx.media2.common.MediaItem!, int, android.media.MediaFormat!);
-    method public android.media.MediaFormat? getFormat();
-    method public int getId();
-    method public java.util.Locale getLanguage();
-    method public androidx.media2.common.MediaItem? getMediaItem();
-    method @androidx.media2.common.SessionPlayer.TrackInfo.MediaTrackType public int getTrackType();
-    field public static final int MEDIA_TRACK_TYPE_AUDIO = 2; // 0x2
-    field public static final int MEDIA_TRACK_TYPE_METADATA = 5; // 0x5
-    field public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4; // 0x4
-    field public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0; // 0x0
-    field public static final int MEDIA_TRACK_TYPE_VIDEO = 1; // 0x1
-  }
-
-  @IntDef(flag=false, value={androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN, androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO, androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO, androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_METADATA}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionPlayer.TrackInfo.MediaTrackType {
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SubtitleData implements androidx.versionedparcelable.VersionedParcelable {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SubtitleData(long, long, byte[]);
-    method public byte[] getData();
-    method public long getDurationUs();
-    method public long getStartTimeUs();
-    field public static final String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
-    field public static final String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
-    field public static final String MIMETYPE_TEXT_VTT = "text/vtt";
   }
 
   public class UriMediaItem extends androidx.media2.common.MediaItem {
@@ -335,40 +272,6 @@ package androidx.media2.common {
     method public androidx.media2.common.UriMediaItem.Builder setEndPosition(long);
     method public androidx.media2.common.UriMediaItem.Builder setMetadata(androidx.media2.common.MediaMetadata?);
     method public androidx.media2.common.UriMediaItem.Builder setStartPosition(long);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class VideoSize implements androidx.versionedparcelable.VersionedParcelable {
-    ctor public VideoSize(@IntRange(from=0) int, @IntRange(from=0) int);
-    method @IntRange(from=0) public int getHeight();
-    method @IntRange(from=0) public int getWidth();
-  }
-
-}
-
-package androidx.media2.common.futures {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class AbstractResolvableFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {
-    ctor protected AbstractResolvableFuture();
-    method public final void addListener(Runnable!, java.util.concurrent.Executor!);
-    method protected void afterDone();
-    method public final boolean cancel(boolean);
-    method public final V! get(long, java.util.concurrent.TimeUnit!) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
-    method public final V! get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
-    method protected void interruptTask();
-    method public final boolean isCancelled();
-    method public final boolean isDone();
-    method protected String? pendingToString();
-    method protected boolean set(V?);
-    method protected boolean setException(Throwable!);
-    method protected boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
-    method protected final boolean wasInterrupted();
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResolvableFuture<V> extends androidx.media2.common.futures.AbstractResolvableFuture<V> {
-    method public static <V> androidx.media2.common.futures.ResolvableFuture<V!>! create();
-    method public boolean set(V?);
-    method public boolean setException(Throwable!);
-    method public boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
   }
 
 }

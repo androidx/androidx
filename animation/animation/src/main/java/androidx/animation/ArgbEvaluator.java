@@ -16,6 +16,8 @@
 
 package androidx.animation;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -55,10 +57,14 @@ public final class ArgbEvaluator implements TypeEvaluator<Integer> {
      * color channels and interpolating each one separately, recombining the
      * resulting values in the same way.
      */
+    @SuppressLint("AutoBoxing") /* Generics */
     @Override
     @NonNull
-    public Integer evaluate(float fraction, @NonNull Integer startValue,
-            @NonNull Integer endValue) {
+    public Integer evaluate(
+            float fraction,
+            @SuppressLint("AutoBoxing") @NonNull Integer startValue,
+            @SuppressLint("AutoBoxing") @NonNull Integer endValue
+    ) {
         int startInt = startValue;
         float startA = ((startInt >> 24) & 0xff) / 255.0f;
         float startR = ((startInt >> 16) & 0xff) / 255.0f;

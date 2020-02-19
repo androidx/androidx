@@ -299,12 +299,17 @@ package androidx.camera.core {
   public abstract static class ImageCapture.OnImageCapturedCallback {
     ctor public ImageCapture.OnImageCapturedCallback();
     method public void onCaptureSuccess(androidx.camera.core.ImageProxy);
-    method public void onError(@androidx.camera.core.ImageCapture.ImageCaptureError int, String, Throwable?);
+    method public void onError(androidx.camera.core.ImageCaptureException);
   }
 
   public static interface ImageCapture.OnImageSavedCallback {
-    method public void onError(@androidx.camera.core.ImageCapture.ImageCaptureError int, String, Throwable?);
-    method public void onImageSaved(java.io.File);
+    method public void onError(androidx.camera.core.ImageCaptureException);
+    method public void onImageSaved();
+  }
+
+  public class ImageCaptureException extends java.lang.Exception {
+    ctor public ImageCaptureException(@androidx.camera.core.ImageCapture.ImageCaptureError int, String, Throwable?);
+    method @androidx.camera.core.ImageCapture.ImageCaptureError public int getImageCaptureError();
   }
 
   public interface ImageInfo {

@@ -34,13 +34,14 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
+import androidx.ui.core.ModifierScope
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Placeable.PlacementScope.place
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.tag
-import androidx.ui.unit.DensityScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -531,8 +532,8 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     internal companion object {
         val verticalAnchorFunctions: Array<Array<ConstraintReference.(Any) -> Unit>> = arrayOf(
             arrayOf(
-                { other -> startToStart(other).apply() },
-                { other -> startToEnd(other).apply() }
+                { other -> startToStart(other) },
+                { other -> startToEnd(other) }
             ),
             arrayOf(
                 { other -> endToStart(other) },
@@ -557,11 +558,11 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
 private class Measurer internal constructor() : BasicMeasure.Measurer {
     private val root = ConstraintWidgetContainer(0, 0).also { it.measurer = this }
     private val placeables = mutableMapOf<Measurable, Placeable>()
-    private lateinit var densityScope: DensityScope
+    private lateinit var density: Density
     private val state = object : State() {
         override fun convertDimension(value: Any?): Int {
             return if (value is Dp) {
-                with(densityScope) { value.toIntPx().value }
+                with(density) { value.toIntPx().value }
             } else {
                 super.convertDimension(value)
             }
@@ -605,9 +606,9 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         constraints: Constraints,
         constraintSet: ConstraintSet,
         measurables: List<Measurable>,
-        densityScope: DensityScope
+        density: Density
     ): IntPxSize {
-        this.densityScope = densityScope
+        this.density = density
         state.reset()
         measurables.forEach { measurable ->
             state.map(measurable.tag ?: object : Any() {}, measurable)
@@ -658,16 +659,17 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
 }
 
 private data class TagModifier(val tag: Any) : LayoutModifier, ParentDataModifier {
-    override fun DensityScope.modifyConstraints(constraints: Constraints) = constraints
-    override fun DensityScope.modifySize(constraints: Constraints, childSize: IntPxSize) = childSize
-    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+    override fun ModifierScope.modifyConstraints(constraints: Constraints) = constraints
+    override fun ModifierScope.modifySize(constraints: Constraints, childSize: IntPxSize) =
+        childSize
+    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
         measurable.minIntrinsicWidth(height)
-    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
         measurable.maxIntrinsicWidth(height)
-    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
         measurable.minIntrinsicHeight(width)
-    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
         measurable.maxIntrinsicHeight(width)
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
-    override fun DensityScope.modifyParentData(parentData: Any?) = this@TagModifier
+    override fun ModifierScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+    override fun Density.modifyParentData(parentData: Any?) = this@TagModifier
 }

@@ -33,28 +33,11 @@ import kotlinx.coroutines.rx2.asObservable
  */
 @Suppress("FunctionName", "unused")
 @UseExperimental(ExperimentalCoroutinesApi::class)
+@JvmOverloads
 @JvmName("create")
 fun <Key : Any, Value : Any> PagingDataObservable(
     config: PagingConfig,
-    initialKey: Key?,
+    initialKey: Key? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
 ): Observable<PagingData<Value>> =
     PagingDataFlow(config, initialKey, pagingSourceFactory).asObservable()
-
-/**
- * Construct the primary RxJava Paging reactive stream: `Observable<PagingData<T>>`.
- *
- * Creates a stream of [PagingData] objects, each of which represents a single generation of
- * paginated data. These objects can be transformed to alter data as it loads, and presented in a
- * `RecyclerView`.
- *
- * @see PagingDataFlow
- */
-@Suppress("FunctionName", "unused")
-@UseExperimental(ExperimentalCoroutinesApi::class)
-@JvmName("create")
-fun <Key : Any, Value : Any> PagingDataObservable(
-    config: PagingConfig,
-    pagingSourceFactory: () -> PagingSource<Key, Value>
-): Observable<PagingData<Value>> =
-    PagingDataFlow(config, null, pagingSourceFactory).asObservable()

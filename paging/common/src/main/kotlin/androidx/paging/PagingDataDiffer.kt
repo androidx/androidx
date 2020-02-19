@@ -24,11 +24,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class PagingDataDiffer<T : Any>(
-    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) {
     private val collecting = AtomicBoolean(false)
     private var presenter: PagePresenter<T> = PagePresenter.initial()

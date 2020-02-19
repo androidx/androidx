@@ -119,6 +119,11 @@ data /*inline*/ class Dp(val value: Float) : Comparable<Dp> {
          * Infinite dp dimension.
          */
         val Infinity = Dp(value = Float.POSITIVE_INFINITY)
+
+        /**
+         * Constant that means unspecified Dp
+         */
+        val Unspecified = Dp(value = Float.NaN)
     }
 }
 

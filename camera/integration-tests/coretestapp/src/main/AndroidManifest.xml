@@ -22,7 +22,6 @@ limitations under the License.
     <uses-feature android:name="android.hardware.camera" />
 
     <application
-        android:name=".CoreApplication"
         android:theme="@style/AppTheme">
         <activity
             android:name=".CameraXActivity"

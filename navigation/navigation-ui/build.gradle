@@ -35,7 +35,7 @@ android {
 dependencies {
     api(project(":navigation:navigation-runtime"))
     api(MATERIAL)
-    implementation('androidx.transition:transition:1.0.1')
+    implementation('androidx.transition:transition:1.3.0')
 
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
     androidTestImplementation(project(":internal-testutils-navigation"))
@@ -49,7 +49,6 @@ dependencies {
 androidx {
     name = "Android Navigation UI"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-UI"

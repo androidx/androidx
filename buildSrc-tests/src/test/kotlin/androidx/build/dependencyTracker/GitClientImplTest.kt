@@ -42,8 +42,9 @@ class GitClientImplTest {
      * directory passed to the [GitClientImpl] constructor needs to contain the a .git
      * directory somewhere in the parent directory tree.  @see [GitClientImpl]
      */
+    private val workingDir = File(System.getProperty("user.dir")).parentFile
     private val client = GitClientImpl(
-        workingDir = File(System.getProperty("user.dir")),
+        workingDir = workingDir,
         logger = logger,
         commandRunner = commandRunner
     )
@@ -110,7 +111,7 @@ class GitClientImplTest {
                 _CommitStart
                 Here is an explanation of my commit that changes a kotlin file
 
-                Release notes: "Missing close quote in the release note block.
+                Relnote: "Missing close quote in the release note block.
                 This is the second line of the release notes.  It should not be included in the
                 release notes because this commit is missing the closing quote.
 
@@ -144,7 +145,7 @@ class GitClientImplTest {
 
                 "This is a quote about why it's great!"
 
-                Release Notes: "Added a new API that does something awesome and does a whole bunch
+                Relnote: "Added a new API that does something awesome and does a whole bunch
                  of other things that are also awesome and I just can't elaborate enough how
                  incredible this API is"
 
@@ -208,7 +209,7 @@ class GitClientImplTest {
                 Fixes: 123123
                 Test: ./gradlew buildOnServer
 
-                Release Notes: Added an awesome new API!
+                Relnote: Added an awesome new API!
 
                 Change-Id: myChangeId
 
@@ -255,7 +256,7 @@ class GitClientImplTest {
 
                 Here is an explanation of my commit that changes a kotlin file
 
-                Release notes: "Fixed a critical bug"
+                Relnote: "Fixed a critical bug"
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
@@ -307,7 +308,7 @@ class GitClientImplTest {
 
                 Here is an explanation of my commit that changes a java file
 
-                release notes: Added a new compat API!
+                Relnote: Added a new compat API!
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
@@ -368,7 +369,7 @@ class GitClientImplTest {
                     "$bodyDelimiter%b" +
                     " --no-merges"
         val gitLogCmd: String = "${GitClientImpl.GIT_LOG_CMD_PREFIX} " +
-                "$gitLogOptions sha..topSha -- $projectDir"
+                "$gitLogOptions sha..topSha -- ./group/artifact"
 
         // Check with default delimiters
         val gitLogString: String =
@@ -488,7 +489,7 @@ class GitClientImplTest {
                 untilInclusive = "topSha"
             ),
             keepMerges = false,
-            fullProjectDir = File(projectDir)
+            fullProjectDir = File(File(workingDir, "group"), "artifact")
         )
         assertEquals(3, gitLogList.size)
         gitLogList.forEach { commit ->
@@ -506,7 +507,7 @@ class GitClientImplTest {
         /* Do not use the MockCommandRunner because it's a better test to check the validity of
          * the git command against the actual git in the repo
          */
-        val commitList: List<Commit> = GitClientImpl(File(System.getProperty("user.dir")))
+        val commitList: List<Commit> = GitClientImpl(workingDir, logger)
             .getGitLog(
                 GitCommitRange(
                     fromExclusive = "",
@@ -514,7 +515,7 @@ class GitClientImplTest {
                     n = 1
                 ),
                 keepMerges = true,
-                fullProjectDir = File(System.getProperty("user.dir"))
+                fullProjectDir = workingDir
         )
         assertEquals(1, commitList.size)
     }

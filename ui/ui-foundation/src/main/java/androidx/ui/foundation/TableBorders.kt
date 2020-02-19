@@ -18,7 +18,6 @@ package androidx.ui.foundation
 
 import androidx.compose.remember
 import androidx.ui.core.Draw
-import androidx.ui.foundation.shape.border.Border
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -33,10 +32,11 @@ import androidx.ui.unit.Dp
  *
  * @sample androidx.ui.foundation.samples.TableWithBorders
  *
- * @param defaultBorder The default style used for borders that do not specify a style.
+ * @param defaultBorder The default [Border] appearance to be used for borders that do not
+ * specify a style.
  */
 fun TableChildren.drawBorders(
-    defaultBorder: Border = Border(color = Color.Black, width = Dp.Hairline),
+    defaultBorder: Border = Border(color = Color.Black, size = Dp.Hairline),
     block: DrawBordersReceiver.() -> Unit
 ) {
     tableDecoration(overlay = true) {
@@ -62,7 +62,7 @@ fun TableChildren.drawBorders(
                 }
                 // TODO(calintat): Reset paint when that operation is available.
                 border.brush.applyTo(paint)
-                paint.strokeWidth = border.width.toPx().value
+                paint.strokeWidth = border.size.toPx().value
                 canvas.drawLine(p1, p2, paint)
             }
         }

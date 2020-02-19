@@ -221,26 +221,6 @@ public final class CameraUtil {
     }
 
     /**
-     * Opens a camera and associates the camera with multiple use cases.
-     *
-     * <p>Sets the use case to be online and active, so that the use case is in a state to issue
-     * capture requests to the camera. The caller is responsible for making the use case inactive
-     * and offline and for closing the camera afterwards.
-     *
-     * @param cameraId       to open
-     * @param cameraInternal to open
-     * @param useCases       to associate with
-     */
-    public static void openCameraWithUseCase(String cameraId, CameraInternal cameraInternal,
-            UseCase... useCases) {
-        cameraInternal.addOnlineUseCase(Arrays.asList(useCases));
-        for (UseCase useCase : useCases) {
-            useCase.attachCameraControl(cameraId, cameraInternal.getCameraControlInternal());
-            cameraInternal.onUseCaseActive(useCase);
-        }
-    }
-
-    /**
      * Detach multiple use cases from a camera.
      *
      * <p>Sets the use cases to be inactive and remove from the online list.

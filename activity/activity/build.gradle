@@ -41,7 +41,6 @@ dependencies {
 androidx {
     name = "Activity"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ACTIVITY
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."

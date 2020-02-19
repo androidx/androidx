@@ -17,7 +17,7 @@ package androidx.ui.core
 
 import android.view.View
 import androidx.compose.Composable
-import androidx.compose.ambient
+import androidx.compose.emptyContent
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -29,10 +29,10 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
-import androidx.ui.unit.withDensity
 import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
@@ -63,7 +63,7 @@ class PopupTest {
     // TODO(b/140215440): Some tests are calling the OnChildPosition method inside the Popup too
     //  many times
     private fun createPopupWithAlignmentRule(alignment: Alignment, measureLatch: CountDownLatch) {
-        withDensity(composeTestRule.density) {
+        with(composeTestRule.density) {
             val popupWidthDp = popupSize.width.toDp()
             val popupHeightDp = popupSize.height.toDp()
             val parentWidthDp = parentSize.width.toDp()
@@ -71,7 +71,7 @@ class PopupTest {
 
             composeTestRule.setContent {
                 // Get the compose view position on screen
-                val composeView = ambient(AndroidComposeViewAmbient)
+                val composeView = AndroidComposeViewAmbient.current
                 val positionArray = IntArray(2)
                 composeView.getLocationOnScreen(positionArray)
                 composeViewAbsolutePosition = IntPxPosition(
@@ -83,14 +83,18 @@ class PopupTest {
                 // position of the parent to be (0, 0)
                 TestAlign {
                     SimpleContainer(width = parentWidthDp, height = parentHeightDp) {
-                        TestTag(testTag) {
+                        PopupTestTag(testTag) {
                             Popup(alignment = alignment, offset = offset) {
                                 // This is called after the OnChildPosition method in Popup() which
                                 // updates the popup to its final position
                                 OnPositioned {
                                     measureLatch.countDown()
                                 }
-                                SimpleContainer(width = popupWidthDp, height = popupHeightDp) {}
+                                SimpleContainer(
+                                    width = popupWidthDp,
+                                    height = popupHeightDp,
+                                    children = emptyContent()
+                                )
                             }
                         }
                     }
@@ -121,7 +125,7 @@ class PopupTest {
     fun popup_isShowing() {
         composeTestRule.setContent {
             SimpleContainer {
-                TestTag(testTag) {
+                PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
                         Text(popupText)
                     }
@@ -134,18 +138,22 @@ class PopupTest {
 
     @Test
     fun popup_hasActualSize() {
-        val popupWidthDp = withDensity(composeTestRule.density) {
+        val popupWidthDp = with(composeTestRule.density) {
             popupSize.width.toDp()
         }
-        val popupHeightDp = withDensity(composeTestRule.density) {
+        val popupHeightDp = with(composeTestRule.density) {
             popupSize.height.toDp()
         }
 
         composeTestRule.setContent {
             SimpleContainer {
-                TestTag(testTag) {
+                PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        SimpleContainer(width = popupWidthDp, height = popupHeightDp) {}
+                        SimpleContainer(
+                            width = popupWidthDp,
+                            height = popupHeightDp,
+                            children = emptyContent()
+                        )
                     }
                 }
             }
@@ -557,7 +565,7 @@ private fun TestAlign(children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.looseMin())
+        val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
 
         // The layout is as large as possible for bounded constraints,
         // or wrap content otherwise.

@@ -30,16 +30,4 @@ package androidx.compose
  * @see Recompose
  */
 @Composable
-fun Observe(body: @Composable() () -> Unit) {
-    currentComposerNonNull.let { composer ->
-        trace("Compose:Observe") {
-            composer.startGroup(observer)
-            composer.startJoin(observer, false) { body() }
-            body()
-            composer.doneJoin(false)
-            composer.endGroup()
-        }
-    }
-}
-
-private val observer = Any()
+fun Observe(body: @Composable() () -> Unit) = body()

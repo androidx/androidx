@@ -16,21 +16,19 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.DataSource.Params
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.START
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 /**
  * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LegacyPagingSource<Key : Any, Value : Any>(
+internal class LegacyPagingSource<Key : Any, Value : Any>(
     internal val dataSource: DataSource<Key, Value>,
     private val fetchDispatcher: CoroutineDispatcher = DirectDispatcher
 ) : PagingSource<Key, Value>() {
@@ -48,7 +46,17 @@ class LegacyPagingSource<Key : Any, Value : Any>(
         )
 
         return withContext(fetchDispatcher) {
-            dataSource.load(dataSourceParams).toLoadResult<Key>()
+            dataSource.load(dataSourceParams).run {
+                LoadResult.Page(
+                    data,
+                    @Suppress("UNCHECKED_CAST")
+                    if (data.isEmpty() && params.loadType == START) null else prevKey as Key?,
+                    @Suppress("UNCHECKED_CAST")
+                    if (data.isEmpty() && params.loadType == END) null else nextKey as Key?,
+                    itemsBefore,
+                    itemsAfter
+                )
+            }
         }
     }
 
@@ -58,12 +66,12 @@ class LegacyPagingSource<Key : Any, Value : Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun getRefreshKeyFromPage(
-        indexInPage: Int,
-        page: LoadResult.Page<Key, Value>
-    ): Key? = when (dataSource.type) {
-        POSITIONAL -> (page.prevKey as Int + indexInPage) as Key
-        PAGE_KEYED -> null
-        ITEM_KEYED -> dataSource.getKeyInternal(page.data[indexInPage])
+    override fun getRefreshKey(state: PagingState<Key, Value>): Key? {
+        return when (dataSource.type) {
+            POSITIONAL -> state.anchorPosition as Key
+            PAGE_KEYED -> null
+            ITEM_KEYED -> state.closestItemToPosition(state.anchorPosition)
+                .let { dataSource.getKeyInternal(it) }
+        }
     }
 }

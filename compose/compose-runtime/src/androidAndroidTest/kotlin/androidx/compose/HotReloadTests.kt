@@ -19,31 +19,27 @@
 package androidx.compose
 
 import android.app.Activity
-import android.view.View
+import android.content.Context
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.ActivityTestRule
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 @RunWith(AndroidJUnit4::class)
-class HotReloadTests {
-
+class HotReloadTests: BaseComposeTest() {
     @After
     fun teardown() {
         Compose.clearRoots()
     }
 
     @get:Rule
-    val activityRule = ActivityTestRule(DisposeTests.DisposeTestActivity::class.java)
+    override val activityRule = makeTestActivityRule()
 
     @Test
     fun composeView() {
@@ -74,7 +70,7 @@ class HotReloadTests {
         val activity = activityRule.activity
 
         // Set the content of the view
-        activity.onUi {
+        activity.uiThread {
             activity.setContent {
                 columnNode {
                     textNode(text = "Hello")
@@ -99,60 +95,31 @@ class HotReloadTests {
         assertNotEquals(target().value, value)
 
         // Simulate hot-reload
-        activity.onUi {
+        activity.uiThread {
             Compose.simulateHotReload(activity)
         }
 
         // Detect tha tthe node changed
         assertEquals(target().value, value)
     }
-
-    fun compose(manualRecompose: Boolean = true, composable: () -> Unit) =
-        EffectsTests.CompositionTest(composable, manualRecompose, activityRule.activity)
 }
 
-fun text(text: String, id: Int = -1) {
-    composer.emit(
-        48,
-        { context ->
-            TextView(context).apply {
-                if (id >= 0) this.id = id
-            }
-        },
-        {
-            set(text) { this.text = it }
-        }
-    )
+@Composable fun text(text: String, id: Int = -1) {
+    TextView(id=id, text=text)
 }
 
-fun column(children: () -> Unit) {
-    composer.emit(
-        key = 59,
-        ctor = { context ->
-            LinearLayout(context)
-        },
-        update = { },
-        children = children as (@Composable() () -> Unit)
-    )
+@Composable fun column(children: @Composable() () -> Unit) {
+    LinearLayout { children() }
 }
 
-fun textNode(text: String) {
-    composer.emit(
-        key = 93,
-        ctor = { Node("Text") } as () -> Node,
-        update = {
-            set(text) { this.value = it }
-        }
-    )
+@Composable fun textNode(text: String) {
+    Node(name="Text", value=text)
 }
 
-fun columnNode(children: () -> Unit) {
-    composer.emit(
-        key = 93,
-        ctor = { Node("Text") } as () -> Node,
-        update = { },
-        children = children as (@Composable() () -> Unit)
-    )
+@Composable fun columnNode(children: @Composable() () -> Unit) {
+    Node(name="Text") {
+        children()
+    }
 }
 
 class Node(val name: String, var value: String = "") : Emittable {
@@ -179,27 +146,22 @@ class Node(val name: String, var value: String = "") : Emittable {
     }
 }
 
-fun Activity.setContent(content: () -> Unit) {
-    val composeView = contentView as? NewCodeGenTests.ViewEmitWrapper
-        ?: NewCodeGenTests.ViewEmitWrapper(this).also {
+fun Activity.setContent(content: @Composable() () -> Unit) {
+    val composeView = contentView as? ViewEmitWrapper
+        ?: ViewEmitWrapper(this).also {
             setContentView(it)
         }
     val root = Node("Root")
     composeView.emittable = root
-    Compose.composeInto(root, this, null, content as (@Composable() () -> Unit))
+    Compose.composeInto(root, this, null, content)
 }
 
 val Activity.contentView: View get() =
     window.decorView.findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
 
 val Activity.content: Node get() =
-    (contentView as NewCodeGenTests.ViewEmitWrapper).emittable as Node
+    (contentView as ViewEmitWrapper).emittable as Node
 
-fun Activity.onUi(body: () -> Unit) {
-    val latch = CountDownLatch(1)
-    runOnUiThread {
-        body()
-        latch.countDown()
-    }
-    latch.await(5, TimeUnit.SECONDS)
+class ViewEmitWrapper(context: Context) : View(context) {
+    var emittable: Emittable? = null
 }

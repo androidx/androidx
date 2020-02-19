@@ -39,7 +39,6 @@ android {
 androidx {
     name = "Jetpack Camera Extensions Example Library"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.CAMERA
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "Example extension implementation for the Jetpack Camera Library, a library providing a " +

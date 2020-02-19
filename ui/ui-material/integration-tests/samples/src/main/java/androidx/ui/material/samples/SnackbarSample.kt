@@ -20,9 +20,8 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.graphics.Color
-import androidx.ui.material.Button
 import androidx.ui.material.Snackbar
-import androidx.ui.material.TextButtonStyle
+import androidx.ui.material.TextButton
 
 @Sampled
 @Composable
@@ -46,11 +45,12 @@ fun SlotsSnackbar() {
             )
         },
         action = {
-            Button(
-                text = "ADD THIS SONG ANYWAY",
-                style = TextButtonStyle(contentColor = customActionColor),
-                onClick = { /* call long action here */ }
-            )
+            TextButton(
+                onClick = { /* call long action here */ },
+                contentColor = customActionColor
+            ) {
+                Text("ADD THIS SONG ANYWAY")
+            }
         },
         actionOnNewLine = true
     )

@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.PointerInput
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
@@ -60,7 +60,7 @@ internal fun RawPressStartGestureDetector(
     recognizer.setEnabled(enabled = enabled)
     recognizer.setExecutionPass(executionPass)
 
-    PointerInputWrapper(
+    PointerInput(
         pointerInputHandler = recognizer.pointerInputHandler,
         cancelHandler = recognizer.cancelHandler,
         children = children)
