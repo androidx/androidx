@@ -19,6 +19,8 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.State
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -107,21 +109,44 @@ class DrawShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromShadowToNoShadow() {
-        val model = ValueModel(12.dp)
+        val elevation = mutableStateOf(0.dp)
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(model.value)
+                ShadowContainer(elevation)
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThreadIR {
-            model.value = 0.dp
+            elevation.value = 0.dp
         }
 
         takeScreenShot(12).apply {
             assertEquals(color(5, 11), Color.White)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun switchFromNoShadowToShadowWithNestedRepaintBoundaries() {
+        val elevation = mutableStateOf(0.dp)
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                RepaintBoundary {
+                    ShadowContainer(elevation)
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThreadIR {
+            elevation.value = 12.dp
+        }
+
+        takeScreenShot(12).apply {
+            hasShadow()
         }
     }
 
@@ -182,11 +207,11 @@ class DrawShadowTest {
     }
 
     @Composable
-    private fun ShadowContainer(elevation: Dp = 8.dp) {
+    private fun ShadowContainer(elevation: State<Dp> = mutableStateOf(8.dp)) {
         AtLeastSize(size = 12.ipx) {
             FillColor(Color.White)
             AtLeastSize(size = 10.ipx) {
-                DrawShadow(rectShape, elevation)
+                DrawShadow(rectShape, elevation.value)
             }
         }
     }
