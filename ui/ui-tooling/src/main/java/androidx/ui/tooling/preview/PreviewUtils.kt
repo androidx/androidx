@@ -16,6 +16,7 @@
 
 package androidx.ui.tooling.preview
 
+import androidx.compose.Composer
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
@@ -34,7 +35,7 @@ private const val DEFAULT_SUFFIX = "\$default"
 private fun Class<*>.findComposableMethod(methodName: String): Method {
     val method = try {
         // Simple case, no default parameters
-        getDeclaredMethod(methodName)
+        getDeclaredMethod(methodName, Composer::class.java)
     } catch (e: ReflectiveOperationException) {
         try {
             val defaultMethodName = "$methodName$DEFAULT_SUFFIX"
@@ -72,16 +73,24 @@ private fun Method.isDefaultMethod() = name.endsWith(DEFAULT_SUFFIX)
  * Calls the method on the given [instance]. If the method accepts default values, this function
  * will call it with the correct options set.
  */
-private fun Method.invokeComposableMethod(instance: Any?): Any? {
-    if (parameterTypes.isEmpty()) {
-        // Simple case, no default parameters, just call
-        return invoke(instance)
+private fun Method.invokeComposableMethod(instance: Any?, composer: Composer<*>): Any? {
+    if (parameterTypes.singleOrNull() == Composer::class.java) {
+        // Simple case, no default parameters, just composer
+        return invoke(instance, composer)
     }
 
     assert(isDefaultMethod())
+    // When calling into methods with default parameters, the last three parameters are used or
+    // reserved by the compiler. The synthetic method generated looks like:
+    // aMethodWithDefault$default(...method parameters..., Composer, Mask, Unused)
+    //
+    // The Mask is used to indicate which parameters will use the default values, in our case,
+    // all. The Composer is pased to @Composable functions. The last parameter is not used.
     val nParameters = parameterTypes.size
     val args = Array(nParameters) { idx ->
         when (idx) {
+            // The Composer parameter is added by the compiler
+            nParameters - 3 -> composer
             // Default values mask, all parameters set to use defaults
             nParameters - 2 -> 0xFFFFFFFF.toInt()
             else -> parameterTypes[idx].getDefaultValue()
@@ -95,7 +104,11 @@ private fun Method.invokeComposableMethod(instance: Any?): Any? {
  * Invokes the given [methodName] belonging to the given [className] via reflection. The
  * [methodName] is expected to be a Composable function.
  */
-internal fun invokeComposableViaReflection(className: String, methodName: String) {
+internal fun invokeComposableViaReflection(
+    className: String,
+    methodName: String,
+    composer: Composer<*>
+) {
     try {
         val composableClass = Class.forName(className)
         val method = composableClass.findComposableMethod(methodName)
@@ -104,12 +117,12 @@ internal fun invokeComposableViaReflection(className: String, methodName: String
 
         if (Modifier.isStatic(method.modifiers)) {
             // This is a top level or static method
-            method.invokeComposableMethod(null)
+            method.invokeComposableMethod(null, composer)
         } else {
             // The method is part of a class. We try to instantiate the class with an empty
             // constructor.
             val instance = composableClass.getConstructor().newInstance()
-            method.invokeComposableMethod(instance)
+            method.invokeComposableMethod(instance, composer)
         }
     } catch (e: ReflectiveOperationException) {
         throw ClassNotFoundException("Composable Method not found", e)

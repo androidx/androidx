@@ -27,6 +27,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.Providers
+import androidx.compose.currentComposer
 import androidx.compose.disposeComposition
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
@@ -232,10 +233,11 @@ internal class ComposeViewAdapter : FrameLayout {
         this.debugViewInfos = debugViewInfos
         composition = setContent {
             WrapPreview {
+                val composer = currentComposer
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
-                invokeComposableViaReflection(className, methodName)
+                invokeComposableViaReflection(className, methodName, composer)
             }
         }
     }
