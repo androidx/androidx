@@ -67,6 +67,7 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -141,7 +142,6 @@ public final class ImageAnalysis extends UseCase {
     // ImageReader depth for KEEP_ONLY_LATEST mode.
     private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
 
-    private final Builder mUseCaseConfigBuilder;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
     @GuardedBy("mAnalysisLock")
@@ -160,7 +160,6 @@ public final class ImageAnalysis extends UseCase {
     @SuppressWarnings("WeakerAccess")
     ImageAnalysis(@NonNull ImageAnalysisConfig config) {
         super(config);
-        mUseCaseConfigBuilder = Builder.fromConfig(config);
 
         // Get the combined configuration with defaults
         ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
@@ -285,6 +284,10 @@ public final class ImageAnalysis extends UseCase {
      * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      *
+     * <p>When this function is called, value set by
+     * {@link ImageAnalysis.Builder#setTargetResolution(Size)} will be updated automatically to
+     * make sure the suitable resolution can be selected when the use case is bound.
+     *
      * <p>If not set here or by configuration, the target rotation will default to the value of
      * {@link Display#getRotation()} of the default display at the time the
      * use case is created.
@@ -295,10 +298,11 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setTargetRotation(@RotationValue int rotation) {
         ImageAnalysisConfig oldConfig = (ImageAnalysisConfig) getUseCaseConfig();
+        Builder builder = Builder.fromConfig(oldConfig);
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfig(mUseCaseConfigBuilder.getUseCaseConfig());
+            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
+            updateUseCaseConfig(builder.getUseCaseConfig());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
             // For now we'll just update the relative rotation value.
