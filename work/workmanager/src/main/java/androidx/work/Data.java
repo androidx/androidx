@@ -530,6 +530,7 @@ public final class Data {
         return returnValue;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     static @NonNull Byte[] convertPrimitiveByteArray(@NonNull byte[] value) {
         Byte[] returnValue = new Byte[value.length];
         for (int i = 0; i < value.length; ++i) {
