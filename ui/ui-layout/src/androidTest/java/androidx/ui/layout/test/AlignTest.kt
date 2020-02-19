@@ -211,7 +211,7 @@ class AlignTest : LayoutTest() {
                         }
                     }
                 },
-                measureBlock = { measurables, constraints ->
+                measureBlock = { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(Constraints())
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         placeable.place(0.ipx, 0.ipx)
@@ -260,7 +260,7 @@ class AlignTest : LayoutTest() {
                         }
                     }
                 },
-                measureBlock = { measurables, constraints ->
+                measureBlock = { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(Constraints())
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         placeable.place(0.ipx, 0.ipx)
@@ -306,7 +306,7 @@ class AlignTest : LayoutTest() {
                                 )
                             }
                         },
-                        measureBlock = { measurables, incomingConstraints ->
+                        measureBlock = { measurables, incomingConstraints, _ ->
                             val measurable = measurables.first()
                             val constraints = Constraints(
                                 minWidth = doubleSizeDp.toIntPx(),
@@ -490,7 +490,7 @@ class AlignTest : LayoutTest() {
                             }
                         }
                     }
-                }, measureBlock = { measurables, constraints ->
+                }, measureBlock = { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(Constraints())
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         placeable.place(0.ipx, 0.ipx)
@@ -548,7 +548,7 @@ class AlignTest : LayoutTest() {
                             )
                         }
                     }
-                }, measureBlock = { measurables, constraints ->
+                }, measureBlock = { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(Constraints())
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         placeable.place(0.ipx, 0.ipx)

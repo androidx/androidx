@@ -38,7 +38,10 @@ fun SizedRectangleWithLines(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    Layout(children = { }, modifier = modifier + DrawBackground(color = color)) { _, constraints ->
+    Layout(
+        children = { },
+        modifier = modifier + DrawBackground(color = color)
+    ) { _, constraints, _ ->
         val widthPx = max(width?.toIntPx() ?: constraints.maxWidth, constraints.minWidth)
         val heightPx = max(height?.toIntPx() ?: constraints.maxHeight, constraints.minHeight)
         layout(widthPx, heightPx, mapOf(Start to 0.ipx, End to widthPx)) {}

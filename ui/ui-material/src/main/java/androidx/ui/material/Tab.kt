@@ -249,7 +249,7 @@ private fun ScrollableTabRow(
                 Box(LayoutTag(indicatorTag), children = indicator)
                 Box(LayoutTag(dividerTag), children = divider)
             }
-        ) { measurables, constraints ->
+        ) { measurables, constraints, _ ->
             val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
 
@@ -582,7 +582,7 @@ private fun TabBaselineLayout(
             )
             Box(LayoutTag("icon"), children = icon)
         }
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val textPlaceable = measurables.first { it.tag == "text" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs

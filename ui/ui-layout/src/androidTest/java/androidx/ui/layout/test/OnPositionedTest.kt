@@ -307,7 +307,7 @@ class OnPositionedTest : LayoutTest() {
                     latch.countDown()
                 }
             }
-            Layout(onPositioned) { _, _ ->
+            Layout(onPositioned) { _, _, _ ->
                 layout(0.ipx, 0.ipx, mapOf(line to lineValue)) { }
             }
         }
@@ -317,7 +317,7 @@ class OnPositionedTest : LayoutTest() {
     @Composable
     private fun Offset(sizeModel: SizeModel, children: @Composable() () -> Unit) {
         // simple copy of Padding which doesn't recompose when the size changes
-        Layout(children) { measurables, constraints ->
+        Layout(children) { measurables, constraints, _ ->
             layout(constraints.maxWidth, constraints.maxHeight) {
                 measurables.first().measure(constraints).place(sizeModel.size.toPx(), 0.px)
             }

@@ -232,7 +232,8 @@ internal class InnerPlaceable(
         val layoutResult = layoutNode.measureBlocks.measure(
                 layoutNode.measureScope,
                 layoutNode.layoutChildren,
-                constraints
+                constraints,
+                layoutNode.layoutDirection!!
             )
         layoutNode.handleLayoutResult(layoutResult)
         return this
@@ -241,33 +242,41 @@ internal class InnerPlaceable(
     override val parentData: Any?
         get() = layoutNode.parentDataNode?.value
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx =
-        layoutNode.measureBlocks.minIntrinsicWidth(
+    override fun minIntrinsicWidth(height: IntPx): IntPx {
+        return layoutNode.measureBlocks.minIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            height
+            height,
+            layoutNode.layoutDirection!!
         )
+    }
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx =
-        layoutNode.measureBlocks.minIntrinsicHeight(
+    override fun minIntrinsicHeight(width: IntPx): IntPx {
+        return layoutNode.measureBlocks.minIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            width
+            width,
+            layoutNode.layoutDirection!!
         )
+    }
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx =
-        layoutNode.measureBlocks.maxIntrinsicWidth(
+    override fun maxIntrinsicWidth(height: IntPx): IntPx {
+        return layoutNode.measureBlocks.maxIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            height
+            height,
+            layoutNode.layoutDirection!!
         )
+    }
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx =
-        layoutNode.measureBlocks.maxIntrinsicHeight(
+    override fun maxIntrinsicHeight(width: IntPx): IntPx {
+        return layoutNode.measureBlocks.maxIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            width
+            width,
+            layoutNode.layoutDirection!!
         )
+    }
 
     override fun place(position: IntPxPosition) {
         layoutNode.isPlaced = true
@@ -360,7 +369,9 @@ internal class ModifiedLayoutNode(
     override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
         updateLayoutDirection()
         val measureResult = withMeasuredConstraints(constraints) {
-            wrapped.measure(layoutNode.measureScope.modifyConstraints(constraints))
+            wrapped.measure(
+                layoutNode.measureScope.modifyConstraints(constraints, layoutNode.layoutDirection!!)
+            )
         }
         measuredPlaceable = measureResult
         this@ModifiedLayoutNode
@@ -368,40 +379,52 @@ internal class ModifiedLayoutNode(
 
     override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicWidthOf(wrapped, height)
+        layoutNode.measureScope.minIntrinsicWidthOf(wrapped, height, layoutNode.layoutDirection!!)
     }
 
     override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicWidthOf(wrapped, height)
+        layoutNode.measureScope.maxIntrinsicWidthOf(wrapped, height, layoutNode.layoutDirection!!)
     }
 
     override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicHeightOf(wrapped, width)
+        layoutNode.measureScope.minIntrinsicHeightOf(wrapped, width, layoutNode.layoutDirection!!)
     }
 
     override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicHeightOf(wrapped, width)
+        layoutNode.measureScope.maxIntrinsicHeightOf(wrapped, width, layoutNode.layoutDirection!!)
     }
 
     override fun place(position: IntPxPosition) {
         this.position = position
         val placeable = measuredPlaceable ?: error("Placeable not measured")
         val relativePosition = with(layoutModifier) {
-            layoutNode.measureScope.modifyPosition(placeable.size, size)
+            layoutNode.measureScope.modifyPosition(
+                placeable.size,
+                size,
+                layoutNode.layoutDirection!!
+            )
         }
         placeable.place(relativePosition)
     }
 
     override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
-        return layoutNode.measureScope.modifyAlignmentLine(line, super.get(line))
+        return layoutNode.measureScope.modifyAlignmentLine(
+            line,
+            super.get(line),
+            layoutNode.layoutDirection!!
+        )
     }
 
     override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
         val constraints = measuredConstraints ?: error("must be called during measurement")
-        layoutNode.measureScope.modifySize(constraints, wrapped.layoutSize(innermostSize)).also {
+        layoutNode.measureScope.modifySize(
+            constraints,
+            layoutNode.layoutDirection!!,
+            wrapped.layoutSize(innermostSize)
+        ).also {
             size = it
         }
     }
@@ -424,7 +447,9 @@ internal class ModifiedLayoutNode(
     }
 
     private fun updateLayoutDirection() = with(layoutModifier) {
-        layoutNode.measureScope.layoutDirection = layoutNode.measureScope.modifyLayoutDirection()
+        val modifiedLayoutDirection =
+            layoutNode.measureScope.modifyLayoutDirection(layoutNode.layoutDirection!!)
+        layoutNode.layoutDirection = modifiedLayoutDirection
     }
 }
 

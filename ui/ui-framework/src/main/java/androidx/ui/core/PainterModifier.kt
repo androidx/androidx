@@ -89,7 +89,10 @@ private data class PainterModifier(
     var rtl: Boolean = false
 ) : LayoutModifier, DrawModifier {
 
-    override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints {
+    override fun Density.modifyConstraints(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Constraints {
         val intrinsicSize = painter.intrinsicSize
         val intrinsicWidth =
             intrinsicSize.width.takeUnless {
@@ -110,9 +113,14 @@ private data class PainterModifier(
         }
     }
 
-    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+    override fun Density.minIntrinsicWidthOf(
+        measurable: Measurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ): IntPx {
         val constraints = Constraints(maxHeight = height)
-        val layoutWidth = measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+        val layoutWidth =
+            measurable.minIntrinsicWidth(modifyConstraints(constraints, layoutDirection).maxHeight)
         val painterIntrinsicWidth =
             painter.intrinsicSize.width.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
@@ -120,9 +128,14 @@ private data class PainterModifier(
         return max(painterIntrinsicWidth, layoutWidth)
     }
 
-    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+    override fun Density.maxIntrinsicWidthOf(
+        measurable: Measurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ): IntPx {
         val constraints = Constraints(maxHeight = height)
-        val layoutWidth = measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+        val layoutWidth =
+            measurable.maxIntrinsicWidth(modifyConstraints(constraints, layoutDirection).maxHeight)
         val painterIntrinsicWidth =
             painter.intrinsicSize.width.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
@@ -130,9 +143,14 @@ private data class PainterModifier(
         return max(painterIntrinsicWidth, layoutWidth)
     }
 
-    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+    override fun Density.minIntrinsicHeightOf(
+        measurable: Measurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ): IntPx {
         val constraints = Constraints(maxWidth = width)
-        val layoutHeight = measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+        val layoutHeight =
+            measurable.minIntrinsicHeight(modifyConstraints(constraints, layoutDirection).maxWidth)
         val painterIntrinsicHeight =
             painter.intrinsicSize.height.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
@@ -140,9 +158,14 @@ private data class PainterModifier(
         return max(painterIntrinsicHeight, layoutHeight)
     }
 
-    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+    override fun Density.maxIntrinsicHeightOf(
+        measurable: Measurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ): IntPx {
         val constraints = Constraints(maxWidth = width)
-        val layoutHeight = measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+        val layoutHeight =
+            measurable.maxIntrinsicHeight(modifyConstraints(constraints, layoutDirection).maxWidth)
         val painterIntrinsicHeight =
             painter.intrinsicSize.height.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity

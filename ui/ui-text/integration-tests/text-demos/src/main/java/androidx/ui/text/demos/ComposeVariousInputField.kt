@@ -277,7 +277,7 @@ fun HintEditText(hintText: @Composable() () -> Unit) {
         Layout({
             inputField()
             Container(LayoutTag("hintText"), children = hintText)
-        }) { measurable, constraints ->
+        }) { measurable, constraints, _ ->
             val inputFieldPlacable =
                 measurable.first { it.tag == "inputField" }.measure(constraints)
             val hintTextPlacable = measurable.first { it.tag == "hintText" }.measure(constraints)

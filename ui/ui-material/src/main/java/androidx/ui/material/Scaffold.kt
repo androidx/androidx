@@ -231,7 +231,7 @@ private fun DockedBottomBar(
                 },
                 fab
             )
-        }) { measurables, constraints ->
+        }) { measurables, constraints, _ ->
         val (appBarPlaceable, fabPlaceable) = measurables.map { it.measure(constraints) }
 
         val layoutWidth = appBarPlaceable.width

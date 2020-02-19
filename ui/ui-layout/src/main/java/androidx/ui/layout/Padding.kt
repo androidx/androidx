@@ -20,7 +20,7 @@ import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.ModifierScope
+import androidx.ui.unit.Density
 import androidx.ui.core.offset
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
@@ -53,15 +53,17 @@ data class LayoutPadding(
     val end: Dp = 0.dp,
     val bottom: Dp = 0.dp
 ) : LayoutModifier {
-    override fun ModifierScope.modifyConstraints(
-        constraints: Constraints
+    override fun Density.modifyConstraints(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
     ) = constraints.offset(
         horizontal = -start.toIntPx() - end.toIntPx(),
         vertical = -top.toIntPx() - bottom.toIntPx()
     )
 
-    override fun ModifierScope.modifySize(
+    override fun Density.modifySize(
         constraints: Constraints,
+        layoutDirection: LayoutDirection,
         childSize: IntPxSize
     ) = IntPxSize(
         (start.toIntPx() + childSize.width + end.toIntPx())
@@ -70,9 +72,10 @@ data class LayoutPadding(
             .coerceIn(constraints.minHeight, constraints.maxHeight)
     )
 
-    override fun ModifierScope.modifyPosition(
+    override fun Density.modifyPosition(
         childSize: IntPxSize,
-        containerSize: IntPxSize
+        containerSize: IntPxSize,
+        layoutDirection: LayoutDirection
     ): IntPxPosition = if (layoutDirection == LayoutDirection.Ltr) {
         IntPxPosition(start.toIntPx(), top.toIntPx())
     } else {

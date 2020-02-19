@@ -404,7 +404,7 @@ private fun BaselinesOffsetColumn(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints ->
+    Layout(children, modifier) { measurables, constraints, _ ->
         val childConstraints = constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
         val placeables = measurables.map { it.measure(childConstraints) }
 
@@ -445,7 +445,7 @@ private fun OffsetToBaselineOrCenter(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints ->
+    Layout(children, modifier) { measurables, constraints, _ ->
         val placeable = measurables[0].measure(constraints.copy(minHeight = 0.ipx))
         val baseline = placeable[FirstBaseline]
         val y: IntPx

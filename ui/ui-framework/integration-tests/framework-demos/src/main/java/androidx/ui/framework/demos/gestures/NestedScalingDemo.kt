@@ -42,7 +42,7 @@ class NestedScalingDemo : Activity() {
                         Scalable(.5f, Color(0xFF4caf50.toInt())) {}
                     }
                 },
-                measureBlock = { measurables, constraints ->
+                measureBlock = { measurables, constraints, _ ->
 
                     val placeable = measurables.first().measure(constraints)
 
@@ -83,7 +83,7 @@ fun Scalable(
         Layout(
             children = children,
             modifier = LayoutAlign.Center + DrawBackground(color = color),
-            measureBlock = { measurables, constraints ->
+            measureBlock = { measurables, constraints, _ ->
                 val newConstraints =
                     constraints.copy(
                         maxWidth = constraints.maxWidth * currentPercent.value,

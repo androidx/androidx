@@ -91,7 +91,7 @@ class ExpandedModifierTest : LayoutTest() {
                         SaveLayoutInfo(size, position, positionedLatch)
                     }
                 }
-            }) { measurables, incomingConstraints ->
+            }) { measurables, incomingConstraints, _ ->
                 require(measurables.isNotEmpty())
                 val placeable = measurables.first().measure(incomingConstraints)
                 layout(

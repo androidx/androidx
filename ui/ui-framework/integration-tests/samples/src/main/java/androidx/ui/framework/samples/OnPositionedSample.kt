@@ -78,7 +78,7 @@ fun OnChildPositionedSample() {
  */
 @Composable
 fun Column(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+    Layout(children) { measurables, constraints, _ ->
         val placeables = measurables.map { measurable ->
             measurable.measure(
                 Constraints(minWidth = constraints.minWidth, maxWidth = constraints.maxWidth)

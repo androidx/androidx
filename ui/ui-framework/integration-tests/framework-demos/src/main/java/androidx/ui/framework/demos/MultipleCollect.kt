@@ -46,7 +46,7 @@ fun HeaderFooterLayout(
             },
             children = content
         )
-    }) { measurables, constraints ->
+    }) { measurables, constraints, _ ->
         val headerPlaceable = measurables.first { it.tag == "header" }.measure(
             Constraints.fixed(constraints.maxWidth, 100.ipx)
         )

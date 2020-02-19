@@ -40,6 +40,7 @@ import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
@@ -418,7 +419,7 @@ class PainterModifierTest {
      */
     @Composable
     fun NoMinSizeContainer(children: @Composable() () -> Unit) {
-        Layout(children) { measurables, constraints ->
+        Layout(children) { measurables, constraints, _ ->
             val loosenedConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
             val placeables = measurables.map { it.measure(loosenedConstraints) }
             val maxPlaceableWidth = placeables.maxBy { it.width.value }?.width ?: 0.ipx
@@ -439,7 +440,7 @@ class PainterModifierTest {
         modifier: Modifier = Modifier.None,
         children: @Composable() () -> Unit
     ) {
-        Layout(children, modifier) { measurables, constraints ->
+        Layout(children, modifier) { measurables, constraints, _ ->
             val placeables = measurables.map { it.measure(constraints) }
             val width = max(
                 placeables.maxBy { it.width.value }?.width ?: 0.ipx, constraints
@@ -456,12 +457,16 @@ class PainterModifierTest {
     }
 
     class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier {
-        override fun ModifierScope.modifySize(
+        override fun Density.modifySize(
             constraints: Constraints,
+            layoutDirection: LayoutDirection,
             childSize: IntPxSize
         ): IntPxSize = IntPxSize(width, height)
 
-        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints =
+        override fun Density.modifyConstraints(
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): Constraints =
             Constraints(
                 minWidth = width,
                 minHeight = height,

@@ -34,7 +34,7 @@ import androidx.ui.unit.max
  */
 @Composable
 fun Wrap(alignment: Alignment = Alignment.TopStart, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+    Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))

@@ -501,11 +501,11 @@ private fun FixedIntrinsicsBox(
 ) {
     Layout(
         children,
-        minIntrinsicWidthMeasureBlock = { _, _ -> minIntrinsicWidth.toIntPx() },
-        minIntrinsicHeightMeasureBlock = { _, _ -> minIntrinsicHeight.toIntPx() },
-        maxIntrinsicWidthMeasureBlock = { _, _ -> maxIntrinsicWidth.toIntPx() },
-        maxIntrinsicHeightMeasureBlock = { _, _ -> maxIntrinsicHeight.toIntPx() }
-    ) { _, constraints ->
+        minIntrinsicWidthMeasureBlock = { _, _, _ -> minIntrinsicWidth.toIntPx() },
+        minIntrinsicHeightMeasureBlock = { _, _, _ -> minIntrinsicHeight.toIntPx() },
+        maxIntrinsicWidthMeasureBlock = { _, _, _ -> maxIntrinsicWidth.toIntPx() },
+        maxIntrinsicHeightMeasureBlock = { _, _, _ -> maxIntrinsicHeight.toIntPx() }
+    ) { _, constraints, _ ->
         layout(
             width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
             height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
