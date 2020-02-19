@@ -17,15 +17,9 @@
 package androidx.camera.view;
 
 import static androidx.camera.core.SurfaceRequest.Result;
-import static androidx.camera.view.ScaleTypeTransform.getFillScaleWithBufferAspectRatio;
-import static androidx.camera.view.ScaleTypeTransform.getOriginOfCenteredView;
-import static androidx.camera.view.ScaleTypeTransform.getRotationDegrees;
 
-import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.util.Log;
-import android.util.Pair;
-import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -47,20 +41,19 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * The {@link TextureView} implementation for {@link PreviewView}
  */
-public class TextureViewImplementation implements PreviewView.Implementation {
+public class TextureViewImplementation extends PreviewViewImplementation {
 
     private static final String TAG = "TextureViewImpl";
 
-    private FrameLayout mParent;
     TextureView mTextureView;
     SurfaceTexture mSurfaceTexture;
-    private Size mResolution;
     ListenableFuture<Result> mSurfaceReleaseFuture;
     SurfaceRequest mSurfaceRequest;
 
+    @Nullable
     @Override
-    public void init(@NonNull FrameLayout parent) {
-        mParent = parent;
+    View getPreview() {
+        return mTextureView;
     }
 
     @NonNull
@@ -68,7 +61,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
     public Preview.SurfaceProvider getSurfaceProvider() {
         return (surfaceRequest) -> {
             mResolution = surfaceRequest.getResolution();
-            initInternal();
+            initializePreview();
             if (mSurfaceRequest != null) {
                 mSurfaceRequest.willNotProvideSurface();
             }
@@ -86,22 +79,11 @@ public class TextureViewImplementation implements PreviewView.Implementation {
         };
     }
 
-    @Nullable
     @Override
-    public Size getResolution() {
-        return mResolution;
-    }
+    public void initializePreview() {
+        Preconditions.checkNotNull(mParent);
+        Preconditions.checkNotNull(mResolution);
 
-    @Override
-    public void onDisplayChanged() {
-        if (mParent == null || mTextureView == null || mResolution == null) {
-            return;
-        }
-
-        correctPreviewForCenterCrop(mParent, mTextureView, mResolution);
-    }
-
-    private void initInternal() {
         mTextureView = new TextureView(mParent.getContext());
         mTextureView.setLayoutParams(
                 new FrameLayout.LayoutParams(mResolution.getWidth(), mResolution.getHeight()));
@@ -172,14 +154,6 @@ public class TextureViewImplementation implements PreviewView.Implementation {
 
     @SuppressWarnings("WeakerAccess")
     void tryToProvidePreviewSurface() {
-        /*
-          Should only continue if:
-          - The preview size has been specified.
-          - The textureView's surfaceTexture is available (after TextureView
-          .SurfaceTextureListener#onSurfaceTextureAvailable is invoked)
-          - The surfaceCompleter has been set (after CallbackToFutureAdapter
-          .Resolver#attachCompleter is invoked).
-         */
         if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
             return;
         }
@@ -203,40 +177,6 @@ public class TextureViewImplementation implements PreviewView.Implementation {
         }, ContextCompat.getMainExecutor(mTextureView.getContext()));
 
         mSurfaceRequest = null;
-
-        correctPreviewForCenterCrop(mParent, mTextureView, mResolution);
-    }
-
-    /**
-     * Corrects the preview to match the UI orientation and completely fill the PreviewView.
-     *
-     * <p>
-     * The camera produces a preview that depends on its sensor orientation and that has a
-     * specific resolution. In order to display it correctly, this preview must be rotated to
-     * match the UI orientation, and must be scaled up/down to fit inside the view that's
-     * displaying it. This method takes care of doing so while keeping the preview centered.
-     * </p>
-     *
-     * @param container   The {@link PreviewView}'s root layout, which wraps the preview.
-     * @param textureView The {@link android.view.TextureView} that displays the preview, its size
-     *                    must match the camera sensor output size.
-     * @param bufferSize  The camera sensor output size.
-     */
-    private void correctPreviewForCenterCrop(@NonNull final View container,
-            @NonNull final TextureView textureView, @NonNull final Size bufferSize) {
-        // Scale TextureView to fill PreviewView while respecting sensor output size aspect ratio
-        final Pair<Float, Float> scale = getFillScaleWithBufferAspectRatio(container, textureView,
-                bufferSize);
-        textureView.setScaleX(scale.first);
-        textureView.setScaleY(scale.second);
-
-        // Center TextureView inside PreviewView
-        final Point newOrigin = getOriginOfCenteredView(container, textureView);
-        textureView.setX(newOrigin.x);
-        textureView.setY(newOrigin.y);
-
-        // Rotate TextureView to correct preview orientation
-        final int rotation = getRotationDegrees(textureView);
-        textureView.setRotation(-rotation);
+        onSurfaceProvided();
     }
 }
