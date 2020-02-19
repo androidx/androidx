@@ -20,11 +20,18 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Choreographer
 import androidx.annotation.CallSuper
+import androidx.annotation.RestrictTo
 import java.util.concurrent.CountDownLatch
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+var rootAnimationClockFactory: () -> AnimationClockObservable = { DefaultAnimationClock() }
 
 /**
  * Default Choreographer based clock that pushes a new frame to all subscribers on each
- * Choreographer tick, until all subscribers have unsubscribed.
+ * Choreographer tick, until all subscribers have unsubscribed. An instance of this clock will be
+ * provided through [AnimationClockAmbient][androidx.ui.core.AnimationClockAmbient] at the root
+ * of the composition tree.
  *
  * If initialized from any other thread but the main thread, part of the initialization is done
  * synchronously on the main thread. If this poses a problem, consider initializing this clock on

@@ -25,7 +25,7 @@ import androidx.animation.TransitionState
 import androidx.animation.createAnimation
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.onCommit
+import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 
@@ -81,7 +81,10 @@ fun <T> Transition(
         }
 
         model.anim.onStateChangeFinished = onStateChangeFinished
-        onCommit(model, toState) {
+        // TODO(b/150674848): Should be onCommit, but that posts to the Choreographer. Until that
+        //  callback is executed, nothing is aware that the animation is kicked off, so if
+        //  Espresso checks for idleness between now and then, it will think all is idle.
+        onPreCommit(model, toState) {
             model.anim.toState(toState)
         }
         children(model)

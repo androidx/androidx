@@ -33,6 +33,7 @@ import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Rect
+import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
@@ -71,6 +72,7 @@ class AndroidComposeTestRule<T : Activity>(
 ) : ComposeTestRule {
 
     val activityTestRule = ActivityTestRule<T>(activityClass)
+    override val clockTestRule = AnimationClockTestRule()
 
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var disposeContentHook: (() -> Unit)? = null
@@ -81,7 +83,10 @@ class AndroidComposeTestRule<T : Activity>(
         activityTestRule.activity.resources.displayMetrics
 
     override fun apply(base: Statement, description: Description?): Statement {
-        return activityTestRule.apply(AndroidComposeStatement(base), description)
+        return clockTestRule.apply(
+            activityTestRule.apply(AndroidComposeStatement(base), description),
+            description
+        )
     }
 
     override fun <T> runOnUiThread(action: () -> T): T {

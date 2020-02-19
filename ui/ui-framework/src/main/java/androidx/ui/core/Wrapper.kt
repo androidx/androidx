@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.animation.AnimationClockObservable
-import androidx.animation.DefaultAnimationClock
+import androidx.animation.rootAnimationClockFactory
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.compose.Composable
@@ -184,7 +184,7 @@ private fun WrapWithAmbients(
         else -> LayoutDirection.Ltr
     }
 
-    val defaultAnimationClock = remember { DefaultAnimationClock() }
+    val rootAnimationClock = remember { rootAnimationClockFactory() }
 
     Providers(
         ContextAmbient provides context,
@@ -198,7 +198,7 @@ private fun WrapWithAmbients(
         ConfigurationAmbient provides context.applicationContext.resources.configuration,
         AndroidComposeViewAmbient provides composeView,
         LayoutDirectionAmbient provides layoutDirection,
-        AnimationClockAmbient provides defaultAnimationClock,
+        AnimationClockAmbient provides rootAnimationClock,
         children = content
     )
 }
