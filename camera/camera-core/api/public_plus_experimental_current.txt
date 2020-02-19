@@ -126,8 +126,8 @@ package androidx.camera.core {
     method public int getCaptureMode();
     method public int getFlashMode();
     method public int getTargetRotation();
+    method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
-    method public void setTargetAspectRatioCustom(android.util.Rational);
     method public void setTargetRotation(int);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
