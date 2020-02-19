@@ -135,7 +135,7 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
             if (mSurfaceRequest != null && mTargetSize != null && mTargetSize.equals(
                     mCurrentSurfaceSize)) {
                 Log.d(TAG, "Surface set on Preview.");
-                mSurfaceRequest.setSurface(surface).addListener(() -> {
+                mSurfaceRequest.provideSurface(surface).addListener(() -> {
                     Log.d(TAG, "Safe to release surface.");
                 }, ContextCompat.getMainExecutor(mSurfaceView.getContext()));
                 mSurfaceRequest = null;
@@ -149,7 +149,7 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
         private void cancelPreviousRequest() {
             if (mSurfaceRequest != null) {
                 Log.d(TAG, "Request canceled: " + mSurfaceRequest);
-                mSurfaceRequest.setWillNotComplete();
+                mSurfaceRequest.willNotProvideSurface();
                 mSurfaceRequest = null;
             }
             mTargetSize = null;

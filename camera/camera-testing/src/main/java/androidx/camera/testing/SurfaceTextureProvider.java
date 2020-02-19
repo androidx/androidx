@@ -74,7 +74,7 @@ public final class SurfaceTextureProvider {
             surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture,
                     surfaceRequest.getResolution());
             Surface surface = new Surface(surfaceTexture);
-            surfaceRequest.setSurface(surface).addListener(() -> {
+            surfaceRequest.provideSurface(surface).addListener(() -> {
                 surface.release();
                 surfaceTextureCallback.onSafeToRelease(surfaceTexture);
             }, CameraXExecutors.directExecutor());
