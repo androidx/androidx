@@ -12,5 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is necessary for default initialization using Camera2Config
--keep public class androidx.camera.camera2.Camera2Config$DefaultProvider { *; }
+-keep class androidx.camera.integration.view.ViewCameraXConfigProvider
