@@ -26,6 +26,7 @@ import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
@@ -226,7 +227,7 @@ class RowScope private constructor() : FlexScope() {
 @Composable
 fun Row(
     modifier: Modifier = Modifier.None,
-    arrangement: Arrangement = Arrangement.Begin,
+    arrangement: Arrangement.Horizontal = Arrangement.Start,
     children: @Composable() RowScope.() -> Unit
 ) {
     FlexLayout(
@@ -270,7 +271,7 @@ fun Row(
 @Composable
 fun Column(
     modifier: Modifier = Modifier.None,
-    arrangement: Arrangement = Arrangement.Begin,
+    arrangement: Arrangement.Vertical = Arrangement.Top,
     children: @Composable() ColumnScope.() -> Unit
 ) {
     FlexLayout(
@@ -313,6 +314,8 @@ enum class SizeMode {
  * Used to specify the alignment of a layout's children, in main axis direction.
  */
 enum class MainAxisAlignment(internal val arrangement: Arrangement) {
+    // TODO(soboleva) support RTl in Flow
+    // workaround for now - use Arrangement that equals to previous Arrangement
     /**
      * Place children such that they are as close as possible to the middle of the main axis.
      */
@@ -320,12 +323,11 @@ enum class MainAxisAlignment(internal val arrangement: Arrangement) {
     /**
      * Place children such that they are as close as possible to the start of the main axis.
      */
-    // TODO(popam): Consider rtl directionality.
-    Start(Arrangement.Begin),
+    Start(Arrangement.Top),
     /**
      * Place children such that they are as close as possible to the end of the main axis.
      */
-    End(Arrangement.End),
+    End(Arrangement.Bottom),
     /**
      * Place children such that they are spaced evenly across the main axis, including free
      * space before the first child and after the last child.
@@ -347,46 +349,96 @@ enum class MainAxisAlignment(internal val arrangement: Arrangement) {
 /**
  * Used to specify the arrangement of the layout's children in [Row] or [Column] in the main axis
  * direction (horizontal and vertical, respectively).
- * @constructor Creates an arrangement using the [arrangeBlock]. Use it to provide your own
+ * @constructor Creates an arrangement using the [arrange] function. Use it to provide your own
  * arrangement of the layout's children.
  */
 @Immutable
-class Arrangement(
-    internal val arrangeBlock: (totalSize: IntPx, elementSize: List<IntPx>) -> List<IntPx>
-) {
-    companion object {
-        /**
-         * Place children such that they are as close as possible to the beginning of the main axis.
-         */
-        // TODO(soboleva/popam): Consider rtl directionality.
-        val Begin = Arrangement { _, size ->
-                val positions = mutableListOf<IntPx>()
-                var current = 0.ipx
-                size.forEach {
-                    positions.add(current)
-                    current += it
-                }
-                positions
-            }
+interface Arrangement {
+    /**
+     * Places the layout children inside the parent layout along the main axis.
+     *
+     * @param totalSize Available space that can be occupied by the children.
+     * @param size A list of sizes of all children.
+     * @param layoutDirection A layout direction, left-to-right or right-to-left, of the parent
+     * layout that should be taken into account when determining positions of the children in
+     * horizontal direction.
+     */
+    fun arrange(totalSize: IntPx, size: List<IntPx>, layoutDirection: LayoutDirection): List<IntPx>
 
-        /**
-         * Place children such that they are as close as possible to the end of the main axis.
-         */
-        val End = Arrangement { totalSize, size ->
-            val consumedSize = size.fold(0.ipx) { a, b -> a + b }
-            val positions = mutableListOf<IntPx>()
-            var current = totalSize - consumedSize
-            size.forEach {
-                positions.add(current)
-                current += it
-            }
-            positions
+    /**
+     * Used to specify the vertical arrangement of the layout's children in a [Column].
+     */
+    interface Vertical : Arrangement
+    /**
+     * Used to specify the horizontal arrangement of the layout's children in a [Row].
+     */
+    interface Horizontal : Arrangement
+
+    /**
+     * Place children horizontally such that they are as close as possible to the beginning of the
+     * main axis.
+     */
+    object Start : Horizontal {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ) = if (layoutDirection == LayoutDirection.Ltr) {
+            placeLeftOrTop(size)
+        } else {
+            placeRightOrBottom(totalSize, size)
         }
+    }
 
-        /**
-         * Place children such that they are as close as possible to the middle of the main axis.
-         */
-        val Center = Arrangement { totalSize, size ->
+    /**
+     * Place children horizontally such that they are as close as possible to the end of the main
+     * axis.
+     */
+    object End : Horizontal {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ) = if (layoutDirection == LayoutDirection.Ltr) {
+            placeRightOrBottom(totalSize, size)
+        } else {
+            placeLeftOrTop(size)
+        }
+    }
+
+    /**
+     * Place children vertically such that they are as close as possible to the top of the main
+     * axis.
+     */
+    object Top : Vertical {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ) = placeLeftOrTop(size)
+    }
+
+    /**
+     * Place children vertically such that they are as close as possible to the bottom of the main
+     * axis.
+     */
+    object Bottom : Vertical {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ) = placeRightOrBottom(totalSize, size)
+    }
+
+    /**
+     * Place children such that they are as close as possible to the middle of the main axis.
+     */
+    object Center : Vertical, Horizontal {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val positions = mutableListOf<IntPx>()
             var current = (totalSize - consumedSize).toPx() / 2
@@ -394,14 +446,20 @@ class Arrangement(
                 positions.add(current.round())
                 current += it
             }
-            positions
+            return positions
         }
+    }
 
-        /**
-         * Place children such that they are spaced evenly across the main axis, including free
-         * space before the first child and after the last child.
-         */
-        val SpaceEvenly = Arrangement { totalSize, size ->
+    /**
+     * Place children such that they are spaced evenly across the main axis, including free
+     * space before the first child and after the last child.
+     */
+    object SpaceEvenly : Vertical, Horizontal {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val gapSize = (totalSize - consumedSize).toPx() / (size.size + 1)
             val positions = mutableListOf<IntPx>()
@@ -410,14 +468,20 @@ class Arrangement(
                 positions.add(current.round())
                 current += it.toPx() + gapSize
             }
-            positions
+            return positions
         }
+    }
 
-        /**
-         * Place children such that they are spaced evenly across the main axis, without free
-         * space before the first child or after the last child.
-         */
-        val SpaceBetween = Arrangement { totalSize, size ->
+    /**
+     * Place children such that they are spaced evenly across the main axis, without free
+     * space before the first child or after the last child.
+     */
+    object SpaceBetween : Vertical, Horizontal {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val gapSize = if (size.size > 1) {
                 (totalSize - consumedSize).toPx() / (size.size - 1)
@@ -430,15 +494,21 @@ class Arrangement(
                 positions.add(current.round())
                 current += it.toPx() + gapSize
             }
-            positions
+            return positions
         }
+    }
 
-        /**
-         * Place children such that they are spaced evenly across the main axis, including free
-         * space before the first child and after the last child, but half the amount of space
-         * existing otherwise between two consecutive children.
-         */
-        val SpaceAround = Arrangement { totalSize, size ->
+    /**
+     * Place children such that they are spaced evenly across the main axis, including free
+     * space before the first child and after the last child, but half the amount of space
+     * existing otherwise between two consecutive children.
+     */
+    object SpaceAround : Vertical, Horizontal {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val gapSize = if (size.isNotEmpty()) {
                 (totalSize - consumedSize).toPx() / size.size
@@ -451,7 +521,29 @@ class Arrangement(
                 positions.add(current.round())
                 current += it.toPx() + gapSize
             }
-            positions
+            return positions
+        }
+    }
+
+    private companion object {
+        private fun placeRightOrBottom(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
+            val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+            val positions = mutableListOf<IntPx>()
+            var current = totalSize - consumedSize
+            size.forEach {
+                positions.add(current)
+                current += it
+            }
+            return positions
+        }
+        private fun placeLeftOrTop(size: List<IntPx>): List<IntPx> {
+            val positions = mutableListOf<IntPx>()
+            var current = 0.ipx
+            size.forEach {
+                positions.add(current)
+                current += it
+            }
+            return positions
         }
     }
 }
@@ -575,7 +667,15 @@ private fun FlexLayout(
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(orientation),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(orientation),
         maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(orientation)
-    ) { measurables, outerConstraints ->
+    ) { ltrMeasurables, outerConstraints ->
+        // rtl support
+        val measurables = if (orientation == LayoutOrientation.Horizontal &&
+                layoutDirection == LayoutDirection.Rtl) {
+            ltrMeasurables.asReversed()
+        } else {
+            ltrMeasurables
+        }
+
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
         var totalFlex = 0f
@@ -703,16 +803,31 @@ private fun FlexLayout(
         }
         layout(layoutWidth, layoutHeight) {
             val childrenMainAxisSize = placeables.map { it!!.mainAxisSize() }
-            val mainAxisPositions =
-                arrangement.arrangeBlock(mainAxisLayoutSize, childrenMainAxisSize)
+            val mainAxisPositions = arrangement.arrange(
+                mainAxisLayoutSize,
+                childrenMainAxisSize,
+                layoutDirection
+            )
             placeables.forEachIndexed { index, placeable ->
                 placeable!!
-                val childCrossAlignment =
-                    measurables[index].crossAxisAlignment ?: crossAxisAlignment
+                val measurable = measurables[index]
+                val childCrossAlignment = measurable.crossAxisAlignment ?: crossAxisAlignment
+                val isRtlColumn = orientation == LayoutOrientation.Vertical &&
+                        layoutDirection == LayoutDirection.Rtl
                 val crossAxis = when (childCrossAlignment) {
-                    CrossAxisAlignment.Start -> IntPx.Zero
+                    CrossAxisAlignment.Start -> {
+                        if (isRtlColumn) {
+                            crossAxisLayoutSize - placeable.crossAxisSize()
+                        } else {
+                            IntPx.Zero
+                        }
+                    }
                     CrossAxisAlignment.End -> {
-                        crossAxisLayoutSize - placeable.crossAxisSize()
+                        if (isRtlColumn) {
+                            IntPx.Zero
+                        } else {
+                            crossAxisLayoutSize - placeable.crossAxisSize()
+                        }
                     }
                     CrossAxisAlignment.Center -> {
                         Alignment.Center.align(
@@ -723,15 +838,21 @@ private fun FlexLayout(
                         ).y
                     }
                     else -> {
-                        val provider = measurables[index].crossAxisAlignment?.alignmentLineProvider
-                            ?: crossAxisAlignment.alignmentLineProvider
+                        val provider = childCrossAlignment.alignmentLineProvider
                         val alignmentLinePosition = when (provider) {
                             is AlignmentLineProvider.Block -> provider.lineProviderBlock(placeable)
                             is AlignmentLineProvider.Value -> placeable[provider.line]
                             else -> null
                         }
                         if (alignmentLinePosition != null) {
-                            beforeCrossAxisAlignmentLine - alignmentLinePosition
+                            val line = beforeCrossAxisAlignmentLine - alignmentLinePosition
+                            if (orientation == LayoutOrientation.Vertical &&
+                                layoutDirection == LayoutDirection.Rtl
+                            ) {
+                                layoutWidth - line - placeable.width
+                            } else {
+                                line
+                            }
                         } else {
                             IntPx.Zero
                         }
