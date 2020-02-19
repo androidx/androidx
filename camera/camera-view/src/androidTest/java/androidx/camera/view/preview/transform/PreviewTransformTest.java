@@ -64,7 +64,7 @@ public class PreviewTransformTest {
     @Test
     @UiThreadTest
     public void fillStart() {
-        PreviewTransform.transform(mContainer, mView, BUFFER, PreviewView.ScaleType.FILL_START);
+        PreviewTransform.transform(mContainer, mView, PreviewView.ScaleType.FILL_START);
 
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());
@@ -74,7 +74,7 @@ public class PreviewTransformTest {
     @Test
     @UiThreadTest
     public void fillCenter() {
-        PreviewTransform.transform(mContainer, mView, BUFFER, PreviewView.ScaleType.FILL_CENTER);
+        PreviewTransform.transform(mContainer, mView, PreviewView.ScaleType.FILL_CENTER);
 
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());
@@ -84,7 +84,7 @@ public class PreviewTransformTest {
     @Test
     @UiThreadTest
     public void fillEnd() {
-        PreviewTransform.transform(mContainer, mView, BUFFER, PreviewView.ScaleType.FILL_END);
+        PreviewTransform.transform(mContainer, mView, PreviewView.ScaleType.FILL_END);
 
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());

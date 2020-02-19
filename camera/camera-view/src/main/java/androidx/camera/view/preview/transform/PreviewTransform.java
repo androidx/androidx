@@ -16,7 +16,6 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.util.Size;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -38,16 +37,14 @@ public final class PreviewTransform {
     /**
      * Transforms a preview using a supported {@link PreviewView.ScaleType}.
      *
-     * @param container   A parent {@link View} that wraps {@code view}.
-     * @param view        A {@link View} that wraps the camera preview.
-     * @param aspectRatio A {@link Size} whose aspect ratio must be maintained when scaling the
-     *                    preview.
-     * @param scaleType   A supported {@link PreviewView.ScaleType} to apply on the camera preview.
+     * @param container A parent {@link View} that wraps {@code view}.
+     * @param view      A {@link View} that wraps the camera preview.
+     * @param scaleType A supported {@link PreviewView.ScaleType} to apply on the camera preview.
      */
     public static void transform(@NonNull final View container, @NonNull final View view,
-            @NonNull final Size aspectRatio, @NonNull final PreviewView.ScaleType scaleType) {
-        final Transformation transformation = ScaleTypeTransform.getTransformation(container,
-                view, aspectRatio, scaleType);
+            @NonNull final PreviewView.ScaleType scaleType) {
+        final Transformation transformation = ScaleTypeTransform.getTransformation(container, view,
+                scaleType);
         applyTransformationToPreview(transformation, view);
     }
 
