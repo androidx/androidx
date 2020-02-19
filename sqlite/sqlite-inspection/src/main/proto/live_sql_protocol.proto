@@ -110,7 +110,7 @@ message Row {
 // Query result cell.
 message CellValue {
   // Resulting cell value depending on type affinity rules.
-  oneof value {
+  oneof OneOf {
     float float_value = 1;
     int32 int_value = 2;
     string string_value = 3;
@@ -134,7 +134,7 @@ message ErrorOccurredResponse {
 // Connection's sendEvent method.
 message Event {
   // Wrapped specialised Event.
-  oneof union {
+  oneof OneOf {
     DatabaseOpenedEvent database_opened = 1;
     ErrorOccurredEvent error_occurred = 400;
   }
