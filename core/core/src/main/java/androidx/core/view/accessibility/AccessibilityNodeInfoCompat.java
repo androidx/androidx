@@ -20,6 +20,7 @@ import static android.view.View.NO_ID;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
@@ -544,6 +545,36 @@ public class AccessibilityNodeInfoCompat {
                 new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null,
                         android.R.id.accessibilityActionHideTooltip, null, null, null);
+
+        /**
+         * Action that presses and holds a node.
+         * <p>
+         * This action is for nodes that have distinct behavior that depends on how long a press is
+         * held. Nodes having a single action for long press should use {@link #ACTION_LONG_CLICK}
+         *  instead of this action, and nodes should not expose both actions.
+         * <p>
+         * When calling {@code performAction(ACTION_PRESS_AND_HOLD, bundle}, use
+         * {@link #ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT} to specify how long the
+         * node is pressed. The first time an accessibility service performs ACTION_PRES_AND_HOLD
+         * on a node, it must specify 0 as ACTION_ARGUMENT_PRESS_AND_HOLD, so the application is
+         * notified that the held state has started. To ensure reasonable behavior, the values
+         * must be increased incrementally and may not exceed 10,000. UIs requested
+         * to hold for times outside of this range should ignore the action.
+         * <p>
+         * The total time the element is held could be specified by an accessibility user up-front,
+         * or may depend on what happens on the UI as the user continues to request the hold.
+         * <p>
+         *   <strong>Note:</strong> The time between dispatching the action and it arriving in the
+         *     UI process is not guaranteed. It is possible on a busy system for the time to expire
+         *     unexpectedly. For the case of holding down a key for a repeating action, a delayed
+         *     arrival should be benign. Please do not use this sort of action in cases where such
+         *     delays will lead to unexpected UI behavior.
+         * <p>
+         */
+        @NonNull public static final AccessibilityActionCompat ACTION_PRESS_AND_HOLD =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_PRESS_AND_HOLD : null,
+                        android.R.id.accessibilityActionPressAndHold, null, null, null);
 
         final Object mAction;
         private final int mId;
@@ -1569,6 +1600,21 @@ public class AccessibilityNodeInfoCompat {
      */
     public static final String ACTION_ARGUMENT_MOVE_WINDOW_Y =
             "ACTION_ARGUMENT_MOVE_WINDOW_Y";
+
+    /**
+     * Argument to represent the duration in milliseconds to press and hold a node.
+     * <p>
+     * <strong>Type:</strong> int<br>
+     * <strong>Actions:</strong>
+     * <ul>
+     *     <li>{@link AccessibilityActionCompat#ACTION_PRESS_AND_HOLD}</li>
+     * </ul>
+     *
+     * @see AccessibilityActionCompat#ACTION_PRESS_AND_HOLD
+     */
+    @SuppressLint("ActionValue")
+    public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT =
+            "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
 
     // Focus types
 
@@ -4196,6 +4242,8 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_SHOW_TOOLTIP";
             case android.R.id.accessibilityActionHideTooltip:
                 return "ACTION_HIDE_TOOLTIP";
+            case android.R.id.accessibilityActionPressAndHold:
+                return "ACTION_PRESS_AND_HOLD";
             default:
                 return"ACTION_UNKNOWN";
         }
