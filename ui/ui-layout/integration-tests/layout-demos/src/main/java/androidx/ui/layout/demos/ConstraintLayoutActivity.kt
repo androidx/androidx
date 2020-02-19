@@ -19,19 +19,15 @@ package androidx.ui.layout.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
-import androidx.ui.core.Draw
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Text
 import androidx.ui.core.setContent
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.constraintlayout.ConstraintLayout
 import androidx.ui.layout.constraintlayout.ConstraintSet
 import androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
-import androidx.ui.unit.toRect
 
 /**
  * Simple ConstraintLayout demo
@@ -81,9 +77,6 @@ fun CLDemo() {
         text5.top constrainTo barrier
         text5.centerHorizontally()
     }) {
-        Draw { canvas, parentSize ->
-            canvas.drawRect(parentSize.toRect(), Paint().apply { color = Color.Blue })
-        }
         Text(modifier = LayoutTag("text1"), text = "Text1", style = TextStyle(fontSize = 10.sp))
         Text(modifier = LayoutTag("text2"), text = "Text2", style = TextStyle(fontSize = 12.sp))
         Text(modifier = LayoutTag("text3"), text = "Text3", style = TextStyle(fontSize = 14.sp))

@@ -97,15 +97,7 @@ class TouchSlopDragGestureDetectorDemo : Activity() {
                 }
 
             TouchSlopDragGestureDetector(dragObserver, canDrag) {
-                MatchParent {
-                    DrawBox(
-                        xOffset.value,
-                        yOffset.value,
-                        96.dp,
-                        96.dp,
-                        color
-                    )
-                }
+                DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color)
             }
         }
     }
