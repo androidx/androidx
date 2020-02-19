@@ -16,8 +16,6 @@
 
 package androidx.camera.view.preview.transform;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -27,6 +25,7 @@ import android.widget.FrameLayout;
 
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.view.PreviewView;
+import androidx.core.content.ContextCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.rule.ActivityTestRule;
 
@@ -36,6 +35,7 @@ import org.junit.Test;
 
 public class PreviewTransformTest {
 
+    private static final Size CONTAINER = new Size(800, 450);
     private static final Size BUFFER = new Size(400, 300);
 
     @Rule
@@ -49,22 +49,30 @@ public class PreviewTransformTest {
     public void setUp() throws Throwable {
         mActivityTestRule.runOnUiThread(() -> {
             final Context context = mActivityTestRule.getActivity();
+
+            final FrameLayout root = new FrameLayout(context);
+
             mContainer = new FrameLayout(context);
-            mContainer.setLayoutParams(new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+            mContainer.setLayoutParams(
+                    new FrameLayout.LayoutParams(CONTAINER.getWidth(), CONTAINER.getHeight()));
 
             mView = new View(context);
             mView.setLayoutParams(
                     new FrameLayout.LayoutParams(BUFFER.getWidth(), BUFFER.getHeight()));
+            mView.setBackgroundColor(
+                    ContextCompat.getColor(context, android.R.color.holo_blue_dark));
 
             mContainer.addView(mView);
-            mActivityTestRule.getActivity().setContentView(mContainer);
+            root.addView(mContainer);
+            mActivityTestRule.getActivity().setContentView(root);
         });
     }
 
     @Test
     @UiThreadTest
     public void fillStart() {
-        PreviewTransform.transform(mContainer, mView, PreviewView.ScaleType.FILL_START);
+        PreviewTransform.applyScaleType(mContainer, mView, BUFFER,
+                PreviewView.ScaleType.FILL_START);
 
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());
@@ -74,7 +82,8 @@ public class PreviewTransformTest {
     @Test
     @UiThreadTest
     public void fillCenter() {
-        PreviewTransform.transform(mContainer, mView, PreviewView.ScaleType.FILL_CENTER);
+        PreviewTransform.applyScaleType(mContainer, mView, BUFFER,
+                PreviewView.ScaleType.FILL_CENTER);
 
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());
@@ -84,7 +93,7 @@ public class PreviewTransformTest {
     @Test
     @UiThreadTest
     public void fillEnd() {
-        PreviewTransform.transform(mContainer, mView, PreviewView.ScaleType.FILL_END);
+        PreviewTransform.applyScaleType(mContainer, mView, BUFFER, PreviewView.ScaleType.FILL_END);
 
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());

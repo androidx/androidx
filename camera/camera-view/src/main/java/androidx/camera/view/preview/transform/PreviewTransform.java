@@ -16,6 +16,9 @@
 
 package androidx.camera.view.preview.transform;
 
+import static androidx.camera.view.preview.transform.transformation.Transformation.getTransformation;
+
+import android.util.Size;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -34,28 +37,44 @@ public final class PreviewTransform {
     private PreviewTransform() {
     }
 
-    /**
-     * Transforms a preview using a supported {@link PreviewView.ScaleType}.
-     *
-     * @param container A parent {@link View} that wraps {@code view}.
-     * @param view      A {@link View} that wraps the camera preview.
-     * @param scaleType A supported {@link PreviewView.ScaleType} to apply on the camera preview.
-     */
-    public static void transform(@NonNull final View container, @NonNull final View view,
-            @NonNull final PreviewView.ScaleType scaleType) {
+    /** Applies the specified {@link PreviewView.ScaleType} on the passed in preview. */
+    public static void applyScaleType(@NonNull final View container, @NonNull final View view,
+            @NonNull final Size bufferSize, @NonNull PreviewView.ScaleType scaleType) {
+        resetPreview(view);
+        correctPreview(container, view, bufferSize);
+        applyScaleTypeInternal(container, view, scaleType);
+    }
+
+    private static void resetPreview(@NonNull View view) {
+        final Transformation reset = new Transformation();
+        applyTransformation(view, reset);
+    }
+
+    /** Corrects the preview. */
+    private static void correctPreview(@NonNull final View container, @NonNull final View view,
+            @NonNull final Size bufferSize) {
+        final Transformation correct = PreviewCorrector.getCorrectionTransformation(container, view,
+                bufferSize);
+        applyTransformation(view, correct);
+    }
+
+    /** Applies the specified {@link PreviewView.ScaleType} on top of the corrected preview. */
+    private static void applyScaleTypeInternal(@NonNull final View container,
+            @NonNull final View view, @NonNull final PreviewView.ScaleType scaleType) {
+        final Transformation current = getTransformation(view);
         final Transformation transformation = ScaleTypeTransform.getTransformation(container, view,
                 scaleType);
-        applyTransformationToPreview(transformation, view);
+        applyTransformation(view, current.add(transformation));
     }
 
     /**
-     * Applies a {@link Transformation} to a preview.
-     *
-     * @param transformation A transformation to apply on the preview.
-     * @param view           A {@link View} that wraps the camera preview.
+     * Applies a {@link Transformation} on the passed in preview while overriding any previous
+     * preview {@linkplain Transformation transformations}
      */
-    private static void applyTransformationToPreview(@NonNull final Transformation transformation,
-            @NonNull final View view) {
+    private static void applyTransformation(@NonNull final View view,
+            @NonNull final Transformation transformation) {
+        view.setX(0);
+        view.setY(0);
         view.setScaleX(transformation.getScaleX());
         view.setScaleY(transformation.getScaleY());
         view.setTranslationX(transformation.getTransX());
