@@ -2,6 +2,8 @@
 package androidx.ui.test {
 
   public final class ActionsKt {
+    method public static <T extends kotlin.Function<? extends kotlin.Unit>> void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
+    method public static void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> key);
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction doGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.GestureScope,kotlin.Unit> block);
     method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);

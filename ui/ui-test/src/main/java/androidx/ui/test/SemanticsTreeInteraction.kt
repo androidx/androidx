@@ -19,7 +19,6 @@ package androidx.ui.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.android.AndroidSemanticsTreeInteraction
 import androidx.ui.unit.PxBounds
@@ -32,8 +31,6 @@ import androidx.ui.unit.PxBounds
 internal abstract class SemanticsTreeInteraction(
     val selector: SemanticsPredicate
 ) {
-
-    internal abstract fun performAction(action: (SemanticsTreeProvider) -> Unit)
 
     internal abstract fun sendInput(action: (InputDispatcher) -> Unit)
 
