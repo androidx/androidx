@@ -715,7 +715,6 @@ private fun TabTextBaselineLayout(
             val textOffsetAbove =
                 iconPlaceable.height + IconDistanceFromBaseline.toIntPx() - firstBaseline
 
-            // Calculate the size of the AlignmentLineOffset widget & define layout.
             val containerWidth = max(textPlaceable.width, iconPlaceable.width)
             val contentHeight = textOffsetAbove + textPlaceable.height + textOffsetBelow
             val containerHeight = constraints.maxHeight
