@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -26,12 +27,12 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Test;
@@ -39,13 +40,14 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class SurfaceRequestTest {
 
     private static final Size FAKE_SIZE = new Size(0, 0);
+    private static final Consumer<SurfaceRequest.Result> NO_OP_RESULT_LISTENER = ignored -> {
+    };
     private static final Surface MOCK_SURFACE = mock(Surface.class);
     private List<SurfaceRequest> mSurfaceRequests = new ArrayList<>();
 
@@ -67,19 +69,17 @@ public final class SurfaceRequestTest {
         assertThat(request.getResolution()).isEqualTo(resolution);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void willNotProvideSurface_setsIllegalStateException_onReturnedFuture()
-            throws InterruptedException {
+    public void setWillNotProvideSurface_resultsInWILL_NOT_PROVIDE_SURFACE() {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
+        Consumer<SurfaceRequest.Result> listener = mock(Consumer.class);
         request.willNotProvideSurface();
-        ListenableFuture<Void> completion = request.provideSurface(MOCK_SURFACE);
+        request.provideSurface(MOCK_SURFACE, CameraXExecutors.directExecutor(), listener);
 
-        try {
-            completion.get();
-        } catch (ExecutionException e) {
-            assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-        }
+        verify(listener).accept(eq(SurfaceRequest.Result.of(
+                SurfaceRequest.Result.RESULT_WILL_NOT_PROVIDE_SURFACE, MOCK_SURFACE)));
     }
 
     @Test
@@ -87,7 +87,8 @@ public final class SurfaceRequestTest {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
         // Complete the request
-        request.provideSurface(MOCK_SURFACE);
+        request.provideSurface(MOCK_SURFACE, CameraXExecutors.directExecutor(),
+                NO_OP_RESULT_LISTENER);
 
         assertThat(request.willNotProvideSurface()).isFalse();
     }
@@ -109,56 +110,50 @@ public final class SurfaceRequestTest {
         assertThat(request.willNotProvideSurface()).isTrue();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void returnedFuture_completesSuccessfully_afterProducerIsDone()
-            throws InterruptedException, ExecutionException {
+    public void surfaceRequestResult_completesSuccessfully_afterProducerIsDone() {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
-        ListenableFuture<Void> completion = request.provideSurface(MOCK_SURFACE);
-
-        Runnable listener = mock(Runnable.class);
-        completion.addListener(listener,
-                ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()));
+        Consumer<SurfaceRequest.Result> listener = mock(Consumer.class);
+        request.provideSurface(MOCK_SURFACE,
+                ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()),
+                listener);
 
         // Cause request to be completed from producer side
         request.getDeferrableSurface().close();
 
-        verify(listener, timeout(500)).run();
-        // Should not throw
-        completion.get();
+        verify(listener, timeout(500)).accept(eq(SurfaceRequest.Result.of(
+                SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY, MOCK_SURFACE)));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void provideSurface_setsIllegalStateException_onSecondInvocation()
-            throws InterruptedException {
+    public void provideSurface_resultsInSURFACE_ALREADY_PROVIDED_onSecondInvocation() {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
-        ListenableFuture<Void> completion1 = request.provideSurface(MOCK_SURFACE);
-        ListenableFuture<Void> completion2 = request.provideSurface(MOCK_SURFACE);
+        Consumer<SurfaceRequest.Result> listener = mock(Consumer.class);
+        request.provideSurface(MOCK_SURFACE, CameraXExecutors.directExecutor(),
+                NO_OP_RESULT_LISTENER);
+        request.provideSurface(MOCK_SURFACE, CameraXExecutors.directExecutor(), listener);
 
-        try {
-            completion2.get();
-        } catch (ExecutionException e) {
-            assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-        }
-        assertThat(completion1).isNotSameInstanceAs(completion2);
+        verify(listener).accept(eq(SurfaceRequest.Result.of(
+                SurfaceRequest.Result.RESULT_SURFACE_ALREADY_PROVIDED, MOCK_SURFACE)));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void cancelledRequest_setsRequestCancelledException_onReturnedFuture()
-            throws InterruptedException {
+    public void cancelledRequest_resultsInREQUEST_CANCELLED() {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
         // Cause request to be cancelled from producer side
         request.getDeferrableSurface().close();
 
-        ListenableFuture<Void> completion = request.provideSurface(MOCK_SURFACE);
+        Consumer<SurfaceRequest.Result> listener = mock(Consumer.class);
+        request.provideSurface(MOCK_SURFACE, CameraXExecutors.directExecutor(), listener);
 
-        try {
-            completion.get();
-        } catch (ExecutionException e) {
-            assertThat(e.getCause()).isInstanceOf(SurfaceRequest.RequestCancelledException.class);
-        }
+        verify(listener).accept(eq(SurfaceRequest.Result.of(
+                SurfaceRequest.Result.RESULT_REQUEST_CANCELLED, MOCK_SURFACE)));
     }
 
     @Test

@@ -44,7 +44,7 @@ public final class SurfaceTextureProvider {
      * Example:
      *
      * <pre><code>
-     * preview.setPreviewSurfaceProvider(createSurfaceTextureProvider(
+     * preview.setSurfaceProvider(createSurfaceTextureProvider(
      *         new SurfaceTextureProvider.SurfaceTextureCallback() {
      *             &#64;Override
      *             public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
@@ -74,10 +74,12 @@ public final class SurfaceTextureProvider {
             surfaceTextureCallback.onSurfaceTextureReady(surfaceTexture,
                     surfaceRequest.getResolution());
             Surface surface = new Surface(surfaceTexture);
-            surfaceRequest.provideSurface(surface).addListener(() -> {
-                surface.release();
-                surfaceTextureCallback.onSafeToRelease(surfaceTexture);
-            }, CameraXExecutors.directExecutor());
+            surfaceRequest.provideSurface(surface,
+                    CameraXExecutors.directExecutor(),
+                    (surfaceResponse) -> {
+                        surface.release();
+                        surfaceTextureCallback.onSafeToRelease(surfaceTexture);
+                    });
         };
     }
 

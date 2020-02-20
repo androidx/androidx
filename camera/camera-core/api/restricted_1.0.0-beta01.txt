@@ -252,11 +252,18 @@ package androidx.camera.core {
   public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
     method public android.util.Size getResolution();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> provideSurface(android.view.Surface);
+    method public void provideSurface(android.view.Surface, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceRequest.Result!>);
     method public boolean willNotProvideSurface();
   }
 
-  public static final class SurfaceRequest.RequestCancelledException extends java.lang.RuntimeException {
+  public abstract static class SurfaceRequest.Result {
+    method public abstract int getResultCode();
+    method public abstract android.view.Surface getSurface();
+    field public static final int RESULT_INVALID_SURFACE = 2; // 0x2
+    field public static final int RESULT_REQUEST_CANCELLED = 1; // 0x1
+    field public static final int RESULT_SURFACE_ALREADY_PROVIDED = 3; // 0x3
+    field public static final int RESULT_SURFACE_USED_SUCCESSFULLY = 0; // 0x0
+    field public static final int RESULT_WILL_NOT_PROVIDE_SURFACE = 4; // 0x4
   }
 
   public class TorchState {
