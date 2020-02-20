@@ -26,35 +26,34 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.AnimatedFloatModel
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Draw
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.Stack
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import androidx.ui.unit.toRect
@@ -162,7 +161,7 @@ fun Slider(
     color: Color = MaterialTheme.colors().primary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
-        Container(modifier = modifier) {
+        Box(modifier = modifier) {
             WithConstraints { constraints ->
                 val maxPx = constraints.maxWidth.value.toFloat()
                 val minPx = 0f
@@ -220,16 +219,12 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
         width.px.toDp()
     }
     Semantics(container = true, properties = { accessibilityValue = "${position.value}" }) {
-        Container(
-            expanded = true,
-            constraints = DefaultSliderConstraints,
-            alignment = Alignment.CenterLeft
-        ) {
+        Stack(DefaultSliderConstraints) {
             val thumbSize = ThumbRadius * 2
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
-            DrawTrack(color, position)
-            Box(LayoutPadding(start = offset)) {
+            Track(LayoutGravity.CenterLeft + LayoutSize.Fill, color, position)
+            Box(LayoutGravity.CenterLeft + LayoutPadding(start = offset)) {
                 Ripple(bounded = false) {
                     Surface(
                         shape = CircleShape,
@@ -245,7 +240,8 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
 }
 
 @Composable
-private fun DrawTrack(
+private fun Track(
+    modifier: Modifier,
     color: Color,
     position: SliderPosition
 ) {
@@ -258,28 +254,28 @@ private fun DrawTrack(
             this.style = PaintingStyle.stroke
         }
     }
-    Draw { canvas: Canvas, parentSize: PxSize ->
+    Canvas(modifier) {
         paint.strokeWidth = TrackHeight.toPx().value
         val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
-        val parentRect = parentSize.toRect()
+        val parentRect = size.toRect()
         val thumbPx = ThumbRadius.toPx().value
-        val centerHeight = parentSize.height.value / 2
+        val centerHeight = size.height.value / 2
         val sliderStart = Offset(parentRect.left + thumbPx, centerHeight)
         val sliderMax = Offset(parentRect.right - thumbPx, centerHeight)
         paint.color = color.copy(alpha = InactiveTrackColorAlpha)
-        canvas.drawLine(sliderStart, sliderMax, paint)
+        drawLine(sliderStart, sliderMax, paint)
         val sliderValue = Offset(
             sliderStart.dx + (sliderMax.dx - sliderStart.dx) * fraction,
             centerHeight
         )
         paint.color = color
-        canvas.drawLine(sliderStart, sliderValue, paint)
+        drawLine(sliderStart, sliderValue, paint)
         position.tickFractions.groupBy { it > fraction }.forEach { (afterFraction, list) ->
             paint.color = if (afterFraction) inactiveTickColor else activeTickColor
             val points = list.map {
                 Offset(Offset.lerp(sliderStart, sliderMax, it).dx, centerHeight)
             }
-            canvas.drawPoints(PointMode.points, points, paint)
+            drawPoints(PointMode.points, points, paint)
         }
     }
 }
@@ -319,7 +315,7 @@ private val TrackHeight = 4.dp
 private val SliderHeight = 48.dp
 private val SliderMinWidth = 144.dp // TODO: clarify min width
 private val DefaultSliderConstraints =
-    DpConstraints(minWidth = SliderMinWidth, maxHeight = SliderHeight)
+    LayoutWidth.Min(SliderMinWidth) + LayoutHeight.Max(SliderHeight)
 private val InactiveTrackColorAlpha = 0.24f
 private val TickColorAlpha = 0.54f
 private val SliderToTickAnimation = TweenBuilder<Float>().apply { duration = 100 }

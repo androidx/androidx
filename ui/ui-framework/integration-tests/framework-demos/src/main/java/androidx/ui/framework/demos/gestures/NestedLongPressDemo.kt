@@ -22,10 +22,12 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.
@@ -55,10 +57,10 @@ class NestedLongPressDemo : Activity() {
 
 @Composable
 fun LongPressableContainer(
-    paddingLeft: Dp? = null,
-    paddingTop: Dp? = null,
-    paddingRight: Dp? = null,
-    paddingBottom: Dp? = null,
+    paddingLeft: Dp = 0.dp,
+    paddingTop: Dp = 0.dp,
+    paddingRight: Dp = 0.dp,
+    paddingBottom: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
     val defaultColor = DefaultBackgroundColor
@@ -78,15 +80,15 @@ fun LongPressableContainer(
     }
 
     LongPressGestureDetector(onLongPress) {
-        Border(BorderColor, 2.dp) {
-            DrawBox(
-                0.px,
-                0.px,
-                (-1).dp,
-                (-1).dp,
-                color
-            )
-            Padding(paddingLeft, paddingTop, paddingRight, paddingBottom, children)
-        }
+        Box(
+            paddingLeft = paddingLeft,
+            paddingTop = paddingTop,
+            paddingRight = paddingRight,
+            paddingBottom = paddingBottom,
+            backgroundColor = color,
+            gravity = ContentGravity.Center,
+            border = Border(2.dp, BorderColor),
+            children = children
+        )
     }
 }
