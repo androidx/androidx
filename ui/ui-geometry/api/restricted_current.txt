@@ -107,6 +107,7 @@ package androidx.ui.geometry {
     method public static boolean isEmpty(androidx.ui.geometry.RRect);
     method public static boolean isFinite(androidx.ui.geometry.RRect);
     method public static boolean isRect(androidx.ui.geometry.RRect);
+    method public static boolean isSimple(androidx.ui.geometry.RRect);
     method public static boolean isStadium(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.RRect lerp(androidx.ui.geometry.RRect start, androidx.ui.geometry.RRect stop, float fraction);
     method public static androidx.ui.geometry.Rect middleRect(androidx.ui.geometry.RRect);

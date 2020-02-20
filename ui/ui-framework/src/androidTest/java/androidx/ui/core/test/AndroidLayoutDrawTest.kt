@@ -28,26 +28,23 @@ import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Model
-import androidx.compose.Providers
 import androidx.compose.emptyContent
+import androidx.compose.mutableStateOf
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
-import androidx.ui.core.ContextAmbient
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
+import androidx.ui.core.DrawLayerProperties
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
-import androidx.ui.unit.Density
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
@@ -56,6 +53,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.draw
+import androidx.ui.core.drawLayer
 import androidx.ui.core.drawWithContent
 import androidx.ui.core.globalPosition
 import androidx.ui.core.offset
@@ -67,6 +65,7 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -2039,6 +2038,59 @@ class AndroidLayoutDrawTest {
         assertTrue(drawlatch.await(1, TimeUnit.SECONDS))
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun layerModifier_scaleDraw() {
+        activityTestRule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(
+                    size = 30.ipx,
+                    modifier = background(Color.Blue)
+                ) {
+                    FixedSize(
+                        size = 20.ipx,
+                        modifier = PaddingModifier(5.ipx) + scale(0.5f) +
+                                background(Color.Red) + latch(drawLatch)
+                    ) {}
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.Red, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun layerModifier_scaleChange() {
+        val scale = mutableStateOf(1f)
+        val layerProperties = object : DrawLayerProperties {
+            override val scaleX: Float get() = scale.value
+            override val scaleY: Float get() = scale.value
+        }
+        activityTestRule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(
+                    size = 30.ipx,
+                    modifier = background(Color.Blue)
+                ) {
+                    FixedSize(
+                        size = 10.ipx,
+                        modifier = PaddingModifier(10.ipx) + drawLayer(layerProperties) +
+                                background(Color.Red) + latch(drawLatch)
+                    ) {}
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.Red, size = 10)
+
+        activityTestRule.runOnUiThread {
+            scale.value = 2f
+        }
+
+        activityTestRule.waitAndScreenShot().apply {
+            assertRect(Color.Red, size = 20, centerX = 15, centerY = 15)
+        }
+    }
+
     private val AlignTopLeft = object : LayoutModifier {
         override fun Density.modifyConstraints(
             constraints: Constraints,
@@ -2712,4 +2764,32 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
 fun DeprecatedDraw(onPaint: Density.(canvas: Canvas, parentSize: PxSize) -> Unit) {
     @Suppress("DEPRECATION") // remove when b/147606015 is fixed
     Draw(onPaint)
+}
+
+fun scale(scale: Float) = LayoutScale(scale) + drawLayer(scaleX = scale, scaleY = scale)
+
+class LayoutScale(val scale: Float) : LayoutModifier {
+    override fun Density.modifyConstraints(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Constraints {
+        return Constraints(
+            minWidth = constraints.minWidth / scale,
+            minHeight = constraints.minHeight / scale,
+            maxWidth = constraints.maxWidth / scale,
+            maxHeight = constraints.maxHeight / scale
+        )
+    }
+
+    override fun Density.modifySize(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection,
+        childSize: IntPxSize
+    ): IntPxSize {
+        return IntPxSize(childSize.width * scale, childSize.height * scale)
+    }
+}
+
+fun latch(countDownLatch: CountDownLatch) = draw { _, _ ->
+    countDownLatch.countDown()
 }

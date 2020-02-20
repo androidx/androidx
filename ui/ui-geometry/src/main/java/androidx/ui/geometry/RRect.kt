@@ -542,6 +542,19 @@ val RRect.longestSide get(): Float = Math.max(width.absoluteValue, height.absolu
 fun RRect.center(): Offset = Offset((left + width / 2.0f), (top + height / 2.0f))
 
 /**
+ * Returns `true` if the rounded rectangle have the same radii in both the horizontal and vertical
+ * direction for all corners.
+ */
+val RRect.isSimple: Boolean
+    get() = topLeftRadiusX == topLeftRadiusY &&
+            topLeftRadiusX == topRightRadiusX &&
+            topLeftRadiusX == topRightRadiusY &&
+            topLeftRadiusX == bottomRightRadiusX &&
+            topLeftRadiusX == bottomRightRadiusY &&
+            topLeftRadiusX == bottomLeftRadiusX &&
+            topLeftRadiusX == bottomLeftRadiusY
+
+/**
  * Linearly interpolate between two rounded rectangles.
  *
  * The [fraction] argument represents position on the timeline, with 0.0 meaning
