@@ -20,6 +20,7 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -61,7 +62,9 @@ open class TransitionFragment(
     }
 
     internal fun waitForTransition() {
-        endTransitionCountDownLatch.await()
+        assertWithMessage("Timed out waiting for onTransitionEnd")
+            .that(endTransitionCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         endTransitionCountDownLatch = CountDownLatch(1)
     }
 

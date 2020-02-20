@@ -41,6 +41,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -325,8 +326,12 @@ class FragmentContainerViewTest {
 
         val frag1View = fragment1.mView as ChildView
         // wait for the first draw to finish
-        drawnFirstCountDownLatch.await()
-        frag1View.onAnimationEndLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
+        assertWithMessage("Timed out waiting for onAnimationEnd on Fragment 1")
+            .that(frag1View.onAnimationEndLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
         // reset the first drawn view for the transaction we care about.
         drawnFirst = null
@@ -338,7 +343,9 @@ class FragmentContainerViewTest {
             .commit()
         activityRule.waitForExecution()
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         assertThat(drawnFirst!!).isEqualTo(frag1View)
     }
 
@@ -368,9 +375,13 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -380,10 +391,14 @@ class FragmentContainerViewTest {
         fm.popBackStack()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         // The popped Fragment will be drawn last and therefore will be on top
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
     }
@@ -414,9 +429,13 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -431,10 +450,14 @@ class FragmentContainerViewTest {
             .commit()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
     }
 
@@ -466,9 +489,13 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -484,10 +511,14 @@ class FragmentContainerViewTest {
             .commit()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
     }
 
@@ -519,9 +550,13 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -537,10 +572,14 @@ class FragmentContainerViewTest {
             .commit()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         // The view that was popped is drawn first which means it is on the bottom.
         assertThat(drawnFirst!!).isEqualTo(frag2View)
     }
