@@ -29,8 +29,8 @@ import android.widget.HorizontalScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests for InlineSuggestionHostView
  */
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 29) // Needed only on 29 and above
 public class InlineSuggestionHostViewTest {

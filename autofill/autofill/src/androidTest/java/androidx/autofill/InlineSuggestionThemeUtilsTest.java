@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 23) // ContextThemeWrapper(Context, Theme) requires API level 23
+@SdkSuppress(minSdkVersion = 29) // Needed only on 29 and above
 public class InlineSuggestionThemeUtilsTest {
     private Instrumentation mInstrumentation;
     private Context mContext;
@@ -104,12 +104,12 @@ public class InlineSuggestionThemeUtilsTest {
         verifyStyleValue(context, android.R.attr.background,
                 R.attr.autofillInlineSuggestionChip,
                 R.drawable.autofill_inline_suggestion_chip_background);
-        verifyStyleValue(context, android.R.attr.textAppearance,
+        verifyIntValue(context, android.R.attr.textColor,
                 R.attr.autofillInlineSuggestionTitle,
-                android.R.style.TextAppearance);
-        verifyStyleValue(context, android.R.attr.textAppearance,
+                Color.parseColor("#FF424242"));
+        verifyIntValue(context, android.R.attr.textColor,
                 R.attr.autofillInlineSuggestionSubtitle,
-                android.R.style.TextAppearance_Small);
+                Color.parseColor("#66FFFFFF"));
         verifyIntValue(context, android.R.attr.scaleType,
                 R.attr.autofillInlineSuggestionStartIconStyle,
                 ImageView.ScaleType.FIT_CENTER.ordinal());
