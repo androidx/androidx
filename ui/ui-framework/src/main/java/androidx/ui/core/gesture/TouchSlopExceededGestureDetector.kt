@@ -27,8 +27,8 @@ import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.positionChange
 import androidx.ui.core.PointerId
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**
@@ -48,7 +48,7 @@ fun TouchSlopExceededGestureDetector(
     canDrag: ((Direction) -> Boolean)? = null,
     children: @Composable() () -> Unit
 ) {
-    val touchSlop = with(DensityAmbient.current) { TouchSlop.toIntPx() }
+    val touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
     val recognizer = remember { TouchSlopExceededGestureRecognizer(touchSlop) }
 
     recognizer.canDrag = canDrag
@@ -63,7 +63,7 @@ fun TouchSlopExceededGestureDetector(
 
 // TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the
 //  device is not a whole number?
-internal class TouchSlopExceededGestureRecognizer(private val touchSlop: IntPx) {
+internal class TouchSlopExceededGestureRecognizer(private val touchSlop: Px) {
     private val pointerTrackers: MutableMap<PointerId, PointerTrackingData> = mutableMapOf()
     private var passedSlop = false
 
