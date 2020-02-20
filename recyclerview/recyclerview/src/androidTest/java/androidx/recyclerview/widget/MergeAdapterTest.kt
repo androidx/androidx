@@ -66,6 +66,18 @@ class MergeAdapterTest {
         }
     }
 
+    @Test(expected = UnsupportedOperationException::class)
+    fun cannotCallSetStableIds_true() {
+        val merge = MergeAdapter()
+        merge.setHasStableIds(true)
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun cannotCallSetStableIds_false() {
+        val merge = MergeAdapter()
+        merge.setHasStableIds(false)
+    }
+
     @UiThreadTest
     @Test
     fun attachAndDetachAll() {

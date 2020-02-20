@@ -186,15 +186,18 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     }
 
     /**
-     * MergeAdapter does not support stable ids yet.
-     * Calling this method with {@code true} will result in an {@link IllegalArgumentException}.
+     * Calling this method is an error and will result in an {@link UnsupportedOperationException}.
+     * You should use the {@link Config} object passed into the MergeAdapter to configure this
+     * behavior.
      *
      * @param hasStableIds Whether items in data set have unique identifiers or not.
      */
     @Override
     public void setHasStableIds(boolean hasStableIds) {
-        Log.w(TAG, "Calling setHasStableIds has no impact as MergeAdapter's stable id setting "
-                + "is preset by the given configuration");
+        throw new UnsupportedOperationException(
+                "Calling setHasStableIds is not allowed on the MergeAdapter. "
+                        + "Use the Config object passed in the constructor to control this "
+                        + "behavior");
     }
 
     /**
