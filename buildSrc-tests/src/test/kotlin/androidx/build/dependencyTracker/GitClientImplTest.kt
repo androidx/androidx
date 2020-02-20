@@ -71,7 +71,7 @@ class GitClientImplTest {
                 convertToFilePath("a", "b", "c.java"),
                 convertToFilePath("d", "e", "f.java"))
         commandRunner.addReply(
-                "$CHANGED_FILES_CMD_PREFIX mySha",
+                "$CHANGED_FILES_CMD_PREFIX HEAD..mySha",
                 changes.joinToString(System.lineSeparator())
         )
         assertEquals(
