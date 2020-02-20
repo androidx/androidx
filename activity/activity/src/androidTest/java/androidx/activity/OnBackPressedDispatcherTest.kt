@@ -22,7 +22,7 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
@@ -377,7 +377,7 @@ class OnBackPressedHandlerTest {
      * Test to ensure that manually calling [ComponentActivity.onBackPressed] after
      * [ComponentActivity.onSaveInstanceState] does not cause an exception.
      */
-    @MediumTest
+    @LargeTest
     @Test
     fun testCallOnBackPressedWhenStopped() {
         with(ActivityScenario.launch(ContentViewActivity::class.java)) {
