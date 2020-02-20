@@ -14,47 +14,51 @@
   limitations under the License.
   -->
 
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.ui.foundation.demos">
 
     <application>
 
-        <activity android:name=".HighLevelGesturesActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Foundation/Draggable and Scrollable">
+        <activity
+            android:name=".HighLevelGesturesActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Foundation/Draggable and Scrollable">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".VerticalScrollerActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Foundation/VerticalScroller">
+        <activity
+            android:name=".VerticalScrollerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Foundation/VerticalScroller">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".HorizontalScrollerActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Foundation/HorizontalScroller with controls">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".TableBordersActivity"
-              android:configChanges="orientation|screenSize"
-              android:label="Foundation/TableBorders">
+        <activity
+            android:name=".HorizontalScrollerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Foundation/HorizontalScroller with controls">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".DialogActivity"
+        <activity
+            android:name=".TableBordersActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Foundation/TableBorders">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".DialogActivity"
             android:configChanges="orientation|screenSize"
             android:label="Foundation/Dialog">
             <intent-filter>
@@ -62,7 +66,8 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".DrawModifiersActivity"
+        <activity
+            android:name=".DrawModifiersActivity"
             android:configChanges="orientation|screenSize"
             android:label="Foundation/Draw Modifiers">
             <intent-filter>
@@ -70,9 +75,21 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".BoxActivity"
+        <activity
+            android:name=".BoxActivity"
             android:configChanges="orientation|screenSize"
             android:label="Foundation/Boxes">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ListActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Lists"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />

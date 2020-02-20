@@ -21,17 +21,7 @@
         <activity
             android:name=".ButtonActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Buttons">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".DividersSpacersActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Material/Dividers And Spacers">
+            android:label="Material/Buttons &amp; FABs">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
@@ -71,7 +61,7 @@
         <activity
             android:name=".ModalDrawerActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Drawer. Modal">
+            android:label="Material/Drawers/Modal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
@@ -81,7 +71,7 @@
         <activity
             android:name=".BottomDrawerActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Drawer. Bottom">
+            android:label="Material/Drawers/Bottom">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
@@ -91,27 +81,7 @@
         <activity
             android:name=".StaticDrawerActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Drawer. Static">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".TextActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Material/Text">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".FloatingActionButtonActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Material/Floating Action Button">
+            android:label="Material/Drawers/Static">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
@@ -123,16 +93,6 @@
             android:configChanges="orientation|screenSize"
             android:label="Material/App Bar"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".CustomShapeActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Material/Custom shapes">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
@@ -166,25 +126,14 @@
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
 
         <activity
-            android:name=".SideBySideAlertDialogActivity"
+            android:name=".AlertDialogActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/AlertDialog.SideBySide">
+            android:label="Material/AlertDialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".StackedAlertDialogActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Material/AlertDialog.Stacked">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity
             android:name=".ListItemActivity"
             android:configChanges="orientation|screenSize"
@@ -197,7 +146,7 @@
         <activity
             android:name=".MaterialThemeActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Material Theme"
+            android:label="Material/Material Theme/Basics"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -207,7 +156,7 @@
         <activity
             android:name=".DynamicThemeActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Dynamic Theme"
+            android:label="Material/Material Theme/Dynamic Scroll Theme"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -235,7 +184,7 @@
         <activity
             android:name=".ElevationActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Elevation">
+            android:label="Material/Material Theme/Elevation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
@@ -244,7 +193,7 @@
         <activity
             android:name=".EmphasisActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Emphasis">
+            android:label="Material/Material Theme/Emphasis">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
@@ -260,27 +209,6 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ListActivity"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar"
-            android:configChanges="orientation|screenSize"
-            android:label="Lists">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".IconButtonActivity"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar"
-            android:configChanges="orientation|screenSize"
-            android:label="Material/Icon Buttons">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity
             android:name=".BottomNavigationActivity"
             android:configChanges="orientation|screenSize"
