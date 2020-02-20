@@ -30,7 +30,10 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
  * Wrapper for each adapter in {@link MergeAdapter}.
  */
 class NestedAdapterWrapper {
+    @NonNull
     private final ViewTypeStorage.ViewTypeLookup mViewTypeLookup;
+    @NonNull
+    private final StableIdStorage.StableIdLookup mStableIdLookup;
     public final Adapter<ViewHolder> adapter;
     @SuppressWarnings("WeakerAccess")
     final Callback mCallback;
@@ -119,10 +122,12 @@ class NestedAdapterWrapper {
     NestedAdapterWrapper(
             Adapter<ViewHolder> adapter,
             final Callback callback,
-            ViewTypeStorage viewTypeStorage) {
+            ViewTypeStorage viewTypeStorage,
+            StableIdStorage.StableIdLookup stableIdLookup) {
         this.adapter = adapter;
         mCallback = callback;
         mViewTypeLookup = viewTypeStorage.createViewTypeWrapper(this);
+        mStableIdLookup = stableIdLookup;
         mCachedItemCount = this.adapter.getItemCount();
         this.adapter.registerAdapterDataObserver(mAdapterObserver);
     }
@@ -150,6 +155,11 @@ class NestedAdapterWrapper {
 
     void onBindViewHolder(ViewHolder viewHolder, int localPosition) {
         adapter.bindViewHolder(viewHolder, localPosition);
+    }
+
+    public long getItemId(int localPosition) {
+        long localItemId = adapter.getItemId(localPosition);
+        return mStableIdLookup.localToGlobal(localItemId);
     }
 
     interface Callback {

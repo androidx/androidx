@@ -16,11 +16,12 @@
 
 package androidx.recyclerview.widget;
 
+import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS;
+
 import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Preconditions;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
@@ -55,12 +56,12 @@ import java.util.List;
  * You are highly encouraged to to use {@link SortedList} or {@link ListAdapter} to avoid
  * calling {@link Adapter#notifyDataSetChanged()}.
  * <p>
- * {@link MergeAdapter} does not yet support stable ids. Even if one of the added adapters have
- * stable ids, {@link MergeAdapter} will not use it.
- * Calling {@link Adapter#setHasStableIds(boolean)} with {@code true} on a {@link MergeAdapter}
- * will result in an {@link IllegalArgumentException}.
+ * Whether {@link MergeAdapter} should support stable ids is defined in the {@link Config}
+ * object. Calling {@link Adapter#setHasStableIds(boolean)} has no effect. See documentation
+ * for {@link Config.StableIdMode} for details on how to configure {@link MergeAdapter} to use
+ * stable ids. By default, it will not use stable ids and sub adapter stable ids will be ignored.
  * Similar to the case above, you are highly encouraged to use {@link ListAdapter}, which will
- * automatically calculate the changes in the data set for you.
+ * automatically calculate the changes in the data set for you so you won't need stable ids.
  * <p>
  * It is common to find the adapter position of a {@link ViewHolder} to handle user action on the
  * {@link ViewHolder}. For those cases, instead of calling {@link ViewHolder#getAdapterPosition()},
@@ -70,7 +71,7 @@ import java.util.List;
  */
 @SuppressWarnings("unchecked")
 public final class MergeAdapter extends Adapter<ViewHolder> {
-    private static final String TAG = "MergeAdapter";
+    static final String TAG = "MergeAdapter";
     /**
      * Bulk of the logic is in the controller to keep this class isolated to the public API.
      */
@@ -123,6 +124,8 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
         for (Adapter<? extends ViewHolder> adapter : adapters) {
             addAdapter(adapter);
         }
+        // go through super as we override it to be no-op
+        super.setHasStableIds(mController.hasStableIds());
     }
 
     /**
@@ -190,10 +193,8 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
      */
     @Override
     public void setHasStableIds(boolean hasStableIds) {
-        Preconditions.checkArgument(!hasStableIds,
-                "Stable ids are not supported for MergeAdapter yet");
-        //noinspection ConstantConditions
-        super.setHasStableIds(hasStableIds);
+        Log.w(TAG, "Calling setHasStableIds has no impact as MergeAdapter's stable id setting "
+                + "is preset by the given configuration");
     }
 
     /**
@@ -212,6 +213,11 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
         // do nothing
         Log.w(TAG, "Calling setStateRestorationStrategy has no impact on the MergeAdapter as"
                 + " it derives its state restoration strategy from nested adapters");
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mController.getItemId(position);
     }
 
     /**
@@ -306,11 +312,82 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
          * view types across adapters, preventing them from using the same {@link ViewHolder}s.
          */
         public final boolean isolateViewTypes;
-        @NonNull
-        public static final Config DEFAULT = new Config(true);
 
-        Config(boolean isolateViewTypes) {
+        /**
+         * Defines whether the {@link MergeAdapter} should support stable ids or not
+         * ({@link Adapter#hasStableIds()}.
+         * <p>
+         * There are 3 possible options:
+         *
+         * {@link StableIdMode#NO_STABLE_IDS}: In this mode, {@link MergeAdapter} ignores the stable
+         * ids reported by sub adapters. This is the default mode.
+         *
+         * {@link StableIdMode#ISOLATED_STABLE_IDS}: In this mode, {@link MergeAdapter} will return
+         * {@code true} from {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+         * {@link Adapter}s to have stable ids. As two different adapters may return same stable ids
+         * because they are unaware of each-other, {@link MergeAdapter} will isolate each
+         * {@link Adapter}'s id pool from each other such that it will overwrite the reported stable
+         * id before reporting back to the {@link RecyclerView}. In this mode, the value returned
+         * from {@link ViewHolder#getItemId()} might differ from the value returned from
+         * {@link Adapter#getItemId(int)}.
+         *
+         * {@link StableIdMode#SHARED_STABLE_IDS}: In this mode, {@link MergeAdapter} will return
+         * {@code true} from {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+         * {@link Adapter}s to have stable ids. Unlike {@link StableIdMode#ISOLATED_STABLE_IDS},
+         * {@link MergeAdapter} will not override the returned item ids. In this mode,
+         * child {@link Adapter}s must be aware of each-other and never return the same id unless
+         * an item is moved between {@link Adapter}s.
+         *
+         * Default value is {@link StableIdMode#NO_STABLE_IDS}.
+         */
+        @NonNull
+        public final StableIdMode stableIdMode;
+
+
+        @NonNull
+        public static final Config DEFAULT = new Config(true, NO_STABLE_IDS);
+
+        Config(boolean isolateViewTypes, @NonNull StableIdMode stableIdMode) {
             this.isolateViewTypes = isolateViewTypes;
+            this.stableIdMode = stableIdMode;
+        }
+
+        /**
+         * Defines how {@link MergeAdapter} handle stable ids ({@link Adapter#hasStableIds()}).
+         */
+        public enum StableIdMode {
+            /**
+             * In this mode, {@link MergeAdapter} ignores the stable
+             * ids reported by sub adapters. This is the default mode.
+             * Adding an {@link Adapter} with stable ids will result in a warning as it will be
+             * ignored.
+             */
+            NO_STABLE_IDS,
+            /**
+             * In this mode, {@link MergeAdapter} will return {@code true} from
+             * {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+             * {@link Adapter}s to have stable ids. As two different adapters may return
+             * same stable ids because they are unaware of each-other, {@link MergeAdapter} will
+             * isolate each {@link Adapter}'s id pool from each other such that it will overwrite
+             * the reported stable id before reporting back to the {@link RecyclerView}. In this
+             * mode, the value returned from {@link ViewHolder#getItemId()} might differ from the
+             * value returned from {@link Adapter#getItemId(int)}.
+             *
+             * Adding an adapter without stable ids will result in an
+             * {@link IllegalArgumentException}.
+             */
+            ISOLATED_STABLE_IDS,
+            /**
+             * In this mode, {@link MergeAdapter} will return {@code true} from
+             * {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+             * {@link Adapter}s to have stable ids. Unlike {@link StableIdMode#ISOLATED_STABLE_IDS},
+             * {@link MergeAdapter} will not override the returned item ids. In this mode,
+             * child {@link Adapter}s must be aware of each-other and never return the same id
+             * unless and item is moved between {@link Adapter}s.
+             * Adding an adapter without stable ids will result in an
+             * {@link IllegalArgumentException}.
+             */
+            SHARED_STABLE_IDS
         }
 
         /**
@@ -318,6 +395,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
          */
         public static class Builder {
             private boolean mIsolateViewTypes;
+            private StableIdMode mStableIdMode = NO_STABLE_IDS;
 
             /**
              * Sets whether {@link MergeAdapter} should isolate view types of nested adapters from
@@ -337,11 +415,27 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
             }
 
             /**
+             * Sets how the {@link MergeAdapter} should handle stable ids
+             * ({@link Adapter#hasStableIds()}). See documentation in {@link Config#stableIdMode}
+             * for details.
+             *
+             * @param stableIdMode The stable id mode for the {@link MergeAdapter}. Defaults to
+             *                     {@link StableIdMode#NO_STABLE_IDS}.
+             * @return this
+             * @see Config#stableIdMode
+             */
+            @NonNull
+            public Builder setStableIdMode(@NonNull StableIdMode stableIdMode) {
+                mStableIdMode = stableIdMode;
+                return this;
+            }
+
+            /**
              * @return A new instance of {@link Config} with the given parameters.
              */
             @NonNull
             public Config build() {
-                return new Config(mIsolateViewTypes);
+                return new Config(mIsolateViewTypes, mStableIdMode);
             }
         }
     }
