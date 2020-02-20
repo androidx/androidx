@@ -68,7 +68,9 @@ class PostponedTransitionTest {
             .addToBackStack(null)
             .commit()
 
-        backStackLatch.await()
+        assertWithMessage("Timed out waiting for OnBackStackChangedListener callback")
+            .that(backStackLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
         beginningFragment.startPostponedEnterTransition()
         beginningFragment.waitForTransition()
