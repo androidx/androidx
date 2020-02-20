@@ -128,7 +128,8 @@ class CanvasTest {
             shapeColor = Color.Blue,
             shape = CircleShape,
             shapeSizeX = 20.px,
-            shapeSizeY = 20.px
+            shapeSizeY = 20.px,
+            shapeOverlapPixelCount = 2.px
         )
     }
 
