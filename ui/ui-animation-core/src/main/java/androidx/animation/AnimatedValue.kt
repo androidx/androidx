@@ -81,7 +81,20 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
      * Velocity of the animation. The velocity will be of [AnimationVector1D], [AnimationVector2D],
      * [AnimationVector3D], or [AnimationVector4D] type.
      */
-    internal var velocityVector: V = typeConverter.createNewVector()
+    internal var velocityVector: V
+        get() = _velocityBackField!!
+        set(value) {
+            _velocityBackField = value
+        }
+
+    // TODO: remove the backing field when b/148422703 is fixed
+    private var _velocityBackField: V? = null
+        get() {
+            if (field == null) {
+                field = typeConverter.convertToVector(value).newInstance()
+            }
+            return field
+        }
 
     internal var onEnd: ((AnimationEndReason, T) -> Unit)? = null
     private lateinit var anim: AnimationWrapper<T, V>
@@ -477,7 +490,7 @@ fun <V : AnimationVector> AnimatedVector(
     initVal: V,
     clock: AnimationClockObservable
 ): AnimatedValue<V, V> =
-    AnimatedValueImpl(initVal, initVal.createPassThroughConverter(), clock)
+    AnimatedValueImpl(initVal, TwoWayConverter({ it }, { it }), clock)
 
 /**
  * Factory method for creating an [AnimatedFloat] object, and initialize the value field to
