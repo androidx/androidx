@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal;
+package androidx.camera.core.internal;
+
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.VideoCaptureConfig;
+import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -36,15 +38,16 @@ import org.junit.runner.RunWith;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
-/** JUnit test cases for UseCaseSurfaceOccupancyManager class. */
+/** JUnit test cases for {@link UseCaseOccupancy} class. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class UseCaseSurfaceOccupancyManagerTest {
+public final class UseCaseOccupancyTest {
 
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
+        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
+                FakeAppConfig.create()).build();
         CameraX.initialize(context, cameraXConfig);
     }
 
@@ -53,37 +56,44 @@ public final class UseCaseSurfaceOccupancyManagerTest {
         CameraX.shutdown().get();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void failedWhenBindTooManyImageCapture() {
-        ImageCapture.Builder builder = new ImageCapture.Builder();
-        ImageCapture useCase1 = builder.build();
-        ImageCapture useCase2 = builder.build();
+        ImageCapture useCase1 = createImageCapture();
+        ImageCapture useCase2 = createImageCapture();
 
-        // Should throw IllegalArgumentException
-        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+        assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
                 Collections.singletonList(useCase1),
-                Collections.singletonList(useCase2));
+                Collections.singletonList(useCase2))).isFalse();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void failedWhenBindTooManyVideoCapture() {
         VideoCaptureConfig config = new VideoCaptureConfig.Builder().getUseCaseConfig();
         VideoCapture useCase1 = new VideoCapture(config);
         VideoCapture useCase2 = new VideoCapture(config);
 
-        // Should throw IllegalArgumentException
-        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+        assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
                 Collections.singletonList(useCase1),
-                Collections.singletonList(useCase2));
+                Collections.singletonList(useCase2))).isFalse();
     }
 
     @Test
     public void passWhenNotBindTooManyImageVideoCapture() {
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        ImageCapture imageCapture = createImageCapture();
         VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
-        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+        assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
                 Collections.singletonList(imageCapture),
-                Collections.singletonList(videoCapture));
+                Collections.singletonList(videoCapture))).isTrue();
+    }
+
+    // TODO remove when UseCase does not require
+    private ImageCapture createImageCapture() {
+        return new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+                .setCaptureOptionUnpacker((config, builder) -> { })
+                .setSessionOptionUnpacker((config, builder) -> { })
+                .build();
     }
 }

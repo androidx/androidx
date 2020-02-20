@@ -162,8 +162,6 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         Preconditions.checkNotNull(newUseCases, "No new use cases to be bound.");
         Preconditions.checkArgument(!newUseCases.isEmpty(), "No new use cases to be bound.");
 
-        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(originalUseCases, newUseCases);
-
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
         List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
