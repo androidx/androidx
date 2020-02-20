@@ -71,28 +71,30 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * <p>The instance returned here can be used to bind use cases to any
      * {@link LifecycleOwner} with
      * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}.
-     *
-     * <p>The instance must be initialized by subclassing the application's {@link Application}
-     * class and implementing {@link CameraXConfig.Provider}. For example, the following will
-     * initialize this process camera provider with a
+     * <p>The instance's configuration may be customized by subclassing the application's
+     * {@link Application} class and implementing {@link CameraXConfig.Provider}.  For example, the
+     * following will initialize this process camera provider with a
      * {@linkplain androidx.camera.camera2.Camera2Config Camera2 implementation} from
-     * {@link androidx.camera.camera2}.
+     * {@link androidx.camera.camera2}, and with a custom executor.
      * <p/>
      * <pre>
      * public class MyApplication extends Application implements CameraXConfig.Provider {
      *     {@literal @}Override
      *     public CameraXConfig getCameraXConfig() {
-     *         return Camera2Config.defaultConfig();
+     *         return CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
+     *                    .setCameraExecutor(myExecutor)
+     *                    .build();
      *     }
      *
      *     . . .
      * }
      * </pre>
+     * If no {@link CameraXConfig.Provider} is implemented, a default configuration will be used.
      *
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
      * this future is a no-op.
-     * @throws IllegalStateException if no {@link CameraXConfig} has been provided by the
-     * application.
+     * @throws IllegalStateException if CameraX fails to initialize via a default provider or a
+     * CameraXConfig.Provider.
      */
     @NonNull
     public static ListenableFuture<ProcessCameraProvider> getInstance(
