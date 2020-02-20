@@ -1,0 +1,597 @@
+// Signature format: 3.0
+package androidx.ui.core {
+
+  public final class AndroidViewCompatKt {
+  }
+
+  public final class ClipKt {
+    method public static inline void Clip(androidx.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class DrawKt {
+    method public static inline void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
+    method public static inline void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
+  }
+
+  public final class DrawShadowKt {
+    method public static inline void DrawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation);
+  }
+
+  public enum DropDownAlignment {
+    enum_constant public static final androidx.ui.core.DropDownAlignment Left;
+    enum_constant public static final androidx.ui.core.DropDownAlignment Right;
+  }
+
+  public final class LayoutKt {
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method @Deprecated public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method public static androidx.ui.core.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method public static inline void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
+    method public static void WithConstraints(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> children);
+  }
+
+  public final class LayoutTag implements androidx.ui.core.LayoutTagParentData androidx.ui.core.ParentDataModifier {
+    ctor public LayoutTag(Object tag);
+    method public Object component1();
+    method public androidx.ui.core.LayoutTag copy(Object tag);
+    method public Object getTag();
+    method public Object? modifyParentData(androidx.ui.unit.Density, Object? parentData);
+  }
+
+  public final class LayoutTagKt {
+    method public static Object? getTag(androidx.ui.core.Measurable);
+  }
+
+  public interface LayoutTagParentData {
+    method public Object getTag();
+    property public abstract Object tag;
+  }
+
+  public final class MultiComposableMeasurables implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.core.Measurable> {
+    method public boolean contains(androidx.ui.core.Measurable element);
+    method public boolean containsAll(java.util.Collection<?> elements);
+    method public operator java.util.List<androidx.ui.core.Measurable> get(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public androidx.ui.core.Measurable get(int index);
+    method public int getSize();
+    method public int indexOf(androidx.ui.core.Measurable element);
+    method public boolean isEmpty();
+    method public java.util.Iterator<androidx.ui.core.Measurable> iterator();
+    method public int lastIndexOf(androidx.ui.core.Measurable element);
+    method public java.util.ListIterator<androidx.ui.core.Measurable> listIterator();
+    method public java.util.ListIterator<androidx.ui.core.Measurable> listIterator(int index);
+    method public java.util.List<androidx.ui.core.Measurable> subList(int fromIndex, int toIndex);
+  }
+
+  public final class OpacityKt {
+    method public static inline void Opacity(@FloatRange(from=0.0, to=1.0) float opacity, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PainterModifierKt {
+    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+  }
+
+  public final class ParentDataKt {
+    method public static inline void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PasswordTextFieldKt {
+    method public static void PasswordTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange = {}, androidx.ui.text.TextStyle? textStyle = null, char mask = '\u2022', androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {});
+  }
+
+  public final class PointerInputWrapperKt {
+    method public static inline void PointerInput(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler, kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler, kotlin.jvm.functions.Function1<? super androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? initHandler = null, kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>? customEventHandler = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PopupKt {
+    method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Left, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopLeft, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void disposeActivityComposition(android.app.Activity activity);
+    method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
+  }
+
+  public final class PopupProperties {
+    ctor public PopupProperties(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
+    ctor public PopupProperties();
+    method public boolean component1();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? component2();
+    method public androidx.ui.core.PopupProperties copy(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDismissRequest();
+    method public boolean isFocusable();
+  }
+
+  public final class RepaintBoundaryKt {
+    method public static void RepaintBoundary(String? name = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class TestTagKt {
+    method public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class TextFieldDelegateKt {
+  }
+
+  public final class TextFieldKt {
+    method public static void TextField(String value, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange = {}, androidx.ui.text.TextStyle? textStyle = null, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
+    method public static void TextField(androidx.ui.text.TextFieldValue value, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextFieldValue,kotlin.Unit> onValueChange = {}, androidx.ui.text.TextStyle? textStyle = null, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
+    method public static void TextField(androidx.ui.text.TextFieldValue model, androidx.ui.text.TextRange? compositionRange, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function2<? super androidx.ui.text.TextFieldValue,? super androidx.ui.text.TextRange,kotlin.Unit> onValueChange = { _, _ ->  }, androidx.ui.text.TextStyle? textStyle = null, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
+  }
+
+  public final class TextKt {
+    method public static void CurrentTextStyleProvider(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle? style = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method public static androidx.ui.text.TextStyle currentTextStyle();
+    method public static androidx.ui.core.HorizontalAlignmentLine getFirstBaseline();
+    method public static androidx.ui.core.HorizontalAlignmentLine getLastBaseline();
+  }
+
+  public final class WrapperKt {
+    method public static void ComposeView(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.Autofill> getAutofillAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
+    method public static androidx.compose.ProvidableAmbient<android.content.res.Configuration> getConfigurationAmbient();
+    method public static androidx.compose.ProvidableAmbient<android.content.Context> getContextAmbient();
+    method public static androidx.compose.ProvidableAmbient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.unit.Density> getDensityAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.input.FocusManager> getFocusManagerAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.text.font.Font.ResourceLoader> getFontLoaderAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.hapticfeedback.HapticFeedback> getHapticFeedBackAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
+    method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+}
+
+package androidx.ui.core.gesture {
+
+  public final class ConstantsKt {
+    method public static androidx.ui.unit.Duration getDoubleTapMinTime();
+    method public static androidx.ui.unit.Dp getDoubleTapSlop();
+    method public static androidx.ui.unit.Duration getDoubleTapTimeout();
+    method public static androidx.ui.unit.Dp getDoubleTapTouchSlop();
+    method public static androidx.ui.unit.Dp getHoverTapSlop();
+    method public static androidx.ui.unit.Duration getHoverTapTimeout();
+    method public static androidx.ui.unit.Duration getJumpTapTimeout();
+    method public static androidx.ui.unit.Duration getLongPressTimeout();
+    method public static androidx.ui.unit.Dp getMaxFlingVelocity();
+    method public static androidx.ui.unit.Dp getMinFlingVelocity();
+    method public static float getPagingTouchSlop();
+    method public static float getPanSlop();
+    method public static androidx.ui.unit.Duration getPressTimeout();
+    method public static androidx.ui.unit.Dp getScaleSlop();
+    method public static androidx.ui.unit.Dp getTouchSlop();
+    method public static androidx.ui.unit.Dp getWindowTouchSlop();
+    method public static androidx.ui.unit.Duration getZoomControlsTimeout();
+  }
+
+  public final class DoubleTapGestureDetectorKt {
+    method public static void DoubleTapGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDoubleTap, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface DragObserver {
+    method public default void onCancel();
+    method public default androidx.ui.unit.PxPosition onDrag(androidx.ui.unit.PxPosition dragDistance);
+    method public default void onStart(androidx.ui.unit.PxPosition downPosition);
+    method public default void onStop(androidx.ui.unit.PxPosition velocity);
+  }
+
+  public final class LongPressDragGestureDetectorKt {
+    method public static void LongPressDragGestureDetector(androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface LongPressDragObserver {
+    method public default void onCancel();
+    method public default androidx.ui.unit.PxPosition onDrag(androidx.ui.unit.PxPosition dragDistance);
+    method public default void onDragStart();
+    method public default void onLongPress(androidx.ui.unit.PxPosition pxPosition);
+    method public default void onStop(androidx.ui.unit.PxPosition velocity);
+  }
+
+  public final class LongPressFiredEvent implements androidx.ui.core.CustomEvent {
+    field public static final androidx.ui.core.gesture.LongPressFiredEvent! INSTANCE;
+  }
+
+  public final class LongPressGestureDetectorKt {
+    method public static void LongPressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onLongPress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PressGestureDetectorKt {
+    method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PressIndicatorGestureDetectorKt {
+    method public static void PressIndicatorGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PressReleasedGestureDetectorKt {
+    method public static void PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, boolean consumeDownOnStart = true, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class RawDragGestureDetectorKt {
+    method public static void RawDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class RawPressStartGestureDetectorKt {
+  }
+
+  public final class RawScaleGestureDetectorKt {
+    method public static void RawScaleGestureDetector(androidx.ui.core.gesture.RawScaleObserver scaleObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartScaling = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface RawScaleObserver {
+    method public default void onCancel();
+    method public default float onScale(float scaleFactor);
+    method public default void onStart();
+    method public default void onStop();
+  }
+
+  public final class ScaleGestureDetectorKt {
+    method public static void ScaleGestureDetector(androidx.ui.core.gesture.ScaleObserver scaleObserver, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface ScaleObserver {
+    method public default void onCancel();
+    method public void onScale(float scaleFactor);
+    method public default void onStart();
+    method public default void onStop();
+  }
+
+  public final class ScaleSlopExceededGestureDetectorKt {
+    method public static void ScaleSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onScaleSlopExceeded, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class ScaleUtilKt {
+  }
+
+  public final class TouchSlopDragGestureDetectorKt {
+    method public static void TouchSlopDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class TouchSlopExceededGestureDetectorKt {
+    method public static void TouchSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onTouchSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+}
+
+package androidx.ui.core.gesture.util {
+
+  public final class GestureUtilsKt {
+    method public static boolean anyPointersInBounds(java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.unit.IntPxSize bounds);
+  }
+
+  public final class PolyFitLeastSquaresKt {
+  }
+
+  public final class VelocityTracker {
+    ctor public VelocityTracker();
+    method public void addPosition(androidx.ui.unit.Uptime uptime, androidx.ui.unit.PxPosition position);
+    method public androidx.ui.unit.Velocity calculateVelocity();
+    method public void resetTracking();
+  }
+
+  public final class VelocityTrackerKt {
+  }
+
+}
+
+package androidx.ui.core.input {
+
+  public class FocusManager {
+    method public final void requestFocusById(String identifier);
+  }
+
+}
+
+package androidx.ui.core.selection {
+
+  public interface Selectable {
+    method public androidx.ui.unit.PxPosition getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
+    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
+    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
+  }
+
+  public final class Selection {
+    ctor public Selection(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end, boolean handlesCrossed);
+    method public androidx.ui.core.selection.Selection.AnchorInfo component1();
+    method public androidx.ui.core.selection.Selection.AnchorInfo component2();
+    method public boolean component3();
+    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end, boolean handlesCrossed);
+    method public androidx.ui.core.selection.Selection.AnchorInfo getEnd();
+    method public boolean getHandlesCrossed();
+    method public androidx.ui.core.selection.Selection.AnchorInfo getStart();
+    method public androidx.ui.core.selection.Selection merge(androidx.ui.core.selection.Selection? other);
+    method public androidx.ui.text.TextRange toTextRange();
+  }
+
+  public static final class Selection.AnchorInfo {
+    ctor public Selection.AnchorInfo(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    method public androidx.ui.text.style.TextDirection component1();
+    method public int component2();
+    method public androidx.ui.core.selection.Selectable component3();
+    method public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    method public androidx.ui.text.style.TextDirection getDirection();
+    method public int getOffset();
+    method public androidx.ui.core.selection.Selectable getSelectable();
+  }
+
+  public final class SelectionContainerKt {
+    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class SelectionHandlesKt {
+  }
+
+  public final class SelectionManagerKt {
+  }
+
+  public interface SelectionRegistrar {
+    method public void onPositionChange();
+    method public androidx.ui.core.selection.Selectable subscribe(androidx.ui.core.selection.Selectable selectable);
+    method public void unsubscribe(androidx.ui.core.selection.Selectable selectable);
+  }
+
+  public final class SelectionRegistrarKt {
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.selection.SelectionRegistrar> getSelectionRegistrarAmbient();
+  }
+
+  public final class TextSelectionDelegateKt {
+  }
+
+}
+
+package androidx.ui.focus {
+
+  public final class FocusOperator {
+    ctor public FocusOperator();
+    method public androidx.ui.focus.FocusDetailedState getFocusDetailedState();
+    method public androidx.ui.focus.FocusState getFocusState();
+    method public void requestFocus();
+    property public final androidx.ui.focus.FocusDetailedState focusDetailedState;
+    property public final androidx.ui.focus.FocusState focusState;
+  }
+
+  public final class FocusableKt {
+    method public static void Focusable(androidx.ui.focus.FocusOperator focusOperator = remember({ 
+    <init>()
+}), kotlin.jvm.functions.Function1<? super androidx.ui.focus.FocusOperator,kotlin.Unit> children);
+  }
+
+}
+
+package androidx.ui.graphics.vector {
+
+  public final class VectorAsset {
+    method public String component1();
+    method public androidx.ui.unit.Dp component2();
+    method public androidx.ui.unit.Dp component3();
+    method public float component4();
+    method public float component5();
+    method public androidx.ui.graphics.vector.VectorGroup component6();
+    method public androidx.ui.graphics.vector.VectorAsset copy(String name, androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth, float viewportHeight, androidx.ui.graphics.vector.VectorGroup root);
+    method public androidx.ui.unit.Dp getDefaultHeight();
+    method public androidx.ui.unit.Dp getDefaultWidth();
+    method public String getName();
+    method public androidx.ui.graphics.vector.VectorGroup getRoot();
+    method public float getViewportHeight();
+    method public float getViewportWidth();
+  }
+
+  public final class VectorAssetBuilder {
+    ctor public VectorAssetBuilder(String name, androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth, float viewportHeight);
+    method public androidx.ui.graphics.vector.VectorAssetBuilder addPath(java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
+    method public androidx.ui.graphics.vector.VectorAsset build();
+    method public androidx.ui.unit.Dp getDefaultHeight();
+    method public androidx.ui.unit.Dp getDefaultWidth();
+    method public String getName();
+    method public float getViewportHeight();
+    method public float getViewportWidth();
+    method public androidx.ui.graphics.vector.VectorAssetBuilder popGroup();
+    method public androidx.ui.graphics.vector.VectorAssetBuilder pushGroup(String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath);
+  }
+
+  public final class VectorAssetBuilderKt {
+    method public static androidx.ui.graphics.vector.VectorAssetBuilder group(androidx.ui.graphics.vector.VectorAssetBuilder, String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.VectorAssetBuilder,kotlin.Unit> block);
+    method public static androidx.ui.graphics.vector.VectorAssetBuilder path(androidx.ui.graphics.vector.VectorAssetBuilder, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.PathBuilder,kotlin.Unit> pathBuilder);
+  }
+
+  public final class VectorAssetKt {
+    method public static void DrawVector(androidx.ui.graphics.vector.VectorAsset vectorImage, androidx.ui.graphics.Color tintColor = Color.Transparent, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit fit = ScaleFit.Fit);
+  }
+
+  public final class VectorComposeKt {
+    method public static void DrawVector(androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth = -1.0f, float viewportHeight = -1.0f, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method public static void DrawVector(androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight, float viewportWidth = defaultWidth.value, float viewportHeight = defaultHeight.value, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method public static void Group(androidx.ui.graphics.vector.VectorScope, String name = "", float rotation = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.VectorScope,kotlin.Unit> children);
+    method public static void Path(androidx.ui.graphics.vector.VectorScope, java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
+  }
+
+  public final class VectorGroup extends androidx.ui.graphics.vector.VectorNode implements java.lang.Iterable<androidx.ui.graphics.vector.VectorNode> kotlin.jvm.internal.markers.KMappedMarker {
+    ctor public VectorGroup(String name, float rotation, float pivotX, float pivotY, float scaleX, float scaleY, float translationX, float translationY, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData);
+    ctor public VectorGroup();
+    method public operator androidx.ui.graphics.vector.VectorNode get(int index);
+    method public java.util.List<androidx.ui.graphics.vector.PathNode> getClipPathData();
+    method public String getName();
+    method public float getPivotX();
+    method public float getPivotY();
+    method public float getRotation();
+    method public float getScaleX();
+    method public float getScaleY();
+    method public int getSize();
+    method public float getTranslationX();
+    method public float getTranslationY();
+    method public java.util.Iterator<androidx.ui.graphics.vector.VectorNode> iterator();
+    property public final int size;
+  }
+
+  public abstract sealed class VectorNode {
+  }
+
+  public final class VectorPath extends androidx.ui.graphics.vector.VectorNode {
+    ctor public VectorPath(String name, java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, androidx.ui.graphics.Brush? fill, float fillAlpha, androidx.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.ui.graphics.StrokeCap strokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter);
+    method public String component1();
+    method public float component10();
+    method public java.util.List<androidx.ui.graphics.vector.PathNode> component2();
+    method public androidx.ui.graphics.Brush? component3();
+    method public float component4();
+    method public androidx.ui.graphics.Brush? component5();
+    method public float component6();
+    method public float component7();
+    method public androidx.ui.graphics.StrokeCap component8();
+    method public androidx.ui.graphics.StrokeJoin component9();
+    method public androidx.ui.graphics.vector.VectorPath copy(String name, java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, androidx.ui.graphics.Brush? fill, float fillAlpha, androidx.ui.graphics.Brush? stroke, float strokeAlpha, float strokeLineWidth, androidx.ui.graphics.StrokeCap strokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin, float strokeLineMiter);
+    method public androidx.ui.graphics.Brush? getFill();
+    method public float getFillAlpha();
+    method public String getName();
+    method public java.util.List<androidx.ui.graphics.vector.PathNode> getPathData();
+    method public androidx.ui.graphics.Brush? getStroke();
+    method public float getStrokeAlpha();
+    method public androidx.ui.graphics.StrokeCap getStrokeLineCap();
+    method public androidx.ui.graphics.StrokeJoin getStrokeLineJoin();
+    method public float getStrokeLineMiter();
+    method public float getStrokeLineWidth();
+  }
+
+}
+
+package androidx.ui.graphics.vector.compat {
+
+  public final class XmlVectorParserKt {
+  }
+
+}
+
+package androidx.ui.res {
+
+  public final class ColorResourcesKt {
+    method public static androidx.ui.graphics.Color colorResource(@ColorRes int id);
+  }
+
+  public final class DeferredResource<T> {
+    method public androidx.ui.res.Resource<T> getResource();
+    property public final androidx.ui.res.Resource<T> resource;
+  }
+
+  public final class FailedResource<T> extends androidx.ui.res.Resource<T> {
+    ctor public FailedResource(T? resource, Throwable? throwable);
+    method public Throwable? getThrowable();
+  }
+
+  public final class ImageResourcesKt {
+    method public static androidx.ui.graphics.Image imageResource(@DrawableRes int id);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.Image> loadImageResource(int id, androidx.ui.graphics.Image? pendingImage = null, androidx.ui.graphics.Image? failedImage = null);
+  }
+
+  public final class LoadedResource<T> extends androidx.ui.res.Resource<T> {
+    ctor public LoadedResource(T! resource);
+  }
+
+  public final class PendingResource<T> extends androidx.ui.res.Resource<T> {
+    ctor public PendingResource(T? resource);
+  }
+
+  public final class PrimitiveResourcesKt {
+    method public static boolean booleanResource(@BoolRes int id);
+    method public static androidx.ui.unit.Dp dimensionResource(@DimenRes int id);
+    method public static int[] integerArrayResource(@ArrayRes int id);
+    method public static int integerResource(@IntegerRes int id);
+  }
+
+  public abstract sealed class Resource<T> {
+    method public final T? getResource();
+  }
+
+  public final class ResourcesKt {
+  }
+
+  public final class StringResourcesKt {
+    method public static String![] stringArrayResource(@ArrayRes int id);
+    method public static String stringResource(@StringRes int id);
+    method public static String stringResource(@StringRes int id, java.lang.Object... formatArgs);
+  }
+
+  public final class VectorResourcesKt {
+    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.vector.VectorAsset> loadVectorResource(int id, androidx.ui.graphics.vector.VectorAsset? pendingResource = null, androidx.ui.graphics.vector.VectorAsset? failedResource = null);
+    method public static androidx.ui.graphics.vector.VectorAsset vectorResource(@DrawableRes int id);
+  }
+
+}
+
+package androidx.ui.semantics {
+
+  public final class SemanticsActions {
+    ctor public SemanticsActions();
+    field public static final androidx.ui.semantics.SemanticsActions.Companion! Companion;
+  }
+
+  public static final class SemanticsActions.Companion {
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> getCustomActions();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> getOnClick();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> getScrollTo();
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> CustomActions;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> OnClick;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> ScrollTo;
+  }
+
+  public final class SemanticsKt {
+    method public static void Semantics(boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class SemanticsProperties {
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityLabel();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> getAccessibilityRangeInfo();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityValue();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getEnabled();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getHidden();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.style.TextDirection> getTextDirection();
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Enabled;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Hidden;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.style.TextDirection> TextDirection;
+    field public static final androidx.ui.semantics.SemanticsProperties! INSTANCE;
+  }
+
+  public final class SemanticsPropertiesKt {
+    method public static void ScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function2<? super androidx.ui.unit.Px,? super androidx.ui.unit.Px,kotlin.Unit> action);
+    method public static String getAccessibilityLabel(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static String getAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.semantics.AccessibilityRangeInfo getAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> getCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean getEnabled(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean getHidden(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>> getOnClick(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>> getScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static String getTestTag(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.text.style.TextDirection getTextDirection(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public static void setAccessibilityLabel(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
+    method public static void setAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
+    method public static void setAccessibilityValueRange(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityRangeInfo p);
+    method public static void setCustomActions(androidx.ui.semantics.SemanticsPropertyReceiver, java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> p);
+    method public static void setEnabled(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
+    method public static void setHidden(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
+    method public static void setOnClick(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>> p);
+    method public static void setScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>> p);
+    method public static void setTestTag(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
+    method public static void setTextDirection(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.style.TextDirection p);
+  }
+
+}
+
+package androidx.ui.tooling {
+
+  public final class InspectionModeKt {
+    method public static androidx.compose.ProvidableAmbient<java.lang.Boolean> getInspectionMode();
+  }
+
+}
+
