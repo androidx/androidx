@@ -33,6 +33,7 @@ dependencies {
     implementation project(":annotation:annotation-sampled")
 
     implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-material")
     implementation project(":ui:ui-material-icons-core")
     implementation project(":ui:ui-vector")
 }

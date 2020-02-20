@@ -92,9 +92,8 @@ fun IconToggleButton(
     }
 }
 
-// Default radius of an unbounded ripple in an IconButton, this comes from the default framework
-// value for actionBarItemBackground where it is used in ActionBar image buttons.
-private val RippleRadius = 20.dp
+// Default radius of an unbounded ripple in an IconButton
+private val RippleRadius = 24.dp
 
 // TODO: b/149691127 investigate our strategy around accessibility touch targets, and remove
 // per-component definitions of this size.
