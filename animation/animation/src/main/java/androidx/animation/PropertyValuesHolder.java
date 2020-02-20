@@ -766,6 +766,7 @@ public class PropertyValuesHolder implements Cloneable {
                         // change the value type to suit
                         mValueType = typeVariant;
                     }
+                    return returnVal;
                 } catch (NoSuchMethodException e) {
                     // Swallow the error and keep trying other variants
                 }

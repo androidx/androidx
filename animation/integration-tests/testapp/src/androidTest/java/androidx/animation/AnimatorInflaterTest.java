@@ -21,6 +21,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
+import android.view.InflateException;
 
 import androidx.animation.testapp.test.R;
 import androidx.test.annotation.UiThreadTest;
@@ -29,7 +31,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 @SmallTest
@@ -40,6 +44,9 @@ public class AnimatorInflaterTest {
 
     @ClassRule
     public static AnimationTestRule sAnimationTestRule = new AnimationTestRule();
+
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @UiThreadTest
     @Test
@@ -86,7 +93,77 @@ public class AnimatorInflaterTest {
         }
     }
 
-    class DummyObject {
+    @Test
+    public void pathInterpolator() {
+        final Interpolator interpolator = AnimatorInflater.loadInterpolator(
+                ApplicationProvider.getApplicationContext(),
+                R.interpolator.path_interpolator
+        );
+        assertEquals(0.85f, interpolator.getInterpolation(0.5f), EPSILON);
+    }
+
+    @Test
+    public void pathInterpolator_controlPoints() {
+        final Interpolator interpolator = AnimatorInflater.loadInterpolator(
+                ApplicationProvider.getApplicationContext(),
+                R.interpolator.control_points_interpolator
+        );
+        assertEquals(0.89f, interpolator.getInterpolation(0.5f), EPSILON);
+    }
+
+    @Test
+    public void pathInterpolator_singleControlPoint() {
+        final Interpolator interpolator = AnimatorInflater.loadInterpolator(
+                ApplicationProvider.getApplicationContext(),
+                R.interpolator.single_control_point_interpolator
+        );
+        assertEquals(0.086f, interpolator.getInterpolation(0.5f), EPSILON);
+    }
+
+    @Test
+    public void pathInterpolator_wrongControlPoint() {
+        expectedException.expect(InflateException.class);
+        expectedException.expectMessage("requires the controlY1 attribute");
+        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                R.interpolator.wrong_control_point_interpolator);
+    }
+
+    @Test
+    public void pathInterpolator_wrongControlPoints() {
+        expectedException.expect(InflateException.class);
+        expectedException.expectMessage("requires both controlX2 and controlY2 for cubic Beziers");
+        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                R.interpolator.wrong_control_points_interpolator);
+    }
+
+    @Test
+    public void pathInterpolator_wrongStartEnd() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("The Path must start at (0,0) and end at (1,1)");
+        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                R.interpolator.wrong_path_interpolator_1);
+    }
+
+    @Test
+    public void pathInterpolator_loopBack() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("The Path cannot loop back on itself");
+        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                R.interpolator.wrong_path_interpolator_2);
+    }
+
+    @Test
+    public void pathInterpolator_discontinuity() {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage(Build.VERSION.SDK_INT >= 26
+                ? "The Path cannot have discontinuity in the X axis"
+                // Older APIs don't detect discontinuity, but they report it as loop back.
+                : "The Path cannot loop back on itself");
+        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                R.interpolator.wrong_path_interpolator_3);
+    }
+
+    static class DummyObject {
 
         public float x;
         public float y;
