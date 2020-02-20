@@ -21,9 +21,13 @@ import androidx.compose.remember
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
+import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
+import kotlin.math.ceil
 
 /**
  * Create a [DrawModifier] from this [Painter]. This modifier is memoized and re-used across
@@ -33,14 +37,16 @@ import androidx.ui.unit.PxSize
  */
 @Composable
 fun Painter.toModifier(
+    alignment: Alignment = Alignment.Center,
+    scaleFit: ScaleFit = ScaleFit.Fit,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     rtl: Boolean = false
 ): DrawModifier {
     // TODO potentially create thread-safe PainterModifier pool to allow for re-use
     //  of PainterModifier instances and avoid gc overhead
-    return remember(this, alpha, colorFilter, rtl) {
-        PainterModifier(this, alpha, colorFilter, rtl)
+    return remember(this, alignment, scaleFit, alpha, colorFilter, rtl) {
+        PainterModifier(this, alignment, scaleFit, alpha, colorFilter, rtl)
     }
 }
 
@@ -50,6 +56,8 @@ fun Painter.toModifier(
  */
 private data class PainterModifier(
     val painter: Painter,
+    var alignment: Alignment = Alignment.Center,
+    var scaleFit: ScaleFit = ScaleFit.Fit,
     var alpha: Float = DefaultAlpha,
     var colorFilter: ColorFilter? = null,
     var rtl: Boolean = false
@@ -61,11 +69,42 @@ private data class PainterModifier(
         canvas: Canvas,
         size: PxSize
     ) {
+        val intrinsicSize = painter.intrinsicSize
+        val srcWidth = if (intrinsicSize.width.value != Float.POSITIVE_INFINITY) {
+            intrinsicSize.width
+        } else {
+            size.width
+        }
+
+        val srcHeight = if (intrinsicSize.height.value != Float.POSITIVE_INFINITY) {
+            intrinsicSize.height
+        } else {
+            size.height
+        }
+
+        val scale = scaleFit.scale(PxSize(srcWidth, srcHeight), size)
+
+        val alignedPosition = alignment.align(
+            IntPxSize(
+                IntPx(ceil(size.width.value - (srcWidth.value * scale)).toInt()),
+                IntPx(ceil(size.height.value - (srcHeight.value * scale)).toInt())
+            )
+        )
+
+        val dx = alignedPosition.x.value.toFloat()
+        val dy = alignedPosition.y.value.toFloat()
+
+        canvas.save()
+        canvas.translate(dx, dy)
+        canvas.scale(scale, scale)
+
         painter.draw(
             canvas = canvas,
-            bounds = size,
+            bounds = PxSize(srcWidth, srcHeight),
             alpha = alpha,
             colorFilter = colorFilter,
             rtl = rtl)
+
+        canvas.restore()
     }
 }
