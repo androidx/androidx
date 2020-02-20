@@ -23,6 +23,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.test.AtLeastSize
+import androidx.ui.core.test.Padding
 import androidx.ui.core.test.background
 
 import androidx.ui.core.test.runOnUiThreadIR
@@ -35,6 +36,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
@@ -150,6 +152,90 @@ class PainterModifierTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testPainterAspectRatioMaintainedInSmallerParent() {
+        val paintLatch = CountDownLatch(1)
+        val containerSizePx = containerWidth.roundToInt().ipx * 3
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = containerSizePx, modifier = background
+                    (Color.White)) {
+                    // Verify that the contents are scaled down appropriately even though
+                    // the Painter's intrinsic width and height is twice that of the component
+                    // it is to be drawn into
+                    Padding(containerWidth.roundToInt().ipx) {
+                        AtLeastSize(size = containerWidth.roundToInt().ipx,
+                            modifier = LatchPainter(
+                                containerWidth * 2,
+                                containerHeight * 2,
+                                paintLatch
+                            ).toModifier(alignment = Alignment.Center, scaleFit = ScaleFit.Fit)) {
+                        }
+                    }
+                }
+            }
+        }
+
+        paintLatch.await()
+
+        obtainScreenshotBitmap(
+            containerSizePx.value,
+            containerSizePx.value
+        ).apply {
+            assertEquals(Color.White.toArgb(), getPixel(containerWidth.roundToInt() - 1,
+                containerHeight.roundToInt() - 1))
+            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() + 1,
+                containerWidth.roundToInt() + 1))
+            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() * 2 - 1,
+                containerWidth.roundToInt() * 2 - 1))
+            assertEquals(Color.White.toArgb(), getPixel(containerWidth.roundToInt() * 2 + 1,
+                containerHeight.roundToInt() * 2 + 1))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testPainterAlignedBottomRightIfSmallerThanParent() {
+        val paintLatch = CountDownLatch(1)
+        val containerSizePx = containerWidth.roundToInt().ipx * 2
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = containerWidth.roundToInt().ipx * 2,
+                    modifier = background(Color.White) + LatchPainter(
+                        containerWidth,
+                        containerHeight,
+                        paintLatch
+                    ).toModifier(
+                        alignment = Alignment.BottomRight,
+                        scaleFit = ScaleFit.Fit)
+                    ) {
+                    // Intentionally empty
+                }
+            }
+        }
+
+        paintLatch.await()
+
+        val bottom = containerSizePx.value - 1
+        val right = containerSizePx.value - 1
+        val innerBoxTop = containerSizePx.value - containerWidth.roundToInt()
+        val innerBoxLeft = containerSizePx.value - containerWidth.roundToInt()
+        obtainScreenshotBitmap(
+            containerSizePx.value,
+            containerSizePx.value
+        ).apply {
+            assertEquals(Color.Red.toArgb(), getPixel(right, bottom))
+            assertEquals(Color.Red.toArgb(), getPixel(innerBoxLeft, bottom))
+            assertEquals(Color.Red.toArgb(), getPixel(innerBoxLeft, innerBoxTop))
+            assertEquals(Color.Red.toArgb(), getPixel(right, innerBoxTop))
+
+            assertEquals(Color.White.toArgb(), getPixel(innerBoxLeft - 1, bottom))
+            assertEquals(Color.White.toArgb(), getPixel(innerBoxLeft - 1, innerBoxTop - 1))
+            assertEquals(Color.White.toArgb(), getPixel(right, innerBoxTop - 1))
+        }
+    }
+
     @Composable
     private fun testPainter(
         alpha: Float = DefaultAlpha,
@@ -158,25 +244,7 @@ class PainterModifierTest {
         latch: CountDownLatch
     ) {
         with(DensityAmbient.current) {
-            val p = object : Painter() {
-                override val intrinsicSize: PxSize
-                    get() = PxSize(
-                        Px(containerWidth),
-                        Px(containerHeight)
-                    )
-
-                override fun onDraw(canvas: Canvas, bounds: PxSize) {
-                    val paint = Paint().apply {
-                        this.color = if (rtl) Color.Blue else Color.Red
-                    }
-                    canvas.drawRect(
-                        Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
-                        paint
-                    )
-                    latch.countDown()
-                }
-            }
-
+            val p = LatchPainter(containerWidth, containerHeight, latch, rtl)
             AtLeastSize(
                 modifier = background(Color.White) +
                         p.toModifier(alpha = alpha, colorFilter =
@@ -193,5 +261,29 @@ class PainterModifierTest {
         Assert.assertEquals(width, bitmap.width)
         Assert.assertEquals(height, bitmap.height)
         return bitmap
+    }
+
+    private class LatchPainter(
+        val width: Float,
+        val height: Float,
+        val latch: CountDownLatch,
+        val rtl: Boolean = false
+    ) : Painter() {
+        override val intrinsicSize: PxSize
+            get() = PxSize(
+                Px(width),
+                Px(height)
+            )
+
+        override fun onDraw(canvas: Canvas, bounds: PxSize) {
+            val paint = Paint().apply {
+                this.color = if (rtl) Color.Blue else Color.Red
+            }
+            canvas.drawRect(
+                Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
+                paint
+            )
+            latch.countDown()
+        }
     }
 }
