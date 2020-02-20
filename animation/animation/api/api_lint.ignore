@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+BuilderSetStyle: androidx.animation.AnimatorSet.Builder#with(androidx.animation.Animator):
+    Builder methods names should use setFoo() style: method androidx.animation.AnimatorSet.Builder.with(androidx.animation.Animator)
