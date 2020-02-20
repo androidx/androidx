@@ -3449,7 +3449,9 @@ package androidx.core.widget {
     method public void setOnScrollChangeListener(androidx.core.widget.NestedScrollView.OnScrollChangeListener?);
     method public void setSmoothScrollingEnabled(boolean);
     method public final void smoothScrollBy(int, int);
+    method public final void smoothScrollBy(int, int, int);
     method public final void smoothScrollTo(int, int);
+    method public final void smoothScrollTo(int, int, int);
     method public boolean startNestedScroll(int, int);
     method public void stopNestedScroll(int);
   }
