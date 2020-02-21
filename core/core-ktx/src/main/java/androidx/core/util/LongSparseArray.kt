@@ -48,7 +48,7 @@ inline fun <T> LongSparseArray<T>.containsKey(key: Long) = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.containsValue(value: T) = indexOfValue(value) != -1
+inline fun <T> LongSparseArray<T>.containsValue(value: T) = indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 @RequiresApi(16)
@@ -72,7 +72,7 @@ inline fun <T> LongSparseArray<T>.isNotEmpty() = size() != 0
 @RequiresApi(16)
 fun <T> LongSparseArray<T>.remove(key: Long, value: T): Boolean {
     val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
+    if (index >= 0 && value == valueAt(index)) {
         removeAt(index)
         return true
     }

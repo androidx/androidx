@@ -106,6 +106,7 @@ class SparseLongArrayTest {
         assertEquals(22L, array.getOrElse(1) { 22L })
         array.put(1, 11L)
         assertEquals(11L, array.getOrElse(1) { fail() })
+        assertEquals(33L, array.getOrElse(2) { 33L })
     }
 
     @Test fun isEmpty() {
@@ -125,7 +126,7 @@ class SparseLongArrayTest {
     @Test fun removeValue() {
         val array = SparseLongArray()
         array.put(1, 11L)
-        assertFalse(array.remove(0, 11L))
+        assertFalse(array.remove(2, 11L))
         assertEquals(1, array.size())
         assertFalse(array.remove(1, 22L))
         assertEquals(1, array.size())
