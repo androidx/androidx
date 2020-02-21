@@ -20,9 +20,11 @@ import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.animation.ColorPropKey
+import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
+import androidx.ui.unit.dp
 
 private enum class State {
     First,
@@ -31,13 +33,20 @@ private enum class State {
 
 @Sampled
 fun TransitionSample() {
-    val ColorKey = ColorPropKey()
+    val colorKey = ColorPropKey()
+    val widthKey = DpPropKey()
+    val heightKey = DpPropKey()
+
     val definition = transitionDefinition {
         state(State.First) {
-            this[ColorKey] = Color.Red
+            this[colorKey] = Color.Red
+            this[widthKey] = 200.dp
+            this[heightKey] = 400.dp
         }
         state(State.Second) {
-            this[ColorKey] = Color.Green
+            this[colorKey] = Color.Green
+            this[widthKey] = 300.dp
+            this[heightKey] = 300.dp
         }
     }
 
@@ -46,7 +55,7 @@ fun TransitionSample() {
         // This puts the transition in State.First. Any subsequent state change will trigger a
         // transition animation, as defined in the transition definition.
         Transition(definition = definition, toState = State.First) { state ->
-            ColoredRect(color = state[ColorKey])
+            ColoredRect(color = state[colorKey], width = state[widthKey], height = state[heightKey])
         }
     }
 
@@ -56,7 +65,7 @@ fun TransitionSample() {
         // gets composed for the first time.
         Transition(definition = definition, initState = State.First, toState = State.Second) {
                 state ->
-            ColoredRect(color = state[ColorKey])
+            ColoredRect(color = state[colorKey], width = state[widthKey], height = state[heightKey])
         }
     }
 }
