@@ -33,4 +33,11 @@
         android:layout_margin="16dp"
         android:text="Start" />
 
+    <SeekBar
+        android:id="@+id/seek"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:max="1333" />
+
 </LinearLayout>
