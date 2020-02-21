@@ -24,8 +24,10 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.os.CancellationSignal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,11 +84,19 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
     @Override
     void executeOperations(@NonNull List<Operation> operations) {
+        // TODO Pipe this information in from the actual transactions being done
+        boolean isPop = !operations.isEmpty()
+                && operations.get(operations.size() - 1).getType() == Operation.Type.REMOVE;
+        List<TransitionInfo> transitions = new ArrayList<>();
+
         for (final Operation operation : operations) {
             // Create the animation CancellationSignal
             CancellationSignal animCancellationSignal = new CancellationSignal();
             addCancellationSignal(operation, animCancellationSignal);
-            // TODO Add the transition CancellationSignal
+
+            // Create the transition CancellationSignal
+            CancellationSignal transitionCancellationSignal = new CancellationSignal();
+            addCancellationSignal(operation, transitionCancellationSignal);
 
             // Ensure that when the Operation is cancelled, we cancel all special effects
             operation.getCancellationSignal().setOnCancelListener(
@@ -99,9 +109,13 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
             // Start animation special effects
             startAnimation(operation, animCancellationSignal);
+
+            // Fill in transitions
+            transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop));
         }
 
-        // TODO start transition special effects
+        // Start transition special effects
+        startTransitions(transitions);
     }
 
     private void startAnimation(final @NonNull Operation operation,
@@ -168,5 +182,146 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 viewToAnimate.clearAnimation();
             }
         });
+    }
+
+    private void startTransitions(@NonNull List<TransitionInfo> transitionInfos) {
+        // First verify that we can run all transitions together
+        FragmentTransitionImpl transitionImpl = null;
+        for (TransitionInfo transitionInfo : transitionInfos) {
+            FragmentTransitionImpl handlingImpl = transitionInfo.getHandlingImpl();
+            if (transitionImpl == null) {
+                transitionImpl = handlingImpl;
+            } else if (handlingImpl != null && transitionImpl != handlingImpl) {
+                throw new IllegalArgumentException("Mixing framework transitions and "
+                        + "AndroidX transitions is not allowed. Fragment "
+                        + transitionInfo.getOperation().getFragment() + " returned Transition "
+                        + transitionInfo.getTransition() + " which uses a different Transition "
+                        + " type than other Fragments.");
+            }
+        }
+        if (transitionImpl == null) {
+            // There were no transitions at all so we can just cancel all of them
+            for (TransitionInfo transitionInfo : transitionInfos) {
+                removeCancellationSignal(transitionInfo.getOperation(),
+                        transitionInfo.getSignal());
+            }
+        } else {
+            // These transitions run together, overlapping one another
+            Object mergedTransition = null;
+            // These transitions run only after all of the other transitions complete
+            Object mergedNonOverlappingTransition = null;
+            // Now iterate through the set of transitions and merge them together
+            for (final TransitionInfo transitionInfo : transitionInfos) {
+                Object transition = transitionInfo.getTransition();
+                if (transition == null) {
+                    // Nothing more to do if the transition is null
+                    removeCancellationSignal(transitionInfo.getOperation(),
+                            transitionInfo.getSignal());
+                } else if (transitionInfo.isOverlapAllowed()) {
+                    // Overlap is allowed, so add them to the mergeTransition set
+                    mergedTransition = transitionImpl.mergeTransitionsTogether(
+                            mergedTransition, transition, null);
+                } else {
+                    // Overlap is not allowed, add them to the mergedNonOverlappingTransition
+                    mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
+                            mergedNonOverlappingTransition, transition, null);
+                }
+            }
+
+            // Make sure that the mergedNonOverlappingTransition set
+            // runs after the mergedTransition set is complete
+            mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
+                    mergedNonOverlappingTransition, null);
+
+            // Now set up our cancellation and completion signal on the completely
+            // merged transition set
+            for (final TransitionInfo transitionInfo : transitionInfos) {
+                Object transition = transitionInfo.getTransition();
+                if (transition != null) {
+                    transitionImpl.setListenerForTransitionEnd(
+                            transitionInfo.getOperation().getFragment(),
+                            mergedTransition,
+                            transitionInfo.getSignal(),
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    removeCancellationSignal(transitionInfo.getOperation(),
+                                            transitionInfo.getSignal());
+                                }
+                            });
+                }
+            }
+            // Now actually start the transition
+            transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+        }
+    }
+
+    private static class TransitionInfo {
+        @NonNull
+        private final Operation mOperation;
+        @NonNull
+        private final CancellationSignal mSignal;
+        @Nullable
+        private final Object mTransition;
+        private final boolean mOverlapAllowed;
+
+        TransitionInfo(@NonNull Operation operation,
+                @NonNull CancellationSignal signal, boolean isPop) {
+            mOperation = operation;
+            mSignal = signal;
+            if (operation.getType() == Operation.Type.ADD) {
+                mTransition = isPop
+                        ? operation.getFragment().getReenterTransition()
+                        : operation.getFragment().getEnterTransition();
+                // Entering transitions can choose to run after all exit
+                // transitions complete, rather than overlapping with them
+                mOverlapAllowed = isPop
+                        ? operation.getFragment().getAllowEnterTransitionOverlap()
+                        : operation.getFragment().getAllowReturnTransitionOverlap();
+            } else {
+                mTransition = isPop
+                        ? operation.getFragment().getReturnTransition()
+                        : operation.getFragment().getExitTransition();
+                // Removing Fragments always overlap other transitions
+                mOverlapAllowed = true;
+            }
+        }
+
+        @NonNull
+        Operation getOperation() {
+            return mOperation;
+        }
+
+        @NonNull
+        CancellationSignal getSignal() {
+            return mSignal;
+        }
+
+        @Nullable
+        Object getTransition() {
+            return mTransition;
+        }
+
+        boolean isOverlapAllowed() {
+            return mOverlapAllowed;
+        }
+
+        @Nullable
+        FragmentTransitionImpl getHandlingImpl() {
+            if (mTransition == null) {
+                return null;
+            }
+            if (FragmentTransition.PLATFORM_IMPL != null
+                    && FragmentTransition.PLATFORM_IMPL.canHandle(mTransition)) {
+                return FragmentTransition.PLATFORM_IMPL;
+            }
+            if (FragmentTransition.SUPPORT_IMPL != null
+                    && FragmentTransition.SUPPORT_IMPL.canHandle(mTransition)) {
+                return FragmentTransition.SUPPORT_IMPL;
+            }
+            throw new IllegalArgumentException("Transition " + mTransition + " for fragment "
+                    + mOperation.getFragment() + " is not a valid framework Transition or "
+                    + "AndroidX Transition");
+        }
     }
 }
