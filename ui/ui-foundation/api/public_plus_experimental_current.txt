@@ -102,8 +102,6 @@ package androidx.ui.foundation {
 
   public final class ScrollerPosition {
     ctor public ScrollerPosition(androidx.ui.foundation.animation.FlingConfig flingConfig, float initial, androidx.animation.AnimationClockObservable animationClock);
-    method public void fling(float startVelocity);
-    method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
     method public float getMaxPosition();
     method public float getValue();
     method public boolean isAnimating();
@@ -243,6 +241,21 @@ package androidx.ui.foundation.gestures {
     method public void onDragEnd(float velocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueSettled);
     method public void setBounds(float min, float max);
     property public float currentValue;
+  }
+
+  public final class ScrollableKt {
+    method public static void Scrollable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
+  }
+
+  public final class ScrollableState {
+    ctor public ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested, androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
+    method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
+    method public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getOnScrollDeltaConsumptionRequested();
+    method public boolean isAnimating();
+    method public void smoothScrollBy(float value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
+    method public void stopAnimation();
+    property public final boolean isAnimating;
   }
 
 }
