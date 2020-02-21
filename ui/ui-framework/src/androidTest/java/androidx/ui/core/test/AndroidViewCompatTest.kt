@@ -37,6 +37,7 @@ import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.ModifierScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
@@ -49,7 +50,6 @@ import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
 import junit.framework.TestCase.assertNotNull
@@ -369,7 +369,7 @@ class AndroidViewCompatTest {
     }
 
     fun LayoutConstraints(childConstraints: Constraints) = object : LayoutModifier {
-        override fun Density.modifyConstraints(constraints: Constraints): Constraints {
+        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints {
             return childConstraints
         }
     }

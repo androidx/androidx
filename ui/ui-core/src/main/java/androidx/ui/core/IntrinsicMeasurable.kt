@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 
 /**
@@ -57,4 +56,4 @@ interface IntrinsicMeasurable {
 /**
  * A function for performing intrinsic measurement.
  */
-typealias IntrinsicMeasureBlock = Density.(List<IntrinsicMeasurable>, IntPx) -> IntPx
+typealias IntrinsicMeasureBlock = ModifierScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx

@@ -803,25 +803,25 @@ class AndroidComposeView constructor(context: Context) :
             }
 
             override fun minIntrinsicWidth(
-                density: Density,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun minIntrinsicHeight(
-                density: Density,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicWidth(
-                density: Density,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicHeight(
-                density: Density,
+                modifierScope: ModifierScope,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx
             ) = error("Undefined intrinsics block and it is required")

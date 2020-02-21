@@ -28,20 +28,20 @@ interface LayoutModifier : Modifier.Element {
     /**
      * Modifies [constraints] for performing measurement of the modified layout element.
      */
-    fun Density.modifyConstraints(constraints: Constraints): Constraints = constraints
+    fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints = constraints
 
     /**
      * Returns the container size of a modified layout element given the original container
      * measurement [constraints] and the measured [childSize].
      */
-    fun Density.modifySize(constraints: Constraints, childSize: IntPxSize): IntPxSize =
+    fun ModifierScope.modifySize(constraints: Constraints, childSize: IntPxSize): IntPxSize =
         childSize
 
     /**
      * Determines the modified minimum intrinsic width of [measurable].
      * See [Measurable.minIntrinsicWidth].
      */
-    fun Density.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+    fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
         val constraints = Constraints(maxHeight = height)
         val layoutWidth = measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
         return modifySize(constraints, IntPxSize(layoutWidth, height)).width
@@ -51,7 +51,7 @@ interface LayoutModifier : Modifier.Element {
      * Determines the modified maximum intrinsic width of [measurable].
      * See [Measurable.maxIntrinsicWidth].
      */
-    fun Density.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+    fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
         val constraints = Constraints(maxHeight = height)
         val layoutWidth = measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
         return modifySize(constraints, IntPxSize(layoutWidth, height)).width
@@ -61,7 +61,7 @@ interface LayoutModifier : Modifier.Element {
      * Determines the modified minimum intrinsic height of [measurable].
      * See [Measurable.minIntrinsicHeight].
      */
-    fun Density.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+    fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
         val constraints = Constraints(maxWidth = width)
         val layoutHeight = measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
         return modifySize(constraints, IntPxSize(width, layoutHeight)).height
@@ -71,7 +71,7 @@ interface LayoutModifier : Modifier.Element {
      * Determines the modified maximum intrinsic height of [measurable].
      * See [Measurable.maxIntrinsicHeight].
      */
-    fun Density.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+    fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
         val constraints = Constraints(maxWidth = width)
         val layoutHeight = measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
         return modifySize(constraints, IntPxSize(width, layoutHeight)).height
@@ -81,7 +81,7 @@ interface LayoutModifier : Modifier.Element {
      * Returns the position of a modified child of size [childSize] within a container of
      * size [containerSize].
      */
-    fun Density.modifyPosition(
+    fun ModifierScope.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
     ): IntPxPosition = IntPxPosition.Origin
@@ -89,8 +89,31 @@ interface LayoutModifier : Modifier.Element {
     /**
      * Returns the modified position of [line] given its unmodified [value].
      */
-    fun Density.modifyAlignmentLine(
+    fun ModifierScope.modifyAlignmentLine(
         line: AlignmentLine,
         value: IntPx?
     ): IntPx? = value
+
+    /**
+     * Modifies the layout direction to be used for measurement and layout by the modified layout
+     * node.
+     */
+    fun ModifierScope.modifyLayoutDirection(): LayoutDirection = layoutDirection
+}
+
+/**
+ * Receiver scope for a layout modifier.
+ */
+interface ModifierScope : Density {
+
+    /**
+     * Layout direction set by layout modifier to force LTR or RTL direction in layout.
+     */
+    val layoutDirection: LayoutDirection
+
+    /**
+     * Layout direction provided through ambient. Unless modified through ambient, it reflects
+     * the locale's direction.
+     */
+    val ambientLayoutDirection: LayoutDirection
 }
