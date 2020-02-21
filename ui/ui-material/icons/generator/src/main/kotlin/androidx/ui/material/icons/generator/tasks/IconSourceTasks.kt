@@ -33,8 +33,9 @@ open class CoreIconGenerationTask : IconGenerationTask() {
          * Registers [CoreIconGenerationTask] in [project] for [variant].
          */
         fun register(project: Project, variant: BaseVariant) {
-            val task = project.tasks.create(
-                "generateCoreIcons${variant.name.capitalize()}",
+            val task = project.createGenerationTask(
+                "generateCoreIcons",
+                variant,
                 CoreIconGenerationTask::class.java
             )
             variant.registerIconGenerationTask(project, task)
@@ -54,8 +55,9 @@ open class ExtendedIconGenerationTask : IconGenerationTask() {
          * Registers [ExtendedIconGenerationTask] in [project] for [variant].
          */
         fun register(project: Project, variant: BaseVariant) {
-            val task = project.tasks.create(
-                "generateExtendedIcons${variant.name.capitalize()}",
+            val task = project.createGenerationTask(
+                "generateExtendedIcons",
+                variant,
                 ExtendedIconGenerationTask::class.java
             )
             variant.registerIconGenerationTask(project, task)
@@ -70,7 +72,7 @@ private fun BaseVariant.registerIconGenerationTask(
     project: Project,
     task: IconGenerationTask
 ) {
-    registerJavaGeneratingTask(task, IconGenerationTask.getGeneratedSrcMainDirectory(project))
+    registerJavaGeneratingTask(task, task.generatedSrcMainDirectory)
     // TODO: b/144249620 - fixed in AGP 4.0.0 alpha 4 +
     javaCompileProvider.configure { it.enabled = false }
     project.tasks.named("runErrorProne").configure { it.enabled = false }

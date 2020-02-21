@@ -19,6 +19,7 @@ package androidx.ui.material.icons.generator.tasks
 import androidx.ui.material.icons.generator.Icon
 import androidx.ui.material.icons.generator.IconProcessor
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.InputDirectory
@@ -32,8 +33,6 @@ import java.io.File
  * Base [org.gradle.api.Task] for tasks relating to icon generation.
  */
 abstract class IconGenerationTask : DefaultTask() {
-    private val GeneratorProject = ":ui:ui-material:icons:generator"
-
     /**
      * Directory containing raw drawables. These icons will be processed to generate programmatic
      * representations.
@@ -50,12 +49,18 @@ abstract class IconGenerationTask : DefaultTask() {
         project.rootProject.project(GeneratorProject).projectDir.resolve("api/icons.txt")
 
     /**
+     * Root build directory for this task, where outputs will be placed into.
+     */
+    @OutputDirectory
+    lateinit var buildDirectory: File
+
+    /**
      * Generated API file that will be placed in the build directory. This can be copied manually
      * to [expectedApiFile] to confirm that API changes were intended.
      */
-    @OutputFile
-    val generatedApiFile =
-        project.rootProject.project(GeneratorProject).buildDir.resolve("api/icons.txt")
+    @get:OutputFile
+    val generatedApiFile: File
+        get() = buildDirectory.resolve("api/icons.txt")
 
     /**
      * @return a list of all processed [Icon]s from [iconDirectory].
@@ -65,15 +70,15 @@ abstract class IconGenerationTask : DefaultTask() {
 
     @get:OutputDirectory
     val generatedSrcMainDirectory: File
-        get() = getGeneratedSrcMainDirectory(project)
+        get() = buildDirectory.resolve("src/main/kotlin")
 
     @get:OutputDirectory
     val generatedSrcAndroidTestDirectory: File
-        get() = getGeneratedSrcAndroidTestDirectory(project)
+        get() = buildDirectory.resolve("src/androidTest/kotlin")
 
     @get:OutputDirectory
     val generatedResourceDirectory: File
-        get() = getGeneratedResourceDirectory(project)
+        get() = buildDirectory.resolve("generatedIcons/res")
 
     /**
      * The action for this task
@@ -82,24 +87,6 @@ abstract class IconGenerationTask : DefaultTask() {
     abstract fun run()
 
     companion object {
-        /**
-         * @return location of the generated src folder for the main source set.
-         */
-        fun getGeneratedSrcMainDirectory(project: Project): File =
-            project.buildDir.resolve("generatedIcons/src/main/kotlin")
-
-        /**
-         * @return location of the generated src folder for the androidTest source set.
-         */
-        fun getGeneratedSrcAndroidTestDirectory(project: Project): File =
-            project.buildDir.resolve("generatedIcons/src/androidTest/kotlin")
-
-        /**
-         * @return location of the generated res folder.
-         */
-        fun getGeneratedResourceDirectory(project: Project): File =
-            project.buildDir.resolve("generatedIcons/res")
-
         /**
          * Registers the core [project]. The core project contains only the icons defined in
          * [androidx.ui.material.icons.generator.CoreIcons], and no tests.
@@ -123,9 +110,27 @@ abstract class IconGenerationTask : DefaultTask() {
             }
 
             libraryExtension.testVariants.all { variant ->
-                IconTestingDrawableGenerationTask.register(project, variant)
-                IconTestingManifestGenerationTask.register(project, variant)
+                IconTestingGenerationTask.register(project, variant)
             }
         }
+    }
+}
+
+// Path to the generator project
+private const val GeneratorProject = ":ui:ui-material:icons:generator"
+
+/**
+ * Registers a new [T] in [this], and sets [IconGenerationTask.buildDirectory] depending on
+ * [variant].
+ *
+ * @return the created [T] of [IconGenerationTask]
+ */
+fun <T : IconGenerationTask> Project.createGenerationTask(
+    taskName: String,
+    variant: BaseVariant,
+    taskClass: Class<T>
+): T {
+    return tasks.create("$taskName${variant.name.capitalize()}", taskClass) {
+        it.buildDirectory = project.buildDir.resolve("generatedIcons/${variant.name}")
     }
 }
