@@ -17,8 +17,11 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.layout.Center
@@ -26,6 +29,9 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -34,6 +40,7 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
+import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -165,6 +172,81 @@ class LayoutPaddingTest : LayoutTest() {
         error?.let { throw it }
 
         Unit
+    }
+
+    @Test
+    fun testRtlSupport() = with(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+        val padding1Dp = 5.dp
+        val padding2Dp = 10.dp
+        val padding3Dp = 15.dp
+        val padding1 = padding1Dp.toIntPx()
+        val padding2 = padding2Dp.toIntPx()
+        val padding3 = padding3Dp.toIntPx()
+
+        val drawLatch = CountDownLatch(3)
+        val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
+        val childPosition = Array(3) { PxPosition(0.px, 0.px) }
+
+        // ltr: P1 S P2 | S P3 | P1 S
+        // rtl: P2 S P1 | P3 S | S P1
+        val children = @Composable {
+            Stack(
+                LayoutPadding(start = padding1Dp, end = padding2Dp) +
+                        LayoutSize(sizeDp, sizeDp)
+            ) {
+                OnPositioned(onPositioned = { coordinates ->
+                    childSize[0] = coordinates.size
+                    childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                })
+            }
+
+            Stack(LayoutPadding(end = padding3Dp) + LayoutSize(sizeDp, sizeDp)) {
+                OnPositioned(onPositioned = { coordinates ->
+                    childSize[1] = coordinates.size
+                    childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                })
+            }
+
+            Stack(
+                LayoutPadding(start = padding1Dp) +
+                        LayoutSize(sizeDp, sizeDp)
+            ) {
+                OnPositioned(onPositioned = { coordinates ->
+                    childSize[2] = coordinates.size
+                    childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                })
+            }
+        }
+        show {
+            Row {
+                Providers(
+                    LayoutDirectionAmbient provides LayoutDirection.Rtl,
+                    children = children
+                )
+            }
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxPosition(padding2.toPx(), 0.px), childPosition[0])
+        assertEquals(IntPxSize(size, size), childSize[0])
+
+        val paddings = padding1 + padding2 + padding3
+        assertEquals(
+            PxPosition(size.toPx() + paddings.toPx(), 0.px),
+            childPosition[1]
+        )
+        assertEquals(IntPxSize(size, size), childSize[1])
+
+        assertEquals(
+            PxPosition((size.toPx() * 2).round().toPx() + paddings, 0.px),
+            childPosition[2]
+        )
+        assertEquals(IntPxSize(size, size), childSize[2])
     }
 
     private fun testPaddingIsAppliedImplementation(

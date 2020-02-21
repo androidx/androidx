@@ -178,7 +178,7 @@ private fun ScaffoldBottom(
         Column(modifier = modifier + LayoutWidth.Fill) {
             if (fab != null) {
                 val fabSpacing =
-                    LayoutPadding(bottom = FabSpacing, left = FabSpacing, right = FabSpacing)
+                    LayoutPadding(bottom = FabSpacing, start = FabSpacing, end = FabSpacing)
                 val gravity =
                     if (fabPos == FabPosition.End) LayoutGravity.End else LayoutGravity.Center
                 FabContainer(fabPos, gravity + fabSpacing, scaffoldState, fab)

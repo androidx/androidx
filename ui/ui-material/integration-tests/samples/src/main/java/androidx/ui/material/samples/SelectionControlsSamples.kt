@@ -56,7 +56,7 @@ fun TriStateCheckboxSample() {
         }
 
         TriStateCheckbox(value = parentState, onClick = onParentClick, color = Color.Black)
-        Column(LayoutPadding(left = 10.dp)) {
+        Column(LayoutPadding(start = 10.dp)) {
             Checkbox(state, onStateChange)
             Checkbox(state2, onStateChange2)
         }

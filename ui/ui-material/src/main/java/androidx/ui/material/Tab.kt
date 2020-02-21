@@ -391,7 +391,7 @@ object TabRow {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
                 val offset = with(DensityAmbient.current) { indicatorOffset.toDp() }
                 Container(
-                    modifier = LayoutPadding(left = offset),
+                    modifier = LayoutPadding(start = offset),
                     width = currentTabWidth,
                     children = indicator
                 )
@@ -646,7 +646,7 @@ private fun TabText(text: String, color: Color) {
         text = text,
         style = buttonTextStyle.copy(color = color, textAlign = TextAlign.Center),
         maxLines = TextLabelMaxLines,
-        modifier = LayoutPadding(left = HorizontalTextPadding, right = HorizontalTextPadding)
+        modifier = LayoutPadding(start = HorizontalTextPadding, end = HorizontalTextPadding)
     )
 }
 

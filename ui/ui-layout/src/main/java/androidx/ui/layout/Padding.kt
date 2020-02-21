@@ -18,6 +18,7 @@ package androidx.ui.layout
 
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.ModifierScope
 import androidx.ui.core.offset
@@ -33,29 +34,29 @@ import androidx.ui.unit.dp
  * @sample androidx.ui.layout.samples.LayoutPaddingAllModifier
  */
 fun LayoutPadding(all: Dp): LayoutPadding = LayoutPadding(
-    left = all,
+    start = all,
     top = all,
-    right = all,
+    end = all,
     bottom = all
 )
 
 /**
- * A [LayoutModifier] that adds [left], [top], [right] and [bottom] padding
+ * A [LayoutModifier] that adds [start], [top], [end] and [bottom] padding
  * to the wrapped layout.
  *
  * Example usage:
  * @sample androidx.ui.layout.samples.LayoutPaddingModifier
  */
 data class LayoutPadding(
-    val left: Dp = 0.dp,
+    val start: Dp = 0.dp,
     val top: Dp = 0.dp,
-    val right: Dp = 0.dp,
+    val end: Dp = 0.dp,
     val bottom: Dp = 0.dp
 ) : LayoutModifier {
     override fun ModifierScope.modifyConstraints(
         constraints: Constraints
     ) = constraints.offset(
-        horizontal = -left.toIntPx() - right.toIntPx(),
+        horizontal = -start.toIntPx() - end.toIntPx(),
         vertical = -top.toIntPx() - bottom.toIntPx()
     )
 
@@ -63,7 +64,7 @@ data class LayoutPadding(
         constraints: Constraints,
         childSize: IntPxSize
     ) = IntPxSize(
-        (left.toIntPx() + childSize.width + right.toIntPx())
+        (start.toIntPx() + childSize.width + end.toIntPx())
             .coerceIn(constraints.minWidth, constraints.maxWidth),
         (top.toIntPx() + childSize.height + bottom.toIntPx())
             .coerceIn(constraints.minHeight, constraints.maxHeight)
@@ -72,7 +73,11 @@ data class LayoutPadding(
     override fun ModifierScope.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ) = IntPxPosition(left.toIntPx(), top.toIntPx())
+    ): IntPxPosition = if (layoutDirection == LayoutDirection.Ltr) {
+        IntPxPosition(start.toIntPx(), top.toIntPx())
+    } else {
+        IntPxPosition(end.toIntPx(), top.toIntPx())
+    }
 }
 
 /**

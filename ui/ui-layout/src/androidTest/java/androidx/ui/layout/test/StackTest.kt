@@ -170,7 +170,7 @@ class StackTest : LayoutTest() {
                         }
                         Container(
                             LayoutGravity.Stretch + LayoutPadding(
-                                left = insetDp,
+                                start = insetDp,
                                 top = insetDp
                             ),
                             width = halfSizeDp,
@@ -184,7 +184,7 @@ class StackTest : LayoutTest() {
                         }
                         Container(
                             LayoutGravity.Stretch + LayoutPadding(
-                                right = insetDp,
+                                end = insetDp,
                                 bottom = insetDp
                             ),
                             width = halfSizeDp,
@@ -198,8 +198,8 @@ class StackTest : LayoutTest() {
                         }
                         Container(
                             LayoutGravity.Stretch + LayoutPadding(
-                                left = insetDp,
-                                right = insetDp
+                                start = insetDp,
+                                end = insetDp
                             ),
                             width = halfSizeDp,
                             height = halfSizeDp) {

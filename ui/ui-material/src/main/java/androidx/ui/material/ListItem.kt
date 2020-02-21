@@ -213,7 +213,7 @@ private object OneLine {
             }
             Container(
                 modifier = LayoutFlexible(1f) + LayoutGravity.Center +
-                        LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding),
+                        LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding),
                 alignment = Alignment.CenterLeft,
                 children = text
             )
@@ -260,8 +260,8 @@ private object TwoLine {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(LayoutHeight.Min(minHeight)) {
             val modifier = LayoutFlexible(1f) + LayoutPadding(
-                left = ContentLeftPadding,
-                right = ContentRightPadding
+                start = ContentLeftPadding,
+                end = ContentRightPadding
             )
 
             if (icon != null) {
@@ -319,7 +319,7 @@ private object TwoLine {
                 ) {
                     Container(
                         // TODO(popam): find way to center and wrap content without minHeight
-                        LayoutHeight.Min(minHeight) + LayoutPadding(right = TrailingRightPadding),
+                        LayoutHeight.Min(minHeight) + LayoutPadding(end = TrailingRightPadding),
                         children = trailing
                     )
                 }
@@ -375,7 +375,7 @@ private object ThreeLine {
                     ThreeLineBaselineThirdOffset
                 ),
                 LayoutFlexible(1f) +
-                        LayoutPadding(left = ContentLeftPadding, right = ContentRightPadding)
+                        LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding)
             ) {
                 if (overlineText != null) overlineText()
                 text()
@@ -384,7 +384,7 @@ private object ThreeLine {
             if (trailing != null) {
                 OffsetToBaselineOrCenter(
                     ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
-                    LayoutPadding(top = ThreeLineTrailingTopPadding, right = TrailingRightPadding),
+                    LayoutPadding(top = ThreeLineTrailingTopPadding, end = TrailingRightPadding),
                     trailing
                 )
             }

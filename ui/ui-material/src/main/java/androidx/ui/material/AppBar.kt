@@ -490,8 +490,8 @@ private fun AppBar(
     Surface(color = color, contentColor = contentColor, elevation = elevation, shape = shape) {
         Row(
             LayoutWidth.Fill + LayoutPadding(
-                left = AppBarHorizontalPadding,
-                right = AppBarHorizontalPadding
+                start = AppBarHorizontalPadding,
+                end = AppBarHorizontalPadding
             ) + LayoutHeight(AppBarHeight),
             arrangement = Arrangement.SpaceBetween,
             children = children
