@@ -82,6 +82,7 @@ includeProject(":benchmark:integration-tests:dry-run-benchmark", "benchmark/inte
 includeProject(":benchmark:integration-tests:startup-benchmark", "benchmark/integration-tests/startup-benchmark")
 includeProject(":biometric:biometric", "biometric/biometric")
 includeProject(":browser:browser", "browser/browser")
+includeProject(":buildSrc-tests", "buildSrc-tests")
 includeProject(":camera:camera-camera2", "camera/camera-camera2")
 includeProject(":camera:camera-core", "camera/camera-core")
 includeProject(":camera:camera-extensions", "camera/camera-extensions")

@@ -43,8 +43,9 @@ class ReleaseNotesImplTest {
      * directory passed to the [GitClientImpl] constructor needs to contain the a .git
      * directory somewhere in the parent directory tree.  @see [GitClientImpl]
      */
+    private val workingDir = File(System.getProperty("user.dir")).parentFile
     private val client = GitClientImpl(
-        workingDir = File(System.getProperty("user.dir")),
+        workingDir = workingDir,
         logger = logger,
         commandRunner = commandRunner
     )
@@ -71,7 +72,7 @@ class ReleaseNotesImplTest {
                     "$bodyDelimiter%b" +
                     " --no-merges"
         val gitLogCmd: String = "${GitClientImpl.GIT_LOG_CMD_PREFIX} " +
-                "$gitLogOptions sha..topSha -- $projectDir"
+                "$gitLogOptions sha..topSha -- ./$projectDir"
 
         // Check with default delimiters
         val gitLogString: String =
@@ -226,7 +227,7 @@ class ReleaseNotesImplTest {
                 untilInclusive = "topSha"
             ),
             keepMerges = false,
-            fullProjectDir = File(projectDir)
+            fullProjectDir = File(workingDir, "$projectDir")
         )
         gitLogList.forEach { commit ->
             when (commit.sha) {
