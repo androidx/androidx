@@ -27,13 +27,14 @@ import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
-import androidx.ui.unit.toRect
+import androidx.ui.layout.LayoutSize
 
 class HelloAnimationActivity : Activity() {
 
@@ -96,37 +97,24 @@ fun ColorRect() {
             }
         }, (200..800).random().toLong())
         Transition(definition = definition, toState = toState) { state ->
-            DrawColorRectState(state = state)
+            ColorRectState(state = state)
         }
     }
 }
 
 @Composable
-fun DrawColorRectState(state: TransitionState) {
-
+fun ColorRectState(state: TransitionState) {
     val color = state[background]
     val scaleY = state[y]
-
-    DrawRectangle(color = color)
-
-    val paint = Paint().apply {
-        this.color = Color(alpha = 255, red = 255, green = 255, blue = 255)
-    }
-    Draw { canvas, pixelSize ->
-        canvas.drawRect(
+    Canvas(LayoutSize.Fill + DrawBackground(color = color)) {
+        val paint = Paint().apply {
+            this.color = Color(alpha = 255, red = 255, green = 255, blue = 255)
+        }
+        drawRect(
             Rect(
-                100f, 0f, pixelSize.width.value - 100f,
-                scaleY * pixelSize.height.value
+                100f, 0f, size.width.value - 100f,
+                scaleY * size.height.value
             ), paint
         )
-    }
-}
-
-@Composable
-fun DrawRectangle(color: Color) {
-    val paint = Paint()
-    paint.color = color
-    Draw { canvas, parentSize ->
-        canvas.drawRect(parentSize.toRect(), paint)
     }
 }

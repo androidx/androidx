@@ -29,13 +29,14 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Draw
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
@@ -69,35 +70,31 @@ fun RippleRect() {
         toState.value = ButtonStatus.Released
     }
     PressGestureDetector(onPress = onPress, onRelease = onRelease) {
-        Container(expanded = true) {
-            Transition(definition = rippleTransDef, toState = toState.value) { state ->
-                RippleRectFromState(state = state)
-            }
+        Transition(definition = rippleTransDef, toState = toState.value) { state ->
+            RippleRectFromState(state = state)
         }
     }
 }
 
 @Composable
 fun RippleRectFromState(state: TransitionState) {
+    Canvas(LayoutSize.Fill) {
+        // TODO: file bug for when "down" is not a file level val, it's not memoized correctly
+        val x = down.x
+        val y = down.y
 
-    // TODO: file bug for when "down" is not a file level val, it's not memoized correctly
-    val x = down.x
-    val y = down.y
+        val paint =
+            Paint().apply {
+                color = Color(
+                    alpha = (state[androidx.ui.animation.demos.alpha] * 255).toInt(),
+                    red = 0,
+                    green = 235,
+                    blue = 224
+                )
+            }
 
-    val paint =
-        Paint().apply {
-            color = Color(
-                alpha = (state[androidx.ui.animation.demos.alpha] * 255).toInt(),
-                red = 0,
-                green = 235,
-                blue = 224
-            )
-        }
-
-    val radius = state[radius]
-
-    Draw { canvas, _ ->
-        canvas.drawCircle(Offset(x, y), radius, paint)
+        val radius = state[radius]
+        drawCircle(Offset(x, y), radius, paint)
     }
 }
 
