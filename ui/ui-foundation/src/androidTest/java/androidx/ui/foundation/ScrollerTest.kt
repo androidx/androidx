@@ -17,8 +17,8 @@ package androidx.ui.foundation
 
 import android.os.Handler
 import android.os.Looper
-import androidx.animation.DefaultAnimationClock
 import androidx.animation.ExponentialDecay
+import androidx.animation.ManualAnimationClock
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
@@ -99,7 +99,7 @@ class ScrollerTest {
     fun verticalScroller_SmallContent_Unscrollable() {
         val scrollerPosition = ScrollerPosition(
             FlingConfig(ExponentialDecay()),
-            animationClock = DefaultAnimationClock()
+            animationClock = ManualAnimationClock(0)
         )
 
         composeVerticalScroller(scrollerPosition)
@@ -124,7 +124,7 @@ class ScrollerTest {
     fun verticalScroller_LargeContent_ScrollToEnd() {
         val scrollerPosition = ScrollerPosition(
             FlingConfig(ExponentialDecay()),
-            animationClock = DefaultAnimationClock()
+            animationClock = ManualAnimationClock(0)
         )
         val height = 30
         val scrollDistance = 10
@@ -170,7 +170,7 @@ class ScrollerTest {
 
         val scrollerPosition = ScrollerPosition(
             FlingConfig(ExponentialDecay()),
-            animationClock = DefaultAnimationClock()
+            animationClock = ManualAnimationClock(0)
         )
 
         composeHorizontalScroller(scrollerPosition, width = width)
@@ -251,9 +251,10 @@ class ScrollerTest {
         firstSwipe: GestureScope.() -> Unit,
         secondSwipe: GestureScope.() -> Unit
     ) {
+        val clock = ManualAnimationClock(0)
         val scrollerPosition = ScrollerPosition(
             FlingConfig(ExponentialDecay()),
-            animationClock = DefaultAnimationClock()
+            animationClock = clock
         )
 
         createScrollableContent(isVertical, scrollerPosition = scrollerPosition)
@@ -264,6 +265,12 @@ class ScrollerTest {
 
         findByTag(scrollerTag)
             .doGesture { firstSwipe() }
+
+        composeTestRule.runOnIdleCompose {
+            clock.clockTimeMillis += 5000
+        }
+
+        findByTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
         val scrolledValue = composeTestRule.runOnIdleCompose {
@@ -273,6 +280,12 @@ class ScrollerTest {
 
         findByTag(scrollerTag)
             .doGesture { secondSwipe() }
+
+        composeTestRule.runOnIdleCompose {
+            clock.clockTimeMillis += 5000
+        }
+
+        findByTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
         composeTestRule.runOnIdleCompose {
@@ -283,7 +296,7 @@ class ScrollerTest {
     private fun composeVerticalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(
             FlingConfig(ExponentialDecay()),
-            animationClock = DefaultAnimationClock()
+            animationClock = ManualAnimationClock(0)
         ),
         width: Int = defaultCrossAxisSize,
         height: Int = defaultMainAxisSize,
@@ -316,7 +329,7 @@ class ScrollerTest {
     private fun composeHorizontalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(
             FlingConfig(ExponentialDecay()),
-            animationClock = DefaultAnimationClock()
+            animationClock = ManualAnimationClock(0)
         ),
         width: Int = defaultMainAxisSize,
         height: Int = defaultCrossAxisSize,
@@ -383,7 +396,7 @@ class ScrollerTest {
         height: Dp = 100.dp,
         scrollerPosition: ScrollerPosition = ScrollerPosition(
             FlingConfig(ExponentialDecay()),
-            animationClock = DefaultAnimationClock()
+            animationClock = ManualAnimationClock(0)
         )
     ) {
         composeTestRule.setContent {

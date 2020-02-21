@@ -247,11 +247,11 @@ package androidx.ui.material {
 
   public final class SliderKt {
     method public static void Slider(androidx.ui.material.SliderPosition position, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange = { position.value = it }, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> onValueChangeEnd = {}, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method public static androidx.ui.material.SliderPosition SliderPosition(float initial = 0f, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange = 0.0 .. 1.0, @IntRange(from=0) int steps = 0);
   }
 
   public final class SliderPosition {
     ctor public SliderPosition(float initial, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, @IntRange(from=null) int steps, androidx.animation.AnimationClockObservable animatedClock);
-    ctor public SliderPosition();
     method public float getValue();
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();
     method public void setValue(float value);
