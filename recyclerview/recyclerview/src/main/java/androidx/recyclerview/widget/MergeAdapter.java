@@ -18,7 +18,6 @@ package androidx.recyclerview.widget;
 
 import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS;
 
-import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -201,21 +200,20 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     }
 
     /**
-     * Calling this method on the MergeAdapter has no impact as the MergeAdapter infers this
-     * value from added sub adapters.
+     * Calling this method is an error and will result in an {@link UnsupportedOperationException}.
      *
-     * {@link MergeAdapter} picks the least allowing strategy from given adapters. So if a nested
-     * adapter sets this to
-     * {@link androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy#PREVENT},
-     * merge adapter will report that.
+     * MergeAdapter infers this value from added {@link Adapter}s.
      *
-     * @param strategy The saved state restoration strategy for this Adapter.
+     * @param strategy The saved state restoration strategy for this Adapter such that
+     * {@link MergeAdapter} will allow state restoration only if all added adapters allow it or
+     *                 there are no adapters.
      */
     @Override
     public void setStateRestorationStrategy(@NonNull StateRestorationStrategy strategy) {
         // do nothing
-        Log.w(TAG, "Calling setStateRestorationStrategy has no impact on the MergeAdapter as"
-                + " it derives its state restoration strategy from nested adapters");
+        throw new UnsupportedOperationException(
+                "Calling setStateRestorationStrategy is not allowed on the MergeAdapter."
+                + " This value is inferred from added adapters");
     }
 
     @Override
@@ -224,7 +222,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     }
 
     /**
-     * Internal method to be called from the wrappers.
+     * Internal method called by the MergeAdapterController.
      */
     void internalSetStateRestorationStrategy(@NonNull StateRestorationStrategy strategy) {
         super.setStateRestorationStrategy(strategy);
