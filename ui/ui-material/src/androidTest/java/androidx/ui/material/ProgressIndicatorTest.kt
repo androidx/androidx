@@ -18,7 +18,7 @@ package androidx.ui.material
 import androidx.compose.Model
 import androidx.test.filters.LargeTest
 import androidx.ui.core.TestTag
-import androidx.ui.test.assertIsVisible
+import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
@@ -56,7 +56,7 @@ class ProgressIndicatorTest {
             }
 
         findByTag(tag)
-            .assertIsVisible()
+            .assertIsDisplayed()
             .assertValueEquals("0.0")
 
         composeTestRule.runOnUiThread {
@@ -64,7 +64,7 @@ class ProgressIndicatorTest {
         }
 
         findByTag(tag)
-            .assertIsVisible()
+            .assertIsDisplayed()
             .assertValueEquals("0.5")
     }
 
@@ -101,7 +101,7 @@ class ProgressIndicatorTest {
             }
 
         findByTag(tag)
-            .assertIsVisible()
+            .assertIsDisplayed()
             .assertValueEquals("0.0")
 
         composeTestRule.runOnUiThread {
@@ -109,7 +109,7 @@ class ProgressIndicatorTest {
         }
 
         findByTag(tag)
-            .assertIsVisible()
+            .assertIsDisplayed()
             .assertValueEquals("0.5")
     }
 

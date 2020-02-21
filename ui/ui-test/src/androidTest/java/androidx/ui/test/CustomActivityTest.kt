@@ -59,6 +59,6 @@ class CustomActivityTest {
 
     @Test
     fun launchCustomActivity() {
-        findByText("Hello").assertIsVisible()
+        findByText("Hello").assertExists()
     }
 }

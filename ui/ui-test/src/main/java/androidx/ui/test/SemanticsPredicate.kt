@@ -29,6 +29,11 @@ class SemanticsPredicate(
 ) {
     companion object {
         /**
+         * Predicate that matches anything.
+         */
+        val any: SemanticsPredicate = SemanticsPredicate("Any") { true }
+
+        /**
          * Builds a predicate that tests whether the value of the given [key] is equal to
          * [expectedValue].
          */

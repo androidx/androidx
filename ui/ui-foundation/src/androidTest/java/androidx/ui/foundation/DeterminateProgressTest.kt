@@ -20,7 +20,6 @@ import androidx.compose.Model
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.graphics.Color
-import androidx.ui.test.assertIsVisible
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
@@ -57,7 +56,6 @@ class DeterminateProgressTest {
             }
 
         findByTag(tag)
-            .assertIsVisible()
             .assertValueEquals("0.0")
 
         composeTestRule.runOnUiThread {
@@ -65,7 +63,6 @@ class DeterminateProgressTest {
         }
 
         findByTag(tag)
-            .assertIsVisible()
             .assertValueEquals("0.5")
     }
 }

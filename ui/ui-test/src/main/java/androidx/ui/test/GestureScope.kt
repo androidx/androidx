@@ -46,8 +46,10 @@ import kotlin.math.sin
 class GestureScope internal constructor(
     internal val semanticsNodeInteraction: SemanticsNodeInteraction
 ) {
+    // TODO(b/133217292): Better error: explain which gesture couldn't be performed
+    // TODO: Avoid calling this multiple times as it involves synchronization.
     internal inline val semanticsNode
-        get() = semanticsNodeInteraction.semanticsNode
+        get() = semanticsNodeInteraction.fetchSemanticsNode("Failed to perform a gesture.")
     internal inline val semanticsTreeInteraction
         get() = semanticsNodeInteraction.semanticsTreeInteraction
 }
