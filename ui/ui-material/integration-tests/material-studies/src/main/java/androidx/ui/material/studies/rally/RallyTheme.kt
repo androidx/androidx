@@ -28,16 +28,11 @@ import androidx.ui.unit.em
 import androidx.ui.unit.sp
 
 val rallyGreen = Color(0xFF1EB980)
-val rallyDarkGreen = Color(0xFF045D56)
-val rallyOrange = Color(0xFFFF6859)
-val rallyYellow = Color(0xFFFFCF44)
-val rallyPurple = Color(0xFFB15DFF)
-val rallyBlue = Color(0xFF72DEFF)
 
 @Composable
 fun RallyTheme(children: @Composable() () -> Unit) {
     val colors = darkColorPalette(
-        primary = rallyGreen,
+        primary = Color.White,
         surface = Color(0xFF26282F),
         onSurface = Color.White,
         background = Color(0xFF26282F),
@@ -45,42 +40,47 @@ fun RallyTheme(children: @Composable() () -> Unit) {
     )
     // TODO: Bundle Roboto Condensed and Eczar font files.
     val typography = Typography(
+        // Unused
         h1 = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W100,
             fontSize = 96.sp),
         h2 = TextStyle(fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.W100,
-            fontSize = 60.sp),
+            fontWeight = FontWeight.W600,
+            fontSize = 44.sp),
         h3 = TextStyle(fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.W500,
-            fontSize = 48.sp),
+            fontWeight = FontWeight.W400,
+            fontSize = 14.sp),
+        // Unused
         h4 = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W700,
             fontSize = 34.sp),
+        // Unused
         h5 = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W700,
             fontSize = 24.sp),
-        h6 = TextStyle(fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.W700,
-            fontSize = 20.sp),
+        h6 = TextStyle(fontFamily = FontFamily.Default, // Eczar
+            fontWeight = FontWeight.Normal,
+            fontSize = 18.sp),
         subtitle1 = TextStyle(fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.W700,
-            fontSize = 16.sp),
+            fontWeight = FontWeight.W300,
+            fontSize = 14.sp),
         subtitle2 = TextStyle(fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.W500,
+            fontWeight = FontWeight.W400,
             fontSize = 14.sp),
         body1 = TextStyle(fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.W700,
+            fontWeight = FontWeight.Normal,
             fontSize = 16.sp),
         body2 = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W200,
             fontSize = 14.sp),
         button = TextStyle(fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.W800,
+            fontWeight = FontWeight.W700,
             fontSize = 14.sp),
+        // Unused
         caption = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W500,
             fontSize = 12.sp),
+        // Unused
         overline = TextStyle(fontFamily = FontFamily.Default,
             fontWeight = FontWeight.W500,
             fontSize = 10.sp)

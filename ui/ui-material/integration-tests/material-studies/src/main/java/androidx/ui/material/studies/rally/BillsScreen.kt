@@ -54,42 +54,22 @@ fun BillsBody() {
                     )
                     Text(
                         text = "$1,810.00",
-                        style = MaterialTheme.typography().h3,
+                        style = MaterialTheme.typography().h2,
                         modifier = LayoutGravity.Center
                     )
                 }
             }
             Spacer(LayoutHeight(10.dp))
             Card {
-                // TODO: change to proper bill items
                 Column(modifier = LayoutPadding(12.dp)) {
-                    AccountRow(
-                        name = "RedPay Credit",
-                        number = "Jan 29",
-                        amount = "-45.36",
-                        color = Color(0xFF005D57)
-                    )
-                    RallyDivider()
-                    AccountRow(
-                        name = "Rent",
-                        number = "Feb 9",
-                        amount = "-1,200.00",
-                        color = Color(0xFF04B97F)
-                    )
-                    RallyDivider()
-                    AccountRow(
-                        name = "TabFine Credit",
-                        number = "Feb 22",
-                        amount = "-87.33",
-                        color = Color(0xFF37EFBA)
-                    )
-                    RallyDivider()
-                    AccountRow(
-                        name = "ABC Loans",
-                        number = "Feb 29",
-                        amount = "-400.00",
-                        color = Color(0xFF005D57)
-                    )
+                    UserData.bills.forEach { bill ->
+                        BillRow(
+                            name = bill.name,
+                            due = bill.due,
+                            amount = bill.amount,
+                            color = bill.color
+                        )
+                    }
                 }
             }
         }
