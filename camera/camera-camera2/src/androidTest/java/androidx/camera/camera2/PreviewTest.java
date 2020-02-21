@@ -135,7 +135,7 @@ public final class PreviewTest {
     @Test
     public void surfaceProvider_isUsedAfterSetting() {
         Preview.SurfaceProvider surfaceProvider = mock(Preview.SurfaceProvider.class);
-        doAnswer(args -> ((SurfaceRequest) args.getArgument(0)).setWillNotComplete()).when(
+        doAnswer(args -> ((SurfaceRequest) args.getArgument(0)).willNotProvideSurface()).when(
                 surfaceProvider).onSurfaceRequested(
                 any(SurfaceRequest.class));
 

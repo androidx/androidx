@@ -427,15 +427,15 @@ public final class Preview extends UseCase {
          * only a single request will be active at a time.
          *
          * <p>A request is considered active until it is
-         * {@linkplain SurfaceRequest#setSurface(Surface) set},
-         * {@linkplain SurfaceRequest#setWillNotComplete()} marked as 'will not complete'}, or
+         * {@linkplain SurfaceRequest#provideSurface(Surface) set},
+         * {@linkplain SurfaceRequest#willNotProvideSurface()} marked as 'will not complete'}, or
          * {@linkplain SurfaceRequest#addRequestCancellationListener(Executor, Runnable) cancelled
          * by the camera}. After one of these conditions occurs, a request is considered
          * completed.
          *
          * <p>Once a request is successfully completed, if a new request is made it will only
          * occur after the listenable future returned by
-         * {@link SurfaceRequest#setSurface(Surface)} has completed.
+         * {@link SurfaceRequest#provideSurface(Surface)} has completed.
          *
          * Example:
          *
@@ -450,7 +450,7 @@ public final class Preview extends UseCase {
          *         // If our GL thread/context is shutting down. Signal we will not fulfill
          *         // the request.
          *         if (isShuttingDown()) {
-         *             request.setWillNotComplete();
+         *             request.willNotProvideSurface();
          *             return;
          *         }
          *
@@ -458,7 +458,7 @@ public final class Preview extends UseCase {
          *         Surface surface = resetGlInputSurface(request.getResolution());
          *
          *         // Provide the surface.
-         *         ListenableFuture<Void> sessionFuture = request.setSurface(surface);
+         *         ListenableFuture<Void> sessionFuture = request.provideSurface(surface);
          *         // Attach a listener that will be called to clean up the surface.
          *         sessionFuture.addListener(() -> {
          *             // In all cases (even errors), we can clean up the state. As an
