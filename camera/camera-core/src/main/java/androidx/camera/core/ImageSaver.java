@@ -21,7 +21,6 @@ import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -87,7 +86,6 @@ final class ImageSaver implements Runnable {
             file = isSaveToFile() ? mOutputFileOptions.getFile() :
                     File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
         } catch (IOException e) {
-            Log.e(TAG, "Failed to create temp file", e);
             postError(SaveError.FILE_IO_FAILED, "Failed to create temp file", e);
             return;
         }
@@ -134,19 +132,23 @@ final class ImageSaver implements Runnable {
                 outputUri = mOutputFileOptions.getContentResolver().insert(
                         mOutputFileOptions.getSaveCollection(),
                         mOutputFileOptions.getContentValues());
-                setUriPending(outputUri, PENDING);
-                if (!copyTempFileToUri(file, outputUri)) {
+                if (outputUri == null) {
                     saveError = SaveError.FILE_IO_FAILED;
-                    errorMessage = "Failed to save to Uri";
+                    errorMessage = "Failed to insert URI.";
+                } else {
+                    setUriPending(outputUri, PENDING);
+                    if (!copyTempFileToUri(file, outputUri)) {
+                        saveError = SaveError.FILE_IO_FAILED;
+                        errorMessage = "Failed to save to URI.";
+                    }
+                    setUriPending(outputUri, NOT_PENDING);
                 }
-                setUriPending(outputUri, NOT_PENDING);
             } else if (isSaveToOutputStream()) {
                 copyTempFileToOutputStream(file, mOutputFileOptions.getOutputStream());
             }
 
             // Write temp file to Uri
         } catch (IOException e) {
-            Log.e(TAG, "Failed to save image", e);
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write or close the file";
             exception = e;
@@ -155,7 +157,6 @@ final class ImageSaver implements Runnable {
                 mOutputFileOptions.getContentResolver().delete(outputUri, null, null);
             }
         } catch (CodecFailedException e) {
-            Log.e(TAG, "Failed to save image", e);
             switch (e.getFailureType()) {
                 case ENCODE_FAILED:
                     saveError = SaveError.ENCODE_FAILED;
@@ -240,22 +241,13 @@ final class ImageSaver implements Runnable {
     }
 
     private void postSuccess(@Nullable Uri outputUri) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mCallback.onImageSaved(new ImageCapture.OutputFileResults(outputUri));
-            }
-        });
+        mExecutor.execute(
+                () -> mCallback.onImageSaved(new ImageCapture.OutputFileResults(outputUri)));
     }
 
     private void postError(SaveError saveError, final String message,
             @Nullable final Throwable cause) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mCallback.onError(saveError, message, cause);
-            }
-        });
+        mExecutor.execute(() -> mCallback.onError(saveError, message, cause));
     }
 
     /** Type of error that occurred during save */

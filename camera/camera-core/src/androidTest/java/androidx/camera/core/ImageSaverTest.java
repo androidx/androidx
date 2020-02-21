@@ -33,9 +33,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -96,6 +98,9 @@ public class ImageSaverTest {
                     + "gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=";
     // The image used here has a YUV_420_888 format.
 
+    private static final String TAG = "ImageSaverTest";
+    private static final String INVALID_DATA_PATH = "/";
+
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -134,6 +139,7 @@ public class ImageSaverTest {
                 @Override
                 public void onError(SaveError saveError, String message,
                         @Nullable Throwable cause) {
+                    Log.d(TAG, message, cause);
                     mMockCallback.onError(saveError, message, cause);
                     mSemaphore.release();
                 }
@@ -144,6 +150,7 @@ public class ImageSaverTest {
 
     @Before
     public void setup() {
+        createDefaultPictureFolderIfNotExist();
         // The YUV image's behavior.
         when(mMockYuvImage.getFormat()).thenReturn(ImageFormat.YUV_420_888);
         when(mMockYuvImage.getWidth()).thenReturn(WIDTH);
@@ -184,16 +191,26 @@ public class ImageSaverTest {
         mBackgroundExecutor.shutdown();
     }
 
+    private void createDefaultPictureFolderIfNotExist() {
+        File pictureFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        if (!pictureFolder.exists()) {
+            pictureFolder.mkdir();
+        }
+    }
+
     private ImageSaver getDefaultImageSaver(ImageProxy image, File file) {
         return getDefaultImageSaver(image,
                 new ImageCapture.OutputFileOptions.Builder(file).build());
     }
 
-    private ImageSaver getDefaultImageSaver(ImageProxy image) {
+    private ImageSaver getDefaultImageSaver(@NonNull ImageProxy image) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
         return getDefaultImageSaver(image,
                 new ImageCapture.OutputFileOptions.Builder(mContentResolver,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        new ContentValues()).build());
+                        contentValues).build());
     }
 
     private ImageSaver getDefaultImageSaver(ImageProxy image, OutputStream outputStream) {
@@ -243,6 +260,26 @@ public class ImageSaverTest {
         Bitmap bitmap = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
         assertThat(bitmap.getWidth()).isEqualTo(CROP_WIDTH);
         assertThat(bitmap.getHeight()).isEqualTo(CROP_HEIGHT);
+    }
+
+    @Test
+    public void saveToUriWithInvalidDataColumn_onErrorCalled() throws InterruptedException {
+        // Arrange.
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+        contentValues.put(MediaStore.MediaColumns.DATA, INVALID_DATA_PATH);
+        ImageSaver imageSaver = getDefaultImageSaver(mMockYuvImage,
+                new ImageCapture.OutputFileOptions.Builder(mContentResolver,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build());
+
+        // Act.
+        imageSaver.run();
+        mSemaphore.acquire();
+
+        // Assert.
+        verify(mMockCallback).onError(eq(SaveError.FILE_IO_FAILED), eq("Failed to insert URI."),
+                eq(null));
     }
 
     @Test
