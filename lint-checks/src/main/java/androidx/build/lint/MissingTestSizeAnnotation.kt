@@ -51,9 +51,8 @@ class MissingTestSizeAnnotation : Detector(), SourceCodeScanner {
             }
 
             // Ignore host side tests as we only enforce timeouts on device tests
-            if (!context.file.absolutePath.contains(ANDROID_TEST_DIR)) {
-                return
-            }
+            val testPath = context.file.absolutePath
+            if (ANDROID_TEST_DIRS.none { testPath.contains(it) }) return
 
             node.methods.filter {
                 it.hasAnnotation(TEST_ANNOTATION)
@@ -75,7 +74,18 @@ class MissingTestSizeAnnotation : Detector(), SourceCodeScanner {
 
     companion object {
         const val RUN_WITH = "org.junit.runner.RunWith"
-        const val ANDROID_TEST_DIR = "androidTest"
+        /**
+         * Directories that contain device test source. Unfortunately we don't currently have a
+         * better way of figuring out what test we are analyzing, as [Scope.TEST_SOURCES]
+         * includes both host and device side tests.
+         */
+        val ANDROID_TEST_DIRS = listOf(
+            "androidTest",
+            "androidAndroidTest",
+            "androidDeviceTest",
+            "androidDeviceTestDebug",
+            "androidDeviceTestRelease"
+        )
         const val TEST_ANNOTATION = "org.junit.Test"
         val TEST_SIZE_ANNOTATIONS = listOf(
             "androidx.test.filters.SmallTest",
