@@ -86,6 +86,13 @@ message Column {
   string name = 1;
   // Column type affinity.
   string type = 2;
+  // PRIMARY KEY constraint: zero for columns that are not part of the primary key, or the index of
+  // the column in the primary key for columns that are part of the primary key.
+  int32 primary_key = 3;
+  // NOT NULL constraint.
+  bool is_not_null = 4;
+  // UNIQUE constraint on its own (i.e. not as a part of compound-unique-constraint-index).
+  bool is_unique = 5;
 }
 
 // Object expected as a response to QueryCommand.
