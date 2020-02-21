@@ -41,7 +41,7 @@ import java.util.Locale
 @Composable
 fun RallyTopAppBar(
     allScreens: List<RallyScreenState>,
-    onChangeTab: (RallyScreenState) -> Unit,
+    onTabSelected: (RallyScreenState) -> Unit,
     currentScreen: RallyScreenState
 ) {
     Surface(modifier = LayoutHeight(TabHeight) + LayoutWidth.Fill) {
@@ -50,7 +50,7 @@ fun RallyTopAppBar(
                 RallyTab(
                     text = screen.name.toUpperCase(Locale.getDefault()),
                     icon = screen.icon,
-                    onSelected = { onChangeTab(screen) },
+                    onSelected = { onTabSelected(screen) },
                     selected = currentScreen.ordinal == index)
             }
         }
@@ -68,7 +68,7 @@ private fun RallyTab(
         Row(LayoutPadding(16.dp) + LayoutHeight(TabHeight)) {
             Ripple(bounded = false) {
                 MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-                    RallyIcon(vectorImage = icon, tintColor = tabTintColor)
+                    Icon(vectorImage = icon, tintColor = tabTintColor)
                     if (selected) {
                         Spacer(modifier = LayoutWidth(12.dp))
                         Text(text, style = TextStyle(color = tabTintColor))

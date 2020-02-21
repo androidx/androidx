@@ -27,7 +27,7 @@ enum class RallyScreenState(
     val icon: VectorAsset,
     val body: @Composable() () -> Unit
 ) {
-    Overview(Icons.Filled.PieChart, { RallyBody() }),
-    Accounts(Icons.Filled.AttachMoney, { RallyAccountsCard() }),
-    Bills(Icons.Filled.MoneyOff, { RallyBillsCard() })
+    Overview(Icons.Filled.PieChart, { OverviewBody() }),
+    Accounts(Icons.Filled.AttachMoney, { AccountsBody() }),
+    Bills(Icons.Filled.MoneyOff, { BillsBody() })
 }
