@@ -228,13 +228,6 @@ class TransitionDefinition<T> {
 }
 
 /**
- * Creates a transition animation using the transition definition.
- * // TODO: Ripple impl needs to pass the ambient here clock, then we can remove this function.
- */
-fun <T> TransitionDefinition<T>.createAnimation() =
-    TransitionAnimation(this, DefaultAnimationClock())
-
-/**
  * Creates a transition animation using the transition definition and the given clock.
  *
  * @param clock The clock source for animation to get frame time from.

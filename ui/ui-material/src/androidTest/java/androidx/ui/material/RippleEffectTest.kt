@@ -15,6 +15,7 @@
  */
 package androidx.ui.material
 
+import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.Providers
@@ -298,6 +299,7 @@ class RippleEffectTest {
                 density: Density,
                 radius: Dp?,
                 clipped: Boolean,
+                clock: AnimationClockObservable,
                 requestRedraw: () -> Unit,
                 onAnimationFinished: (RippleEffect) -> Unit
             ): RippleEffect {
