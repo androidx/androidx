@@ -20,6 +20,7 @@ package androidx.ui.androidview.adapters
 
 import android.widget.AbsSpinner
 import android.widget.Spinner
+import androidx.compose.Composable
 
 private val AbsSpinner.composeAdapter: ArrayAdapter<Any>
     get() {
@@ -39,7 +40,7 @@ fun AbsSpinner.setData(data: Collection<Any>) {
     }
 }
 
-fun AbsSpinner.setComposeItem(composeItem: Function1<Any, Unit>) {
+fun AbsSpinner.setComposeItem(composeItem: @Composable() (Any) -> Unit) {
     composeAdapter.composable = composeItem
 }
 
