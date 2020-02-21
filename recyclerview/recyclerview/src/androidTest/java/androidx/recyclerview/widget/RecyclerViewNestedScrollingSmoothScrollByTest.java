@@ -36,9 +36,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.ActivityScenarioResetRule;
+import androidx.testutils.ResettableActivityScenarioRule;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,9 +61,13 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 public class RecyclerViewNestedScrollingSmoothScrollByTest {
 
+    @ClassRule
+    public static ResettableActivityScenarioRule<TestActivity> mActivityRule =
+            new ResettableActivityScenarioRule<>(TestActivity.class);
+
     @Rule
-    public final ActivityTestRule<TestActivity> mActivityTestRule =
-            new ActivityTestRule<>(TestActivity.class);
+    public ActivityScenarioResetRule<TestActivity> mActivityResetRule =
+            new TestActivity.ResetRule(mActivityRule.getScenario());
 
     private enum SmoothScrollType {
         TWO_PARAMS, THREE_PARAMS, FOUR_PARAMS
@@ -109,7 +115,7 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
 
     @Before
     public void setup() throws Throwable {
-        Context context = mActivityTestRule.getActivity();
+        Context context = mActivityRule.getActivity();
 
         // Create view hierarchy.
         mRecyclerView = new RecyclerView(context);
@@ -133,9 +139,9 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
 
         // Attach view hierarchy to activity and wait for first layout.
         final TestedFrameLayout testContentView =
-                mActivityTestRule.getActivity().getContainer();
+                mActivityRule.getActivity().getContainer();
         testContentView.expectLayouts(1);
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 testContentView.addView(mParent);
@@ -151,7 +157,7 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final int[] totalScrolled = new int[1];
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 doReturn(true).when(mParent).onStartNestedScroll(any(View.class), any(View.class),
