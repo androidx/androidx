@@ -81,6 +81,7 @@ package androidx.ui.graphics {
     method public void clipRRect(androidx.ui.geometry.RRect rrect);
     method public void clipRect(androidx.ui.geometry.Rect rect, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
     method public void concat(androidx.ui.graphics.vectormath.Matrix4 matrix4);
+    method public void disableZ();
     method public void drawArc(androidx.ui.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public default void drawArcRad(androidx.ui.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public void drawCircle(androidx.ui.geometry.Offset center, float radius, androidx.ui.graphics.Paint paint);
@@ -95,6 +96,7 @@ package androidx.ui.graphics {
     method public void drawRect(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
     method public void drawRoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY, androidx.ui.graphics.Paint paint);
     method public void drawVertices(androidx.ui.graphics.Vertices vertices, androidx.ui.graphics.BlendMode blendMode, androidx.ui.graphics.Paint paint);
+    method public void enableZ();
     method public android.graphics.Canvas getNativeCanvas();
     method public void restore();
     method public void rotate(float degrees);
