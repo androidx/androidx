@@ -17,25 +17,13 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Draw
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Spacer
 import androidx.ui.material.samples.OneLineListItems
 import androidx.ui.material.samples.ThreeLineListItems
 import androidx.ui.material.samples.TwoLineListItems
-import androidx.ui.unit.dp
-import androidx.ui.unit.toRect
 
 class ListItemActivity : MaterialDemoActivity() {
     @Composable
@@ -46,18 +34,6 @@ class ListItemActivity : MaterialDemoActivity() {
         Center {
             VerticalScroller {
                 Column {
-                    Box(LayoutPadding(5.dp) + DrawBackground(color = Color.Red)) {
-                        Box(LayoutSize(20.dp), backgroundColor = Color.Blue)
-                    }
-                    Spacer(LayoutHeight(20.dp) + DrawBackground(Color.Magenta))
-                    Box(LayoutPadding(5.dp)) {
-                        Draw { canvas, size ->
-                            val paint = Paint()
-                            SolidColor(Color.Red).applyTo(paint)
-                            canvas.drawRect(size.toRect(), paint)
-                        }
-                        Box(LayoutSize(20.dp), backgroundColor = Color.Blue)
-                    }
                     OneLineListItems(icon24, icon40, icon56)
                     TwoLineListItems(icon24, icon40)
                     ThreeLineListItems(icon24, icon40)
