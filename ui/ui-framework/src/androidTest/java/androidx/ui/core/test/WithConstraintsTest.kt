@@ -19,6 +19,7 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.Observe
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress

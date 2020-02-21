@@ -25,9 +25,7 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
-import androidx.compose.ViewValidator
-import androidx.compose.cache
-import androidx.compose.currentComposerNonNull
+import androidx.compose.currentComposerIntrinsic
 import java.util.WeakHashMap
 
 private val VectorCompositions = WeakHashMap<VectorComponent, VectorComposition>()
@@ -56,7 +54,7 @@ class VectorComposition(
         content: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
     ) {
         super.compose {
-            val composer = currentComposerNonNull as VectorComposer
+            val composer = currentComposerIntrinsic as VectorComposer
             val scope = VectorScope(composer)
             scope.content(container.viewportWidth, container.viewportHeight)
         }
@@ -110,43 +108,6 @@ class VectorComposer(
         VectorUpdater(this, node).update()
         children()
         endNode()
-    }
-
-    inline fun call(
-        key: Any,
-        /*crossinline*/
-        invalid: ViewValidator.() -> Boolean,
-        block: () -> Unit
-    ) {
-        startGroup(key)
-        if (ViewValidator(this).invalid() || inserting) {
-            startGroup(0)
-            block()
-            endGroup()
-        } else {
-            skipCurrentGroup()
-        }
-        endGroup()
-    }
-
-    inline fun <T> call(
-        key: Any,
-        /*crossinline*/
-        ctor: () -> T,
-        /*crossinline*/
-        invalid: ViewValidator.(f: T) -> Boolean,
-        block: (f: T) -> Unit
-    ) {
-        startGroup(key)
-        val f = cache(true, ctor)
-        if (ViewValidator(this).invalid(f) || inserting) {
-            startGroup(0)
-            block(f)
-            endGroup()
-        } else {
-            skipCurrentGroup()
-        }
-        endGroup()
     }
 }
 
