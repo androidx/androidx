@@ -151,6 +151,11 @@ interface Owner {
      */
     fun callDraw(canvas: Canvas, node: ComponentNode, parentSize: PxSize)
 
+    /**
+     * Iterates through all LayoutNodes that have requested layout and measures and lays them out
+     */
+    fun measureAndLayout()
+
     val measureIteration: Long
 }
 

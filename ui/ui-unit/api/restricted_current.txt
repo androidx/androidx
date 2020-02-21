@@ -409,6 +409,7 @@ package androidx.ui.unit {
     method public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
     method public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.Px x, androidx.ui.unit.Px y);
     method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.Px width, androidx.ui.unit.Px height);
+    method public static inline androidx.ui.unit.Px abs(androidx.ui.unit.Px x);
     method public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);
     method public static inline androidx.ui.unit.Px coerceAtLeast(androidx.ui.unit.Px, androidx.ui.unit.Px minimumValue);
     method public static inline androidx.ui.unit.Px coerceAtMost(androidx.ui.unit.Px, androidx.ui.unit.Px maximumValue);

@@ -74,5 +74,6 @@ androidx {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
+        freeCompilerArgs += ["-XXLanguage:+InlineClasses"]
     }
 }
