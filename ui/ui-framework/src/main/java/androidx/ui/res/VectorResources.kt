@@ -22,13 +22,13 @@ import android.util.Xml
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.compose.trace
 import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.compat.createVectorImageBuilder
 import androidx.ui.graphics.vector.compat.isAtEnd
 import androidx.ui.graphics.vector.compat.parseCurrentVectorNode
 import androidx.ui.graphics.vector.compat.seekToStartTag
+import androidx.ui.util.trace
 import org.xmlpull.v1.XmlPullParserException
 
 /**

@@ -20,10 +20,10 @@ import android.util.TypedValue
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.compose.trace
 import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.Image
 import androidx.ui.graphics.imageFromResource
+import androidx.ui.util.trace
 
 /**
  * Synchronously load an image resource.
