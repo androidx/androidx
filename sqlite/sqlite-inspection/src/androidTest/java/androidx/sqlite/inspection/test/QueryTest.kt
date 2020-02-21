@@ -108,6 +108,22 @@ class QueryTest {
         )
     }
 
+    @Test
+    fun test_nested_query_with_a_comment() {
+        test_valid_query(
+            Database("db", table2),
+            values = listOf(
+                table2 to arrayOf("1", "'A'"),
+                table2 to arrayOf("2", "'B'"),
+                table2 to arrayOf("3", "'C'")
+            ),
+            query = "select count(*) from (select * from table2 /* comment */)",
+            expectedValues = listOf(listOf(3)),
+            expectedTypes = listOf(listOf("integer")),
+            expectedColumnNames = listOf("count(*)")
+        )
+    }
+
     /** Union of two queries (different column names) resulting in using first query columns. */
     @Test
     fun test_valid_query_two_table_union() {
