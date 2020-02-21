@@ -31,6 +31,14 @@ public class Product {
 
     private String mName;
 
+    public Product() {
+    }
+
+    public Product(int id, String name) {
+        mId = id;
+        mName = name;
+    }
+
     public int getId() {
         return mId;
     }
