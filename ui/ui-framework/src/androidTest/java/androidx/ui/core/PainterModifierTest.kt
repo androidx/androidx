@@ -159,8 +159,7 @@ class PainterModifierTest {
         val containerSizePx = containerWidth.roundToInt().ipx * 3
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = containerSizePx, modifier = background
-                    (Color.White)) {
+                AtLeastSize(size = containerSizePx, modifier = background(Color.White)) {
                     // Verify that the contents are scaled down appropriately even though
                     // the Painter's intrinsic width and height is twice that of the component
                     // it is to be drawn into

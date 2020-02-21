@@ -16,11 +16,11 @@
 
 package androidx.ui.core.test
 
-import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
+import androidx.ui.core.draw
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertFalse
@@ -56,14 +56,11 @@ class ModelReadsTest {
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                val children = @Composable {
-                    Draw { _, _ ->
-                        // read from the model
-                        model.offset
-                        drawLatch.countDown()
-                    }
-                }
-                Layout(children) { _, _ ->
+                Layout({}, modifier = draw { _, _ ->
+                    // read from the model
+                    model.offset
+                    drawLatch.countDown()
+                }) { _, _ ->
                     layout(10.ipx, 10.ipx) {
                         // read from the model
                         model.offset
@@ -102,14 +99,11 @@ class ModelReadsTest {
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                val children = @Composable {
-                    Draw { _, _ ->
-                        // read from the model
-                        drawModel.offset
-                        drawLatch.countDown()
-                    }
-                }
-                Layout(children) { _, _ ->
+                Layout({}, modifier = draw { _, _ ->
+                    // read from the model
+                    drawModel.offset
+                    drawLatch.countDown()
+                }) { _, _ ->
                     layout(10.ipx, 10.ipx) {
                         // read from the model
                         positionModel.offset
@@ -147,14 +141,11 @@ class ModelReadsTest {
         var drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                val children = @Composable {
-                    Draw { _, _ ->
-                        // read from the model
-                        model.offset
-                        drawLatch.countDown()
-                    }
-                }
-                Layout(children) { _, _ ->
+                Layout({}, modifier = draw { _, _ ->
+                    // read from the model
+                    model.offset
+                    drawLatch.countDown()
+                }) { _, _ ->
                     measureLatch.countDown()
                     // read from the model
                     layout(model.offset, 10.ipx) {}
@@ -231,14 +222,13 @@ class ModelReadsTest {
         val model = ValueModel(0)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                AtLeastSize(10.ipx) {
-                    Draw { _, _ ->
-                        if (enabled.value) {
-                            // read the model
-                            model.value
-                        }
-                        latch.countDown()
+                AtLeastSize(10.ipx, modifier = draw { _, _ ->
+                    if (enabled.value) {
+                        // read the model
+                        model.value
                     }
+                    latch.countDown()
+                }) {
                 }
             }
         }
@@ -294,15 +284,14 @@ class ModelReadsTest {
         val model = ValueModel(0)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                AtLeastSize(10.ipx) {
-                    if (enabled.value) {
-                        Draw { _, _ ->
-                            // read the model
-                            model.value
-                            latch.countDown()
-                        }
+                val modifier = if (enabled.value) {
+                    draw { _, _ ->
+                        // read the model
+                        model.value
+                        latch.countDown()
                     }
-                }
+                } else Modifier.None
+                AtLeastSize(10.ipx, modifier = modifier) {}
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
