@@ -17,33 +17,24 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Draw
-import androidx.ui.geometry.Rect
+import androidx.ui.core.DrawModifier
+import androidx.ui.core.toModifier
 import androidx.ui.graphics.BlendMode
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.FilterQuality
 import androidx.ui.graphics.Image
-import androidx.ui.graphics.Paint
-import androidx.ui.layout.Container
-
-// TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
-@Composable
-fun SimpleImage(
-    image: Image,
-    tint: Color? = null
-) {
-    with(DensityAmbient.current) {
-        Container(width = image.width.toDp(), height = image.height.toDp()) {
-            DrawImage(image, tint)
-        }
-    }
-}
+import androidx.ui.graphics.ScaleFit
+import androidx.ui.graphics.painter.ImagePainter
+import androidx.ui.layout.LayoutSize
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.toRect
 
 /**
- * Fits an image into the parent container while maintaining the image aspect ratio.
+ * Fits an image into the container with sizes equals to the image size, while maintaining
+ * the image aspect ratio.
  * The image will be clipped if the aspect ratios of the image and the parent don't match.
  *
  * This component has the same behavior as ImageView.ScaleType.CENTER_CROP currently.
@@ -51,46 +42,29 @@ fun SimpleImage(
  * @param image The image to draw.
  * @param tint The tint color to apply for the image.
  */
+// TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
 // TODO(Andrey, Matvei, Nader): Support other scale types b/141741141
 @Composable
-fun DrawImage(image: Image, tint: Color? = null) {
-    val paint = remember { Paint().apply {
-        filterQuality = FilterQuality.low // we only support low currently
-    } }
-    paint.colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
-    Draw { canvas, parentSize ->
-        val inputWidth = image.width.toFloat()
-        val inputHeight = image.height.toFloat()
-        val inputAspectRatio = inputWidth / inputHeight
-
-        val outputWidth = parentSize.width.value
-        val outputHeight = parentSize.height.value
-        val outputAspectRatio = outputWidth / outputHeight
-
-        val fittedWidth = if (outputAspectRatio > inputAspectRatio) {
-            inputWidth
-        } else {
-            inputHeight * outputAspectRatio
-        }
-        val fittedHeight = if (outputAspectRatio > inputAspectRatio) {
-            inputWidth / outputAspectRatio
-        } else {
-            inputHeight
-        }
-
-        val srcRect = Rect(
-            left = (inputWidth - fittedWidth) / 2,
-            top = (inputHeight - fittedHeight) / 2,
-            right = (inputWidth + fittedWidth) / 2,
-            bottom = (inputHeight + fittedHeight) / 2
+fun SimpleImage(
+    image: Image,
+    tint: Color? = null
+) {
+    with(DensityAmbient.current) {
+        val imageModifier = ImagePainter(image).toModifier(
+            scaleFit = ScaleFit.FillMaxDimension,
+            colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
         )
+        Box(LayoutSize(image.width.toDp(), image.height.toDp()) + ClipModifier + imageModifier)
+    }
+}
 
-        val dstRect = Rect(
-            left = 0f,
-            top = 0f,
-            right = outputWidth,
-            bottom = outputHeight
-        )
-        canvas.drawImageRect(image, srcRect, dstRect, paint)
+// TODO(mount, malkov) : remove when RepaintBoundary is a modifier: b/149982905
+// This is class and not val because if b/149985596
+private object ClipModifier : DrawModifier {
+    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+        canvas.save()
+        canvas.clipRect(size.toRect())
+        drawContent()
+        canvas.restore()
     }
 }
