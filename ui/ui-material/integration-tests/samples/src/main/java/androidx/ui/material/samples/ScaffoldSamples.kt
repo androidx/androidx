@@ -123,16 +123,12 @@ fun ScaffoldWithBottomBarAndCutout(navigationImage: Image) {
         scaffoldState = scaffoldState,
         drawerContent = { Text("Drawer content") },
         topAppBar = { TopAppBar(title = { Text("Scaffold with bottom cutout") }) },
-        bottomAppBar = { fabConfiguraion ->
-            BottomAppBar<Unit>(
-                fabConfiguration = fabConfiguraion,
-                cutoutShape = fabShape,
-                navigationIcon = {
-                    AppBarIcon(ImagePainter(navigationImage)) {
-                        scaffoldState.drawerState = DrawerState.Opened
-                    }
+        bottomAppBar = { fabConfiguration ->
+            BottomAppBar(fabConfiguration = fabConfiguration, cutoutShape = fabShape) {
+                AppBarIcon(ImagePainter(navigationImage)) {
+                    scaffoldState.drawerState = DrawerState.Opened
                 }
-            )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(

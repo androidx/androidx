@@ -91,7 +91,7 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
         remember(fraction) { scrollFraction.fraction = fraction }
         Scaffold(
             topAppBar = { TopAppBar({ Text("Scroll down!") }) },
-            bottomAppBar = { BottomAppBar<Any>(fabConfiguration = it, cutoutShape = CircleShape) },
+            bottomAppBar = { BottomAppBar(fabConfiguration = it, cutoutShape = CircleShape) {} },
             floatingActionButton = { Fab(scrollFraction) },
             floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
             bodyContent = { modifier ->
