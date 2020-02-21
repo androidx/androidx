@@ -30,6 +30,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
@@ -178,6 +179,12 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             .addToBackStack(null)
             .commit()
         activityRule.waitForExecution()
+
+        assertWithMessage("Timed out waiting for onDestroyView")
+            .that(fragment.onDestroyViewCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
+        // Ensure all transitions have been executed before onDestroyView was called
+        assertThat(fragment.transitionCountInOnDestroyView).isEqualTo(0)
     }
 
     // Test that shared elements transition from one fragment to the next
@@ -1199,9 +1206,12 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     }
 
     class TransitionFinishFirstFragment : TransitionFragment(R.layout.scene1) {
+        var onDestroyViewCountDownLatch = CountDownLatch(1)
+        var transitionCountInOnDestroyView = 0L
+
         override fun onDestroyView() {
-            // Ensure all transitions have been executed before onDestroyView was called
-            assertThat(endTransitionCountDownLatch.count).isEqualTo(0)
+            transitionCountInOnDestroyView = endTransitionCountDownLatch.count
+            onDestroyViewCountDownLatch.countDown()
             super.onDestroyView()
         }
     }
