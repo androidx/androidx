@@ -18,8 +18,9 @@ package androidx.ui.tooling
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.layout.Column
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.unit.Density
 import androidx.ui.unit.dp
 import org.junit.Assert
@@ -37,11 +38,9 @@ class BoundsTest : ToolingTest() {
     fun testBounds() {
         show {
             Inspectable {
-                Padding(10.dp) {
-                    Column {
-                        Padding(5.dp) {
-                            Text("Hello")
-                        }
+                Box {
+                    Column(LayoutPadding(10.dp)) {
+                        Text("Hello", LayoutPadding(5.dp)) {}
                     }
                 }
             }

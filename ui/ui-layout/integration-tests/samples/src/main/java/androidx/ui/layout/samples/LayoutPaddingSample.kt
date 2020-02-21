@@ -22,9 +22,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.Padding
 import androidx.ui.unit.dp
 
 @Sampled
@@ -57,45 +55,6 @@ fun LayoutPaddingAllModifier() {
                 width = 50.dp,
                 height = 50.dp
             )
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun PaddingComposableEdgeInsets() {
-    Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            Padding(EdgeInsets(left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp)) {
-                SizedRectangle(color = Color.Blue, width = 50.dp, height = 50.dp)
-            }
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun PaddingComposable() {
-    Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            Padding(left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp) {
-                SizedRectangle(color = Color.Blue, width = 50.dp, height = 50.dp)
-            }
-        }
-    }
-}
-
-@Sampled
-@Composable
-fun PaddingComposableSameInset() {
-    Align(Alignment.TopLeft) {
-        Container {
-            DrawRectangle(Color.Gray)
-            Padding(padding = 20.dp) {
-                SizedRectangle(color = Color.Blue, width = 50.dp, height = 50.dp)
-            }
         }
     }
 }

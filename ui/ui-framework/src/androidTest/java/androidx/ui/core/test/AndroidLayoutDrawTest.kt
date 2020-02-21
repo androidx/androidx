@@ -2345,7 +2345,7 @@ fun Align(children: @Composable() () -> Unit) {
 }
 
 @Composable
-fun Padding(size: IntPx, children: @Composable() () -> Unit) {
+internal fun Padding(size: IntPx, children: @Composable() () -> Unit) {
     Layout(
         measureBlock = { measurables, constraints ->
             val totalDiff = size * 2

@@ -20,6 +20,7 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.gestures.DragDirection
@@ -28,8 +29,8 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.StrokeCap
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.ripple.Ripple
@@ -58,7 +59,7 @@ fun Switch(
         Wrap {
             Ripple(bounded = false) {
                 Toggleable(value = checked, onValueChange = onCheckedChange) {
-                    Padding(padding = DefaultSwitchPadding) {
+                    Box(LayoutPadding(DefaultSwitchPadding)) {
                         SwitchImpl(checked, onCheckedChange, color)
                     }
                 }

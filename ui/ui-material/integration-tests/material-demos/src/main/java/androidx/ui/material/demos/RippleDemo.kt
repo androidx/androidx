@@ -23,7 +23,7 @@ import androidx.ui.foundation.Border
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
@@ -34,20 +34,19 @@ import androidx.ui.unit.px
 fun RippleDemo() {
     ComposeView {
         MaterialTheme {
-            Padding(padding = 50.dp) {
-                Card(
-                    shape = RoundedCornerShape(100.px),
-                    border = Border(1.dp, Color(0x80000000))
-                ) {
-                    Ripple(bounded = true) {
-                        Container(expanded = true) {
-                            Ripple(bounded = true) {
-                                Container(width = 100.dp, height = 50.dp) {
-                                    Text(
-                                        text = "inner",
-                                        style = MaterialTheme.typography().body1
-                                    )
-                                }
+            Card(
+                shape = RoundedCornerShape(100.px),
+                border = Border(1.dp, Color(0x80000000)),
+                modifier = LayoutPadding(50.dp)
+            ) {
+                Ripple(bounded = true) {
+                    Container(expanded = true) {
+                        Ripple(bounded = true) {
+                            Container(width = 100.dp, height = 50.dp) {
+                                Text(
+                                    text = "inner",
+                                    style = MaterialTheme.typography().body1
+                                )
                             }
                         }
                     }

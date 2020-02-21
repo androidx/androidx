@@ -41,7 +41,6 @@ import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Tab
@@ -256,13 +255,11 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
                     color = color,
                     modifier = LayoutGravity.Center
                 )
-                Padding(5.dp) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography().body1,
-                        modifier = LayoutGravity.Center
-                    )
-                }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography().body1,
+                    modifier = LayoutPadding(5.dp) + LayoutGravity.Center
+                )
             }
         }
     }
@@ -330,11 +327,9 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
             val width = with(density) {
                 (state[indicatorEnd] - state[indicatorStart]).toDp()
             }
-            Padding(left = offset) {
-                Container(width = width) {
-                    // Pass the current color to the indicator
-                    FancyIndicator(state[indicatorColor])
-                }
+            Container(width = width, modifier = LayoutPadding(left = offset)) {
+                // Pass the current color to the indicator
+                FancyIndicator(state[indicatorColor])
             }
         }
     }

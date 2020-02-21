@@ -39,7 +39,7 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
@@ -54,10 +54,11 @@ class SwipeToDismiss : Activity() {
         setContent {
             Column {
                 SwipeToDismiss()
-
-                Padding(40.dp) {
-                    Text("Swipe up to dismiss", style = TextStyle(fontSize = 30.sp))
-                }
+                Text(
+                    "Swipe up to dismiss",
+                    style = TextStyle(fontSize = 30.sp),
+                    modifier = LayoutPadding(40.dp)
+                )
             }
         }
     }

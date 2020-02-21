@@ -20,7 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.unit.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Table
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
@@ -56,9 +56,12 @@ class TableRecompositionTest(private val numberOfCells: Int) {
                         tableDecoration(overlay = false) { }
                         repeat(numberOfCells) {
                             tableRow {
-                                Padding(2.dp) {
-                                    ColoredRect(color = Color.Black, width = 100.dp, height = 50.dp)
-                                }
+                                ColoredRect(
+                                    color = Color.Black,
+                                    width = 100.dp,
+                                    height = 50.dp,
+                                    modifier = LayoutPadding(2.dp)
+                                )
                             }
                         }
                     }

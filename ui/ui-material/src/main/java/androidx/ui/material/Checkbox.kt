@@ -24,6 +24,7 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.selection.ToggleableState
@@ -38,8 +39,8 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Padding
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.dp
@@ -102,7 +103,7 @@ fun TriStateCheckbox(
         Container(modifier) {
             Ripple(bounded = false) {
                 TriStateToggleable(value = value, onToggle = onClick) {
-                    Padding(padding = CheckboxDefaultPadding) {
+                    Box(LayoutPadding(CheckboxDefaultPadding)) {
                         DrawCheckbox(value = value, activeColor = color)
                     }
                 }

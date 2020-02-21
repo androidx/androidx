@@ -18,9 +18,9 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.CustomRadioGroupSample
 import androidx.ui.material.samples.DefaultRadioGroupSample
@@ -34,31 +34,18 @@ class SelectionControlsActivity : MaterialDemoActivity() {
     @Composable
     override fun materialContent() {
         val headerStyle = MaterialTheme.typography().h6
-        val padding = EdgeInsets(10.dp)
 
-        Padding(padding = padding) {
-            Column {
-                Text(text = "Checkbox", style = headerStyle)
-                Padding(padding = padding) {
-                    TriStateCheckboxSample()
-                }
-                Text(text = "Switch", style = headerStyle)
-                Padding(padding = padding) {
-                    SwitchSample()
-                }
-                Text(text = "RadioButton", style = headerStyle)
-                Padding(padding = padding) {
-                    RadioButtonSample()
-                }
-                Text(text = "Radio group :: Default usage", style = headerStyle)
-                Padding(padding = padding) {
-                    DefaultRadioGroupSample()
-                }
-                Text(text = "Radio group :: Custom usage", style = headerStyle)
-                Padding(padding = padding) {
-                    CustomRadioGroupSample()
-                }
-            }
+        Column(LayoutPadding(10.dp), arrangement = Arrangement.SpaceEvenly) {
+            Text(text = "Checkbox", style = headerStyle)
+            TriStateCheckboxSample()
+            Text(text = "Switch", style = headerStyle)
+            SwitchSample()
+            Text(text = "RadioButton", style = headerStyle)
+            RadioButtonSample()
+            Text(text = "Radio group :: Default usage", style = headerStyle)
+            DefaultRadioGroupSample()
+            Text(text = "Radio group :: Custom usage", style = headerStyle)
+            CustomRadioGroupSample()
         }
     }
 }

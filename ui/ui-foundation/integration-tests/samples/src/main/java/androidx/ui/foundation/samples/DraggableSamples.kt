@@ -30,7 +30,8 @@ import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
-import androidx.ui.layout.Padding
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -58,9 +59,10 @@ fun DraggableSample() {
         // with a red square that moves along the drag
         Container(width = max + squareSize, alignment = Alignment.CenterLeft) {
             DrawShape(RectangleShape, Color.Black)
-            Padding(left = draggedDp) {
-                ColoredRect(Color.Red, width = squareSize, height = squareSize)
-            }
+            ColoredRect(
+                Color.Red,
+                LayoutPadding(left = draggedDp) + LayoutSize(squareSize, squareSize)
+            )
         }
     }
 }
@@ -92,9 +94,10 @@ fun AnchoredDraggableSample() {
         // with a red square that moves along the drag
         Container(width = max + squareSize, alignment = Alignment.CenterLeft) {
             DrawShape(RectangleShape, Color.Black)
-            Padding(left = draggedDp) {
-                ColoredRect(Color.Red, width = squareSize, height = squareSize)
-            }
+            ColoredRect(
+                Color.Red,
+                LayoutPadding(left = draggedDp) + LayoutSize(squareSize, squareSize)
+            )
         }
     }
 }
