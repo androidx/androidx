@@ -16,13 +16,11 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
@@ -54,7 +52,7 @@ final class ScaleTransform {
         }
 
         final int viewRotationDegrees = (int) RotationTransform.getRotationDegrees(view);
-        final boolean isNaturalPortrait = isNaturalPortrait(view.getContext(), viewRotationDegrees);
+        final boolean isNaturalPortrait = isNaturalPortrait(view, viewRotationDegrees);
 
         final int bufferWidth;
         final int bufferHeight;
@@ -119,20 +117,17 @@ final class ScaleTransform {
      * size of the device instead.
      * </p>
      *
-     * @param context         Current context. Can be an {@link android.app.Application} context
-     *                        or an {@link android.app.Activity} context.
+     * @param view            A {@link View} used to get the current {@link Display}.
      * @param rotationDegrees The device's rotation in degrees from its natural orientation.
      * @return Whether the device is naturally portrait-oriented.
      */
-    private static boolean isNaturalPortrait(@NonNull final Context context,
+    private static boolean isNaturalPortrait(@NonNull final View view,
             final int rotationDegrees) {
-        final WindowManager windowManager = (WindowManager) context.getSystemService(
-                Context.WINDOW_SERVICE);
-        if (windowManager == null) {
+        final Display display = view.getDisplay();
+        if (display == null) {
             return true;
         }
 
-        final Display display = windowManager.getDefaultDisplay();
         final Point deviceSize = new Point();
         display.getRealSize(deviceSize);
 
