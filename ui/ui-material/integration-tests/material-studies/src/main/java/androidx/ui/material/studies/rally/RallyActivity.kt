@@ -27,8 +27,6 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Spacer
 import androidx.ui.material.Scaffold
-import androidx.ui.material.Tab
-import androidx.ui.material.TabRow
 import androidx.ui.unit.dp
 
 /**
@@ -50,15 +48,11 @@ class RallyActivity : Activity() {
             var currentScreen by state { RallyScreenState.Overview }
             Scaffold(
                 topAppBar = {
-                    TabRow(allScreens, selectedIndex = currentScreen.ordinal) { i, screen ->
-                        Tab(
-                            text = screen.name,
-                            selected = currentScreen.ordinal == i,
-                            onSelected = {
-                                currentScreen = screen
-                            }
-                        )
-                    }
+                    RallyTopAppBar(
+                        allScreens = allScreens,
+                        onChangeTab = { screen -> currentScreen = screen },
+                        currentScreen = currentScreen
+                    )
                 }
             ) {
                 currentScreen.body()
@@ -78,15 +72,4 @@ fun RallyBody() {
             RallyBillsOverviewCard()
         }
     }
-}
-
-private enum class RallyScreenState {
-    Overview, Accounts, Bills
-}
-
-@Composable
-private fun RallyScreenState.body() = when (this) {
-    RallyScreenState.Overview -> RallyBody()
-    RallyScreenState.Accounts -> RallyAccountsCard()
-    RallyScreenState.Bills -> RallyBillsCard()
 }
