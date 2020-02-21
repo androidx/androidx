@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import android.os.SystemClock.sleep
 import androidx.compose.Model
+import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
@@ -68,7 +69,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
         composeTestRule.runOnIdleCompose {
             assertThat(position!!.x.value).isEqualTo(0f)
@@ -85,7 +86,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
         val width = composeTestRule.displayMetrics.widthPixels
         composeTestRule.runOnIdleCompose {
@@ -103,7 +104,7 @@ class DrawerTest {
                         size = coords.size
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
 
         val width = composeTestRule.displayMetrics.widthPixels
@@ -123,7 +124,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
 
         val width = composeTestRule.displayMetrics.widthPixels
@@ -145,7 +146,7 @@ class DrawerTest {
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }) {}
+            }, bodyContent = emptyContent())
         }
         val height = composeTestRule.displayMetrics.heightPixels
         composeTestRule.runOnIdleCompose {
@@ -158,7 +159,7 @@ class DrawerTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 StaticDrawer {
-                    Container(expanded = true) {}
+                    Container(expanded = true, children = emptyContent())
                 }
             }
             .assertWidthEqualsTo(256.dp)
@@ -186,12 +187,12 @@ class DrawerTest {
                                     closedLatch?.countDown()
                                 }
                             }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         },
                         bodyContent = {
                             OnChildPositioned({ contentWidth = it.size.width }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         })
                 }
@@ -229,12 +230,12 @@ class DrawerTest {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         })
                 }
@@ -288,7 +289,7 @@ class DrawerTest {
                                     closedLatch?.countDown()
                                 }
                             }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         },
                         bodyContent = {
@@ -296,7 +297,7 @@ class DrawerTest {
                                 contentHeight = it.size.height
                                 openedHeight = it.size.height * BottomDrawerOpenFraction
                             }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         })
                 }
@@ -334,12 +335,12 @@ class DrawerTest {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Container(expanded = true) {}
+                                Container(expanded = true, children = emptyContent())
                             }
                         })
                 }

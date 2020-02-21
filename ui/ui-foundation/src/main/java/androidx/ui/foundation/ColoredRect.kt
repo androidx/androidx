@@ -17,6 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -46,8 +47,12 @@ fun ColoredRect(
     height: Dp? = null
 ) {
     Container(
-        modifier = modifier + DrawBackground(brush), width = width, height = height, expanded = true
-    ) {}
+        modifier = modifier + DrawBackground(brush),
+        width = width,
+        height = height,
+        expanded = true,
+        children = emptyContent()
+    )
 }
 
 /**
@@ -67,6 +72,10 @@ fun ColoredRect(
     height: Dp? = null
 ) {
     Container(
-        modifier = modifier + DrawBackground(color), width = width, height = height, expanded = true
-    ) {}
+        modifier = modifier + DrawBackground(color),
+        width = width,
+        height = height,
+        expanded = true,
+        children = emptyContent()
+    )
 }

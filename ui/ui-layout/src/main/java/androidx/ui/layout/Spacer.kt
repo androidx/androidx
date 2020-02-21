@@ -17,6 +17,7 @@
 package androidx.ui.layout
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.ui.core.Modifier
 
 /**
@@ -29,5 +30,5 @@ import androidx.ui.core.Modifier
  */
 @Composable
 fun Spacer(modifier: Modifier) {
-    Container(modifier = modifier) {}
+    Container(modifier = modifier, children = emptyContent())
 }

@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import android.os.Build
+import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.TestTag
@@ -102,8 +103,9 @@ class ElevationOverlayTest(private val elevation: Dp, private val expectedOverla
                                 Semantics(container = true) {
                                     Container(
                                         width = SurfaceSize.width.toDp(),
-                                        height = SurfaceSize.height.toDp()
-                                    ) {}
+                                        height = SurfaceSize.height.toDp(),
+                                        children = emptyContent()
+                                    )
                                 }
                             }
                         }

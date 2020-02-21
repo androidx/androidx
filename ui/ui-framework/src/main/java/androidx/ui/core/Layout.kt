@@ -22,6 +22,7 @@ import androidx.compose.CompositionReference
 import androidx.compose.Context
 import androidx.compose.FrameManager
 import androidx.compose.compositionReference
+import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -361,8 +362,6 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
  */
 private val ChildGroupKey = DataNodeKey<@Composable() () -> Unit>("Compose: ChildGroup")
 
-private val EmptyComposable: @Composable() () -> Unit = @Composable {}
-
 /**
  * A [List] of [Measurable]s passed in as the argument to the [Layout] `measureBlock` when
  * using the `vararg` variant.
@@ -405,7 +404,7 @@ fun Layout(
     measureBlock: MultiMeasureBlock
 ) {
     val children: @Composable() () -> Unit = if (childrenArray.isEmpty()) {
-        EmptyComposable
+        emptyContent()
     } else {
         @Composable {
             childrenArray.forEach { childrenComposable ->

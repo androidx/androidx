@@ -20,6 +20,7 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
@@ -658,7 +659,7 @@ private fun TabText(text: String, color: Color) {
  */
 @Composable
 private fun TabTextBaselineLayout(
-    icon: @Composable() (() -> Unit) = {},
+    icon: @Composable() () -> Unit = emptyContent(),
     text: @Composable() () -> Unit
 ) {
     Layout(

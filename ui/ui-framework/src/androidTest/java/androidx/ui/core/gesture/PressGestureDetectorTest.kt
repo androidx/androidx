@@ -20,6 +20,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
@@ -228,7 +229,7 @@ class PressGestureDetectorTest {
                 layout(100.ipx, 100.ipx) {
                     onLayout()
                 }
-            }, children = {}
+            }, children = emptyContent()
         )
     }
 }
