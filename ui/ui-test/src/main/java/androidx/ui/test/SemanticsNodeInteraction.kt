@@ -41,7 +41,16 @@ class SemanticsNodeInteraction internal constructor(
     internal val semanticsNodes: List<SemanticsNode>
         get() = semanticsTreeInteraction.getNodesByIds(nodeIds)
 
-    internal val semanticsNode: SemanticsNode
+    /**
+     * Returns the semantics node captured by this object.
+     *
+     * Note: Accessing this object involves synchronization with UI. This means that when using this
+     * object the UI should be stable. If you are accessing this multiple times in one atomic
+     * operation, it is better to cache the result instead of calling this API multiple times.
+     *
+     * @throws AssertionError if 0 or multiple nodes found.
+     */
+    val semanticsNode: SemanticsNode
         get() {
             if (semanticsNodes.size != 1) {
                 // TODO(b/133217292)
