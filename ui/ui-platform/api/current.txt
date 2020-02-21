@@ -332,11 +332,14 @@ package androidx.ui.core {
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
-    ctor public SemanticsComponentNode(int id, androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration);
+    ctor public SemanticsComponentNode(int id, androidx.ui.core.semantics.SemanticsConfiguration localSemanticsConfiguration);
     method public int getId();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getLocalSemanticsConfiguration();
     method public androidx.ui.core.semantics.SemanticsNode getSemanticsNode();
     method public boolean hasSemanticsComponentNodeInTree$lintWithKotlin();
     method public void invalidateSemanticsComponentNode$lintWithKotlin();
+    method public void setLocalSemanticsConfiguration(androidx.ui.core.semantics.SemanticsConfiguration p);
+    property public final androidx.ui.core.semantics.SemanticsConfiguration localSemanticsConfiguration;
     property public final androidx.ui.core.semantics.SemanticsNode semanticsNode;
   }
 
