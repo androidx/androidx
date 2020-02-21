@@ -22,9 +22,10 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.animate
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 
 class SingleValueAnimation : Activity() {
 
@@ -37,15 +38,8 @@ class SingleValueAnimation : Activity() {
     fun AnimateSingleValue() {
         val enabled = state { true }
         Clickable({ enabled.value = !enabled.value }) {
-            Fill(enabled.value)
-        }
-    }
-
-    @Composable
-    private fun Fill(enabled: Boolean) {
-        Container(expanded = true) {
-            val color = animate(if (enabled) Color.Green else Color.Red)
-            DrawRectangle(color)
+            val color = animate(if (enabled.value) Color.Green else Color.Red)
+            Box(LayoutSize.Fill, backgroundColor = color)
         }
     }
 }
