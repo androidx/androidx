@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
 import android.location.Location;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -264,7 +263,6 @@ public class VideoCapture extends UseCase {
      * @param executor     The executor in which the callback methods will be run.
      * @param callback     Callback for when the recorded video saving completion or failure.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void startRecording(@NonNull File saveLocation,
             @NonNull Executor executor, @NonNull OnVideoSavedCallback callback) {
         mIsFirstVideoSampleWrite.set(false);
@@ -284,7 +282,6 @@ public class VideoCapture extends UseCase {
      * @param executor     The executor in which the callback methods will be run.
      * @param callback     Callback for when the recorded video saving completion or failure.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void startRecording(
             @NonNull File saveLocation, @NonNull Metadata metadata,
             @NonNull Executor executor,

@@ -641,7 +641,6 @@ public final class CameraView extends ViewGroup {
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback which will receive success or failure callbacks.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(@NonNull Executor executor, @NonNull OnImageCapturedCallback callback) {
         mCameraModule.takePicture(executor, callback);
     }
@@ -654,7 +653,6 @@ public final class CameraView extends ViewGroup {
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback which will receive success or failure.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(@NonNull File file, @NonNull Executor executor,
             @NonNull OnImageSavedCallback callback) {
         mCameraModule.takePicture(file, executor, callback);
@@ -667,7 +665,6 @@ public final class CameraView extends ViewGroup {
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback which will receive success or failure.
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void startRecording(@NonNull File file, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
         mCameraModule.startRecording(file, executor, callback);

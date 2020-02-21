@@ -39,7 +39,6 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATIO
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
@@ -585,7 +584,6 @@ public final class ImageCapture extends UseCase {
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback to be invoked for the newly captured image
      */
-    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(@NonNull Executor executor,
             final @NonNull OnImageCapturedCallback callback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
@@ -605,8 +603,6 @@ public final class ImageCapture extends UseCase {
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
      */
-    // Maybe remove after https://issuetracker.google.com/135275901
-    @SuppressLint({"LambdaLast", "StreamFiles"})
     public void takePicture(
             final @NonNull OutputFileOptions outputFileOptions,
             final @NonNull Executor executor,
