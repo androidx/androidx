@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("UnstableApiUsage")
+
 package androidx.fragment.lint
 
 import androidx.fragment.lint.UnsafeFragmentLifecycleObserverDetector.Issues.BACK_PRESSED_ISSUE
