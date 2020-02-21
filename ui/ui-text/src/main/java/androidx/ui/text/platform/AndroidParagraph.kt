@@ -219,6 +219,8 @@ internal class AndroidParagraph constructor(
 
     override fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
 
+    override fun getLineTop(lineIndex: Int): Float = layout.getLineTop(lineIndex)
+
     override fun getLineBottom(lineIndex: Int): Float = layout.getLineBottom(lineIndex)
 
     override fun getLineHeight(lineIndex: Int): Float = layout.getLineHeight(lineIndex)

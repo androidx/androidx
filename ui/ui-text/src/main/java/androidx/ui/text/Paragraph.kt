@@ -106,9 +106,10 @@ interface Paragraph {
     /** Returns the right x Coordinate of the given line. */
     fun getLineRight(lineIndex: Int): Float
 
-    /**
-     * Returns the bottom y coordinate of the given line.
-     */
+    /** Returns the bottom y coordinate of the given line. */
+    fun getLineTop(lineIndex: Int): Float
+
+    /** Returns the bottom y coordinate of the given line. */
     fun getLineBottom(lineIndex: Int): Float
 
     /** Returns the height of the given line. */
