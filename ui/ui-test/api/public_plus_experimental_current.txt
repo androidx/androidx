@@ -35,6 +35,7 @@ package androidx.ui.test {
     method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
     method public static void assertShape(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color shapeColor, androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Shape backgroundShape = RectangleShape, androidx.ui.unit.Px sizeX = width.toFloat().px, androidx.ui.unit.Px sizeY = height.toFloat().px, androidx.ui.unit.Px shapeSizeX = sizeX, androidx.ui.unit.Px shapeSizeY = sizeY, androidx.ui.unit.Px centerX = width.px / 2.0, androidx.ui.unit.Px centerY = height.px / 2.0, androidx.ui.unit.Px shapeOverlapPixelCount = 1.px);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
   }
 
   public final class CollectedSizes {

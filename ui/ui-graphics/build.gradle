@@ -46,6 +46,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(JUNIT)
+    androidTestImplementation project(":ui:ui-test")
 }
 
 androidx {
