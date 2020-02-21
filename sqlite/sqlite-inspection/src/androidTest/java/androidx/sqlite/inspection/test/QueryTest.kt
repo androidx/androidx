@@ -111,7 +111,7 @@ class QueryTest {
     }
 
     @Test
-    fun test_nested_query_with_a_comment() {
+    fun test_valid_query_nested_query_with_a_comment() {
         test_valid_query(
             Database("db", table2),
             values = listOf(
@@ -123,6 +123,45 @@ class QueryTest {
             expectedValues = listOf(listOf(3)),
             expectedTypes = listOf(listOf("integer")),
             expectedColumnNames = listOf("count(*)")
+        )
+    }
+
+    @Test
+    fun test_valid_query_empty_result_column_names_present() {
+        test_valid_query(
+            Database("db", table2),
+            values = listOf(
+                table2 to arrayOf("1", "'A'"),
+                table2 to arrayOf("2", "'B'")
+            ),
+            query = "select * from ${table2.name} where 1=0", // impossible condition
+            expectedValues = emptyList(),
+            expectedTypes = emptyList(),
+            expectedColumnNames = table2.columns.map { it.name }
+        )
+    }
+
+    @Test
+    fun test_valid_query_missing_column_values() {
+        test_valid_query(
+            Database("db", table2),
+            values = listOf(
+                table2 to arrayOf("1", "'A'"),
+                table2 to arrayOf("null", "null"),
+                table2 to arrayOf("null", "'C'")
+            ),
+            query = "select * from ${table2.name}",
+            expectedValues = listOf(
+                listOf(1, "A"),
+                listOf(null, null),
+                listOf(null, "C")
+            ),
+            expectedTypes = listOf(
+                listOf("integer", "text"),
+                listOf("null", "null"),
+                listOf("null", "text")
+            ),
+            expectedColumnNames = table2.columns.map { it.name }
         )
     }
 
@@ -183,12 +222,13 @@ class QueryTest {
         // when
         issueQuery(databaseId, query).let { response ->
             // then
+            assertThat(response.rowsCount).isEqualTo(expectedValues.size)
+            assertThat(response.columnNamesList).isEqualTo(expectedColumnNames)
             response.rowsList.let { actualRows: List<Row> ->
                 actualRows.forEachIndexed { rowIx, row ->
                     row.valuesList.forEachIndexed { colIx, cell ->
                         assertThat(cell.value).isEqualTo(expectedValues[rowIx][colIx])
                         assertThat(cell.type).isEqualTo(expectedTypes[rowIx][colIx])
-                        assertThat(cell.columnName).isEqualTo(expectedColumnNames[colIx])
                     }
                 }
             }

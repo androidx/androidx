@@ -98,6 +98,8 @@ message Column {
 // Object expected as a response to QueryCommand.
 message QueryResponse {
   repeated Row rows = 1;
+  // Names of columns in the result set
+  repeated string column_names = 2;
 }
 
 // Query result row.
@@ -114,8 +116,6 @@ message CellValue {
     string string_value = 3;
     bytes blob_value = 4;
   }
-  // Name of the column containing the cell
-  string column_name = 5;
 }
 
 // General Error message.
