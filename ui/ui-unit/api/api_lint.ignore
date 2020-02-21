@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-AcronymName: androidx.ui.unit.DensityScope#toPx-kAYDl8w(long):
+AcronymName: androidx.ui.unit.Density#toPx-kAYDl8w(long):
     Acronyms should not be capitalized in method names: was `toPx-kAYDl8w`, should this be `toPx-kAyDl8w`?
 AcronymName: androidx.ui.unit.DpKt#center-kAYDl8w(long):
     Acronyms should not be capitalized in method names: was `center-kAYDl8w`, should this be `center-kAyDl8w`?
