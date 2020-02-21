@@ -26,6 +26,7 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
+import androidx.ui.unit.max
 
 /**
  * A layout that takes a child and aligns it within itself, according to the alignment parameter.
@@ -108,9 +109,15 @@ object LayoutGravity
 
 /**
  * Provides alignment options for a target layout where the alignment is handled by the modifier
- * itself (rather than by the layout's parent). To achieve this, the modifier tries to fill the
- * available space and align the target layout within itself. If the incoming constraints are
- * infinite, the modifier will wrap the child instead and the alignment will not be achieved.
+ * itself (rather than by the layout's parent). The modifier will occupy as little space as possible
+ * to satisfy the minimum incoming constraints in the alignment direction(s), while also being
+ * at least as large as the wrapped layout. Consequently, in order for the alignment to work, the
+ * incoming min constraints have to be larger than the size of the wrapped layout; in this case,
+ * the modifier will align the target layout within itself, and the modifier will occupy the size
+ * of the min constraints in the alignment direction(s). Note that, in order to make sure that
+ * the alignment happens due to the min incoming constraints, size modifiers such as [LayoutSize],
+ * [LayoutWidth] or [LayoutHeight] can be specified before [LayoutAlign] - otherwise, the min
+ * icoming constraints can also be enforced by the parent layout model.
  *
  * Example usage:
  *
@@ -232,33 +239,18 @@ private data class AlignmentModifier(
     override fun Density.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
-    ): IntPxSize {
-        val width = if (
-            direction != Direction.Vertical && constraints.maxWidth.isFinite()
-        ) {
-            constraints.maxWidth
-        } else {
-            childSize.width
-        }
-        val height = if (
-            direction != Direction.Horizontal && constraints.maxHeight.isFinite()
-        ) {
-            constraints.maxHeight
-        } else {
-            childSize.height
-        }
-        return IntPxSize(width, height)
-    }
+    ): IntPxSize = IntPxSize(
+        max(constraints.minWidth, childSize.width),
+        max(constraints.minHeight, childSize.height)
+    )
 
     override fun Density.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ): IntPxPosition {
-        return alignment.align(
-            IntPxSize(
-                containerSize.width - childSize.width,
-                containerSize.height - childSize.height
-            )
+    ): IntPxPosition = alignment.align(
+        IntPxSize(
+            containerSize.width - childSize.width,
+            containerSize.height - childSize.height
         )
-    }
+    )
 }
