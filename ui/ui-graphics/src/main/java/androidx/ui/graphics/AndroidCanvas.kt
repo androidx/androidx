@@ -200,30 +200,24 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
         internalCanvas.drawRect(rect.toFrameworkRectF(), paint.asFrameworkPaint())
     }
 
-    /**
-     * @see Canvas.drawDoubleRoundRect
-     */
-    override fun drawRRect(rrect: RRect, paint: Paint) {
-        internalPath.reset()
-        internalPath.addRRect(rrect)
-        internalCanvas.drawPath(internalPath.toFrameworkPath(), paint.asFrameworkPaint())
-    }
-
-    /**
-     * @see Canvas.drawDoubleRoundRect
-     */
-    override fun drawDoubleRoundRect(outer: RRect, inner: RRect, paint: Paint) {
-        // TODO(njawad) find better way to recreate functionality with Framework APIs
-        // without creating temporary paths on each draw call
-        val outerPath = Path()
-        val innerPath = Path()
-
-        outerPath.addRRect(outer)
-        innerPath.addRRect(inner)
-
-        internalPath.reset()
-        internalPath.op(outerPath, innerPath, PathOperation.difference)
-        internalCanvas.drawPath(internalPath.toFrameworkPath(), paint.asFrameworkPaint())
+    override fun drawRoundRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        radiusX: Float,
+        radiusY: Float,
+        paint: Paint
+    ) {
+        internalCanvas.drawRoundRect(
+            left,
+            top,
+            right,
+            bottom,
+            radiusX,
+            radiusY,
+            paint.asFrameworkPaint()
+        )
     }
 
     /**

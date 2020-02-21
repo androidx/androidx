@@ -28,10 +28,6 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
-import androidx.ui.geometry.Radius
-import androidx.ui.geometry.shift
-import androidx.ui.geometry.shrink
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
@@ -197,6 +193,7 @@ fun RadioButton(
     onSelect: (() -> Unit)?,
     color: Color = MaterialTheme.colors().secondary
 ) {
+    val radioPaint = remember { Paint() }
     Wrap {
         Ripple(bounded = false) {
             MutuallyExclusiveSetItem(
@@ -214,7 +211,8 @@ fun RadioButton(
                                 state[ColorProp],
                                 state[OuterRadiusProp],
                                 state[InnerRadiusProp],
-                                state[GapProp]
+                                state[GapProp],
+                                radioPaint
                             )
                         }
                     }
@@ -228,12 +226,11 @@ private fun CanvasScope.drawRadio(
     color: Color,
     outerRadius: Dp,
     innerRadius: Dp,
-    gap: Dp
+    gap: Dp,
+    paint: Paint
 ) {
-    val p = Paint()
-    p.isAntiAlias = true
-    p.color = color
-    p.style = PaintingStyle.fill
+    paint.isAntiAlias = true
+    paint.color = color
 
     // TODO(malkov): currently Radio gravity is always CENTER but we need to be flexible
     val centerW = size.width.value / 2
@@ -241,24 +238,24 @@ private fun CanvasScope.drawRadio(
     val outerPx = outerRadius.toPx().value
     val innerPx = innerRadius.toPx().value
 
-    val circleOffset = Offset(centerW - outerPx, centerH - outerPx)
-    val outer = RRect(
-        0f,
-        0f,
-        outerPx * 2,
-        outerPx * 2,
-        Radius.circular(outerPx)
-    ).shift(circleOffset)
-
+    val center = Offset(centerW, centerH)
     if (gap == 0.dp) {
-        val inner = outer.shrink(outerPx - innerPx)
-        drawDoubleRoundRect(outer, inner, p)
+        val strokeWidth = outerPx - innerPx
+        paint.style = PaintingStyle.stroke
+        paint.strokeWidth = strokeWidth
+        drawCircle(center, outerPx - strokeWidth / 2, paint)
     } else {
-        val inner = outer.shrink(RadioStrokeWidth.toPx().value)
-        drawDoubleRoundRect(outer, inner, p)
-        val radioOuter = inner.shrink(gap.toPx().value)
-        val radioInner = outer.shrink(outerPx - innerPx)
-        drawDoubleRoundRect(radioOuter, radioInner, p)
+        val strokeWidth = RadioStrokeWidth.toPx().value
+        paint.style = PaintingStyle.stroke
+        paint.strokeWidth = strokeWidth
+        drawCircle(center, outerPx - strokeWidth / 2, paint)
+
+        val gapWidth = gap.toPx().value
+        val circleRadius = outerPx - strokeWidth - gapWidth
+        val innerCircleStrokeWidth = circleRadius - innerPx
+
+        paint.strokeWidth = innerCircleStrokeWidth
+        drawCircle(center, circleRadius - innerCircleStrokeWidth / 2, paint)
     }
 }
 
