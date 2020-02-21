@@ -35,7 +35,7 @@ android {
 
 dependencies {
     api(project(":activity:activity"))
-    api("androidx.core:core-ktx:1.2.0") {
+    api("androidx.core:core-ktx:1.1.0") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
     api(project(":lifecycle:lifecycle-runtime-ktx")) {
