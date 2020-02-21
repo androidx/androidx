@@ -24,22 +24,22 @@ import org.junit.runners.JUnit4
 import java.lang.IllegalArgumentException
 
 @RunWith(JUnit4::class)
-class InlineElementMetricsTest {
+class PlaceholderTest {
     @Test(expected = IllegalArgumentException::class)
     fun width_isInherit() {
-        InlineElementMetrics(
+        Placeholder(
             width = TextUnit.Inherit,
             height = 1.em,
-            textVerticalAlign = TextVerticalAlign.AboveBaseline
+            placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun height_isInherit() {
-        InlineElementMetrics(
+        Placeholder(
             width = 1.em,
             height = TextUnit.Inherit,
-            textVerticalAlign = TextVerticalAlign.AboveBaseline
+            placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
         )
     }
 }
