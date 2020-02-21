@@ -16,6 +16,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.media2.test.service.test">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application>
         <receiver android:name="androidx.media.session.MediaButtonReceiver" >
             <intent-filter>
