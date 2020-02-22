@@ -33,7 +33,10 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(KOTLIN_COROUTINES_ANDROID)
     testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
 
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
     androidTestImplementation(ANDROIDX_TEST_EXT_KTX)
     androidTestImplementation(TRUTH)
