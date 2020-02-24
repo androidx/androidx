@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
@@ -39,6 +40,7 @@ import androidx.room.integration.testapp.ISampleDatabaseService;
 import androidx.room.integration.testapp.SampleDatabaseService;
 import androidx.room.integration.testapp.database.Customer;
 import androidx.room.integration.testapp.database.CustomerDao;
+import androidx.room.integration.testapp.database.Description;
 import androidx.room.integration.testapp.database.Product;
 import androidx.room.integration.testapp.database.SampleDatabase;
 import androidx.test.core.app.ApplicationProvider;
@@ -121,6 +123,31 @@ public class MultiInstanceInvalidationTest {
 
         assertTrue(invalidated1.await(3, TimeUnit.SECONDS));
         assertTrue(changed1.await(3, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void invalidateInAnotherInstanceFts() throws Exception {
+        final SampleDatabase db1 = openDatabase(true);
+        final SampleDatabase db2 = openDatabase(true);
+
+        Product theProduct = new Product(1, "Candy");
+        db2.getProductDao().insert(theProduct);
+        db2.getProductDao().addDescription(new Description(1, "Delicious candy."));
+
+        final CountDownLatch changed = new CountDownLatch(1);
+        db1.getInvalidationTracker().addObserver(new InvalidationTracker.Observer("Description") {
+            @Override
+            public void onInvalidated(@NonNull Set<String> tables) {
+                changed.countDown();
+            }
+        });
+
+        db2.getProductDao().addDescription(new Description(1, "Wonderful candy."));
+
+        assertTrue(changed.await(3, TimeUnit.SECONDS));
+        List<Product> result = db1.getProductDao().getProductsWithDescription("candy");
+        assertThat(result.size(), is(1));
+        assertThat(result.get(0), is(theProduct));
     }
 
     @Test

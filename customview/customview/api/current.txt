@@ -42,6 +42,12 @@ package androidx.customview.widget {
     field public static final int INVALID_ID = -2147483648; // 0x80000000
   }
 
+  public interface Openable {
+    method public void close();
+    method public boolean isOpen();
+    method public void open();
+  }
+
   public class ViewDragHelper {
     method public void abort();
     method protected boolean canScroll(android.view.View, boolean, int, int, int, int);

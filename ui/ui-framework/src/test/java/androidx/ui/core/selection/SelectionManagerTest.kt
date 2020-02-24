@@ -43,24 +43,23 @@ class SelectionManagerTest {
     private val selectionManager = SelectionManager(selectionRegistrar)
 
     private val containerLayoutCoordinates = mock<LayoutCoordinates>()
-    private val startLayoutCoordinates = mock<LayoutCoordinates>()
-    private val endLayoutCoordinates = mock<LayoutCoordinates>()
+    private val startSelectable = mock<Selectable>()
+    private val endSelectable = mock<Selectable>()
+
     private val startCoordinates = PxPosition(3.px, 30.px)
     private val endCoordinates = PxPosition(3.px, 600.px)
 
     private val fakeSelection =
         Selection(
             start = Selection.AnchorInfo(
-                coordinates = startCoordinates,
                 direction = TextDirection.Ltr,
                 offset = 0,
-                layoutCoordinates = startLayoutCoordinates
+                selectable = startSelectable
             ),
             end = Selection.AnchorInfo(
-                coordinates = endCoordinates,
                 direction = TextDirection.Ltr,
                 offset = 5,
-                layoutCoordinates = endLayoutCoordinates
+                selectable = endSelectable
             )
         )
 
@@ -168,6 +167,19 @@ class SelectionManagerTest {
 
     @Test
     fun cancel_selection_calls_getSelection_selection_becomes_null() {
+        val fakeSelection =
+            Selection(
+                start = Selection.AnchorInfo(
+                    direction = TextDirection.Ltr,
+                    offset = 0,
+                    selectable = startSelectable
+                ),
+                end = Selection.AnchorInfo(
+                    direction = TextDirection.Ltr,
+                    offset = 5,
+                    selectable = endSelectable
+                )
+            )
         var selection: Selection? = fakeSelection
         val lambda: (Selection?) -> Unit = { selection = it }
         val spyLambda = spy(lambda)

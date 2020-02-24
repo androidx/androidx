@@ -17,7 +17,7 @@
 package androidx.ui.animation.samples
 
 import androidx.animation.AnimationVector2D
-import androidx.animation.TypeConverter2D
+import androidx.animation.TwoWayConverter
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
@@ -68,7 +68,7 @@ fun ArbitraryValueTypeTransition(enabled: Boolean) {
             MySize(100.dp, 100.dp)
         }
     }
-    val animSize = animate<MySize, AnimationVector2D>(mySize, TypeConverter2D(
+    val animSize = animate<MySize, AnimationVector2D>(mySize, TwoWayConverter(
         convertToVector = { AnimationVector2D(it.width.value, it.height.value) },
         convertFromVector = { MySize(it.v1.dp, it.v2.dp) }
     ))

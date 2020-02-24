@@ -18,7 +18,6 @@ package androidx.ui.framework.demos.gestures
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressReleasedGestureDetector
@@ -27,8 +26,6 @@ import androidx.ui.core.gesture.ScaleObserver
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
-import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
@@ -37,7 +34,7 @@ import androidx.ui.unit.px
  * Simple demo that shows off how DragGestureDetector and ScaleGestureDetector automatically
  * interoperate.
  */
-class DragAndScaleGestureDetectorDemo : Activity() {
+class DragScaleGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -69,52 +66,32 @@ class DragAndScaleGestureDetectorDemo : Activity() {
             if (dragInScale.value) {
                 ScaleGestureDetector(scaleObserver) {
                     TouchSlopDragGestureDetector(dragObserver = dragObserver) {
-                        BoxLayout(
-                            onRelease,
-                            width.value,
-                            height.value,
-                            xOffset.value,
-                            yOffset.value,
-                            Color(0xFFf44336.toInt())
-                        )
+                        PressReleasedGestureDetector(onRelease) {
+                            DrawingBox(
+                                xOffset.value,
+                                yOffset.value,
+                                width.value,
+                                height.value,
+                                Color(0xFFf44336.toInt())
+                            )
+                        }
                     }
                 }
             } else {
                 TouchSlopDragGestureDetector(dragObserver = dragObserver) {
                     ScaleGestureDetector(scaleObserver) {
-                        BoxLayout(
-                            onRelease,
-                            width.value,
-                            height.value,
-                            xOffset.value,
-                            yOffset.value,
-                            Color(0xFF2196f3.toInt())
-                        )
+                        PressReleasedGestureDetector(onRelease) {
+                            DrawingBox(
+                                xOffset.value,
+                                yOffset.value,
+                                width.value,
+                                height.value,
+                                Color(0xFF2196f3.toInt())
+                            )
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun BoxLayout(
-    onRelease: () -> Unit,
-    width: Dp,
-    height: Dp,
-    xOffset: Px,
-    yOffset: Px,
-    color: Color
-) {
-    PressReleasedGestureDetector(onRelease) {
-        MatchParent {
-            DrawBox(
-                xOffset,
-                yOffset,
-                width,
-                height,
-                color
-            )
         }
     }
 }

@@ -66,7 +66,7 @@ fun SimpleFillWidthModifier() {
 @Sampled
 @Composable
 fun SimpleFillHeightModifier() {
-    Align(alignment = Alignment.TopLeft) {
+    Align(alignment = Alignment.TopStart) {
         Box(LayoutHeight.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
             ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
         }
@@ -76,7 +76,7 @@ fun SimpleFillHeightModifier() {
 @Sampled
 @Composable
 fun SimpleFillModifier() {
-    Align(alignment = Alignment.TopLeft) {
+    Align(alignment = Alignment.TopStart) {
         Box(LayoutSize.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
             ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
         }

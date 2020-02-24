@@ -21,13 +21,13 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class EffectsTests : BaseComposeTest() {
     @After
@@ -57,29 +57,35 @@ class EffectsTests : BaseComposeTest() {
         var compositions = 0
         var calculation = 0
         var key = 0
+        val trigger = Trigger()
 
         compose {
+            trigger.subscribe()
             compositions++
             calculation = remember(key) { 100 * ++calculations }
         }.then { _ ->
             assertEquals(1, calculations)
             assertEquals(100, calculation)
             assertEquals(1, compositions)
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertEquals(1, calculations)
             assertEquals(100, calculation)
             assertEquals(2, compositions)
             key++
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertEquals(2, calculations)
             assertEquals(200, calculation)
             assertEquals(3, compositions)
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertEquals(2, calculations)
             assertEquals(200, calculation)
             assertEquals(4, compositions)
             key++
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertEquals(3, calculations)
             assertEquals(300, calculation)
             assertEquals(5, compositions)
@@ -94,7 +100,7 @@ class EffectsTests : BaseComposeTest() {
 
         compose {
             local = state { "Hello world! ${inc++}" }
-            TextView(id=tv1Id, text = local.value)
+            TextView(id = tv1Id, text = local.value)
         }.then { activity ->
             val helloText = activity.findViewById(tv1Id) as TextView
             assertEquals("Hello world! 0", helloText.text)
@@ -122,8 +128,8 @@ class EffectsTests : BaseComposeTest() {
         compose {
             local1 = state { "First" }
             local2 = state { "Second" }
-            TextView(id=tv1Id, text = local1.value)
-            TextView(id=tv2Id, text = local2.value)
+            TextView(id = tv1Id, text = local1.value)
+            TextView(id = tv2Id, text = local2.value)
         }.then { activity ->
             val tv1 = activity.findViewById(tv1Id) as TextView
             val tv2 = activity.findViewById(tv2Id) as TextView
@@ -278,11 +284,13 @@ class EffectsTests : BaseComposeTest() {
     @Test
     fun testPreCommit3() {
         var x = 0
+        val trigger = Trigger()
 
         val logHistory = mutableListOf<String>()
         fun log(x: String) = logHistory.add(x)
 
         compose {
+            trigger.subscribe()
             onPreCommit {
                 val y = x++
                 log("onPreCommit:$y")
@@ -292,7 +300,8 @@ class EffectsTests : BaseComposeTest() {
             }
         }.then { _ ->
             log("recompose")
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertArrayEquals(
                 listOf(
                     "onPreCommit:0",
@@ -309,11 +318,13 @@ class EffectsTests : BaseComposeTest() {
     fun testPreCommit31() {
         var a = 0
         var b = 0
+        val trigger = Trigger()
 
         val logHistory = mutableListOf<String>()
         fun log(x: String) = logHistory.add(x)
 
         compose {
+            trigger.subscribe()
             onPreCommit {
                 val y = a++
                 log("onPreCommit a:$y")
@@ -330,7 +341,8 @@ class EffectsTests : BaseComposeTest() {
             }
         }.then { _ ->
             log("recompose")
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertArrayEquals(
                 listOf(
                     "onPreCommit a:0",
@@ -350,11 +362,13 @@ class EffectsTests : BaseComposeTest() {
     fun testPreCommit4() {
         var x = 0
         var key = 123
+        val trigger = Trigger()
 
         val logHistory = mutableListOf<String>()
         fun log(x: String) = logHistory.add(x)
 
         compose {
+            trigger.subscribe()
             onPreCommit(key) {
                 val y = x++
                 log("onPreCommit:$y")
@@ -364,7 +378,8 @@ class EffectsTests : BaseComposeTest() {
             }
         }.then { _ ->
             log("recompose")
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertArrayEquals(
                 listOf(
                     "onPreCommit:0",
@@ -374,7 +389,8 @@ class EffectsTests : BaseComposeTest() {
             )
             log("recompose (key -> 345)")
             key = 345
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertArrayEquals(
                 listOf(
                     "onPreCommit:0",
@@ -393,12 +409,14 @@ class EffectsTests : BaseComposeTest() {
         var a = 0
         var b = 0
         var c = 0
+        val trigger = Trigger()
 
         val logHistory = mutableListOf<String>()
         fun log(x: String) = logHistory.add(x)
 
         @Composable
         fun Sub() {
+            trigger.subscribe()
             onPreCommit {
                 val y = c++
                 log("onPreCommit c:$y")
@@ -409,6 +427,7 @@ class EffectsTests : BaseComposeTest() {
         }
 
         compose {
+            trigger.subscribe()
             onPreCommit {
                 val y = a++
                 log("onPreCommit a:$y")
@@ -428,7 +447,8 @@ class EffectsTests : BaseComposeTest() {
             Sub()
         }.then { _ ->
             log("recompose")
-        }.recomposeRoot().then { _ ->
+            trigger.recompose()
+        }.then { _ ->
             assertArrayEquals(
                 listOf(
                     "onPreCommit a:0",
@@ -578,7 +598,6 @@ class EffectsTests : BaseComposeTest() {
     }
 
     @Test
-    @MediumTest
     fun testAmbient2() {
         val MyAmbient = ambientOf<Int> { throw Exception("not set") }
 
@@ -595,7 +614,7 @@ class EffectsTests : BaseComposeTest() {
                 requestRecompose = it
                 Providers(MyAmbient provides ambientValue.value++) {
                     SimpleComposable2()
-                    Button(id=123)
+                    Button(id = 123)
                 }
             }
         }
@@ -622,7 +641,6 @@ class EffectsTests : BaseComposeTest() {
     }
 
     @Test
-    @MediumTest
     fun testAmbient_RecomposeScope() {
         val MyAmbient = ambientOf<Int> { throw Exception("not set") }
 
@@ -633,14 +651,14 @@ class EffectsTests : BaseComposeTest() {
         @Composable fun SimpleComposable2() {
             componentComposed = true
             val value = MyAmbient.current
-            TextView(text="$value")
+            TextView(text = "$value")
         }
 
         @Composable fun SimpleComposable() {
             requestRecompose = invalidate
             Providers(MyAmbient provides ambientValue.value++) {
                 SimpleComposable2()
-                Button(id=123)
+                Button(id = 123)
             }
         }
 
@@ -676,7 +694,7 @@ class EffectsTests : BaseComposeTest() {
 
         compose {
             val local = state { "Hello world! ${inc++}" }
-            TextView(id = tv1Id, text=local.value)
+            TextView(id = tv1Id, text = local.value)
         }.then { activity ->
             val helloText = activity.findViewById(tv1Id) as TextView
             assertEquals("Hello world! 0", helloText.text)
@@ -696,4 +714,10 @@ fun <T> assertArrayEquals(
         expected.joinToString("\n", transform = transform),
         actual.joinToString("\n", transform = transform)
     )
+}
+
+class Trigger() {
+    val count = mutableStateOf(0)
+    fun subscribe() { count.value }
+    fun recompose() { count.value += 1 }
 }

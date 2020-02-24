@@ -55,7 +55,7 @@ class SizeModifiersTest : LayoutTest() {
         val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Column {
                     Container(
                         LayoutWidth.Max(sizeDp * 2) + LayoutWidth.Min(sizeDp) + LayoutHeight(sizeDp)
@@ -114,7 +114,7 @@ class SizeModifiersTest : LayoutTest() {
         val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Row {
                     Container(LayoutHeight.Max(sizeDp * 2) + LayoutHeight.Min(sizeDp) +
                             LayoutWidth(sizeDp)) {
@@ -170,7 +170,7 @@ class SizeModifiersTest : LayoutTest() {
         val size = MutableList(5) { Ref<IntPxSize>() }
         val position = MutableList(5) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Row {
                     Container(LayoutSize.Max(sizeDp * 2) + LayoutSize.Min(sizeDp)) {
                         SaveLayoutInfo(size[0], position[0], positionedLatch)
@@ -218,7 +218,7 @@ class SizeModifiersTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Container(width = sizeDp, height = sizeDp) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         constrainedBoxSize.value = coordinates.size
@@ -253,7 +253,7 @@ class SizeModifiersTest : LayoutTest() {
         val size = MutableList(4) { Ref<IntPxSize>() }
         val position = MutableList(4) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Row {
                     Container(LayoutWidth.Max(Dp.Infinity)) {
                         Container(width = sizeDp, height = sizeDp) {

@@ -38,6 +38,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
@@ -363,6 +364,7 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
+    @LargeTest
     @Test
     fun testNavigateViaImplicitDeepLink() {
         val intent = Intent(

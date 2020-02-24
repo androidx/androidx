@@ -46,6 +46,7 @@ class FragmentStateManager {
     @NonNull
     private final Fragment mFragment;
 
+    private boolean mMovingToState = false;
     private int mFragmentManagerState = Fragment.INITIALIZING;
     private CancellationSignal mEnterAnimationCancellationSignal;
     private CancellationSignal mExitAnimationCancellationSignal;
@@ -228,97 +229,111 @@ class FragmentStateManager {
     }
 
     void moveToExpectedState() {
-        int newState;
-        while ((newState = computeExpectedState()) != mFragment.mState) {
-            if (newState > mFragment.mState) {
-                // Moving upward
-                int nextStep = mFragment.mState + 1;
-                // Cancel any ongoing exit animations as we're moving the state upward
-                if (mExitAnimationCancellationSignal != null) {
-                    mExitAnimationCancellationSignal.cancel();
-                }
-                switch (nextStep) {
-                    case Fragment.ATTACHED:
-                        attach();
-                        break;
-                    case Fragment.CREATED:
-                        create();
-                        break;
-                    case Fragment.ACTIVITY_CREATED:
-                        ensureInflatedView();
-                        createView();
-                        activityCreated();
-                        restoreViewState();
-                        if (mFragment.mContainer != null) {
-                            SpecialEffectsController controller = SpecialEffectsController
-                                    .getOrCreateController(mFragment.mContainer);
-                            mEnterAnimationCancellationSignal = new CancellationSignal();
-                            controller.enqueueAdd(this,
-                                    mEnterAnimationCancellationSignal);
-                        }
-                        break;
-                    case Fragment.STARTED:
-                        start();
-                        break;
-                    case Fragment.RESUMED:
-                        resume();
-                        break;
-                }
-            } else {
-                // Moving downward
-                int nextStep = mFragment.mState - 1;
-                // Cancel any ongoing enter animations as we're moving the state downward
-                if (mEnterAnimationCancellationSignal != null) {
-                    mEnterAnimationCancellationSignal.cancel();
-                }
-                switch (nextStep) {
-                    case Fragment.STARTED:
-                        pause();
-                        break;
-                    case Fragment.ACTIVITY_CREATED:
-                        stop();
-                        break;
-                    case Fragment.CREATED:
-                        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-                            Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
-                        }
-                        // TODO call saveViewState()
-                        if (mFragment.mContainer != null) {
-                            SpecialEffectsController controller = SpecialEffectsController
-                                    .getOrCreateController(mFragment.mContainer);
-                            mExitAnimationCancellationSignal = new CancellationSignal();
-                            controller.enqueueRemove(this,
-                                    mExitAnimationCancellationSignal);
-                        }
-                        // TODO wait for the special effects to finish
-                        destroyFragmentView();
-                        break;
-                    case Fragment.ATTACHED:
-                        // TODO move this into destroy()
-                        boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
-                        if (beingRemoved
-                                || mFragmentStore.getNonConfig().shouldDestroy(mFragment)) {
-                            mFragmentStore.makeInactive(this);
-                        } else {
-                            if (mFragment.mTargetWho != null) {
-                                Fragment target = mFragmentStore.findActiveFragment(
-                                        mFragment.mTargetWho);
-                                if (target != null && target.mRetainInstance) {
-                                    // Only keep references to other retained Fragments
-                                    // to avoid developers accessing Fragments that
-                                    // are never coming back
-                                    mFragment.mTarget = target;
+        if (mMovingToState) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Ignoring re-entrant call to "
+                        + "moveToExpectedState() for " + getFragment());
+            }
+            return;
+        }
+        try {
+            mMovingToState = true;
+
+            int newState;
+            while ((newState = computeExpectedState()) != mFragment.mState) {
+                if (newState > mFragment.mState) {
+                    // Moving upward
+                    int nextStep = mFragment.mState + 1;
+                    // Cancel any ongoing exit animations as we're moving the state upward
+                    if (mExitAnimationCancellationSignal != null) {
+                        mExitAnimationCancellationSignal.cancel();
+                    }
+                    switch (nextStep) {
+                        case Fragment.ATTACHED:
+                            attach();
+                            break;
+                        case Fragment.CREATED:
+                            create();
+                            break;
+                        case Fragment.ACTIVITY_CREATED:
+                            ensureInflatedView();
+                            createView();
+                            activityCreated();
+                            restoreViewState();
+                            if (mFragment.mContainer != null) {
+                                SpecialEffectsController controller = SpecialEffectsController
+                                        .getOrCreateController(mFragment.mContainer);
+                                mEnterAnimationCancellationSignal = new CancellationSignal();
+                                controller.enqueueAdd(this,
+                                        mEnterAnimationCancellationSignal);
+                            }
+                            break;
+                        case Fragment.STARTED:
+                            start();
+                            break;
+                        case Fragment.RESUMED:
+                            resume();
+                            break;
+                    }
+                } else {
+                    // Moving downward
+                    int nextStep = mFragment.mState - 1;
+                    // Cancel any ongoing enter animations as we're moving the state downward
+                    if (mEnterAnimationCancellationSignal != null) {
+                        mEnterAnimationCancellationSignal.cancel();
+                    }
+                    switch (nextStep) {
+                        case Fragment.STARTED:
+                            pause();
+                            break;
+                        case Fragment.ACTIVITY_CREATED:
+                            stop();
+                            break;
+                        case Fragment.CREATED:
+                            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                                Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
+                            }
+                            // TODO call saveViewState()
+                            if (mFragment.mContainer != null) {
+                                SpecialEffectsController controller = SpecialEffectsController
+                                        .getOrCreateController(mFragment.mContainer);
+                                mExitAnimationCancellationSignal = new CancellationSignal();
+                                controller.enqueueRemove(this,
+                                        mExitAnimationCancellationSignal);
+                            }
+                            // TODO wait for the special effects to finish
+                            destroyFragmentView();
+                            break;
+                        case Fragment.ATTACHED:
+                            // TODO move this into destroy()
+                            boolean beingRemoved = mFragment.mRemoving
+                                    && !mFragment.isInBackStack();
+                            if (beingRemoved
+                                    || mFragmentStore.getNonConfig().shouldDestroy(mFragment)) {
+                                mFragmentStore.makeInactive(this);
+                            } else {
+                                if (mFragment.mTargetWho != null) {
+                                    Fragment target = mFragmentStore.findActiveFragment(
+                                            mFragment.mTargetWho);
+                                    if (target != null && target.mRetainInstance) {
+                                        // Only keep references to other retained Fragments
+                                        // to avoid developers accessing Fragments that
+                                        // are never coming back
+                                        mFragment.mTarget = target;
+                                    }
                                 }
                             }
-                        }
-                        // TODO wait for animations to complete
-                        destroy();
-                        break;
-                    case Fragment.INITIALIZING:
-                        detach();
-                        break;
+                            // TODO wait for animations to complete
+                            destroy();
+                            break;
+                        case Fragment.INITIALIZING:
+                            detach();
+                            break;
+                    }
                 }
             }
+        } finally {
+            mMovingToState = false;
         }
     }
 

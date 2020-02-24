@@ -18,6 +18,7 @@ package androidx.compose
 
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import junit.framework.TestCase
 import org.junit.After
 import org.junit.Rule
@@ -26,8 +27,9 @@ import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class RestartTests: BaseComposeTest() {
+class RestartTests : BaseComposeTest() {
     @After
     fun teardown() {
         Compose.clearRoots()
@@ -49,8 +51,8 @@ class RestartTests: BaseComposeTest() {
 
         compose {
             RestartGroup {
-                TextView(id=tvIdName, text=president.name)
-                TextView(id=tvIdAge, text=president.age)
+                TextView(id = tvIdName, text = president.name)
+                TextView(id = tvIdAge, text = "${president.age}")
             }
         }.then {
             val tvName = it.findViewById(tvIdName) as TextView
@@ -81,8 +83,8 @@ class RestartTests: BaseComposeTest() {
 
         compose {
             Repeat(5) { index ->
-                TextView(id=tvIdNameBase + index, text=president.name)
-                TextView(id=tvIdAgeBase + index, text=president.age.toString())
+                TextView(id = tvIdNameBase + index, text = president.name)
+                TextView(id = tvIdAgeBase + index, text = president.age.toString())
             }
         }.then { activity ->
             repeat(5) { index ->
@@ -116,8 +118,8 @@ class RestartTests: BaseComposeTest() {
         }
 
         @Composable fun PersonView() {
-            TextView(id=tvIdName, text=president.name)
-            TextView(id=tvIdAge, text=president.age.toString())
+            TextView(id = tvIdName, text = president.name)
+            TextView(id = tvIdAge, text = president.age.toString())
         }
 
         compose {
@@ -146,7 +148,7 @@ class RestartTests: BaseComposeTest() {
         }
 
         @Composable fun ShowSomething() {
-            TextView(id=tvStateId, text="State = ${state.value}")
+            TextView(id = tvStateId, text = "State = ${state.value}")
         }
 
         @Composable fun View() {
@@ -188,8 +190,8 @@ class RestartTests: BaseComposeTest() {
         }
 
         @Composable fun PersonView(index: Int) {
-            TextView(id=tvIdNameBase + index, text=president.name)
-            TextView(id=tvIdAgeBase + index, text=president.age.toString())
+            TextView(id = tvIdNameBase + index, text = president.name)
+            TextView(id = tvIdAgeBase + index, text = president.age.toString())
         }
 
         compose {

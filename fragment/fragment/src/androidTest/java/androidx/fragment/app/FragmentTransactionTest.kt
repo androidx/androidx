@@ -359,7 +359,9 @@ class FragmentTransactionTest {
             getFragmentsUntilSize(0)
         }
 
-        backStackLatch.await()
+        assertWithMessage("Timed out waiting for OnBackStackChangedListener callbacks")
+            .that(backStackLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
         fm.removeOnBackStackChangedListener(countDownListener)
     }

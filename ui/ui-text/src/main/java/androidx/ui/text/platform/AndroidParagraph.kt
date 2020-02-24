@@ -15,6 +15,7 @@
  */
 package androidx.ui.text.platform
 
+import android.text.Spanned
 import android.text.TextPaint
 import android.text.TextUtils
 import androidx.annotation.VisibleForTesting
@@ -29,12 +30,14 @@ import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
 import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.TextLayout
 import androidx.text.selection.WordBoundary
+import androidx.text.style.PlaceholderSpan
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
+import androidx.ui.text.Placeholder
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -58,6 +61,7 @@ internal class AndroidParagraph constructor(
         text: String,
         style: TextStyle,
         spanStyles: List<AnnotatedString.Item<SpanStyle>>,
+        placeholders: List<AnnotatedString.Item<Placeholder>>,
         maxLines: Int,
         ellipsis: Boolean,
         constraints: ParagraphConstraints,
@@ -67,6 +71,7 @@ internal class AndroidParagraph constructor(
         paragraphIntrinsics = AndroidParagraphIntrinsics(
             text = text,
             style = style,
+            placeholders = placeholders,
             spanStyles = spanStyles,
             typefaceAdapter = typefaceAdapter,
             density = density
@@ -149,6 +154,43 @@ internal class AndroidParagraph constructor(
 
     override val lineCount: Int
         get() = layout.lineCount
+
+    override val placeholderRects: List<Rect> =
+        with(paragraphIntrinsics.charSequence) {
+            if (this !is Spanned) return@with listOf()
+            getSpans(0, length, PlaceholderSpan::class.java).map { span ->
+                val start = getSpanStart(span)
+                val end = getSpanEnd(span)
+                val line = layout.getLineForOffset(start)
+
+                val left = getHorizontalPosition(start, true)
+                val right = getHorizontalPosition(end, true)
+
+                val top = with(layout) {
+                    when (span.verticalAlign) {
+                        PlaceholderSpan.ALIGN_ABOVE_BASELINE ->
+                            getLineBaseline(line) - span.heightPx
+                        PlaceholderSpan.ALIGN_TOP -> getLineTop(line)
+                        PlaceholderSpan.ALIGN_BOTTOM -> getLineBottom(line) - span.heightPx
+                        PlaceholderSpan.ALIGN_CENTER ->
+                            (getLineTop(line) + getLineBottom(line) - span.heightPx) / 2
+                        PlaceholderSpan.ALIGN_TEXT_TOP ->
+                            span.fontMetrics.ascent + getLineBaseline(line)
+                        PlaceholderSpan.ALIGN_TEXT_BOTTOM ->
+                            span.fontMetrics.descent + getLineBaseline(line) - span.heightPx
+                        PlaceholderSpan.ALIGN_TEXT_CENTER ->
+                            with(span.fontMetrics) {
+                                (ascent + descent - span.heightPx) / 2 + getLineBaseline(line)
+                            }
+                        else -> throw IllegalStateException("unexpected verticalAlignment")
+                    }
+                }
+
+                val bottom = top + span.heightPx
+
+                Rect(left, top, right, bottom)
+            }
+        }
 
     @VisibleForTesting
     internal val charSequence: CharSequence

@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
-import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.customview.widget.Openable;
 import androidx.navigation.FloatingWindow;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -50,7 +50,7 @@ abstract class AbstractAppBarOnDestinationChangedListener
     private final Context mContext;
     private final Set<Integer> mTopLevelDestinations;
     @Nullable
-    private final WeakReference<DrawerLayout> mDrawerLayoutWeakReference;
+    private final WeakReference<Openable> mOpenableLayoutWeakReference;
     private DrawerArrowDrawable mArrowDrawable;
     private ValueAnimator mAnimator;
 
@@ -58,11 +58,11 @@ abstract class AbstractAppBarOnDestinationChangedListener
             @NonNull AppBarConfiguration configuration) {
         mContext = context;
         mTopLevelDestinations = configuration.getTopLevelDestinations();
-        DrawerLayout drawerLayout = configuration.getDrawerLayout();
-        if (drawerLayout != null) {
-            mDrawerLayoutWeakReference = new WeakReference<>(drawerLayout);
+        Openable openableLayout = configuration.getOpenableLayout();
+        if (openableLayout != null) {
+            mOpenableLayoutWeakReference = new WeakReference<>(openableLayout);
         } else {
-            mDrawerLayoutWeakReference = null;
+            mOpenableLayoutWeakReference = null;
         }
     }
 
@@ -76,10 +76,10 @@ abstract class AbstractAppBarOnDestinationChangedListener
         if (destination instanceof FloatingWindow) {
             return;
         }
-        DrawerLayout drawerLayout = mDrawerLayoutWeakReference != null
-                ? mDrawerLayoutWeakReference.get()
+        Openable openableLayout = mOpenableLayoutWeakReference != null
+                ? mOpenableLayoutWeakReference.get()
                 : null;
-        if (mDrawerLayoutWeakReference != null && drawerLayout == null) {
+        if (mOpenableLayoutWeakReference != null && openableLayout == null) {
             controller.removeOnDestinationChangedListener(this);
             return;
         }
@@ -105,10 +105,10 @@ abstract class AbstractAppBarOnDestinationChangedListener
         }
         boolean isTopLevelDestination = NavigationUI.matchDestinations(destination,
                 mTopLevelDestinations);
-        if (drawerLayout == null && isTopLevelDestination) {
+        if (openableLayout == null && isTopLevelDestination) {
             setNavigationIcon(null, 0);
         } else {
-            setActionBarUpIndicator(drawerLayout != null && isTopLevelDestination);
+            setActionBarUpIndicator(openableLayout != null && isTopLevelDestination);
         }
     }
 

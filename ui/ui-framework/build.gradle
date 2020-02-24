@@ -40,6 +40,7 @@ dependencies {
     api project(":ui:ui-core")
     implementation project(":ui:ui-platform")
     api project(":ui:ui-text")
+    implementation project(":ui:ui-util")
     implementation project(":ui:ui-vector")
     implementation project(":ui:ui-animation-core")
 

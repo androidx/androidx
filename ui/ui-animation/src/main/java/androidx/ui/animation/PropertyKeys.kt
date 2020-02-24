@@ -20,9 +20,7 @@ import androidx.animation.AnimationVector1D
 import androidx.animation.AnimationVector2D
 import androidx.animation.AnimationVector4D
 import androidx.animation.PropKey
-import androidx.animation.TypeConverter1D
-import androidx.animation.TypeConverter2D
-import androidx.animation.TypeConverter4D
+import androidx.animation.TwoWayConverter
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.colorspace.ColorSpace
@@ -69,15 +67,18 @@ class RectPropKey : PropKey<Rect, AnimationVector4D> {
 
 /**
  * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
- * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given [ColorSpace].
+ * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
+ * [ColorSpace].
  */
-val ColorToVectorConverter: (colorSpace: ColorSpace) -> TypeConverter4D<Color> =
+val ColorToVectorConverter: (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D> =
     { colorSpace ->
-        TypeConverter4D(
+        TwoWayConverter(
             convertToVector = {
                 val linearColor = it.convert(ColorSpaces.LinearExtendedSrgb)
-                AnimationVector4D(linearColor.alpha, linearColor.red, linearColor.green,
-                    linearColor.blue)
+                AnimationVector4D(
+                    linearColor.alpha, linearColor.red, linearColor.green,
+                    linearColor.blue
+                )
             },
             convertFromVector = {
                 Color(
@@ -94,8 +95,8 @@ val ColorToVectorConverter: (colorSpace: ColorSpace) -> TypeConverter4D<Color> =
 /**
  * A type converter that converts a [Rect] to a [AnimationVector4D], and vice versa.
  */
-val RectToVectorConverter: TypeConverter4D<Rect> =
-    TypeConverter4D(
+val RectToVectorConverter: TwoWayConverter<Rect, AnimationVector4D> =
+    TwoWayConverter(
         convertToVector = {
             AnimationVector4D(it.left, it.top, it.right, it.bottom)
         },
@@ -107,15 +108,16 @@ val RectToVectorConverter: TypeConverter4D<Rect> =
 /**
  * A type converter that converts a [PxPosition] to a [AnimationVector2D], and vice versa.
  */
-val PxPositionToVectorConverter: TypeConverter2D<PxPosition> = TypeConverter2D(
-    convertToVector = { AnimationVector2D(it.x.value, it.y.value) },
-    convertFromVector = { PxPosition(it.v1.px, it.v2.px) }
-)
+val PxPositionToVectorConverter: TwoWayConverter<PxPosition, AnimationVector2D> =
+    TwoWayConverter(
+        convertToVector = { AnimationVector2D(it.x.value, it.y.value) },
+        convertFromVector = { PxPosition(it.v1.px, it.v2.px) }
+    )
 
 /**
  * A type converter that converts a [Dp] to a [AnimationVector1D], and vice versa.
  */
-val DpToVectorConverter: TypeConverter1D<Dp> = TypeConverter1D(
+val DpToVectorConverter: TwoWayConverter<Dp, AnimationVector1D> = TwoWayConverter(
     convertToVector = { AnimationVector1D(it.value) },
     convertFromVector = { Dp(it.value) }
 )
@@ -123,7 +125,7 @@ val DpToVectorConverter: TypeConverter1D<Dp> = TypeConverter1D(
 /**
  * A type converter that converts a [Px] to a [AnimationVector1D], and vice versa.
  */
-val PxToVectorConverter: TypeConverter1D<Px> = TypeConverter1D(
+val PxToVectorConverter: TwoWayConverter<Px, AnimationVector1D> = TwoWayConverter(
     convertToVector = { AnimationVector1D(it.value) },
     convertFromVector = { Px(it.value) }
 )

@@ -120,11 +120,19 @@ internal fun buildErrorMessageForPredicateFail(
     node: SemanticsNode,
     predicate: SemanticsPredicate
 ): String {
+    return buildGeneralErrorMessage(
+        "Failed to assert that node satisfies the following condition: (${predicate.description})",
+        selector, node)
+}
+
+internal fun buildGeneralErrorMessage(
+    errorMessage: String,
+    selector: SemanticsPredicate,
+    node: SemanticsNode
+): String {
     val sb = StringBuilder()
 
-    sb.append("Failed to assert that node satisfies the following condition: (")
-    sb.append(predicate.description)
-    sb.appendln(")")
+    sb.appendln(errorMessage)
 
     sb.appendln("Semantics of the node:")
     sb.appendln(node.toStringInfo())

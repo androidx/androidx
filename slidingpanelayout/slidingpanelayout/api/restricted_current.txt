@@ -1,18 +1,20 @@
 // Signature format: 3.0
 package androidx.slidingpanelayout.widget {
 
-  public class SlidingPaneLayout extends android.view.ViewGroup {
+  public class SlidingPaneLayout extends android.view.ViewGroup implements androidx.customview.widget.Openable {
     ctor public SlidingPaneLayout(android.content.Context);
     ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet?);
     ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet?, int);
     method protected boolean canScroll(android.view.View!, boolean, int, int, int);
     method @Deprecated public boolean canSlide();
+    method public void close();
     method public boolean closePane();
     method @ColorInt public int getCoveredFadeColor();
     method @Px public int getParallaxDistance();
     method @ColorInt public int getSliderFadeColor();
     method public boolean isOpen();
     method public boolean isSlideable();
+    method public void open();
     method public boolean openPane();
     method public void setCoveredFadeColor(@ColorInt int);
     method public void setPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener?);

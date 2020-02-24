@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.MotionEvent
@@ -26,10 +27,8 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Compose
-import androidx.compose.Context
 import androidx.compose.Immutable
 import androidx.compose.Providers
-import androidx.compose.TestOnly
 import androidx.compose.ambientOf
 import androidx.compose.disposeComposition
 import androidx.compose.escapeCompose
@@ -43,6 +42,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.round
 import androidx.ui.unit.toPxSize
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Opens a popup with the given content.
@@ -59,7 +59,7 @@ import androidx.ui.unit.toPxSize
  */
 @Composable
 fun Popup(
-    alignment: Alignment = Alignment.TopLeft,
+    alignment: Alignment = Alignment.TopStart,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
     popupProperties: PopupProperties = PopupProperties(),
     children: @Composable() () -> Unit

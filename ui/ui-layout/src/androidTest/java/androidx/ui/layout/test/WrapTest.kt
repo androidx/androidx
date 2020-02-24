@@ -51,7 +51,7 @@ class WrapTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -87,7 +87,7 @@ class WrapTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -127,7 +127,7 @@ class WrapTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()

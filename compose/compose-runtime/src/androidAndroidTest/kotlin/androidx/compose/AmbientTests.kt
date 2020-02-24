@@ -18,8 +18,8 @@ package androidx.compose
 
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,6 +42,7 @@ val someOtherIntAmbient: Ambient<Int> = someOtherIntProvider
 // Create a static ambient with an int value
 val someStaticInt = staticAmbientOf { 40 }
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class AmbientTests : BaseComposeTest() {
 
@@ -82,7 +83,6 @@ class AmbientTests : BaseComposeTest() {
     }
 
     @Test
-    @Ignore("This test is flaky: b/148810324")
     fun recompose_Dynamic() {
         val tvId = 100
         val invalidates = mutableListOf<() -> Unit>()
@@ -130,7 +130,6 @@ class AmbientTests : BaseComposeTest() {
     }
 
     @Test
-    @Ignore("This test is flaky: b/148810324")
     fun subCompose_Dynamic() {
         val tvId = 100
         val invalidates = mutableListOf<() -> Unit>()
@@ -209,7 +208,6 @@ class AmbientTests : BaseComposeTest() {
     }
 
     @Test
-    @Ignore("This test is flaky: b/148810324")
     fun deferredSubCompose_Dynamic() {
         val tvId = 100
         val invalidates = mutableListOf<() -> Unit>()

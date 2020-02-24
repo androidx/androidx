@@ -21,8 +21,9 @@ import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
-import androidx.ui.core.Draw
+import androidx.ui.core.DrawModifier
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressGestureDetector
@@ -30,12 +31,20 @@ import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.geometry.Rect
+import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.DrawBorder
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -52,11 +61,7 @@ class NestedScrollingDemo : Activity() {
             // Outer composable that scrollsAll mea
             Draggable {
                 RepeatingList(repititions = 3) {
-                    SimpleContainer(
-                        width = (-1).dp,
-                        height = 398.dp,
-                        padding = 72.dp
-                    ) {
+                    Box(LayoutHeight(398.dp), padding = 72.dp) {
                         // Inner composable that scrolls
                         Draggable {
                             RepeatingList(repititions = 5) {
@@ -106,26 +111,29 @@ private fun Draggable(children: @Composable() () -> Unit) {
     }
 
     TouchSlopDragGestureDetector(dragObserver, canDrag) {
-        Layout(children = {
-            Draw { canvas, parentSize ->
-                canvas.save()
-                canvas.clipRect(parentSize.toRect())
-            }
-            children()
-            Draw { canvas, _ ->
-                canvas.restore()
-            }
-        }, measureBlock = { measurables, constraints ->
-            val placeable =
-                measurables.first()
-                    .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
+        Layout(
+            children = children,
+            modifier = ClipModifier,
+            measureBlock = { measurables, constraints ->
+                val placeable =
+                    measurables.first()
+                        .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
 
-            maxOffset.value = constraints.maxHeight.value.px - placeable.height
+                maxOffset.value = constraints.maxHeight.value.px - placeable.height
 
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.place(0.ipx, offset.value.round())
-            }
-        })
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    placeable.place(0.ipx, offset.value.round())
+                }
+            })
+    }
+}
+
+val ClipModifier = object : DrawModifier {
+    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+        canvas.save()
+        canvas.clipRect(size.toRect())
+        drawContent()
+        canvas.restore()
     }
 }
 
@@ -164,33 +172,16 @@ private fun Pressable(
         showPressed.value = false
     }
 
-    val children = @Composable {
-        Draw { canvas, parentSize ->
-            val backgroundPaint = Paint().apply { this.color = color.value }
-            canvas.drawRect(
-                Rect(0f, 0f, parentSize.width.value, parentSize.height.value),
-                backgroundPaint
-            )
-            if (showPressed.value) {
-                backgroundPaint.color = pressedColor
-                canvas.drawRect(
-                    Rect(0f, 0f, parentSize.width.value, parentSize.height.value),
-                    backgroundPaint
-                )
-            }
-        }
-    }
-
     PressIndicatorGestureDetector(onPress, onRelease, onRelease) {
         PressReleasedGestureDetector(onTap, false) {
             DoubleTapGestureDetector(onDoubleTap) {
                 LongPressGestureDetector(onLongPress) {
-                    Layout(children) { _, constraints ->
-                        layout(
-                            constraints.maxWidth,
-                            height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
-                        ) {}
-                    }
+                    val pressOverlay =
+                        if (showPressed.value) DrawBackground(pressedColor) else Modifier.None
+                    Box(
+                        LayoutWidth.Fill + LayoutHeight(height) +
+                                DrawBackground(color = color.value) + pressOverlay
+                    )
                 }
             }
         }
@@ -203,62 +194,15 @@ private fun Pressable(
  */
 @Composable
 private fun RepeatingList(repititions: Int, row: @Composable() () -> Unit) {
-    Column {
+    Column(DrawBorder(border = Border(2.dp, BorderColor))) {
         for (i in 1..repititions) {
             row()
             if (i != repititions) {
-                Divider(1.dp, Color(0f, 0f, 0f, .12f))
+                Box(
+                    LayoutWidth.Fill + LayoutHeight(1.dp),
+                    backgroundColor = Color(0f, 0f, 0f, .12f)
+                )
             }
         }
-    }
-}
-
-/**
- * A simple composable that arranges it's children as vertical list of items.
- */
-@Composable
-private fun Column(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
-        var height = 0.ipx
-        val placeables = measurables.map {
-            val placeable = it.measure(
-                constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
-            )
-            height += placeable.height
-            placeable
-        }
-
-        height = height.coerceIn(constraints.minHeight, constraints.maxHeight)
-
-        layout(constraints.maxWidth, height) {
-            var currY = 0.ipx
-            placeables.forEach {
-                it.place(0.ipx, currY)
-                currY += it.height
-            }
-        }
-    }
-}
-
-/**
- * A simple composable that creates a divider that runs from left to right.
- */
-@Composable
-private fun Divider(height: Dp, color: Color) {
-    val children = @Composable {
-        Draw { canvas, parentSize ->
-            val backgroundPaint = Paint().apply { this.color = color }
-            canvas.drawRect(
-                Rect(0f, 0f, parentSize.width.value, parentSize.height.value),
-                backgroundPaint
-            )
-        }
-    }
-
-    Layout(children) { _, constraints ->
-        layout(
-            constraints.maxWidth,
-            height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
-        ) {}
     }
 }

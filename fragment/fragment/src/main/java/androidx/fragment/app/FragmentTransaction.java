@@ -512,7 +512,7 @@ public abstract class FragmentTransaction {
      *
      * <p>This method applies the custom animations to all future fragment operations; previous
      * operations are unaffected. Fragment operations in the same {@link FragmentTransaction} can
-     * set different animations by called this method prior to each operation, e.g:
+     * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
      *  fragmentManager.beingTransaction()
@@ -542,7 +542,7 @@ public abstract class FragmentTransaction {
      *
      * <p>This method applies the custom animations to all future fragment operations; previous
      * operations are unaffected. Fragment operations in the same {@link FragmentTransaction} can
-     * set different animations by called this method prior to each operation, e.g:
+     * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
      *  fragmentManager.beingTransaction()

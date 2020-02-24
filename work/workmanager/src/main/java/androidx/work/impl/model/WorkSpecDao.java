@@ -325,6 +325,16 @@ public interface WorkSpecDao {
     List<WorkSpec> getRunningWork();
 
     /**
+     * @return The List of {@link WorkSpec} which completed recently.
+     */
+    @Query("SELECT * FROM workspec WHERE "
+            + "period_start_time >= :startingAt"
+            + " AND state IN " + COMPLETED_STATES
+            + " ORDER BY period_start_time DESC"
+    )
+    List<WorkSpec> getRecentlyCompletedWork(long startingAt);
+
+    /**
      * Immediately prunes eligible work from the database meeting the following criteria:
      * - Is finished (succeeded, failed, or cancelled)
      * - Has zero unfinished dependents

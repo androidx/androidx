@@ -24,13 +24,13 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
-import androidx.ui.core.Layout
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.min
 
@@ -196,25 +196,15 @@ class AnimationGestureSemanticsActivity : Activity() {
 
     @Composable
     private fun Animation(animationEndState: ComponentState) {
-        Layout(children = {
-            Transition(
-                definition = transitionDefinition,
-                toState = animationEndState
-            ) { state ->
-                Circle(color = state[colorKey], sizeRatio = state[sizeKey])
+        Transition(definition = transitionDefinition, toState = animationEndState) { state ->
+            val color = state[colorKey]
+            val sizeRatio = state[sizeKey]
+            Canvas(modifier = LayoutSize.Fill) {
+                drawCircle(
+                    center = Offset(size.width.value / 2, size.height.value / 2),
+                    radius = min(size.height, size.width).value * sizeRatio / 2,
+                    paint = Paint().apply { this.color = color })
             }
-        }, measureBlock = { _, constraints ->
-            layout(constraints.maxWidth, constraints.maxHeight) {}
-        })
-    }
-
-    @Composable
-    fun Circle(color: Color, sizeRatio: Float) {
-        Draw { canvas, parentSize ->
-            canvas.drawCircle(
-                center = Offset(parentSize.width.value / 2, parentSize.height.value / 2),
-                radius = min(parentSize.height, parentSize.width).value * sizeRatio / 2,
-                paint = Paint().apply { this.color = color })
         }
     }
 }

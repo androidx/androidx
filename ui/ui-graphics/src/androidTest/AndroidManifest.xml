@@ -15,6 +15,9 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.ui.graphics.test">
-    <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
-    <application android:process="androidx.ui.graphics"/>
+    <application android:process="androidx.ui.graphics">
+        <activity
+            android:name="androidx.ui.graphics.TestActivity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
+    </application>
 </manifest>

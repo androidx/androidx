@@ -101,26 +101,33 @@ private fun addHandles(
     startHandle: @Composable() () -> Unit,
     endHandle: @Composable() () -> Unit
 ) {
-    if (selection != null &&
-        selection.start.layoutCoordinates != null &&
-        selection.end.layoutCoordinates != null
-    ) {
+    if (selection == null) return
+    selection.let {
+        val startLayoutCoordinates = it.start.selectable.getLayoutCoordinates() ?: return
+        val endLayoutCoordinates = it.end.selectable.getLayoutCoordinates() ?: return
+
         val startOffset = manager.containerLayoutCoordinates.childToLocal(
-            selection.start.layoutCoordinates,
-            selection.start.coordinates
+            startLayoutCoordinates,
+            selection.start.selectable.getHandlePosition(
+                selection = selection,
+                isStartHandle = true
+            )
         )
         val endOffset = manager.containerLayoutCoordinates.childToLocal(
-            selection.end.layoutCoordinates,
-            selection.end.coordinates
+            endLayoutCoordinates,
+            selection.end.selectable.getHandlePosition(
+                selection = selection,
+                isStartHandle = false
+            )
         )
 
         Wrap {
             Popup(
                 alignment =
                 if (isHandleLtrDirection(selection.start.direction, selection.handlesCrossed)) {
-                    Alignment.TopRight
+                    Alignment.TopEnd
                 } else {
-                    Alignment.TopLeft
+                    Alignment.TopStart
                 },
                 offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
             ) {
@@ -135,9 +142,9 @@ private fun addHandles(
             Popup(
                 alignment =
                 if (isHandleLtrDirection(selection.end.direction, selection.handlesCrossed)) {
-                    Alignment.TopLeft
+                    Alignment.TopStart
                 } else {
-                    Alignment.TopRight
+                    Alignment.TopEnd
                 },
                 offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
             ) {

@@ -35,10 +35,23 @@ public interface ProductDao {
     void insert(Product product);
 
     /**
+     * Insert a product description.
+     */
+    @Insert
+    void addDescription(Description description);
+
+    /**
      * Insert a review.
      */
     @Insert
     void addReview(Review review);
+
+    /**
+     * Query product with matching description.
+     */
+    @Query("SELECT DISTINCT Product.* FROM Product JOIN Description ON mId = mProductId "
+            + "WHERE mText MATCH :query")
+    List<Product> getProductsWithDescription(String query);
 
     /**
      * Query a products reviews.

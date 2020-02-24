@@ -22,6 +22,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.frames.currentFrame
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotSame
@@ -31,6 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class RecomposerTests : BaseComposeTest() {
     @After
@@ -44,7 +46,7 @@ class RecomposerTests : BaseComposeTest() {
     @Test
     fun testNativeViewWithAttributes() {
         compose {
-            TextView(id=456, text="some text")
+            TextView(id = 456, text = "some text")
         }.then { activity ->
             assertEquals(1, activity.root.childCount)
 
@@ -59,16 +61,19 @@ class RecomposerTests : BaseComposeTest() {
     fun testSlotKeyChangeCausesRecreate() {
         var i = 1
         var tv1: TextView? = null
+        val trigger = Trigger()
         compose {
+            trigger.subscribe()
             // this should cause the textview to get recreated on every compose
             i++
 
             key(i) {
-                TextView(id=456, text="some text")
+                TextView(id = 456, text = "some text")
             }
         }.then { activity ->
             tv1 = activity.findViewById(456) as TextView
-        }.recomposeRoot().then { activity ->
+            trigger.recompose()
+        }.then { activity ->
             assertEquals("Compose got called twice", 3, i)
 
             val tv2 = activity.findViewById(456) as TextView
@@ -90,8 +95,8 @@ class RecomposerTests : BaseComposeTest() {
     fun testViewWithViewChildren() {
         compose {
             LinearLayout(id = 345) {
-                TextView(id = 456, text="some text")
-                TextView(id = 567, text="some text")
+                TextView(id = 456, text = "some text")
+                TextView(id = 567, text = "some text")
             }
         }.then { activity ->
             val ll = activity.findViewById(345) as LinearLayout
@@ -118,7 +123,7 @@ class RecomposerTests : BaseComposeTest() {
         compose {
             LinearLayout(id = 345) {
                 for (i in items) {
-                    TextView(id=456, text="some text $i")
+                    TextView(id = 456, text = "some text $i")
                 }
             }
         }.then { activity ->
@@ -174,8 +179,8 @@ class RecomposerTests : BaseComposeTest() {
         }.then {
 
             assertEquals(2, counter["A"])
-            assertEquals(2, counter["100"])
-            assertEquals(1, counter["101"])
+            assertEquals(3, counter["100"])
+            assertEquals(2, counter["101"])
             assertEquals(3, counter["102"])
         }
     }
@@ -183,20 +188,20 @@ class RecomposerTests : BaseComposeTest() {
     @Test
     fun testRootRecompose() {
         val counter = Counter()
-        lateinit var invalidate: () -> Unit
+        val trigger = Trigger()
 
         val listener =
             RecomposeTestComponents.ClickAction.PerformOnView {
-                invalidate()
+                trigger.recompose()
             }
 
         compose {
+            trigger.subscribe()
             RecomposeTestComponents.A(
                 counter,
                 listener
             )
         }.then { activity ->
-            invalidate = invalidateRoot
             // everything got rendered once
             assertEquals(1, counter["A"])
             assertEquals(1, counter["100"])
@@ -212,22 +217,21 @@ class RecomposerTests : BaseComposeTest() {
             assertEquals(1, counter["101"])
             assertEquals(1, counter["102"])
         }.then { activity ->
-            // as we recompose ROOT on every tap, only root(and LinearLayout) counter should we
-            // increased once, because two clicks layed to one frame
+            // as we recompose ROOT on every tap, everything should be increased once, because two
+            // clicks layed to one frame. None of these components are skippable, so each increments
             assertEquals(2, counter["A"])
-            assertEquals(1, counter["100"])
-            assertEquals(1, counter["101"])
-            assertEquals(1, counter["102"])
+            assertEquals(2, counter["100"])
+            assertEquals(2, counter["101"])
+            assertEquals(2, counter["102"])
 
             (activity.findViewById(99) as LinearLayout).performClick()
             (activity.findViewById(102) as TextView).performClick()
         }.then {
-            // again, no matter what we tappes, we want to recompose root, so LinearLayout's counter
-            // got increased
+            // again, no matter what we tapped, we want to recompose root, so all counts increased
             assertEquals(3, counter["A"])
-            assertEquals(1, counter["100"])
-            assertEquals(1, counter["101"])
-            assertEquals(1, counter["102"])
+            assertEquals(3, counter["100"])
+            assertEquals(3, counter["101"])
+            assertEquals(3, counter["102"])
         }
     }
 
@@ -243,7 +247,7 @@ class RecomposerTests : BaseComposeTest() {
 
             val recompose = invalidate
 
-            TextView(id=id, onClickListener={
+            TextView(id = id, onClickListener = View.OnClickListener {
                 @Suppress("DEPRECATION")
                 when (listener) {
                     is ClickAction.Recompose -> recompose()
@@ -255,7 +259,7 @@ class RecomposerTests : BaseComposeTest() {
         @Composable fun A(counter: Counter, listener: ClickAction) {
             counter.inc("A")
             val recompose = invalidate
-            LinearLayout(id=99, onClickListener={
+            LinearLayout(id = 99, onClickListener = View.OnClickListener {
                 @Suppress("DEPRECATION")
                 when (listener) {
                     is ClickAction.Recompose -> recompose()
@@ -274,11 +278,11 @@ class RecomposerTests : BaseComposeTest() {
     @Test
     fun testCorrectViewTree() {
         compose {
-             LinearLayout {
-               LinearLayout { }
-               LinearLayout { }
-             }
-             LinearLayout { }
+            LinearLayout {
+                LinearLayout { }
+                LinearLayout { }
+            }
+            LinearLayout { }
         }.then { activity ->
             assertChildHierarchy(activity.root) {
                 """
@@ -300,14 +304,14 @@ class RecomposerTests : BaseComposeTest() {
         }
 
         compose {
-             LinearLayout {
-               LinearLayout {
-                 B()
-               }
-               LinearLayout {
-                 B()
-               }
-             }
+            LinearLayout {
+                LinearLayout {
+                    B()
+                }
+                LinearLayout {
+                    B()
+                }
+            }
         }.then { activity ->
 
             assertChildHierarchy(activity.root) {
@@ -329,19 +333,19 @@ class RecomposerTests : BaseComposeTest() {
     fun testCorrectViewTreeWithComponentWithMultipleRoots() {
 
         @Composable fun B() {
-             TextView()
-             TextView()
+            TextView()
+            TextView()
         }
 
         compose {
-             LinearLayout {
-               LinearLayout {
-                 B()
-               }
-               LinearLayout {
-                 B()
-               }
-             }
+            LinearLayout {
+                LinearLayout {
+                    B()
+                }
+                LinearLayout {
+                    B()
+                }
+            }
         }.then {
 
             assertChildHierarchy(activity.root) {

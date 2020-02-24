@@ -5,6 +5,24 @@ AutoBoxing: androidx.recyclerview.selection.StableIdKeyProvider#getPosition(Long
     Must avoid boxed primitives (`java.lang.Long`)
 
 
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withBandOverlay(int):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withBandOverlay(int)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withBandPredicate(androidx.recyclerview.selection.BandPredicate):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withBandPredicate(androidx.recyclerview.selection.BandPredicate)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withFocusDelegate(androidx.recyclerview.selection.FocusDelegate<K>):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withFocusDelegate(androidx.recyclerview.selection.FocusDelegate<K>)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOnItemActivatedListener(androidx.recyclerview.selection.OnItemActivatedListener<K>):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOnItemActivatedListener(androidx.recyclerview.selection.OnItemActivatedListener<K>)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOperationMonitor(androidx.recyclerview.selection.OperationMonitor):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOperationMonitor(androidx.recyclerview.selection.OperationMonitor)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withSelectionPredicate(androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K>):
+    Builder methods names should use setFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withSelectionPredicate(androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K>)
+
+
 CallbackName: androidx.recyclerview.selection.SelectionTracker.SelectionObserver:
     Class should be named SelectionCallback
 

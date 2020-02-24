@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.navigation.ui.NavigationUI#navigateUp(androidx.navigation.NavController, androidx.drawerlayout.widget.DrawerLayout):
+    Removed method androidx.navigation.ui.NavigationUI.navigateUp(androidx.navigation.NavController,androidx.drawerlayout.widget.DrawerLayout)
+RemovedMethod: androidx.navigation.ui.NavigationUI#setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity, androidx.navigation.NavController, androidx.drawerlayout.widget.DrawerLayout):
+    Removed method androidx.navigation.ui.NavigationUI.setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity,androidx.navigation.NavController,androidx.drawerlayout.widget.DrawerLayout)
+RemovedMethod: androidx.navigation.ui.NavigationUI#setupWithNavController(androidx.appcompat.widget.Toolbar, androidx.navigation.NavController, androidx.drawerlayout.widget.DrawerLayout):
+    Removed method androidx.navigation.ui.NavigationUI.setupWithNavController(androidx.appcompat.widget.Toolbar,androidx.navigation.NavController,androidx.drawerlayout.widget.DrawerLayout)
+RemovedMethod: androidx.navigation.ui.NavigationUI#setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar, androidx.navigation.NavController, androidx.drawerlayout.widget.DrawerLayout):
+    Removed method androidx.navigation.ui.NavigationUI.setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout,androidx.appcompat.widget.Toolbar,androidx.navigation.NavController,androidx.drawerlayout.widget.DrawerLayout)

@@ -198,7 +198,7 @@ private object OneLine {
             if (icon != null) {
                 Container(
                     modifier = LayoutGravity.Center,
-                    alignment = Alignment.CenterLeft,
+                    alignment = Alignment.CenterStart,
                     constraints = DpConstraints(
                         minWidth = IconLeftPadding + IconMinPaddedWidth
                     ),
@@ -214,7 +214,7 @@ private object OneLine {
             Container(
                 modifier = LayoutFlexible(1f) + LayoutGravity.Center +
                         LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding),
-                alignment = Alignment.CenterLeft,
+                alignment = Alignment.CenterStart,
                 children = text
             )
             if (trailing != null) {
@@ -266,7 +266,7 @@ private object TwoLine {
 
             if (icon != null) {
                 Container(
-                    alignment = Alignment.TopLeft,
+                    alignment = Alignment.TopStart,
                     constraints = DpConstraints(
                         // TODO(popam): remove minHeight with cross axis alignment per child
                         minHeight = minHeight,
@@ -356,7 +356,7 @@ private object ThreeLine {
         Row(LayoutHeight.Min(MinHeight)) {
             if (icon != null) {
                 Container(
-                    alignment = Alignment.CenterLeft,
+                    alignment = Alignment.CenterStart,
                     constraints = DpConstraints(
                         minWidth = IconLeftPadding + IconMinPaddedWidth
                     ),

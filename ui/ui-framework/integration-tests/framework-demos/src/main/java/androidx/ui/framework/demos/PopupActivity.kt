@@ -219,7 +219,7 @@ fun ColumnScope.PopupWithChangingContent() {
 fun ColumnScope.PopupWithChangingParent() {
     val containerWidth = 400.dp
     val containerHeight = 200.dp
-    val parentGravity = state { ContentGravity.TopLeft }
+    val parentGravity = state { ContentGravity.TopStart }
     val parentWidth = state { 80.dp }
     val parentHeight = state { 60.dp }
     val parentSizeChanged = state { false }
@@ -238,10 +238,10 @@ fun ColumnScope.PopupWithChangingParent() {
             color = Color.Cyan,
             onClick = {
                 parentGravity.value =
-                    if (parentGravity.value == ContentGravity.TopLeft)
-                        ContentGravity.TopRight
+                    if (parentGravity.value == ContentGravity.TopStart)
+                        ContentGravity.TopEnd
                     else
-                        ContentGravity.TopLeft
+                        ContentGravity.TopStart
             }
         )
         Spacer(LayoutHeight(10.dp))
@@ -298,7 +298,7 @@ fun ColumnScope.PopupAlignmentDemo() {
         val heightSize = 200.dp
         val widthSize = 400.dp
         val counter = state { 0 }
-        val popupAlignment = state { Alignment.TopLeft }
+        val popupAlignment = state { Alignment.TopStart }
         Box(
             modifier = LayoutSize(widthSize, heightSize),
             backgroundColor = Color.Red,
@@ -311,14 +311,14 @@ fun ColumnScope.PopupAlignmentDemo() {
                     onClick = {
                         counter.value += 1
                         when (counter.value % 9) {
-                            0 -> popupAlignment.value = Alignment.TopLeft
+                            0 -> popupAlignment.value = Alignment.TopStart
                             1 -> popupAlignment.value = Alignment.TopCenter
-                            2 -> popupAlignment.value = Alignment.TopRight
-                            3 -> popupAlignment.value = Alignment.CenterRight
-                            4 -> popupAlignment.value = Alignment.BottomRight
+                            2 -> popupAlignment.value = Alignment.TopEnd
+                            3 -> popupAlignment.value = Alignment.CenterEnd
+                            4 -> popupAlignment.value = Alignment.BottomEnd
                             5 -> popupAlignment.value = Alignment.BottomCenter
-                            6 -> popupAlignment.value = Alignment.BottomLeft
-                            7 -> popupAlignment.value = Alignment.CenterLeft
+                            6 -> popupAlignment.value = Alignment.BottomStart
+                            7 -> popupAlignment.value = Alignment.CenterStart
                             8 -> popupAlignment.value = Alignment.Center
                         }
                     }

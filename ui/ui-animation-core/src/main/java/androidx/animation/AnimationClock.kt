@@ -20,41 +20,61 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Choreographer
 import androidx.annotation.CallSuper
+import java.util.concurrent.CountDownLatch
 
 /**
  * Default Choreographer based clock that pushes a new frame to all subscribers on each
  * Choreographer tick, until all subscribers have unsubscribed.
+ *
+ * If initialized from any other thread but the main thread, part of the initialization is done
+ * synchronously on the main thread. If this poses a problem, consider initializing this clock on
+ * the main thread itself.
  */
 class DefaultAnimationClock : BaseAnimationClock() {
-    private val mainThreadHandler = Handler(Looper.getMainLooper())
-    @Volatile private var subscribedToChoreographer = false
+
+    private val mainChoreographer: Choreographer
+
+    init {
+        /**
+         * If not initializing on the main thread, a message will be posted on the main thread to
+         * fetch the Choreographer, and initialization blocks until that fetch is completed.
+         */
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            mainChoreographer = Choreographer.getInstance()
+        } else {
+            val latch = CountDownLatch(1)
+            var choreographer: Choreographer? = null
+            Handler(Looper.getMainLooper()).postAtFrontOfQueue {
+                try {
+                    choreographer = Choreographer.getInstance()
+                } finally {
+                    latch.countDown()
+                }
+            }
+            latch.await()
+            mainChoreographer = choreographer!!
+        }
+    }
+
+    @Volatile
+    private var subscribedToChoreographer = false
+
     private val frameCallback = Choreographer.FrameCallback {
         dispatchTime(it / 1000000)
     }
 
     override fun subscribe(observer: AnimationClockObserver) {
-        postFrameCallbackToChoreographer()
-        super.subscribe(observer)
-    }
-
-    private fun postFrameCallbackToChoreographer() {
         if (!subscribedToChoreographer) {
-            // Check if we are currently on the main thread
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                Choreographer.getInstance().postFrameCallback(frameCallback)
-            } else {
-                mainThreadHandler.post {
-                    Choreographer.getInstance().postFrameCallback(frameCallback)
-                }
-            }
+            mainChoreographer.postFrameCallback(frameCallback)
             subscribedToChoreographer = true
         }
+        super.subscribe(observer)
     }
 
     override fun dispatchTime(frameTimeMillis: Long) {
         super.dispatchTime(frameTimeMillis)
         subscribedToChoreographer = if (hasObservers()) {
-            Choreographer.getInstance().postFrameCallback(this@DefaultAnimationClock.frameCallback)
+            mainChoreographer.postFrameCallback(frameCallback)
             true
         } else {
             false

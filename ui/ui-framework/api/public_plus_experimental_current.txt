@@ -69,7 +69,7 @@ package androidx.ui.core {
   }
 
   public final class PainterModifierKt {
-    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
   }
 
   public final class ParentDataKt {
@@ -86,7 +86,7 @@ package androidx.ui.core {
 
   public final class PopupKt {
     method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Left, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopLeft, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void disposeActivityComposition(android.app.Activity activity);
     method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
   }
@@ -291,6 +291,7 @@ package androidx.ui.core.input {
 package androidx.ui.core.selection {
 
   public interface Selectable {
+    method public androidx.ui.unit.PxPosition getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
     method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
   }
@@ -309,16 +310,14 @@ package androidx.ui.core.selection {
   }
 
   public static final class Selection.AnchorInfo {
-    ctor public Selection.AnchorInfo(androidx.ui.unit.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
-    method public androidx.ui.unit.PxPosition component1();
-    method public androidx.ui.text.style.TextDirection component2();
-    method public int component3();
-    method public androidx.ui.core.LayoutCoordinates? component4();
-    method public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.unit.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
-    method public androidx.ui.unit.PxPosition getCoordinates();
+    ctor public Selection.AnchorInfo(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    method public androidx.ui.text.style.TextDirection component1();
+    method public int component2();
+    method public androidx.ui.core.selection.Selectable component3();
+    method public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
     method public androidx.ui.text.style.TextDirection getDirection();
-    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public int getOffset();
+    method public androidx.ui.core.selection.Selectable getSelectable();
   }
 
   public final class SelectionContainerKt {

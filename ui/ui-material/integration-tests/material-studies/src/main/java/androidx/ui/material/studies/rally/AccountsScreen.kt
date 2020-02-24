@@ -18,7 +18,6 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.foundation.Box
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -41,11 +40,13 @@ fun AccountsBody() {
         Column {
             Stack(LayoutPadding(16.dp)) {
                 val accountsProportion = listOf(0.595f, 0.045f, 0.095f, 0.195f, 0.045f)
-                val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA,
-                    0xFFFAFFBF).map { Color(it) }
-                Box(LayoutHeight(300.dp) + LayoutGravity.Center + LayoutWidth.Fill) {
-                    DrawAnimatedCircle(accountsProportion, colors)
-                }
+                val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA, 0xFFFAFFBF)
+                    .map { Color(it) }
+                AnimatedCircle(
+                    LayoutHeight(300.dp) + LayoutGravity.Center + LayoutWidth.Fill,
+                    accountsProportion,
+                    colors
+                )
                 Column(modifier = LayoutGravity.Center) {
                     Text(
                         text = "Total",

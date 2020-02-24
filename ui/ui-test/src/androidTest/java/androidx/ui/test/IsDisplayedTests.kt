@@ -19,10 +19,10 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -31,6 +31,7 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
@@ -232,21 +233,13 @@ class IsDisplayedTests {
 
         val drawRect = @Composable { color: Color ->
             Semantics(container = true) {
-                Container(
-                    width = 100.dp,
-                    height = 100.dp
-                ) {
-                    Draw { canvas, parentSize ->
-                        val paint = Paint()
-                        paint.color = color
-                        paint.style = PaintingStyle.fill
-                        canvas.drawRect(
-                            parentSize.toRect(),
-                            paint
-                        )
+                Canvas(LayoutSize(100.dp)) {
+                    val paint = Paint()
+                    paint.color = color
+                    paint.style = PaintingStyle.fill
+                    drawRect(size.toRect(), paint)
 
-                        elementHeight = parentSize.height
-                    }
+                    elementHeight = size.height
                 }
             }
         }

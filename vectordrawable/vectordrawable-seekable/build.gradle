@@ -1,0 +1,52 @@
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api(project(":vectordrawable:vectordrawable"))
+    api(project(":animation:animation"))
+    implementation("androidx.interpolator:interpolator:1.0.0")
+    implementation("androidx.collection:collection:1.1.0")
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    androidTestImplementation(project(":animation:animation-testing"))
+}
+
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    defaultConfig {
+        // This disables the builds tools automatic vector -> PNG generation
+        generatedDensities = []
+    }
+
+    aaptOptions {
+        additionalParameters("--no-version-vectors")
+    }
+
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
+}
+
+androidx {
+    name = "Android SeekableAnimatedVectorDrawable"
+    publish = Publish.NONE
+    mavenVersion = LibraryVersions.VECTORDRAWABLE_SEEKABLE
+    mavenGroup = LibraryGroups.VECTORDRAWABLE
+    inceptionYear = "2020"
+    description = "Android SeekableAnimatedVectorDrawable"
+}

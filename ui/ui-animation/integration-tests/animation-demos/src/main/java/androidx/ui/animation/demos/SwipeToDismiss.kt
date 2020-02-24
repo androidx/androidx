@@ -28,20 +28,22 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
-import androidx.ui.core.Draw
-import androidx.ui.core.Layout
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.CanvasScope
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
@@ -124,68 +126,76 @@ class SwipeToDismiss : Activity() {
                     })
             }
         }) {
-            val children = @Composable {
-                val progress = 1 - itemBottom.value / height
-                // TODO: this progress can be used to drive state transitions
-                val alpha = 1f - FastOutSlowInEasing(progress)
-                val horizontalOffset = progress * itemWidth.value
-                drawLeftItems(horizontalOffset, itemWidth.value, itemHeight, index.value)
-                drawDismissingItem(
-                    itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
-                    alpha
-                )
-            }
 
             OnChildPositioned({ coordinates ->
                 itemWidth.value = coordinates.size.width.value * 2 / 3f
             }) {
-                Layout(children) { _, constraints ->
-                    layout(constraints.maxWidth, IntPx(height.toInt())) {}
+                val heightDp = with(DensityAmbient.current) { height.toDp() }
+                val paint = remember { Paint() }
+                Canvas(LayoutWidth.Fill + LayoutHeight(heightDp)) {
+                    val progress = 1 - itemBottom.value / height
+                    // TODO: this progress can be used to drive state transitions
+                    val alpha = 1f - FastOutSlowInEasing(progress)
+                    val horizontalOffset = progress * itemWidth.value
+                    drawLeftItems(
+                        paint, horizontalOffset, itemWidth.value, itemHeight, index.value
+                    )
+                    drawDismissingItem(
+                        paint,
+                        itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
+                        alpha
+                    )
                 }
             }
         }
     }
 
-    @Composable
-    fun drawLeftItems(horizontalOffset: Float, width: Float, height: Float, index: Int) {
-        var paint = remember { Paint() }
-        Draw { canvas, parentSize ->
-            paint.color = colors[index % colors.size]
-            val centerX = parentSize.width.value / 2
-            val itemRect =
-                Rect(
-                    centerX - width * 1.5f + horizontalOffset + padding,
-                    parentSize.height.value - height,
-                    centerX - width * 0.5f + horizontalOffset - padding,
-                    parentSize.height.value
-                )
-            canvas.drawRect(itemRect, paint)
+    private fun CanvasScope.drawLeftItems(
+        paint: Paint,
+        horizontalOffset: Float,
+        width: Float,
+        height: Float,
+        index: Int
+    ) {
+        paint.color = colors[index % colors.size]
+        paint.alpha = 1f
+        val centerX = size.width.value / 2
+        val itemRect =
+            Rect(
+                centerX - width * 1.5f + horizontalOffset + padding,
+                size.height.value - height,
+                centerX - width * 0.5f + horizontalOffset - padding,
+                size.height.value
+            )
+        drawRect(itemRect, paint)
 
-            if (itemRect.left >= 0) {
-                // draw another item
-                paint.color = colors[(index - 1 + colors.size) % colors.size]
-                canvas.drawRect(itemRect.translate(-width, 0f), paint)
-            }
+        if (itemRect.left >= 0) {
+            // draw another item
+            paint.color = colors[(index - 1 + colors.size) % colors.size]
+            drawRect(itemRect.translate(-width, 0f), paint)
         }
     }
 
-    @Composable
-    fun drawDismissingItem(bottom: Float, width: Float, height: Float, index: Int, alpha: Float) {
-        var paint = remember { Paint() }
-        Draw { canvas, parentSize ->
-            paint.color = colors[index % colors.size]
-            paint.alpha = alpha
-            val centerX = parentSize.width.value / 2
-            canvas.drawRect(
-                Rect(
-                    centerX - width / 2 + padding,
-                    bottom - height,
-                    centerX + width / 2 - padding,
-                    bottom
-                ),
-                paint
-            )
-        }
+    private fun CanvasScope.drawDismissingItem(
+        paint: Paint,
+        bottom: Float,
+        width: Float,
+        height: Float,
+        index: Int,
+        alpha: Float
+    ) {
+        paint.color = colors[index % colors.size]
+        paint.alpha = alpha
+        val centerX = size.width.value / 2
+        drawRect(
+            Rect(
+                centerX - width / 2 + padding,
+                bottom - height,
+                centerX + width / 2 - padding,
+                bottom
+            ),
+            paint
+        )
     }
 
     private val colors = listOf(

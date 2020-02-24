@@ -29,8 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.customview.widget.Openable;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.NavGraph;
@@ -95,18 +94,18 @@ public final class NavigationUI {
     /**
      * Handles the Up button by delegating its behavior to the given NavController. This should
      * generally be called from {@link AppCompatActivity#onSupportNavigateUp()}.
-     * <p>If you do not have a {@link DrawerLayout}, you should call
+     * <p>If you do not have a {@link Openable} layout, you should call
      * {@link NavController#navigateUp()} directly.
      *
      * @param navController The NavController that hosts your content.
-     * @param drawerLayout The DrawerLayout that should be opened if you are on the topmost level
-     *                     of the app.
+     * @param openableLayout The Openable layout that should be opened if you are on the topmost
+     *                       level of the app.
      * @return True if the {@link NavController} was able to navigate up.
      */
     public static boolean navigateUp(@NonNull NavController navController,
-            @Nullable DrawerLayout drawerLayout) {
+            @Nullable Openable openableLayout) {
         return navigateUp(navController, new AppBarConfiguration.Builder(navController.getGraph())
-                .setDrawerLayout(drawerLayout)
+                .setOpenableLayout(openableLayout)
                 .build());
     }
 
@@ -127,12 +126,12 @@ public final class NavigationUI {
      */
     public static boolean navigateUp(@NonNull NavController navController,
             @NonNull AppBarConfiguration configuration) {
-        DrawerLayout drawerLayout = configuration.getDrawerLayout();
+        Openable openableLayout = configuration.getOpenableLayout();
         NavDestination currentDestination = navController.getCurrentDestination();
         Set<Integer> topLevelDestinations = configuration.getTopLevelDestinations();
-        if (drawerLayout != null && currentDestination != null
+        if (openableLayout != null && currentDestination != null
                 && matchDestinations(currentDestination, topLevelDestinations)) {
-            drawerLayout.openDrawer(GravityCompat.START);
+            openableLayout.open();
             return true;
         } else {
             if (navController.navigateUp()) {
@@ -180,9 +179,9 @@ public final class NavigationUI {
      *
      * <p>The start destination of your navigation graph is considered the only top level
      * destination. On the start destination of your navigation graph, the ActionBar will show
-     * the drawer icon if the given DrawerLayout is non null. On all other destinations,
+     * the drawer icon if the given Openable layout is non null. On all other destinations,
      * the ActionBar will show the Up button.
-     * Call {@link #navigateUp(NavController, DrawerLayout)} to handle the Up button.
+     * Call {@link #navigateUp(NavController, Openable)} to handle the Up button.
      *
      * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
      *
@@ -190,15 +189,15 @@ public final class NavigationUI {
      *                 to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
      *                      in the title of the action bar.
-     * @param drawerLayout The DrawerLayout that should be toggled from the home button
+     * @param openableLayout The Openable layout that should be toggled from the home button
      * @see #setupActionBarWithNavController(AppCompatActivity, NavController, AppBarConfiguration)
      */
     public static void setupActionBarWithNavController(@NonNull AppCompatActivity activity,
             @NonNull NavController navController,
-            @Nullable DrawerLayout drawerLayout) {
+            @Nullable Openable openableLayout) {
         setupActionBarWithNavController(activity, navController,
                 new AppBarConfiguration.Builder(navController.getGraph())
-                        .setDrawerLayout(drawerLayout)
+                        .setOpenableLayout(openableLayout)
                         .build());
     }
 
@@ -261,24 +260,24 @@ public final class NavigationUI {
      *
      * <p>The start destination of your navigation graph is considered the only top level
      * destination. On the start destination of your navigation graph, the Toolbar will show
-     * the drawer icon if the given DrawerLayout is non null. On all other destinations,
+     * the drawer icon if the given Openable layout is non null. On all other destinations,
      * the Toolbar will show the Up button. This method will call
-     * {@link #navigateUp(NavController, DrawerLayout)} when the Navigation button is clicked.
+     * {@link #navigateUp(NavController, Openable)} when the Navigation button is clicked.
      *
      * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
      *
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
      *                      in the title of the Toolbar.
-     * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
+     * @param openableLayout The Openable layout that should be toggled from the Navigation button
      * @see #setupWithNavController(Toolbar, NavController, AppBarConfiguration)
      */
     public static void setupWithNavController(@NonNull Toolbar toolbar,
             @NonNull final NavController navController,
-            @Nullable final DrawerLayout drawerLayout) {
+            @Nullable final Openable openableLayout) {
         setupWithNavController(toolbar, navController,
                 new AppBarConfiguration.Builder(navController.getGraph())
-                        .setDrawerLayout(drawerLayout)
+                        .setOpenableLayout(openableLayout)
                         .build());
     }
 
@@ -353,9 +352,9 @@ public final class NavigationUI {
      *
      * <p>The start destination of your navigation graph is considered the only top level
      * destination. On the start destination of your navigation graph, the Toolbar will show
-     * the drawer icon if the given DrawerLayout is non null. On all other destinations,
+     * the drawer icon if the given Openable layout is non null. On all other destinations,
      * the Toolbar will show the Up button. This method will call
-     * {@link #navigateUp(NavController, DrawerLayout)} when the Navigation button is clicked.
+     * {@link #navigateUp(NavController, Openable)} when the Navigation button is clicked.
      *
      * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
      *
@@ -364,16 +363,16 @@ public final class NavigationUI {
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
      *                      in the title of the Toolbar.
-     * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
+     * @param openableLayout The Openable layout that should be toggled from the Navigation button
      */
     public static void setupWithNavController(
             @NonNull CollapsingToolbarLayout collapsingToolbarLayout,
             @NonNull Toolbar toolbar,
             @NonNull final NavController navController,
-            @Nullable final DrawerLayout drawerLayout) {
+            @Nullable final Openable openableLayout) {
         setupWithNavController(collapsingToolbarLayout, toolbar, navController,
                 new AppBarConfiguration.Builder(navController.getGraph())
-                        .setDrawerLayout(drawerLayout)
+                        .setOpenableLayout(openableLayout)
                         .build());
     }
 
@@ -422,8 +421,8 @@ public final class NavigationUI {
      * The selected item in the NavigationView will automatically be updated when the destination
      * changes.
      * <p>
-     * If the {@link NavigationView} is directly contained with a {@link DrawerLayout},
-     * the drawer will be closed when a menu item is selected.
+     * If the {@link NavigationView} is directly contained with an {@link Openable} layout,
+     * it will be closed when a menu item is selected.
      * <p>
      * Similarly, if the {@link NavigationView} has a {@link BottomSheetBehavior} associated with
      * it (as is the case when using a {@link com.google.android.material.bottomsheet.BottomSheetDialog}),
@@ -444,8 +443,8 @@ public final class NavigationUI {
                         boolean handled = onNavDestinationSelected(item, navController);
                         if (handled) {
                             ViewParent parent = navigationView.getParent();
-                            if (parent instanceof DrawerLayout) {
-                                ((DrawerLayout) parent).closeDrawer(navigationView);
+                            if (parent instanceof Openable) {
+                                ((Openable) parent).close();
                             } else {
                                 BottomSheetBehavior bottomSheetBehavior =
                                         findBottomSheetBehavior(navigationView);

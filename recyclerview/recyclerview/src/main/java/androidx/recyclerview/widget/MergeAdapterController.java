@@ -16,15 +16,20 @@
 
 package androidx.recyclerview.widget;
 
+import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS;
+import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS;
+import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.SHARED_STABLE_IDS;
 import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.ALLOW;
 import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT;
 import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT_WHEN_EMPTY;
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
+import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Preconditions;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
@@ -66,14 +71,36 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     // keep one of these around so that we can return wrapper & position w/o allocation ¯\_(ツ)_/¯
     private WrapperAndLocalPosition mReusableHolder = new WrapperAndLocalPosition();
 
+    @NonNull
+    private final MergeAdapter.Config.StableIdMode mStableIdMode;
+
+    /**
+     * This is where we keep stable ids, if supported
+     */
+    private final StableIdStorage mStableIdStorage;
+
     MergeAdapterController(
             MergeAdapter mergeAdapter,
             MergeAdapter.Config config) {
         mMergeAdapter = mergeAdapter;
+
+        // setup view type handling
         if (config.isolateViewTypes) {
             mViewTypeStorage = new ViewTypeStorage.IsolatedViewTypeStorage();
         } else {
             mViewTypeStorage = new ViewTypeStorage.SharedIdRangeViewTypeStorage();
+        }
+
+        // setup stable id handling
+        mStableIdMode = config.stableIdMode;
+        if (config.stableIdMode == NO_STABLE_IDS) {
+            mStableIdStorage = new StableIdStorage.NoStableIdStorage();
+        } else if (config.stableIdMode == ISOLATED_STABLE_IDS) {
+            mStableIdStorage = new StableIdStorage.IsolatedStableIdStorage();
+        } else if (config.stableIdMode == SHARED_STABLE_IDS) {
+            mStableIdStorage = new StableIdStorage.SharedPoolStableIdStorage();
+        } else {
+            throw new IllegalArgumentException("unknown stable id mode");
         }
     }
 
@@ -116,11 +143,22 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
             throw new IndexOutOfBoundsException("Index must be between 0 and "
                     + mWrappers.size() + ". Given:" + index);
         }
+        if (hasStableIds()) {
+            Preconditions.checkArgument(adapter.hasStableIds(),
+                    "All sub adapters must have stable ids when stable id mode "
+                    + "is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS");
+        } else {
+            if (adapter.hasStableIds()) {
+                Log.w(MergeAdapter.TAG, "Stable ids in the adapter will be ignored as the"
+                        + " MergeAdapter is configured not to have stable ids");
+            }
+        }
         NestedAdapterWrapper existing = findWrapperFor(adapter);
         if (existing != null) {
             return false;
         }
-        NestedAdapterWrapper wrapper = new NestedAdapterWrapper(adapter, this, mViewTypeStorage);
+        NestedAdapterWrapper wrapper = new NestedAdapterWrapper(adapter, this,
+                mViewTypeStorage, mStableIdStorage.createStableIdLookup());
         mWrappers.add(index, wrapper);
         // notify attach for all recyclerview
         for (WeakReference<RecyclerView> reference : mAttachedRecyclerViews) {
@@ -172,6 +210,13 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
             }
         }
         return count;
+    }
+
+    public long getItemId(int globalPosition) {
+        WrapperAndLocalPosition wrapperAndPos = findWrapperAndLocalPosition(globalPosition);
+        long globalItemId = wrapperAndPos.mWrapper.getItemId(wrapperAndPos.mLocalPosition);
+        releaseWrapperAndLocalPosition(wrapperAndPos);
+        return globalItemId;
     }
 
     @Override
@@ -450,6 +495,10 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
             adapters.add(wrapper.adapter);
         }
         return adapters;
+    }
+
+    public boolean hasStableIds() {
+        return mStableIdMode != NO_STABLE_IDS;
     }
 
     /**

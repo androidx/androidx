@@ -18,13 +18,11 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.Draw
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.Container
-import androidx.ui.unit.PxSize
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.minDimension
 
@@ -32,16 +30,14 @@ class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
 
     @Composable
     override fun emitContent() {
-        Container(width = 48.dp, height = 48.dp) {
-            val innerSize = getInnerSize()
-            val borderPaint = remember { Paint().apply { style = PaintingStyle.stroke } }
-            val fillPaint = remember { Paint() }
-            Draw { canvas: Canvas, parentSize: PxSize ->
-                val center = Offset(parentSize.width.value / 2f, parentSize.height.value / 2f)
-                canvas.drawCircle(center, parentSize.minDimension.value, borderPaint)
-                val innerRadius = innerSize.value.value / 2f
-                canvas.drawCircle(center, innerRadius, fillPaint)
-            }
+        val innerSize = getInnerSize()
+        val borderPaint = remember { Paint().apply { style = PaintingStyle.stroke } }
+        val fillPaint = remember { Paint() }
+        Canvas(LayoutSize(48.dp)) {
+            val center = Offset(size.width.value / 2f, size.height.value / 2f)
+            drawCircle(center, size.minDimension.value, borderPaint)
+            val innerRadius = innerSize.value.value / 2f
+            drawCircle(center, innerRadius, fillPaint)
         }
     }
 }
