@@ -83,7 +83,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Container(alignment = Alignment.TopLeft) {
+            Container(alignment = Alignment.TopStart) {
                 Row {
                     Container(width = sizeDp, height = sizeDp) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -127,7 +127,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
-            Container(alignment = Alignment.TopLeft) {
+            Container(alignment = Alignment.TopStart) {
                 Row {
                     Container(LayoutFlexible(1f), width = width, height = height) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -176,7 +176,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
-            Container(alignment = Alignment.TopLeft) {
+            Container(alignment = Alignment.TopStart) {
                 Row {
                     Container(
                         LayoutFlexible(1f, tight = false),
@@ -224,7 +224,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Container(alignment = Alignment.TopLeft) {
+            Container(alignment = Alignment.TopStart) {
                 Column {
                     Container(width = sizeDp, height = sizeDp) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -267,7 +267,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
-            Container(alignment = Alignment.TopLeft) {
+            Container(alignment = Alignment.TopStart) {
                 Column {
                     Container(LayoutFlexible(1f), width = width, height = height) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -314,7 +314,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(2)
         val childPosition = arrayOfNulls<PxPosition>(2)
         show {
-            Container(alignment = Alignment.TopLeft) {
+            Container(alignment = Alignment.TopStart) {
                 Column {
                     Container(LayoutFlexible(1f, tight = false), width = width, height = height) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -530,7 +530,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Align(Alignment.CenterLeft) {
+            Align(Alignment.CenterStart) {
                 Row {
                     Container(width = sizeDp, height = sizeDp, modifier = LayoutHeight.Fill) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -577,7 +577,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(3)
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
-            Align(Alignment.TopLeft) {
+            Align(Alignment.TopStart) {
                 Row(LayoutHeight.Fill) {
                     Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Top) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -635,7 +635,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(4)
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
-            Align(Alignment.TopLeft) {
+            Align(Alignment.TopStart) {
                 Row(LayoutHeight.Fill) {
                     BaselineTestLayout(
                         baseline = baseline1Dp,
@@ -822,7 +822,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(4)
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
-            Align(Alignment.TopLeft) {
+            Align(Alignment.TopStart) {
                 Column(LayoutWidth.Fill) {
                     Container(
                         width = sizeDp,
@@ -3031,7 +3031,7 @@ class FlexTest : LayoutTest() {
         val columnHeight = 24.ipx
 
         show {
-            Align(Alignment.TopLeft) {
+            Align(Alignment.TopStart) {
                 Column(LayoutHeight(columnHeight.toDp())) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         containerHeight.value = coordinates.size.height

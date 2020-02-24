@@ -31,7 +31,7 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun LayoutPaddingModifier() {
-    Align(Alignment.TopLeft) {
+    Align(Alignment.TopStart) {
         Stack(modifier = DrawBackground(Color.Gray)) {
             Box(
                 LayoutPadding(start = 20.dp, top = 30.dp, end = 20.dp, bottom = 30.dp) +
@@ -45,7 +45,7 @@ fun LayoutPaddingModifier() {
 @Sampled
 @Composable
 fun LayoutPaddingAllModifier() {
-    Align(Alignment.TopLeft) {
+    Align(Alignment.TopStart) {
         Stack(modifier = DrawBackground(Color.Gray)) {
             Box(LayoutPadding(all = 20.dp) + LayoutSize(50.dp), backgroundColor = Color.Blue)
         }

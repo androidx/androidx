@@ -57,7 +57,7 @@ fun DraggableSample() {
         // with a red square that moves along the drag
         Box(
             modifier = LayoutWidth(max + squareSize),
-            gravity = ContentGravity.CenterLeft,
+            gravity = ContentGravity.CenterStart,
             backgroundColor = Color.Black
         ) {
             Box(
@@ -95,7 +95,7 @@ fun AnchoredDraggableSample() {
         // with a red square that moves along the drag
         Box(
             modifier = LayoutWidth(max + squareSize),
-            gravity = ContentGravity.CenterLeft,
+            gravity = ContentGravity.CenterStart,
             backgroundColor = Color.Black
         ) {
             Box(

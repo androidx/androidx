@@ -85,7 +85,7 @@ class ExpandedModifierTest : LayoutTest() {
         val position = Ref<PxPosition>()
         show {
             Layout(@Composable {
-                Align(alignment = Alignment.TopLeft) {
+                Align(alignment = Alignment.TopStart) {
                     Container(modifier = modifier) {
                         Container(width = Width, height = Height) { }
                         SaveLayoutInfo(size, position, positionedLatch)

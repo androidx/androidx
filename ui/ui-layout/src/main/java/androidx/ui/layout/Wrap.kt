@@ -33,7 +33,7 @@ import androidx.ui.unit.max
  * For a composable that does alignment and tries to be as large as possible, see [Align].
  */
 @Composable
-fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () -> Unit) {
+fun Wrap(alignment: Alignment = Alignment.TopStart, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.

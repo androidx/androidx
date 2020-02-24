@@ -157,7 +157,7 @@ private fun AlertDialogButtonLayout(
     dismissButton: @Composable() (() -> Unit)?,
     buttonLayout: AlertDialogButtonLayout
 ) {
-    Box(LayoutWidth.Fill + ButtonsPadding, gravity = ContentGravity.CenterRight) {
+    Box(LayoutWidth.Fill + ButtonsPadding, gravity = ContentGravity.CenterEnd) {
         if (buttonLayout == SideBySide) {
             Row(arrangement = Arrangement.End) {
                 if (dismissButton != null) {

@@ -86,7 +86,7 @@ package androidx.ui.core {
 
   public final class PopupKt {
     method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Left, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopLeft, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void disposeActivityComposition(android.app.Activity activity);
     method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
   }

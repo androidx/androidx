@@ -387,7 +387,7 @@ object TabRow {
             tabPositions[selectedIndex].width.toDp()
         }
 
-        Container(expanded = true, alignment = Alignment.BottomLeft) {
+        Container(expanded = true, alignment = Alignment.BottomStart) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
                 val offset = with(DensityAmbient.current) { indicatorOffset.toDp() }
                 Container(

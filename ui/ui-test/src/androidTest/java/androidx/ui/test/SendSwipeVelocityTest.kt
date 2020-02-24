@@ -149,7 +149,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     @Composable
     fun Ui() {
         val paint = remember { Paint().apply { color = Color.Yellow } }
-        Align(alignment = Alignment.BottomRight) {
+        Align(alignment = Alignment.BottomEnd) {
             Semantics(container = true, properties = { testTag = tag }) {
                 PointerInput(
                     pointerInputHandler = recorder::onPointerInput,
