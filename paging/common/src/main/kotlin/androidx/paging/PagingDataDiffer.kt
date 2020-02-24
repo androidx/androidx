@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import java.util.concurrent.atomic.AtomicBoolean
 
 /** @suppress */
@@ -47,6 +48,8 @@ abstract class PagingDataDiffer<T : Any>(
         newLoadStates: Map<LoadType, LoadState>,
         lastAccessedIndex: Int
     ): Int?
+
+    open fun postEvents(): Boolean = false
 
     @UseExperimental(ExperimentalCoroutinesApi::class)
     suspend fun collectFrom(pagingData: PagingData<T>, callback: PresenterCallback) {
@@ -81,6 +84,9 @@ abstract class PagingDataDiffer<T : Any>(
                                 receiver?.addHint(presenter.loadAround(newIndex))
                             }
                         } else {
+                            if (postEvents()) {
+                                yield()
+                            }
                             presenter.processEvent(event, callback)
                         }
                     }
