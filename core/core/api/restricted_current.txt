@@ -1066,14 +1066,25 @@ package androidx.core.content.pm {
   public class ShortcutManagerCompat {
     method public static boolean addDynamicShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     method public static android.content.Intent createShortcutResultIntent(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat);
+    method public static void disableShortcuts(android.content.Context, java.util.List<java.lang.String!>, CharSequence?);
+    method public static void enableShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     method public static java.util.List<androidx.core.content.pm.ShortcutInfoCompat!> getDynamicShortcuts(android.content.Context);
     method public static int getMaxShortcutCountPerActivity(android.content.Context);
+    method public static java.util.List<androidx.core.content.pm.ShortcutInfoCompat!> getShortcuts(android.content.Context, @androidx.core.content.pm.ShortcutManagerCompat.ShortcutMatchFlags int);
     method public static boolean isRequestPinShortcutSupported(android.content.Context);
     method public static void removeAllDynamicShortcuts(android.content.Context);
     method public static void removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String!>);
+    method public static void removeLongLivedShortcuts(android.content.Context, java.util.List<java.lang.String!>);
     method public static boolean requestPinShortcut(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat, android.content.IntentSender?);
     method public static boolean updateShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     field public static final String EXTRA_SHORTCUT_ID = "android.intent.extra.shortcut.ID";
+    field public static final int FLAG_MATCH_CACHED = 8; // 0x8
+    field public static final int FLAG_MATCH_DYNAMIC = 2; // 0x2
+    field public static final int FLAG_MATCH_MANIFEST = 1; // 0x1
+    field public static final int FLAG_MATCH_PINNED = 4; // 0x4
+  }
+
+  @IntDef(flag=true, value={androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_MANIFEST, androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_DYNAMIC, androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_PINNED, androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_CACHED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ShortcutManagerCompat.ShortcutMatchFlags {
   }
 
 }

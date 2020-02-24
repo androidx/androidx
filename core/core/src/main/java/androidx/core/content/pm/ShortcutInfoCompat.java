@@ -35,8 +35,10 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -292,6 +294,20 @@ public class ShortcutInfoCompat {
             return false;
         }
         return bundle.getBoolean(EXTRA_LONG_LIVED);
+    }
+
+    /**
+     * @hide
+     */
+    @RequiresApi(25)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    static List<ShortcutInfoCompat> fromShortcuts(@NonNull final Context context,
+            @NonNull final List<ShortcutInfo> shortcuts) {
+        final List<ShortcutInfoCompat> results = new ArrayList<>(shortcuts.size());
+        for (ShortcutInfo s : shortcuts) {
+            results.add(new ShortcutInfoCompat.Builder(context, s).build());
+        }
+        return results;
     }
 
     /**

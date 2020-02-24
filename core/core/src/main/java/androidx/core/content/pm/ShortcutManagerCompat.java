@@ -28,19 +28,64 @@ import android.content.pm.ShortcutManager;
 import android.os.Build;
 import android.text.TextUtils;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Helper for accessing features in {@link android.content.pm.ShortcutManager}.
  */
 public class ShortcutManagerCompat {
+
+    /**
+     * Include manifest shortcuts in the result.
+     *
+     * @see #getShortcuts
+     */
+    public static final int FLAG_MATCH_MANIFEST = 1 << 0;
+
+    /**
+     * Include dynamic shortcuts in the result.
+     *
+     * @see #getShortcuts
+     */
+    public static final int FLAG_MATCH_DYNAMIC = 1 << 1;
+
+    /**
+     * Include pinned shortcuts in the result.
+     *
+     * @see #getShortcuts
+     */
+    public static final int FLAG_MATCH_PINNED = 1 << 2;
+
+    /**
+     * Include cached shortcuts in the result.
+     *
+     * @see #getShortcuts
+     */
+    public static final int FLAG_MATCH_CACHED = 1 << 3;
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
+    @IntDef(flag = true, value = {
+            FLAG_MATCH_MANIFEST,
+            FLAG_MATCH_DYNAMIC,
+            FLAG_MATCH_PINNED,
+            FLAG_MATCH_CACHED,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ShortcutMatchFlags {}
 
     @VisibleForTesting static final String ACTION_INSTALL_SHORTCUT =
             "com.android.launcher.action.INSTALL_SHORTCUT";
@@ -165,6 +210,64 @@ public class ShortcutManagerCompat {
     }
 
     /**
+     * Returns {@link ShortcutInfoCompat}s that match {@code matchFlags}.
+     *
+     * @param matchFlags result includes shortcuts matching this flags. Any combination of:
+     * <ul>
+     *     <li>{@link #FLAG_MATCH_MANIFEST}
+     *     <li>{@link #FLAG_MATCH_DYNAMIC}
+     *     <li>{@link #FLAG_MATCH_PINNED}
+     *     <li>{@link #FLAG_MATCH_CACHED}
+     * </ul>
+     *
+     * Compatibility behavior:
+     * <ul>
+     *      <li>API 30 and above, this method matches platform behavior.
+     *      <li>API 25 through 29, this method aggregates the result from corresponding platform
+     *                   api.
+     *      <li>API 24 and earlier, this method can only returns dynamic shortcut. Calling this
+     *                   method with other flag will be ignored.
+     * </ul>
+     *
+     * @return list of {@link ShortcutInfoCompat}s that match the flag.
+     *
+     * <p>At least one of the {@code MATCH} flags should be set. Otherwise no shortcuts will be
+     * returned.
+     *
+     * @throws IllegalStateException when the user is locked.
+     */
+    @NonNull
+    public static List<ShortcutInfoCompat> getShortcuts(@NonNull final Context context,
+            @ShortcutMatchFlags int matchFlags) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            final List<ShortcutInfo> shortcuts =
+                    context.getSystemService(ShortcutManager.class).getShortcuts(matchFlags);
+            return ShortcutInfoCompat.fromShortcuts(context, shortcuts);
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            final ShortcutManager manager = context.getSystemService(ShortcutManager.class);
+            final List<ShortcutInfo> shortcuts = new ArrayList<>();
+            if ((matchFlags & FLAG_MATCH_MANIFEST) != 0) {
+                shortcuts.addAll(manager.getManifestShortcuts());
+            }
+            if ((matchFlags & FLAG_MATCH_DYNAMIC) != 0) {
+                shortcuts.addAll(manager.getDynamicShortcuts());
+            }
+            if ((matchFlags & FLAG_MATCH_PINNED) != 0) {
+                shortcuts.addAll(manager.getPinnedShortcuts());
+            }
+            return ShortcutInfoCompat.fromShortcuts(context, shortcuts);
+        }
+        if ((matchFlags & FLAG_MATCH_DYNAMIC) != 0) {
+            try {
+                return getShortcutInfoSaverInstance(context).getShortcuts();
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * Publish the list of dynamic shortcuts. If there are already dynamic or pinned shortcuts with
      * the same IDs, each mutable shortcut is updated.
      *
@@ -261,6 +364,60 @@ public class ShortcutManagerCompat {
     }
 
     /**
+     * Disable pinned shortcuts, showing the user a custom error message when they try to select
+     * the disabled shortcuts.
+     * For more details, read
+     * <a href="/guide/topics/ui/shortcuts/managing-shortcuts.html#disable-shortcuts">
+     * Disable shortcuts</a>.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *      <li>API 25 and above, this method matches platform behavior.
+     *      <li>API 24 and earlier, this method behalves the same as {@link #removeDynamicShortcuts}
+     * </ul>
+     *
+     * @throws IllegalArgumentException If trying to disable immutable shortcuts.
+     *
+     * @throws IllegalStateException when the user is locked.
+     */
+    public static void disableShortcuts(@NonNull final Context context,
+            @NonNull final List<String> shortcutIds, @Nullable final CharSequence disabledMessage) {
+        if (Build.VERSION.SDK_INT >= 25) {
+            context.getSystemService(ShortcutManager.class)
+                    .disableShortcuts(shortcutIds, disabledMessage);
+        }
+
+        getShortcutInfoSaverInstance(context).removeShortcuts(shortcutIds);
+    }
+
+    /**
+     * Re-enable pinned shortcuts that were previously disabled.  If the target shortcuts
+     * are already enabled, this method does nothing.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *      <li>API 25 and above, this method matches platform behavior.
+     *      <li>API 24 and earlier, this method behalves the same as {@link #addDynamicShortcuts}
+     * </ul>
+     *
+     * @throws IllegalArgumentException If trying to enable immutable shortcuts.
+     *
+     * @throws IllegalStateException when the user is locked.
+     */
+    public static void enableShortcuts(@NonNull final Context context,
+            @NonNull final List<ShortcutInfoCompat> shortcutInfoList) {
+        if (Build.VERSION.SDK_INT >= 25) {
+            final ArrayList<String> shortcutIds = new ArrayList<>(shortcutInfoList.size());
+            for (ShortcutInfoCompat shortcut : shortcutInfoList) {
+                shortcutIds.add(shortcut.mId);
+            }
+            context.getSystemService(ShortcutManager.class).enableShortcuts(shortcutIds);
+        }
+
+        getShortcutInfoSaverInstance(context).addShortcuts(shortcutInfoList);
+    }
+
+    /**
      * Delete dynamic shortcuts by ID.
      */
     public static void removeDynamicShortcuts(@NonNull Context context,
@@ -281,6 +438,33 @@ public class ShortcutManagerCompat {
         }
 
         getShortcutInfoSaverInstance(context).removeAllShortcuts();
+    }
+
+    /**
+     * Delete long lived shortcuts by ID.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *      <li>API 30 and above, this method matches platform behavior.
+     *      <li>API 29 and earlier, this method behalves the same as {@link #removeDynamicShortcuts}
+     * </ul>
+     *
+     * @throws IllegalStateException when the user is locked.
+     */
+    public static void removeLongLivedShortcuts(@NonNull final Context context,
+            @NonNull final List<String> shortcutIds) {
+        if (Build.VERSION.SDK_INT < 30) {
+            removeDynamicShortcuts(context, shortcutIds);
+            return;
+        }
+
+        context.getSystemService(ShortcutManager.class).removeLongLivedShortcuts(shortcutIds);
+        getShortcutInfoSaverInstance(context).removeShortcuts(shortcutIds);
+    }
+
+    @VisibleForTesting
+    static void setShortcutInfoCompatSaver(final ShortcutInfoCompatSaver<Void> saver) {
+        sShortcutInfoCompatSaver = saver;
     }
 
     private static ShortcutInfoCompatSaver<?> getShortcutInfoSaverInstance(Context context) {
