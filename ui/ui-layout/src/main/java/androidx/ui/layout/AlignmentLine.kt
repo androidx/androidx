@@ -21,6 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
@@ -45,11 +46,12 @@ import androidx.ui.unit.max
 @Composable
 fun AlignmentLineOffset(
     alignmentLine: AlignmentLine,
+    modifier: Modifier = Modifier.None,
     before: Dp = 0.dp,
     after: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
-    Layout(children) { measurables, constraints ->
+    Layout(children, modifier) { measurables, constraints ->
         require(measurables.isNotEmpty()) { "No child found in AlignmentLineOffset" }
         val placeable = measurables.first().measure(
             // Loose constraints perpendicular on the alignment line.

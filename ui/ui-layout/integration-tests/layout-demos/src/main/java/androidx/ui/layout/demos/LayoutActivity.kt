@@ -22,19 +22,19 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Wrap
-import androidx.ui.layout.samples.DrawRectangle
+import androidx.ui.layout.Stack
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -49,52 +49,40 @@ class LayoutActivity : Activity() {
 }
 
 @Composable
-fun ContainerWithBackground(
-    width: Dp? = null,
-    height: Dp? = null,
-    color: Color,
-    children: @Composable() () -> Unit
-) {
-    Wrap {
-        DrawRectangle(color = color)
-        Container(width = width, height = height, children = children)
-    }
-}
-
-@Composable
 fun LayoutDemo() {
     val lightGrey = Color(0xFFCFD8DC)
     Column {
         Text(text = "Row", style = TextStyle(fontSize = 48.sp))
-        ContainerWithBackground(width = ExampleSize, color = lightGrey) {
+
+        Stack(LayoutWidth(ExampleSize) + DrawBackground(color = lightGrey)) {
             Row(LayoutWidth.Fill) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
-        ContainerWithBackground(width = ExampleSize, color = lightGrey) {
+        Stack(LayoutWidth(ExampleSize) + DrawBackground(color = lightGrey)) {
             Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
-        ContainerWithBackground(width = ExampleSize, color = lightGrey) {
+        Stack(LayoutWidth(ExampleSize) + DrawBackground(color = lightGrey)) {
             Row(LayoutWidth.Fill, arrangement = Arrangement.End) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
-        ContainerWithBackground(width = ExampleSize, color = lightGrey) {
+        Stack(LayoutWidth(ExampleSize) + DrawBackground(color = lightGrey)) {
             Row(LayoutWidth.Fill) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(LayoutHeight(24.dp))
-        ContainerWithBackground(width = ExampleSize, color = lightGrey) {
+        Stack(LayoutWidth(ExampleSize) + DrawBackground(color = lightGrey)) {
             Row(LayoutWidth.Fill) {
                 PurpleSquare(LayoutGravity.Bottom)
                 CyanSquare(LayoutGravity.Bottom)
@@ -103,35 +91,35 @@ fun LayoutDemo() {
         Spacer(LayoutHeight(24.dp))
         Text(text = "Column", style = TextStyle(fontSize = 48.sp))
         Row(LayoutWidth.Fill) {
-            ContainerWithBackground(height = ExampleSize, color = lightGrey) {
+            Stack(LayoutHeight(ExampleSize) + DrawBackground(color = lightGrey)) {
                 Column(LayoutHeight.Fill) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
-            ContainerWithBackground(height = ExampleSize, color = lightGrey) {
+            Stack(LayoutHeight(ExampleSize) + DrawBackground(color = lightGrey)) {
                 Column(LayoutHeight.Fill, arrangement = Arrangement.Center) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
-            ContainerWithBackground(height = ExampleSize, color = lightGrey) {
+            Stack(LayoutHeight(ExampleSize) + DrawBackground(color = lightGrey)) {
                 Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
-            ContainerWithBackground(height = ExampleSize, color = lightGrey) {
+            Stack(LayoutHeight(ExampleSize) + DrawBackground(color = lightGrey)) {
                 Column(LayoutHeight.Fill) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(LayoutWidth(24.dp))
-            ContainerWithBackground(height = ExampleSize, color = lightGrey) {
+            Stack(LayoutHeight(ExampleSize) + DrawBackground(color = lightGrey)) {
                 Column(LayoutHeight.Fill) {
                     PurpleSquare(LayoutGravity.End)
                     CyanSquare(LayoutGravity.End)
@@ -143,18 +131,12 @@ fun LayoutDemo() {
 
 @Composable
 fun PurpleSquare(modifier: Modifier = Modifier.None) {
-    Container(width = BigSize, height = BigSize, modifier = modifier) {
-        DrawRectangle(color = Color(0xFF6200EE))
-    }
+    Box(modifier + LayoutSize(48.dp), backgroundColor = Color(0xFF6200EE))
 }
 
 @Composable
 fun CyanSquare(modifier: Modifier = Modifier.None) {
-    Container(width = SmallSize, height = SmallSize, modifier = modifier) {
-        DrawRectangle(color = Color(0xFF03DAC6))
-    }
+    Box(modifier + LayoutSize(24.dp), backgroundColor = Color(0xFF03DAC6))
 }
 
-private val SmallSize = 24.dp
-private val BigSize = 48.dp
 private val ExampleSize = 140.dp

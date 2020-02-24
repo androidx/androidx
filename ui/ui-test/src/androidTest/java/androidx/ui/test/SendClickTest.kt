@@ -30,11 +30,10 @@ import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
 import androidx.ui.core.changedToUp
 import androidx.ui.core.setContent
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.unit.PxPosition
@@ -120,9 +119,7 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
                             },
                             cancelHandler = {}
                         ) {
-                            Container(width = squareSize.toDp(), height = squareSize.toDp()) {
-                                DrawShape(RectangleShape, colors[i])
-                            }
+                            Box(LayoutSize(squareSize.toDp()), backgroundColor = colors[i])
                         }
                     }
                 }

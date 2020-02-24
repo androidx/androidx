@@ -20,25 +20,22 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.globalPosition
 import androidx.ui.core.positionInRoot
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.unit.Dp
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 
 @Sampled
 @Composable
 fun OnPositionedSample() {
     Column {
-        SizedRectangle(color = Color.Green, width = 20.dp, height = 20.dp)
-        SizedRectangle(color = Color.Blue, width = 20.dp, height = 20.dp)
+        Box(LayoutSize(20.dp), backgroundColor = Color.Green)
+        Box(LayoutSize(20.dp), backgroundColor = Color.Blue)
         OnPositioned(onPositioned = { coordinates ->
             // This will be the size of the Column.
             coordinates.size
@@ -58,7 +55,7 @@ fun OnPositionedSample() {
 @Composable
 fun OnChildPositionedSample() {
     Column {
-        SizedRectangle(color = Color.Green, width = 20.dp, height = 20.dp)
+        Box(LayoutSize(20.dp), backgroundColor = Color.Green)
         OnChildPositioned(onPositioned = { coordinates ->
             // This will be the size of the child SizedRectangle.
             coordinates.size
@@ -71,7 +68,7 @@ fun OnChildPositionedSample() {
             // This will a LayoutCoordinates instance corresponding to the Column.
             coordinates.parentCoordinates
         }) {
-            SizedRectangle(color = Color.Blue, width = 20.dp, height = 20.dp)
+            Box(LayoutSize(20.dp), backgroundColor = Color.Blue)
         }
     }
 }
@@ -101,32 +98,4 @@ fun Column(children: @Composable() () -> Unit) {
             }
         }
     }
-}
-
-/**
- * A rectangle layout that tries to size itself to specified width and height, subject to
- * the incoming constraints. The composable also draws a color in the space of the rectangle
- * layout. If the width and/or height of the rectangle are not specified, the rectangle will
- * be sized to the incoming max constraints.
- */
-@Composable
-fun SizedRectangle(
-    modifier: Modifier = Modifier.None,
-    color: Color,
-    width: Dp? = null,
-    height: Dp? = null
-) {
-    Layout(children = { DrawRectangle(color = color) }, modifier = modifier) { _, constraints ->
-        val widthPx = max(width?.toIntPx() ?: constraints.maxWidth, constraints.minWidth)
-        val heightPx = max(height?.toIntPx() ?: constraints.maxHeight, constraints.minHeight)
-        layout(widthPx, heightPx) {}
-    }
-}
-
-/**
- * Draws a rectangle of a given color in the space of the parent layout.
- */
-@Composable
-fun DrawRectangle(color: Color) {
-    DrawShape(shape = RectangleShape, color = color)
 }

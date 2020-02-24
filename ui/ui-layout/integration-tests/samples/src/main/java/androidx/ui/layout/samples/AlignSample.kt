@@ -19,6 +19,7 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Align
 import androidx.ui.layout.Center
@@ -35,7 +36,7 @@ import androidx.ui.unit.dp
 @Composable
 fun SimpleAlign() {
     Align(Alignment.BottomRight) {
-        SizedRectangle(color = Color.Blue, width = 20.dp, height = 20.dp)
+        Box(LayoutSize(20.dp, 20.dp), backgroundColor = Color.Blue)
     }
 }
 
@@ -43,7 +44,7 @@ fun SimpleAlign() {
 @Composable
 fun SimpleCenter() {
     Center {
-        SizedRectangle(color = Color.Blue, width = 20.dp, height = 20.dp)
+        Box(LayoutSize(20.dp, 20.dp), backgroundColor = Color.Blue)
     }
 }
 
@@ -56,11 +57,9 @@ fun SimpleAlignedModifier() {
     // because we also provide LayoutAlign, the blue rectangle is allowed to be smaller than the min
     // constraints, and it will be aligned in the 40.dp x 40.dp space. Note the example would not
     // work if LayoutAlign was specified before LayoutSize in the modifier chain.
-    SizedRectangle(
-        modifier = LayoutSize.Min(40.dp, 40.dp) + LayoutAlign.TopCenter,
-        color = Color.Blue,
-        width = 20.dp,
-        height = 20.dp
+    Box(
+        modifier = LayoutSize(20.dp) + LayoutSize.Min(40.dp, 40.dp) + LayoutAlign.TopCenter,
+        backgroundColor = Color.Blue
     )
 }
 
@@ -76,10 +75,9 @@ fun SimpleVerticallyAlignedModifier() {
     // LayoutAlign.CenterVertically modifier is only concerned with vertical alignment.
     // Note the example would not work if LayoutAlign was specified before LayoutSize
     // in the modifier chain.
-    SizedRectangle(
-        modifier = LayoutSize.Fill + LayoutAlign.CenterVertically,
-        color = Color.Blue,
-        height = 50.dp
+    Box(
+        LayoutSize(50.dp) + LayoutSize.Fill + LayoutAlign.CenterVertically,
+        backgroundColor = Color.Blue
     )
 }
 
@@ -89,16 +87,16 @@ fun SimpleGravityInRow() {
     Row(LayoutHeight.Fill) {
         // The child with no gravity modifier is positioned by default so that its top edge is
         // aligned to the top of the vertical axis.
-        SizedRectangle(color = Color.Magenta, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
         // Gravity.Top, the child will be positioned so that its top edge is aligned to the top
         // of the vertical axis.
-        SizedRectangle(LayoutGravity.Top, color = Color.Red, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Top, backgroundColor = Color.Red)
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the vertical axis.
-        SizedRectangle(LayoutGravity.Center, color = Color.Yellow, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Center, backgroundColor = Color.Yellow)
         // Gravity.Bottom, the child will be positioned so that its bottom edge is aligned to the
         // bottom of the vertical axis.
-        SizedRectangle(LayoutGravity.Bottom, color = Color.Green, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Bottom, backgroundColor = Color.Green)
     }
 }
 
@@ -108,15 +106,15 @@ fun SimpleGravityInColumn() {
     Column(LayoutWidth.Fill) {
         // The child with no gravity modifier is positioned by default so that its start edge
         // aligned with the start edge of the horizontal axis.
-        SizedRectangle(color = Color.Magenta, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
         // Gravity.Start, the child will be positioned so that its start edge is aligned with
         // the start edge of the horizontal axis.
-        SizedRectangle(LayoutGravity.Start, color = Color.Red, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Start, backgroundColor = Color.Red)
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the horizontal axis.
-        SizedRectangle(LayoutGravity.Center, color = Color.Yellow, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Center, backgroundColor = Color.Yellow)
         // Gravity.End, the child will be positioned so that its end edge aligned to the end of
         // the horizontal axis.
-        SizedRectangle(LayoutGravity.End, color = Color.Green, width = 80.dp, height = 40.dp)
+        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.End, backgroundColor = Color.Green)
     }
 }

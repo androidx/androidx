@@ -26,7 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.Text
 import androidx.ui.core.tag
-import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.AlignmentLineOffset
@@ -128,24 +128,25 @@ fun Snackbar(
         color = colors.surface
     ) {
         val textStyle = MaterialTheme.typography().body2.copy(color = colors.surface)
-        DrawShape(
-            shape = SnackbarShape,
-            color = colors.onSurface.copy(alpha = SnackbarOverlayAlpha)
+        val additionalBackground = DrawBackground(
+            color = colors.onSurface.copy(alpha = SnackbarOverlayAlpha),
+            shape = SnackbarShape
         )
         CurrentTextStyleProvider(value = textStyle) {
             when {
-                action == null -> TextOnlySnackbar(text)
-                actionOnNewLine -> NewLineButtonSnackbar(text, action)
-                else -> OneRowSnackbar(text, action)
+                action == null -> TextOnlySnackbar(additionalBackground, text)
+                actionOnNewLine -> NewLineButtonSnackbar(additionalBackground, text, action)
+                else -> OneRowSnackbar(additionalBackground, text, action)
             }
         }
     }
 }
 
 @Composable
-private fun TextOnlySnackbar(text: @Composable() () -> Unit) {
+private fun TextOnlySnackbar(modifier: Modifier = Modifier.None, text: @Composable() () -> Unit) {
     Layout(
-        text, modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacing)
+        text,
+        modifier = modifier + LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacing)
     ) { measurables, constraints ->
         require(measurables.size == 1) {
             "text for Snackbar expected to have exactly only one child"
@@ -164,11 +165,12 @@ private fun TextOnlySnackbar(text: @Composable() () -> Unit) {
 
 @Composable
 private fun NewLineButtonSnackbar(
+    modifier: Modifier = Modifier.None,
     text: @Composable() () -> Unit,
     button: @Composable() () -> Unit
 ) {
     Column(
-        modifier = LayoutWidth.Fill + LayoutPadding(
+        modifier = modifier + LayoutWidth.Fill + LayoutPadding(
             start = HorizontalSpacing,
             end = HorizontalSpacingButtonSide,
             bottom = SeparateButtonExtraY
@@ -185,6 +187,7 @@ private fun NewLineButtonSnackbar(
 
 @Composable
 private fun OneRowSnackbar(
+    modifier: Modifier = Modifier.None,
     text: @Composable() () -> Unit,
     button: @Composable() () -> Unit
 ) {
@@ -203,7 +206,8 @@ private fun OneRowSnackbar(
                 button
             )
         },
-        modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
+        modifier = modifier +
+                LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
     ) { measurables, constraints ->
         val buttonPlaceable = measurables.first { it.tag == "button" }.measure(constraints)
         val textMaxWidth =
