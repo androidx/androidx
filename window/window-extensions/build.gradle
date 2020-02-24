@@ -18,10 +18,8 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_EXT_JUNIT
-import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_RULES
-import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_RUNNER
-import static androidx.build.dependencies.DependenciesKt.TRUTH
+import static androidx.build.dependencies.DependenciesKt.AUTO_VALUE
+import static androidx.build.dependencies.DependenciesKt.AUTO_VALUE_ANNOTATIONS
 
 plugins {
     id("AndroidXPlugin")
@@ -31,29 +29,19 @@ plugins {
 android {
     defaultConfig {
         minSdkVersion 16
-
-        buildConfigField "String", "WINDOW_LIB_VERSION", "\"${LibraryVersions.WINDOW}\""
     }
 }
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation "androidx.core:core:1.2.0"
-
-    compileOnly(project(":window:window-sidecar"))
-
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(compileOnly(project(":window:window-sidecar")))
 }
 
 androidx {
-    name = "Jetpack WindowManager Library"
+    name = "Jetpack WindowManager library Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2020"
-    description = "WindowManager Jetpack library. Currently only provides additional " +
-            "functionality on foldable devices."
+    description = "OEM extension interface definition for the Jetpack WindowManager. This module " +
+            "declares the interface the the 'Core' component of this library will use when " +
+            "communicating with the device-specific OEM extension."
 }

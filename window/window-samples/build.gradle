@@ -49,7 +49,7 @@ dependencies {
 
     api(CONSTRAINT_LAYOUT, { transitive = true })
 
-    implementation(project(":window:window-core"))
+    implementation(project(":window:window"))
 }
 
 androidx {

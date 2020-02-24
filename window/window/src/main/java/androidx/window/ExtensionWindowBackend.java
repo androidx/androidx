@@ -44,8 +44,8 @@ import java.util.concurrent.Executor;
  * Default implementation of {@link WindowBackend} that uses a combination of platform APIs and
  * device-dependent OEM extensions.
  */
-public final class SidecarWindowBackend implements WindowBackend {
-    private static volatile SidecarWindowBackend sInstance;
+public final class ExtensionWindowBackend implements WindowBackend {
+    private static volatile ExtensionWindowBackend sInstance;
     private static final Object sLock = new Object();
 
     @GuardedBy("sLock")
@@ -72,7 +72,7 @@ public final class SidecarWindowBackend implements WindowBackend {
 
     private static final String TAG = "WindowServer";
 
-    private SidecarWindowBackend() {
+    private ExtensionWindowBackend() {
         // Empty
     }
 
@@ -80,11 +80,11 @@ public final class SidecarWindowBackend implements WindowBackend {
      * Get the shared instance of the class.
      */
     @NonNull
-    public static SidecarWindowBackend getInstance(@NonNull Context context) {
+    public static ExtensionWindowBackend getInstance(@NonNull Context context) {
         if (sInstance == null) {
             synchronized (sLock) {
                 if (sInstance == null) {
-                    sInstance = new SidecarWindowBackend();
+                    sInstance = new ExtensionWindowBackend();
                     sInstance.initSidecar(context.getApplicationContext());
                 }
             }

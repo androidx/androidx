@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Backing interface for {@link WindowManager} instances that server as the default information
- * supplier. By default {@link SidecarWindowBackend} implementation is used in
+ * supplier. By default {@link ExtensionWindowBackend} implementation is used in
  * {@link WindowManager#WindowManager(Context, WindowBackend)}, but it can be replaced with
  * a stub for testing.
  */

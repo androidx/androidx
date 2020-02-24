@@ -62,7 +62,7 @@ public final class WindowManager {
         }
         mContext = context;
         mWindowBackend = windowBackend != null
-                ? windowBackend : SidecarWindowBackend.getInstance(context);
+                ? windowBackend : ExtensionWindowBackend.getInstance(context);
     }
 
     /**
