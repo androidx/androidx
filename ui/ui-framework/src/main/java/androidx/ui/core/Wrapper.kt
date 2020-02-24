@@ -34,7 +34,7 @@ import androidx.compose.StructurallyEqual
 import androidx.compose.ViewComposer
 import androidx.compose.ambientOf
 import androidx.compose.compositionReference
-import androidx.compose.currentComposerIntrinsic
+import androidx.compose.currentComposer
 import androidx.compose.invalidate
 import androidx.compose.remember
 import androidx.compose.onPreCommit
@@ -88,7 +88,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
             }
         }
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-        val context = rootRef.value?.context ?: (currentComposerIntrinsic as ViewComposer).context
+        val context = rootRef.value?.context ?: (currentComposer as ViewComposer).context
 
         // If this value is inlined where it is used, an error that includes 'Precise Reference:
         // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
@@ -146,7 +146,7 @@ private fun doSetContent(
     context: Context,
     content: @Composable() () -> Unit
 ): Composition = Compose.composeInto(composeView.root, context) {
-    val currentComposer = currentComposerIntrinsic as ViewComposer
+    val currentComposer = currentComposer as ViewComposer
     remember { currentComposer.adapters?.register(AndroidViewAdapter) }
     WrapWithAmbients(composeView, context, Dispatchers.Main) {
         WrapWithSelectionContainer(content)
