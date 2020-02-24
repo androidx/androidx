@@ -188,30 +188,16 @@ abstract class Painter {
         configureColorFilter(colorFilter)
         configureRtl(rtl)
 
-        val srcWidth = if (intrinsicSize.width.value != Float.POSITIVE_INFINITY) {
-            intrinsicSize.width
-        } else {
-            bounds.width
-        }
-
-        val srcHeight = if (intrinsicSize.height.value != Float.POSITIVE_INFINITY) {
-            intrinsicSize.height
-        } else {
-            bounds.height
-        }
-
-        val size = PxSize(Px(srcWidth.value), Px(srcHeight.value))
-
         if (alpha > 0.0f) {
             if (useLayer) {
                 val layerRect =
-                    Rect.fromLTWH(0.0f, 0.0f, srcWidth.value, srcHeight.value)
+                    Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value)
                 // TODO njawad replace with RenderNode/Layer API usage
                 canvas.withSaveLayer(layerRect, obtainPaint()) {
-                    onDraw(canvas, size)
+                    onDraw(canvas, bounds)
                 }
             } else {
-                onDraw(canvas, size)
+                onDraw(canvas, bounds)
             }
         }
     }

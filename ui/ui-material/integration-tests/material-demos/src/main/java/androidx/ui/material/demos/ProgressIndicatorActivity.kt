@@ -22,8 +22,8 @@ import androidx.compose.Model
 import androidx.compose.onActive
 import androidx.compose.onDispose
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row

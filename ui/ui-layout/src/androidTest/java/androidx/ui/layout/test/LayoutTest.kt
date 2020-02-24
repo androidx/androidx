@@ -27,11 +27,13 @@ import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Ref
 import androidx.ui.core.enforce
 import androidx.ui.core.setContent
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.DpConstraints
 import androidx.ui.unit.Density
@@ -292,20 +294,56 @@ open class LayoutTest {
         )
     }
 
-    internal val customArrangement = { totalSize: IntPx, size: List<IntPx> ->
-        val usedSpace = size.fold(0.ipx) { sum, e -> sum + e }
-        val step = if (size.size < 2) {
-            0.px
-        } else {
-            (totalSize - usedSpace).toPx() * 2 / (size.lastIndex * size.size)
+    internal val customVerticalArrangement = object : Arrangement.Vertical {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ): List<IntPx> {
+            val positions = mutableListOf<IntPx>()
+            var current = 0.px
+            val usedSpace = size.fold(0.ipx) { sum, e -> sum + e }
+            val step = if (size.size < 2) {
+                0.px
+            } else {
+                (totalSize - usedSpace).toPx() * 2 / (size.lastIndex * size.size)
+            }
+            size.forEachIndexed { i, childSize ->
+                current += step * i
+                positions.add(current.round())
+                current += childSize.toPx()
+            }
+            return positions
         }
-        val positions = mutableListOf<IntPx>()
-        var current = 0.px
-        size.forEachIndexed { i, childSize ->
-            current += step * i
-            positions.add(current.round())
-            current += childSize.toPx()
+    }
+
+    internal val customHorizontalArrangement = object : Arrangement.Horizontal {
+        override fun arrange(
+            totalSize: IntPx,
+            size: List<IntPx>,
+            layoutDirection: LayoutDirection
+        ): List<IntPx> {
+            val positions = mutableListOf<IntPx>()
+            var current = 0.px
+            if (layoutDirection == LayoutDirection.Rtl) {
+                size.forEach {
+                    positions.add(current.round())
+                    current += it
+                }
+            } else {
+                val usedSpace = size.fold(0.ipx) { sum, e -> sum + e }
+                val step = if (size.size < 2) {
+                    0.px
+                } else {
+                    (totalSize - usedSpace).toPx() * 2 / (size.lastIndex * size.size)
+                }
+                size.forEachIndexed { i, childSize ->
+                    current += step * i
+                    positions.add(current.round())
+                    current += childSize.toPx()
+                }
+            }
+            return positions
         }
-        positions
     }
 }

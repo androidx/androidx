@@ -11,24 +11,55 @@ package androidx.ui.layout {
     method public static void CenterAlignmentLine(androidx.ui.core.AlignmentLine alignmentLine, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class Arrangement {
-    ctor public Arrangement(internal kotlin.jvm.functions.Function2<? super androidx.ui.unit.IntPx,? super java.util.List<androidx.ui.unit.IntPx>,? extends java.util.List<androidx.ui.unit.IntPx>> arrangeBlock);
-    field public static final androidx.ui.layout.Arrangement.Companion! Companion;
+  public interface Arrangement {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field @Deprecated public static final androidx.ui.layout.Arrangement.Companion! Companion;
   }
 
-  public static final class Arrangement.Companion {
-    method public androidx.ui.layout.Arrangement getBegin();
-    method public androidx.ui.layout.Arrangement getCenter();
-    method public androidx.ui.layout.Arrangement getEnd();
-    method public androidx.ui.layout.Arrangement getSpaceAround();
-    method public androidx.ui.layout.Arrangement getSpaceBetween();
-    method public androidx.ui.layout.Arrangement getSpaceEvenly();
-    property public final androidx.ui.layout.Arrangement Begin;
-    property public final androidx.ui.layout.Arrangement Center;
-    property public final androidx.ui.layout.Arrangement End;
-    property public final androidx.ui.layout.Arrangement SpaceAround;
-    property public final androidx.ui.layout.Arrangement SpaceBetween;
-    property public final androidx.ui.layout.Arrangement SpaceEvenly;
+  public static final class Arrangement.Bottom implements androidx.ui.layout.Arrangement.Vertical {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.Bottom! INSTANCE;
+  }
+
+  public static final class Arrangement.Center implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.Center! INSTANCE;
+  }
+
+  public static final class Arrangement.End implements androidx.ui.layout.Arrangement.Horizontal {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.End! INSTANCE;
+  }
+
+  public static interface Arrangement.Horizontal extends androidx.ui.layout.Arrangement {
+  }
+
+  public static final class Arrangement.SpaceAround implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.SpaceAround! INSTANCE;
+  }
+
+  public static final class Arrangement.SpaceBetween implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.SpaceBetween! INSTANCE;
+  }
+
+  public static final class Arrangement.SpaceEvenly implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.SpaceEvenly! INSTANCE;
+  }
+
+  public static final class Arrangement.Start implements androidx.ui.layout.Arrangement.Horizontal {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.Start! INSTANCE;
+  }
+
+  public static final class Arrangement.Top implements androidx.ui.layout.Arrangement.Vertical {
+    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    field public static final androidx.ui.layout.Arrangement.Top! INSTANCE;
+  }
+
+  public static interface Arrangement.Vertical extends androidx.ui.layout.Arrangement {
   }
 
   public final class AspectRatioKt {
@@ -112,8 +143,8 @@ package androidx.ui.layout {
   }
 
   public final class FlexKt {
-    method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement arrangement = Arrangement.Begin, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
-    method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement arrangement = Arrangement.Begin, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+    method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement.Vertical arrangement = Arrangement.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
+    method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement.Horizontal arrangement = Arrangement.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
   }
 
   @androidx.ui.layout.LayoutScopeMarker public abstract sealed class FlexScope {

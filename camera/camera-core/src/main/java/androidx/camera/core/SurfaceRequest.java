@@ -162,7 +162,7 @@ public final class SurfaceRequest {
             @Override
             public void onFailure(Throwable t) {
                 // Translate cancellation into a SurfaceRequestCancelledException. Other
-                // exceptions mean either the request was completed via setWillNotComplete() or a
+                // exceptions mean either the request was completed via willNotProvideSurface() or a
                 // programming error occurred. In either case, the user will never see the
                 // session future (an immediate future will be returned instead), so complete the
                 // future so cancellation listeners are never called.
@@ -202,7 +202,7 @@ public final class SurfaceRequest {
      * The surface which fulfills this request must have the resolution specified here in
      * order to fulfill the resource requirements of the camera. Fulfillment of the request
      * with a surface of a different resolution may cause the future returned by
-     * {@link #setSurface(Surface)} to fail with an {@link IllegalArgumentException}.
+     * {@link #provideSurface(Surface)} to fail with an {@link IllegalArgumentException}.
      *
      * @return The guaranteed supported resolution.
      * @see SurfaceTexture#setDefaultBufferSize(int, int)
@@ -227,10 +227,10 @@ public final class SurfaceRequest {
      * longer being used. Successful completion of this future means the surface is
      * no longer in use by the camera, and all resources associated with the surface
      * can be safely cleaned up. If the SurfaceRequest was successfully completed by
-     * {@code setSurface(Surface)} or {@link #setWillNotComplete()} prior to setting
+     * {@code provideSurface(Surface)} or {@link #willNotProvideSurface()} prior to providing
      * the surface, then this future will fail with a {@link IllegalStateException}.
      * If the SurfaceRequest was cancelled by the camera prior to calling
-     * {@code setSurface(Surface)}, then this future will fail with an
+     * {@code provideSurface(Surface)}, then this future will fail with an
      * {@link RequestCancelledException}. If the surface does not meet the
      * requirements, such has not having a resolution that matches
      * {@link #getResolution()}, this future may fail with an
@@ -241,7 +241,7 @@ public final class SurfaceRequest {
      * to undesired behavior.
      */
     @NonNull
-    public ListenableFuture<Void> setSurface(@NonNull Surface surface) {
+    public ListenableFuture<Void> provideSurface(@NonNull Surface surface) {
         if (mSurfaceCompleter.set(surface) || mSurfaceFuture.isCancelled()) {
             // Session will be pending completion (or surface request was cancelled). Return the
             // session future.
@@ -256,7 +256,7 @@ public final class SurfaceRequest {
                 return Futures.immediateFailedFuture(new IllegalStateException("Surface "
                         + "request already complete."));
             } catch (ExecutionException e) {
-                // Likely failure due to #setWillNotComplete()
+                // Likely failure due to #willNotProvideSurface()
                 return Futures.immediateFailedFuture(new IllegalStateException("Surface "
                         + "request already complete.", e.getCause()));
             }
@@ -270,20 +270,20 @@ public final class SurfaceRequest {
      * surface will never be produced to fulfill the request.
      *
      * <p>This should always be called as soon as it is known that the request will not
-     * be fulfilled. Failure to complete the SurfaceRequest via {@code setWillNotComplete()}
-     * or {@link #setSurface(Surface)} may cause long delays in shutting down the camera.
+     * be fulfilled. Failure to complete the SurfaceRequest via {@code willNotProvideSurface()}
+     * or {@link #provideSurface(Surface)} may cause long delays in shutting down the camera.
      *
      * <p>Upon returning from this method, the request is guaranteed to be complete, regardless
      * of the return value. If the request was previously successfully completed by
-     * {@link #setSurface(Surface)}, invoking this method will not affection completion of the
+     * {@link #provideSurface(Surface)}, invoking this method will not affection completion of the
      * returned {@link ListenableFuture}.
      *
-     * @return {@code true} if this call to {@code setWillNotComplete()} successfully
+     * @return {@code true} if this call to {@code willNotProvideSurface()} successfully
      * completes the request, i.e., the request has not already been completed via
-     * {@link #setSurface(Surface)} or by a previous call to
-     * {@code setWillNotComplete()} and has not already been cancelled by the camera.
+     * {@link #provideSurface(Surface)} or by a previous call to
+     * {@code willNotProvideSurface()} and has not already been cancelled by the camera.
      */
-    public boolean setWillNotComplete() {
+    public boolean willNotProvideSurface() {
         return mSurfaceCompleter.setException(
                 new DeferrableSurface.SurfaceUnavailableException("Surface request "
                         + "will not complete."));
@@ -303,14 +303,14 @@ public final class SurfaceRequest {
      * work that may be in progress to fulfill the surface request.
      *
      * <p>Once a surface request has been cancelled by the camera,
-     * {@link #setWillNotComplete()} will have no effect and will return {@code false}.
-     * Attempting to complete the request via {@link #setSurface(Surface)} will also have no
+     * {@link #willNotProvideSurface()} will have no effect and will return {@code false}.
+     * Attempting to complete the request via {@link #provideSurface(Surface)} will also have no
      * effect, and the returned {@link ListenableFuture} will contain a
      * {@link RequestCancelledException}.
      *
      * <p>Note that due to the asynchronous nature of this listener, it is not guaranteed
      * that the listener will be called before an attempt to complete the request with
-     * {@link #setSurface(Surface)} or {@link #setWillNotComplete()}, so the return values of
+     * {@link #provideSurface(Surface)} or {@link #willNotProvideSurface()}, so the return values of
      * these methods can always be checked if your workflow for producing a surface expects them
      * to complete successfully.
      *
@@ -331,7 +331,7 @@ public final class SurfaceRequest {
      * An exception used to signal that the camera has cancelled a request for a {@link Surface}.
      *
      * <p>This may be set on the {@link ListenableFuture} returned by
-     * {@link SurfaceRequest#setSurface(Surface) when the camera is shutting down or when the
+     * {@link SurfaceRequest#provideSurface(Surface) when the camera is shutting down or when the
      * surface resolution requirements have changed in order to accommodate newly bound use
      * cases, in which case the {@link Runnable Runnables} provided to {
      * @link #addRequestCancellationListener(Executor, Runnable)} will also be invoked on their

@@ -18,8 +18,10 @@ package androidx.recyclerview.widget
 
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
+import com.google.common.truth.ThrowableSubject
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 
 /**
  * Helper subject to write nicer looking MergeAdapter tests.
@@ -68,6 +70,31 @@ internal class MergeAdapterSubject(
 
     fun cannotRestoreState() {
         assertThat(adapter.canRestoreState()).isFalse()
+    }
+
+    fun throwsException(block: (MergeAdapter) -> Unit): ThrowableSubject {
+        val result = runCatching {
+            block(adapter)
+        }.exceptionOrNull()
+        assertWithMessage("expected an exception").that(result).isNotNull()
+        return assertThat(result)
+    }
+
+    fun hasItemIds(expectedIds: IntRange) = hasItemIds(expectedIds.toList())
+
+    fun hasItemIds(expectedIds: Collection<Int>) {
+        val existingIds = (0 until adapter.itemCount).map {
+            adapter.getItemId(it)
+        }
+        assertThat(existingIds).containsExactlyElementsIn(expectedIds.map { it.toLong() }).inOrder()
+    }
+
+    fun hasStableIds() {
+        assertWithMessage("should have stable ids").that(adapter.hasStableIds()).isTrue()
+    }
+
+    fun doesNotHaveStableIds() {
+        assertWithMessage("should not have stable ids").that(adapter.hasStableIds()).isFalse()
     }
 
     object Factory : Subject.Factory<MergeAdapterSubject, MergeAdapter> {

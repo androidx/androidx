@@ -69,7 +69,7 @@ public class TextureViewImplementationTest {
     @After
     public void tearDown() {
         if (mSurfaceRequest != null) {
-            mSurfaceRequest.setWillNotComplete();
+            mSurfaceRequest.willNotProvideSurface();
             // Ensure all successful requests have their returned future finish.
             mSurfaceRequest.getDeferrableSurface().close();
             mSurfaceRequest = null;
@@ -212,7 +212,7 @@ public class TextureViewImplementationTest {
     public void releaseSurface_whenSurfaceTextureDestroyed_andCameraSurfaceRequestIsCancelled() {
         mImplementation.getSurfaceProvider().onSurfaceRequested(getSurfaceRequest());
         // Cancel the request from the client side
-        mSurfaceRequest.setWillNotComplete();
+        mSurfaceRequest.willNotProvideSurface();
 
         final TextureView.SurfaceTextureListener surfaceTextureListener =
                 mImplementation.mTextureView.getSurfaceTextureListener();

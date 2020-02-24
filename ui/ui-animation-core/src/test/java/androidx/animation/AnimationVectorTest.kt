@@ -17,6 +17,7 @@
 package androidx.animation
 
 import junit.framework.TestCase.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -25,11 +26,22 @@ import org.junit.runners.JUnit4
 class AnimationVectorTest {
     @Test
     fun testReset() {
-        assertEquals(AnimationVector1D(0f), AnimationVector1D(1f).apply { reset() })
-        assertEquals(AnimationVector2D(0f, 0f), AnimationVector2D(1f, 2f).apply { reset() })
+        assertEquals(AnimationVector1D(0f), AnimationVector(1f).apply { reset() })
+        assertEquals(AnimationVector2D(0f, 0f), AnimationVector(1f, 2f).apply { reset() })
         assertEquals(AnimationVector3D(0f, 0f, 0f),
-            AnimationVector3D(1f, 2f, 3f).apply { reset() })
+            AnimationVector(1f, 2f, 3f).apply { reset() })
         assertEquals(AnimationVector4D(0f, 0f, 0f, 0f),
-            AnimationVector4D(1f, 2f, 3f, 4f).apply { reset() })
+            AnimationVector(1f, 2f, 3f, 4f).apply { reset() })
+    }
+
+    @Test
+    fun testAnimationVectorFactoryMethod() {
+        assertEquals(AnimationVector1D(200f), AnimationVector(200f))
+        assertEquals(AnimationVector2D(7f, 500f), AnimationVector(7f, 500f))
+        assertNotEquals(AnimationVector2D(7f, 501f), AnimationVector(7f, 500f))
+        assertEquals(AnimationVector3D(35f, 26f, 50f),
+            AnimationVector(35f, 26f, 50f))
+        assertEquals(AnimationVector4D(1f, 2f, 3f, 4f),
+            AnimationVector(1f, 2f, 3f, 4f))
     }
 }

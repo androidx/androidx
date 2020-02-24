@@ -23,20 +23,15 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.Crossfade
-import androidx.ui.core.Draw
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.setContent
-import androidx.ui.graphics.Canvas
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.toRect
 import kotlin.random.Random
 
 class CrossfadeActivity : Activity() {
@@ -57,25 +52,14 @@ private fun CrossfadeDemo() {
                     Log.e("Crossfade", "Switch to $it")
                     current = it
                 }) {
-                    Container(LayoutFlexible(1f) + LayoutHeight(48.dp)) {
-                        DrawTab(tab = it)
-                    }
+                    Box(LayoutFlexible(1f) + LayoutHeight(48.dp), backgroundColor = it.color)
                 }
             }
         }
         Crossfade(current = current) { tab ->
             tab.lastInt = remember { Random.nextInt() }
-            Container(LayoutSize.Fill) {
-                DrawTab(tab = tab)
-            }
+            Box(LayoutSize.Fill, backgroundColor = tab.color)
         }
-    }
-}
-
-@Composable
-private fun DrawTab(tab: Tab) {
-    Draw { canvas: Canvas, parentSize: PxSize ->
-        canvas.drawRect(parentSize.toRect(), Paint().apply { color = tab.color })
     }
 }
 

@@ -29,20 +29,22 @@ import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Draw
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -66,35 +68,36 @@ class AnimatableSeekBar : Activity() {
                         MovingTargetExample(clock)
                     }
 
-                    Transition(definition = transDef, initState = "start", toState = "end") {
-                            state ->
-                        Container(width = 600.dp, height = 400.dp) {
-                            val paint = remember { Paint() }
-                            Draw { canvas, parentSize ->
-                                val rect = Rect(0f, 0f, parentSize.width.value * 0.2f,
-                                        parentSize.width.value * 0.2f)
-                                canvas.drawRect(rect, paint.apply {
-                                    color = Color(1.0f, 0f, 0f, state[alphaKey])
+                    Transition(
+                        definition = transDef,
+                        initState = "start",
+                        toState = "end"
+                    ) { state ->
+                        val paint = remember { Paint() }
+                        Canvas(LayoutSize(600.dp, 400.dp)) {
+                            val rect = Rect(
+                                0f, 0f, size.width.value * 0.2f,
+                                size.width.value * 0.2f
+                            )
+                            drawRect(rect, paint.apply {
+                                color = Color(1.0f, 0f, 0f, state[alphaKey])
+                            })
+
+                            drawRect(rect.translate(state[offset1] * size.width.value, 0f),
+                                paint.apply {
+                                    color = Color(0f, 0f, 1f, state[alphaKey])
                                 })
 
-                                canvas.drawRect(rect.translate(state[offset1] * parentSize.width
-                                    .value, 0f),
-                                    paint.apply {
-                                        color = Color(0f, 0f, 1f, state[alphaKey])
-                                    })
-
-                                canvas.drawRect(rect.translate(state[offset2] * parentSize.width
-                                    .value, 0f),
-                                    paint.apply {
-                                        color = Color(0f, 1f, 1f, state[alphaKey])
-                                    })
-
-                                canvas.drawRect(rect.translate(state[offset3] * parentSize.width
-                                    .value, 0f),
-                                    paint.apply {
-                                        color = Color(0f, 1f, 0f, state[alphaKey])
+                            drawRect(
+                                rect.translate(state[offset2] * size.width.value, 0f),
+                                paint.apply {
+                                    color = Color(0f, 1f, 1f, state[alphaKey])
                                 })
-                            }
+
+                            drawRect(rect.translate(state[offset3] * size.width.value, 0f),
+                                paint.apply {
+                                    color = Color(0f, 1f, 0f, state[alphaKey])
+                                })
                         }
                     }
                 }
@@ -105,48 +108,45 @@ class AnimatableSeekBar : Activity() {
     @Composable
     fun MovingTargetExample(clock: ManualAnimationClock) {
         val animValue = animatedFloat(0f)
-            RawDragGestureDetector(dragObserver = object : DragObserver {
-                override fun onDrag(dragDistance: PxPosition): PxPosition {
-                    animValue.snapTo(animValue.targetValue + dragDistance.x.value)
-                    return dragDistance
-                }
-            }) {
-                PressGestureDetector(
-                    onPress = { position ->
-                        animValue.animateTo(position.x.value,
-                            TweenBuilder<Float>().apply {
-                                duration = 400
-                            })
-                    }) {
-
-                    Container(height = 60.dp, expanded = true) {
-                        DrawSeekBar(animValue.value, clock)
-                    }
-                }
+        RawDragGestureDetector(dragObserver = object : DragObserver {
+            override fun onDrag(dragDistance: PxPosition): PxPosition {
+                animValue.snapTo(animValue.targetValue + dragDistance.x.value)
+                return dragDistance
+            }
+        }) {
+            PressGestureDetector(
+                onPress = { position ->
+                    animValue.animateTo(position.x.value,
+                        TweenBuilder<Float>().apply {
+                            duration = 400
+                        })
+                }) {
+                DrawSeekBar(animValue.value, clock)
             }
         }
+    }
 
     @Composable
     fun DrawSeekBar(x: Float, clock: ManualAnimationClock) {
         val paint = remember { Paint() }
-        Draw { canvas, parentSize ->
-            val centerY = parentSize.height.value / 2
-            val xConstraint = x.coerceIn(0f, parentSize.width.value)
-            clock.clockTimeMillis = (400 * (x / parentSize.width.value)).toLong().coerceIn(0, 399)
+        Canvas(LayoutWidth.Fill + LayoutHeight(60.dp)) {
+            val centerY = size.height.value / 2
+            val xConstraint = x.coerceIn(0f, size.width.value)
+            clock.clockTimeMillis = (400 * (x / size.width.value)).toLong().coerceIn(0, 399)
             // draw bar
             paint.color = Color.Gray
-            canvas.drawRect(
-                Rect(0f, centerY - 5, parentSize.width.value, centerY + 5),
+            drawRect(
+                Rect(0f, centerY - 5, size.width.value, centerY + 5),
                 paint
             )
             paint.color = Color.Magenta
-            canvas.drawRect(
+            drawRect(
                 Rect(0f, centerY - 5, xConstraint, centerY + 5),
                 paint
             )
 
             // draw ticker
-            canvas.drawCircle(
+            drawCircle(
                 Offset(xConstraint, centerY), 40f, paint
             )
         }

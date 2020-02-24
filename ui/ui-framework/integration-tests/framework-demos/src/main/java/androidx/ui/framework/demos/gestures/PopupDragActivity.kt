@@ -58,7 +58,7 @@ class PopupDragActivity : Activity() {
                 }
             }
 
-            Popup(alignment = Alignment.TopLeft, offset = offset.value.round()) {
+            Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
                 Wrap {
                     RawDragGestureDetector(observer) {
                         Box(

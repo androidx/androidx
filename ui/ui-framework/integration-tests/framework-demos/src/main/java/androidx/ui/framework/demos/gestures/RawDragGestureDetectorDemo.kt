@@ -45,15 +45,7 @@ class RawDragGestureDetectorDemo : Activity() {
             }
 
             RawDragGestureDetector(dragObserver = dragObserver) {
-                MatchParent {
-                    DrawBox(
-                        xOffset.value,
-                        yOffset.value,
-                        96.dp,
-                        96.dp,
-                        Grey
-                    )
-                }
+                DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, Grey)
             }
         }
     }

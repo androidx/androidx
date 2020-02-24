@@ -20,18 +20,25 @@ import androidx.inspection.Connection
 import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.util.ServiceLoader
+import java.util.concurrent.CancellationException
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
-import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
 
 /**
  * Instantiate an inspector with the given [inspectorId] and all operations such as instantition,
@@ -63,17 +70,51 @@ class InspectorTester internal constructor(
 ) {
 
     suspend fun sendCommand(array: ByteArray): ByteArray {
-        return withContext(scope.coroutineContext) {
-            suspendCoroutine<ByteArray> { cont ->
-                inspector.onReceiveCommand(array) { response ->
-                    cont.resumeWith(Result.success(response))
+        val callerJob = coroutineContext[Job]!!
+        // Tricky part: this actually can't be simplified to "withContext".
+        // The following command should be cancelled in two scenarios:
+        // 1. when Job of the caller is cancelled
+        // 2. when inspector itself is disposed and its scope is cancelled
+        // To achieve that we manually pass cancellation signal from caller's job to
+        // coroutine.
+        // The exactly same code won't work with withContext, because "invokeOnCompletion"
+        // won't be called until this coroutine is completed, but the same time it won't complete
+        // because cancellation signal isn't propagate. To workaround it you can call
+        // invokeOnCompletion(onCancelling = true) {...}, but this method is marked
+        // as InternalCoroutinesApi. Alternative workaround, is what we do: async allows separate
+        // completion of caller of .await() and completion of async {} block, this way caller's Job
+        // will be completed and once it is completed we can receive signal in async block and
+        // cancel it.
+        // More context at: https://github.com/Kotlin/kotlinx.coroutines/issues/1001
+        return scope.async {
+            callerJob.invokeOnCompletion {
+                if (it is CancellationException) {
+                    this.cancel()
                 }
             }
-        }
+            suspendCancellableCoroutine<ByteArray> { cont ->
+                inspector.onReceiveCommand(array, CommandCallbackImpl(cont))
+            }
+        }.await()
     }
 
     fun dispose() {
         scope.cancel()
+        inspector.onDispose()
+    }
+}
+
+internal class CommandCallbackImpl(
+    private val cont: CancellableContinuation<ByteArray>
+) : Inspector.CommandCallback {
+    override fun reply(response: ByteArray) {
+        cont.resume(response)
+    }
+
+    override fun addCancellationListener(executor: Executor, runnable: Runnable) {
+        cont.invokeOnCancellation {
+            executor.execute(runnable)
+        }
     }
 }
 

@@ -1,0 +1,43 @@
+// Signature format: 3.0
+package androidx.navigation.dynamicfeatures.fragment {
+
+  @androidx.navigation.Navigator.Name("fragment") public final class DynamicFragmentNavigator extends androidx.navigation.fragment.FragmentNavigator {
+    ctor public DynamicFragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager manager, int containerId, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination createDestination();
+  }
+
+  public static final class DynamicFragmentNavigator.Destination extends androidx.navigation.fragment.FragmentNavigator.Destination {
+    ctor public DynamicFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
+    ctor public DynamicFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> fragmentNavigator);
+    method public String? getModuleName();
+    method public void setModuleName(String? p);
+    property public final String? moduleName;
+  }
+
+  public class DynamicNavHostFragment extends androidx.navigation.fragment.NavHostFragment {
+    ctor public DynamicNavHostFragment();
+    method protected com.google.android.play.core.splitinstall.SplitInstallManager createSplitInstallManager();
+  }
+
+}
+
+package androidx.navigation.dynamicfeatures.fragment.ui {
+
+  public abstract class AbstractProgressFragment extends androidx.fragment.app.Fragment {
+    ctor public AbstractProgressFragment();
+    ctor public AbstractProgressFragment(int contentLayoutId);
+    method protected abstract void onCancelled();
+    method protected abstract void onFailed(int errorCode);
+    method protected void onInstalled();
+    method protected abstract void onProgress(int status, long bytesDownloaded, long bytesTotal);
+  }
+
+  public final class DefaultProgressFragment extends androidx.navigation.dynamicfeatures.fragment.ui.AbstractProgressFragment {
+    ctor public DefaultProgressFragment();
+    method protected void onCancelled();
+    method protected void onFailed(int errorCode);
+    method protected void onProgress(int status, long bytesDownloaded, long bytesTotal);
+  }
+
+}
+

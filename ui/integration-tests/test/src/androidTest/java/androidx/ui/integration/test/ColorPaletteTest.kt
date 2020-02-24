@@ -17,11 +17,11 @@
 package androidx.ui.integration.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.test.assertLastRecomposeHadChanges
 import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.integration.test.material.ImmutableColorPaletteTestCase
 import androidx.ui.integration.test.material.ObservableColorPaletteTestCase
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.doFramesUntilNoChangesPending
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -55,8 +55,7 @@ class ColorPaletteTest {
 
                 testCase.toggleState()
 
-                doFrame()
-                assertLastRecomposeHadChanges()
+                doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
 
                 Assert.assertEquals(4, testCase.primaryCompositions)
                 Assert.assertEquals(1, testCase.secondaryCompositions)
@@ -80,8 +79,7 @@ class ColorPaletteTest {
 
                 testCase.toggleState()
 
-                doFrame()
-                assertLastRecomposeHadChanges()
+                doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
 
                 Assert.assertEquals(4, testCase.primaryCompositions)
                 Assert.assertEquals(2, testCase.secondaryCompositions)

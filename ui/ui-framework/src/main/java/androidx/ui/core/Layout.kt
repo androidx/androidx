@@ -16,10 +16,10 @@
 
 package androidx.ui.core
 
+import android.content.Context
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.CompositionReference
-import androidx.compose.Context
 import androidx.compose.FrameManager
 import androidx.compose.compositionReference
 import androidx.compose.emptyContent

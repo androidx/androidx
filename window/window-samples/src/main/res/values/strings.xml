@@ -1,0 +1,47 @@
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">WindowSamples</string>
+    <string name="currentState">Current state</string>
+    <string name="stateUpdateLog">State update log</string>
+    <string name="deviceState">Device state</string>
+    <string name="windowLayout">Window layout</string>
+    <string name="displayFeature">Display feature</string>
+    <string name="rect">Rect</string>
+    <string name="type">Type</string>
+    <string name="hinge">Hinge</string>
+    <string name="unknown">Unknown</string>
+    <string name="fold">Fold</string>
+    <string name="legend">Legend:</string>
+    <string name="content_title">Content title</string>
+    <string name="green_droid">Green droid</string>
+    <string name="display_features">Display features</string>
+    <string name="split_layout">Split layout</string>
+    <string name="presentation">Presentation</string>
+    <string name="start_presentation">Start presentation</string>
+    <string name="stop_presentation">Stop presentation</string>
+    <string name="closeToStartPresentationHint">Close the device to start Presentation on
+        the outside screen</string>
+    <string name="windowManagerDemos">WindowManager Demos</string>
+    <string name="hardware_config_select">Hardware configuration to use</string>
+    <string name="device_default">Device default</string>
+    <string name="middle_fold">Fold in the middle of the window</string>
+    <string name="test_activity">Test activity</string>
+    <string name="show_all_display_features_description">Show all display features of the device on the screen</string>
+    <string name="split_layout_demo_description">Demo of a layout that splits the content to sides of a fold or a hinge. If not present or minimal size requirements are not meant, it behave like a FrameLayout.</string>
+    <string name="presentation_demo_description">Demo of using Presentation API to show content on secondary display.</string>
+</resources>

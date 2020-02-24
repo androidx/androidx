@@ -464,4 +464,20 @@ interface Canvas {
     fun drawRawPoints(pointMode: PointMode, points: FloatArray, paint: Paint)
 
     fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint)
+
+    /**
+     * Enables Z support which defaults to disabled. This allows layers drawn
+     * with different elevations to be rearranged based on their elevation. It
+     * also enables rendering of shadows.
+     * @see disableZ
+     */
+    fun enableZ()
+
+    /**
+     * Disables Z support, preventing any layers drawn after this point from being visually
+     * reordered or having shadows rendered. This is not impacted by any [save] or [restore]
+     * calls as it is not considered part of the matrix or clip.
+     * @see enableZ
+     */
+    fun disableZ()
 }

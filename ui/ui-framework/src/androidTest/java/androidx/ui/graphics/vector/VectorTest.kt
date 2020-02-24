@@ -81,7 +81,7 @@ class VectorTest {
     fun testVectorAlignment() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                VectorTint(minimumSize = 500.ipx, alignment = Alignment.BottomRight)
+                VectorTint(minimumSize = 500.ipx, alignment = Alignment.BottomEnd)
             }
         }
 

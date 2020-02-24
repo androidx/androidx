@@ -43,6 +43,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity android:name=".RtlDemosActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Layout/Rtl support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".TableActivity"
             android:configChanges="orientation|screenSize"

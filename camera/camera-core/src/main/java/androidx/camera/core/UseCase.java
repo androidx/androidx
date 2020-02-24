@@ -28,6 +28,8 @@ import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config.Option;
 import androidx.camera.core.impl.ImageFormatConstants;
+import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfig.Builder;
@@ -171,14 +173,24 @@ public abstract class UseCase {
             return userConfig;
         }
 
+        MutableConfig defaultMutableConfig = defaultConfigBuilder.getMutableConfig();
+
+        // If OPTION_TARGET_ASPECT_RATIO has been set by the user, remove
+        // OPTION_TARGET_ASPECT_RATIO_CUSTOM from defaultConfigBuilder. Otherwise, it may cause
+        // aspect ratio mismatched issue.
+        if (userConfig.containsOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
+                && defaultMutableConfig.containsOption(
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM)) {
+            defaultMutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM);
+        }
+
         // If any options need special handling, this is the place to do it. For now we'll just copy
         // over all options.
         for (Option<?> opt : userConfig.listOptions()) {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
                     Option<Object> objectOpt = (Option<Object>) opt;
 
-            defaultConfigBuilder.getMutableConfig().insertOption(
-                    objectOpt, userConfig.retrieveOption(objectOpt));
+            defaultMutableConfig.insertOption(objectOpt, userConfig.retrieveOption(objectOpt));
         }
 
         // Since builder is a UseCaseConfig.Builder, it should produce a UseCaseConfig

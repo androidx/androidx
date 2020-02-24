@@ -118,7 +118,7 @@ internal fun cameraXOpenCamera(
 
                 // Surface provided to camera for producing buffers into and
                 // Release the SurfaceTexture and Surface once camera is done with it
-                surfaceRequest.setSurface(surface).addListener(
+                surfaceRequest.provideSurface(surface).addListener(
                     Runnable {
                         surface.release()
                         surfaceTexture.release()

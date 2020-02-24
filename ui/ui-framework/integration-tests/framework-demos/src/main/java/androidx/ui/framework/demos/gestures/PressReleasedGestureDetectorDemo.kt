@@ -21,8 +21,11 @@ import android.os.Bundle
 import androidx.compose.state
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 /**
  * Simple PressReleasedGestureDetector demo.
@@ -37,18 +40,12 @@ class PressReleasedGestureDetectorDemo : Activity() {
                 color.value = color.value.anotherRandomColor()
             }
 
-            Center {
-                PressReleasedGestureDetector(onRelease) {
-                    SimpleContainer(192.dp, 192.dp, 0.dp) {
-                        DrawBox(
-                            0.px,
-                            0.px,
-                            192.dp,
-                            192.dp,
-                            color.value
-                        )
-                    }
-                }
+            PressReleasedGestureDetector(onRelease) {
+                Box(
+                    LayoutAlign.Center + LayoutSize(192.dp),
+                    backgroundColor = color.value,
+                    border = Border(2.dp, BorderColor)
+                )
             }
         }
     }

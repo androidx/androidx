@@ -316,6 +316,14 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
         }
     }
 
+    override fun enableZ() {
+        CanvasUtils.enableZ(internalCanvas, true)
+    }
+
+    override fun disableZ() {
+        CanvasUtils.enableZ(internalCanvas, false)
+    }
+
     private fun drawPoints(points: List<Offset>, paint: Paint) {
         for (point in points) {
             internalCanvas.drawPoint(point.dx,

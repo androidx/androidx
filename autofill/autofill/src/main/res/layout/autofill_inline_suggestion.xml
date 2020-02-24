@@ -65,6 +65,5 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:contentDescription="autofill_inline_suggestion_end_icon"
-        android:scaleType="fitCenter"
         android:visibility="gone"/>
 </LinearLayout>

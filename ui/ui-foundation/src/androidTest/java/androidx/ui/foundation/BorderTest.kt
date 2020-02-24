@@ -115,7 +115,7 @@ class BorderTest(val shape: Shape) {
 
     @Composable
     fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Align(Alignment.TopLeft) {
+        Align(Alignment.TopStart) {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
                     Container {

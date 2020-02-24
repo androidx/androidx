@@ -18,7 +18,6 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.graphics.Color
 import androidx.ui.material.Slider
 import androidx.ui.material.SliderPosition
@@ -26,19 +25,16 @@ import androidx.ui.material.SliderPosition
 @Sampled
 @Composable
 fun SliderSample() {
-    val position = remember { SliderPosition() }
-    Slider(position)
+    Slider(SliderPosition())
 }
 
 @Sampled
 @Composable
 fun StepsSliderSample() {
-    val position = remember {
-        SliderPosition(
-            initial = 0f,
-            valueRange = 0f..100f,
-            steps = 5
-        )
-    }
+    val position = SliderPosition(
+        initial = 0f,
+        valueRange = 0f..100f,
+        steps = 5
+    )
     Slider(position, color = Color.Black)
 }

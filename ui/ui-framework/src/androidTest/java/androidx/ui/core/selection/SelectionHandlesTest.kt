@@ -27,7 +27,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.text.style.TextDirection
-import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
@@ -51,31 +50,27 @@ class SelectionHandlesTest {
 
     private val selectionLtrHandleDirection = Selection(
         start = Selection.AnchorInfo(
-            coordinates = PxPosition.Origin,
             direction = TextDirection.Ltr,
             offset = 0,
-            layoutCoordinates = mock()
+            selectable = mock()
         ),
         end = Selection.AnchorInfo(
-            coordinates = PxPosition.Origin,
             direction = TextDirection.Ltr,
             offset = 0,
-            layoutCoordinates = mock()
+            selectable = mock()
         ),
         handlesCrossed = false
     )
     private val selectionRtlHandleDirection = Selection(
         start = Selection.AnchorInfo(
-            coordinates = PxPosition.Origin,
             direction = TextDirection.Ltr,
             offset = 0,
-            layoutCoordinates = mock()
+            selectable = mock()
         ),
         end = Selection.AnchorInfo(
-            coordinates = PxPosition.Origin,
             direction = TextDirection.Ltr,
             offset = 0,
-            layoutCoordinates = mock()
+            selectable = mock()
         ),
         handlesCrossed = true
     )

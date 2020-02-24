@@ -27,24 +27,56 @@ package androidx.animation
  */
 sealed class AnimationVector {
     internal abstract fun reset()
+    internal abstract fun newVector(): AnimationVector
+
+    internal abstract operator fun get(index: Int): Float
+    internal abstract operator fun set(index: Int, value: Float)
+    internal abstract val size: Int
 }
 
-internal fun <T : AnimationVector> T.createPassThroughConverter(): TwoWayConverter<T, T> {
-    val converter = when (this) {
-        is AnimationVector1D -> passThroughConverter1D
-        is AnimationVector2D -> passThroughConverter2D
-        is AnimationVector3D -> passThroughConverter3D
-        is AnimationVector4D -> passThroughConverter4D
-        else -> throw UnsupportedOperationException()
-    }
+/**
+ * Factory method to create an [AnimationVector1D]
+ *
+ * @param v1 value to set on the value field of [AnimationVector1D]
+ */
+fun AnimationVector(v1: Float) = AnimationVector1D(v1)
+
+/**
+ * Factory method to create an [AnimationVector2D]
+ *
+ * @param v1 value to set on the first dimension
+ * @param v2 value to set on the second dimension
+ */
+fun AnimationVector(v1: Float, v2: Float) = AnimationVector2D(v1, v2)
+
+/**
+ * Factory method to create an [AnimationVector3D]
+ *
+ * @param v1 value to set on the first dimension
+ * @param v2 value to set on the second dimension
+ * @param v3 value to set on the third dimension
+ */
+fun AnimationVector(v1: Float, v2: Float, v3: Float) = AnimationVector3D(v1, v2, v3)
+
+/**
+ * Factory method to create an [AnimationVector4D]
+ *
+ * @param v1 value to set on the first dimension
+ * @param v2 value to set on the second dimension
+ * @param v3 value to set on the third dimension
+ * @param v4 value to set on the fourth dimension
+ */
+fun AnimationVector(
+    v1: Float,
+    v2: Float,
+    v3: Float,
+    v4: Float
+) = AnimationVector4D(v1, v2, v3, v4)
+
+internal fun <T : AnimationVector> T.newInstance(): T {
     @Suppress("UNCHECKED_CAST")
-    return converter as TwoWayConverter<T, T>
+    return this.newVector() as T
 }
-
-private val passThroughConverter1D = TypeConverter1D({ it }, { it })
-private val passThroughConverter2D = TypeConverter2D({ it }, { it })
-private val passThroughConverter3D = TypeConverter3D({ it }, { it })
-private val passThroughConverter4D = TypeConverter4D({ it }, { it })
 
 /**
  * This class defines a 1D vector. It contains only one Float value that is initialized in the
@@ -64,26 +96,22 @@ class AnimationVector1D(initVal: Float) : AnimationVector() {
         value = 0f
     }
 
-    internal object arithmetic : Arithmetic<AnimationVector1D> {
-        override fun plus(value: AnimationVector1D, other: AnimationVector1D): AnimationVector1D =
-            AnimationVector1D(value.value + other.value)
-
-        override fun minus(
-            value: AnimationVector1D,
-            subtract: AnimationVector1D
-        ): AnimationVector1D =
-            AnimationVector1D(value.value - subtract.value)
-
-        override fun times(value: AnimationVector1D, multiplier: Float): AnimationVector1D =
-            AnimationVector1D(value.value * multiplier)
-
-        override fun interpolate(
-            from: AnimationVector1D,
-            to: AnimationVector1D,
-            fraction: Float
-        ): AnimationVector1D =
-            AnimationVector1D(lerp(from.value, to.value, fraction))
+    override fun newVector(): AnimationVector1D = AnimationVector1D(0f)
+    override fun get(index: Int): Float {
+        if (index == 0) {
+            return value
+        } else {
+            return 0f
+        }
     }
+
+    override fun set(index: Int, value: Float) {
+        if (index == 0) {
+            this.value = value
+        }
+    }
+
+    override val size: Int = 1
 
     override fun toString(): String {
         return "AnimationVector1D: value = $value"
@@ -119,35 +147,23 @@ class AnimationVector2D(v1: Float, v2: Float) : AnimationVector() {
         v2 = 0f
     }
 
-    internal object arithmetic : Arithmetic<AnimationVector2D> {
-        override fun times(value: AnimationVector2D, multiplier: Float) =
-            AnimationVector2D(
-                v1 = value.v1 * multiplier,
-                v2 = value.v2 * multiplier
-            )
-
-        override fun minus(value: AnimationVector2D, subtract: AnimationVector2D) =
-            AnimationVector2D(
-                v1 = value.v1 - subtract.v1,
-                v2 = value.v2 - subtract.v2
-            )
-
-        override fun plus(value: AnimationVector2D, other: AnimationVector2D): AnimationVector2D =
-            AnimationVector2D(
-                v1 = value.v1 + other.v1,
-                v2 = value.v2 + other.v2
-            )
-
-        override fun interpolate(
-            from: AnimationVector2D,
-            to: AnimationVector2D,
-            fraction: Float
-        ): AnimationVector2D =
-            AnimationVector2D(
-                lerp(from.v1, to.v1, fraction),
-                lerp(from.v2, to.v2, fraction)
-            )
+    override fun newVector(): AnimationVector2D = AnimationVector2D(0f, 0f)
+    override fun get(index: Int): Float {
+        return when (index) {
+            0 -> v1
+            1 -> v2
+            else -> 0f
+        }
     }
+
+    override fun set(index: Int, value: Float) {
+        when (index) {
+            0 -> v1 = value
+            1 -> v2 = value
+        }
+    }
+
+    override val size: Int = 2
 
     override fun toString(): String {
         return "AnimationVector2D: v1 = $v1, v2 = $v2"
@@ -191,39 +207,26 @@ class AnimationVector3D(v1: Float, v2: Float, v3: Float) : AnimationVector() {
         v3 = 0f
     }
 
-    internal object arithmetic : Arithmetic<AnimationVector3D> {
-        override fun times(value: AnimationVector3D, multiplier: Float) =
-            AnimationVector3D(
-                v1 = value.v1 * multiplier,
-                v2 = value.v2 * multiplier,
-                v3 = value.v3 * multiplier
-            )
+    override fun newVector(): AnimationVector3D = AnimationVector3D(0f, 0f, 0f)
 
-        override fun minus(value: AnimationVector3D, subtract: AnimationVector3D) =
-            AnimationVector3D(
-                v1 = value.v1 - subtract.v1,
-                v2 = value.v2 - subtract.v2,
-                v3 = value.v3 - subtract.v3
-            )
-
-        override fun plus(value: AnimationVector3D, other: AnimationVector3D): AnimationVector3D =
-            AnimationVector3D(
-                v1 = value.v1 + other.v1,
-                v2 = value.v2 + other.v2,
-                v3 = value.v3 + other.v3
-            )
-
-        override fun interpolate(
-            from: AnimationVector3D,
-            to: AnimationVector3D,
-            fraction: Float
-        ): AnimationVector3D =
-            AnimationVector3D(
-                lerp(from.v1, to.v1, fraction),
-                lerp(from.v2, to.v2, fraction),
-                lerp(from.v3, to.v3, fraction)
-            )
+    override fun get(index: Int): Float {
+        return when (index) {
+            0 -> v1
+            1 -> v2
+            2 -> v3
+            else -> 0f
+        }
     }
+
+    override fun set(index: Int, value: Float) {
+        when (index) {
+            0 -> v1 = value
+            1 -> v2 = value
+            2 -> v3 = value
+        }
+    }
+
+    override val size: Int = 3
 
     override fun toString(): String {
         return "AnimationVector3D: v1 = $v1, v2 = $v2, v3 = $v3"
@@ -273,43 +276,28 @@ class AnimationVector4D(v1: Float, v2: Float, v3: Float, v4: Float) : AnimationV
         v4 = 0f
     }
 
-    internal object arithmetic : Arithmetic<AnimationVector4D> {
-        override fun times(value: AnimationVector4D, multiplier: Float) =
-            AnimationVector4D(
-                v1 = value.v1 * multiplier,
-                v2 = value.v2 * multiplier,
-                v3 = value.v3 * multiplier,
-                v4 = value.v4 * multiplier
-            )
+    override fun newVector(): AnimationVector4D = AnimationVector4D(0f, 0f, 0f, 0f)
 
-        override fun minus(value: AnimationVector4D, subtract: AnimationVector4D) =
-            AnimationVector4D(
-                v1 = value.v1 - subtract.v1,
-                v2 = value.v2 - subtract.v2,
-                v3 = value.v3 - subtract.v3,
-                v4 = value.v4 - subtract.v4
-            )
-
-        override fun plus(value: AnimationVector4D, other: AnimationVector4D): AnimationVector4D =
-            AnimationVector4D(
-                v1 = value.v1 + other.v1,
-                v2 = value.v2 + other.v2,
-                v3 = value.v3 + other.v3,
-                v4 = value.v4 + other.v4
-            )
-
-        override fun interpolate(
-            from: AnimationVector4D,
-            to: AnimationVector4D,
-            fraction: Float
-        ): AnimationVector4D =
-            AnimationVector4D(
-                lerp(from.v1, to.v1, fraction),
-                lerp(from.v2, to.v2, fraction),
-                lerp(from.v3, to.v3, fraction),
-                lerp(from.v4, to.v4, fraction)
-            )
+    override fun get(index: Int): Float {
+        return when (index) {
+            0 -> v1
+            1 -> v2
+            2 -> v3
+            3 -> v4
+            else -> 0f
+        }
     }
+
+    override fun set(index: Int, value: Float) {
+        when (index) {
+            0 -> v1 = value
+            1 -> v2 = value
+            2 -> v3 = value
+            3 -> v4 = value
+        }
+    }
+
+    override val size: Int = 4
 
     override fun toString(): String {
         return "AnimationVector4D: v1 = $v1, v2 = $v2, v3 = $v3, v4 = $v4"
@@ -323,11 +311,4 @@ class AnimationVector4D(v1: Float, v2: Float, v3: Float, v4: Float) : AnimationV
                 other.v4 == v4
 
     override fun hashCode(): Int = System.identityHashCode(this)
-}
-
-internal interface Arithmetic<T> {
-    fun plus(value: T, other: T): T
-    fun minus(value: T, subtract: T): T
-    fun times(value: T, multiplier: Float): T
-    fun interpolate(from: T, to: T, fraction: Float): T
 }

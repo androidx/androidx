@@ -2782,8 +2782,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         if (mPendingMoveSmoothScroller == null) {
-            // Stop existing scroller and create a new PendingMoveSmoothScroller.
-            mBaseGridView.stopScroll();
             PendingMoveSmoothScroller linearSmoothScroller = new PendingMoveSmoothScroller(
                     forward ? 1 : -1, mNumRows > 1);
             mFocusPositionOffset = 0;

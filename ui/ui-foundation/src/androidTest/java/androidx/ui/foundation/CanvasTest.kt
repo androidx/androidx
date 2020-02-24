@@ -128,13 +128,14 @@ class CanvasTest {
             shapeColor = Color.Blue,
             shape = CircleShape,
             shapeSizeX = 20.px,
-            shapeSizeY = 20.px
+            shapeSizeY = 20.px,
+            shapeOverlapPixelCount = 2.px
         )
     }
 
     @Composable
     fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Align(Alignment.TopLeft) {
+        Align(Alignment.TopStart) {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
                     Container {

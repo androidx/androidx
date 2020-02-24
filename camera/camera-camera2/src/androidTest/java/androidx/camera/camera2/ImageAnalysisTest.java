@@ -29,6 +29,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
@@ -43,6 +44,7 @@ import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.UseCase.StateChangeCallback;
 import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
@@ -268,6 +270,37 @@ public final class ImageAnalysisTest {
 
         // Should not be less than 1
         assertThat(depth).isAtLeast(1);
+    }
+
+    @Test
+    public void targetRotationCanBeUpdatedAfterUseCaseIsCreated() {
+        ImageAnalysis imageAnalysis =
+                new ImageAnalysis.Builder().setTargetRotation(Surface.ROTATION_0).build();
+        imageAnalysis.setTargetRotation(Surface.ROTATION_90);
+
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_90);
+    }
+
+    @Test
+    public void targetResolutionIsUpdatedAfterTargetRotationIsUpdated() {
+        // setTargetResolution will also set corresponding value to targetAspectRatioCustom.
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
+
+        // Updates target rotation from ROTATION_0 to ROTATION_90.
+        imageAnalysis.setTargetRotation(Surface.ROTATION_90);
+
+        ImageOutputConfig newConfig = (ImageOutputConfig) imageAnalysis.getUseCaseConfig();
+        Size expectedTargetResolution = new Size(GUARANTEED_RESOLUTION.getHeight(),
+                GUARANTEED_RESOLUTION.getWidth());
+        Rational expectedTargetAspectRatioCustom = new Rational(GUARANTEED_RESOLUTION.getHeight(),
+                GUARANTEED_RESOLUTION.getWidth());
+
+        // Expected targetResolution and targetAspectRatioCustom will be reversed from original
+        // target resolution.
+        assertThat(newConfig.getTargetResolution().equals(expectedTargetResolution)).isTrue();
+        assertThat(newConfig.getTargetAspectRatioCustom().equals(
+                expectedTargetAspectRatioCustom)).isTrue();
     }
 
     private static class ImageProperties {

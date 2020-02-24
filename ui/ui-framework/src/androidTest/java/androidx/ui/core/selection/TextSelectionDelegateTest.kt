@@ -46,6 +46,7 @@ import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,6 +70,776 @@ class TextSelectionDelegateTest {
     private val resourceLoader = TestFontResourceLoader(context)
 
     @Test
+    fun getHandlePosition_StartHandle_invalid() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello world\n"
+                val fontSize = 20.sp
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val selectableInvalid = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { null },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('h')
+                val endOffset = text.indexOf('o')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectableInvalid
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectableInvalid
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(PxPosition.Origin)
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_EndHandle_invalid() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello world\n"
+                val fontSize = 20.sp
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val selectableInvalid = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { null },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('h')
+                val endOffset = text.indexOf('o')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectableInvalid
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectableInvalid
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(PxPosition.Origin)
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_StartHandle_not_cross_ltr() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello world\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('h')
+                val endOffset = text.indexOf('o')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * startOffset).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_StartHandle_cross_ltr() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello world\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('o')
+                val endOffset = text.indexOf('h')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = true
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * startOffset).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_StartHandle_not_cross_rtl() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('\u05D1')
+                val endOffset = text.indexOf('\u05D5')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (text.length - 1 - startOffset)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_StartHandle_cross_rtl() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('\u05D5')
+                val endOffset = text.indexOf('\u05D1')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = true
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (text.length - 1 - startOffset)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_StartHandle_not_cross_bidi() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val textLtr = "Hello"
+                val textRtl = "\u05D0\u05D1\u05D2"
+                val text = textLtr + textRtl
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('\u05D0')
+                val endOffset = text.indexOf('\u05D2')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (text.length)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_StartHandle_cross_bidi() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val textLtr = "Hello"
+                val textRtl = "\u05D0\u05D1\u05D2"
+                val text = textLtr + textRtl
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('\u05D0')
+                val endOffset = text.indexOf('H')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = true
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (textLtr.length)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_EndHandle_not_cross_ltr() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello world\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('h')
+                val endOffset = text.indexOf('o')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * endOffset).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_EndHandle_cross_ltr() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello world\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('o')
+                val endOffset = text.indexOf('h')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = true
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * endOffset).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_EndHandle_not_cross_rtl() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('\u05D1')
+                val endOffset = text.indexOf('\u05D5')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (text.length - 1 - endOffset)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_EndHandle_cross_rtl() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('\u05D5')
+                val endOffset = text.indexOf('\u05D1')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = true
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (text.length - 1 - endOffset)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_EndHandle_not_cross_bidi() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val textLtr = "Hello"
+                val textRtl = "\u05D0\u05D1\u05D2"
+                val text = textLtr + textRtl
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('e')
+                val endOffset = text.indexOf('\u05D0')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = false
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (textLtr.length)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getHandlePosition_EndHandle_cross_bidi() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val textLtr = "Hello"
+                val textRtl = "\u05D0\u05D1\u05D2"
+                val text = textLtr + textRtl
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val startOffset = text.indexOf('\u05D2')
+                val endOffset = text.indexOf('\u05D0')
+
+                val selection = Selection(
+                    start = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = startOffset,
+                        selectable = selectable
+                    ),
+                    end = Selection.AnchorInfo(
+                        direction = TextDirection.Ltr,
+                        offset = endOffset,
+                        selectable = selectable
+                    ),
+                    handlesCrossed = true
+                )
+
+                // Act.
+                val coordinates = selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+
+                // Assert.
+                assertThat(coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (text.length)).px, fontSizeInPx.px)
+                )
+            }
+        }
+    }
+
+    @Test
     fun getTextSelectionInfo_long_press_select_word_ltr() {
         val text = "hello world\n"
         val fontSize = 20.sp
@@ -87,7 +858,7 @@ class TextSelectionDelegateTest {
         val textSelectionInfo = getTextSelectionInfo(
             textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(start, end),
-            layoutCoordinates = mock(),
+            selectable = mock(),
             wordBasedSelection = true
         )
 
@@ -96,21 +867,13 @@ class TextSelectionDelegateTest {
 
         assertThat(textSelectionInfo?.start).isNotNull()
         textSelectionInfo?.start?.let {
-            assertThat(it.coordinates).isEqualTo(
-                PxPosition(0.px, fontSizeInPx.px)
-            )
             assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-            assertThat(it.layoutCoordinates).isNotNull()
             assertThat(it.offset).isEqualTo(0)
         }
 
         assertThat(textSelectionInfo?.end).isNotNull()
         textSelectionInfo?.end?.let {
-            assertThat(it.coordinates).isEqualTo(
-                PxPosition(("hello".length * fontSizeInPx).px, fontSizeInPx.px)
-            )
             assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-            assertThat(it.layoutCoordinates).isNotNull()
             assertThat(it.offset).isEqualTo("hello".length)
         }
     }
@@ -134,7 +897,7 @@ class TextSelectionDelegateTest {
         val textSelectionInfo = getTextSelectionInfo(
             textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(start, end),
-            layoutCoordinates = mock(),
+            selectable = mock(),
             wordBasedSelection = true
         )
 
@@ -143,21 +906,13 @@ class TextSelectionDelegateTest {
 
         assertThat(textSelectionInfo?.start).isNotNull()
         textSelectionInfo?.start?.let {
-            assertThat(it.coordinates).isEqualTo(
-                PxPosition(("\u05D3\u05D4\u05D5".length * fontSizeInPx).px, fontSizeInPx.px)
-            )
             assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-            assertThat(it.layoutCoordinates).isNotNull()
             assertThat(it.offset).isEqualTo(text.indexOf("\u05D3"))
         }
 
         assertThat(textSelectionInfo?.end).isNotNull()
         textSelectionInfo?.end?.let {
-            assertThat(it.coordinates).isEqualTo(
-                PxPosition(0.px, fontSizeInPx.px)
-            )
             assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-            assertThat(it.layoutCoordinates).isNotNull()
             assertThat(it.offset).isEqualTo(text.indexOf("\u05D5") + 1)
         }
     }
@@ -183,7 +938,7 @@ class TextSelectionDelegateTest {
         val textSelectionInfo = getTextSelectionInfo(
             textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(start, end),
-            layoutCoordinates = mock(),
+            selectable = mock(),
             wordBasedSelection = true
         )
 
@@ -192,21 +947,13 @@ class TextSelectionDelegateTest {
 
         assertThat(textSelectionInfo?.start).isNotNull()
         textSelectionInfo?.start?.let {
-            assertThat(it.coordinates).isEqualTo(
-                PxPosition(0.px, fontSizeInPx.px)
-            )
             assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-            assertThat(it.layoutCoordinates).isNotNull()
             assertThat(it.offset).isEqualTo(0)
         }
 
         assertThat(textSelectionInfo?.end).isNotNull()
         textSelectionInfo?.end?.let {
-            assertThat(it.coordinates).isEqualTo(
-                PxPosition((text.length * fontSizeInPx).px, fontSizeInPx.px)
-            )
             assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-            assertThat(it.layoutCoordinates).isNotNull()
             assertThat(it.offset).isEqualTo(text.length)
         }
         assertThat(textSelectionInfo?.handlesCrossed).isFalse()
@@ -234,7 +981,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = true
             )
 
@@ -243,21 +990,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((text.length * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(text.length)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(0.px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(0)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -287,7 +1026,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
 
@@ -296,21 +1035,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -345,7 +1076,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
 
@@ -354,24 +1085,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(
-                        ((text.length - 1 - startOffset) * fontSizeInPx).px,
-                        fontSizeInPx.px
-                    )
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((text.length - 1 - endOffset) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -408,7 +1128,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textLayoutResult = textLayoutResult,
                 selectionCoordinates = Pair(start, end),
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
 
@@ -417,24 +1137,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(
-                        ((textLtr.length + text.length - endOffset) * fontSizeInPx).px,
-                        fontSizeInPx.px
-                    )
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -460,7 +1169,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
             // Assert.
@@ -468,21 +1177,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -516,7 +1217,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
             // Assert.
@@ -524,21 +1225,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((text.length - 1 - startOffset) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((text.length - 1 - endOffset) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -574,7 +1267,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
             // Assert.
@@ -582,24 +1275,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(
-                        ((textLtr.length + text.length - startOffset) * fontSizeInPx).px,
-                        fontSizeInPx.px
-                    )
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -620,21 +1302,17 @@ class TextSelectionDelegateTest {
             // "llo" is selected.
             val oldStartOffset = text.indexOf("l")
             val oldEndOffset = text.indexOf("o") + 1
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = false
             )
@@ -646,7 +1324,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = false
@@ -658,11 +1336,7 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((oldStartOffset - 1) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(oldStartOffset - 1)
             }
 
@@ -684,24 +1358,17 @@ class TextSelectionDelegateTest {
             // "\u05D0\u05D1" is selected.
             val oldStartOffset = text.indexOf("\u05D1")
             val oldEndOffset = text.length
-            val oldStart = PxPosition(
-                (fontSizeInPx * (text.length - 1 - oldStartOffset)).px,
-                fontSizeInPx.px
-            )
-            val oldEnd = PxPosition(0.px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Rtl,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Rtl,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = false
             )
@@ -719,7 +1386,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = false
@@ -731,14 +1398,7 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(
-                        ((text.length - 1 - (oldStartOffset - 1)) * fontSizeInPx).px,
-                        fontSizeInPx.px
-                    )
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(oldStartOffset - 1)
             }
 
@@ -760,21 +1420,17 @@ class TextSelectionDelegateTest {
             // "llo" is selected.
             val oldStartOffset = text.indexOf("l")
             val oldEndOffset = text.indexOf("o") + 1
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = false
             )
@@ -786,7 +1442,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = true
@@ -797,11 +1453,7 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((oldEndOffset + 1) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo((oldEndOffset + 1))
             }
 
@@ -825,21 +1477,17 @@ class TextSelectionDelegateTest {
             // "llo" is selected.
             val oldStartOffset = text.indexOf("o") + 1
             val oldEndOffset = text.indexOf("l")
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = true
             )
@@ -851,7 +1499,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = true
@@ -862,11 +1510,7 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((oldEndOffset - 1) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo((oldEndOffset - 1))
             }
 
@@ -890,21 +1534,17 @@ class TextSelectionDelegateTest {
             // "e" is selected.
             val oldStartOffset = text.indexOf("e")
             val oldEndOffset = text.indexOf("l")
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutConstraints: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutConstraints
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutConstraints
+                    selectable = selectable
                 ),
                 handlesCrossed = false
             )
@@ -916,7 +1556,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutConstraints!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = true
@@ -941,21 +1581,17 @@ class TextSelectionDelegateTest {
             // "e" is selected.
             val oldStartOffset = text.indexOf("l")
             val oldEndOffset = text.indexOf("e")
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = true
             )
@@ -967,7 +1603,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = true
@@ -992,21 +1628,17 @@ class TextSelectionDelegateTest {
             // "d" is selected.
             val oldStartOffset = text.length - 1
             val oldEndOffset = text.length
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = false
             )
@@ -1020,7 +1652,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = true
@@ -1045,21 +1677,17 @@ class TextSelectionDelegateTest {
             // "h" is selected.
             val oldStartOffset = text.indexOf("e")
             val oldEndOffset = 0
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = true
             )
@@ -1071,7 +1699,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = true
@@ -1096,21 +1724,17 @@ class TextSelectionDelegateTest {
             // "llo" is selected.
             val oldStartOffset = text.indexOf("o") + 1
             val oldEndOffset = text.indexOf("l")
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = true
             )
@@ -1122,7 +1746,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = false
@@ -1135,11 +1759,7 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((oldStartOffset + 1) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo((oldStartOffset + 1))
             }
 
@@ -1161,21 +1781,17 @@ class TextSelectionDelegateTest {
             // "e" is selected.
             val oldStartOffset = text.indexOf("e")
             val oldEndOffset = text.indexOf("l")
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutConstraints: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutConstraints
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutConstraints
+                    selectable = selectable
                 ),
                 handlesCrossed = false
             )
@@ -1187,7 +1803,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutConstraints!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = false
@@ -1212,21 +1828,17 @@ class TextSelectionDelegateTest {
             // "e" is selected.
             val oldStartOffset = text.indexOf("l")
             val oldEndOffset = text.indexOf("e")
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = true
             )
@@ -1238,7 +1850,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = false
@@ -1263,21 +1875,17 @@ class TextSelectionDelegateTest {
             // "h" is selected.
             val oldStartOffset = 0
             val oldEndOffset = text.indexOf('e')
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = false
             )
@@ -1291,7 +1899,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = false
@@ -1316,21 +1924,17 @@ class TextSelectionDelegateTest {
             // "d" is selected.
             val oldStartOffset = text.length
             val oldEndOffset = text.length - 1
-            val oldStart = PxPosition((fontSizeInPx * oldStartOffset).px, fontSizeInPx.px)
-            val oldEnd = PxPosition((fontSizeInPx * oldEndOffset).px, fontSizeInPx.px)
-            val layoutCoordinates: LayoutCoordinates? = mock()
+            val selectable: Selectable = mock()
             val previousSelection = Selection(
                 start = Selection.AnchorInfo(
-                    coordinates = oldStart,
                     offset = oldStartOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 end = Selection.AnchorInfo(
-                    coordinates = oldEnd,
                     offset = oldEndOffset,
                     direction = TextDirection.Ltr,
-                    layoutCoordinates = layoutCoordinates
+                    selectable = selectable
                 ),
                 handlesCrossed = true
             )
@@ -1344,7 +1948,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = layoutCoordinates!!,
+                selectable = selectable,
                 wordBasedSelection = false,
                 previousSelection = previousSelection,
                 isStartHandle = false
@@ -1375,7 +1979,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
             // Assert.
@@ -1383,21 +1987,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(0.px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(0)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((endOffset) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -1424,7 +2020,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
             // Assert.
@@ -1432,21 +2028,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * startOffset).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length)).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(text.length)
             }
         }
@@ -1473,7 +2061,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
             // Assert.
@@ -1481,21 +2069,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((text.length) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(text.length)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(((endOffset) * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -1523,7 +2103,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = false
             )
             // Assert.
@@ -1531,21 +2111,13 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinates).isEqualTo(
-                    PxPosition(0.px, fontSizeInPx.px)
-                )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(0)
             }
             assertThat(textSelectionInfo?.handlesCrossed).isTrue()
@@ -1568,7 +2140,7 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
                 textLayoutResult = textLayoutResult,
-                layoutCoordinates = mock(),
+                selectable = mock(),
                 wordBasedSelection = true
             )
             assertThat(textSelectionInfo).isNull()

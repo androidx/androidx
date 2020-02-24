@@ -86,7 +86,7 @@ class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
     ): DurationBasedAnimation<V> {
         return Keyframes(duration.toLong(), delay.toLong(), keyframes.mapValues {
             it.value.toPair(converter.convertToVector)
-        }, converter.arithmetic)
+        })
     }
 
     /**
@@ -192,7 +192,7 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
         val duration = this.duration.toLong()
         return DurationBasedWrapper(
             duration, delay,
-            Tween(duration, delay, easing).buildMultiDimensAnim(converter)
+            Tween(duration, delay, easing).buildMultiDimensAnim()
         )
     }
 }
@@ -209,7 +209,7 @@ class PhysicsBuilder<T>(
 ) : AnimationBuilder<T>() {
 
     override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
-        return SpringAnimation(dampingRatio, stiffness).buildMultiDimensAnim(converter)
+        return SpringAnimation(dampingRatio, stiffness).buildMultiDimensAnim()
     }
 }
 
@@ -225,16 +225,41 @@ class SnapBuilder<T> : AnimationBuilder<T>() {
  * Convert a 1D animation into a potential multi-dimensional animation by using the same 1D
  * animation on all dimensions.
  */
-internal fun <T, V : AnimationVector> FloatAnimation.buildMultiDimensAnim(
-    converter: TwoWayConverter<T, V>
-): Animation<V> {
-    @Suppress("UNCHECKED_CAST")
-    return when (converter) {
-        is TypeConverter1D<T> -> Animation1D(this)
-        is TypeConverter2D<T> -> Animation2D(this, this)
-        is TypeConverter3D<T> -> Animation3D(this, this, this)
-        is TypeConverter4D<T> -> Animation4D(this, this, this, this)
-    } as Animation<V>
+internal fun <V : AnimationVector> FloatAnimation.buildMultiDimensAnim(): Animation<V> =
+    FloatAnimWrapper(this)
+
+private class FloatAnimWrapper<V : AnimationVector>(val anim: FloatAnimation) : Animation<V> {
+    private lateinit var valueVector: V
+    private lateinit var velocityVector: V
+
+    override fun isFinished(playTime: Long, start: V, end: V, startVelocity: V): Boolean {
+        for (i in 0 until start.size) {
+            if (!anim.isFinished(playTime, start[i], end[i], startVelocity[i])) {
+                return false
+            }
+        }
+        return true
+    }
+
+    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
+        if (!::valueVector.isInitialized) {
+            valueVector = start.newInstance()
+        }
+        for (i in 0 until valueVector.size) {
+            valueVector[i] = anim.getValue(playTime, start[i], end[i], startVelocity[i])
+        }
+        return valueVector
+    }
+
+    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
+        if (!::velocityVector.isInitialized) {
+            velocityVector = start.newInstance()
+        }
+        for (i in 0 until velocityVector.size) {
+            velocityVector[i] = anim.getVelocity(playTime, start[i], end[i], startVelocity[i])
+        }
+        return velocityVector
+    }
 }
 
 /**

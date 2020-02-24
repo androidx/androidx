@@ -21,20 +21,27 @@
 
     <style name="Widget.Autofill.InlineSuggestionChip">
         <item name="android:background">@drawable/autofill_inline_suggestion_chip_background</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">6dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
     </style>
 
     <style name="Widget.Autofill.InlineSuggestionStartIconStyle">
         <item name="android:scaleType">fitCenter</item>
     </style>
 
-    <style name="Widget.Autofill.InlineSuggestionTitle">
-        <item name="android:textAppearance">@android:style/TextAppearance</item>
+    <style name="Widget.Autofill.InlineSuggestionTitle" parent="@android:style/TextAppearance">
+        <item name="android:textColor">#FF424242</item>
+        <item name="android:textSize">21dp</item>
+        <item name="android:typeface">sans</item>
     </style>
 
-    <style name="Widget.Autofill.InlineSuggestionSubtitle">
-        <item name="android:textAppearance">@android:style/TextAppearance.Small</item>
+    <style name="Widget.Autofill.InlineSuggestionSubtitle" parent="@android:style/TextAppearance">
+        <item name="android:textColor">#66FFFFFF</item>
+        <item name="android:textSize">10dp</item>
+        <item name="android:typeface">sans</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Widget.Autofill.InlineSuggestionEndIconStyle">

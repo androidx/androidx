@@ -61,7 +61,7 @@ class ContainerTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         val containerSize = Ref<IntPxSize>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -88,7 +88,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -127,7 +127,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<IntPxSize>()
         val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -187,7 +187,7 @@ class ContainerTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnPositioned(onPositioned = { coordinates ->
                     alignSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -234,14 +234,14 @@ class ContainerTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
                     val constraints = DpConstraints(minWidth = sizeDp * 2, minHeight = sizeDp * 2)
                     ConstrainedBox(constraints = constraints) {
-                        Container(alignment = Alignment.BottomRight) {
+                        Container(alignment = Alignment.BottomEnd) {
                             OnChildPositioned(onPositioned = { coordinates ->
                                 childSize.value = coordinates.size
                                 childPosition.value =
@@ -273,7 +273,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<IntPxSize>()
         val latch = CountDownLatch(1)
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Container(width = sizeDp, height = sizeDp, padding = EdgeInsets(10.dp)) {
                     OnPositioned(onPositioned = { coordinates ->
                         containerSize.value = coordinates.size
@@ -361,7 +361,7 @@ class ContainerTest : LayoutTest() {
         var measure = 0
         var layout = 0
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Layout(children = {
                     Container {
                         OnChildPositioned(onPositioned = {
@@ -399,7 +399,7 @@ class ContainerTest : LayoutTest() {
         var measure = 0
         var layout = 0
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Layout(children = {
                     Container(expanded = true) {
                         OnChildPositioned(onPositioned = {
@@ -437,7 +437,7 @@ class ContainerTest : LayoutTest() {
         var measure = 0
         var layout = 0
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Layout(children = {
                     Container(width = 20.dp, height = 20.dp) {
                         OnChildPositioned(onPositioned = {

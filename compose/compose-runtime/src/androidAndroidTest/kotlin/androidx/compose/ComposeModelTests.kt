@@ -28,6 +28,7 @@ import androidx.compose.frames.currentFrame
 import androidx.compose.frames.inFrame
 import androidx.compose.frames.open
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import org.junit.After
@@ -118,8 +119,9 @@ class TestState<T>(value: T) : Framed {
     }
 }
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class ModelViewTests: BaseComposeTest() {
+class ModelViewTests : BaseComposeTest() {
     @After
     fun teardown() {
         Compose.clearRoots()
@@ -166,7 +168,7 @@ class ModelViewTests: BaseComposeTest() {
 
         compose {
             TextView(id = tvIdName, text = president.name)
-            TextView(id = tvIdAge, text = president.age)
+            TextView(id = tvIdAge, text = "${president.age}")
         }.then {
             val tvName = it.findViewById(tvIdName) as TextView
             val tvAge = it.findViewById(tvIdAge) as TextView
@@ -201,7 +203,7 @@ class ModelViewTests: BaseComposeTest() {
 
         @Composable fun display(person: Person) {
             TextView(text = person.name)
-            TextView(text = person.age)
+            TextView(text = "${person.age}")
         }
 
         compose {
@@ -232,10 +234,10 @@ class ModelViewTests: BaseComposeTest() {
 
         @Composable fun display(person: Person) {
             TextView(id = tvName, text = person.name)
-            TextView(text = person.age)
+            TextView(text = "${person.age}")
             if (person.name == PRESIDENT_NAME_16) {
                 TextView(text = person.name)
-                TextView(text = person.age)
+                TextView(text = "${person.age}")
             }
         }
 
@@ -261,10 +263,10 @@ class ModelViewTests: BaseComposeTest() {
 
         @Composable fun display(person: Person) {
             TextView(id = tvName, text = person.name)
-            TextView(text = person.age)
+            TextView(text = "${person.age}")
             if (person.name == PRESIDENT_NAME_16) {
                 TextView(text = person.name)
-                TextView(text = person.age)
+                TextView(text = "${person.age}")
             }
         }
 

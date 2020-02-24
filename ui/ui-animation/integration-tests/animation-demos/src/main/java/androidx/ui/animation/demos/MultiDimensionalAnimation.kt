@@ -25,14 +25,13 @@ import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.RectPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Clickable
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 
 class MultiDimensionalAnimation : Activity() {
 
@@ -53,24 +52,21 @@ class MultiDimensionalAnimation : Activity() {
             }
         }
         Clickable(onClick) {
-            Container(expanded = true) {
-                val width = state { 0f }
-                val height = state { 0f }
-                OnPositioned {
-                    width.value = it.size.width.value.toFloat()
-                    height.value = it.size.height.value.toFloat()
-                }
-                Transition(
-                    definition = remember(width.value, height.value) {
-                        createTransDef(width.value, height.value)
-                    },
-                    toState = currentState.value
-                ) { state ->
-                    val paint = remember { Paint() }
-                    Draw { canvas, _ ->
-                        paint.color = state[background]
-                        canvas.drawRect(state[bounds], paint)
-                    }
+            val width = state { 0f }
+            val height = state { 0f }
+            Transition(
+                definition = remember(width.value, height.value) {
+                    createTransDef(width.value, height.value)
+                },
+                toState = currentState.value
+            ) { state ->
+                val paint = remember { Paint() }
+                Canvas(modifier = LayoutSize.Fill) {
+                    width.value = size.width.value
+                    height.value = size.height.value
+
+                    paint.color = state[background]
+                    drawRect(state[bounds], paint)
                 }
             }
         }

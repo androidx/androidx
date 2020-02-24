@@ -45,6 +45,7 @@ import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.customview.view.AbsSavedState;
+import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
 
 import java.lang.reflect.Field;
@@ -90,7 +91,7 @@ import java.util.ArrayList;
  * indicates that the pane should be sized to fill all available space except a small minimum strip
  * that the user may use to grab the slideable view and pull it back over into a closed state.</p>
  */
-public class SlidingPaneLayout extends ViewGroup {
+public class SlidingPaneLayout extends ViewGroup implements Openable {
     private static final String TAG = "SlidingPaneLayout";
 
     /**
@@ -881,6 +882,15 @@ public class SlidingPaneLayout extends ViewGroup {
     /**
      * Open the sliding pane if it is currently slideable. If first layout
      * has already completed this will animate.
+     */
+    @Override
+    public void open() {
+        openPane();
+    }
+
+    /**
+     * Open the sliding pane if it is currently slideable. If first layout
+     * has already completed this will animate.
      *
      * @return true if the pane was slideable and is now open/in the process of opening
      */
@@ -893,6 +903,15 @@ public class SlidingPaneLayout extends ViewGroup {
      */
     @Deprecated
     public void smoothSlideClosed() {
+        closePane();
+    }
+
+    /**
+     * Close the sliding pane if it is currently slideable. If first layout
+     * has already completed this will animate.
+     */
+    @Override
+    public void close() {
         closePane();
     }
 
@@ -912,6 +931,7 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @return true if sliding panels are completely open
      */
+    @Override
     public boolean isOpen() {
         return !mCanSlide || mSlideOffset == 1;
     }

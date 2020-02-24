@@ -168,7 +168,7 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".gestures.DragAndScaleGestureDetectorDemo"
+        <activity android:name=".gestures.DragScaleGestureDetectorDemo"
                   android:configChanges="orientation|screenSize"
                   android:label="Gestures/Complex/Drag and Scale">
             <intent-filter>

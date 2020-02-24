@@ -16,9 +16,9 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.StructurallyEqual
-import androidx.compose.remember
+import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
+import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
@@ -32,9 +32,9 @@ import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
-import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextFieldValue
+import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
@@ -343,8 +343,7 @@ internal fun BaseTextField(
         val resourceLoader = FontLoaderAmbient.current
         val layoutDirection = LayoutDirectionAmbient.current
 
-        // Memos
-        val processor = remember { EditProcessor() }
+        // State
         val mergedStyle = style.merge(textStyle)
         val (visualText, offsetMap) = remember(value, visualTransformation) {
             val transformed = TextFieldDelegate.applyVisualFilter(value, visualTransformation)
@@ -352,47 +351,51 @@ internal fun BaseTextField(
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
         }
-        val textDelegate = remember(visualText, mergedStyle, density, resourceLoader) {
-            TextDelegate(
-                text = visualText,
-                style = mergedStyle,
-                density = density,
-                layoutDirection = layoutDirection,
-                resourceLoader = resourceLoader
+        val state = remember {
+            TextFieldState(
+                TextDelegate(
+                    text = visualText,
+                    style = mergedStyle,
+                    density = density,
+                    resourceLoader = resourceLoader,
+                    layoutDirection = layoutDirection
+                )
             )
         }
+        state.textDelegate = updateTextDelegate(
+            current = state.textDelegate,
+            text = visualText,
+            style = mergedStyle,
+            density = density,
+            resourceLoader = resourceLoader,
+            layoutDirection = layoutDirection
+        )
 
-        // States
-        val hasFocus = state { false }
-        val coords = state<LayoutCoordinates?> { null }
-        val inputSession = state { NO_SESSION }
-        val layoutResult = state<TextLayoutResult?>(StructurallyEqual) { null }
-
-        processor.onNewState(value, textInputService, inputSession.value)
+        state.processor.onNewState(value, textInputService, state.inputSession)
         TextInputEventObserver(
             focusIdentifier = focusIdentifier,
             onPress = { },
             onFocus = {
-                hasFocus.value = true
-                inputSession.value = TextFieldDelegate.onFocus(
+                state.hasFocus = true
+                state.inputSession = TextFieldDelegate.onFocus(
                     textInputService,
                     value,
-                    processor,
+                    state.processor,
                     keyboardType,
                     imeAction,
                     onValueChangeWrapper,
                     onImeActionPerformed)
-                coords.value?.let { coords ->
+                state.layoutCoordinates?.let { coords ->
                     textInputService?.let { textInputService ->
-                        layoutResult.value?.let { layoutResult ->
+                        state.layoutResult?.let { layoutResult ->
                             TextFieldDelegate.notifyFocusedRect(
                                 value,
-                                textDelegate,
+                                state.textDelegate,
                                 layoutResult,
                                 coords,
                                 textInputService,
-                                inputSession.value,
-                                hasFocus.value,
+                                state.inputSession,
+                                state.hasFocus,
                                 offsetMap
                             )
                         }
@@ -401,25 +404,25 @@ internal fun BaseTextField(
                 onFocus()
             },
             onBlur = {
-                hasFocus.value = false
+                state.hasFocus = false
                 TextFieldDelegate.onBlur(
                     textInputService,
-                    inputSession.value,
-                    processor,
+                    state.inputSession,
+                    state.processor,
                     onValueChangeWrapper)
                 onBlur()
             },
             onRelease = {
-                layoutResult.value?.let { layoutResult ->
+                state.layoutResult?.let { layoutResult ->
                     TextFieldDelegate.onRelease(
                         it,
                         layoutResult,
-                        processor,
+                        state.processor,
                         offsetMap,
                         onValueChangeWrapper,
                         textInputService,
-                        inputSession.value,
-                        hasFocus.value
+                        state.inputSession,
+                        state.hasFocus
                     )
                 }
             }
@@ -429,44 +432,63 @@ internal fun BaseTextField(
                 children = @Composable {
                     OnPositioned {
                         if (textInputService != null) {
-                            coords.value = it
-                            layoutResult.value?.let { layoutResult ->
+                            state.layoutCoordinates = it
+                            state.layoutResult?.let { layoutResult ->
                                 TextFieldDelegate.notifyFocusedRect(
                                     value,
-                                    textDelegate,
+                                    state.textDelegate,
                                     layoutResult,
                                     it,
                                     textInputService,
-                                    inputSession.value,
-                                    hasFocus.value,
+                                    state.inputSession,
+                                    state.hasFocus,
                                     offsetMap
                                 )
                             }
                         }
                     }
                     Draw { canvas, _ ->
-                        layoutResult.value?.let { layoutResult ->
+                        state.layoutResult?.let { layoutResult ->
                             TextFieldDelegate.draw(
                                 canvas,
                                 value,
                                 offsetMap,
                                 layoutResult,
-                                hasFocus.value,
+                                state.hasFocus,
                                 DefaultSelectionColor
                             )
                         }
                     }
                 },
                 measureBlock = { _, constraints ->
-                    TextFieldDelegate.layout(textDelegate, constraints, layoutResult.value)
-                        .let { (width, height, result) ->
-                            layoutResult.value = result
-                            layout(width, height) {}
-                        }
+                    TextFieldDelegate.layout(
+                        state.textDelegate,
+                        constraints,
+                        state.layoutResult
+                    ).let { (width, height, result) ->
+                        state.layoutResult = result
+                        layout(width, height) {}
+                    }
                 }
             )
         }
     }
+}
+
+private class TextFieldState(
+    var textDelegate: TextDelegate
+) {
+    val processor = EditProcessor()
+    var inputSession = NO_SESSION
+    /**
+     * This should be a state as every time we update the value we need to redraw it.
+     * @Model observation during onDraw callback will make it work.
+     */
+    var hasFocus by mutableStateOf(false)
+    /** The last layout coordinates for the Text's layout, used by selection */
+    var layoutCoordinates: LayoutCoordinates? = null
+    /** The latest TextLayoutResult calculated in the measure block */
+    var layoutResult: TextLayoutResult? = null
 }
 
 /**

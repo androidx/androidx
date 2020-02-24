@@ -56,26 +56,41 @@ package androidx.animation {
 
   public final class AnimationVector1D extends androidx.animation.AnimationVector {
     ctor public AnimationVector1D(float initVal);
+    method public float get$lintWithKotlin(int index);
+    method public int getSize$lintWithKotlin();
     method public float getValue();
+    method public androidx.animation.AnimationVector1D newVector$lintWithKotlin();
     method public void reset$lintWithKotlin();
+    method public void set$lintWithKotlin(int index, float value);
+    property public int size;
     property public final float value;
   }
 
   public final class AnimationVector2D extends androidx.animation.AnimationVector {
     ctor public AnimationVector2D(float v1, float v2);
+    method public float get$lintWithKotlin(int index);
+    method public int getSize$lintWithKotlin();
     method public float getV1();
     method public float getV2();
+    method public androidx.animation.AnimationVector2D newVector$lintWithKotlin();
     method public void reset$lintWithKotlin();
+    method public void set$lintWithKotlin(int index, float value);
+    property public int size;
     property public final float v1;
     property public final float v2;
   }
 
   public final class AnimationVector3D extends androidx.animation.AnimationVector {
     ctor public AnimationVector3D(float v1, float v2, float v3);
+    method public float get$lintWithKotlin(int index);
+    method public int getSize$lintWithKotlin();
     method public float getV1();
     method public float getV2();
     method public float getV3();
+    method public androidx.animation.AnimationVector3D newVector$lintWithKotlin();
     method public void reset$lintWithKotlin();
+    method public void set$lintWithKotlin(int index, float value);
+    property public int size;
     property public final float v1;
     property public final float v2;
     property public final float v3;
@@ -83,11 +98,16 @@ package androidx.animation {
 
   public final class AnimationVector4D extends androidx.animation.AnimationVector {
     ctor public AnimationVector4D(float v1, float v2, float v3, float v4);
+    method public float get$lintWithKotlin(int index);
+    method public int getSize$lintWithKotlin();
     method public float getV1();
     method public float getV2();
     method public float getV3();
     method public float getV4();
+    method public androidx.animation.AnimationVector4D newVector$lintWithKotlin();
     method public void reset$lintWithKotlin();
+    method public void set$lintWithKotlin(int index, float value);
+    property public int size;
     property public final float v1;
     property public final float v2;
     property public final float v3;
@@ -95,6 +115,10 @@ package androidx.animation {
   }
 
   public final class AnimationVectorsKt {
+    method public static androidx.animation.AnimationVector1D AnimationVector(float v1);
+    method public static androidx.animation.AnimationVector2D AnimationVector(float v1, float v2);
+    method public static androidx.animation.AnimationVector3D AnimationVector(float v1, float v2, float v3);
+    method public static androidx.animation.AnimationVector4D AnimationVector(float v1, float v2, float v3, float v4);
   }
 
   public abstract sealed class BaseAnimatedValue<T, V extends androidx.animation.AnimationVector> {
@@ -226,6 +250,7 @@ package androidx.animation {
   }
 
   public final class PropKeyKt {
+    method public static <T, V extends androidx.animation.AnimationVector> androidx.animation.TwoWayConverter<T,V> TwoWayConverter(kotlin.jvm.functions.Function1<? super T,? extends V> convertToVector, kotlin.jvm.functions.Function1<? super V,? extends T> convertFromVector);
     method public static androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> getFloatToVectorConverter();
     method public static androidx.animation.TwoWayConverter<java.lang.Integer,androidx.animation.AnimationVector1D> getIntToVectorConverter();
   }
@@ -325,47 +350,11 @@ package androidx.animation {
     property public final kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> easing;
   }
 
-  public abstract sealed class TwoWayConverter<T, V extends androidx.animation.AnimationVector> {
-    method public abstract kotlin.jvm.functions.Function1<V,T> getConvertFromVector();
-    method public abstract kotlin.jvm.functions.Function1<T,V> getConvertToVector();
+  public interface TwoWayConverter<T, V extends androidx.animation.AnimationVector> {
+    method public kotlin.jvm.functions.Function1<V,T> getConvertFromVector();
+    method public kotlin.jvm.functions.Function1<T,V> getConvertToVector();
     property public abstract kotlin.jvm.functions.Function1<V,T> convertFromVector;
     property public abstract kotlin.jvm.functions.Function1<T,V> convertToVector;
-  }
-
-  public final class TypeConverter1D<T> extends androidx.animation.TwoWayConverter<T,androidx.animation.AnimationVector1D> {
-    ctor public TypeConverter1D(kotlin.jvm.functions.Function1<? super T,androidx.animation.AnimationVector1D> convertToVector, kotlin.jvm.functions.Function1<? super androidx.animation.AnimationVector1D,? extends T> convertFromVector);
-    method public androidx.animation.AnimationVector1D createNewVector$lintWithKotlin();
-    method public androidx.animation.Arithmetic<androidx.animation.AnimationVector1D> getArithmetic$lintWithKotlin();
-    method public kotlin.jvm.functions.Function1<androidx.animation.AnimationVector1D,T> getConvertFromVector();
-    method public kotlin.jvm.functions.Function1<T,androidx.animation.AnimationVector1D> getConvertToVector();
-    property public androidx.animation.Arithmetic<androidx.animation.AnimationVector1D> arithmetic;
-  }
-
-  public final class TypeConverter2D<T> extends androidx.animation.TwoWayConverter<T,androidx.animation.AnimationVector2D> {
-    ctor public TypeConverter2D(kotlin.jvm.functions.Function1<? super T,androidx.animation.AnimationVector2D> convertToVector, kotlin.jvm.functions.Function1<? super androidx.animation.AnimationVector2D,? extends T> convertFromVector);
-    method public androidx.animation.AnimationVector2D createNewVector$lintWithKotlin();
-    method public androidx.animation.Arithmetic<androidx.animation.AnimationVector2D> getArithmetic$lintWithKotlin();
-    method public kotlin.jvm.functions.Function1<androidx.animation.AnimationVector2D,T> getConvertFromVector();
-    method public kotlin.jvm.functions.Function1<T,androidx.animation.AnimationVector2D> getConvertToVector();
-    property public androidx.animation.Arithmetic<androidx.animation.AnimationVector2D> arithmetic;
-  }
-
-  public final class TypeConverter3D<T> extends androidx.animation.TwoWayConverter<T,androidx.animation.AnimationVector3D> {
-    ctor public TypeConverter3D(kotlin.jvm.functions.Function1<? super T,androidx.animation.AnimationVector3D> convertToVector, kotlin.jvm.functions.Function1<? super androidx.animation.AnimationVector3D,? extends T> convertFromVector);
-    method public androidx.animation.AnimationVector3D createNewVector$lintWithKotlin();
-    method public androidx.animation.Arithmetic<androidx.animation.AnimationVector3D> getArithmetic$lintWithKotlin();
-    method public kotlin.jvm.functions.Function1<androidx.animation.AnimationVector3D,T> getConvertFromVector();
-    method public kotlin.jvm.functions.Function1<T,androidx.animation.AnimationVector3D> getConvertToVector();
-    property public androidx.animation.Arithmetic<androidx.animation.AnimationVector3D> arithmetic;
-  }
-
-  public final class TypeConverter4D<T> extends androidx.animation.TwoWayConverter<T,androidx.animation.AnimationVector4D> {
-    ctor public TypeConverter4D(kotlin.jvm.functions.Function1<? super T,androidx.animation.AnimationVector4D> convertToVector, kotlin.jvm.functions.Function1<? super androidx.animation.AnimationVector4D,? extends T> convertFromVector);
-    method public androidx.animation.AnimationVector4D createNewVector$lintWithKotlin();
-    method public androidx.animation.Arithmetic<androidx.animation.AnimationVector4D> getArithmetic$lintWithKotlin();
-    method public kotlin.jvm.functions.Function1<androidx.animation.AnimationVector4D,T> getConvertFromVector();
-    method public kotlin.jvm.functions.Function1<T,androidx.animation.AnimationVector4D> getConvertToVector();
-    property public androidx.animation.Arithmetic<androidx.animation.AnimationVector4D> arithmetic;
   }
 
   public final class VectorAnimationKt {

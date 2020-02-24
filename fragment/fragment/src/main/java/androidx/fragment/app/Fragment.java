@@ -1226,7 +1226,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public void setUserVisibleHint(boolean isVisibleToUser) {
         if (!mUserVisibleHint && isVisibleToUser && mState < STARTED
                 && mFragmentManager != null && isAdded() && mIsCreated) {
-            mFragmentManager.performPendingDeferredStart(this);
+            mFragmentManager.performPendingDeferredStart(
+                    mFragmentManager.createOrGetFragmentStateManager(this));
         }
         mUserVisibleHint = isVisibleToUser;
         mDeferStart = mState < STARTED && !isVisibleToUser;

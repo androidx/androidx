@@ -27,6 +27,7 @@ import androidx.ui.layout.Container
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
 import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.SemanticsActions
 import androidx.ui.test.util.obfuscateNodesInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -128,6 +129,37 @@ class ErrorMessagesTest {
         ) {
             findByText("Toggle")
                 .doClick()
+        }
+    }
+
+    @Test
+    fun findByTag_callNonExistentSemanticsAction() {
+        composeTestRule.setContent {
+            ComposeSimpleCase()
+        }
+
+        expectErrorMessageStartsWith("" +
+                "Failed to call OnClick action as it is not defined on the node.\n" +
+                "Semantics of the node:"
+        ) {
+            findByTag("MyButton")
+                .callSemanticsAction(SemanticsActions.OnClick)
+        }
+    }
+
+    @Test
+    fun findByTag_callSemanticsAction_butElementDoesNotExist() {
+        composeTestRule.setContent {
+            ComposeSimpleCase()
+        }
+
+        expectErrorMessageStartsWith("" +
+                "Failed to call OnClick action.\n" +
+                "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
+                "(TestTag = 'MyButton3')"
+        ) {
+            findByTag("MyButton3")
+                .callSemanticsAction(SemanticsActions.OnClick)
         }
     }
 

@@ -22,7 +22,9 @@ plugins {
 dependencies {
     implementation(project(":vectordrawable:vectordrawable"))
     implementation(project(":vectordrawable:vectordrawable-animated"))
+    implementation(project(":vectordrawable:vectordrawable-seekable"))
     implementation(project(":appcompat:appcompat"))
+    implementation(project(":lifecycle:lifecycle-viewmodel"))
 }
 
 android {

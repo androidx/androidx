@@ -38,7 +38,7 @@ interface ComposeTestRule : TestRule {
     /**
      * Current device screen's density.
      */
-    val density: Density get
+    val density: Density
 
     /**
      * Sets the given composable as a content of the current screen.
