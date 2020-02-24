@@ -27,7 +27,7 @@ import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.RepaintBoundary
+import androidx.ui.core.drawLayer
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Scrollable
@@ -264,9 +264,11 @@ private fun ScrollerLayout(
         modifier = modifier,
         children = {
             Clip(RectangleShape) {
-                Container(alignment = Alignment.TopStart) {
-                    RepaintBoundary(children = child)
-                }
+                Container(
+                    alignment = Alignment.TopStart,
+                    modifier = drawLayer(),
+                    children = child
+                )
             }
         },
         measureBlock = { measurables, constraints, _ ->

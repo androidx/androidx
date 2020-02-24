@@ -1695,14 +1695,14 @@ class AndroidLayoutDrawTest {
                 SimpleRow {
                     for (i in 0 until 2) {
                         if (model.offset.value == i) {
-                            Wrap(size, size) {
+                            Wrap(minWidth = size, minHeight = size) {
                                 OnPositioned { coordinates ->
                                     wrap1Position = coordinates.globalPosition.x
                                     latch.countDown()
                                 }
                             }
                         } else {
-                            Wrap(size, size) {
+                            Wrap(minWidth = size, minHeight = size) {
                                 OnPositioned { coordinates ->
                                     wrap2Position = coordinates.globalPosition.x
                                     latch.countDown()
@@ -2407,9 +2407,10 @@ internal fun Padding(
 fun TwoMeasureLayout(
     size: IntPx,
     latch: CountDownLatch,
+    modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Layout(children = children) { measurables, _, _ ->
+    Layout(modifier = modifier, children = children) { measurables, _, _ ->
         val testConstraints = Constraints()
         measurables.forEach { it.measure(testConstraints) }
         val childConstraints = Constraints.fixed(size, size)
@@ -2430,8 +2431,13 @@ fun TwoMeasureLayout(
 }
 
 @Composable
-fun Position(size: IntPx, offset: OffsetModel, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+fun Position(
+    size: IntPx,
+    offset: OffsetModel,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { m ->
             m.measure(constraints)
         }
@@ -2444,8 +2450,13 @@ fun Position(size: IntPx, offset: OffsetModel, children: @Composable() () -> Uni
 }
 
 @Composable
-fun Wrap(minWidth: IntPx = 0.ipx, minHeight: IntPx = 0.ipx, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+fun Wrap(
+    modifier: Modifier = Modifier.None,
+    minWidth: IntPx = 0.ipx,
+    minHeight: IntPx = 0.ipx,
+    children: @Composable() () -> Unit
+) {
+    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
         val width = max(placeables.maxBy { it.width.value }?.width ?: 0.ipx, minWidth)
         val height = max(placeables.maxBy { it.height.value }?.height ?: 0.ipx, minHeight)
@@ -2481,7 +2492,7 @@ private fun ScrollerLayout(
     onMaxPositionChanged: () -> Unit,
     child: @Composable() () -> Unit
 ) {
-    Layout(child, modifier) { measurables, constraints, _ ->
+    Layout(modifier = modifier, children = child) { measurables, constraints, _ ->
         val childConstraints = constraints.copy(
             maxHeight = constraints.maxHeight,
             maxWidth = IntPx.Infinity
@@ -2497,8 +2508,12 @@ private fun ScrollerLayout(
 }
 
 @Composable
-fun WrapForceRelayout(model: OffsetModel, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+fun WrapForceRelayout(
+    model: OffsetModel,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
         val width = placeables.maxBy { it.width.value }?.width ?: 0.ipx
         val height = placeables.maxBy { it.height.value }?.height ?: 0.ipx
@@ -2510,8 +2525,8 @@ fun WrapForceRelayout(model: OffsetModel, children: @Composable() () -> Unit) {
 }
 
 @Composable
-fun SimpleRow(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+fun SimpleRow(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         var width = 0.ipx
         var height = 0.ipx
         val placeables = measurables.map {

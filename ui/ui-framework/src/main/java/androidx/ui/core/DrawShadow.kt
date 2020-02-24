@@ -21,8 +21,8 @@ import androidx.ui.graphics.Shape
 import androidx.ui.unit.Dp
 
 /**
- * Draws the shadow. The [elevation] defines the visual dept of the physical object.
- * The physical object has a shape specified by [shape].
+ * Creates a [DrawLayerModifier] that draws the shadow. The [elevation] defines the visual depth of
+ * the physical object. The physical object has a shape specified by [shape].
  *
  * Example usage:
  *
@@ -30,9 +30,16 @@ import androidx.ui.unit.Dp
  *
  * @param elevation The z-coordinate at which to place this physical object.
  * @param shape Defines a shape of the physical object
+ * @param clipToOutline When active, the content drawing clips to the outline.
  */
 @Composable
-@Suppress("NOTHING_TO_INLINE")
-inline fun DrawShadow(shape: Shape, elevation: Dp) {
-    RepaintBoundaryNode(name = null, shape = shape, elevation = elevation)
+fun drawShadow(shape: Shape, elevation: Dp, clipToOutline: Boolean = true): Modifier {
+    with(DensityAmbient.current) {
+        return drawLayer(
+            outlineShape = shape,
+            elevation = elevation.toPx().value,
+            clipToOutline = clipToOutline,
+            clipToBounds = true
+        )
+    }
 }

@@ -27,7 +27,7 @@ package androidx.ui.core {
   }
 
   public final class DrawShadowKt {
-    method public static inline void DrawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation);
+    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true);
   }
 
   public enum DropDownAlignment {
