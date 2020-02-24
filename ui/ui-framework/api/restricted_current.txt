@@ -18,7 +18,8 @@ package androidx.compose {
 package androidx.ui.core {
 
   public final class ClipKt {
-    method public static inline void Clip(androidx.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier drawClip(androidx.ui.graphics.Shape shape);
+    method public static androidx.ui.core.Modifier getDrawClipToBounds();
   }
 
   public final class DrawKt {

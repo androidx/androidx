@@ -23,8 +23,8 @@ import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
+import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawLayer
@@ -32,7 +32,6 @@ import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Scrollable
 import androidx.ui.foundation.gestures.ScrollableState
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.Container
 import androidx.ui.semantics.ScrollTo
@@ -261,15 +260,13 @@ private fun ScrollerLayout(
     child: @Composable() () -> Unit
 ) {
     Layout(
-        modifier = modifier,
+        modifier = modifier + DrawClipToBounds,
         children = {
-            Clip(RectangleShape) {
-                Container(
-                    alignment = Alignment.TopStart,
-                    modifier = drawLayer(),
-                    children = child
-                )
-            }
+            Container(
+                alignment = Alignment.TopStart,
+                modifier = drawLayer(),
+                children = child
+            )
         },
         measureBlock = { measurables, constraints, _ ->
             if (measurables.size > 1) {

@@ -18,13 +18,13 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.compose.Composable
-import androidx.compose.Untracked
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Clip
-import androidx.ui.core.Draw
+import androidx.ui.core.DrawClipToBounds
+import androidx.ui.core.Modifier
+import androidx.ui.core.draw
+import androidx.ui.core.drawClip
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.RRect
@@ -98,12 +98,32 @@ class ClipTest {
     fun simpleRectClip() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                Padding(size = 10.ipx) {
-                    AtLeastSize(size = 10.ipx) {
-                        Clip(rectShape) {
-                            FillColor(Color.Cyan)
-                        }
+                Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
+                    AtLeastSize(
+                        size = 10.ipx,
+                        modifier = drawClip(rectShape) + FillColor(Color.Cyan)
+                    ) {
+                    }
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertRect(Color.Cyan, size = 10)
+            assertRect(Color.Green, holeSize = 10)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun simpleClipToBounds() {
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
+                    AtLeastSize(
+                        size = 10.ipx,
+                        modifier = DrawClipToBounds + FillColor(Color.Cyan)
+                    ) {
                     }
                 }
             }
@@ -120,11 +140,11 @@ class ClipTest {
     fun simpleRectClipWithModifiers() {
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(Color.Green)
-                AtLeastSize(size = 10.ipx, modifier = PaddingModifier(10.ipx)) {
-                    Clip(rectShape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 10.ipx,
+                    modifier = FillColor(Color.Green) + PaddingModifier(10.ipx) +
+                            drawClip(rectShape) + FillColor(Color.Cyan)
+                ) {
                 }
             }
         }
@@ -144,11 +164,10 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(shape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(shape) + FillColor(Color.Cyan)
+                ) {
                 }
             }
         }
@@ -184,11 +203,9 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(shape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(shape) + FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -209,11 +226,10 @@ class ClipTest {
     fun triangleClip() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(triangleShape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(triangleShape) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -241,11 +257,10 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(concaveShape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(concaveShape) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -263,11 +278,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(model.value) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(model.value) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -299,11 +313,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                AtLeastSize(size = 30.ipx) {
-                    Clip(model.value) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(model.value) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -327,11 +340,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                AtLeastSize(size = 30.ipx) {
-                    Clip(model.value) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(model.value) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -370,11 +382,7 @@ class ClipTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 FillColor(Color.Green)
-                AtLeastSize(size = 30.ipx) {
-                    Clip(model.value) {
-                        @Suppress("DEPRECATION")
-                        Draw(drawCallback)
-                    }
+                AtLeastSize(size = 30.ipx, modifier = drawClip(model.value) + draw(drawCallback)) {
                 }
             }
         }
@@ -398,14 +406,13 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                Padding(size = 10.ipx) {
-                    AtLeastSize(size = 10.ipx) {
-                        if (model.value) {
-                            Clip(rectShape) {
-                                FillColor(Color.Cyan)
-                            }
-                        }
+                Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
+                    val modifier = if (model.value) {
+                        drawClip(rectShape) + FillColor(Color.Cyan)
+                    } else {
+                        Modifier.None
+                    }
+                    AtLeastSize(size = 10.ipx, modifier = modifier) {
                     }
                 }
             }
@@ -423,12 +430,8 @@ class ClipTest {
         }
     }
 
-    // this should be converted to Modifier after LayerModifier are the thing
-    @Composable
-    private fun FillColor(color: Color) {
-        @Suppress("DEPRECATION") // remove when b/147606015 is fixed
-        // TODO(b/150390669): Review use of @Untracked
-        Draw @Untracked { canvas, parentSize ->
+    private fun FillColor(color: Color): Modifier {
+        return draw { canvas, parentSize ->
             canvas.drawRect(
                 Rect(
                     -100f,

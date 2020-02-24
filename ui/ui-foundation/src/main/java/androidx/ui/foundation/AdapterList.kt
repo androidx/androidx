@@ -23,10 +23,10 @@ import androidx.compose.FrameManager
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.remember
-import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -37,7 +37,6 @@ import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Scrollable
 import androidx.ui.foundation.gestures.ScrollableState
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -479,13 +478,11 @@ fun <T> AdapterList(
     Scrollable(dragDirection = DragDirection.Vertical, scrollableState = ScrollableState(
         onScrollDeltaConsumptionRequested = state.onScrollDeltaConsumptionRequestedListener
     )) {
-        Clip(shape = RectangleShape) {
-            androidx.ui.core.LayoutNode(
-                modifier = modifier,
-                ref = state.rootNodeRef,
-                measureBlocks = state.measureBlocks
-            )
-        }
+        androidx.ui.core.LayoutNode(
+            modifier = modifier + DrawClipToBounds,
+            ref = state.rootNodeRef,
+            measureBlocks = state.measureBlocks
+        )
     }
     state.recomposeIfAttached()
 }
