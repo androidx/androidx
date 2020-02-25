@@ -952,5 +952,59 @@ class UseRequireInsteadOfGetTest {
         """.trimIndent()
             )
     }
+
+    @Test
+    fun `view local variables should be ignored`() {
+        useRequireLint()
+            .files(
+                fragmentStub,
+                preconditionsStub,
+                java(
+                    """
+                  package foo;
+
+                  import androidx.fragment.app.Fragment;
+                  import util.Preconditions;
+
+                  class TestFragment extends Fragment {
+                    void test() {
+                      View view = null;
+                      Preconditions.checkNotNull(view);
+                    }
+                  }
+                """
+                ).indented()
+            )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `activity local variables should be ignored`() {
+        useRequireLint()
+            .files(
+                fragmentStub,
+                preconditionsStub,
+                java(
+                    """
+                  package foo;
+
+                  import androidx.fragment.app.Fragment;
+                  import util.Preconditions;
+
+                  class TestFragment extends Fragment {
+                    void test() {
+                      Activity activity = null;
+                      Preconditions.checkNotNull(activity);
+                    }
+                  }
+                """
+                ).indented()
+            )
+            .allowCompilationErrors(false)
+            .run()
+            .expectClean()
+    }
 }
 /* ktlint-enable max-line-length */
