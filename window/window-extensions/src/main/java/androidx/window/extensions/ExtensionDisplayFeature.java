@@ -14,34 +14,33 @@
  * limitations under the License.
  */
 
-package androidx.window.sidecar;
+package androidx.window.extensions;
 
 import android.graphics.Rect;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Description of a physical feature on the display.
- * @deprecated Use androidx.window.extensions instead of this package.
  */
-@Deprecated
-public final class SidecarDisplayFeature {
+public class ExtensionDisplayFeature {
     /**
      * The bounding rectangle of the feature within the application window in the window
      * coordinate space.
      */
     @NonNull
-    private Rect mRect;
+    private final Rect mBounds;
 
     /**
      * The physical type of the feature.
      */
     @Type
-    private int mType;
+    private final int mType;
 
     /**
      * A fold in the flexible screen without a physical gap.
@@ -60,24 +59,43 @@ public final class SidecarDisplayFeature {
     })
     @interface Type{}
 
-    /** Get the bounding rect of the display feature in window coordinate space. */
-    @NonNull
-    public Rect getRect() {
-        return mRect;
+    public ExtensionDisplayFeature(@NonNull Rect bounds, @Type int type) {
+        mBounds = new Rect(bounds);
+        mType = type;
     }
 
-    /** Set the bounding rect of the display feature in window coordinate space. */
-    public void setRect(@NonNull Rect rect) {
-        mRect.set(rect);
+    /** Get the bounding rect of the display feature in window coordinate space. */
+    @NonNull
+    public Rect getBounds() {
+        return mBounds;
     }
 
     /** Get the type of the display feature. */
-    public @Type int getType() {
+    @Type
+    public int getType() {
         return mType;
     }
 
-    /** Set the type of the display feature. */
-    public void setType(@Type int type) {
-        mType = type;
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ExtensionDisplayFeature)) {
+            return false;
+        }
+        final ExtensionDisplayFeature
+                other = (ExtensionDisplayFeature) obj;
+        if (mType != other.mType) {
+            return false;
+        }
+        return mBounds.equals(other.mBounds);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mType;
+        result = 31 * result + mBounds.centerX() + mBounds.centerY();
+        return result;
     }
 }
