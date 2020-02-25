@@ -16,15 +16,21 @@
 
 package androidx.paging
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicReference
 
 open class AsyncPagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -124,8 +130,18 @@ open class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
-    suspend fun collectFrom(pagingData: PagingData<T>) {
+    private val job = AtomicReference<Job?>(null)
+
+    suspend fun presentData(pagingData: PagingData<T>) {
         differBase.collectFrom(pagingData, callback)
+    }
+
+    fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
+        val newJob = lifecycle.coroutineScope.launch(start = CoroutineStart.LAZY) {
+            differBase.collectFrom(pagingData, callback)
+        }
+        job.getAndSet(newJob)?.cancel()
+        newJob.start()
     }
 
     fun retry() {
