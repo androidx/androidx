@@ -19,6 +19,7 @@ package androidx.core.content.pm;
 import static androidx.core.graphics.drawable.IconCompatTest.verifyBadgeBitmap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -33,6 +34,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
+import android.os.Build;
 import android.os.PersistableBundle;
 
 import androidx.core.app.Person;
@@ -49,6 +51,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -60,6 +63,14 @@ public class ShortcutInfoCompatTest {
     private static final String TEST_SHORTCUT_SHORT_LABEL = "Test shortcut label";
     private static final String TEST_EXTRAS_ID = "test-extras-id";
     private static final String TEST_EXTRAS_VALUE = "test-extras-id-value";
+
+    private static final int FLAG_DYNAMIC = 1 << 0;
+    private static final int FLAG_PINNED = 1 << 1;
+    private static final int FLAG_KEY_FIELDS_ONLY = 1 << 4;
+    private static final int FLAG_MANIFEST = 1 << 5;
+    private static final int FLAG_DISABLED = 1 << 6;
+    private static final int FLAG_IMMUTABLE = 1 << 8;
+    private static final int FLAG_CACHED = 1 << 14;
 
     private Intent mAction;
 
@@ -170,7 +181,8 @@ public class ShortcutInfoCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    public void testBuilder_fromShortcutInfo() {
+    public void testBuilder_fromShortcutInfo() throws Exception {
+        final long ts = System.currentTimeMillis();
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
         String disabledMessage = "Test disabled message";
@@ -189,7 +201,6 @@ public class ShortcutInfoCompatTest {
                 .setRank(rank)
                 .setExtras(persistableBundle)
                 .build();
-
         ShortcutInfoCompat compat = new ShortcutInfoCompat.Builder(mContext, shortcut).build();
         assertEquals(TEST_SHORTCUT_ID, compat.getId());
         assertEquals(TEST_SHORTCUT_SHORT_LABEL, compat.getShortLabel());
@@ -201,6 +212,43 @@ public class ShortcutInfoCompatTest {
         assertEquals(categories, compat.getCategories());
         assertEquals(rank, compat.getRank());
         assertEquals(persistableBundle, compat.getExtras());
+        assertEquals(ShortcutInfo.DISABLED_REASON_NOT_DISABLED, compat.getDisabledReason());
+        assertTrue(compat.getLastChangedTimestamp() > ts);
+        assertNotNull(compat.getUserHandle());
+        assertNotNull(compat.getPackage());
+        assertFalse(compat.isCached());
+        assertFalse(compat.isDeclaredInManifest());
+        assertFalse(compat.isDynamic());
+        assertTrue(compat.isEnabled());
+        assertFalse(compat.isImmutable());
+        assertFalse(compat.isPinned());
+        assertFalse(compat.hasKeyFieldsOnly());
+
+        if (Build.VERSION.SDK_INT >= 28) {
+            final Method setDisabledReason = ShortcutInfo.class.getDeclaredMethod(
+                    "setDisabledReason", int.class);
+            setDisabledReason.setAccessible(true);
+            setDisabledReason.invoke(shortcut, ShortcutInfo.DISABLED_REASON_BY_APP);
+        }
+
+        final int flag = FLAG_PINNED | FLAG_DYNAMIC | FLAG_MANIFEST | FLAG_IMMUTABLE | FLAG_DISABLED
+                | FLAG_CACHED | FLAG_KEY_FIELDS_ONLY;
+        final Method replaceFlags = ShortcutInfo.class.getDeclaredMethod("replaceFlags", int.class);
+        replaceFlags.setAccessible(true);
+        replaceFlags.invoke(shortcut, flag);
+
+        compat = new ShortcutInfoCompat.Builder(mContext, shortcut).build();
+        assertEquals(Build.VERSION.SDK_INT >= 28 ? ShortcutInfo.DISABLED_REASON_BY_APP :
+                ShortcutInfo.DISABLED_REASON_UNKNOWN, compat.getDisabledReason());
+        if (Build.VERSION.SDK_INT >= 30) {
+            assertTrue(compat.isCached());
+        }
+        assertTrue(compat.isDeclaredInManifest());
+        assertTrue(compat.isDynamic());
+        assertFalse(compat.isEnabled());
+        assertTrue(compat.isImmutable());
+        assertTrue(compat.isPinned());
+        assertTrue(compat.hasKeyFieldsOnly());
     }
 
     @Test

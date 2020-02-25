@@ -22,9 +22,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.PersistableBundle;
+import android.os.UserHandle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -52,7 +54,7 @@ public class ShortcutInfoCompat {
 
     Context mContext;
     String mId;
-
+    String mPackageName;
     Intent[] mIntents;
     ComponentName mActivity;
 
@@ -72,6 +74,18 @@ public class ShortcutInfoCompat {
     int mRank;
 
     PersistableBundle mExtras;
+
+    // Read-Only fields
+    long mLastChangedTimestamp;
+    UserHandle mUser;
+    boolean mIsCached;
+    boolean mIsDynamic;
+    boolean mIsPinned;
+    boolean mIsDeclaredInManifest;
+    boolean mIsImmutable;
+    boolean mIsEnabled = true;
+    boolean mHasKeyFieldsOnly;
+    int mDisabledReason;
 
     ShortcutInfoCompat() { }
 
@@ -176,6 +190,14 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * Return the package name of the publisher app.
+     */
+    @NonNull
+    public String getPackage() {
+        return mPackageName;
+    }
+
+    /**
      * Return the target activity.
      *
      * <p>This has nothing to do with the activity that this shortcut will launch.
@@ -218,6 +240,13 @@ public class ShortcutInfoCompat {
     @Nullable
     public CharSequence getDisabledMessage() {
         return mDisabledMessage;
+    }
+
+    /**
+     * Returns why a shortcut has been disabled.
+     */
+    public int getDisabledReason() {
+        return mDisabledReason;
     }
 
     /**
@@ -295,7 +324,7 @@ public class ShortcutInfoCompat {
     @RequiresApi(25)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
-    static boolean getLongLivedFromExtra(@NonNull PersistableBundle bundle) {
+    static boolean getLongLivedFromExtra(@Nullable PersistableBundle bundle) {
         if (bundle == null || !bundle.containsKey(EXTRA_LONG_LIVED)) {
             return false;
         }
@@ -322,6 +351,94 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * {@link UserHandle} on which the publisher created this shortcut.
+     */
+    @Nullable
+    public UserHandle getUserHandle() {
+        return mUser;
+    }
+
+    /**
+     * Last time when any of the fields was updated.
+     */
+    public long getLastChangedTimestamp() {
+        return mLastChangedTimestamp;
+    }
+
+    /** Return whether a shortcut is cached. */
+    public boolean isCached() {
+        return mIsCached;
+    }
+
+    /** Return whether a shortcut is dynamic. */
+    public boolean isDynamic() {
+        return mIsDynamic;
+    }
+
+    /** Return whether a shortcut is pinned. */
+    public boolean isPinned() {
+        return mIsPinned;
+    }
+
+    /**
+     * Return whether a shortcut is static; that is, whether a shortcut is
+     * published from AndroidManifest.xml.  If {@code true}, the shortcut is
+     * also {@link #isImmutable()}.
+     *
+     * <p>When an app is upgraded and a shortcut is no longer published from AndroidManifest.xml,
+     * this will be set to {@code false}.  If the shortcut is not pinned, then it'll disappear.
+     * However, if it's pinned, it will still be visible, {@link #isEnabled()} will be
+     * {@code false} and {@link #isEnabled()} will be {@code true}.
+     */
+    public boolean isDeclaredInManifest() {
+        return mIsDeclaredInManifest;
+    }
+
+    /**
+     * Return if a shortcut is immutable, in which case it cannot be modified with any of
+     * {@link ShortcutManagerCompat} APIs.
+     *
+     * <p>All static shortcuts are immutable.  When a static shortcut is pinned and is then
+     * disabled because it doesn't appear in AndroidManifest.xml for a newer version of the
+     * app, {@link #isDeclaredInManifest} returns {@code false}, but the shortcut is still
+     * immutable.
+     *
+     * <p>All shortcuts originally published via the {@link ShortcutManager} APIs
+     * are all mutable.
+     */
+    public boolean isImmutable() {
+        return mIsImmutable;
+    }
+
+    /**
+     * Returns {@code false} if a shortcut is disabled with
+     * {@link ShortcutManagerCompat#disableShortcuts}.
+     */
+    public boolean isEnabled() {
+        return mIsEnabled;
+    }
+
+    /**
+     * Return whether a shortcut only contains "key" information only or not.  If true, only the
+     * following fields are available.
+     * <ul>
+     *     <li>{@link #getId()}
+     *     <li>{@link #getPackage()}
+     *     <li>{@link #getActivity()}
+     *     <li>{@link #getLastChangedTimestamp()}
+     *     <li>{@link #isDynamic()}
+     *     <li>{@link #isPinned()}
+     *     <li>{@link #isDeclaredInManifest()}
+     *     <li>{@link #isImmutable()}
+     *     <li>{@link #isEnabled()}
+     *     <li>{@link #getUserHandle()}
+     * </ul>
+     */
+    public boolean hasKeyFieldsOnly() {
+        return mHasKeyFieldsOnly;
+    }
+
+    /**
      * Builder class for {@link ShortcutInfoCompat} objects.
      */
     public static class Builder {
@@ -342,14 +459,25 @@ public class ShortcutInfoCompat {
             mInfo = new ShortcutInfoCompat();
             mInfo.mContext = shortcutInfo.mContext;
             mInfo.mId = shortcutInfo.mId;
+            mInfo.mPackageName = shortcutInfo.mPackageName;
             mInfo.mIntents = Arrays.copyOf(shortcutInfo.mIntents, shortcutInfo.mIntents.length);
             mInfo.mActivity = shortcutInfo.mActivity;
             mInfo.mLabel = shortcutInfo.mLabel;
             mInfo.mLongLabel = shortcutInfo.mLongLabel;
             mInfo.mDisabledMessage = shortcutInfo.mDisabledMessage;
+            mInfo.mDisabledReason = shortcutInfo.mDisabledReason;
             mInfo.mIcon = shortcutInfo.mIcon;
             mInfo.mIsAlwaysBadged = shortcutInfo.mIsAlwaysBadged;
+            mInfo.mUser = shortcutInfo.mUser;
+            mInfo.mLastChangedTimestamp = shortcutInfo.mLastChangedTimestamp;
+            mInfo.mIsCached = shortcutInfo.mIsCached;
+            mInfo.mIsDynamic = shortcutInfo.mIsDynamic;
+            mInfo.mIsPinned = shortcutInfo.mIsPinned;
+            mInfo.mIsDeclaredInManifest = shortcutInfo.mIsDeclaredInManifest;
+            mInfo.mIsImmutable = shortcutInfo.mIsImmutable;
+            mInfo.mIsEnabled = shortcutInfo.mIsEnabled;
             mInfo.mIsLongLived = shortcutInfo.mIsLongLived;
+            mInfo.mHasKeyFieldsOnly = shortcutInfo.mHasKeyFieldsOnly;
             mInfo.mRank = shortcutInfo.mRank;
             if (shortcutInfo.mPersons != null) {
                 mInfo.mPersons = Arrays.copyOf(shortcutInfo.mPersons, shortcutInfo.mPersons.length);
@@ -371,14 +499,33 @@ public class ShortcutInfoCompat {
             mInfo = new ShortcutInfoCompat();
             mInfo.mContext = context;
             mInfo.mId = shortcutInfo.getId();
+            mInfo.mPackageName = shortcutInfo.getPackage();
             Intent[] intents = shortcutInfo.getIntents();
             mInfo.mIntents = Arrays.copyOf(intents, intents.length);
             mInfo.mActivity = shortcutInfo.getActivity();
             mInfo.mLabel = shortcutInfo.getShortLabel();
             mInfo.mLongLabel = shortcutInfo.getLongLabel();
             mInfo.mDisabledMessage = shortcutInfo.getDisabledMessage();
+            if (Build.VERSION.SDK_INT >= 28) {
+                mInfo.mDisabledReason = shortcutInfo.getDisabledReason();
+            } else {
+                mInfo.mDisabledReason = shortcutInfo.isEnabled()
+                        ? ShortcutInfo.DISABLED_REASON_NOT_DISABLED
+                        : ShortcutInfo.DISABLED_REASON_UNKNOWN;
+            }
             mInfo.mCategories = shortcutInfo.getCategories();
             mInfo.mPersons = ShortcutInfoCompat.getPersonsFromExtra(shortcutInfo.getExtras());
+            mInfo.mUser = shortcutInfo.getUserHandle();
+            mInfo.mLastChangedTimestamp = shortcutInfo.getLastChangedTimestamp();
+            if (Build.VERSION.SDK_INT >= 30) {
+                mInfo.mIsCached = shortcutInfo.isCached();
+            }
+            mInfo.mIsDynamic = shortcutInfo.isDynamic();
+            mInfo.mIsPinned = shortcutInfo.isPinned();
+            mInfo.mIsDeclaredInManifest = shortcutInfo.isDeclaredInManifest();
+            mInfo.mIsImmutable = shortcutInfo.isImmutable();
+            mInfo.mIsEnabled = shortcutInfo.isEnabled();
+            mInfo.mHasKeyFieldsOnly = shortcutInfo.hasKeyFieldsOnly();
             mInfo.mRank = shortcutInfo.getRank();
             mInfo.mExtras = shortcutInfo.getExtras();
         }

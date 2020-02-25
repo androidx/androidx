@@ -927,13 +927,24 @@ package androidx.core.content.pm {
     method public android.content.ComponentName? getActivity();
     method public java.util.Set<java.lang.String!>? getCategories();
     method public CharSequence? getDisabledMessage();
+    method public int getDisabledReason();
     method public android.os.PersistableBundle? getExtras();
     method public String getId();
     method public android.content.Intent getIntent();
     method public android.content.Intent![] getIntents();
+    method public long getLastChangedTimestamp();
     method public CharSequence? getLongLabel();
+    method public String getPackage();
     method public int getRank();
     method public CharSequence getShortLabel();
+    method public android.os.UserHandle? getUserHandle();
+    method public boolean hasKeyFieldsOnly();
+    method public boolean isCached();
+    method public boolean isDeclaredInManifest();
+    method public boolean isDynamic();
+    method public boolean isEnabled();
+    method public boolean isImmutable();
+    method public boolean isPinned();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
   }
 
