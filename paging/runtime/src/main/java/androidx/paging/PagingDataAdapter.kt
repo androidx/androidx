@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -77,5 +78,54 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      */
     open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.removeLoadStateListener(listener)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.END] [LoadState] as a list item at the end of the presented list.
+     */
+    fun withLoadStateHeader(
+        header: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.START) {
+                header.loadState = loadState
+            }
+        }
+        return MergeAdapter(header, this)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.START] [LoadState] as a list item at the start of the presented list.
+     */
+    fun withLoadStateFooter(
+        footer: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.END) {
+                footer.loadState = loadState
+            }
+        }
+        return MergeAdapter(this, footer)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.START] and [LoadType.END] [LoadState]s as list items at the start and end
+     * respectively.
+     */
+    fun withLoadStateHeaderAndFooter(
+        header: LoadStateAdapter<*>,
+        footer: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.START) {
+                header.loadState = loadState
+            } else if (loadType == LoadType.END) {
+                footer.loadState = loadState
+            }
+        }
+        return MergeAdapter(header, this, footer)
     }
 }

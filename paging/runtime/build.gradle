@@ -36,7 +36,8 @@ dependencies {
 
     api(project(":lifecycle:lifecycle-runtime-ktx"))
     api(project(":lifecycle:lifecycle-livedata-ktx"))
-    api("androidx.recyclerview:recyclerview:1.1.0")
+    //api("androidx.recyclerview:recyclerview:1.1.0")
+    api(project(":recyclerview:recyclerview"))
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
     implementation(project(":core:core-ktx"))
