@@ -60,6 +60,7 @@ import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -203,6 +204,9 @@ public final class ImageCapture extends UseCase {
     private static final String TAG = "ImageCapture";
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
     private static final int MAX_IMAGES = 2;
+    // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
+    private static final byte JPEG_QUALITY_MAXIMIZE_QUALITY_MODE = 100;
+    private static final byte JPEG_QUALITY_MINIMIZE_LATENCY_MODE = 95;
 
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -749,9 +753,29 @@ public final class ImageCapture extends UseCase {
         targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mPendingImageCaptureRequests.offer(
-                new ImageCaptureRequest(relativeRotation, targetRatio, listenerExecutor, callback));
+                new ImageCaptureRequest(relativeRotation, getJpegQuality(), targetRatio,
+                        listenerExecutor, callback));
 
         issueImageCaptureRequests();
+    }
+
+    /**
+     * Gets the JPEG quality based on {@link #mCaptureMode}.
+     *
+     * <p> Range is 1-100; larger is higher quality.
+     *
+     * @return Compression quality of the captured JPEG image.
+     */
+    @IntRange(from = 1, to = 100)
+    private int getJpegQuality() {
+        switch (mCaptureMode) {
+            case CAPTURE_MODE_MAXIMIZE_QUALITY:
+                return JPEG_QUALITY_MAXIMIZE_QUALITY_MODE;
+            case CAPTURE_MODE_MINIMIZE_LATENCY:
+                return JPEG_QUALITY_MINIMIZE_LATENCY_MODE;
+            default:
+                throw new IllegalStateException("CaptureMode " + mCaptureMode + " is invalid");
+        }
     }
 
     /** Issues saved ImageCaptureRequest. */
@@ -1210,6 +1234,8 @@ public final class ImageCapture extends UseCase {
             // Add the dynamic implementation options of ImageCapture
             builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
                     imageCaptureRequest.mRotationDegrees);
+            builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
+                    imageCaptureRequest.mJpegQuality);
 
             // Add the implementation options required by the CaptureStage
             builder.addImplementationOptions(
@@ -1837,6 +1863,9 @@ public final class ImageCapture extends UseCase {
     private static final class ImageCaptureRequest {
         @RotationValue
         final int mRotationDegrees;
+        @IntRange(from = 1, to = 100)
+        final int mJpegQuality;
+
         private final Rational mTargetRatio;
         @NonNull
         private final Executor mListenerExecutor;
@@ -1847,10 +1876,13 @@ public final class ImageCapture extends UseCase {
 
         ImageCaptureRequest(
                 @RotationValue int rotationDegrees,
+                @IntRange(from = 1, to = 100)
+                int jpegQuality,
                 Rational targetRatio,
                 @NonNull Executor executor,
                 @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
+            mJpegQuality = jpegQuality;
             mTargetRatio = targetRatio;
             mListenerExecutor = executor;
             mCallback = callback;
