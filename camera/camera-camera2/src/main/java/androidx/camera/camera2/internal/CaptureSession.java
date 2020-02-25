@@ -96,7 +96,7 @@ final class CaptureSession {
     private final StateCallback mCaptureSessionStateCallback = new StateCallback();
     /** The framework camera capture session held by this session. */
     @Nullable
-    CameraCaptureSession mCameraCaptureSession;
+    CameraCaptureSessionCompat mCaptureSessionCompat;
     /** The configuration for the currently issued capture requests. */
     @Nullable
     volatile SessionConfig mSessionConfig;
@@ -469,17 +469,17 @@ final class CaptureSession {
                             "release() should not be possible in state: " + mState);
                 case OPENED:
                 case CLOSED:
-                    if (mCameraCaptureSession != null) {
+                    if (mCaptureSessionCompat != null) {
                         if (abortInFlightCaptures) {
                             try {
-                                mCameraCaptureSession.abortCaptures();
+                                mCaptureSessionCompat.toCameraCaptureSession().abortCaptures();
                             } catch (CameraAccessException e) {
                                 // We couldn't abort the captures, but we should continue on to
                                 // release the session.
                                 Log.e(TAG, "Unable to abort captures.", e);
                             }
                         }
-                        mCameraCaptureSession.close();
+                        mCaptureSessionCompat.toCameraCaptureSession().close();
                     }
                     // Fall through
                 case OPENING:
@@ -530,7 +530,9 @@ final class CaptureSession {
     // TODO(b/140955560) If the issue is fixed then on OS releases with the fix this should not
     //  be called and instead onClosed() should be called by the framework instead.
     void forceClose() {
-        mCaptureSessionStateCallback.onClosed(mCameraCaptureSession);
+        if (mCaptureSessionCompat != null) {
+            mCaptureSessionStateCallback.onClosed(mCaptureSessionCompat.toCameraCaptureSession());
+        }
     }
 
     // Notify the surface is detached from current capture session.
@@ -619,7 +621,8 @@ final class CaptureSession {
             }
 
             CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
-                    captureConfigBuilder.build(), mCameraCaptureSession.getDevice(),
+                    captureConfigBuilder.build(),
+                    mCaptureSessionCompat.toCameraCaptureSession().getDevice(),
                     mConfiguredSurfaceMap);
             if (captureRequest == null) {
                 Log.d(TAG, "Skipping issuing empty request for session.");
@@ -631,8 +634,8 @@ final class CaptureSession {
                             captureConfig.getCameraCaptureCallbacks(),
                             mCaptureCallback);
 
-            CameraCaptureSessionCompat.setSingleRepeatingRequest(mCameraCaptureSession,
-                    captureRequest, mExecutor, comboCaptureCallback);
+            mCaptureSessionCompat.setSingleRepeatingRequest(captureRequest, mExecutor,
+                    comboCaptureCallback);
         } catch (CameraAccessException e) {
             Log.e(TAG, "Unable to access camera: " + e.getMessage());
             Thread.dumpStack();
@@ -705,7 +708,8 @@ final class CaptureSession {
 
                 CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                         captureConfigBuilder.build(),
-                        mCameraCaptureSession.getDevice(), mConfiguredSurfaceMap);
+                        mCaptureSessionCompat.toCameraCaptureSession().getDevice(),
+                        mConfiguredSurfaceMap);
                 if (captureRequest == null) {
                     Log.d(TAG, "Skipping issuing request without surface.");
                     return;
@@ -720,8 +724,8 @@ final class CaptureSession {
             }
 
             if (!captureRequests.isEmpty()) {
-                CameraCaptureSessionCompat.captureBurstRequests(mCameraCaptureSession,
-                        captureRequests, mExecutor, callbackAggregator);
+                mCaptureSessionCompat.captureBurstRequests(captureRequests, mExecutor,
+                        callbackAggregator);
             } else {
                 Log.d(TAG, "Skipping issuing burst request due to no valid request elements");
             }
@@ -861,7 +865,8 @@ final class CaptureSession {
                                 "onConfigured() should not be possible in state: " + mState);
                     case OPENING:
                         mState = State.OPENED;
-                        mCameraCaptureSession = session;
+                        mCaptureSessionCompat =
+                                CameraCaptureSessionCompat.toCameraCaptureSessionCompat(session);
 
                         // Issue capture request of enableSession if exists.
                         if (mSessionConfig != null) {
@@ -881,7 +886,8 @@ final class CaptureSession {
                         issuePendingCaptureRequest();
                         break;
                     case CLOSED:
-                        mCameraCaptureSession = session;
+                        mCaptureSessionCompat =
+                                CameraCaptureSessionCompat.toCameraCaptureSessionCompat(session);
                         break;
                     case RELEASING:
                         session.close();
@@ -923,7 +929,7 @@ final class CaptureSession {
                 closeConfiguredDeferrableSurfaces();
 
                 mState = State.RELEASED;
-                mCameraCaptureSession = null;
+                mCaptureSessionCompat = null;
 
                 clearConfiguredSurfaces();
 
@@ -957,7 +963,7 @@ final class CaptureSession {
                         // any close function or callback work. Hence, change state to RELEASED.
                         // Check b/147402661 for detail.
                         mState = State.RELEASED;
-                        mCameraCaptureSession = null;
+                        mCaptureSessionCompat = null;
                         break;
                     case RELEASING:
                         // TODO(b/147402661): Refactor this part after detail checking.
