@@ -17,15 +17,17 @@
 package androidx.viewpager2.widget
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +38,7 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     private val enhancedA11yEnabled = ViewPager2.sFeatureEnhancedA11yEnabled
+    private var uiDevice: Any? = null
 
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
@@ -55,11 +58,16 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
         }
+        if (Build.VERSION.SDK_INT >= 18) {
+            // Make sure accessibility is enabled (side effect of creating a UI Automator instance)
+            uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        }
     }
 
     override fun tearDown() {
         super.tearDown()
         ViewPager2.sFeatureEnhancedA11yEnabled = enhancedA11yEnabled
+        uiDevice = null
     }
 
     @Test
@@ -67,7 +75,6 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     fun test_onPerformPageAction() {
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider.provider(stringSequence(6)))
-
             val initialPage = viewPager.currentItem
             assertBasicState(initialPage)
 
@@ -91,15 +98,18 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     fun test_collectionInfo() {
         test_collectionInfo(6)
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     fun test_collectionInfo_zeroItems() {
         test_collectionInfo(0)
     }
 
+    @RequiresApi(19)
     private fun test_collectionInfo(numberOfItems: Int) {
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider.provider(stringSequence(numberOfItems)))
@@ -110,20 +120,41 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
                 ViewCompat.onInitializeAccessibilityNodeInfo(viewPager, node)
             }
             var collectionInfo = node.collectionInfo
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                if (config.orientation == ORIENTATION_VERTICAL) {
-                    assertThat(collectionInfo.rowCount, equalTo(numberOfItems))
-                    assertThat(collectionInfo.columnCount, equalTo(1))
-                } else {
-                    assertThat(collectionInfo.columnCount, equalTo(numberOfItems))
-                    assertThat(collectionInfo.rowCount, equalTo(1))
-                }
-                assertThat(collectionInfo.isHierarchical, equalTo(false))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    assertThat(collectionInfo.selectionMode, equalTo(0))
-                }
+            if (config.orientation == ORIENTATION_VERTICAL) {
+                assertThat(collectionInfo.rowCount, equalTo(numberOfItems))
+                assertThat(collectionInfo.columnCount, equalTo(1))
             } else {
-                assertNull(collectionInfo)
+                assertThat(collectionInfo.columnCount, equalTo(numberOfItems))
+                assertThat(collectionInfo.rowCount, equalTo(1))
+            }
+            assertThat(collectionInfo.isHierarchical, equalTo(false))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                assertThat(collectionInfo.selectionMode, equalTo(0))
+            }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    fun test_collectionItemInfo() {
+        setUpTest(config.orientation).apply {
+            setAdapterSync(viewAdapterProvider.provider(stringSequence(6)))
+            listOf(1, 0, 2, 5).forEach { targetPage ->
+                viewPager.setCurrentItemSync(targetPage, false, 2, TimeUnit.SECONDS)
+                assertBasicState(targetPage)
+                var nodeChild = AccessibilityNodeInfoCompat.obtain()
+                val item = viewPager.linearLayoutManager.findViewByPosition(targetPage)
+                runOnUiThreadSync {
+                    ViewCompat.onInitializeAccessibilityNodeInfo(item!!, nodeChild)
+                }
+                var collectionItemInfo = nodeChild.collectionItemInfo
+                if (config.orientation == ORIENTATION_VERTICAL) {
+                    assertThat(collectionItemInfo.rowIndex, equalTo(targetPage))
+                    assertThat(collectionItemInfo.columnIndex, equalTo(0))
+                } else {
+                    assertThat(collectionItemInfo.rowIndex, equalTo(0))
+                    assertThat(collectionItemInfo.columnIndex, equalTo(targetPage))
+                }
             }
         }
     }
