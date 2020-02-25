@@ -99,7 +99,8 @@ class DatabaseVerifier private constructor(
             if (reusePreviousSqliteTempdir()) {
                 return
             }
-            synchronized(this) {
+            // synchronize on System.getProperties in case this method is called concurrently from multiple classloaders
+            synchronized(System.getProperties()) {
                 // check again (inside synchronization) whether a previous initialization succeeded
                 if (reusePreviousSqliteTempdir()) {
                     return
