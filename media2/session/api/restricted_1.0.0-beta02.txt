@@ -111,6 +111,7 @@ package androidx.media2.session {
   public static final class MediaController.Builder {
     ctor public MediaController.Builder(android.content.Context);
     method public androidx.media2.session.MediaController build();
+    method public androidx.media2.session.MediaController.Builder setConnectionHints(android.os.Bundle!);
     method public androidx.media2.session.MediaController.Builder setControllerCallback(java.util.concurrent.Executor, androidx.media2.session.MediaController.ControllerCallback);
     method public androidx.media2.session.MediaController.Builder setSessionCompatToken(android.support.v4.media.session.MediaSessionCompat.Token);
     method public androidx.media2.session.MediaController.Builder setSessionToken(androidx.media2.session.SessionToken);

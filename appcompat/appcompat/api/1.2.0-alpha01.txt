@@ -221,7 +221,6 @@ package androidx.appcompat.app {
     ctor @ContentView public AppCompatActivity(@LayoutRes int);
     method public androidx.appcompat.app.AppCompatDelegate getDelegate();
     method public androidx.appcompat.app.ActionBarDrawerToggle.Delegate? getDrawerToggleDelegate();
-    method public androidx.lifecycle.Lifecycle getLifecycle();
     method public androidx.appcompat.app.ActionBar? getSupportActionBar();
     method public android.content.Intent? getSupportParentActivityIntent();
     method public void onCreateSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);

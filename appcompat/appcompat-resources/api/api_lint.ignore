@@ -1,19 +1,9 @@
 // Baseline format: 1.0
 MissingNullability: androidx.appcompat.content.res.AppCompatResources#getColorStateList(android.content.Context, int):
     Missing nullability on method `getColorStateList` return
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#addState(int[], android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `stateSet` in method `addState`
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#addState(int[], android.graphics.drawable.Drawable) parameter #1:
-    Missing nullability on parameter `drawable` in method `addState`
 MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme):
     Missing nullability on method `createFromXmlInner` return
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#getConstantState():
-    Missing nullability on method `getConstantState` return
 MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#mutate():
     Missing nullability on method `mutate` return
 MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#onStateChange(int[]) parameter #0:
     Missing nullability on parameter `stateSet` in method `onStateChange`
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#setColorFilter(android.graphics.ColorFilter) parameter #0:
-    Missing nullability on parameter `colorFilter` in method `setColorFilter`
-MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#setTintList(android.content.res.ColorStateList) parameter #0:
-    Missing nullability on parameter `tint` in method `setTintList`
