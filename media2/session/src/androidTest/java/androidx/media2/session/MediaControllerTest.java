@@ -66,6 +66,7 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1107,6 +1108,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPlayFromSearch() throws Exception {
         final String request = "random query";
         final Bundle bundle = new Bundle();
@@ -1136,6 +1138,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPlayFromUri() throws Exception {
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
@@ -1164,6 +1167,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPlayFromMediaId() throws Exception {
         final String request = "media_id";
         final Bundle bundle = new Bundle();
@@ -1192,6 +1196,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPrepareFromSearch() throws Exception {
         final String request = "random query";
         final Bundle bundle = new Bundle();
@@ -1220,6 +1225,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPrepareFromUri() throws Exception {
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
@@ -1248,6 +1254,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPrepareFromMediaId() throws Exception {
         final String request = "media_id";
         final Bundle bundle = new Bundle();
