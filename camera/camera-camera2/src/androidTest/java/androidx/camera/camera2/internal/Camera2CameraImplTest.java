@@ -41,12 +41,12 @@ import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
@@ -55,6 +55,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
@@ -62,7 +63,6 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -91,10 +91,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -115,7 +113,8 @@ public final class Camera2CameraImplTest {
             CameraInternal.State.CLOSED,
             CameraInternal.State.OPEN,
             CameraInternal.State.RELEASED));
-    static CameraFactory sCameraFactory;
+
+    private static CameraFactory sCameraFactory;
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -125,7 +124,7 @@ public final class Camera2CameraImplTest {
     private Camera2CameraImpl mCamera2CameraImpl;
     private HandlerThread mCameraHandlerThread;
     private Handler mCameraHandler;
-    private SettableObservable<Integer> mAvailableCameras;
+    private CameraStateRegistry mCameraStateRegistry;
     Semaphore mSemaphore;
     OnImageAvailableListener mMockOnImageAvailableListener;
     String mCameraId;
@@ -157,10 +156,10 @@ public final class Camera2CameraImplTest {
         mCameraHandlerThread.start();
         mCameraHandler = new Handler(mCameraHandlerThread.getLooper());
         mSemaphore = new Semaphore(0);
-        mAvailableCameras = new SettableObservable<>(DEFAULT_AVAILABLE_CAMERA_COUNT);
+        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         mCamera2CameraImpl = new Camera2CameraImpl(
                 CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
-                mAvailableCameras, mCameraHandler);
+                mCameraStateRegistry, mCameraHandler);
     }
 
     @After
@@ -527,8 +526,13 @@ public final class Camera2CameraImplTest {
                 Observable.Observer<CameraInternal.State> mockObserver =
                 mock(Observable.Observer.class);
 
-        // Set the available cameras to zero
-        mAvailableCameras.setValue(0);
+        // Ensure real camera can't open due to max cameras being open
+        Camera mockCamera = mock(Camera.class);
+        mCameraStateRegistry.registerCamera(mockCamera, CameraXExecutors.directExecutor(),
+                () -> {
+                });
+        mCameraStateRegistry.tryOpenCamera(mockCamera);
+
 
         mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),
                 mockObserver);
@@ -536,10 +540,11 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.open();
 
         // Ensure that the camera gets to a PENDING_OPEN state
-        verify(mockObserver, timeout(3000)).onNewData(CameraInternal.State.PENDING_OPEN);
+        verify(mockObserver, timeout(3000).atLeastOnce()).onNewData(
+                CameraInternal.State.PENDING_OPEN);
 
         // Allow camera to be opened
-        mAvailableCameras.setValue(1);
+        mCameraStateRegistry.markCameraState(mockCamera, CameraInternal.State.CLOSED);
 
         verify(mockObserver, timeout(3000)).onNewData(CameraInternal.State.OPEN);
 
@@ -556,22 +561,6 @@ public final class Camera2CameraImplTest {
         CameraInternal.State currentState = state.fetchData().get();
 
         assertThat(currentState).isEqualTo(CameraInternal.State.RELEASED);
-    }
-
-    @Test
-    public void cameraStopsObservingAvailableCameras_afterRelease()
-            throws ExecutionException, InterruptedException {
-        // Camera should already be observing state after initialization
-        int observerCountBefore = mAvailableCameras.getObserverCount();
-
-        // Wait for camera to release
-        mCamera2CameraImpl.release().get();
-
-        // Observer count should now be zero
-        int observerCountAfter = mAvailableCameras.getObserverCount();
-
-        assertThat(observerCountBefore).isEqualTo(1);
-        assertThat(observerCountAfter).isEqualTo(0);
     }
 
     @Test
@@ -841,76 +830,6 @@ public final class Camera2CameraImplTest {
 
             attachToCamera(mCameraId, builder.build());
             return suggestedResolutionMap;
-        }
-    }
-
-    private static final class SettableObservable<T> implements Observable<T> {
-
-        private final Object mLock = new Object();
-        @GuardedBy("mLock")
-        private T mValue;
-
-        @GuardedBy("mLock")
-        private Map<Observer<T>, Executor> mObservers = new HashMap<>();
-
-        SettableObservable(@Nullable T initialValue) {
-            synchronized (mLock) {
-                mValue = initialValue;
-            }
-        }
-
-        void setValue(@Nullable final T value) {
-            Map<Observer<T>, Executor> notifyMap = null;
-            synchronized (mLock) {
-                if (!Objects.equals(mValue, value)) {
-                    mValue = value;
-
-                    if (!mObservers.isEmpty()) {
-                        notifyMap = new HashMap<>(mObservers);
-                    }
-                }
-            }
-
-            if (notifyMap != null) {
-                for (Map.Entry<Observer<T>, Executor> observer : notifyMap.entrySet()) {
-                    observer.getValue().execute(() -> observer.getKey().onNewData(value));
-                }
-            }
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<T> fetchData() {
-            synchronized (mLock) {
-                return Futures.immediateFuture(mValue);
-            }
-        }
-
-        @Override
-        public void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer) {
-            boolean needsUpdate = false;
-            T value;
-            synchronized (mLock) {
-                needsUpdate = !Objects.equals(mObservers.put(observer, executor), executor);
-                value = mValue;
-            }
-
-            if (needsUpdate) {
-                executor.execute(() -> observer.onNewData(value));
-            }
-        }
-
-        @Override
-        public void removeObserver(@NonNull Observer<T> observer) {
-            synchronized (mLock) {
-                mObservers.remove(observer);
-            }
-        }
-
-        int getObserverCount() {
-            synchronized (mLock) {
-                return mObservers.size();
-            }
         }
     }
 }
