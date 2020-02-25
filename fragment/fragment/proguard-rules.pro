@@ -14,6 +14,6 @@
 
 # The default FragmentFactory creates Fragment instances using reflection
 -if public class ** extends androidx.fragment.app.Fragment
--keep public class ** extends androidx.fragment.app.Fragment {
+-keep public class <1> {
     public <init>();
 }
