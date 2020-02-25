@@ -23,11 +23,9 @@ import androidx.annotation.NonNull;
 /**
  * Main Sidecar interface definition that will be used by the WindowManager library to get custom
  * OEM-provided information that isn't covered by platform APIs.
- *
- * <p>This interface should be implemented by OEM and deployed to the target devices.
- *
- * @see SidecarProvider
+ * @deprecated Use androidx.window.extensions instead of this package.
  */
+@Deprecated
 public interface SidecarInterface {
 
     /**
@@ -70,7 +68,9 @@ public interface SidecarInterface {
     /**
      * Callback that will be registered with the WindowManager library, and that the sidecar should
      * use to report all state changes.
+     * @deprecated Use androidx.window.extensions instead of this package.
      */
+    @Deprecated
     interface SidecarCallback {
         /**
          * Called by sidecar when the device state changes.

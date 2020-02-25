@@ -19,6 +19,8 @@
     package="androidx.window">
 
     <application>
+        <uses-library android:name="androidx.window.extensions"
+            android:required="false" />
         <uses-library android:name="androidx.window.sidecar"
             android:required="false" />
     </application>

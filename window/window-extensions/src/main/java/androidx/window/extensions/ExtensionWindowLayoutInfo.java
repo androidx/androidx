@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.sidecar;
+package androidx.window.extensions;
 
 import android.os.IBinder;
 
@@ -26,18 +26,18 @@ import java.util.List;
 /**
  * Contains information about the layout of display features within the window.
  */
-public final class SidecarWindowLayoutInfo {
+public class ExtensionWindowLayoutInfo {
 
     /**
      * List of display features within the window.
      * <p>NOTE: All display features returned with this container must be cropped to the application
      * window and reported within the coordinate space of the window that was provided by the app.
-     * @see SidecarInterface#getWindowLayoutInfo(IBinder)
+     * @see ExtensionInterface#getWindowLayoutInfo(IBinder)
      */
     @Nullable
-    private List<SidecarDisplayFeature> mDisplayFeatures;
+    private List<ExtensionDisplayFeature> mDisplayFeatures;
 
-    public SidecarWindowLayoutInfo(@NonNull List<SidecarDisplayFeature> displayFeatures) {
+    public ExtensionWindowLayoutInfo(@NonNull List<ExtensionDisplayFeature> displayFeatures) {
         mDisplayFeatures = displayFeatures;
     }
 
@@ -45,7 +45,7 @@ public final class SidecarWindowLayoutInfo {
      * Get the list of display features present within the window.
      */
     @Nullable
-    public List<SidecarDisplayFeature> getDisplayFeatures() {
+    public List<ExtensionDisplayFeature> getDisplayFeatures() {
         return mDisplayFeatures;
     }
 
@@ -54,10 +54,11 @@ public final class SidecarWindowLayoutInfo {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof SidecarWindowLayoutInfo)) {
+        if (!(obj instanceof ExtensionWindowLayoutInfo)) {
             return false;
         }
-        final SidecarWindowLayoutInfo other = (SidecarWindowLayoutInfo) obj;
+        final ExtensionWindowLayoutInfo
+                other = (ExtensionWindowLayoutInfo) obj;
         if (mDisplayFeatures == null) {
             return other.mDisplayFeatures == null;
         }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.sidecar;
+package androidx.window.extensions;
 
 import android.os.IBinder;
 
@@ -24,17 +24,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Basic implementation of the {@link SidecarInterface}. An OEM can choose to use it as the base
+ * Basic implementation of the {@link ExtensionInterface}. An OEM can choose to use it as the base
  * class for their implementation.
  */
-abstract class StubSidecar implements SidecarInterface {
-    private SidecarCallback mSidecarCallback;
+abstract class StubExtension implements ExtensionInterface {
+    private ExtensionCallback mExtensionCallback;
     private final Set<IBinder> mWindowLayoutChangeListenerTokens = new HashSet<>();
     private boolean mDeviceStateChangeListenerRegistered;
 
     @Override
-    public void setSidecarCallback(@NonNull SidecarCallback callback) {
-        mSidecarCallback = callback;
+    public void setExtensionCallback(@NonNull ExtensionCallback callback) {
+        mExtensionCallback = callback;
     }
 
     @Override
@@ -55,16 +55,16 @@ abstract class StubSidecar implements SidecarInterface {
         onListenersChanged();
     }
 
-    protected void updateDeviceState(@NonNull SidecarDeviceState newState) {
-        if (mSidecarCallback != null) {
-            mSidecarCallback.onDeviceStateChanged(newState);
+    protected void updateDeviceState(@NonNull ExtensionDeviceState newState) {
+        if (mExtensionCallback != null) {
+            mExtensionCallback.onDeviceStateChanged(newState);
         }
     }
 
     protected void updateWindowLayout(@NonNull IBinder windowToken,
-            @NonNull SidecarWindowLayoutInfo newLayout) {
-        if (mSidecarCallback != null) {
-            mSidecarCallback.onWindowLayoutChanged(windowToken, newLayout);
+            @NonNull ExtensionWindowLayoutInfo newLayout) {
+        if (mExtensionCallback != null) {
+            mExtensionCallback.onWindowLayoutChanged(windowToken, newLayout);
         }
     }
 

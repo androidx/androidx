@@ -16,9 +16,7 @@
 
 package androidx.window;
 
-import static androidx.window.SidecarHelper.DEBUG;
-import static androidx.window.SidecarHelper.deviceStateFromSidecar;
-import static androidx.window.SidecarHelper.windowLayoutInfoFromSidecar;
+import static androidx.window.ExtensionHelper.DEBUG;
 import static androidx.window.WindowManager.getActivityFromContext;
 
 import android.annotation.SuppressLint;
@@ -30,9 +28,6 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
-import androidx.window.sidecar.SidecarDeviceState;
-import androidx.window.sidecar.SidecarInterface;
-import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +44,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     private static final Object sLock = new Object();
 
     @GuardedBy("sLock")
-    private SidecarInterface mWindowSidecar;
+    private ExtensionInterfaceCompat mWindowExtension;
     /**
      * List of all registered callbacks for window layout info. Not protected by {@link #sLock} to
      * allow iterating and callback execution without holding the global lock.
@@ -64,10 +59,10 @@ public final class ExtensionWindowBackend implements WindowBackend {
             new CopyOnWriteArrayList<>();
     /** Device state that was last reported through callbacks, used to filter out duplicates. */
     @GuardedBy("sLock")
-    private SidecarDeviceState mLastReportedDeviceState;
+    private DeviceState mLastReportedDeviceState;
     /** Window layouts that were last reported through callbacks, used to filter out duplicates. */
     @GuardedBy("sLock")
-    private final HashMap<IBinder, SidecarWindowLayoutInfo> mLastReportedWindowLayouts =
+    private final HashMap<IBinder, WindowLayoutInfo> mLastReportedWindowLayouts =
             new HashMap<>();
 
     private static final String TAG = "WindowServer";
@@ -85,22 +80,22 @@ public final class ExtensionWindowBackend implements WindowBackend {
             synchronized (sLock) {
                 if (sInstance == null) {
                     sInstance = new ExtensionWindowBackend();
-                    sInstance.initSidecar(context.getApplicationContext());
+                    sInstance.initExtension(context.getApplicationContext());
                 }
             }
         }
         return sInstance;
     }
 
-    /** Try to initialize Sidecar, returns early if it's not available. */
+    /** Try to initialize Extension, returns early if it's not available. */
     @SuppressLint("SyntheticAccessor")
     @GuardedBy("sLock")
-    private void initSidecar(Context context) {
-        mWindowSidecar = SidecarHelper.getSidecarImpl(context);
-        if (mWindowSidecar == null) {
+    private void initExtension(Context context) {
+        mWindowExtension = ExtensionHelper.getExtensionImpl(context);
+        if (mWindowExtension == null) {
             return;
         }
-        mWindowSidecar.setSidecarCallback(new SidecarListenerImpl());
+        mWindowExtension.setExtensionCallback(new ExtensionListenerImpl());
     }
 
     @NonNull
@@ -112,32 +107,31 @@ public final class ExtensionWindowBackend implements WindowBackend {
             throw new IllegalStateException("Activity does not have a window attached.");
         }
 
-        SidecarWindowLayoutInfo sidecarWindowLayoutInfo;
         synchronized (sLock) {
-            sidecarWindowLayoutInfo = mWindowSidecar != null
-                    ? mWindowSidecar.getWindowLayoutInfo(windowToken) : null;
-            mLastReportedWindowLayouts.put(windowToken, sidecarWindowLayoutInfo);
+            WindowLayoutInfo extensionWindowLayoutInfo = mWindowExtension != null
+                    ? mWindowExtension.getWindowLayoutInfo(windowToken)
+                    : new WindowLayoutInfo(new ArrayList<>());
+            mLastReportedWindowLayouts.put(windowToken, extensionWindowLayoutInfo);
+            return extensionWindowLayoutInfo;
         }
-        return windowLayoutInfoFromSidecar(sidecarWindowLayoutInfo);
     }
 
     @NonNull
     @Override
     public DeviceState getDeviceState() {
-        SidecarDeviceState sidecarDeviceState;
         synchronized (sLock) {
-            sidecarDeviceState = mWindowSidecar != null ? mWindowSidecar.getDeviceState() : null;
+            return mWindowExtension != null ? mWindowExtension.getDeviceState() :
+                    new DeviceState(DeviceState.POSTURE_UNKNOWN);
         }
-        return deviceStateFromSidecar(sidecarDeviceState);
     }
 
     @Override
     public void registerLayoutChangeCallback(@NonNull Context context,
             @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
         synchronized (sLock) {
-            if (mWindowSidecar == null) {
+            if (mWindowExtension == null) {
                 if (DEBUG) {
-                    Log.v(TAG, "Sidecar not loaded, skipping callback registration.");
+                    Log.v(TAG, "Extension not loaded, skipping callback registration.");
                 }
                 return;
             }
@@ -149,7 +143,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
             }
 
             // Check if the token was already registered, in case we need to report tracking of a
-            // new token to the sidecar.
+            // new token to the extension.
             boolean registeredToken = false;
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
                 if (callbackWrapper.mToken.equals(windowToken)) {
@@ -163,7 +157,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
             mWindowLayoutChangeCallbacks.add(callbackWrapper);
             if (!registeredToken) {
                 // Added the first callback for the token.
-                mWindowSidecar.onWindowLayoutChangeListenerAdded(windowToken);
+                mWindowExtension.onWindowLayoutChangeListenerAdded(windowToken);
             }
         }
     }
@@ -171,9 +165,9 @@ public final class ExtensionWindowBackend implements WindowBackend {
     @Override
     public void unregisterLayoutChangeCallback(@NonNull Consumer<WindowLayoutInfo> callback) {
         synchronized (sLock) {
-            if (mWindowSidecar == null) {
+            if (mWindowExtension == null) {
                 if (DEBUG) {
-                    Log.v(TAG, "Sidecar not loaded, skipping callback un-registration.");
+                    Log.v(TAG, "Extension not loaded, skipping callback un-registration.");
                 }
                 return;
             }
@@ -187,7 +181,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
                     itemsToRemove.add(callbackWrapper);
                 }
             }
-            // Remove the items from the list and notify sidecar if needed.
+            // Remove the items from the list and notify extension if needed.
             mWindowLayoutChangeCallbacks.removeAll(itemsToRemove);
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : itemsToRemove) {
                 callbackRemovedForToken(callbackWrapper.mToken);
@@ -196,7 +190,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     }
 
     /**
-     * Check if there are no more registered callbacks left for the token and inform sidecar if
+     * Check if there are no more registered callbacks left for the token and inform extension if
      * needed.
      */
     @GuardedBy("sLock")
@@ -207,23 +201,23 @@ public final class ExtensionWindowBackend implements WindowBackend {
                 return;
             }
         }
-        // No registered callbacks left for token - report to sidecar.
-        mWindowSidecar.onWindowLayoutChangeListenerRemoved(token);
+        // No registered callbacks left for token - report to extension.
+        mWindowExtension.onWindowLayoutChangeListenerRemoved(token);
     }
 
     @Override
     public void registerDeviceStateChangeCallback(@NonNull Executor executor,
             @NonNull Consumer<DeviceState> callback) {
         synchronized (sLock) {
-            if (mWindowSidecar == null) {
+            if (mWindowExtension == null) {
                 if (DEBUG) {
-                    Log.d(TAG, "Sidecar not loaded, skipping callback registration.");
+                    Log.d(TAG, "Extension not loaded, skipping callback registration.");
                 }
                 return;
             }
 
             if (mDeviceStateChangeCallbacks.isEmpty()) {
-                mWindowSidecar.onDeviceStateListenersChanged(false /* isEmpty */);
+                mWindowExtension.onDeviceStateListenersChanged(false /* isEmpty */);
             }
 
             final DeviceStateChangeCallbackWrapper callbackWrapper =
@@ -235,9 +229,9 @@ public final class ExtensionWindowBackend implements WindowBackend {
     @Override
     public void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback) {
         synchronized (sLock) {
-            if (mWindowSidecar == null) {
+            if (mWindowExtension == null) {
                 if (DEBUG) {
-                    Log.d(TAG, "Sidecar not loaded, skipping callback un-registration.");
+                    Log.d(TAG, "Extension not loaded, skipping callback un-registration.");
                 }
                 return;
             }
@@ -246,7 +240,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
                 if (callbackWrapper.mCallback.equals(callback)) {
                     mDeviceStateChangeCallbacks.remove(callbackWrapper);
                     if (mDeviceStateChangeCallbacks.isEmpty()) {
-                        mWindowSidecar.onDeviceStateListenersChanged(true /* isEmpty */);
+                        mWindowExtension.onDeviceStateListenersChanged(true /* isEmpty */);
                     }
                     return;
                 }
@@ -254,27 +248,27 @@ public final class ExtensionWindowBackend implements WindowBackend {
         }
     }
 
-    private class SidecarListenerImpl implements SidecarInterface.SidecarCallback {
+    private class ExtensionListenerImpl implements
+            ExtensionInterfaceCompat.ExtensionCallbackInterface {
         @Override
         @SuppressLint("SyntheticAccessor")
-        public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
+        public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
             synchronized (sLock) {
                 if (newDeviceState.equals(mLastReportedDeviceState)) {
                     // Skipping, value already reported
                     if (DEBUG) {
-                        Log.w(TAG, "Sidecar reported old layout value");
+                        Log.w(TAG, "Extension reported old layout value");
                     }
                     return;
                 }
                 mLastReportedDeviceState = newDeviceState;
             }
 
-            DeviceState deviceState = deviceStateFromSidecar(newDeviceState);
             for (DeviceStateChangeCallbackWrapper callbackWrapper : mDeviceStateChangeCallbacks) {
                 callbackWrapper.mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        callbackWrapper.mCallback.accept(deviceState);
+                        callbackWrapper.mCallback.accept(newDeviceState);
                     }
                 });
             }
@@ -283,21 +277,19 @@ public final class ExtensionWindowBackend implements WindowBackend {
         @Override
         @SuppressLint("SyntheticAccessor")
         public void onWindowLayoutChanged(@NonNull IBinder windowToken,
-                @NonNull SidecarWindowLayoutInfo newLayout) {
+                @NonNull WindowLayoutInfo newLayout) {
             synchronized (sLock) {
-                SidecarWindowLayoutInfo lastReportedValue =
-                        mLastReportedWindowLayouts.get(windowToken);
+                WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(windowToken);
                 if (newLayout.equals(lastReportedValue)) {
                     // Skipping, value already reported
                     if (DEBUG) {
-                        Log.w(TAG, "Sidecar reported an old layout value");
+                        Log.w(TAG, "Extension reported an old layout value");
                     }
                     return;
                 }
                 mLastReportedWindowLayouts.put(windowToken, newLayout);
             }
 
-            WindowLayoutInfo layoutInfo = windowLayoutInfoFromSidecar(newLayout);
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
                 if (!callbackWrapper.mToken.equals(windowToken)) {
                     continue;
@@ -306,7 +298,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
                 callbackWrapper.mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        callbackWrapper.mCallback.accept(layoutInfo);
+                        callbackWrapper.mCallback.accept(newLayout);
                     }
                 });
             }

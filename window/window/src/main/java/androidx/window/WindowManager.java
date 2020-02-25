@@ -23,7 +23,7 @@ import android.content.ContextWrapper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
-import androidx.window.sidecar.SidecarInterface;
+import androidx.window.extensions.ExtensionInterface;
 
 import java.util.concurrent.Executor;
 
@@ -36,7 +36,7 @@ public final class WindowManager {
     /**
      * Visual context that was registered with this instance of {@link WindowManager} at creation.
      * This is used to find the token identifier of the window when requesting layout information
-     * from the {@link SidecarInterface}.
+     * from the {@link ExtensionInterface}.
      */
     private Context mContext;
     /**

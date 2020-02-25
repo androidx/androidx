@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.sidecar;
+package androidx.window.extensions;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -26,7 +26,7 @@ import java.lang.annotation.RetentionPolicy;
  * Information about the current state of the device.
  * <p>Currently only includes the description of the state for foldable devices.
  */
-public final class SidecarDeviceState {
+public class ExtensionDeviceState {
 
     /**
      * The current posture of the foldable device.
@@ -50,7 +50,7 @@ public final class SidecarDeviceState {
     })
     @interface Posture{}
 
-    public SidecarDeviceState(@Posture int posture) {
+    public ExtensionDeviceState(@Posture int posture) {
         mPosture = posture;
     }
 
@@ -67,10 +67,11 @@ public final class SidecarDeviceState {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof SidecarDeviceState)) {
+        if (!(obj instanceof ExtensionDeviceState)) {
             return false;
         }
-        final SidecarDeviceState other = (SidecarDeviceState) obj;
+        final ExtensionDeviceState
+                other = (ExtensionDeviceState) obj;
         return other.mPosture == mPosture;
     }
 

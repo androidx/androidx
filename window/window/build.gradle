@@ -41,6 +41,7 @@ dependencies {
     implementation "androidx.core:core:1.2.0"
 
     compileOnly(project(":window:window-extensions"))
+    compileOnly(project(":window:window-sidecar"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -53,7 +54,11 @@ androidx {
     name = "Jetpack WindowManager Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WINDOW
+    mavenVersion = LibraryVersions.WINDOW
     inceptionYear = "2020"
     description = "WindowManager Jetpack library. Currently only provides additional " +
             "functionality on foldable devices."
+    // Suppressing deprecation warnings, since there is a need to maintain compatibility with old
+    // Sidecar interface.
+    failOnDeprecationWarnings = false
 }

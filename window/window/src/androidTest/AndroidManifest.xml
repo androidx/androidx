@@ -18,7 +18,7 @@
     package="androidx.window.test">
 
     <application>
-        <uses-library android:name="androidx.window.sidecar" android:required="false" />
+        <uses-library android:name="androidx.window.extension" android:required="false" />
 
         <activity android:name="androidx.window.TestActivity" />
         <activity android:name="androidx.window.TestConfigChangeHandlingActivity"

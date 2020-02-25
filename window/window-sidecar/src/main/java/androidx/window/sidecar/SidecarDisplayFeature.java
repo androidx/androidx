@@ -20,27 +20,28 @@ import android.graphics.Rect;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Description of a physical feature on the display.
+ * @deprecated Use androidx.window.extensions instead of this package.
  */
+@Deprecated
 public final class SidecarDisplayFeature {
     /**
      * The bounding rectangle of the feature within the application window in the window
      * coordinate space.
      */
     @NonNull
-    private final Rect mBounds;
+    private Rect mRect;
 
     /**
      * The physical type of the feature.
      */
     @Type
-    private final int mType;
+    private int mType;
 
     /**
      * A fold in the flexible screen without a physical gap.
@@ -59,42 +60,24 @@ public final class SidecarDisplayFeature {
     })
     @interface Type{}
 
-    public SidecarDisplayFeature(@NonNull Rect bounds, @Type int type) {
-        mBounds = new Rect(bounds);
-        mType = type;
-    }
-
     /** Get the bounding rect of the display feature in window coordinate space. */
     @NonNull
-    public Rect getBounds() {
-        return mBounds;
+    public Rect getRect() {
+        return mRect;
+    }
+
+    /** Set the bounding rect of the display feature in window coordinate space. */
+    public void setRect(@NonNull Rect rect) {
+        mRect.set(rect);
     }
 
     /** Get the type of the display feature. */
-    @Type
-    public int getType() {
+    public @Type int getType() {
         return mType;
     }
 
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof SidecarDisplayFeature)) {
-            return false;
-        }
-        final SidecarDisplayFeature other = (SidecarDisplayFeature) obj;
-        if (mType != other.mType) {
-            return false;
-        }
-        return mBounds.equals(other.mBounds);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mType;
-        result = 31 * result + mBounds.centerX() + mBounds.centerY();
-        return result;
+    /** Set the type of the display feature. */
+    public void setType(@Type int type) {
+        mType = type;
     }
 }

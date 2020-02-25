@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.sidecar;
+package androidx.window.extensions;
 
 import android.content.Context;
 
@@ -22,25 +22,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * A stub implementation for the class that will instantiate the Sidecar.
+ * A stub implementation for the class that will instantiate the Extension.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices.
  *
- * @see SidecarInterface
+ * @see ExtensionInterface
  */
-public class SidecarProvider {
+public class ExtensionProvider {
 
-    private SidecarProvider() {}
+    private ExtensionProvider() {}
 
     /**
-     * Instantiate the Sidecar for the use by the WindowManager library.
+     * Instantiate the Extension for the use by the WindowManager library.
      *
      * <p>The library will instantiate the vendor implementation using this interface.
-     * @return A compatible version of the {@link SidecarInterface} for the provided library
+     * @return A compatible version of the {@link ExtensionInterface} for the provided library
      *         version string, or {@code null} if not available.
      */
     @Nullable
-    public static SidecarInterface getSidecarImpl(@NonNull Context context) {
+    public static ExtensionInterface getExtensionImpl(@NonNull Context context) {
         throw new UnsupportedOperationException("Stub, replace with implementation.");
     }
 
@@ -57,8 +57,8 @@ public class SidecarProvider {
      * PATCH version when make backwards-compatible bug fixes.
      * And the description can be ignored.
      *
-     * <p>Vendor sidecar library should provide MAJOR.MINOR.PATCH to the WindowManager library. The
-     * MAJOR and MINOR version are used to identify the interface version that the library will
+     * <p>Vendor extension library should provide MAJOR.MINOR.PATCH to the WindowManager library.
+     * The MAJOR and MINOR version are used to identify the interface version that the library will
      * use. The PATCH version does not indicate compatibility. The patch version should be
      * incremented whenever the vendor library makes bug fixes or updates to the algorithm.
      *
