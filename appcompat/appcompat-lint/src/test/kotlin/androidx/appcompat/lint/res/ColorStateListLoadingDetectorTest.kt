@@ -110,7 +110,7 @@ class ColorStateListLoadingDetectorTest {
         ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
             .expect("""
-src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateList() [UseCompatLoading]
+src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateList() [UseCompatLoadingForColorStateLists]
         getResources().getColorStateList(R.color.color_state_list)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
@@ -167,7 +167,7 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
         ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
             .expect("""
-src/com/example/CustomActivity.kt:8: Warning: Use AppCompatResources.getColorStateList() [UseCompatLoading]
+src/com/example/CustomActivity.kt:8: Warning: Use AppCompatResources.getColorStateList() [UseCompatLoadingForColorStateLists]
         getResources().getColorStateList(R.color.color_state_list)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
