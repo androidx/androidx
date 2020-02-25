@@ -19,13 +19,11 @@ package androidx.loader.app;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
 
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.loader.app.test.DelayLoader;
 import androidx.loader.app.test.DummyLoaderCallbacks;
 import androidx.loader.content.Loader;
@@ -45,16 +43,11 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 public class LoaderInfoTest {
 
-    private LifecycleOwner mOwner;
-    private LifecycleRegistry mRegistry;
+    private TestLifecycleOwner mOwner;
 
     @Before
     public void setup() {
-        mOwner = mock(LifecycleOwner.class);
-        mRegistry = new LifecycleRegistry(mOwner);
-        when(mOwner.getLifecycle()).thenReturn(mRegistry);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner = new TestLifecycleOwner();
     }
 
     @Test
@@ -145,13 +138,13 @@ public class LoaderInfoTest {
         assertTrue("onLoadFinished should be called after setCallback",
                 loaderCallback.mOnLoadFinished);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         loaderCallback.mOnLoadFinished = false;
         loaderInfo.markForRedelivery();
         assertFalse("onLoadFinished should not be called when stopped after markForRedelivery",
                 loaderCallback.mOnLoadFinished);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertTrue("onLoadFinished should be called after markForRedelivery",
                 loaderCallback.mOnLoadFinished);
     }
@@ -168,7 +161,7 @@ public class LoaderInfoTest {
         assertTrue("onLoadFinished for initial should be called after setCallback initial",
                 initialCallback.mOnLoadFinished);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         initialCallback.mOnLoadFinished = false;
         loaderInfo.markForRedelivery();
         assertFalse("onLoadFinished should not be called when stopped after markForRedelivery",
@@ -179,7 +172,7 @@ public class LoaderInfoTest {
                 new DummyLoaderCallbacks(mock(Context.class));
         loaderInfo.setCallback(mOwner, replacementCallback);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertFalse("onLoadFinished for initial should not be called "
                         + "after setCallback replacement",
                 initialCallback.mOnLoadFinished);

@@ -41,6 +41,8 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
+    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation(project(":camera:camera-testing"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

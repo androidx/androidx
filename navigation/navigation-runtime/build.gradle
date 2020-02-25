@@ -34,6 +34,7 @@ dependencies {
     api("androidx.savedstate:savedstate:1.0.0")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0")
 
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(project(":internal-testutils-navigation"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

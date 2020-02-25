@@ -19,9 +19,8 @@ package androidx.paging
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
@@ -46,29 +45,19 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@ExperimentalCoroutinesApi
 @SmallTest
 @RunWith(JUnit4::class)
 class LivePagedListBuilderTest {
     private val mainDispatcher = TestDispatcher()
     private val backgroundExecutor = TestExecutor()
-    private val lifecycleOwner = object : LifecycleOwner {
-        private val lifecycle = LifecycleRegistry(this)
-
-        override fun getLifecycle(): Lifecycle {
-            return lifecycle
-        }
-
-        fun handleEvent(event: Lifecycle.Event) {
-            lifecycle.handleLifecycleEvent(event)
-        }
-    }
+    private val lifecycleOwner = TestLifecycleOwner()
 
     private data class LoadStateEvent(
         val type: LoadType,
         val state: LoadState
     )
 
-    @ExperimentalCoroutinesApi
     @Before
     fun setup() {
         Dispatchers.setMain(mainDispatcher)
@@ -85,13 +74,13 @@ class LivePagedListBuilderTest {
                 return true
             }
         })
-        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
     @ExperimentalCoroutinesApi
     @After
     fun teardown() {
-        lifecycleOwner.handleEvent(Lifecycle.Event.ON_STOP)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
         ArchTaskExecutor.getInstance().setDelegate(null)
         Dispatchers.resetMain()
     }

@@ -17,7 +17,10 @@
 package androidx.lifecycle
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -26,15 +29,10 @@ class LiveDataTest {
     @get:Rule
     val mInstantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @ExperimentalCoroutinesApi
     @Test
     fun observe() {
-        val lifecycleOwner = object : LifecycleOwner {
-            private val registry = LifecycleRegistry(this).apply {
-                currentState = Lifecycle.State.STARTED
-            }
-
-            override fun getLifecycle() = registry
-        }
+        val lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = TestCoroutineDispatcher())
 
         val liveData = MutableLiveData<String>()
         var value = ""

@@ -30,6 +30,8 @@ plugins {
 
 android {
     defaultConfig {
+        multiDexEnabled true
+
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
@@ -52,6 +54,7 @@ dependencies {
     implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":arch:core-runtime"))
     implementation(project(":lifecycle:lifecycle-livedata"))
+    implementation(MULTIDEX)
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     implementation(FINDBUGS)
@@ -65,6 +68,8 @@ dependencies {
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation("androidx.paging:paging-runtime:2.0.0")
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     androidTestImplementation(FINDBUGS)

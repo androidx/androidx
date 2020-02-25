@@ -35,7 +35,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
-import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -44,7 +43,6 @@ import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
@@ -98,9 +96,6 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 return true;
             }
         });
-
-        TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
-        lifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
 
         mScheduler = mock(Scheduler.class);
         Context context = ApplicationProvider.getApplicationContext();
