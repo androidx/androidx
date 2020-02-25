@@ -66,6 +66,18 @@ class MergeAdapterTest {
         }
     }
 
+    @Test(expected = UnsupportedOperationException::class)
+    fun cannotCallSetStableIds_true() {
+        val merge = MergeAdapter()
+        merge.setHasStableIds(true)
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun cannotCallSetStableIds_false() {
+        val merge = MergeAdapter()
+        merge.setHasStableIds(false)
+    }
+
     @UiThreadTest
     @Test
     fun attachAndDetachAll() {
@@ -793,19 +805,10 @@ class MergeAdapterTest {
         }
     }
 
-    @Test
-    fun stateRestrorationTest_callingPublicMerthodIsIgnored() {
-        val adapter = NestedTestAdapter(3).also {
-            it.stateRestorationStrategy = PREVENT
-        }
-        val merge = MergeAdapter(adapter)
-        assertThat(merge).hasStateRestorationStrategy(PREVENT)
-        merge.stateRestorationStrategy = ALLOW
-        assertThat(merge).hasStateRestorationStrategy(PREVENT)
-        merge.stateRestorationStrategy = PREVENT_WHEN_EMPTY
-        assertThat(merge).hasStateRestorationStrategy(PREVENT)
-        adapter.stateRestorationStrategy = ALLOW
-        assertThat(merge).hasStateRestorationStrategy(ALLOW)
+    @Test(expected = java.lang.UnsupportedOperationException::class)
+    fun stateRestorationTest_callingOnTheMergeAdapterIsNotAllowed() {
+        val merge = MergeAdapter()
+        merge.stateRestorationStrategy = PREVENT
     }
 
     @Test
