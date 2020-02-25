@@ -1822,9 +1822,10 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         void setPlayTime(long playTime, boolean inReverse) {
             // Clamp the play time
             if (getTotalDuration() != DURATION_INFINITE) {
-                mPlayTime = Math.min(playTime, getTotalDuration() - mStartDelay);
+                mPlayTime = Math.max(0, Math.min(playTime, getTotalDuration() - mStartDelay));
+            } else {
+                mPlayTime = Math.max(0, playTime);
             }
-            mPlayTime = Math.max(0, mPlayTime);
             mSeekingInReverse = inReverse;
         }
 

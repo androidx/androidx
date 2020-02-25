@@ -548,11 +548,13 @@ public class AnimatorSetTest {
         set.play(a1).before(a3);
 
         set.setCurrentPlayTime(50);
+        assertEquals(50L, set.getCurrentPlayTime());
         assertEquals(50f, (Float) a1.getAnimatedValue(), EPSILON);
         assertEquals(100f, (Float) a2.getAnimatedValue(), EPSILON);
         assertEquals(100f, (Float) a3.getAnimatedValue(), EPSILON);
 
         set.setCurrentPlayTime(100);
+        assertEquals(100L, set.getCurrentPlayTime());
         assertEquals(100f, (Float) a1.getAnimatedValue(), EPSILON);
         assertEquals(100f, (Float) a2.getAnimatedValue(), EPSILON);
         assertEquals(100f, (Float) a3.getAnimatedValue(), EPSILON);
@@ -560,6 +562,7 @@ public class AnimatorSetTest {
         // Seek to the 1st iteration of the infinite repeat animators, and they should have the
         // same value.
         set.setCurrentPlayTime(180);
+        assertEquals(180L, set.getCurrentPlayTime());
         assertEquals(100f, (Float) a1.getAnimatedValue(), EPSILON);
         assertEquals(180f, (Float) a2.getAnimatedValue(), EPSILON);
         assertEquals(180f, (Float) a3.getAnimatedValue(), EPSILON);
@@ -567,6 +570,7 @@ public class AnimatorSetTest {
         // Seek to the 2nd iteration of the infinite repeat animators, and they should have
         // different values as they have different repeat mode.
         set.setCurrentPlayTime(280);
+        assertEquals(280L, set.getCurrentPlayTime());
         assertEquals(100f, (Float) a1.getAnimatedValue(), EPSILON);
         assertEquals(180f, (Float) a2.getAnimatedValue(), EPSILON);
         assertEquals(120f, (Float) a3.getAnimatedValue(), EPSILON);

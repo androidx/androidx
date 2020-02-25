@@ -264,6 +264,48 @@ public class SeekableAnimatedVectorDrawableTest {
         );
     }
 
+    @Test
+    @UiThreadTest
+    public void setCurrentPlayTime() {
+        final Bitmap bitmap = Bitmap.createBitmap(
+                IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888
+        );
+        final Canvas canvas = new Canvas(bitmap);
+        final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
+                ApplicationProvider.getApplicationContext(),
+                R.drawable.animated_color_fill
+        );
+
+        assertThat(avd).isNotNull();
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        avd.draw(canvas);
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(Color.RED);
+
+        int previousRed = Integer.MAX_VALUE;
+        for (int i = 0; i < 10; i++) {
+            avd.setCurrentPlayTime((i + 1) * 100L);
+            avd.draw(canvas);
+            final int fillColor = bitmap.getPixel(IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
+            assertThat(Color.blue(fillColor)).isEqualTo(0);
+            assertThat(Color.green(fillColor)).isEqualTo(0);
+            int red = Color.red(fillColor);
+            assertThat(red).isLessThan(previousRed);
+            previousRed = red;
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    public void getCurrentPlayTime() {
+        final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
+                ApplicationProvider.getApplicationContext(),
+                R.drawable.animated_color_fill
+        );
+        assertThat(avd).isNotNull();
+        avd.setCurrentPlayTime(100L);
+        assertThat(avd.getCurrentPlayTime()).isEqualTo(100L);
+    }
+
     private SeekableAnimatedVectorDrawable createAvd() {
         final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
                 ApplicationProvider.getApplicationContext(),
