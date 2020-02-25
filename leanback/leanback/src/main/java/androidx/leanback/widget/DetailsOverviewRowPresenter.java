@@ -19,7 +19,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -131,7 +130,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         boolean mShowMoreRight;
         boolean mShowMoreLeft;
         ItemBridgeAdapter mActionBridgeAdapter;
-        final Handler mHandler = new Handler(Looper.getMainLooper());
+        final Handler mHandler = new Handler();
 
         final Runnable mUpdateDrawableCallback = new Runnable() {
             @Override

@@ -23,7 +23,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -482,7 +481,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
 
     private class ChangeObserver extends ContentObserver {
         ChangeObserver() {
-            super(new Handler(Looper.getMainLooper()));
+            super(new Handler());
         }
 
         @Override

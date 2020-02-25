@@ -629,8 +629,7 @@ public class MediaSessionCompat {
         if (callback == null) {
             mImpl.setCallback(null, null);
         } else {
-            mImpl.setCallback(callback,
-                    handler != null ? handler : new Handler(Looper.getMainLooper()));
+            mImpl.setCallback(callback, handler != null ? handler : new Handler());
         }
     }
 

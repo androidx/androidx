@@ -26,7 +26,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 
@@ -97,8 +96,7 @@ public abstract class KeyedAppStatesService extends Service {
         private final KeyedAppStatesService mKeyedAppStatesService;
 
         IncomingHandler(KeyedAppStatesService keyedAppStatesService) {
-            super(Looper.getMainLooper());
-            mKeyedAppStatesService = keyedAppStatesService;
+            this.mKeyedAppStatesService = keyedAppStatesService;
         }
 
         @Override

@@ -24,7 +24,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -75,7 +74,7 @@ public class MessageLibraryService extends Service {
     public void onCreate() {
         super.onCreate();
         mServiceStub = new ServiceStub();
-        mHandler = new Handler(Looper.getMainLooper());
+        mHandler = new Handler();
     }
 
     @Nullable

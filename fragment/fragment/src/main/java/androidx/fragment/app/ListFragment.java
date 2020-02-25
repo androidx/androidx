@@ -19,7 +19,6 @@ package androidx.fragment.app;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +47,7 @@ public class ListFragment extends Fragment {
     static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
     static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
-    final private Handler mHandler = new Handler(Looper.getMainLooper());
+    final private Handler mHandler = new Handler();
 
     final private Runnable mRequestFocus = new Runnable() {
         @Override

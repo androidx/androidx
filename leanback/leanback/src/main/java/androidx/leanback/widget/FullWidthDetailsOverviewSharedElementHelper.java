@@ -15,7 +15,6 @@ package androidx.leanback.widget;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -93,8 +92,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
         setAutoStartSharedElementTransition(transition != null);
         ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
         if (timeoutMs > 0) {
-            new Handler(Looper.getMainLooper())
-                    .postDelayed(new TransitionTimeOutRunnable(this), timeoutMs);
+            new Handler().postDelayed(new TransitionTimeOutRunnable(this), timeoutMs);
         }
     }
 
@@ -172,7 +170,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
      * Manually start postponed enter transition.
      */
     public void startPostponedEnterTransition() {
-        new Handler(Looper.getMainLooper()).post(new Runnable(){
+        new Handler().post(new Runnable(){
             @Override
             public void run() {
                 startPostponedEnterTransitionInternal();

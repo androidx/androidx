@@ -22,7 +22,6 @@ import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_TEST
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -104,7 +103,7 @@ public class BrowseTestSupportFragment extends BrowseSupportFragment {
             }
         }
         // simulates in a real world use case  data being loaded two seconds later
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (getActivity() == null || getActivity().isDestroyed()) {

@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -58,7 +57,7 @@ public abstract class PreferenceGroup extends Preference {
     private static final String TAG = "PreferenceGroup";
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler();
     /**
      * The container for child {@link Preference}s. This is sorted based on the ordering, please
      * use {@link #addPreference(Preference)} instead of adding to this directly.

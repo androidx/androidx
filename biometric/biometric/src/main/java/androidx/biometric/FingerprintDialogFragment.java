@@ -27,7 +27,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
@@ -110,7 +109,6 @@ public class FingerprintDialogFragment extends DialogFragment {
         private ArrayList<Message> mQueuedMessages;
 
         private MessageHandler(FingerprintDialogFragment fragment) {
-            super(Looper.getMainLooper());
             mFragmentReference = new WeakReference<>(fragment);
         }
 
