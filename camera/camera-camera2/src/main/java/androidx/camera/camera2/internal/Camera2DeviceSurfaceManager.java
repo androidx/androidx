@@ -27,11 +27,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -58,6 +58,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
 
     /**
      * Creates a new, initialized Camera2DeviceSurfaceManager.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
@@ -147,55 +148,55 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Retrieves a map of suggested resolutions for the given list of use cases.
      *
-     * @param cameraId         the camera id of the camera device used by the use cases
-     * @param originalUseCases list of use cases with existing surfaces
-     * @param newUseCases      list of new use cases
+     * @param cameraId          the camera id of the camera device used by the use cases
+     * @param existingSurfaces  list of surfaces already configured and used by the camera. The
+     *                          resolutions for these surface can not change.
+     * @param newUseCaseConfigs list of configurations of the use cases that will be given a
+     *                          suggested resolution
      * @return map of suggested resolutions for given use cases
-     * @throws IllegalStateException if not initialized
+     * @throws IllegalStateException    if not initialized
+     * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
+     *                                  there isn't a supported combination of surfaces
+     *                                  available, or if the {@code cameraId}
+     *                                  is not a valid id.
      */
     @NonNull
     @Override
-    public Map<UseCase, Size> getSuggestedResolutions(
+    public Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
             @NonNull String cameraId,
-            @Nullable List<UseCase> originalUseCases,
-            @NonNull List<UseCase> newUseCases) {
-        Preconditions.checkNotNull(newUseCases, "No new use cases to be bound.");
-        Preconditions.checkArgument(!newUseCases.isEmpty(), "No new use cases to be bound.");
+            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
+        Preconditions.checkArgument(!newUseCaseConfigs.isEmpty(), "No new use cases to be bound.");
 
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
-        List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
+        List<SurfaceConfig> surfaceConfigs = new ArrayList<>(existingSurfaces);
 
-        if (originalUseCases != null) {
-            for (UseCase useCase : originalUseCases) {
-                String useCaseCameraId =
-                        Preconditions.checkNotNull(
-                                useCase.getBoundCamera()).getCameraInfoInternal().getCameraId();
-                Preconditions.checkArgument(useCaseCameraId.equals(cameraId));
-                Size resolution =
-                        Preconditions.checkNotNull(useCase.getAttachedSurfaceResolution());
-
-                surfaceConfigs.add(
-                        transformSurfaceConfig(cameraId, useCase.getImageFormat(), resolution));
-            }
-        }
-
-        for (UseCase useCase : newUseCases) {
+        for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
             surfaceConfigs.add(
-                    transformSurfaceConfig(cameraId, useCase.getImageFormat(), new Size(640, 480)));
+                    transformSurfaceConfig(cameraId,
+                            useCaseConfig.getInputFormat(),
+                            new Size(640, 480)));
         }
 
         SupportedSurfaceCombination supportedSurfaceCombination =
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
-        if (supportedSurfaceCombination == null
-                || !supportedSurfaceCombination.checkSupported(surfaceConfigs)) {
-            throw new IllegalArgumentException(
-                    "No supported surface combination is found for camera device - Id : "
-                            + cameraId + ".  May be attempting to bind too many use cases.");
+        if (supportedSurfaceCombination == null) {
+            throw new IllegalArgumentException("No such camera id in supported combination list: "
+                    + cameraId);
         }
 
-        return supportedSurfaceCombination.getSuggestedResolutions(originalUseCases, newUseCases);
+        if (!supportedSurfaceCombination.checkSupported(surfaceConfigs)) {
+            throw new IllegalArgumentException(
+                    "No supported surface combination is found for camera device - Id : "
+                            + cameraId + ".  May be attempting to bind too many use cases. "
+                            + "Existing surfaces: " + existingSurfaces + " New configs: "
+                            + newUseCaseConfigs);
+        }
+
+        return supportedSurfaceCombination.getSuggestedResolutions(existingSurfaces,
+                newUseCaseConfigs);
     }
 
     /**

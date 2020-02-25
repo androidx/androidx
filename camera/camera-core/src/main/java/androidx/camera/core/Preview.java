@@ -435,7 +435,6 @@ public final class Preview extends UseCase {
             mSurfaceProviderCompleter.setCancelled();
             mSurfaceProviderCompleter = null;
         }
-        super.clear();
     }
 
     /**

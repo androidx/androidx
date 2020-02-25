@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import android.util.Size;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +33,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfig.Builder;
 import androidx.core.util.Preconditions;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -188,30 +188,9 @@ public abstract class UseCase {
     /**
      * Add a {@link StateChangeCallback}, which listens to this UseCase's active and inactive
      * transition events.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void addStateChangeCallback(@NonNull StateChangeCallback callback) {
+    private void addStateChangeCallback(@NonNull StateChangeCallback callback) {
         mStateChangeCallbacks.add(callback);
-    }
-
-    /**
-     * Attach a CameraControlInternal to this use case.
-     *
-     * @hide
-     */
-    // TODO(b/147698557) Remove after refactoring binding to camera, since the camera control should
-    //  already be available after the camera has been bound.
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public final void attachCameraControl() {
-        onCameraControlReady();
-    }
-
-    /** Detach a CameraControlInternal from this use case. */
-    // TODO(b/147698557) Remove after refactoring binding to camera, since the camera control should
-    //  already be detached after the camera has been unbound.
-    final void detachCameraControl() {
     }
 
     /**
@@ -219,11 +198,8 @@ public abstract class UseCase {
      * transition events.
      *
      * <p>If the listener isn't currently listening to the UseCase then this call does nothing.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void removeStateChangeCallback(@NonNull StateChangeCallback callback) {
+    private void removeStateChangeCallback(@NonNull StateChangeCallback callback) {
         mStateChangeCallbacks.remove(callback);
     }
 
@@ -341,19 +317,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @CallSuper
-    public void clear() {
-        EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
-        if (eventCallback != null) {
-            eventCallback.onUnbind();
-        }
-
-        synchronized (mBoundCameraLock) {
-            mBoundCamera = null;
-        }
-
-        mStateChangeCallbacks.clear();
-    }
+    public void clear() {}
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -438,8 +402,7 @@ public abstract class UseCase {
     }
 
     /**
-     * Called when use case is binding to life cycle via
-     * {@code CameraX#bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}.
+     * Called when use case is binding to a camera.
      *
      * @hide
      */
@@ -447,11 +410,38 @@ public abstract class UseCase {
     protected void onBind(@NonNull CameraInternal camera) {
         synchronized (mBoundCameraLock) {
             mBoundCamera = camera;
+            addStateChangeCallback(camera);
         }
         updateUseCaseConfig(mUseCaseConfig);
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
             eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());
+        }
+        onCameraControlReady();
+    }
+
+    /**
+     * Called when use case is unbinding from the currently bound camera.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public void onUnbind() {
+        // Do any cleanup required by the UseCase implementation
+        clear();
+
+        // Cleanup required for any type of UseCase
+        EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
+        if (eventCallback != null) {
+            eventCallback.onUnbind();
+        }
+
+        synchronized (mBoundCameraLock) {
+            if (mBoundCamera != null) {
+                mBoundCamera.removeOnlineUseCase(Collections.singleton(this));
+                removeStateChangeCallback(mBoundCamera);
+                mBoundCamera = null;
+            }
         }
     }
 

@@ -959,7 +959,6 @@ public final class ImageCapture extends UseCase {
     public void clear() {
         clearPipeline();
         mExecutor.shutdown();
-        super.clear();
     }
 
     /**

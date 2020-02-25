@@ -419,7 +419,6 @@ public final class ImageAnalysis extends UseCase {
     @Override
     public void clear() {
         clearPipeline();
-        super.clear();
     }
 
     /**
