@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import android.graphics.Matrix;
 import android.view.View;
 
+import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -57,19 +58,6 @@ public class CustomTransformTest {
 
         assertThat(transformation.getScaleX()).isEqualTo(scaleX);
         assertThat(transformation.getScaleY()).isEqualTo(scaleY);
-    }
-
-    @Test
-    public void getTranslation() {
-        final float translationX = -200F;
-        final float translationY = 300F;
-        final Matrix matrix = new Matrix();
-        matrix.setTranslate(translationX, translationY);
-
-        final Transformation transformation = CustomTransform.getTransformation(mView, matrix);
-
-        assertThat(transformation.getOriginX()).isEqualTo(mView.getX() + translationX);
-        assertThat(transformation.getOriginY()).isEqualTo(mView.getY() + translationY);
     }
 
     @Test
