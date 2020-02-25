@@ -21,11 +21,13 @@ import androidx.test.filters.LargeTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.Text
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
-import androidx.ui.graphics.ImageConfig
 import androidx.ui.layout.Container
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.material.surface.Surface
@@ -52,12 +54,7 @@ class TabTest {
     private val ExpectedSmallTabHeight = 48.dp
     private val ExpectedLargeTabHeight = 72.dp
 
-    private val image = Image(
-        width = 10,
-        height = 10,
-        config = ImageConfig.Argb8888,
-        hasAlpha = false
-    )
+    private val icon = Icons.Filled.Favorite
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
@@ -68,7 +65,7 @@ class TabTest {
             .setMaterialContentAndCollectSizes {
                 Container {
                     Surface {
-                        Tab(text = "Text", selected = true, onSelected = {})
+                        Tab(text = { Text("Text") }, selected = true, onSelected = {})
                     }
                 }
             }
@@ -81,7 +78,7 @@ class TabTest {
             .setMaterialContentAndCollectSizes {
                 Container {
                     Surface {
-                        Tab(icon = image, selected = true, onSelected = {})
+                        Tab(icon = { Icon(icon) }, selected = true, onSelected = {})
                     }
                 }
             }
@@ -94,7 +91,12 @@ class TabTest {
             .setMaterialContentAndCollectSizes {
                 Container {
                     Surface {
-                        Tab(text = "Text And Icon", icon = image, selected = true, onSelected = {})
+                        Tab(
+                            text = { Text("Text and Icon") },
+                            icon = { Icon(icon) },
+                            selected = true,
+                            onSelected = {}
+                        )
                     }
                 }
             }
@@ -128,7 +130,7 @@ class TabTest {
                             indicatorContainer = indicatorContainer
                         ) { index, text ->
                             Tab(
-                                text = text,
+                                text = { Text(text) },
                                 selected = state == index,
                                 onSelected = { setState(index) }
                             )
@@ -200,7 +202,7 @@ class TabTest {
                         indicatorContainer = indicatorContainer
                     ) { index, text ->
                         Tab(
-                            text = text,
+                            text = { Text(text) },
                             selected = state == index,
                             onSelected = { setState(index) }
                         )

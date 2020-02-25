@@ -19,6 +19,7 @@ package androidx.ui.material.samples
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
@@ -28,75 +29,82 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
-import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.foundation.Icon
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPx
 
 @Sampled
 @Composable
 fun TextTabs() {
-    val state = state { 0 }
+    var state by state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     Column {
-        TabRow(items = titles, selectedIndex = state.value) { index, text ->
-            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
+        TabRow(items = titles, selectedIndex = state) { index, text ->
+            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Text tab ${state.value + 1} selected",
+            text = "Text tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
 }
 
 @Composable
-fun IconTabs(image: Image) {
-    val state = state { 0 }
-    val icons = listOf(image, image, image)
+fun IconTabs() {
+    var state by state { 0 }
+    val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
     Column {
-        TabRow(items = icons, selectedIndex = state.value) { index, icon ->
-            Tab(icon = icon, selected = state.value == index, onSelected = { state.value = index })
+        TabRow(items = icons, selectedIndex = state) { index, icon ->
+            Tab(icon = { Icon(icon) }, selected = state == index, onSelected = { state = index })
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Icon tab ${state.value + 1} selected",
+            text = "Icon tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
 }
 
-// TODO: r8 bug preventing us from destructuring data inline
 @Composable
-fun TextAndIconTabs(image: Image) {
-    val state = state { 0 }
-    val titlesAndIcons =
-        listOf("TAB 1" to image, "TAB 2" to image, "TAB 3 WITH LOTS OF TEXT" to image)
+fun TextAndIconTabs() {
+    var state by state { 0 }
+    val titlesAndIcons = listOf(
+        "TAB 1" to Icons.Filled.Favorite,
+        "TAB 2" to Icons.Filled.Favorite,
+        "TAB 3 WITH LOTS OF TEXT" to Icons.Filled.Favorite
+    )
     Column {
-        TabRow(items = titlesAndIcons, selectedIndex = state.value) { index, data ->
-            val (title, icon) = data
-            Tab(text = title, icon = icon, selected = state.value == index, onSelected = {
-                state.value = index
-            })
+        TabRow(items = titlesAndIcons, selectedIndex = state) { index, (title, icon) ->
+            Tab(
+                text = { Text(title) },
+                icon = { Icon(icon) },
+                selected = state == index,
+                onSelected = { state = index }
+            )
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Text and icon tab ${state.value + 1} selected",
+            text = "Text and icon tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
@@ -104,7 +112,7 @@ fun TextAndIconTabs(image: Image) {
 
 @Composable
 fun ScrollingTextTabs() {
-    val state = state { 0 }
+    var state by state { 0 }
     val titles = listOf(
         "TAB 1",
         "TAB 2",
@@ -118,12 +126,12 @@ fun ScrollingTextTabs() {
         "TAB 10"
     )
     Column {
-        TabRow(items = titles, selectedIndex = state.value, scrollable = true) { index, text ->
-            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
+        TabRow(items = titles, selectedIndex = state, scrollable = true) { index, text ->
+            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Scrolling text tab ${state.value + 1} selected",
+            text = "Scrolling text tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
@@ -132,19 +140,15 @@ fun ScrollingTextTabs() {
 @Sampled
 @Composable
 fun FancyTabs() {
-    val state = state { 0 }
+    var state by state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
     Column {
-        TabRow(items = titles, selectedIndex = state.value) { index, title ->
-            FancyTab(
-                title = title,
-                onClick = { state.value = index },
-                selected = (index == state.value)
-            )
+        TabRow(items = titles, selectedIndex = state) { index, title ->
+            FancyTab(title = title, onClick = { state = index }, selected = (index == state))
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Fancy tab ${state.value + 1} selected",
+            text = "Fancy tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
@@ -153,12 +157,12 @@ fun FancyTabs() {
 @Sampled
 @Composable
 fun FancyIndicatorTabs() {
-    val state = state { 0 }
+    var state by state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
     // Reuse the default transition, and provide our custom indicator as its child
     val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-        TabRow.IndicatorContainer(tabPositions = tabPositions, selectedIndex = state.value) {
+        TabRow.IndicatorContainer(tabPositions = tabPositions, selectedIndex = state) {
             FancyIndicator(Color.White)
         }
     }
@@ -166,14 +170,14 @@ fun FancyIndicatorTabs() {
     Column {
         TabRow(
             items = titles,
-            selectedIndex = state.value,
+            selectedIndex = state,
             indicatorContainer = indicatorContainer
         ) { index, text ->
-            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
+            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Fancy indicator tab ${state.value + 1} selected",
+            text = "Fancy indicator tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
@@ -182,24 +186,24 @@ fun FancyIndicatorTabs() {
 @Sampled
 @Composable
 fun FancyIndicatorContainerTabs() {
-    val state = state { 0 }
+    var state by state { 0 }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
     val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-        FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state.value)
+        FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state)
     }
 
     Column {
         TabRow(
             items = titles,
-            selectedIndex = state.value,
+            selectedIndex = state,
             indicatorContainer = indicatorContainer
         ) { index, text ->
-            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
+            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Fancy transition tab ${state.value + 1} selected",
+            text = "Fancy transition tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
@@ -207,7 +211,7 @@ fun FancyIndicatorContainerTabs() {
 
 @Composable
 fun ScrollingFancyIndicatorContainerTabs() {
-    val state = state { 0 }
+    var state by state { 0 }
     val titles = listOf(
         "TAB 1",
         "TAB 2",
@@ -221,46 +225,45 @@ fun ScrollingFancyIndicatorContainerTabs() {
         "TAB 10"
     )
     val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-        FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state.value)
+        FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state)
     }
 
     Column {
         TabRow(
             items = titles,
-            selectedIndex = state.value,
+            selectedIndex = state,
             indicatorContainer = indicatorContainer,
             scrollable = true
         ) { index, text ->
-            Tab(text = text, selected = state.value == index, onSelected = { state.value = index })
+            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
             modifier = LayoutGravity.Center,
-            text = "Scrolling fancy transition tab ${state.value + 1} selected",
+            text = "Scrolling fancy transition tab ${state + 1} selected",
             style = MaterialTheme.typography().body1
         )
     }
 }
 
-// TODO: make this use our base tab when it's exposed and available to use
 @Sampled
 @Composable
 fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
-    MutuallyExclusiveSetItem(selected = selected, onClick = onClick) {
-        Container(height = 50.dp, padding = EdgeInsets(10.dp)) {
-            Column(LayoutHeight.Fill) {
-                val color = if (selected) Color.Red else Color.Gray
-                ColoredRect(
-                    height = 10.dp,
-                    width = 10.dp,
-                    color = color,
-                    modifier = LayoutGravity.Center
-                )
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography().body1,
-                    modifier = LayoutPadding(5.dp) + LayoutGravity.Center
-                )
-            }
+    Tab(selected, onClick) {
+        Column(
+            LayoutPadding(10.dp) + LayoutHeight(50.dp) + LayoutWidth.Fill,
+            arrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                LayoutSize(10.dp) + LayoutGravity.Center + DrawBackground(
+                    color = if (selected) Color.Red else Color.White
+                ),
+                children = emptyContent()
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography().body1,
+                modifier = LayoutGravity.Center
+            )
         }
     }
 }
@@ -271,8 +274,10 @@ fun FancyIndicator(color: Color) {
     // Draws a rounded rectangular with border around the Tab, with a 5.dp padding from the edges
     // Color is passed in as a parameter [color]
     Stack(
-        LayoutPadding(5.dp) + LayoutSize.Fill +
-                DrawBorder(Border(2.dp, color), RoundedCornerShape(5.dp))
+        LayoutPadding(5.dp) + LayoutSize.Fill + DrawBorder(
+            Border(2.dp, color),
+            RoundedCornerShape(5.dp)
+        )
     ) {}
 }
 

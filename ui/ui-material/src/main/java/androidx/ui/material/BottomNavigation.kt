@@ -105,7 +105,8 @@ fun BottomNavigation(
     }
 }
 
-// TODO: remove RowScope receiver here when we can access LayoutFlexible from a global scope
+// TODO: b/150138067 remove RowScope receiver here when we can access LayoutFlexible from a
+// global scope
 /**
  * A BottomNavigationItem represents a singular primary destination in your application.
  *
