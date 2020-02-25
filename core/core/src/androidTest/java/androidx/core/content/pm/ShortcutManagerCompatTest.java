@@ -25,6 +25,7 @@ import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_PINNED;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -221,10 +222,11 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
 
     @LargeTest
     @Test
-    public void testEnableAndDisableShortcut() throws Throwable {
+    public void testShortcut() {
         final List<String> shortcutIds = Lists.newArrayList("test-id");
         final String disableMessage = "disabled";
         final List<ShortcutInfoCompat> shortcuts = Lists.newArrayList(mInfoCompat);
+        final List<ShortcutInfo> shortcutInfos = Lists.newArrayList(mInfoCompat.toShortcutInfo());
         final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
         doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
 
@@ -253,9 +255,18 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
             verify(mockShortcutManager).disableShortcuts(shortcutIds, disableMessage);
         }
         verify(mShortcutInfoCompatSaver).removeShortcuts(shortcutIds);
+
+        reset(mockShortcutManager);
+        reset(mShortcutInfoCompatSaver);
+        ShortcutManagerCompat.setDynamicShortcuts(mContext, shortcuts);
+        if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).setDynamicShortcuts(shortcutInfos);
+        }
+        verify(mShortcutInfoCompatSaver).removeAllShortcuts();
+        verify(mShortcutInfoCompatSaver).addShortcuts(shortcuts);
     }
 
-    @LargeTest
+    @MediumTest
     @Test
     public void testGetShortcut() throws Throwable {
         final int flag = FLAG_MATCH_MANIFEST | FLAG_MATCH_DYNAMIC | FLAG_MATCH_PINNED;
@@ -300,6 +311,13 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                     || info.mIcon.mType == TYPE_ADAPTIVE_BITMAP);
             assertNotNull(info.mIcon.getBitmap());
         }
+    }
+
+    @LargeTest
+    @Test
+    public void testGetIconDimension() {
+        assertNotEquals(0, ShortcutManagerCompat.getIconMaxWidth(mContext));
+        assertNotEquals(0, ShortcutManagerCompat.getIconMaxHeight(mContext));
     }
 
     private void verifyLegacyIntent(Intent intent) {
