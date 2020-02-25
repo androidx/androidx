@@ -78,9 +78,13 @@ data class ViewInfo(
  *
  *  - fileName:lineNumber
  *  - methodName (fileName:lineNumber)
+ *
+ *  API <=21 does not support named regex but for documentation purposes, the named version
+ *  of the regex would be:
+ *  `(?<method>[\w\\.$]*?)\s?\(?(?<fileName>[\w.]+):(?<lineNumber>\d+)\)?`
  */
 private val KEY_INFO_REGEX =
-    """(?<method>[\w\\.$]*?)\s?\(?(?<fileName>[\w.]+):(?<lineNumber>\d+)\)?""".toRegex()
+    """([\w\\.$]*?)\s?\(?([\w.]+):(\d+)\)?""".toRegex()
 
 /**
  * View adapter that renders a `@Composable`. The `@Composable` is found by
