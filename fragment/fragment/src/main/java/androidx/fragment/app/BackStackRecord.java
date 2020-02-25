@@ -442,7 +442,11 @@ final class BackStackRecord extends FragmentTransaction implements
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
             }
             if (!mReorderingAllowed && op.mCmd != OP_ADD && f != null) {
-                mManager.moveFragmentToExpectedState(f);
+                if (FragmentManager.USE_STATE_MANAGER) {
+                    mManager.createOrGetFragmentStateManager(f).moveToExpectedState();
+                } else {
+                    mManager.moveFragmentToExpectedState(f);
+                }
             }
         }
         if (!mReorderingAllowed) {
@@ -506,7 +510,11 @@ final class BackStackRecord extends FragmentTransaction implements
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
             }
             if (!mReorderingAllowed && op.mCmd != OP_REMOVE && f != null) {
-                mManager.moveFragmentToExpectedState(f);
+                if (FragmentManager.USE_STATE_MANAGER) {
+                    mManager.createOrGetFragmentStateManager(f).moveToExpectedState();
+                } else {
+                    mManager.moveFragmentToExpectedState(f);
+                }
             }
         }
         if (!mReorderingAllowed && moveToState) {

@@ -98,11 +98,19 @@ class FragmentStore {
     }
 
     void dispatchStateChange(int state) {
+        for (FragmentStateManager fragmentStateManager : mActive.values()) {
+            if (fragmentStateManager != null) {
+                fragmentStateManager.setFragmentManagerState(state);
+            }
+        }
+    }
+
+    void moveToExpectedState() {
         // Must add them in the proper order. mActive fragments may be out of order
         for (Fragment f : mAdded) {
             FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
             if (fragmentStateManager != null) {
-                fragmentStateManager.setFragmentManagerState(state);
+                fragmentStateManager.moveToExpectedState();
             }
         }
 
@@ -110,7 +118,7 @@ class FragmentStore {
         // and detached.
         for (FragmentStateManager fragmentStateManager : mActive.values()) {
             if (fragmentStateManager != null) {
-                fragmentStateManager.setFragmentManagerState(state);
+                fragmentStateManager.moveToExpectedState();
             }
         }
     }
