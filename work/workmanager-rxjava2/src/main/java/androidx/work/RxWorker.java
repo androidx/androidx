@@ -28,6 +28,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
+import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -120,13 +121,32 @@ public abstract class RxWorker extends ListenableWorker {
     /**
      * Updates the progress for a {@link RxWorker}. This method returns a {@link Single} unlike the
      * {@link ListenableWorker#setProgressAsync(Data)} API.
+     * <p>
+     * This method is deprecated. Use {@link #setCompletableProgress(Data)} instead.
      *
      * @param data The progress {@link Data}
      * @return The {@link Single}
+     * @deprecated This method is being deprecated because it is impossible to signal success via
+     * a `Single&lt;Void&gt;` type. A {@link Completable} should have been used.
+     * <p>
+     * Use {@link #setCompletableProgress(Data)} instead.
      */
     @NonNull
+    @Deprecated
     public final Single<Void> setProgress(@NonNull Data data) {
         return Single.fromFuture(setProgressAsync(data));
+    }
+
+    /**
+     * Updates the progress for a {@link RxWorker}. This method returns a {@link Completable}
+     * unlike the {@link ListenableWorker#setProgressAsync(Data)} API.
+     *
+     * @param data The progress {@link Data}
+     * @return The {@link Completable}
+     */
+    @NonNull
+    public final Completable setCompletableProgress(@NonNull Data data) {
+        return Completable.fromFuture(setProgressAsync(data));
     }
 
     @Override

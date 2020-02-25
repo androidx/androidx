@@ -62,6 +62,23 @@ object Stubs {
         """
     ).indented().within("src")
 
+    val RX_WORKER: TestFile = kotlin(
+        "androidx/work/RxWorker.kt",
+        """
+            package androidx.work
+
+            open class RxWorker: ListenableWorker() {
+                fun setProgress() {
+
+                }
+
+                fun setCompletableProgress() {
+
+                }
+            }
+        """
+    ).indented().within("src")
+
     val WORK_REQUEST: TestFile = kotlin(
         "androidx/work/WorkRequest.kt",
         """
