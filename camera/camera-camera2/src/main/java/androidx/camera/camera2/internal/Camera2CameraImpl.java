@@ -171,11 +171,13 @@ final class Camera2CameraImpl implements CameraInternal {
      */
     Camera2CameraImpl(CameraManagerCompat cameraManager, String cameraId,
             @NonNull CameraStateRegistry cameraStateRegistry,
-            @NonNull Handler handler) {
+            @NonNull Handler handler,
+            @NonNull Handler schedulerHandler) {
         mCameraManager = cameraManager;
         mCameraStateRegistry = cameraStateRegistry;
-        ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(handler);
-        mExecutor = executorScheduler;
+        ScheduledExecutorService executorScheduler =
+                CameraXExecutors.newHandlerExecutor(schedulerHandler);
+        mExecutor = CameraXExecutors.newHandlerExecutor(handler);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
 
@@ -196,6 +198,7 @@ final class Camera2CameraImpl implements CameraInternal {
             throw new IllegalStateException("Cannot access camera", e);
         }
         mCaptureSessionBuilder.setExecutor(mExecutor);
+        mCaptureSessionBuilder.setCompatHandler(schedulerHandler);
         mCaptureSessionBuilder.setScheduledExecutorService(executorScheduler);
         mCaptureSession = mCaptureSessionBuilder.build();
 

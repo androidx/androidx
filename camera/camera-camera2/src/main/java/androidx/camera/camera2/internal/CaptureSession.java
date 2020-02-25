@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 
@@ -79,6 +80,8 @@ final class CaptureSession {
     /** Executor for all the callbacks from the {@link CameraCaptureSession}. */
     @CameraExecutor
     private final Executor mExecutor;
+    /** Handler used on lower API levels to schedule callbacks to run on Executor */
+    private final Handler mCompatHandler;
     /** Scheduled Executor to schedule the delayed event. */
     private final ScheduledExecutorService mScheduleExecutor;
     /** The configuration for the currently issued single capture requests. */
@@ -93,7 +96,7 @@ final class CaptureSession {
                         @NonNull TotalCaptureResult result) {
                 }
             };
-    private final StateCallback mCaptureSessionStateCallback = new StateCallback();
+    private final StateCallback mCaptureSessionStateCallback;
     /** The framework camera capture session held by this session. */
     @Nullable
     CameraCaptureSessionCompat mCaptureSessionCompat;
@@ -138,15 +141,19 @@ final class CaptureSession {
      *
      * @param executor                 The executor is responsible for queuing up callbacks from
      *                                 capture requests.
+     * @param compatHandler            Handler used on lower API levels for scheduling callbacks
+     *                                 to run on executor.
      * @param scheduledExecutorService The executor service to schedule delayed event.
      * @param isLegacyDevice           whether the device is LEGACY.
      */
-    CaptureSession(@NonNull @CameraExecutor Executor executor,
+    CaptureSession(@NonNull @CameraExecutor Executor executor, @NonNull Handler compatHandler,
             @NonNull ScheduledExecutorService scheduledExecutorService, boolean isLegacyDevice) {
         mState = State.INITIALIZED;
         mExecutor = executor;
+        mCompatHandler = compatHandler;
         mScheduleExecutor = scheduledExecutorService;
         mIsLegacyDevice = isLegacyDevice;
+        mCaptureSessionStateCallback = new StateCallback(compatHandler);
     }
 
     /**
@@ -272,7 +279,7 @@ final class CaptureSession {
                             "openCaptureSession() should not be possible in state: " + mState));
                 case GET_SURFACE:
                     CameraDeviceCompat cameraDeviceCompat =
-                            CameraDeviceCompat.toCameraDeviceCompat(cameraDevice);
+                            CameraDeviceCompat.toCameraDeviceCompat(cameraDevice, mCompatHandler);
                     return CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 Preconditions.checkState(Thread.holdsLock(mStateLock));
@@ -844,6 +851,13 @@ final class CaptureSession {
      * <p>State changes are ignored once the CaptureSession has been closed.
      */
     final class StateCallback extends CameraCaptureSession.StateCallback {
+
+        private final Handler mCompatHandler;
+
+        StateCallback(@NonNull Handler compatHandler) {
+            mCompatHandler = compatHandler;
+        }
+
         /**
          * {@inheritDoc}
          *
@@ -869,7 +883,8 @@ final class CaptureSession {
                     case OPENING:
                         mState = State.OPENED;
                         mCaptureSessionCompat =
-                                CameraCaptureSessionCompat.toCameraCaptureSessionCompat(session);
+                                CameraCaptureSessionCompat.toCameraCaptureSessionCompat(session,
+                                        mCompatHandler);
 
                         // Issue capture request of enableSession if exists.
                         if (mSessionConfig != null) {
@@ -890,7 +905,8 @@ final class CaptureSession {
                         break;
                     case CLOSED:
                         mCaptureSessionCompat =
-                                CameraCaptureSessionCompat.toCameraCaptureSessionCompat(session);
+                                CameraCaptureSessionCompat.toCameraCaptureSessionCompat(session,
+                                        mCompatHandler);
                         break;
                     case RELEASING:
                         session.close();
@@ -1017,6 +1033,7 @@ final class CaptureSession {
     static final class Builder {
         @CameraExecutor
         private Executor mExecutor;
+        private Handler mCompatHandler;
         private ScheduledExecutorService mScheduledExecutorService;
         private int mSupportedHardwareLevel = -1;
 
@@ -1032,7 +1049,14 @@ final class CaptureSession {
                                 + "with setScheduledExecutorService()");
             }
 
-            return new CaptureSession(mExecutor, mScheduledExecutorService, mSupportedHardwareLevel
+            if (mCompatHandler == null) {
+                throw new IllegalStateException(
+                        "Missing compat handler. Compat handler must be set with "
+                                + "setCompatHandler()");
+            }
+
+            return new CaptureSession(mExecutor, mCompatHandler, mScheduledExecutorService,
+                    mSupportedHardwareLevel
                     == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         }
 
@@ -1043,6 +1067,10 @@ final class CaptureSession {
         void setScheduledExecutorService(
                 @NonNull ScheduledExecutorService scheduledExecutorService) {
             mScheduledExecutorService = Preconditions.checkNotNull(scheduledExecutorService);
+        }
+
+        void setCompatHandler(@NonNull Handler compatHandler) {
+            mCompatHandler = Preconditions.checkNotNull(compatHandler);
         }
 
         void setSupportedHardwareLevel(int supportedHardwareLevel) {
