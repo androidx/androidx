@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config.Option;
-import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
@@ -69,16 +68,6 @@ public abstract class UseCase {
     private final Object mBoundCameraLock = new Object();
     @GuardedBy("mBoundCameraLock")
     private CameraInternal mBoundCamera;
-
-    /**
-     * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats like SurfaceTexture or
-     * MediaCodec classes will be mapped to internal format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED
-     * (0x22) in StreamConfigurationMap.java. 0x22 is also the code for ImageFormat.PRIVATE. But
-     * there is no ImageFormat.PRIVATE supported before Android level 23. There is same internal
-     * code 0x22 for internal corresponding format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED.
-     * Therefore, setting 0x22 as default image format.
-     */
-    private int mImageFormat = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 
     /**
      * Creates a named instance of the use case.
@@ -508,13 +497,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public int getImageFormat() {
-        return mImageFormat;
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void setImageFormat(int imageFormat) {
-        mImageFormat = imageFormat;
+        return mUseCaseConfig.getInputFormat();
     }
 
     enum State {

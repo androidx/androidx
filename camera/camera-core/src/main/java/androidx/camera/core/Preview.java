@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -64,6 +65,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageInfoProcessor;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
@@ -197,7 +199,7 @@ public final class Preview extends UseCase {
             ProcessingSurface processingSurface = new ProcessingSurface(
                     resolution.getWidth(),
                     resolution.getHeight(),
-                    ImageFormat.YUV_420_888,
+                    config.getInputFormat(),
                     mProcessingPreviewHandler,
                     captureStage,
                     captureProcessor,
@@ -632,6 +634,14 @@ public final class Preview extends UseCase {
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
                                 + "config.");
             }
+
+            if (getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null) != null) {
+                getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);
+            } else {
+                getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+            }
+
             return new Preview(getUseCaseConfig());
         }
 

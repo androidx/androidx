@@ -37,6 +37,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.content.ContentResolver;
@@ -289,19 +290,6 @@ public final class ImageCapture extends UseCase {
         mMaxCaptureStages = mConfig.getMaxCaptureStages(MAX_IMAGES);
         Preconditions.checkArgument(mMaxCaptureStages >= 1,
                 "Maximum outstanding image count must be at least 1");
-
-        Integer bufferFormat = mConfig.getBufferFormat(null);
-        if (bufferFormat != null) {
-            Preconditions.checkArgument(mCaptureProcessor == null,
-                    "Cannot set buffer format with CaptureProcessor defined.");
-            setImageFormat(bufferFormat);
-        } else {
-            if (mCaptureProcessor != null) {
-                setImageFormat(ImageFormat.YUV_420_888);
-            } else {
-                setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
-            }
-        }
 
         mCaptureBundle = mConfig.getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
 
@@ -2008,6 +1996,23 @@ public final class ImageCapture extends UseCase {
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
                                 + "config.");
             }
+
+            // Update the input format base on the other options set (mainly whether processing
+            // is done)
+            Integer bufferFormat = getMutableConfig().retrieveOption(OPTION_BUFFER_FORMAT, null);
+            if (bufferFormat != null) {
+                Preconditions.checkArgument(
+                        getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null) == null,
+                        "Cannot set buffer format with CaptureProcessor defined.");
+                getMutableConfig().insertOption(OPTION_INPUT_FORMAT, bufferFormat);
+            } else {
+                if (getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null) != null) {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);
+                } else {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                }
+            }
+
             return new ImageCapture(getUseCaseConfig());
         }
 

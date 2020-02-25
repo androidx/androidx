@@ -461,6 +461,16 @@ public final class PreviewConfig
         return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR);
     }
 
+    /**
+     * Retrieves the format of the image that is fed as input.
+     *
+     * <p>This should be YUV_420_888, when processing is run on the image. Otherwise it is PRIVATE.
+     */
+    @Override
+    public int getInputFormat() {
+        return retrieveOption(OPTION_INPUT_FORMAT);
+    }
+
     // End of the default implementation of Config
     // *********************************************************************************************
 }
