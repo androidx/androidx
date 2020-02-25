@@ -36,24 +36,21 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.CameraControlInternal;
-import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
-import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -63,10 +60,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -76,49 +76,29 @@ public final class PreviewTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
+    private static final String ANY_THREAD_NAME = "any-thread-name";
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
-    private static final Preview.SurfaceProvider MOCK_PREVIEW_SURFACE_PROVIDER =
-            mock(Preview.SurfaceProvider.class);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-
+    private final CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
     private Preview.Builder mDefaultBuilder;
-
-    private CameraSelector mCameraSelector;
     private FakeLifecycleOwner mLifecycleOwner;
     private Size mPreviewResolution;
     private Semaphore mSurfaceFutureSemaphore;
-    private Semaphore mSaveToReleaseSemaphore;
-    private Preview.SurfaceProvider mSurfaceProviderWithFrameAvailableListener =
-            createSurfaceTextureProvider(new SurfaceTextureProvider.SurfaceTextureCallback() {
-                @Override
-                public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                        @NonNull Size resolution) {
-                    mPreviewResolution = resolution;
-                    surfaceTexture.setOnFrameAvailableListener(
-                            surfaceTexture1 -> mSurfaceFutureSemaphore.release());
-                }
-
-                @Override
-                public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                    surfaceTexture.release();
-                    mSaveToReleaseSemaphore.release();
-                }
-            });
-
+    private Semaphore mSafeToReleaseSemaphore;
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
-        Context context = ApplicationProvider.getApplicationContext();
+
+        final Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig).get();
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig(null));
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
-        mSaveToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
-        mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+        mSafeToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
         mLifecycleOwner = new FakeLifecycleOwner();
     }
 
@@ -134,32 +114,31 @@ public final class PreviewTest {
 
     @Test
     public void surfaceProvider_isUsedAfterSetting() {
-        Preview.SurfaceProvider surfaceProvider = mock(Preview.SurfaceProvider.class);
+        final Preview.SurfaceProvider surfaceProvider = mock(Preview.SurfaceProvider.class);
         doAnswer(args -> ((SurfaceRequest) args.getArgument(0)).willNotProvideSurface()).when(
                 surfaceProvider).onSurfaceRequested(
                 any(SurfaceRequest.class));
 
         mInstrumentation.runOnMainSync(() -> {
-            Preview preview = mDefaultBuilder.build();
+            final Preview preview = mDefaultBuilder.build();
             preview.setSurfaceProvider(surfaceProvider);
 
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
             mLifecycleOwner.startAndResume();
         });
 
-        verify(surfaceProvider, timeout(3000)).onSurfaceRequested(
-                any(SurfaceRequest.class));
+        verify(surfaceProvider, timeout(3000)).onSurfaceRequested(any(SurfaceRequest.class));
     }
 
     @Test
     public void previewDetached_onSafeToReleaseCalled() throws InterruptedException {
         // Arrange.
-        Preview preview = new Preview.Builder().build();
+        final Preview preview = new Preview.Builder().build();
 
         // Act.
         mInstrumentation.runOnMainSync(() -> {
             preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
-                    mSurfaceProviderWithFrameAvailableListener);
+                    getSurfaceProvider(null));
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
         });
 
@@ -167,20 +146,21 @@ public final class PreviewTest {
 
         // Wait until preview gets frame.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+
         // Destroy lifecycle to trigger release.
         mLifecycleOwner.pauseAndStop();
         mLifecycleOwner.destroy();
 
         // Assert.
-        assertThat(mSaveToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+        assertThat(mSafeToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
-    public void setPreviewSurfaceProviderBeforeBind_getsFrame() throws InterruptedException {
+    public void setSurfaceProviderBeforeBind_getsFrame() throws InterruptedException {
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
-            Preview preview = mDefaultBuilder.build();
-            preview.setSurfaceProvider(mSurfaceProviderWithFrameAvailableListener);
+            final Preview preview = mDefaultBuilder.build();
+            preview.setSurfaceProvider(getSurfaceProvider(null));
 
             // Act.
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
@@ -191,21 +171,62 @@ public final class PreviewTest {
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
     }
 
-    @Suppress // TODO(b/143703289): Remove suppression once provider can be set after bind
     @Test
-    public void setPreviewSurfaceProviderAfterBind_getsFrame() throws InterruptedException {
+    public void setSurfaceProviderBeforeBind_providesSurfaceOnWorkerExecutorThread()
+            throws InterruptedException {
+        final AtomicReference<String> threadName = new AtomicReference<>();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Arrange.
+            final Preview preview = mDefaultBuilder.build();
+            preview.setSurfaceProvider(getWorkExecutorWithNamedThread(),
+                    getSurfaceProvider(threadName::set));
+
+            // Act.
+            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
+            mLifecycleOwner.startAndResume();
+        });
+
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+        assertThat(threadName.get()).isEqualTo(ANY_THREAD_NAME);
+    }
+
+    @Test
+    public void setSurfaceProviderAfterBind_getsFrame() throws InterruptedException {
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
             Preview preview = mDefaultBuilder.build();
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
 
             // Act.
-            preview.setSurfaceProvider(mSurfaceProviderWithFrameAvailableListener);
+            preview.setSurfaceProvider(getSurfaceProvider(null));
             mLifecycleOwner.startAndResume();
         });
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void setSurfaceProviderAfterBind_providesSurfaceOnWorkerExecutorThread()
+            throws InterruptedException {
+        final AtomicReference<String> threadName = new AtomicReference<>();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Arrange.
+            Preview preview = mDefaultBuilder.build();
+            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
+
+            // Act.
+            preview.setSurfaceProvider(getWorkExecutorWithNamedThread(),
+                    getSurfaceProvider(threadName::set));
+            mLifecycleOwner.startAndResume();
+        });
+
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+        assertThat(threadName.get()).isEqualTo(ANY_THREAD_NAME);
     }
 
     @Test
@@ -230,8 +251,7 @@ public final class PreviewTest {
                     isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
             mInstrumentation.runOnMainSync(() -> {
-                preview.setSurfaceProvider(
-                        mSurfaceProviderWithFrameAvailableListener);
+                preview.setSurfaceProvider(getSurfaceProvider(null));
                 CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
                         lensFacing).build();
                 CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview);
@@ -254,15 +274,28 @@ public final class PreviewTest {
         }
     }
 
-    private CameraControlInternal getFakeCameraControl() {
-        return new FakeCameraControl(new CameraControlInternal.ControlUpdateCallback() {
+    private Executor getWorkExecutorWithNamedThread() {
+        final ThreadFactory threadFactory = runnable -> new Thread(runnable, ANY_THREAD_NAME);
+        return Executors.newSingleThreadExecutor(threadFactory);
+    }
+
+    private Preview.SurfaceProvider getSurfaceProvider(
+            @Nullable final Consumer<String> threadNameConsumer) {
+        return createSurfaceTextureProvider(new SurfaceTextureProvider.SurfaceTextureCallback() {
             @Override
-            public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
+            public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                    @NonNull Size resolution) {
+                if (threadNameConsumer != null) {
+                    threadNameConsumer.accept(Thread.currentThread().getName());
+                }
+                mPreviewResolution = resolution;
+                surfaceTexture.setOnFrameAvailableListener(st -> mSurfaceFutureSemaphore.release());
             }
 
             @Override
-            public void onCameraControlCaptureRequests(
-                    @NonNull List<CaptureConfig> captureConfigs) {
+            public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                surfaceTexture.release();
+                mSafeToReleaseSemaphore.release();
             }
         });
     }
