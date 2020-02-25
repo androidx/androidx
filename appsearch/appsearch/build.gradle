@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -30,11 +29,15 @@ dependencies {
 
     implementation project(':icing')
     implementation('androidx.collection:collection:1.1.0')
+    implementation('androidx.concurrent:concurrent-futures:1.0.0')
+    implementation('androidx.core:core:1.2.0')
 
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
+    //TODO(b/149787478) upgrade and link to Dependencies.kt
+    androidTestImplementation("junit:junit:4.13")
 }
 
 androidx {
