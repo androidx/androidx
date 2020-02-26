@@ -25,7 +25,6 @@ import androidx.ui.core.offset
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
@@ -90,8 +89,8 @@ fun Box(
     // TODO(popam): there should be no custom layout, use Column instead (b/148809177)
     Layout(children, modifier + backgroundModifier + borderModifier) { measurables, constraints ->
         val leftPadding = if (paddingLeft != Dp.Unspecified) paddingLeft else padding
-        val rightPadding = if (paddingTop != Dp.Unspecified) paddingTop else padding
-        val topPadding = if (paddingRight != Dp.Unspecified) paddingRight else padding
+        val topPadding = if (paddingTop != Dp.Unspecified) paddingTop else padding
+        val rightPadding = if (paddingRight != Dp.Unspecified) paddingRight else padding
         val bottomPadding = if (paddingBottom != Dp.Unspecified) paddingBottom else padding
         val totalHorizontal = leftPadding.toIntPx() + rightPadding.toIntPx()
         val totalVertical = topPadding.toIntPx() + bottomPadding.toIntPx()
@@ -124,9 +123,6 @@ fun Box(
         }
     }
 }
-
-// TODO(popam/148015674): move EdgeInsets here and rename the API to ContentPadding
-typealias ContentPadding = EdgeInsets
 
 // TODO(popam/148014745): add a Gravity class consistent with cross axis alignment for Row/Column
 typealias ContentGravity = Alignment
