@@ -371,6 +371,7 @@ apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
+includeProject(":icing", new File(externalRoot, "icing"))
 
 // fake project which is used for docs generation from prebuilts
 // we need real android project to generate R.java, aidl etc files that mentioned in sources
