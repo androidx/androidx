@@ -46,12 +46,6 @@ import androidx.ui.unit.toOffset
 import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toRect
 
-internal fun getRippleStartRadius(size: PxSize) =
-    max(size.width, size.height) * 0.3f
-
-internal fun Density.getRippleTargetRadius(size: PxSize) =
-    PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx()
-
 /**
  * Used to specify this type of [RippleEffect] for [Ripple].
  */
@@ -121,7 +115,7 @@ private class DefaultRippleEffect(
         val surfaceSize = coordinates.size.toPxSize()
         val startRadius = getRippleStartRadius(surfaceSize)
         val targetRadius = with(density) {
-            radius?.toPx() ?: getRippleTargetRadius(surfaceSize)
+            radius?.toPx() ?: getRippleEndRadius(clipped, surfaceSize)
         }
 
         val center = coordinates.size.toPxSize().center()
@@ -246,3 +240,26 @@ private object RippleTransition {
         }
     }
 }
+
+/**
+ * According to specs the starting radius is equal to 60% of the largest dimension of the
+ * surface it belongs to.
+ */
+internal fun getRippleStartRadius(size: PxSize) =
+    max(size.width, size.height) * 0.3f
+
+/**
+ * According to specs the ending radius
+ * - expands to 10dp beyond the border of the surface it belongs to for bounded ripples
+ * - fits within the border of the surface it belongs to for unbounded ripples
+ */
+internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Px {
+    val radiusCoveringBounds = PxPosition(size.width, size.height).getDistance() / 2f
+    return if (bounded) {
+        radiusCoveringBounds + BoundedRippleExtraRadius.toPx()
+    } else {
+        radiusCoveringBounds
+    }
+}
+
+private val BoundedRippleExtraRadius = 10.dp
