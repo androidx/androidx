@@ -44,6 +44,8 @@ class DatabaseVerifier private constructor(
 ) {
     companion object {
         private const val CONNECTION_URL = "jdbc:sqlite::memory:"
+        private const val SQLITE_INITIALIZED_FLAG = "room.sqlite.initialized"
+        private const val SQLITE_TEMPDIR_FLAG = "org.sqlite.tmpdir"
         private val NATIVE_LIB_RELOAD_RETRY_CNT = 5
         /**
          * Taken from:
@@ -69,20 +71,55 @@ class DatabaseVerifier private constructor(
         }
 
         /**
+         * Tells whether sqlite was previously initialized successfully
+         */
+        private fun reusePreviousSqliteTempdir(): Boolean {
+            val previouslyInitialized = System.getProperty(SQLITE_INITIALIZED_FLAG) != null
+            if (!previouslyInitialized) {
+                return false
+            }
+            val previousTempDirString = System.getProperty(SQLITE_TEMPDIR_FLAG)
+            if (previousTempDirString == null) {
+                return false
+            }
+            val previousTempDir = File(previousTempDirString)
+            if (!previousTempDir.isDirectory) {
+                return false
+            }
+            // reuse existing temp dir
+            sqliteNativeLibDir = previousTempDir
+            return true
+        }
+
+        /**
          * Copies native libraries into a tmp folder to be loaded.
          */
         private fun copyNativeLibs() {
-            // see: https://github.com/xerial/sqlite-jdbc/issues/97
-            val tmpDir = System.getProperty("java.io.tmpdir")
-            checkNotNull(tmpDir) {
-                "Room needs java.io.tmpdir system property to be set to setup sqlite"
+            // check whether a previous initialization succeeded
+            if (reusePreviousSqliteTempdir()) {
+                return
             }
-            sqliteNativeLibDir = File(tmpDir, "room-${UUID.randomUUID()}")
-            sqliteNativeLibDir.mkdirs()
-            sqliteNativeLibDir.deleteOnExit()
-            System.setProperty("org.sqlite.tmpdir", sqliteNativeLibDir.absolutePath)
-            // dummy call to trigger JDBC initialization so that we can unregister it
-            JDBC.isValidURL(CONNECTION_URL)
+            synchronized(this) {
+                // check again (inside synchronization) whether a previous initialization succeeded
+                if (reusePreviousSqliteTempdir()) {
+                    return
+                }
+
+                // set up sqlite
+                // see: https://github.com/xerial/sqlite-jdbc/issues/97
+                val baseTempDir = System.getProperty("java.io.tmpdir")
+                checkNotNull(baseTempDir) {
+                    "Room needs java.io.tmpdir system property to be set to setup sqlite"
+                }
+                sqliteNativeLibDir = File(baseTempDir, "room-${UUID.randomUUID()}")
+                sqliteNativeLibDir.mkdirs()
+                sqliteNativeLibDir.deleteOnExit()
+                System.setProperty(SQLITE_TEMPDIR_FLAG, sqliteNativeLibDir.absolutePath)
+                // dummy call to trigger JDBC initialization so that we can unregister it
+                JDBC.isValidURL(CONNECTION_URL)
+                // record successful initialization
+                System.setProperty(SQLITE_INITIALIZED_FLAG, "true")
+            }
         }
 
         /**
@@ -132,6 +169,13 @@ class DatabaseVerifier private constructor(
                     context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
                         DatabaseVerificationErrors.cannotCreateConnection(ex))
                     return null
+                } finally {
+                    val systemPropertyTempDir = System.getProperty(SQLITE_TEMPDIR_FLAG)
+                    if (systemPropertyTempDir != sqliteNativeLibDir.toString()) {
+                        throw ConcurrentModificationException("System property " +
+                            "org.sqlite.tmpdir changed from $sqliteNativeLibDir to " +
+                            "$systemPropertyTempDir inside DatabaseVerifier.create")
+                    }
                 }
             }
             return null
