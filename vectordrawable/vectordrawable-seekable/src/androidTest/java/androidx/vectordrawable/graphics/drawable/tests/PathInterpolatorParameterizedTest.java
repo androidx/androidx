@@ -23,14 +23,12 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 
 import androidx.animation.AnimationTestRule;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.vectordrawable.graphics.drawable.Animatable2;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.vectordrawable.seekable.test.R;
 
@@ -90,14 +88,14 @@ public class PathInterpolatorParameterizedTest {
 
         final AtomicBoolean ended = new AtomicBoolean(false);
 
-        avd.registerAnimationCallback(new Animatable2.AnimationCallback() {
+        avd.registerAnimationCallback(new SeekableAnimatedVectorDrawable.AnimationCallback() {
             @Override
-            public void onAnimationStart(@NonNull Drawable drawable) {
+            public void onAnimationStart(@NonNull SeekableAnimatedVectorDrawable drawable) {
                 // Nothing to do.
             }
 
             @Override
-            public void onAnimationEnd(@NonNull Drawable drawable) {
+            public void onAnimationEnd(@NonNull SeekableAnimatedVectorDrawable drawable) {
                 bitmap.eraseColor(0);
                 drawable.draw(c);
                 int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2, IMAGE_WIDTH / 2);
