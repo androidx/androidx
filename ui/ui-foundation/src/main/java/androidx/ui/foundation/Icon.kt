@@ -29,6 +29,7 @@ import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 // TODO: b/149030271 remove when we have a VectorPainter, so developers can use just the Painter
@@ -46,6 +47,8 @@ fun Icon(
     modifier: Modifier = Modifier.None,
     tint: Color = contentColor()
 ) {
+    // TODO: consider allowing developers to override the intrinsic size, and specify their own
+    // size that this icon will be forced to take up.
     // TODO: b/149735981 semantics for content description
     Box(modifier + LayoutWidth(icon.defaultWidth) + LayoutHeight(icon.defaultHeight)) {
         DrawVector(vectorImage = icon, tintColor = tint)
@@ -65,14 +68,23 @@ fun Icon(
     modifier: Modifier = Modifier.None,
     tint: Color = contentColor()
 ) {
+    // TODO: consider allowing developers to override the intrinsic size, and specify their own
+    // size that this icon will be forced to take up.
     val iconModifier = icon.toModifier(
         colorFilter = ColorFilter(color = tint, blendMode = BlendMode.srcIn)
     )
 
+    val layoutModifier = if (icon.intrinsicSize == PxSize.UnspecifiedSize) {
+        DefaultIconSizeModifier
+    } else {
+        Modifier.None
+    }
+
     // TODO: b/149735981 semantics for content description
-    // TODO: b/149693776 stop forcing DefaultIconSizeModifier as the size, and use the intrinsic
-    // size of the painter, so that this icon will properly fit the painter.
-    Box(modifier = modifier + DefaultIconSizeModifier + iconModifier, children = emptyContent())
+    Box(
+        modifier = modifier + layoutModifier + iconModifier,
+        children = emptyContent()
+    )
 }
 
 // Default icon size, for icons with no intrinsic size information

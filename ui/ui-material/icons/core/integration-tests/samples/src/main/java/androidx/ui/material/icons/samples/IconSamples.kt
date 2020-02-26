@@ -18,6 +18,7 @@ package androidx.ui.material.icons.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.foundation.Icon
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.material.icons.Icons
@@ -34,7 +35,7 @@ fun AppIcons() {
 @Sampled
 @Composable
 fun DrawIcon() {
-    DrawVector(vectorImage = Icons.Rounded.Menu)
+    Icon(Icons.Rounded.Menu)
 }
 
 @Composable
