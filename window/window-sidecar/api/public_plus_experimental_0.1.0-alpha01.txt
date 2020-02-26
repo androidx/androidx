@@ -1,0 +1,68 @@
+// Signature format: 3.0
+package androidx.window.sidecar {
+
+  public class SidecarDeviceState {
+    ctor public SidecarDeviceState();
+    field public static final int POSTURE_CLOSED = 1; // 0x1
+    field public static final int POSTURE_FLIPPED = 4; // 0x4
+    field public static final int POSTURE_HALF_OPENED = 2; // 0x2
+    field public static final int POSTURE_OPENED = 3; // 0x3
+    field public static final int POSTURE_UNKNOWN = 0; // 0x0
+    field @androidx.window.sidecar.SidecarDeviceState.Posture public int posture;
+  }
+
+  @IntDef({androidx.window.sidecar.SidecarDeviceState.POSTURE_UNKNOWN, androidx.window.sidecar.SidecarDeviceState.POSTURE_CLOSED, androidx.window.sidecar.SidecarDeviceState.POSTURE_HALF_OPENED, androidx.window.sidecar.SidecarDeviceState.POSTURE_OPENED, androidx.window.sidecar.SidecarDeviceState.POSTURE_FLIPPED}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SidecarDeviceState.Posture {
+  }
+
+  public class SidecarDisplayFeature {
+    ctor public SidecarDisplayFeature();
+    method public android.graphics.Rect getRect();
+    method @androidx.window.sidecar.SidecarDisplayFeature.Type public int getType();
+    method public void setRect(android.graphics.Rect);
+    method public void setType(@androidx.window.sidecar.SidecarDisplayFeature.Type int);
+    field public static final int TYPE_FOLD = 1; // 0x1
+    field public static final int TYPE_HINGE = 2; // 0x2
+  }
+
+  @IntDef({androidx.window.sidecar.SidecarDisplayFeature.TYPE_FOLD, androidx.window.sidecar.SidecarDisplayFeature.TYPE_HINGE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SidecarDisplayFeature.Type {
+  }
+
+  public interface SidecarInterface {
+    method public androidx.window.sidecar.SidecarDeviceState getDeviceState();
+    method public androidx.window.sidecar.SidecarWindowLayoutInfo getWindowLayoutInfo(android.os.IBinder);
+    method public void onDeviceStateListenersChanged(boolean);
+    method public void onWindowLayoutChangeListenerAdded(android.os.IBinder);
+    method public void onWindowLayoutChangeListenerRemoved(android.os.IBinder);
+    method public void setSidecarCallback(androidx.window.sidecar.SidecarInterface.SidecarCallback);
+  }
+
+  public static interface SidecarInterface.SidecarCallback {
+    method public void onDeviceStateChanged(androidx.window.sidecar.SidecarDeviceState);
+    method public void onWindowLayoutChanged(android.os.IBinder, androidx.window.sidecar.SidecarWindowLayoutInfo);
+  }
+
+  public class SidecarProvider {
+    method public static String? getApiVersion();
+    method public static androidx.window.sidecar.SidecarInterface? getSidecarImpl(android.content.Context);
+  }
+
+  public class SidecarWindowLayoutInfo {
+    ctor public SidecarWindowLayoutInfo();
+    field public java.util.List<androidx.window.sidecar.SidecarDisplayFeature!>? displayFeatures;
+  }
+
+  public abstract class StubSidecarImpl implements androidx.window.sidecar.SidecarInterface {
+    ctor public StubSidecarImpl();
+    method protected java.util.Set<android.os.IBinder!> getWindowsListeningForLayoutChanges();
+    method protected boolean hasListeners();
+    method public void onDeviceStateListenersChanged(boolean);
+    method protected abstract void onListenersChanged();
+    method public void onWindowLayoutChangeListenerAdded(android.os.IBinder);
+    method public void onWindowLayoutChangeListenerRemoved(android.os.IBinder);
+    method public void setSidecarCallback(androidx.window.sidecar.SidecarInterface.SidecarCallback);
+    method protected void updateDeviceState(androidx.window.sidecar.SidecarDeviceState);
+    method protected void updateWindowLayout(android.os.IBinder, androidx.window.sidecar.SidecarWindowLayoutInfo);
+  }
+
+}
+
