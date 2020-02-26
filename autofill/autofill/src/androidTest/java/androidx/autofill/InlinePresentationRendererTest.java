@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 28) // Slice is added after API level 28.
+@SdkSuppress(minSdkVersion = 29) // Needed only on 29 and above
 public class InlinePresentationRendererTest {
     private Instrumentation mInstrumentation;
     private Context mContext;
