@@ -16,15 +16,21 @@
 
 package androidx.ui.test
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.os.Build
+import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
+import androidx.ui.test.android.captureRegionToBitmap
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -47,6 +53,33 @@ import org.junit.Assert.assertTrue
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     val errorMessageOnFail = "Failed to capture a node to bitmap."
     return semanticsTreeInteraction.captureNodeToBitmap(fetchSemanticsNode(errorMessageOnFail))
+}
+
+/**
+ * Captures the underlying view's surface into bitmap.
+ *
+ * This has currently several limitations. Currently we assume that the view is hosted in
+ * Activity's window. Also if there is another window covering part of the component if won't occur
+ * in the bitmap as this is taken from the component's window surface.
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+fun View.captureToBitmap(): Bitmap {
+    val locationOnScreen = intArrayOf(0, 0)
+    getLocationOnScreen(locationOnScreen)
+    val x = locationOnScreen[0].toFloat()
+    val y = locationOnScreen[1].toFloat()
+    val bounds = Rect(x, y, x + width, y + height)
+
+    // Recursively search for the Activity context through (possible) ContextWrappers
+    fun Context.getActivity(): Activity? {
+        return when (this) {
+            is Activity -> this
+            is ContextWrapper -> this.baseContext.getActivity()
+            else -> null
+        }
+    }
+
+    return captureRegionToBitmap(bounds, handler, context.getActivity()!!.window)
 }
 
 /**
