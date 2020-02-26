@@ -23,7 +23,7 @@ import androidx.ui.foundation.Icon
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.layout.Spacer
 import androidx.ui.material.BottomAppBar
-import androidx.ui.material.FloatingActionButton
+import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.IconButton
 import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
@@ -88,9 +88,11 @@ fun SimpleBottomAppBarCutoutWithScaffold() {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(shape = fabShape, onClick = { /* doSomething() */ }) {
-                Text("Click me!")
-            }
+            ExtendedFloatingActionButton(
+                text = { Text("Click me!") },
+                shape = fabShape,
+                onClick = { /* doSomething() */ }
+            )
         },
         floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
     ) {

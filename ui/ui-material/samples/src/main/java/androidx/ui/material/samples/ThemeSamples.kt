@@ -23,14 +23,13 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.material.FloatingActionButton
+import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.sp
 
@@ -58,8 +57,8 @@ fun MaterialThemeSample() {
 
     MaterialTheme(colors = colors, typography = typography) {
         val currentTheme = if (MaterialTheme.colors().isLight) "light" else "dark"
-        FloatingActionButton(
-            "FAB with text style and color from $currentTheme theme",
+        ExtendedFloatingActionButton(
+            text = { Text("FAB with text style and color from $currentTheme theme") },
             onClick = {}
         )
     }
