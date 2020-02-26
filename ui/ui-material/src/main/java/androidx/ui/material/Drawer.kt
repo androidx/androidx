@@ -191,16 +191,21 @@ fun BottomDrawerLayout(
 
             // TODO: add proper landscape support
             val isLandscape = constraints.maxWidth > constraints.maxHeight
-            val openedValue = if (isLandscape) maxValue else lerp(
+            val openedValue = if (isLandscape) minValue else lerp(
                 minValue,
                 maxValue,
                 BottomDrawerOpenFraction
             )
-            val anchors = listOf(
-                maxValue to DrawerState.Closed,
-                openedValue to DrawerState.Opened,
-                minValue to DrawerState.Opened
-            )
+            val anchors =
+                if (isLandscape) {
+                    listOf(maxValue to DrawerState.Closed, minValue to DrawerState.Opened)
+                } else {
+                    listOf(
+                        maxValue to DrawerState.Closed,
+                        openedValue to DrawerState.Opened,
+                        minValue to DrawerState.Opened
+                    )
+                }
             StateDraggable(
                 state = drawerState,
                 onStateChange = onStateChange,
