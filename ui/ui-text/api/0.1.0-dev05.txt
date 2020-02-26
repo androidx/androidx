@@ -355,7 +355,6 @@ package androidx.ui.text {
     method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
-    method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     method public void paint(androidx.ui.graphics.Canvas canvas);
@@ -366,7 +365,6 @@ package androidx.ui.text {
     property public abstract int lineCount;
     property public abstract float maxIntrinsicWidth;
     property public abstract float minIntrinsicWidth;
-    property public abstract java.util.List<androidx.ui.geometry.Rect> placeholderRects;
     property public abstract float width;
   }
 
@@ -385,11 +383,11 @@ package androidx.ui.text {
   }
 
   public final class ParagraphIntrinsicsKt {
-    method public static androidx.ui.text.ParagraphIntrinsics ParagraphIntrinsics(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = listOf(), java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders = listOf(), androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public static androidx.ui.text.ParagraphIntrinsics ParagraphIntrinsics(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = listOf(), androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
   }
 
   public final class ParagraphKt {
-    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = listOf(), java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders = listOf(), int maxLines = 2147483647, boolean ellipsis = false, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = listOf(), int maxLines = 2147483647, boolean ellipsis = false, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public static androidx.ui.text.Paragraph Paragraph(androidx.ui.text.ParagraphIntrinsics paragraphIntrinsics, int maxLines = 2147483647, boolean ellipsis = false, androidx.ui.text.ParagraphConstraints constraints);
   }
 
@@ -410,27 +408,6 @@ package androidx.ui.text {
 
   public final class ParagraphStyleKt {
     method public static androidx.ui.text.ParagraphStyle lerp(androidx.ui.text.ParagraphStyle start, androidx.ui.text.ParagraphStyle stop, float fraction);
-  }
-
-  public final class Placeholder {
-    ctor public Placeholder(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.PlaceholderVerticalAlign textVerticalAlign);
-    method public androidx.ui.unit.TextUnit component1();
-    method public androidx.ui.unit.TextUnit component2();
-    method public androidx.ui.text.PlaceholderVerticalAlign component3();
-    method public androidx.ui.text.Placeholder copy(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.PlaceholderVerticalAlign textVerticalAlign);
-    method public androidx.ui.unit.TextUnit getHeight();
-    method public androidx.ui.text.PlaceholderVerticalAlign getTextVerticalAlign();
-    method public androidx.ui.unit.TextUnit getWidth();
-  }
-
-  public enum PlaceholderVerticalAlign {
-    enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign AboveBaseline;
-    enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Bottom;
-    enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Center;
-    enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign TextBottom;
-    enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign TextCenter;
-    enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign TextTop;
-    enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Top;
   }
 
   public final class SpanStyle {
