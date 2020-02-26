@@ -167,7 +167,9 @@ class MultiInstanceInvalidationClient {
         mName = name;
         mInvalidationTracker = invalidationTracker;
         mExecutor = executor;
-        mObserver = new InvalidationTracker.Observer(invalidationTracker.mTableNames) {
+        // Use all tables names for observer.
+        final Set<String> tableNames = invalidationTracker.mTableIdLookup.keySet();
+        mObserver = new InvalidationTracker.Observer(tableNames.toArray(new String[0])) {
             @Override
             public void onInvalidated(@NonNull Set<String> tables) {
                 if (mStopped.get()) {

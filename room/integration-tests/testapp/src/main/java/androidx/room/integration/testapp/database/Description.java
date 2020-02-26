@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,29 @@
 
 package androidx.room.integration.testapp.database;
 
-import androidx.room.Database;
-import androidx.room.RoomDatabase;
+import androidx.room.Entity;
+import androidx.room.Fts4;
 
 /**
- * Sample database of customers.
+ * A product description
  */
-@Database(entities = {Customer.class, Product.class, Review.class, Description.class},
-        version = 1, exportSchema = false)
-public abstract class SampleDatabase extends RoomDatabase {
-    /**
-     * @return customer dao.
-     */
-    public abstract CustomerDao getCustomerDao();
+@Fts4
+@Entity
+public class Description {
 
-    /**
-     * @return product dao.
-     */
-    public abstract ProductDao getProductDao();
+    private final int mProductId;
+    private final String mText;
+
+    public Description(int productId, String text) {
+        mProductId = productId;
+        mText = text;
+    }
+
+    public int getProductId() {
+        return mProductId;
+    }
+
+    public String getText() {
+        return mText;
+    }
 }
