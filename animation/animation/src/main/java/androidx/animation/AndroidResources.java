@@ -100,4 +100,7 @@ class AndroidResources {
     public static final int STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_2 = 2;
     public static final int STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2 = 3;
     public static final int STYLEABLE_PATH_INTERPOLATOR_PATH_DATA = 4;
+    public static final int FAST_OUT_LINEAR_IN = 0x010c000f;
+    public static final int FAST_OUT_SLOW_IN = 0x010c000d;
+    public static final int LINEAR_OUT_SLOW_IN = 0x010c000e;
 }

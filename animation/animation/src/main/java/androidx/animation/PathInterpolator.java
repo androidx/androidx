@@ -26,7 +26,10 @@ import android.view.InflateException;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.graphics.PathParser;
+
+import org.xmlpull.v1.XmlPullParser;
 
 
 /**
@@ -87,11 +90,37 @@ public class PathInterpolator implements Interpolator {
         initCubic(controlX1, controlY1, controlX2, controlY2);
     }
 
-    public PathInterpolator(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context.getResources(), context.getTheme(), attrs);
+    /**
+     * Create an interpolator from XML.
+     *
+     * @param context The context.
+     * @param attrs   The AttributeSet for pathInterpolator.
+     * @param parser  The XmlPullParser that was used to create the AttributeSet with
+     *                {@link android.util.Xml#asAttributeSet(XmlPullParser)}.
+     */
+    public PathInterpolator(
+            @NonNull Context context,
+            @Nullable AttributeSet attrs,
+            @NonNull XmlPullParser parser
+    ) {
+        this(context.getResources(), context.getTheme(), attrs, parser);
     }
 
-    PathInterpolator(Resources res, Theme theme, AttributeSet attrs) {
+    /**
+     * Create an interpolator from XML.
+     *
+     * @param res    The resources.
+     * @param theme  The theme.
+     * @param attrs  The AttributeSet for pathInterpolator.
+     * @param parser  The XmlPullParser that was used to create the AttributeSet with
+     *                {@link android.util.Xml#asAttributeSet(XmlPullParser)}.
+     */
+    public PathInterpolator(
+            @NonNull Resources res,
+            @Nullable Theme theme,
+            @Nullable AttributeSet attrs,
+            @NonNull XmlPullParser parser
+    ) {
         TypedArray a;
         if (theme != null) {
             a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR,
@@ -99,15 +128,16 @@ public class PathInterpolator implements Interpolator {
         } else {
             a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR);
         }
-        parseInterpolatorFromTypeArray(a);
+        parseInterpolatorFromTypeArray(a, parser);
         a.recycle();
     }
 
-    private void parseInterpolatorFromTypeArray(TypedArray a) {
+    private void parseInterpolatorFromTypeArray(TypedArray a, XmlPullParser parser) {
         // If there is pathData defined in the xml file, then the controls points
         // will be all coming from pathData.
-        if (a.hasValue(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_PATH_DATA)) {
-            String pathData = a.getString(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_PATH_DATA);
+        if (TypedArrayUtils.hasAttribute(parser, "pathData")) {
+            String pathData = TypedArrayUtils.getNamedString(a, parser, "pathData",
+                    AndroidResources.STYLEABLE_PATH_INTERPOLATOR_PATH_DATA);
             Path path = PathParser.createPathFromPathData(pathData);
             if (path == null) {
                 throw new InflateException("The path is null, which is created"
@@ -115,16 +145,19 @@ public class PathInterpolator implements Interpolator {
             }
             initPath(path);
         } else {
-            if (!a.hasValue(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1)) {
+
+            if (!TypedArrayUtils.hasAttribute(parser, "controlX1")) {
                 throw new InflateException("pathInterpolator requires the controlX1 attribute");
-            } else if (!a.hasValue(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1)) {
+            } else if (!TypedArrayUtils.hasAttribute(parser, "controlY1")) {
                 throw new InflateException("pathInterpolator requires the controlY1 attribute");
             }
-            float x1 = a.getFloat(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1, 0);
-            float y1 = a.getFloat(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1, 0);
+            float x1 = TypedArrayUtils.getNamedFloat(a, parser, "controlX1",
+                    AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1, 0);
+            float y1 = TypedArrayUtils.getNamedFloat(a, parser, "controlY1",
+                    AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1, 0);
 
-            boolean hasX2 = a.hasValue(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_2);
-            boolean hasY2 = a.hasValue(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2);
+            boolean hasX2 = TypedArrayUtils.hasAttribute(parser, "controlX2");
+            boolean hasY2 = TypedArrayUtils.hasAttribute(parser, "controlY2");
 
             if (hasX2 != hasY2) {
                 throw new InflateException(
@@ -135,8 +168,10 @@ public class PathInterpolator implements Interpolator {
             if (!hasX2) {
                 initQuad(x1, y1);
             } else {
-                float x2 = a.getFloat(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_2, 0);
-                float y2 = a.getFloat(AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2, 0);
+                float x2 = TypedArrayUtils.getNamedFloat(a, parser, "controlX2",
+                        AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_2, 0);
+                float y2 = TypedArrayUtils.getNamedFloat(a, parser, "controlY2",
+                        AndroidResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2, 0);
                 initCubic(x1, y1, x2, y2);
             }
         }
