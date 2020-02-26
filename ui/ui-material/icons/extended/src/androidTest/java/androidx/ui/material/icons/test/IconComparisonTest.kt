@@ -18,21 +18,24 @@ package androidx.ui.material.icons.test
 
 import android.app.Activity
 import android.graphics.Bitmap
+import android.os.Build
 import android.view.ViewGroup
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.captureToBitmap
@@ -53,6 +56,7 @@ const val XmlTestTag = "Xml"
  * Material [androidx.ui.material.icons.Icons] and their XML source.
  */
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4::class)
 class IconComparisonTest {
 
@@ -163,14 +167,14 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
         Column {
             TestTag(ProgrammaticTestTag) {
                 Semantics(container = true) {
-                    Container(width = 24.dp, height = 24.dp) {
+                    Box(LayoutSize(24.dp)) {
                         DrawVector(vectorImage = programmaticVector, tintColor = Color.Red)
                     }
                 }
             }
             TestTag(XmlTestTag) {
                 Semantics(container = true) {
-                    Container(width = 24.dp, height = 24.dp) {
+                    Box(LayoutSize(24.dp)) {
                         DrawVector(vectorImage = xmlVector, tintColor = Color.Red)
                     }
                 }
