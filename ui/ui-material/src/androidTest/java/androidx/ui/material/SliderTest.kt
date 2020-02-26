@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import androidx.animation.ManualAnimationClock
 import androidx.compose.FrameManager.framed
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
@@ -39,7 +40,7 @@ class SliderTest {
     @Test
     fun sliderPosition_defaultConstructor() {
         framed {
-            val position = SliderPosition()
+            val position = SliderPosition(animatedClock = ManualAnimationClock(0))
             assert(position.startValue == 0f)
             assert(position.endValue == 1f)
             assert(position.value == 0f)
@@ -50,7 +51,7 @@ class SliderTest {
     @Test
     fun sliderPosition_valueCoercion() {
         framed {
-            val position = SliderPosition()
+            val position = SliderPosition(animatedClock = ManualAnimationClock(0))
             assert(position.value == 0f)
             assert(position.endValue == 1f)
             position.value = 2f
@@ -63,20 +64,24 @@ class SliderTest {
 
     @Test
     fun sliderPosition_reversedRange() {
-        val pos = SliderPosition(initial = 0f, valueRange = 10f..0f)
+        val pos = SliderPosition(
+            initial = 0f,
+            valueRange = 10f..0f,
+            animatedClock = ManualAnimationClock(0)
+        )
         assert(pos.startValue == 10f)
         assert(pos.endValue == 0f)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun sliderPosition_stepsThrowWhenLessThanZero() {
-        SliderPosition(steps = -1)
+        SliderPosition(steps = -1, animatedClock = ManualAnimationClock(0))
     }
 
     @Test
     fun slider_semantics() {
         val tag = "slider"
-        val position = SliderPosition()
+        val position = SliderPosition(animatedClock = ManualAnimationClock(0))
 
         composeTestRule
             .setMaterialContent {
@@ -98,7 +103,7 @@ class SliderTest {
 
     @Test
     fun slider_sizes() {
-        val position = SliderPosition()
+        val position = SliderPosition(animatedClock = ManualAnimationClock(0))
 
         composeTestRule
             .setMaterialContentAndCollectSizes(

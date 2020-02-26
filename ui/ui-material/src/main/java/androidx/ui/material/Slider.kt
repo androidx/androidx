@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
-import androidx.animation.DefaultAnimationClock
 import androidx.animation.TargetAnimation
 import androidx.animation.TweenBuilder
 import androidx.annotation.IntRange
@@ -26,6 +25,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.AnimatedFloatModel
+import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
@@ -61,7 +61,30 @@ import androidx.ui.util.lerp
 import kotlin.math.abs
 
 /**
- * State for Slider that represents the Slider value, its bounds and optional amount of steps
+ * Create and [remember] the state for a [Slider] based on the parameters, using the
+ * [ambient animation clock][AnimationClockAmbient].
+ *
+ * @param initial initial value for the Slider when created. If outside of range provided,
+ * initial position will be coerced to this range
+ * @param valueRange range of values that Slider value can take
+ * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
+ * between across the whole value range. If 0, slider will behave as a continuous slider and allow
+ * to choose any value from the range specified
+ */
+@Composable
+fun SliderPosition(
+    initial: Float = 0f,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) steps: Int = 0
+): SliderPosition {
+    val clock = AnimationClockAmbient.current
+    return remember(initial, valueRange, steps, clock) {
+        SliderPosition(initial, valueRange, steps, clock)
+    }
+}
+
+/**
+ * State for [Slider] that represents the Slider value, its bounds and optional amount of steps
  * evenly distributed across the Slider range.
  *
  * @param initial initial value for the Slider when created. If outside of range provided,
@@ -75,8 +98,7 @@ class SliderPosition(
     initial: Float = 0f,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
-    // TODO: remove this default
-    animatedClock: AnimationClockObservable = DefaultAnimationClock()
+    animatedClock: AnimationClockObservable
 ) {
 
     internal val startValue: Float = valueRange.start
