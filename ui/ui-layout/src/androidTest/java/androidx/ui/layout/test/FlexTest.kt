@@ -33,13 +33,14 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.globalPosition
 import androidx.ui.layout.Align
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
@@ -2087,7 +2088,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Row(LayoutWidth.Fill, arrangement = Arrangement(customArrangement)) {
+                Row(LayoutWidth.Fill, arrangement = customHorizontalArrangement) {
                     for (i in childPosition.indices) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2175,7 +2176,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
+                Column(LayoutHeight.Fill, arrangement = Arrangement.Bottom) {
                     for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2390,7 +2391,7 @@ class FlexTest : LayoutTest() {
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = Arrangement(customArrangement)) {
+                Column(LayoutHeight.Fill, arrangement = customVerticalArrangement) {
                     for (i in childPosition.indices) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
@@ -2517,7 +2518,7 @@ class FlexTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(LayoutWidth.Fill, arrangement = Arrangement.Begin) {
+            Row(LayoutWidth.Fill, arrangement = Arrangement.Start) {
                 Container(LayoutAspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
@@ -2615,7 +2616,7 @@ class FlexTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(arrangement = Arrangement.Begin) {
+            Row(arrangement = Arrangement.Start) {
                 ConstrainedBox(
                     DpConstraints.fixed(20.dp, 30.dp),
                     LayoutFlexible(3f),
@@ -2809,7 +2810,7 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Column(LayoutHeight.Fill, arrangement = Arrangement.Begin) {
+            Column(LayoutHeight.Fill, arrangement = Arrangement.Top) {
                 Container(LayoutAspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
@@ -2819,7 +2820,7 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Column(LayoutHeight.Fill, arrangement = Arrangement.End) {
+            Column(LayoutHeight.Fill, arrangement = Arrangement.Bottom) {
                 Container(LayoutGravity.End + LayoutAspectRatio(2f), children = emptyContent())
                 ConstrainedBox(
                     DpConstraints.fixed(50.dp, 40.dp),
@@ -2899,7 +2900,7 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), LayoutGravity.End) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.Begin) {
+            Column(arrangement = Arrangement.Top) {
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), LayoutFlexible(3f)) { }
                 ConstrainedBox(DpConstraints.fixed(40.dp, 30.dp), LayoutFlexible(2f)) { }
                 Container(LayoutAspectRatio(0.5f) + LayoutFlexible(2f)) { }
@@ -2924,7 +2925,7 @@ class FlexTest : LayoutTest() {
                 ) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.End) {
+            Column(arrangement = Arrangement.Bottom) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(30.dp, 20.dp),
                     modifier = LayoutFlexible(3f) + LayoutGravity.End
@@ -3088,6 +3089,223 @@ class FlexTest : LayoutTest() {
         assertNotNull(containerSize)
         assertEquals(PxPosition(size.toPx(), size.toPx()), containerPosition.value)
     }
+    // endregion
+
+    // region Rtl tests
+    @Test
+    fun testRow_Rtl_arrangementStart() = with(density) {
+        val sizeDp = 35.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
+        show {
+            Row(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
+                Container(LayoutSize(sizeDp, sizeDp)) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+
+                Container(LayoutSize(sizeDp * 2, sizeDp * 2)) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        val root = findAndroidComposeView()
+        waitForDraw(root)
+        val rootWidth = root.width.px
+
+        assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
+        assertEquals(
+            PxPosition(rootWidth - (sizeDp.toPx() * 3).round().toPx(), 0.px),
+            childPosition[1]
+        )
+    }
+
+    @Test
+    fun testRow_Rtl_arrangementEnd() = with(density) {
+        val sizeDp = 35.dp
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
+        show {
+            Row(
+                LayoutWidth.Fill + LayoutDirectionModifier.Rtl,
+                arrangement = Arrangement.End
+            ) {
+                Container(LayoutSize(sizeDp, sizeDp)) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+
+                Container(LayoutSize(sizeDp * 2, sizeDp * 2)) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(PxPosition((sizeDp.toPx() * 2).round().toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[1])
+    }
+
+    @Test
+    fun testRow_Rtl_customArrangement() = with(density) {
+        val sizeDp = 35.dp
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
+        show {
+            Row(
+                LayoutWidth.Fill + LayoutDirectionModifier.Rtl,
+                arrangement = customHorizontalArrangement
+            ) {
+                Container(width = sizeDp, height = sizeDp) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+
+                Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        val root = findAndroidComposeView()
+        waitForDraw(root)
+
+        assertEquals(PxPosition((sizeDp.toPx() * 2).round().toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[1])
+    }
+
+    @Test
+    fun testColumn_Rtl_gravityStart() = with(density) {
+        val sizeDp = 35.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
+        show {
+            Column(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
+                Container(LayoutSize(sizeDp, sizeDp)) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+
+                Container(LayoutSize(sizeDp * 2, sizeDp * 2)) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        val root = findAndroidComposeView()
+        waitForDraw(root)
+        val rootWidth = root.width.px
+
+        assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
+        assertEquals(
+            PxPosition((rootWidth - (sizeDp * 2).toPx()).round().toPx(), size.toPx()),
+            childPosition[1]
+        )
+    }
+
+    @Test
+    fun testColumn_Rtl_gravityEnd() = with(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
+        show {
+            Column(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
+                Container(LayoutSize(sizeDp, sizeDp) + LayoutGravity.End) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+
+                Container(LayoutSize(sizeDp * 2, sizeDp * 2) + LayoutGravity.End) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
+    }
+
+    @Test
+    fun testColumn_Rtl_gravityRelativeToSiblings() = with(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
+        show {
+            Column(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
+                Container(LayoutSize(sizeDp, sizeDp) +
+                        LayoutGravity.RelativeToSiblings { it.width }
+                ) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+
+                Container(LayoutSize(sizeDp, sizeDp) +
+                        LayoutGravity.RelativeToSiblings { it.width / 2 }
+                ) {
+                    OnPositioned(onPositioned = { coordinates ->
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    })
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        val root = findAndroidComposeView()
+        waitForDraw(root)
+        val rootWidth = root.width.px
+
+        assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
+        assertEquals(
+            PxPosition((rootWidth - size.toPx() * 1.5f).round().toPx(), size.toPx()),
+            childPosition[1]
+        )
+    }
+
     // endregion
 }
 
