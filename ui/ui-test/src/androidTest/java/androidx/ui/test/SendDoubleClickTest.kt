@@ -108,9 +108,9 @@ class SendDoubleClickWithoutArgumentsTest {
                 // and with events for two clicks with an expectedDelay between them
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(4)
-                assertThat(events[0].down).isTrue()  // down (first click)
+                assertThat(events[0].down).isTrue() // down (first click)
                 assertThat(events[1].down).isFalse() // up   (first click)
-                assertThat(events[2].down).isTrue()  // down (second click)
+                assertThat(events[2].down).isTrue() // down (second click)
                 assertThat(events[3].down).isFalse() // up   (second click)
                 assertThat(events[2].timestamp - events[1].timestamp).isEqualTo(expectedDelay)
                 events.forEach {
@@ -183,9 +183,9 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
                 // and with events for two clicks with an expectedDelay between them
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(4)
-                assertThat(events[0].down).isTrue()  // down (first click)
+                assertThat(events[0].down).isTrue() // down (first click)
                 assertThat(events[1].down).isFalse() // up   (first click)
-                assertThat(events[2].down).isTrue()  // down (second click)
+                assertThat(events[2].down).isTrue() // down (second click)
                 assertThat(events[3].down).isFalse() // up   (second click)
                 assertThat(events[2].timestamp - events[1].timestamp).isEqualTo(expectedDelay)
                 events.forEach {

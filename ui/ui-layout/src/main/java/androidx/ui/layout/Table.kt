@@ -496,8 +496,7 @@ fun Table(
     horizontalOffsets
 
     val tableChildren: @Composable() () -> Unit = with(TableChildren()) {
-        apply(children);
-        @Composable {
+        apply(children); @Composable {
             val needDecorations = tableDecorationsUnderlay.isNotEmpty() ||
                     tableDecorationsOverlay.isNotEmpty()
             val hasOffsets = verticalOffsets.isNotEmpty() && horizontalOffsets.isNotEmpty()
