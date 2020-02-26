@@ -38,7 +38,7 @@ fun registerComposeWithEspresso() {
  * Unregisters resource registered as part of [registerComposeWithEspresso].
  */
 fun unregisterComposeFromEspresso() {
-    ComposeIdlingResource.unRegisterSelfFromEspresso()
+    ComposeIdlingResource.unregisterSelfFromEspresso()
 }
 
 /**
@@ -89,7 +89,7 @@ internal object ComposeIdlingResource : IdlingResource {
      *
      * Can be called multiple times.
      */
-    fun unRegisterSelfFromEspresso() {
+    fun unregisterSelfFromEspresso() {
         if (!isRegistered) {
             return
         }
