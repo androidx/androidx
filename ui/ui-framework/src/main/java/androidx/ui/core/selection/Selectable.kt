@@ -49,6 +49,16 @@ interface Selectable {
     ): Selection?
 
     /**
+     * Return the [PxPosition] of a [SelectionHandle].
+     *
+     * @param selection [Selection] contains the [SelectionHandle]
+     * @param isStartHandle true if it's the start handle, false if it's the end handle.
+     *
+     * @return [PxPosition] of this handle, based on which the [SelectionHandle] will be drawn.
+     */
+    fun getHandlePosition(selection: Selection, isStartHandle: Boolean): PxPosition
+
+    /**
      * Return the [LayoutCoordinates] of the [Selectable].
      *
      * @return [LayoutCoordinates] of the [Selectable]. This could be null if called before

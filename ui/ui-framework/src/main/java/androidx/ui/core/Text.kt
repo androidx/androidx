@@ -251,9 +251,9 @@ fun Text(
             val id: Selectable? = selectionRegistrar?.let {
                 selectionRegistrar.subscribe(
                     TextSelectionDelegate(
-                        selectionRange = selectionRange,
-                        layoutCoordinates = layoutCoordinates,
-                        textLayoutResult = layoutResultState
+                        selectionRangeState = selectionRange,
+                        layoutCoordinatesState = layoutCoordinates,
+                        textLayoutResultState = layoutResultState
                     )
                 )
             }

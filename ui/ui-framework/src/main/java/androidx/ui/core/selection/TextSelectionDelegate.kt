@@ -29,11 +29,10 @@ import androidx.ui.unit.toRect
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
-    private val selectionRange: MutableState<TextRange?>,
-    private val layoutCoordinates: MutableState<LayoutCoordinates?>,
-    private val textLayoutResult: MutableState<TextLayoutResult?>
+    private val selectionRangeState: MutableState<TextRange?>,
+    private val layoutCoordinatesState: MutableState<LayoutCoordinates?>,
+    private val textLayoutResultState: MutableState<TextLayoutResult?>
 ) : Selectable {
-
     override fun getSelection(
         startPosition: PxPosition,
         endPosition: PxPosition,
@@ -42,9 +41,9 @@ internal class TextSelectionDelegate(
         previousSelection: Selection?,
         isStartHandle: Boolean
     ): Selection? {
-        val layoutCoordinates = layoutCoordinates.value
+        val layoutCoordinates = layoutCoordinatesState.value
         if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
-        val textLayoutResult = textLayoutResult.value ?: return null
+        val textLayoutResult = textLayoutResultState.value ?: return null
 
         val relativePosition = containerLayoutCoordinates.childToLocal(
             layoutCoordinates, PxPosition.Origin
@@ -55,23 +54,42 @@ internal class TextSelectionDelegate(
         val selection = getTextSelectionInfo(
             textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(startPx, endPx),
-            layoutCoordinates = layoutCoordinates,
+            selectable = this,
             wordBasedSelection = longPress,
             previousSelection = previousSelection,
             isStartHandle = isStartHandle
         )
 
         return if (selection == null) {
-            selectionRange.value = null
+            selectionRangeState.value = null
             null
         } else {
-            selectionRange.value = selection.toTextRange()
+            selectionRangeState.value = selection.toTextRange()
             return selection
         }
     }
 
+    override fun getHandlePosition(selection: Selection, isStartHandle: Boolean): PxPosition {
+        // Check if the selection handles's selectable is the current selectable.
+        if (isStartHandle && selection.start.selectable != this ||
+            !isStartHandle && selection.end.selectable != this) {
+            return PxPosition.Origin
+        }
+
+        val layoutCoordinates = layoutCoordinatesState.value
+        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return PxPosition.Origin
+
+        val textLayoutResult = textLayoutResultState.value ?: return PxPosition.Origin
+        return getSelectionHandleCoordinates(
+            textLayoutResult = textLayoutResult,
+            offset = if (isStartHandle) selection.start.offset else selection.end.offset,
+            isStart = isStartHandle,
+            areHandlesCrossed = selection.handlesCrossed
+        )
+    }
+
     override fun getLayoutCoordinates(): LayoutCoordinates? {
-        val layoutCoordinates = layoutCoordinates.value
+        val layoutCoordinates = layoutCoordinatesState.value
         if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
         return layoutCoordinates
     }
@@ -83,7 +101,7 @@ internal class TextSelectionDelegate(
  * @param textLayoutResult a result of the text layout.
  * @param selectionCoordinates The positions of the start and end of the selection in Text
  * composable coordinate system.
- * @param layoutCoordinates The [LayoutCoordinates] of the composable.
+ * @param selectable current [Selectable] for which the [Selection] is being calculated
  * @param wordBasedSelection This flag is ignored if the selection handles are being dragged. If
  * the selection is modified by long press and drag gesture, the result selection will be
  * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
@@ -96,7 +114,7 @@ internal class TextSelectionDelegate(
 internal fun getTextSelectionInfo(
     textLayoutResult: TextLayoutResult,
     selectionCoordinates: Pair<PxPosition, PxPosition>,
-    layoutCoordinates: LayoutCoordinates,
+    selectable: Selectable,
     wordBasedSelection: Boolean,
     previousSelection: Selection? = null,
     isStartHandle: Boolean = true
@@ -144,7 +162,7 @@ internal fun getTextSelectionInfo(
         bounds = bounds,
         textLayoutResult = textLayoutResult,
         lastOffset = lastOffset,
-        layoutCoordinates = layoutCoordinates,
+        selectable = selectable,
         wordBasedSelection = wordBasedSelection,
         previousSelection = previousSelection,
         isStartHandle = isStartHandle
@@ -166,7 +184,7 @@ internal fun getTextSelectionInfo(
  * @param bounds bounds of the current composable
  * @param textLayoutResult a result of the text layout.
  * @param lastOffset last offset of the text. It's actually the length of the text.
- * @param layoutCoordinates The [LayoutCoordinates] of the composable.
+ * @param selectable current [Selectable] for which the [Selection] is being calculated
  * @param wordBasedSelection This flag is ignored if the selection handles are being dragged. If
  * the selection is modified by long press and drag gesture, the result selection will be
  * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
@@ -186,7 +204,7 @@ private fun getRefinedSelectionInfo(
     bounds: PxBounds,
     textLayoutResult: TextLayoutResult,
     lastOffset: Int,
-    layoutCoordinates: LayoutCoordinates,
+    selectable: Selectable,
     wordBasedSelection: Boolean,
     previousSelection: Selection? = null,
     isStartHandle: Boolean = true
@@ -234,7 +252,7 @@ private fun getRefinedSelectionInfo(
         startOffset = startOffset,
         endOffset = endOffset,
         handlesCrossed = handlesCrossed,
-        layoutCoordinates = layoutCoordinates,
+        selectable = selectable,
         textLayoutResult = textLayoutResult
     )
 }
@@ -246,7 +264,7 @@ private fun getRefinedSelectionInfo(
  * @param startOffset the final start offset to be returned.
  * @param endOffset the final end offset to be returned.
  * @param handlesCrossed true if the selection handles are crossed
- * @param layoutCoordinates The [LayoutCoordinates] of the composable.
+ * @param selectable current [Selectable] for which the [Selection] is being calculated
  * @param textLayoutResult a result of the text layout.
  *
  * @return an assembled object of [Selection] using the offered selection info.
@@ -255,31 +273,19 @@ private fun getAssembledSelectionInfo(
     startOffset: Int,
     endOffset: Int,
     handlesCrossed: Boolean,
-    layoutCoordinates: LayoutCoordinates,
+    selectable: Selectable,
     textLayoutResult: TextLayoutResult
 ): Selection {
     return Selection(
         start = Selection.AnchorInfo(
-            coordinates = getSelectionHandleCoordinates(
-                textLayoutResult = textLayoutResult,
-                offset = startOffset,
-                isStart = true,
-                areHandlesCrossed = handlesCrossed
-            ),
             direction = textLayoutResult.getBidiRunDirection(startOffset),
             offset = startOffset,
-            layoutCoordinates = layoutCoordinates
+            selectable = selectable
         ),
         end = Selection.AnchorInfo(
-            coordinates = getSelectionHandleCoordinates(
-                textLayoutResult = textLayoutResult,
-                offset = endOffset,
-                isStart = false,
-                areHandlesCrossed = handlesCrossed
-            ),
             direction = textLayoutResult.getBidiRunDirection(max(endOffset - 1, 0)),
             offset = endOffset,
-            layoutCoordinates = layoutCoordinates
+            selectable = selectable
         ),
         handlesCrossed = handlesCrossed
     )
@@ -359,7 +365,8 @@ private fun processCrossComposable(
     val handlesCrossed = SelectionMode.Vertical.areHandlesCrossed(
         bounds = bounds,
         start = startPosition,
-        end = endPosition)
+        end = endPosition
+    )
     val isSelected = SelectionMode.Vertical.isSelected(
         bounds = bounds,
         start = if (handlesCrossed) endPosition else startPosition,
@@ -415,6 +422,7 @@ private fun updateWordBasedSelection(
 
     return Pair(start, end)
 }
+
 /**
  * This method adjusts the raw start and end offset and bounds the selection to one character. The
  * logic of bounding evaluates the last selection result, which handle is being dragged, and if
