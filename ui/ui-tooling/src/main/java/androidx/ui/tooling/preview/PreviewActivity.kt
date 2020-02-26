@@ -19,6 +19,7 @@ package androidx.ui.tooling.preview
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import androidx.compose.currentComposer
 import androidx.ui.core.setContent
 
 /**
@@ -37,7 +38,13 @@ class PreviewActivity : Activity() {
             Log.d("PreviewActivity", "PreviewActivity has composable $it")
             val className = it.substringBeforeLast('.')
             val methodName = it.substringAfterLast('.')
-            setContent { invokeComposableViaReflection(className, methodName) }
+            setContent {
+                invokeComposableViaReflection(
+                    className,
+                    methodName,
+                    currentComposer
+                )
+            }
         }
     }
 }
