@@ -20,8 +20,11 @@ import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.Snackbar
+import androidx.ui.material.TextButton
 import androidx.ui.material.samples.SimpleSnackbar
-import androidx.ui.material.samples.SlotsSnackbar
+import androidx.ui.material.snackbarPrimaryColorFor
 import androidx.ui.unit.dp
 
 class SnackbarActivity : MaterialDemoActivity() {
@@ -31,11 +34,19 @@ class SnackbarActivity : MaterialDemoActivity() {
             val textSpacing = LayoutPadding(top = 12.dp, bottom = 12.dp)
             Text("Default Snackbar", modifier = textSpacing)
             SimpleSnackbar()
-            Text(
-                "Snackbar with custom action color with long text",
-                modifier = textSpacing
+            Text("Snackbar with long text", modifier = textSpacing)
+            Snackbar(
+                text = { Text("This song already exists in the current playlist") },
+                action = {
+                    TextButton(
+                        contentColor = snackbarPrimaryColorFor(MaterialTheme.colors()),
+                        onClick = { /* perform undo */ }
+                    ) {
+                        Text("ADD THIS SONG ANYWAY")
+                    }
+                },
+                actionOnNewLine = true
             )
-            SlotsSnackbar()
         }
     }
 }
