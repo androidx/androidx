@@ -93,6 +93,11 @@ package androidx.ui.foundation {
     method public void vertical(int column, kotlin.ranges.IntRange rows = 0 <other> rowCount, androidx.ui.foundation.Border border = defaultBorder);
   }
 
+  public final class IconKt {
+    method public static void Icon(androidx.ui.graphics.vector.VectorAsset icon, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
+    method public static void Icon(androidx.ui.graphics.painter.Painter icon, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
+  }
+
   public final class ImageKt {
     method public static void DrawImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
     method public static void SimpleImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);

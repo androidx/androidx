@@ -19,69 +19,78 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.graphics.painter.ImagePainter
+import androidx.ui.foundation.Icon
 import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Image
 import androidx.ui.layout.Spacer
-import androidx.ui.material.AppBarIcon
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.FloatingActionButton
+import androidx.ui.material.IconButton
 import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Favorite
+import androidx.ui.material.icons.filled.Menu
 
 @Sampled
 @Composable
-fun SimpleTopAppBar(
-    getMyActionImage: () -> Image,
-    getMyNavigationImage: () -> Image
-) {
-    val someActionImage: Image = getMyActionImage()
-    val someNavigationImage: Image = getMyNavigationImage()
-
-    val navigationIcon: @Composable() () -> Unit = {
-        AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething()*/ }
-    }
-
+fun SimpleTopAppBar() {
     TopAppBar(
         title = { Text("Simple TopAppBar") },
-        navigationIcon = navigationIcon,
-        actions = { // RowScope here, so these icons will be placed horizontally
-            AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
-            AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
+        navigationIcon = {
+            IconButton(onClick = { /* doSomething() */ }) {
+                Icon(Icons.Filled.Menu)
+            }
+        },
+        actions = {
+            // RowScope here, so these icons will be placed horizontally
+            IconButton(onClick = { /* doSomething() */ }) {
+                Icon(Icons.Filled.Favorite)
+            }
+            IconButton(onClick = { /* doSomething() */ }) {
+                Icon(Icons.Filled.Favorite)
+            }
         }
     )
 }
 
 @Sampled
 @Composable
-fun SimpleBottomAppBar(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
-    val someActionImage: Image = getMyActionImage()
-    val someNavigationImage: Image = getMyNavigationImage()
-
+fun SimpleBottomAppBar() {
     BottomAppBar {
-        AppBarIcon(ImagePainter(someNavigationImage)) { /* doSomething()*/ }
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Menu)
+        }
         // The actions should be at the end of the BottomAppBar
         Spacer(LayoutFlexible(1f))
-        AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
-        AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Favorite)
+        }
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Favorite)
+        }
     }
 }
 
 @Sampled
 @Composable
-fun SimpleBottomAppBarCutoutWithScaffold(getMyActionImage: () -> Image) {
-    val someActionImage: Image = getMyActionImage()
+fun SimpleBottomAppBarCutoutWithScaffold() {
     val fabShape = CircleShape
 
     Scaffold(
         bottomAppBar = { fabConfiguration ->
             BottomAppBar(fabConfiguration = fabConfiguration, cutoutShape = fabShape) {
-                AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
-                AppBarIcon(ImagePainter(someActionImage)) { /* doSomething()*/ }
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite)
+                }
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite)
+                }
             }
         },
         floatingActionButton = {
-            FloatingActionButton(icon = someActionImage, shape = fabShape)
+            FloatingActionButton(shape = fabShape, onClick = { /* doSomething() */ }) {
+                Text("Click me!")
+            }
         },
         floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
     ) {

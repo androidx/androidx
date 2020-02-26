@@ -20,9 +20,7 @@ import androidx.compose.Immutable
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
-import androidx.ui.core.toModifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -34,7 +32,6 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
-import androidx.ui.graphics.painter.Painter
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutHeight
@@ -45,7 +42,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
 import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.surface.primarySurface
 import androidx.ui.semantics.Semantics
@@ -70,9 +66,9 @@ import kotlin.math.sqrt
  *
  * @param title The title to be displayed in the center of the TopAppBar
  * @param navigationIcon The navigation icon displayed at the start of the TopAppBar. This should
- * typically be an [AppBarIcon].
+ * typically be an [IconButton] or [IconToggleButton].
  * @param actions The actions displayed at the end of the TopAppBar. This should typically be
- * [AppBarIcon]s. The default layout here is a [Row], so icons inside will be placed horizontally.
+ * [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
  * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
  * @param contentColor The preferred content color provided by this TopAppBar to its children.
  * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
@@ -498,33 +494,6 @@ private fun AppBar(
         )
     }
 }
-
-/**
- * A correctly sized clickable icon that can be used inside [TopAppBar] and [BottomAppBar] for
- * either the navigation icon or the actions.
- *
- * @param icon [Painter] to be displayed
- * @param onClick the lambda to be invoked when this icon is pressed
- */
-@Composable
-fun AppBarIcon(icon: Painter, onClick: () -> Unit) {
-    Ripple(radius = IconRippleRadius, bounded = false) {
-        Clickable(onClick = onClick) {
-            // We need this outer box to ensure that Clickable and Ripple are bound to the
-            // touch target size, and not the inner size.
-            // TODO: remove this when Clickable and Ripple are modifiers
-            Box(LayoutSize(TouchTargetDiameter)) {
-                Spacer(LayoutPadding(ActionIconDiameter / 2) + icon.toModifier())
-            }
-        }
-    }
-}
-
-private val TouchTargetDiameter = 48.dp
-private val ActionIconDiameter = 24.dp
-// Default ripple radius for icon buttons, this comes from the framework default for
-// actionBarItemBackground
-private val IconRippleRadius = 20.dp
 
 private val AppBarHeight = 56.dp
 // TODO: this should probably be part of the touch target of the start and end icons, clarify this
