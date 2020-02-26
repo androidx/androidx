@@ -245,8 +245,8 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
             val thumbSize = ThumbRadius * 2
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
-            Track(LayoutGravity.CenterLeft + LayoutSize.Fill, color, position)
-            Box(LayoutGravity.CenterLeft + LayoutPadding(start = offset)) {
+            Track(LayoutGravity.CenterStart + LayoutSize.Fill, color, position)
+            Box(LayoutGravity.CenterStart + LayoutPadding(start = offset)) {
                 Ripple(bounded = false) {
                     Surface(
                         shape = CircleShape,

@@ -70,7 +70,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeUp() {
-        composeTestRule.setContent { Ui(Alignment.TopLeft) }
+        composeTestRule.setContent { Ui(Alignment.TopStart) }
         findByTag(tag).doGesture { sendSwipeUp() }
         composeTestRule.runOnUiThread {
             recorder.run {
@@ -83,7 +83,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeDown() {
-        composeTestRule.setContent { Ui(Alignment.TopRight) }
+        composeTestRule.setContent { Ui(Alignment.TopEnd) }
         findByTag(tag).doGesture { sendSwipeDown() }
         composeTestRule.runOnUiThread {
             recorder.run {
@@ -96,7 +96,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeLeft() {
-        composeTestRule.setContent { Ui(Alignment.BottomRight) }
+        composeTestRule.setContent { Ui(Alignment.BottomEnd) }
         findByTag(tag).doGesture { sendSwipeLeft() }
         composeTestRule.runOnUiThread {
             recorder.run {
@@ -109,7 +109,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeRight() {
-        composeTestRule.setContent { Ui(Alignment.BottomLeft) }
+        composeTestRule.setContent { Ui(Alignment.BottomStart) }
         findByTag(tag).doGesture { sendSwipeRight() }
         composeTestRule.runOnUiThread {
             recorder.run {

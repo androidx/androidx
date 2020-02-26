@@ -51,7 +51,7 @@ private const val tag = "widget"
 
 @Composable
 private fun Ui(onDoubleTap: (PxPosition) -> Unit, onPointerInput: PointerInputHandler) {
-    Align(alignment = Alignment.BottomRight) {
+    Align(alignment = Alignment.BottomEnd) {
         TestTag(tag) {
             Semantics(container = true) {
                 DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {

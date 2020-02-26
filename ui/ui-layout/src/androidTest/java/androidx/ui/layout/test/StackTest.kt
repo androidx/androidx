@@ -17,13 +17,17 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
@@ -35,6 +39,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
+import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,13 +62,13 @@ class StackTest : LayoutTest() {
         val positionedChildSize = Ref<IntPxSize>()
         val positionedChildPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
                     Stack {
-                        Container(LayoutGravity.BottomRight, width = sizeDp, height = sizeDp) {
+                        Container(LayoutGravity.BottomEnd, width = sizeDp, height = sizeDp) {
                             SaveLayoutInfo(
                                 size = alignedChildSize,
                                 position = alignedChildPosition,
@@ -103,14 +108,14 @@ class StackTest : LayoutTest() {
         val childSize = arrayOf(Ref<IntPxSize>(), Ref<IntPxSize>())
         val childPosition = arrayOf(Ref<PxPosition>(), Ref<PxPosition>())
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
                     Stack {
                         Container(
-                            modifier = LayoutGravity.BottomRight, width = sizeDp, height = sizeDp
+                            modifier = LayoutGravity.BottomEnd, width = sizeDp, height = sizeDp
                         ) {
                             SaveLayoutInfo(
                                 size = childSize[0],
@@ -119,7 +124,7 @@ class StackTest : LayoutTest() {
                             )
                         }
                         Container(
-                            modifier = LayoutGravity.BottomRight,
+                            modifier = LayoutGravity.BottomEnd,
                             width = doubleSizeDp,
                             height = doubleSizeDp
                         ) {
@@ -155,7 +160,7 @@ class StackTest : LayoutTest() {
         val childSize = Array(5) { Ref<IntPxSize>() }
         val childPosition = Array(5) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -243,6 +248,107 @@ class StackTest : LayoutTest() {
     }
 
     @Test
+    fun testStack_Rtl() = with(density) {
+        val sizeDp = 48.ipx.toDp()
+        val size = sizeDp.toIntPx()
+        val tripleSizeDp = sizeDp * 3
+        val tripleSize = (sizeDp * 3).toIntPx()
+
+        val positionedLatch = CountDownLatch(10)
+        val stackSize = Ref<IntPxSize>()
+        val childSize = Array(9) { Ref<IntPxSize>() }
+        val childPosition = Array(9) { Ref<PxPosition>() }
+        show {
+            Stack(LayoutAlign.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    stackSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                        Stack(LayoutSize(tripleSizeDp, tripleSizeDp)) {
+                            Stack(LayoutGravity.TopStart + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[0],
+                                    position = childPosition[0],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.TopCenter + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[1],
+                                    position = childPosition[1],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.TopEnd + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[2],
+                                    position = childPosition[2],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.CenterStart + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[3],
+                                    position = childPosition[3],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.Center + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[4],
+                                    position = childPosition[4],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.CenterEnd + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[5],
+                                    position = childPosition[5],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.BottomStart + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[6],
+                                    position = childPosition[6],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.BottomCenter + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[7],
+                                    position = childPosition[7],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Stack(LayoutGravity.BottomEnd + LayoutSize(sizeDp, sizeDp)) {
+                                SaveLayoutInfo(
+                                    size = childSize[8],
+                                    position = childPosition[8],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(IntPxSize(tripleSize, tripleSize), stackSize.value)
+        assertEquals(PxPosition((size * 2).toPx(), 0.px), childPosition[0].value)
+        assertEquals(PxPosition(size, 0.ipx), childPosition[1].value)
+        assertEquals(PxPosition(0.ipx, 0.ipx), childPosition[2].value)
+        assertEquals(PxPosition((size * 2).toPx(), size.toPx()), childPosition[3].value)
+        assertEquals(PxPosition(size, size), childPosition[4].value)
+        assertEquals(PxPosition(0.ipx, size), childPosition[5].value)
+        assertEquals(PxPosition((size * 2).toPx(), (size * 2).toPx()), childPosition[6].value)
+        assertEquals(PxPosition(size, size * 2), childPosition[7].value)
+        assertEquals(PxPosition(0.ipx, size * 2), childPosition[8].value)
+    }
+
+    @Test
     fun testStack_expanded() = with(density) {
         val size = 250.ipx
         val sizeDp = size.toDp()
@@ -254,7 +360,7 @@ class StackTest : LayoutTest() {
         val childSize = Array(2) { Ref<IntPxSize>() }
         val childPosition = Array(2) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -269,7 +375,7 @@ class StackTest : LayoutTest() {
                                 )
                             }
                             Container(
-                                LayoutGravity.BottomRight,
+                                LayoutGravity.BottomEnd,
                                 width = halfSizeDp,
                                 height = halfSizeDp
                             ) {
@@ -306,7 +412,7 @@ class StackTest : LayoutTest() {
 
         testIntrinsics(@Composable {
             Stack {
-                Container(LayoutGravity.TopLeft + LayoutAspectRatio(2f)) { }
+                Container(LayoutGravity.TopStart + LayoutAspectRatio(2f)) { }
                 ConstrainedBox(
                     DpConstraints.fixed(testWidth, testHeight),
                     LayoutGravity.BottomCenter

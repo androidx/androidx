@@ -268,7 +268,7 @@ class OnPositionedTest : LayoutTest() {
         var realLeft: Px? = null
         var positionedLatch = CountDownLatch(1)
         show {
-            Align(Alignment.TopLeft) {
+            Align(Alignment.TopStart) {
                 Offset(modelLeft) {
                     Container(width = 10.dp, height = 10.dp) {
                         Container(width = 10.dp, height = 10.dp) {

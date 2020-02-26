@@ -475,7 +475,7 @@ data class TableMeasurable internal constructor(
 @Composable
 fun Table(
     columns: Int,
-    alignment: (columnIndex: Int) -> Alignment = { Alignment.TopLeft },
+    alignment: (columnIndex: Int) -> Alignment = { Alignment.TopStart },
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flex(1f) },
     children: TableChildren.() -> Unit
 ) {

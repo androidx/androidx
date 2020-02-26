@@ -130,28 +130,28 @@ object LayoutAlign {
      * vertical direction and wraps the component in horizontal direction.
      */
     val Top: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.TopLeft, direction = Direction.Vertical)
+        AlignmentModifier(alignment = Alignment.TopStart, direction = Direction.Vertical)
 
     /**
      * A layout modifier that positions the target component in the center of the parent in
      * vertical direction and wraps the component in horizontal direction.
      */
     val CenterVertically: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.CenterLeft, direction = Direction.Vertical)
+        AlignmentModifier(alignment = Alignment.CenterStart, direction = Direction.Vertical)
 
     /**
      * A layout modifier that positions the target component inside its parent to the bottom in
      * vertical direction and wraps the component in horizontal direction.
      */
     val Bottom: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.BottomLeft, direction = Direction.Vertical)
+        AlignmentModifier(alignment = Alignment.BottomStart, direction = Direction.Vertical)
 
     /**
      * A layout modifier that positions the target component inside its parent to the start edge
      * in horizontal direction and wraps the component in vertical direction.
      */
     val Start: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.TopLeft, direction = Direction.Horizontal)
+        AlignmentModifier(alignment = Alignment.TopStart, direction = Direction.Horizontal)
 
     /**
      * A layout modifier that positions the target component in the center of the parent in
@@ -165,13 +165,13 @@ object LayoutAlign {
      * in horizontal direction and wraps the component in vertical direction.
      */
     val End: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.TopRight, direction = Direction.Horizontal)
+        AlignmentModifier(alignment = Alignment.TopEnd, direction = Direction.Horizontal)
 
     /**
      * A layout modifier that positions the target component top-left inside its parent.
      */
     val TopLeft: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.TopLeft, direction = Direction.Both)
+        AlignmentModifier(alignment = Alignment.TopStart, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component top-center inside its parent.
@@ -183,13 +183,13 @@ object LayoutAlign {
      * A layout modifier that positions the target component top-right inside its parent.
      */
     val TopRight: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.TopRight, direction = Direction.Both)
+        AlignmentModifier(alignment = Alignment.TopEnd, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component center-left inside its parent.
      */
     val CenterLeft: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.CenterLeft, direction = Direction.Both)
+        AlignmentModifier(alignment = Alignment.CenterStart, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component in the center of its parent.
@@ -201,13 +201,13 @@ object LayoutAlign {
      * A layout modifier that positions the target component center-right inside its parent.
      */
     val CenterRight: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.CenterRight, direction = Direction.Both)
+        AlignmentModifier(alignment = Alignment.CenterEnd, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component bottom-left inside its parent.
      */
     val BottomLeft: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.BottomLeft, direction = Direction.Both)
+        AlignmentModifier(alignment = Alignment.BottomStart, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component bottom-center inside its parent.
@@ -219,7 +219,7 @@ object LayoutAlign {
      * A layout modifier that positions the target component bottom-right inside its parent.
      */
     val BottomRight: LayoutModifier =
-        AlignmentModifier(alignment = Alignment.BottomRight, direction = Direction.Both)
+        AlignmentModifier(alignment = Alignment.BottomEnd, direction = Direction.Both)
 }
 
 private enum class Direction {

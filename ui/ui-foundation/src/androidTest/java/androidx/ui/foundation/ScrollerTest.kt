@@ -305,7 +305,7 @@ class ScrollerTest {
         // We assume that the height of the device is more than 45 px
         with(composeTestRule.density) {
             composeTestRule.setContent {
-                Align(alignment = Alignment.TopLeft) {
+                Align(alignment = Alignment.TopStart) {
                     TestTag(scrollerTag) {
                         VerticalScroller(
                             scrollerPosition = scrollerPosition,
@@ -338,7 +338,7 @@ class ScrollerTest {
         // We assume that the height of the device is more than 45 px
         with(composeTestRule.density) {
             composeTestRule.setContent {
-                Align(alignment = Alignment.TopLeft) {
+                Align(alignment = Alignment.TopStart) {
                     TestTag(scrollerTag) {
                         HorizontalScroller(
                             scrollerPosition = scrollerPosition,
@@ -407,7 +407,7 @@ class ScrollerTest {
                     }
                 }
             }
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 Box(LayoutSize(width, height), backgroundColor = Color.White) {
                     TestTag(scrollerTag) {
                         Semantics(container = true) {

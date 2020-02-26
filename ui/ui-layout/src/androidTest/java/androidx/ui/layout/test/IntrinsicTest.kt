@@ -51,7 +51,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     minIntrinsicWidthSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -82,7 +82,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     minIntrinsicHeightSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -113,7 +113,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     maxIntrinsicWidthSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -144,7 +144,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     maxIntrinsicHeightSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -175,7 +175,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 ConstrainedBox(DpConstraints(maxWidth = 5.dp)) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         minIntrinsicWidthSize.value = coordinates.size
@@ -208,7 +208,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 ConstrainedBox(DpConstraints(minWidth = 15.dp)) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         minIntrinsicWidthSize.value = coordinates.size
@@ -241,7 +241,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     minIntrinsicHeightSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -274,7 +274,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     minIntrinsicHeightSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -307,7 +307,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     maxIntrinsicWidthSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -340,7 +340,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     maxIntrinsicWidthSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -373,7 +373,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     maxIntrinsicHeightSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -406,7 +406,7 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopLeft) {
+            Align(alignment = Alignment.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     maxIntrinsicHeightSize.value = coordinates.size
                     positionedLatch.countDown()

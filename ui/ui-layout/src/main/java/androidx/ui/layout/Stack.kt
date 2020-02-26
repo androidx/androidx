@@ -83,7 +83,8 @@ fun Stack(
                     IntPxSize(
                         stackWidth - placeable.width,
                         stackHeight - placeable.height
-                    )
+                    ),
+                    layoutDirection
                 )
                 placeable.place(position.x, position.y)
             }
@@ -106,11 +107,13 @@ class StackScope {
     val LayoutGravity.Stretch: ParentDataModifier get() = StretchGravityModifier
 
     /**
-     * A layout modifier that defines that child should be positioned top-left inside the [Stack].
+     * A layout modifier that defines that child should be positioned top-start inside the
+     * [Stack]. This resolves to top-left position for left-to-right layout direction, and
+     * top-right position for right-to-left layout direction.
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
     */
-    val LayoutGravity.TopLeft: ParentDataModifier get() = TopLeftGravityModifier
+    val LayoutGravity.TopStart: ParentDataModifier get() = TopStartGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned top-center inside the [Stack].
@@ -120,19 +123,22 @@ class StackScope {
     val LayoutGravity.TopCenter: ParentDataModifier get() = TopCenterGravityModifier
 
     /**
-     * A layout modifier that defines that child should be positioned top-right inside the [Stack].
+     * A layout modifier that defines that child should be positioned top-end inside the
+     * [Stack]. This resolves to top-right position for left-to-right layout direction, and
+     * top-left position for right-to-left layout direction.
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val LayoutGravity.TopRight: ParentDataModifier get() = TopRightGravityModifier
+    val LayoutGravity.TopEnd: ParentDataModifier get() = TopEndGravityModifier
 
     /**
-     * A layout modifier that defines that child should be positioned center-left inside the
-     * [Stack].
+     * A layout modifier that defines that child should be positioned center-start inside the
+     * [Stack]. This resolves to center-left position for left-to-right layout direction, and
+     * center-right position for right-to-left layout direction.
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val LayoutGravity.CenterLeft: ParentDataModifier get() = CenterLeftGravityModifier
+    val LayoutGravity.CenterStart: ParentDataModifier get() = CenterStartGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned in the center of the [Stack].
@@ -142,20 +148,22 @@ class StackScope {
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
 
     /**
-     * A layout modifier that defines that child should be positioned center-right inside the
-     * [Stack].
+     * A layout modifier that defines that child should be positioned center-end inside the
+     * [Stack]. This resolves to center-right position for left-to-right layout direction, and
+     * center-left position for right-to-left layout direction.
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val LayoutGravity.CenterRight: ParentDataModifier get() = CenterRightGravityModifier
+    val LayoutGravity.CenterEnd: ParentDataModifier get() = CenterEndGravityModifier
 
     /**
-     * A layout modifier that defines that child should be positioned bottom-left inside the
-     * [Stack].
+     * A layout modifier that defines that child should be positioned bottom-start inside the
+     * [Stack]. This resolves to bottom-left position for left-to-right layout direction, and
+     * bottom-right position for right-to-left layout direction.
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val LayoutGravity.BottomLeft: ParentDataModifier get() = BottomLeftGravityModifier
+    val LayoutGravity.BottomStart: ParentDataModifier get() = BottomStartGravityModifier
 
     /**
      * A layout modifier that defines that child should be positioned bottom-center inside the
@@ -166,28 +174,29 @@ class StackScope {
     val LayoutGravity.BottomCenter: ParentDataModifier get() = BottomCenterGravityModifier
 
     /**
-     * A layout modifier that defines that child should be positioned bottom-right inside the
-     * [Stack].
+     * A layout modifier that defines that child should be positioned bottom-end inside the
+     * [Stack]. This resolves to bottom-right position for left-to-right layout direction, and
+     * bottom-left position for right-to-left layout direction.
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
-    val LayoutGravity.BottomRight: ParentDataModifier get() = BottomRightGravityModifier
+    val LayoutGravity.BottomEnd: ParentDataModifier get() = BottomEndGravityModifier
 
     internal companion object {
-        val TopLeftGravityModifier: ParentDataModifier = StackGravityModifier(Alignment.TopLeft)
+        val TopStartGravityModifier: ParentDataModifier = StackGravityModifier(Alignment.TopStart)
         val TopCenterGravityModifier: ParentDataModifier = StackGravityModifier(Alignment.TopCenter)
-        val TopRightGravityModifier: ParentDataModifier = StackGravityModifier(Alignment.TopRight)
-        val CenterLeftGravityModifier: ParentDataModifier =
-            StackGravityModifier(Alignment.CenterLeft)
+        val TopEndGravityModifier: ParentDataModifier = StackGravityModifier(Alignment.TopEnd)
+        val CenterStartGravityModifier: ParentDataModifier =
+            StackGravityModifier(Alignment.CenterStart)
         val CenterGravityModifier: ParentDataModifier = StackGravityModifier(Alignment.Center)
-        val CenterRightGravityModifier: ParentDataModifier =
-            StackGravityModifier(Alignment.CenterRight)
-        val BottomLeftGravityModifier: ParentDataModifier =
-            StackGravityModifier(Alignment.BottomLeft)
+        val CenterEndGravityModifier: ParentDataModifier =
+            StackGravityModifier(Alignment.CenterEnd)
+        val BottomStartGravityModifier: ParentDataModifier =
+            StackGravityModifier(Alignment.BottomStart)
         val BottomCenterGravityModifier: ParentDataModifier =
             StackGravityModifier(Alignment.BottomCenter)
-        val BottomRightGravityModifier: ParentDataModifier =
-            StackGravityModifier(Alignment.BottomRight)
+        val BottomEndGravityModifier: ParentDataModifier =
+            StackGravityModifier(Alignment.BottomEnd)
         val StretchGravityModifier: ParentDataModifier =
             StackGravityModifier(Alignment.Center, true)
     }
@@ -199,7 +208,7 @@ private data class StackChildData(
 )
 
 private val Measurable.stackChildData: StackChildData
-    get() = (parentData as? StackChildData) ?: StackChildData(Alignment.TopLeft)
+    get() = (parentData as? StackChildData) ?: StackChildData(Alignment.TopStart)
 private val Measurable.stretch: Boolean
     get() = stackChildData.stretch
 

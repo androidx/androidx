@@ -125,9 +125,9 @@ private fun addHandles(
             Popup(
                 alignment =
                 if (isHandleLtrDirection(selection.start.direction, selection.handlesCrossed)) {
-                    Alignment.TopRight
+                    Alignment.TopEnd
                 } else {
-                    Alignment.TopLeft
+                    Alignment.TopStart
                 },
                 offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
             ) {
@@ -142,9 +142,9 @@ private fun addHandles(
             Popup(
                 alignment =
                 if (isHandleLtrDirection(selection.end.direction, selection.handlesCrossed)) {
-                    Alignment.TopLeft
+                    Alignment.TopStart
                 } else {
-                    Alignment.TopRight
+                    Alignment.TopEnd
                 },
                 offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
             ) {

@@ -91,13 +91,13 @@ fun TopAppBar(
             // TODO: make this a row after b/148014745 is fixed
             Box(
                 LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon),
-                gravity = ContentGravity.CenterLeft,
+                gravity = ContentGravity.CenterStart,
                 children = navigationIcon
             )
         }
 
         // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
-        Box(LayoutHeight.Fill + LayoutFlexible(1f), gravity = ContentGravity.BottomLeft) {
+        Box(LayoutHeight.Fill + LayoutFlexible(1f), gravity = ContentGravity.BottomStart) {
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {
@@ -111,7 +111,7 @@ fun TopAppBar(
         }
 
         // TODO: remove box and center align row's children after b/148014745 is fixed
-        Box(modifier = LayoutHeight.Fill, gravity = ContentGravity.CenterRight) {
+        Box(modifier = LayoutHeight.Fill, gravity = ContentGravity.CenterEnd) {
             Row(arrangement = Arrangement.End, children = actions)
         }
     }
