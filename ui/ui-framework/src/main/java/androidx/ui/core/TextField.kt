@@ -427,8 +427,20 @@ internal fun BaseTextField(
                 }
             }
         ) {
+            val textDrawModifier = draw { canvas, _ ->
+                state.layoutResult?.let { layoutResult ->
+                    TextFieldDelegate.draw(
+                        canvas,
+                        value,
+                        offsetMap,
+                        layoutResult,
+                        state.hasFocus,
+                        DefaultSelectionColor
+                    )
+                }
+            }
             Layout(
-                modifier = modifier,
+                modifier = modifier + textDrawModifier,
                 children = @Composable {
                     OnPositioned {
                         if (textInputService != null) {
@@ -445,18 +457,6 @@ internal fun BaseTextField(
                                     offsetMap
                                 )
                             }
-                        }
-                    }
-                    Draw { canvas, _ ->
-                        state.layoutResult?.let { layoutResult ->
-                            TextFieldDelegate.draw(
-                                canvas,
-                                value,
-                                offsetMap,
-                                layoutResult,
-                                state.hasFocus,
-                                DefaultSelectionColor
-                            )
                         }
                     }
                 },
