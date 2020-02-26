@@ -23,11 +23,11 @@ import android.hardware.camera2.params.InputConfiguration;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.params.InputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
-import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -36,10 +36,20 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 class CameraDeviceCompatApi24Impl extends CameraDeviceCompatApi23Impl {
 
+    CameraDeviceCompatApi24Impl(@NonNull CameraDevice cameraDevice, @Nullable Object implParams) {
+        super(cameraDevice, implParams);
+    }
+
+    static CameraDeviceCompatApi24Impl create(@NonNull CameraDevice cameraDevice,
+            @NonNull Handler compatHandler) {
+        return new CameraDeviceCompatApi24Impl(cameraDevice,
+                new CameraDeviceCompatBaseImpl.CameraDeviceCompatParamsApi21(compatHandler));
+    }
+
     @Override
-    public void createCaptureSession(@NonNull CameraDevice device,
-            @NonNull SessionConfigurationCompat config) throws CameraAccessException {
-        checkPreconditions(device, config);
+    public void createCaptureSession(@NonNull SessionConfigurationCompat config)
+            throws CameraAccessException {
+        checkPreconditions(mCameraDevice, config);
 
         // Wrap the executor in the callback
         CameraCaptureSession.StateCallback cb =
@@ -49,7 +59,8 @@ class CameraDeviceCompatApi24Impl extends CameraDeviceCompatApi23Impl {
         // Convert the OutputConfigurations to surfaces
         List<OutputConfigurationCompat> outputs = config.getOutputConfigurations();
 
-        Handler handler = MainThreadAsyncHandler.getInstance();
+        CameraDeviceCompatParamsApi21 params = (CameraDeviceCompatParamsApi21) mImplParams;
+        Handler handler = Preconditions.checkNotNull(params).mCompatHandler;
 
         InputConfigurationCompat inputConfigCompat = config.getInputConfiguration();
         if (inputConfigCompat != null) {
@@ -58,14 +69,15 @@ class CameraDeviceCompatApi24Impl extends CameraDeviceCompatApi23Impl {
 
             Preconditions.checkNotNull(inputConfig);
             // Use OutputConfigurations on this API level
-            device.createReprocessableCaptureSessionByConfigurations(inputConfig,
+            mCameraDevice.createReprocessableCaptureSessionByConfigurations(inputConfig,
                     SessionConfigurationCompat.transformFromCompat(outputs), cb, handler);
         } else if (config.getSessionType() == SessionConfigurationCompat.SESSION_HIGH_SPEED) {
             // Client is requesting a high speed capture session
-            device.createConstrainedHighSpeedCaptureSession(unpackSurfaces(outputs), cb, handler);
+            mCameraDevice.createConstrainedHighSpeedCaptureSession(unpackSurfaces(outputs), cb,
+                    handler);
         } else {
             // Fall back to a normal capture session (created from OutputConfigurations)
-            device.createCaptureSessionByOutputConfigurations(
+            mCameraDevice.createCaptureSessionByOutputConfigurations(
                     SessionConfigurationCompat.transformFromCompat(outputs), cb, handler);
         }
     }

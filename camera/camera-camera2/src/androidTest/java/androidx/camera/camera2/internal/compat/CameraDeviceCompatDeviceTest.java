@@ -16,7 +16,10 @@
 
 package androidx.camera.camera2.internal.compat;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.content.Context;
@@ -27,16 +30,18 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
-import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
+import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -48,7 +53,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -57,7 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>These need to run on device since they rely on native implementation details of the
  * {@link CameraDevice} class on some API levels.
  */
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraDeviceCompatDeviceTest {
 
@@ -93,6 +97,8 @@ public final class CameraDeviceCompatDeviceTest {
     };
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
+    private HandlerThread mCompatHandlerThread;
+    private Handler mCompatHandler;
 
     @Before
     public void setUp() throws CameraAccessException, InterruptedException {
@@ -104,7 +110,11 @@ public final class CameraDeviceCompatDeviceTest {
         Assume.assumeTrue("No cameras found on device.", cameraIds.length > 0);
         String cameraId = cameraIds[0];
 
-        cameraManager.openCamera(cameraId, mStateCallback, MainThreadAsyncHandler.getInstance());
+        mCompatHandlerThread = new HandlerThread("DispatchThread");
+        mCompatHandlerThread.start();
+        mCompatHandler = HandlerCompat.createAsync(mCompatHandlerThread.getLooper());
+
+        cameraManager.openCamera(cameraId, mStateCallback, mCompatHandler);
         mOpenCloseSemaphore.acquire();
 
         if (mCameraDevice == null) {
@@ -137,39 +147,27 @@ public final class CameraDeviceCompatDeviceTest {
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
         }
+
+        mCompatHandlerThread.quitSafely();
     }
 
-    // This test should not run on the main thread since it will block the main thread and
-    // deadlock on API <= 28.
     @Test
     @SuppressWarnings("deprecation") /* AsyncTask */
-    public void canConfigureCaptureSession() throws InterruptedException, CameraAccessException {
+    public void canConfigureCaptureSession() throws CameraAccessException {
         OutputConfigurationCompat outputConfig = new OutputConfigurationCompat(mSurface);
 
-        final Semaphore configureSemaphore = new Semaphore(0);
-        final AtomicBoolean configureSucceeded = new AtomicBoolean(false);
         CameraCaptureSession.StateCallback stateCallback =
-                new CameraCaptureSession.StateCallback() {
-                    @Override
-                    public void onConfigured(@NonNull CameraCaptureSession session) {
-                        configureSucceeded.set(true);
-                        configureSemaphore.release();
-                    }
-
-                    @Override
-                    public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-                        configureSucceeded.set(false);
-                        configureSemaphore.release();
-                    }
-                };
+                mock(CameraCaptureSession.StateCallback.class);
 
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
                 Collections.singletonList(outputConfig), android.os.AsyncTask.THREAD_POOL_EXECUTOR,
                 stateCallback);
 
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice,
+                mCompatHandler);
         try {
-            CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+            deviceCompat.createCaptureSession(sessionConfig);
         } catch (CameraAccessException e) {
             // If the camera has been disconnected during the test (likely due to another process
             // stealing the camera), then we will skip the test.
@@ -179,9 +177,8 @@ public final class CameraDeviceCompatDeviceTest {
             // This is not an error we expect should reasonably happen. Rethrow the exception.
             throw e;
         }
-        configureSemaphore.acquire();
 
-        assertThat(configureSucceeded.get()).isTrue();
+        verify(stateCallback, timeout(3000)).onConfigured(any(CameraCaptureSession.class));
     }
 
 }

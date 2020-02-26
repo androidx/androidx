@@ -24,10 +24,10 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
-import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -35,6 +35,22 @@ import java.util.List;
 
 @RequiresApi(21)
 class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompatImpl {
+
+    final CameraDevice mCameraDevice;
+    final Object mImplParams;
+
+    CameraDeviceCompatBaseImpl(@NonNull CameraDevice cameraDevice,
+            @Nullable Object implParams) {
+        mCameraDevice = Preconditions.checkNotNull(cameraDevice);
+        mImplParams = implParams;
+    }
+
+    static CameraDeviceCompatBaseImpl create(@NonNull CameraDevice cameraDevice,
+            @NonNull Handler compatHandler) {
+        return new CameraDeviceCompatBaseImpl(cameraDevice,
+                new CameraDeviceCompatBaseImpl.CameraDeviceCompatParamsApi21(compatHandler));
+    }
+
     static List<Surface> unpackSurfaces(@NonNull List<OutputConfigurationCompat> outputConfigs) {
         List<Surface> surfaces = new ArrayList<>(outputConfigs.size());
         for (OutputConfigurationCompat outputConfig : outputConfigs) {
@@ -92,9 +108,9 @@ class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompa
     }
 
     @Override
-    public void createCaptureSession(@NonNull CameraDevice device,
-            @NonNull SessionConfigurationCompat config) throws CameraAccessException {
-        checkPreconditions(device, config);
+    public void createCaptureSession(@NonNull SessionConfigurationCompat config)
+            throws CameraAccessException {
+        checkPreconditions(mCameraDevice, config);
 
         if (config.getInputConfiguration() != null) {
             throw new IllegalArgumentException("Reprocessing sessions not supported until API 23");
@@ -113,8 +129,21 @@ class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompa
         // Convert the OutputConfigurations to surfaces
         List<Surface> surfaces = unpackSurfaces(config.getOutputConfigurations());
 
-        createBaseCaptureSession(device, surfaces, cb, MainThreadAsyncHandler.getInstance());
+        CameraDeviceCompatParamsApi21 params = (CameraDeviceCompatParamsApi21) mImplParams;
+        createBaseCaptureSession(mCameraDevice, surfaces, cb, params.mCompatHandler);
     }
 
+    @Override
+    @NonNull
+    public CameraDevice unwrap() {
+        return mCameraDevice;
+    }
 
+    static class CameraDeviceCompatParamsApi21 {
+        final Handler mCompatHandler;
+
+        CameraDeviceCompatParamsApi21(@NonNull Handler compatHandler) {
+            mCompatHandler = compatHandler;
+        }
+    }
 }
