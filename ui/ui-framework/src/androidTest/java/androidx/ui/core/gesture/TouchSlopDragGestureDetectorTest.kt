@@ -24,7 +24,6 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
@@ -33,6 +32,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -48,14 +48,16 @@ class TouchSlopDragGestureDetectorTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var dragObserver: DragObserver
-    private lateinit var touchSlop: IntPx
+    private lateinit var touchSlop: Px
     private lateinit var view: View
+
+    private val TinyNum = .01f
 
     @Test
     fun ui_pointerMovementWithinTouchSlop_noCallbacksCalled() {
         setup(false)
 
-        val touchSlopFloat = touchSlop.value.toFloat()
+        val touchSlop = touchSlop.value
 
         val down = MotionEvent(
             0,
@@ -71,7 +73,7 @@ class TouchSlopDragGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat, 50f))
+            arrayOf(PointerCoords(50f + touchSlop - TinyNum, 50f))
         )
         val up = MotionEvent(
             30,
@@ -79,7 +81,7 @@ class TouchSlopDragGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat, 50f))
+            arrayOf(PointerCoords(50f + touchSlop - TinyNum, 50f))
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -87,7 +89,6 @@ class TouchSlopDragGestureDetectorTest {
             view.dispatchTouchEvent(move)
             view.dispatchTouchEvent(up)
         }
-
         verifyNoMoreInteractions(dragObserver)
     }
 
@@ -95,7 +96,7 @@ class TouchSlopDragGestureDetectorTest {
     fun ui_pointerDownMovementBeyondTouchSlopUp_correctCallbacksInOrder() {
         setup(false)
 
-        val touchSlopFloat = touchSlop.value.toFloat()
+        val touchSlop = touchSlop.value
 
         val down = MotionEvent(
             0,
@@ -111,7 +112,7 @@ class TouchSlopDragGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat + 1, 50f))
+            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f))
         )
         val up = MotionEvent(
             30,
@@ -119,7 +120,7 @@ class TouchSlopDragGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat, 50f))
+            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f))
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -132,17 +133,17 @@ class TouchSlopDragGestureDetectorTest {
             verify().onStart(PxPosition(50.ipx, 50.ipx))
             // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
             // and nothing consumes the drag distance.
-            verify(dragObserver, times(2))
-                .onDrag(PxPosition(Px(touchSlopFloat + 1), 0.px))
+            verify(dragObserver, times(2)).onDrag(any())
             verify().onStop(any())
         }
+        verifyNoMoreInteractions(dragObserver)
     }
 
     @Test
     fun ui_pointerDownMovementBeyondTouchSlopCancel_correctCallbacksInOrder() {
         setup(false)
 
-        val touchSlopFloat = touchSlop.value.toFloat()
+        val touchSlop = touchSlop.value
 
         val down = MotionEvent(
             0,
@@ -158,7 +159,7 @@ class TouchSlopDragGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat + 1, 50f))
+            arrayOf(PointerCoords(50f + touchSlop + TinyNum, 50f))
         )
         val cancel = MotionEvent(
             30,
@@ -166,7 +167,7 @@ class TouchSlopDragGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat, 50f))
+            arrayOf(PointerCoords(50f + touchSlop, 50f))
         )
 
         activityTestRule.runOnUiThreadIR {
@@ -179,17 +180,41 @@ class TouchSlopDragGestureDetectorTest {
             verify().onStart(PxPosition(50.ipx, 50.ipx))
             // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
             // and nothing consumes the drag distance.
-            verify(dragObserver, times(2))
-                .onDrag(PxPosition(Px(touchSlopFloat + 1), 0.px))
+            verify(dragObserver, times(2)).onDrag(any())
             verify().onCancel()
         }
+        verifyNoMoreInteractions(dragObserver)
     }
 
     @Test
-    fun ui_startDragImmediatelyTrueDown_callbacksCalled() {
+    fun ui_startDragImmediatelyTrueDown_onStartOnlyCalled() {
         setup(true)
 
-        val touchSlopFloat = touchSlop.value.toFloat()
+        val down = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(50f, 50f))
+        )
+
+        activityTestRule.runOnUiThreadIR {
+            view.dispatchTouchEvent(down)
+        }
+
+        dragObserver.inOrder {
+            verify().onStart(PxPosition(50.ipx, 50.ipx))
+        }
+        verifyNoMoreInteractions(dragObserver)
+    }
+
+    @Test
+    fun ui_movement_onDragCalledWithCorrectValue() {
+        setup(false)
+
+        // Guaranteed to be over slop
+        val movement = (touchSlop.value + 1 * 2).toInt()
 
         val down = MotionEvent(
             0,
@@ -205,31 +230,15 @@ class TouchSlopDragGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat, 50f))
-        )
-        val up = MotionEvent(
-            30,
-            MotionEvent.ACTION_UP,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(50f + touchSlopFloat, 50f))
+            arrayOf(PointerCoords(50f + movement, 50f))
         )
 
         activityTestRule.runOnUiThreadIR {
             view.dispatchTouchEvent(down)
             view.dispatchTouchEvent(move)
-            view.dispatchTouchEvent(up)
         }
 
-        dragObserver.inOrder {
-            verify().onStart(PxPosition(50.ipx, 50.ipx))
-            // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
-            // and nothing consumes the drag distance.
-            verify(dragObserver, times(2))
-                .onDrag(PxPosition(Px(touchSlopFloat), 0.px))
-            verify().onStop(any())
-        }
+        verify(dragObserver, times(2)).onDrag(PxPosition(movement.px, 0.px))
     }
 
     private fun setup(startDragImmediately: Boolean) {
@@ -241,7 +250,7 @@ class TouchSlopDragGestureDetectorTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                touchSlop = with(DensityAmbient.current) { TouchSlop.toIntPx() }
+                touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
                 TouchSlopDragGestureDetector(
                     dragObserver,
                     startDragImmediately = startDragImmediately

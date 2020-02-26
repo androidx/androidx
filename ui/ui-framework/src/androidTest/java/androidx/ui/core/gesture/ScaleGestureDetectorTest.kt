@@ -25,9 +25,12 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.unit.IntPx
+import androidx.ui.unit.Px
+import androidx.ui.unit.ceil
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -46,8 +49,11 @@ class ScaleGestureDetectorTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var scaleObserver: ScaleObserver
-    private lateinit var touchSlop: IntPx
+    private lateinit var touchSlop: Px
     private lateinit var view: View
+
+    private val LayoutDimensionFactor = 7
+    private val TinyNum = .01f
 
     @Before
     fun setup() {
@@ -59,11 +65,14 @@ class ScaleGestureDetectorTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                touchSlop = with(DensityAmbient.current) { TouchSlop.toIntPx() }
+                touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
                 ScaleGestureDetector(scaleObserver) {
                     Layout(
                         measureBlock = { _, _ ->
-                            layout(touchSlop * 4, touchSlop * 4) {
+                            layout(
+                                (touchSlop * LayoutDimensionFactor).ceil(),
+                                (touchSlop * LayoutDimensionFactor).ceil()
+                            ) {
                                 setupLatch.countDown()
                             }
                         }, children = emptyContent()
@@ -80,7 +89,7 @@ class ScaleGestureDetectorTest {
     @Test
     fun ui_pointerMovementWithinTouchSlop_noCallbacksCalled() {
 
-        val touchSlopFloat = touchSlop.value.toFloat()
+        val touchSlop = touchSlop.value
 
         val down1 = MotionEvent(
             0,
@@ -88,7 +97,7 @@ class ScaleGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlopFloat, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f))
         )
         val down2 = MotionEvent(
             10,
@@ -97,8 +106,8 @@ class ScaleGestureDetectorTest {
             1,
             arrayOf(PointerProperties(0), PointerProperties(1)),
             arrayOf(
-                PointerCoords(touchSlopFloat, 50f),
-                PointerCoords(touchSlopFloat * 3, 50f)
+                PointerCoords(touchSlop * 1, 50f),
+                PointerCoords(touchSlop * 3, 50f)
             )
         )
         val move = MotionEvent(
@@ -111,8 +120,8 @@ class ScaleGestureDetectorTest {
                 PointerProperties(1)
             ),
             arrayOf(
-                PointerCoords(touchSlopFloat * 0, 50f),
-                PointerCoords(touchSlopFloat * 4, 50f)
+                PointerCoords(touchSlop * 0 + TinyNum, 50f),
+                PointerCoords(touchSlop * 4 - TinyNum, 50f)
             )
         )
         val up = MotionEvent(
@@ -125,8 +134,20 @@ class ScaleGestureDetectorTest {
                 PointerProperties(1)
             ),
             arrayOf(
-                PointerCoords(touchSlopFloat * 0, 50f),
-                PointerCoords(touchSlopFloat * 4, 50f)
+                PointerCoords(touchSlop * 0 + TinyNum, 50f),
+                PointerCoords(touchSlop * 4 - TinyNum, 50f)
+            )
+        )
+        val up2 = MotionEvent(
+            40,
+            MotionEvent.ACTION_POINTER_UP,
+            1,
+            0,
+            arrayOf(
+                PointerProperties(1)
+            ),
+            arrayOf(
+                PointerCoords(touchSlop * 4 - TinyNum, 50f)
             )
         )
 
@@ -135,6 +156,7 @@ class ScaleGestureDetectorTest {
             view.dispatchTouchEvent(down2)
             view.dispatchTouchEvent(move)
             view.dispatchTouchEvent(up)
+            view.dispatchTouchEvent(up2)
         }
 
         verifyNoMoreInteractions(scaleObserver)
@@ -143,7 +165,7 @@ class ScaleGestureDetectorTest {
     @Test
     fun ui_pointerMovementBeyondTouchSlop_correctCallbacksInOrder() {
 
-        val touchSlopFloat = touchSlop.value.toFloat()
+        val touchSlop = touchSlop.value
 
         val down1 = MotionEvent(
             0,
@@ -151,7 +173,7 @@ class ScaleGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlopFloat, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f))
         )
         val down2 = MotionEvent(
             10,
@@ -160,8 +182,8 @@ class ScaleGestureDetectorTest {
             1,
             arrayOf(PointerProperties(0), PointerProperties(1)),
             arrayOf(
-                PointerCoords(touchSlopFloat, 50f),
-                PointerCoords(touchSlopFloat * 3, 50f)
+                PointerCoords(touchSlop * 1, 50f),
+                PointerCoords(touchSlop * 3, 50f)
             )
         )
         val move = MotionEvent(
@@ -174,8 +196,8 @@ class ScaleGestureDetectorTest {
                 PointerProperties(1)
             ),
             arrayOf(
-                PointerCoords(-touchSlopFloat * 2, 50f),
-                PointerCoords(touchSlopFloat * 6, 50f)
+                PointerCoords(touchSlop * 0 - TinyNum, 50f),
+                PointerCoords(touchSlop * 4 + TinyNum, 50f)
             )
         )
         val up = MotionEvent(
@@ -188,20 +210,20 @@ class ScaleGestureDetectorTest {
                 PointerProperties(1)
             ),
             arrayOf(
-                PointerCoords(-touchSlopFloat * 2, 50f),
-                PointerCoords(touchSlopFloat * 6, 50f)
+                PointerCoords(touchSlop * 0 - TinyNum, 50f),
+                PointerCoords(touchSlop * 4 + TinyNum, 50f)
             )
         )
         val up2 = MotionEvent(
-            30,
-            MotionEvent.ACTION_UP,
+            40,
+            MotionEvent.ACTION_POINTER_UP,
             1,
             0,
             arrayOf(
                 PointerProperties(1)
             ),
             arrayOf(
-                PointerCoords(touchSlopFloat * 6, 50f)
+                PointerCoords(touchSlop * 4 + TinyNum, 50f)
             )
         )
 
@@ -215,17 +237,16 @@ class ScaleGestureDetectorTest {
 
         scaleObserver.inOrder {
             verify().onStart()
-            verify().onScale(4f)
+            verify().onScale(any())
             verify().onStop()
         }
+        verifyNoMoreInteractions(scaleObserver)
     }
-
-    // Verify when onCancel should be called.
 
     @Test
     fun ui_downMoveBeyondSlopCancel_correctCallbacksInOrder() {
 
-        val touchSlopFloat = touchSlop.value.toFloat()
+        val touchSlop = touchSlop.value
 
         val down1 = MotionEvent(
             0,
@@ -233,7 +254,7 @@ class ScaleGestureDetectorTest {
             1,
             0,
             arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(touchSlopFloat, 50f))
+            arrayOf(PointerCoords(touchSlop * 1, 50f))
         )
         val down2 = MotionEvent(
             10,
@@ -242,8 +263,8 @@ class ScaleGestureDetectorTest {
             1,
             arrayOf(PointerProperties(0), PointerProperties(1)),
             arrayOf(
-                PointerCoords(touchSlopFloat, 50f),
-                PointerCoords(touchSlopFloat * 3, 50f)
+                PointerCoords(touchSlop * 1, 50f),
+                PointerCoords(touchSlop * 3, 50f)
             )
         )
         val move = MotionEvent(
@@ -256,8 +277,8 @@ class ScaleGestureDetectorTest {
                 PointerProperties(1)
             ),
             arrayOf(
-                PointerCoords(-touchSlopFloat * 2, 50f),
-                PointerCoords(touchSlopFloat * 6, 50f)
+                PointerCoords(touchSlop * 0 - TinyNum, 50f),
+                PointerCoords(touchSlop * 4 + TinyNum, 50f)
             )
         )
         val cancel = MotionEvent(
@@ -270,8 +291,8 @@ class ScaleGestureDetectorTest {
                 PointerProperties(1)
             ),
             arrayOf(
-                PointerCoords(-touchSlopFloat * 2, 50f),
-                PointerCoords(touchSlopFloat * 6, 50f)
+                PointerCoords(touchSlop * 0 - TinyNum, 50f),
+                PointerCoords(touchSlop * 4 + TinyNum, 50f)
             )
         )
 
@@ -284,9 +305,109 @@ class ScaleGestureDetectorTest {
 
         scaleObserver.inOrder {
             verify().onStart()
-            verify().onScale(4f)
+            verify().onScale(any())
             verify().onCancel()
         }
+        verifyNoMoreInteractions(scaleObserver)
+    }
+
+    @Test
+    fun ui_pointerMovementScalesUp_scaleValueCorrect() {
+
+        val touchSlop = touchSlop.value
+
+        val down1 = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(touchSlop * 1, 50f))
+        )
+        val down2 = MotionEvent(
+            10,
+            MotionEvent.ACTION_POINTER_DOWN,
+            2,
+            1,
+            arrayOf(PointerProperties(0), PointerProperties(1)),
+            arrayOf(
+                PointerCoords(touchSlop * 1, 50f),
+                PointerCoords(touchSlop * 3, 50f)
+            )
+        )
+        val move = MotionEvent(
+            20,
+            MotionEvent.ACTION_MOVE,
+            2,
+            0,
+            arrayOf(
+                PointerProperties(0),
+                PointerProperties(1)
+            ),
+            arrayOf(
+                PointerCoords(touchSlop * -1, 50f),
+                PointerCoords(touchSlop * 5, 50f)
+            )
+        )
+
+        activityTestRule.runOnUiThreadIR {
+            view.dispatchTouchEvent(down1)
+            view.dispatchTouchEvent(down2)
+            view.dispatchTouchEvent(move)
+        }
+
+        verify(scaleObserver).onScale(3f)
+    }
+
+    @Test
+    fun ui_pointerMovementScalesDown_scaleValueCorrect() {
+
+        val touchSlop = touchSlop.value
+
+        val down1 = MotionEvent(
+            0,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(0)),
+            arrayOf(PointerCoords(touchSlop * 1, 50f))
+        )
+        val down2 = MotionEvent(
+            10,
+            MotionEvent.ACTION_POINTER_DOWN,
+            2,
+            1,
+            arrayOf(
+                PointerProperties(0),
+                PointerProperties(1)
+            ),
+            arrayOf(
+                PointerCoords(touchSlop * 1, 50f),
+                PointerCoords(touchSlop * 6, 50f)
+            )
+        )
+        val move = MotionEvent(
+            20,
+            MotionEvent.ACTION_MOVE,
+            2,
+            0,
+            arrayOf(
+                PointerProperties(0),
+                PointerProperties(1)
+            ),
+            arrayOf(
+                PointerCoords(touchSlop * 3, 50f),
+                PointerCoords(touchSlop * 4, 50f)
+            )
+        )
+
+        activityTestRule.runOnUiThreadIR {
+            view.dispatchTouchEvent(down1)
+            view.dispatchTouchEvent(down2)
+            view.dispatchTouchEvent(move)
+        }
+
+        verify(scaleObserver).onScale(.2f)
     }
 }
 
