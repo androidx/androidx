@@ -243,6 +243,22 @@ package androidx.ui.text {
     method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
+  public interface InlineElement {
+    method public androidx.ui.text.InlineElementMetrics getInlineElementMetrics();
+    property public abstract androidx.ui.text.InlineElementMetrics inlineElementMetrics;
+  }
+
+  public final class InlineElementMetrics {
+    ctor public InlineElementMetrics(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.TextVerticalAlign textVerticalAlign);
+    method public androidx.ui.unit.TextUnit component1();
+    method public androidx.ui.unit.TextUnit component2();
+    method public androidx.ui.text.TextVerticalAlign component3();
+    method public androidx.ui.text.InlineElementMetrics copy(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.TextVerticalAlign textVerticalAlign);
+    method public androidx.ui.unit.TextUnit getHeight();
+    method public androidx.ui.text.TextVerticalAlign getTextVerticalAlign();
+    method public androidx.ui.unit.TextUnit getWidth();
+  }
+
   public final class Locale {
     ctor public Locale(String languageTag);
     method public String getLanguage();
@@ -609,6 +625,16 @@ package androidx.ui.text {
   public final class TextStyleKt {
     method public static androidx.ui.text.TextStyle lerp(androidx.ui.text.TextStyle start, androidx.ui.text.TextStyle stop, float fraction);
     method public static androidx.ui.text.TextStyle resolveDefaults(androidx.ui.text.TextStyle style, androidx.ui.core.LayoutDirection direction);
+  }
+
+  public enum TextVerticalAlign {
+    enum_constant public static final androidx.ui.text.TextVerticalAlign AboveBaseline;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign Bottom;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign Center;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign TextBottom;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign TextCenter;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign TextTop;
+    enum_constant public static final androidx.ui.text.TextVerticalAlign Top;
   }
 
 }
