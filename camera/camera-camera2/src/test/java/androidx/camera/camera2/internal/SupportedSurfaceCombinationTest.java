@@ -473,7 +473,10 @@ public final class SupportedSurfaceCombinationTest {
         CameraX.bindToLifecycle(fakeLifecycle, CameraSelector.DEFAULT_BACK_CAMERA, preview);
 
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
-        Rational previewAspectRatio = config.getTargetAspectRatioCustom();
+        // The targetAspectRatioCustom value will only be set in Legacy + API 21 combination. For
+        // other combinations, it shouldn't be set since there is targetAspectRatio set for the
+        // use case.
+        Rational previewAspectRatio = config.getTargetAspectRatioCustom(null);
 
         Rational correctedAspectRatio =
                 supportedSurfaceCombination.getCorrectedAspectRatio(
