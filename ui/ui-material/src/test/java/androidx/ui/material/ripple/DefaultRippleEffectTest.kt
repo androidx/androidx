@@ -39,7 +39,7 @@ class DefaultRippleEffectTest {
     }
 
     @Test
-    fun testTargetRadius() {
+    fun testEndRadiusBounded() {
         val width = 100f
         val height = 160f
         val size = PxSize(width.px, height.px)
@@ -48,7 +48,17 @@ class DefaultRippleEffectTest {
             // 10 is an extra offset from spec
             halfDistance(width, height) + 10.dp.toPx().value
         }
-        val result = with(density) { getRippleTargetRadius(size) }
+        val result = with(density) { getRippleEndRadius(true, size) }
+        assertThat(result).isEqualTo(expectedRadius.px)
+    }
+
+    @Test
+    fun testEndRadiusUnbounded() {
+        val width = 140f
+        val height = 100f
+        val size = PxSize(width.px, height.px)
+        val expectedRadius = halfDistance(width, height)
+        val result = with(Density(1f)) { getRippleEndRadius(false, size) }
         assertThat(result).isEqualTo(expectedRadius.px)
     }
 
