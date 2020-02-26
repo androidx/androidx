@@ -40,6 +40,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
@@ -366,6 +367,7 @@ class NavControllerTest {
 
     @LargeTest
     @Test
+    @SdkSuppress(minSdkVersion = 17)
     fun testNavigateViaImplicitDeepLink() {
         val intent = Intent(
             Intent.ACTION_VIEW,
@@ -401,6 +403,7 @@ class NavControllerTest {
             assertThat(this.state).isEqualTo(Lifecycle.State.DESTROYED)
         }
 
+        // this relies on MonitoringInstrumentation.execStartActivity() which was added in API 17
         intended(
             allOf(
                 toPackage((ApplicationProvider.getApplicationContext() as Context).packageName),
