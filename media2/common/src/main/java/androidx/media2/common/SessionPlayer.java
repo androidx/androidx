@@ -18,7 +18,6 @@ package androidx.media2.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.common.BaseResult.RESULT_ERROR_NOT_SUPPORTED;
 
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -1040,12 +1039,14 @@ public abstract class SessionPlayer implements AutoCloseable {
         MediaItem mUpCastMediaItem;
         @ParcelField(3)
         int mTrackType;
-        @ParcelField(4)
-        Bundle mParcelledFormat;
 
+        // Parceled via mParcelledFormat.
         @NonParcelField
         @Nullable
         MediaFormat mFormat;
+        // For parceling mFormat. Should be only used by onPreParceling() and onPostParceling().
+        @ParcelField(4)
+        Bundle mParcelableFormatBundle;
 
         /**
          * Used for VersionedParcelable
@@ -1164,14 +1165,24 @@ public abstract class SessionPlayer implements AutoCloseable {
          */
         @RestrictTo(LIBRARY)
         @Override
+        @SuppressWarnings("SynchronizeOnNonFinalField") // mFormat effectively final.
         public void onPreParceling(boolean isStream) {
             if (mFormat != null) {
-                mParcelledFormat = new Bundle();
-                parcelStringValue(MediaFormat.KEY_LANGUAGE);
-                parcelStringValue(MediaFormat.KEY_MIME);
-                parcelIntValue(MediaFormat.KEY_IS_FORCED_SUBTITLE);
-                parcelIntValue(MediaFormat.KEY_IS_AUTOSELECT);
-                parcelIntValue(MediaFormat.KEY_IS_DEFAULT);
+                synchronized (mFormat) {
+                    if (mParcelableFormatBundle == null) {
+                        mParcelableFormatBundle = new Bundle();
+                        putStringValueToBundle(MediaFormat.KEY_LANGUAGE,
+                                mFormat, mParcelableFormatBundle);
+                        putStringValueToBundle(MediaFormat.KEY_MIME,
+                                mFormat, mParcelableFormatBundle);
+                        putIntValueToBundle(MediaFormat.KEY_IS_FORCED_SUBTITLE,
+                                mFormat, mParcelableFormatBundle);
+                        putIntValueToBundle(MediaFormat.KEY_IS_AUTOSELECT,
+                                mFormat, mParcelableFormatBundle);
+                        putIntValueToBundle(MediaFormat.KEY_IS_DEFAULT,
+                                mFormat, mParcelableFormatBundle);
+                    }
+                }
             }
         }
 
@@ -1181,37 +1192,46 @@ public abstract class SessionPlayer implements AutoCloseable {
         @RestrictTo(LIBRARY)
         @Override
         public void onPostParceling() {
-            if (mParcelledFormat != null) {
+            if (mParcelableFormatBundle != null) {
                 mFormat = new MediaFormat();
-                unparcelStringValue(MediaFormat.KEY_LANGUAGE);
-                unparcelStringValue(MediaFormat.KEY_MIME);
-                unparcelIntValue(MediaFormat.KEY_IS_FORCED_SUBTITLE);
-                unparcelIntValue(MediaFormat.KEY_IS_AUTOSELECT);
-                unparcelIntValue(MediaFormat.KEY_IS_DEFAULT);
+                setStringValueToMediaFormat(MediaFormat.KEY_LANGUAGE,
+                        mFormat, mParcelableFormatBundle);
+                setStringValueToMediaFormat(MediaFormat.KEY_MIME,
+                        mFormat, mParcelableFormatBundle);
+                setIntValueToMediaFormat(MediaFormat.KEY_IS_FORCED_SUBTITLE,
+                        mFormat, mParcelableFormatBundle);
+                setIntValueToMediaFormat(MediaFormat.KEY_IS_AUTOSELECT,
+                        mFormat, mParcelableFormatBundle);
+                setIntValueToMediaFormat(MediaFormat.KEY_IS_DEFAULT,
+                        mFormat, mParcelableFormatBundle);
             }
         }
 
-        private void parcelIntValue(String key) {
-            if (mFormat.containsKey(key)) {
-                mParcelledFormat.putInt(key, mFormat.getInteger(key));
+        private static void putIntValueToBundle(
+                String intValueKey, MediaFormat mediaFormat, Bundle bundle) {
+            if (mediaFormat.containsKey(intValueKey)) {
+                bundle.putInt(intValueKey, mediaFormat.getInteger(intValueKey));
             }
         }
 
-        private void parcelStringValue(String key) {
-            if (mFormat.containsKey(key)) {
-                mParcelledFormat.putString(key, mFormat.getString(key));
+        private static void putStringValueToBundle(
+                String stringValueKey, MediaFormat mediaFormat, Bundle bundle) {
+            if (mediaFormat.containsKey(stringValueKey)) {
+                bundle.putString(stringValueKey, mediaFormat.getString(stringValueKey));
             }
         }
 
-        private void unparcelIntValue(String key) {
-            if (mParcelledFormat.containsKey(key)) {
-                mFormat.setInteger(key, mParcelledFormat.getInt(key));
+        private static void setIntValueToMediaFormat(
+                String intValueKey, MediaFormat mediaFormat, Bundle bundle) {
+            if (bundle.containsKey(intValueKey)) {
+                mediaFormat.setInteger(intValueKey, bundle.getInt(intValueKey));
             }
         }
 
-        private void unparcelStringValue(String key) {
-            if (mParcelledFormat.containsKey(key)) {
-                mFormat.setString(key, mParcelledFormat.getString(key));
+        private static void setStringValueToMediaFormat(
+                String stringValueKey, MediaFormat mediaFormat, Bundle bundle) {
+            if (bundle.containsKey(stringValueKey)) {
+                mediaFormat.setString(stringValueKey, bundle.getString(stringValueKey));
             }
         }
     }
