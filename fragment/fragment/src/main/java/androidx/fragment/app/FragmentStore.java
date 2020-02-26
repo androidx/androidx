@@ -208,6 +208,17 @@ class FragmentStore {
     }
 
     @NonNull
+    List<FragmentStateManager> getActiveFragmentStateManagers() {
+        ArrayList<FragmentStateManager> activeFragmentStateManagers = new ArrayList<>();
+        for (FragmentStateManager fragmentStateManager : mActive.values()) {
+            if (fragmentStateManager != null) {
+                activeFragmentStateManagers.add(fragmentStateManager);
+            }
+        }
+        return activeFragmentStateManagers;
+    }
+
+    @NonNull
     List<Fragment> getFragments() {
         if (mAdded.isEmpty()) {
             return Collections.emptyList();

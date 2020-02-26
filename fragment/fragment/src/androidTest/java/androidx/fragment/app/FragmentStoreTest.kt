@@ -53,6 +53,8 @@ class FragmentStoreTest {
     @Test
     fun testMakeActive() {
         fragmentStore.makeActive(emptyStateManager)
+        assertThat(fragmentStore.activeFragmentStateManagers)
+            .containsExactly(emptyStateManager)
         assertThat(fragmentStore.activeFragments)
             .containsExactly(emptyFragment)
         assertThat(fragmentStore.activeFragmentCount)
