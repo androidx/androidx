@@ -843,7 +843,7 @@ public final class ImageCaptureTest {
         Rational newRatio = new Rational(16, 9);
         ImageCapture imageCapture = new ImageCapture.Builder().setTargetAspectRatioCustom(
                 oldRatio).setTargetRotation(Surface.ROTATION_0).build();
-        imageCapture.setTargetAspectRatioCustom(newRatio);
+        imageCapture.setCropAspectRatio(newRatio);
 
         Rational resultRatio =
                 ((ImageOutputConfig) imageCapture.getUseCaseConfig()).getTargetAspectRatioCustom(
@@ -881,7 +881,7 @@ public final class ImageCaptureTest {
                 Surface.ROTATION_0).build();
 
         // ImageCapture provide public API to setTargetAspectRatioCustom after use case is created.
-        imageCapture.setTargetAspectRatioCustom(new Rational(DEFAULT_RESOLUTION.getWidth(),
+        imageCapture.setCropAspectRatio(new Rational(DEFAULT_RESOLUTION.getWidth(),
                 DEFAULT_RESOLUTION.getHeight()));
 
         // Updates target rotation from ROTATION_0 to ROTATION_90.

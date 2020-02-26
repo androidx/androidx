@@ -505,7 +505,7 @@ public final class ImageCapture extends UseCase {
      *
      * @param aspectRatio New target aspect ratio.
      */
-    public void setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
+    public void setCropAspectRatio(@NonNull Rational aspectRatio) {
         ImageCaptureConfig oldConfig = (ImageCaptureConfig) getUseCaseConfig();
         Builder builder = Builder.fromConfig(oldConfig);
         Rational oldRatio = oldConfig.getTargetAspectRatioCustom(null);
@@ -561,8 +561,8 @@ public final class ImageCapture extends UseCase {
      * <p>When this function is called, value set by
      * {@link ImageCapture.Builder#setTargetResolution(Size)} will be updated automatically to make
      * sure the suitable resolution can be selected when the use case is bound. Value set by
-     * {@link ImageCapture#setTargetAspectRatioCustom(Rational)} will also be updated
-     * automatically to make sure the output image is cropped into expected aspect ratio.
+     * {@link ImageCapture#setCropAspectRatio(Rational)} will also be updated automatically to
+     * make sure the output image is cropped into expected aspect ratio.
      *
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the use case is created.
@@ -2271,8 +2271,8 @@ public final class ImageCapture extends UseCase {
          * and targeting landscape orientation may specify 640x480.
          *
          * <p>When the target resolution is set,
-         * {@link ImageCapture.Builder#setTargetAspectRatioCustom(Rational)} will be automatically
-         * called to set corresponding value. Such that the output image will be cropped into the
+         * {@link ImageCapture.Builder#setCropAspectRatio(Rational)} will be automatically called
+         * to set corresponding value. Such that the output image will be cropped into the
          * desired aspect ratio.
          *
          * <p>The maximum available resolution that could be selected for an {@link ImageCapture}
