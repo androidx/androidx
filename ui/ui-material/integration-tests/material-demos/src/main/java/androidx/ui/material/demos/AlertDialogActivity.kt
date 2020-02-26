@@ -19,7 +19,7 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.material.samples.SideBySideAlertDialogSample
 
-class SideBySideAlertDialogActivity : MaterialDemoActivity() {
+class AlertDialogActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
