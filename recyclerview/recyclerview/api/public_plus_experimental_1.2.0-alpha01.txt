@@ -344,12 +344,20 @@ package androidx.recyclerview.widget {
   public static class MergeAdapter.Config {
     field public static final androidx.recyclerview.widget.MergeAdapter.Config DEFAULT;
     field public final boolean isolateViewTypes;
+    field public final androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode stableIdMode;
   }
 
   public static class MergeAdapter.Config.Builder {
     ctor public MergeAdapter.Config.Builder();
     method public androidx.recyclerview.widget.MergeAdapter.Config build();
     method public androidx.recyclerview.widget.MergeAdapter.Config.Builder setIsolateViewTypes(boolean);
+    method public androidx.recyclerview.widget.MergeAdapter.Config.Builder setStableIdMode(androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode);
+  }
+
+  public enum MergeAdapter.Config.StableIdMode {
+    enum_constant public static final androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode ISOLATED_STABLE_IDS;
+    enum_constant public static final androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode NO_STABLE_IDS;
+    enum_constant public static final androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode SHARED_STABLE_IDS;
   }
 
   public abstract class OrientationHelper {
