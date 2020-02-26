@@ -77,6 +77,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -427,15 +428,18 @@ public final class Preview extends UseCase {
          * only a single request will be active at a time.
          *
          * <p>A request is considered active until it is
-         * {@linkplain SurfaceRequest#provideSurface(Surface) set},
-         * {@linkplain SurfaceRequest#willNotProvideSurface()} marked as 'will not complete'}, or
-         * {@linkplain SurfaceRequest#addRequestCancellationListener(Executor, Runnable) cancelled
-         * by the camera}. After one of these conditions occurs, a request is considered
-         * completed.
          *
-         * <p>Once a request is successfully completed, if a new request is made it will only
-         * occur after the listenable future returned by
-         * {@link SurfaceRequest#provideSurface(Surface)} has completed.
+         * {@linkplain SurfaceRequest#provideSurface(Surface, Executor, androidx.core.util.Consumer)
+         * fulfilled}, {@linkplain SurfaceRequest#willNotProvideSurface()} marked as 'will not
+         * complete'}, or
+         * {@linkplain SurfaceRequest#addRequestCancellationListener(Executor, Runnable) cancelled
+         * by the camera}. After one of these conditions occurs, a request is considered completed.
+         *
+         * <p>Once a request is successfully completed, it is guaranteed that if a new request is
+         * made, the {@link Surface} used to fulfill the previous request will be detached from the
+         * camera and {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)} will be
+         * invoked with a {@link androidx.camera.core.SurfaceRequest.Result} containing
+         * {@link androidx.camera.core.SurfaceRequest.Result#RESULT_SURFACE_USED_SUCCESSFULLY}.
          *
          * Example:
          *
@@ -457,16 +461,13 @@ public final class Preview extends UseCase {
          *         // Create the surface and attempt to provide it to the camera.
          *         Surface surface = resetGlInputSurface(request.getResolution());
          *
-         *         // Provide the surface.
-         *         ListenableFuture<Void> sessionFuture = request.provideSurface(surface);
-         *         // Attach a listener that will be called to clean up the surface.
-         *         sessionFuture.addListener(() -> {
+         *         // Provide the surface and wait for the result to clean up the surface.
+         *         request.provideSurface(surface, mGlExecutor, (result) -> {
          *             // In all cases (even errors), we can clean up the state. As an
-         *             // optimization, we could also optionally check for errors on the
-         *             // ListenableFuture since we may be able to reuse the surface on
-         *             // subsequent surface requests.
+         *             // optimization, we could also optionally check for REQUEST_CANCELLED
+         *             // since we may be able to reuse the surface on subsequent surface requests.
          *             closeGlInputSurface(surface);
-         *         }, mGlExecutor);
+         *         });
          *     }
          * }
          * </pre>

@@ -131,7 +131,7 @@ public class CameraXActivity extends AppCompatActivity
     @SuppressWarnings("WeakerAccess")
     private Size mResolution;
     @SuppressWarnings("WeakerAccess")
-    ListenableFuture<Void> mSurfaceReleaseFuture;
+    ListenableFuture<SurfaceRequest.Result> mSurfaceReleaseFuture;
     @SuppressWarnings("WeakerAccess")
     SurfaceRequest mSurfaceRequest;
 
@@ -857,7 +857,13 @@ public class CameraXActivity extends AppCompatActivity
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
 
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.provideSurface(surface);
+        final ListenableFuture<SurfaceRequest.Result> surfaceReleaseFuture =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    mSurfaceRequest.provideSurface(surface,
+                            CameraXExecutors.directExecutor(), completer::set);
+                    return "provideSurface[request=" + mSurfaceRequest + " surface=" + surface
+                            + "]";
+                });
         mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             surface.release();

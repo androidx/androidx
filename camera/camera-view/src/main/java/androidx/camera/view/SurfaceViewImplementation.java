@@ -135,9 +135,9 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
             if (mSurfaceRequest != null && mTargetSize != null && mTargetSize.equals(
                     mCurrentSurfaceSize)) {
                 Log.d(TAG, "Surface set on Preview.");
-                mSurfaceRequest.provideSurface(surface).addListener(() -> {
-                    Log.d(TAG, "Safe to release surface.");
-                }, ContextCompat.getMainExecutor(mSurfaceView.getContext()));
+                mSurfaceRequest.provideSurface(surface,
+                        ContextCompat.getMainExecutor(mSurfaceView.getContext()),
+                        (result) -> Log.d(TAG, "Safe to release surface."));
                 mSurfaceRequest = null;
                 mTargetSize = null;
                 return true;
