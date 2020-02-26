@@ -102,4 +102,3 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
         }
         .cachedIn(viewModelScope)
 }
-
