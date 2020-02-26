@@ -554,6 +554,38 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
         mAnimatedVectorState.mAnimatorSet.end();
     }
 
+    /**
+     * Sets the position of the animation to the specified point in time. This time should be
+     * between 0 and the total duration of the animation, including any repetition. If the
+     * animation has not yet been started, then it will not advance forward after it is set to this
+     * time; it will simply set the time to this value and perform any appropriate actions based on
+     * that time. If the animation is already running, then setCurrentPlayTime() will set the
+     * current playing time to this value and continue playing from that point.
+     *
+     * @param playTime The time, in milliseconds, to which the animation is advanced or rewound.
+     *                 Unless the animation is reversing, the playtime is considered the time since
+     *                 the end of the start delay of the AnimatorSet in a forward playing direction.
+     */
+    public void setCurrentPlayTime(@IntRange(from = 0) long playTime) {
+        mAnimatedVectorState.mAnimatorSet.setCurrentPlayTime(playTime);
+        invalidateSelf();
+    }
+
+    /**
+     * Returns the milliseconds elapsed since the start of the animation.
+     *
+     * <p>For ongoing animations, this method returns the current progress of the animation in
+     * terms of play time. For an animation that has not yet been started: if the animation has been
+     * seeked to a certain time via {@link #setCurrentPlayTime(long)}, the seeked play time will
+     * be returned; otherwise, this method will return 0.
+     *
+     * @return the current position in time of the animation in milliseconds
+     */
+    @IntRange(from = 0)
+    public long getCurrentPlayTime() {
+        return mAnimatedVectorState.mAnimatorSet.getCurrentPlayTime();
+    }
+
     @Override
     public void registerAnimationCallback(@NonNull Animatable2.AnimationCallback callback) {
         // Add listener accordingly.

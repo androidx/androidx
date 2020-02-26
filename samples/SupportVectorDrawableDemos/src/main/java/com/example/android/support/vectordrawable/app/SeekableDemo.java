@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +42,7 @@ public class SeekableDemo extends AppCompatActivity {
 
         final ImageView image = findViewById(R.id.image);
         final Button start = findViewById(R.id.start);
+        final SeekBar seekBar = findViewById(R.id.seek);
 
         final SeekableAnimatedVectorDrawable avd =
                 SeekableAnimatedVectorDrawable.create(this, R.drawable.ic_hourglass_animation);
@@ -67,6 +69,23 @@ public class SeekableDemo extends AppCompatActivity {
                 avd.stop();
             }
             avd.start();
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    avd.setCurrentPlayTime(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
     }
 }
