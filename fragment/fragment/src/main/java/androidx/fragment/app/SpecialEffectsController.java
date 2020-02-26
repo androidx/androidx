@@ -159,6 +159,18 @@ abstract class SpecialEffectsController {
         }
     }
 
+    void cancelAllOperations() {
+        synchronized (mPendingOperations) {
+            for (Operation operation : mAwaitingCompletionOperations.values()) {
+                operation.getCancellationSignal().cancel();
+            }
+            mAwaitingCompletionOperations.clear();
+            // mPendingOperations is a subset of mAwaitingCompletionOperations
+            // so cancellation is already done, we just need to clear out the operations
+            mPendingOperations.clear();
+        }
+    }
+
     /**
      * Execute all of the given operations.
      * <p>

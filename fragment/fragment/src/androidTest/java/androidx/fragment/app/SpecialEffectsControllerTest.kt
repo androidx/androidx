@@ -261,6 +261,99 @@ class SpecialEffectsControllerTest {
                 .isEqualTo(Lifecycle.State.CREATED)
         }
     }
+
+    @MediumTest
+    @Test
+    fun enqueueAddAndCancelAllPending() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
+            val fm = withActivity { supportFragmentManager }
+            fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
+                TestSpecialEffectsController(it)
+            }
+            val fragment = StrictViewFragment()
+            val fragmentStore = FragmentStore()
+            fragmentStore.nonConfig = FragmentManagerViewModel(true)
+            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment)
+            // Set up the Fragment and FragmentStateManager as if the Fragment was
+            // added to the container via a FragmentTransaction
+            fragment.mFragmentManager = fm
+            fragment.mAdded = true
+            fragment.mContainerId = android.R.id.content
+            fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
+            val controller = SpecialEffectsController
+                .getOrCreateController(container) as TestSpecialEffectsController
+            onActivity {
+                // This moves the Fragment up to STARTED,
+                // calling enqueueAdd() under the hood
+                fragmentStateManager.moveToExpectedState()
+            }
+            assertThat(controller.operationsToExecute)
+                .isEmpty()
+            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
+                .isTrue()
+
+            // Now cancel all the operations
+            controller.cancelAllOperations()
+
+            assertThat(controller.operationsToExecute)
+                .isEmpty()
+            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
+                .isFalse()
+        }
+    }
+
+    @MediumTest
+    @Test
+    fun enqueueAddAndCancelAllExecuting() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
+            val fm = withActivity { supportFragmentManager }
+            fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
+                TestSpecialEffectsController(it)
+            }
+            val fragment = StrictViewFragment()
+            val fragmentStore = FragmentStore()
+            fragmentStore.nonConfig = FragmentManagerViewModel(true)
+            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment)
+            // Set up the Fragment and FragmentStateManager as if the Fragment was
+            // added to the container via a FragmentTransaction
+            fragment.mFragmentManager = fm
+            fragment.mAdded = true
+            fragment.mContainerId = android.R.id.content
+            fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
+            val controller = SpecialEffectsController
+                .getOrCreateController(container) as TestSpecialEffectsController
+            onActivity {
+                // This moves the Fragment up to STARTED,
+                // calling enqueueAdd() under the hood
+                fragmentStateManager.moveToExpectedState()
+                controller.executePendingOperations()
+            }
+            val operations = controller.operationsToExecute
+            assertThat(operations)
+                .hasSize(1)
+            val firstOperation = operations[0]
+            assertThat(firstOperation.type)
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
+            assertThat(firstOperation.fragment)
+                .isSameInstanceAs(fragment)
+            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
+                .isTrue()
+
+            // Now cancel all the operations
+            controller.cancelAllOperations()
+
+            assertThat(firstOperation.cancellationSignal.isCanceled)
+                .isTrue()
+            assertThat(controller.operationsToExecute)
+                .isEmpty()
+            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
+                .isFalse()
+        }
+    }
 }
 
 internal class TestSpecialEffectsController(
