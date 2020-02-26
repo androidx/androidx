@@ -256,8 +256,8 @@ package androidx.camera.core {
   public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
     method public android.util.Size getResolution();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setSurface(android.view.Surface);
-    method public boolean setWillNotComplete();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> provideSurface(android.view.Surface);
+    method public boolean willNotProvideSurface();
   }
 
   public static final class SurfaceRequest.RequestCancelledException extends java.lang.RuntimeException {

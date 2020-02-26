@@ -68,12 +68,12 @@ public final class SurfaceRequestTest {
     }
 
     @Test
-    public void setWillNotComplete_setsIllegalStateException_onReturnedFuture()
+    public void willNotProvideSurface_setsIllegalStateException_onReturnedFuture()
             throws InterruptedException {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
-        request.setWillNotComplete();
-        ListenableFuture<Void> completion = request.setSurface(MOCK_SURFACE);
+        request.willNotProvideSurface();
+        ListenableFuture<Void> completion = request.provideSurface(MOCK_SURFACE);
 
         try {
             completion.get();
@@ -83,30 +83,30 @@ public final class SurfaceRequestTest {
     }
 
     @Test
-    public void setWillNotComplete_returnsFalse_whenAlreadyCompleted() {
+    public void willNotProvideSurface_returnsFalse_whenAlreadyCompleted() {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
         // Complete the request
-        request.setSurface(MOCK_SURFACE);
+        request.provideSurface(MOCK_SURFACE);
 
-        assertThat(request.setWillNotComplete()).isFalse();
+        assertThat(request.willNotProvideSurface()).isFalse();
     }
 
     @Test
-    public void setWillNotComplete_returnsFalse_whenRequestIsCancelled() {
+    public void willNotProvideSurface_returnsFalse_whenRequestIsCancelled() {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
         // Cause request to be cancelled from producer side
         request.getDeferrableSurface().close();
 
-        assertThat(request.setWillNotComplete()).isFalse();
+        assertThat(request.willNotProvideSurface()).isFalse();
     }
 
     @Test
-    public void setWillNotComplete_returnsTrue_whenNotYetCompleted() {
+    public void willNotProvideSurface_returnsTrue_whenNotYetCompleted() {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
-        assertThat(request.setWillNotComplete()).isTrue();
+        assertThat(request.willNotProvideSurface()).isTrue();
     }
 
     @Test
@@ -114,7 +114,7 @@ public final class SurfaceRequestTest {
             throws InterruptedException, ExecutionException {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
-        ListenableFuture<Void> completion = request.setSurface(MOCK_SURFACE);
+        ListenableFuture<Void> completion = request.provideSurface(MOCK_SURFACE);
 
         Runnable listener = mock(Runnable.class);
         completion.addListener(listener,
@@ -129,12 +129,12 @@ public final class SurfaceRequestTest {
     }
 
     @Test
-    public void setSurface_setsIllegalStateException_onSecondInvocation()
+    public void provideSurface_setsIllegalStateException_onSecondInvocation()
             throws InterruptedException {
         SurfaceRequest request = createNewRequest(FAKE_SIZE);
 
-        ListenableFuture<Void> completion1 = request.setSurface(MOCK_SURFACE);
-        ListenableFuture<Void> completion2 = request.setSurface(MOCK_SURFACE);
+        ListenableFuture<Void> completion1 = request.provideSurface(MOCK_SURFACE);
+        ListenableFuture<Void> completion2 = request.provideSurface(MOCK_SURFACE);
 
         try {
             completion2.get();
@@ -152,7 +152,7 @@ public final class SurfaceRequestTest {
         // Cause request to be cancelled from producer side
         request.getDeferrableSurface().close();
 
-        ListenableFuture<Void> completion = request.setSurface(MOCK_SURFACE);
+        ListenableFuture<Void> completion = request.provideSurface(MOCK_SURFACE);
 
         try {
             completion.get();

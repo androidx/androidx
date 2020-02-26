@@ -231,7 +231,7 @@ public class CameraXActivity extends AppCompatActivity
                     mResolution = surfaceRequest.getResolution();
 
                     if (mSurfaceRequest != null) {
-                        mSurfaceRequest.setWillNotComplete();
+                        mSurfaceRequest.willNotProvideSurface();
                     }
                     mSurfaceRequest = surfaceRequest;
                     mSurfaceRequest.addRequestCancellationListener(
@@ -857,7 +857,7 @@ public class CameraXActivity extends AppCompatActivity
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
 
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.setSurface(surface);
+        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.provideSurface(surface);
         mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             surface.release();
