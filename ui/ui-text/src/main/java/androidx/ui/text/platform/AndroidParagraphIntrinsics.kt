@@ -22,6 +22,7 @@ import androidx.text.LayoutIntrinsics
 import androidx.ui.unit.Density
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphIntrinsics
+import androidx.ui.text.Placeholder
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 
@@ -29,6 +30,7 @@ internal class AndroidParagraphIntrinsics(
     val text: String,
     val style: TextStyle,
     val spanStyles: List<AnnotatedString.Item<SpanStyle>>,
+    val placeholders: List<AnnotatedString.Item<Placeholder>>,
     val typefaceAdapter: TypefaceAdapter,
     val density: Density
 ) : ParagraphIntrinsics {
@@ -70,6 +72,7 @@ internal class AndroidParagraphIntrinsics(
                     text.length
                 )
             ) + spanStyles,
+            placeholders = placeholders,
             density = density,
             typefaceAdapter = typefaceAdapter
         )

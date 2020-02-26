@@ -46,12 +46,14 @@ interface ParagraphIntrinsics {
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
+    placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
     density: Density,
     resourceLoader: Font.ResourceLoader
 ): ParagraphIntrinsics {
     return AndroidParagraphIntrinsics(
         text = text,
         style = style,
+        placeholders = placeholders,
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader
         ),

@@ -204,6 +204,7 @@ class ParagraphIntrinsicIntegrationTest {
         return ParagraphIntrinsics(
             text = text,
             spanStyles = spanStyles,
+            placeholders = listOf(),
             style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize,
