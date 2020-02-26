@@ -266,6 +266,40 @@ public class SeekableAnimatedVectorDrawableTest {
 
     @Test
     @UiThreadTest
+    public void pauseAndResume() {
+        final Bitmap bitmap = Bitmap.createBitmap(
+                IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888
+        );
+        final Canvas canvas = new Canvas(bitmap);
+        final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
+                ApplicationProvider.getApplicationContext(),
+                R.drawable.animated_color_fill
+        );
+
+        assertThat(avd).isNotNull();
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        avd.draw(canvas);
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(Color.RED);
+
+        avd.start();
+        animationRule.advanceTimeBy(100L);
+        avd.draw(canvas);
+        final int pausedColor = bitmap.getPixel(0, 0);
+        assertThat(Color.red(pausedColor)).isLessThan(0xff);
+
+        avd.pause();
+        animationRule.advanceTimeBy(1000L);
+        avd.draw(canvas);
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(pausedColor);
+
+        avd.resume();
+        animationRule.advanceTimeBy(100L);
+        avd.draw(canvas);
+        assertThat(Color.red(bitmap.getPixel(0, 0))).isLessThan(Color.red(pausedColor));
+    }
+
+    @Test
+    @UiThreadTest
     public void setCurrentPlayTime() {
         final Bitmap bitmap = Bitmap.createBitmap(
                 IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888

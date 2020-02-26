@@ -35,13 +35,25 @@ import com.example.android.support.vectordrawable.R;
  */
 public class SeekableDemo extends AppCompatActivity {
 
+    enum AvdState {
+        STOPPED,
+        STARTED,
+        PAUSED,
+    }
+
+    AvdState mState = AvdState.STOPPED;
+
+    private Button mStart;
+    private Button mStop;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.seekable_demo);
 
         final ImageView image = findViewById(R.id.image);
-        final Button start = findViewById(R.id.start);
+        mStart = findViewById(R.id.start);
+        mStop = findViewById(R.id.stop);
         final SeekBar seekBar = findViewById(R.id.seek);
 
         final SeekableAnimatedVectorDrawable avd =
@@ -53,22 +65,37 @@ public class SeekableDemo extends AppCompatActivity {
         }
         avd.registerAnimationCallback(new Animatable2.AnimationCallback() {
             @Override
-            public void onAnimationStart(@NonNull Drawable drawable) {
-                start.setEnabled(false);
-            }
-
-            @Override
             public void onAnimationEnd(@NonNull Drawable drawable) {
-                start.setEnabled(true);
+                mState = AvdState.STOPPED;
+                updateButtons();
             }
         });
 
         image.setImageDrawable(avd);
-        start.setOnClickListener((v) -> {
-            if (avd.isRunning()) {
-                avd.stop();
+
+        mStart.setOnClickListener((v) -> {
+            switch (mState) {
+                case STOPPED:
+                    avd.start();
+                    mState = AvdState.STARTED;
+                    updateButtons();
+                    break;
+                case STARTED:
+                    avd.pause();
+                    mState = AvdState.PAUSED;
+                    updateButtons();
+                    break;
+                case PAUSED:
+                    avd.resume();
+                    mState = AvdState.STARTED;
+                    updateButtons();
+                    break;
             }
-            avd.start();
+        });
+        mStop.setOnClickListener((v) -> {
+            avd.stop();
+            mState = AvdState.STOPPED;
+            updateButtons();
         });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -87,5 +114,25 @@ public class SeekableDemo extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+    }
+
+    void updateButtons() {
+        switch (mState) {
+            case STOPPED:
+                mStart.setEnabled(true);
+                mStart.setText(R.string.start);
+                mStop.setEnabled(false);
+                break;
+            case STARTED:
+                mStart.setEnabled(true);
+                mStart.setText(R.string.pause);
+                mStop.setEnabled(true);
+                break;
+            case PAUSED:
+                mStart.setEnabled(true);
+                mStart.setText(R.string.resume);
+                mStop.setEnabled(true);
+                break;
+        }
     }
 }
