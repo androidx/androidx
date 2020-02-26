@@ -17,6 +17,7 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.painter.Painter
 import androidx.ui.tooling.InspectionMode
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
@@ -24,15 +25,29 @@ import androidx.ui.unit.PxSize
 /**
  * Use Draw to get a [Canvas] to paint into the parent.
  *
- * Example usage:
- * @sample androidx.ui.framework.samples.DrawSample
- *
  *  The [onPaint] lambda uses a [Density] receiver scope, to allow easy translation
  *  between [Dp], [Sp], and [Px]. The `parentSize` parameter indicates the layout size of
  *  the parent.
+ *
+ *  *Deprecated:* Draw composable is a common source of bugs as it's not a layout and takes parent
+ *  size, but doesn't tell you that. Therefore, layout strategies, like [androidx.ui.layout.Row] or
+ * [androidx.ui.layout.Column] doesn't work with Draw. You should use [draw] modifier if you want
+ * to decorate existent layout with custom drawing, use existent drawing modifiers
+ * ([androidx.ui.foundation.DrawBackground], [androidx.ui.foundation.DrawBorder],
+ * [Painter.toModifier])or use [androidx.ui.foundation.Canvas] to make a layout that takes space
+ * and allows custom drawing.
  */
 @Suppress("NOTHING_TO_INLINE")
 @Composable
+@Deprecated(
+    "Draw composable is a common source of bugs as it's not a layout and takes parent size, but " +
+            "doesn't tell you that. Therefore, layout strategies, like Row or Column doesn't work" +
+            " with Draw. You should use androidx.ui.core.draw modifier if you want to decorate " +
+            "existent layout with custom drawing, use existent drawing modifiers (DrawBackground," +
+            " DrawBorder, PainterModifier) or use androidx.ui.foundation.Canvas to make a layout " +
+            "that takes space and allows custom drawing",
+    ReplaceWith("modifier = draw(onPaint)")
+)
 inline fun Draw(
     noinline onPaint: Density.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
@@ -52,10 +67,19 @@ inline fun Draw(
  * If the [onPaint] does not call [DrawReceiver.drawChildren] then it will be called
  * after the lambda.
  *
- * Example usage:
- * @sample androidx.ui.framework.samples.DrawWithChildrenSample
+ * *Deprecated:* Draw composable is a common source of bugs as it's not a layout and takes parent
+ * size, but doesn't tell you that. Therefore, layout strategies, like [androidx.ui.layout.Row] or
+ * [androidx.ui.layout.Column] doesn't work with Draw. You should use [drawWithContent] modifier
+ * if you want to decorate existent layout with custom drawing
  */
 @Composable
+@Deprecated(
+    "Draw composable is a common source of bugs as it's not a layout and takes parent size, but " +
+            "doesn't tell you that. Therefore, layout strategies, like Row or Column doesn't work" +
+            " with Draw. You should use androidx.ui.core.drawWithContent modifier if you want to " +
+            "decorate existent layout with custom drawing",
+    ReplaceWith("modifier = drawWithContent(onPaint)")
+)
 inline fun Draw(
     crossinline children: @Composable() () -> Unit,
     noinline onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit

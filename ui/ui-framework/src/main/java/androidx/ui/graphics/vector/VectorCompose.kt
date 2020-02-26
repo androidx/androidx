@@ -143,6 +143,7 @@ fun DrawVector(
     val vectorHeight = defaultHeight.value
     val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
 
+    @Suppress("DEPRECATION") // remove when b/147606015 is fixed
     Draw { canvas, parentSize ->
         val parentWidth = parentSize.width.value
         val parentHeight = parentSize.height.value

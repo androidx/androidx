@@ -46,6 +46,7 @@ class InspectableTests : ToolingTest() {
             Inspectable {
                 Column {
                     Container(width = 100.dp, height = 100.dp) {
+                        @Suppress("DEPRECATION") // remove when b/147606015 is fixed
                         Draw { canvas, size ->
                             val paint = Paint().also { it.color = Color(0xFF) }
                             canvas.drawRect(size.toRect(), paint)

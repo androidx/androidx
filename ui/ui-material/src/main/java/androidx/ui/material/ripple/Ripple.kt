@@ -82,6 +82,7 @@ fun Ripple(
     Recompose { recompose ->
         state.recompose = recompose
         val finalColor = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
+        @Suppress("DEPRECATION") // remove when b/147606015 is fixed
         Draw { canvas, _ ->
             if (state.effects.isNotEmpty()) {
                 val position = state.coordinates!!.parentCoordinates

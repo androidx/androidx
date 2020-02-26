@@ -9,8 +9,8 @@ package androidx.ui.core {
   }
 
   public final class DrawKt {
-    method public static inline void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
-    method public static inline void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
+    method @Deprecated public static inline void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
+    method @Deprecated public static inline void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
   }
 
   public final class DrawShadowKt {
