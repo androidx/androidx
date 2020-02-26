@@ -73,6 +73,9 @@ open class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
+    /** True if we're currently executing [getItem] */
+    internal var inGetItem: Boolean = false
+
     private val differBase = object : PagingDataDiffer<T>(mainDispatcher) {
         override suspend fun performDiff(
             previousList: NullPaddedList<T>,
@@ -109,6 +112,16 @@ open class AsyncPagingDataDiffer<T : Any>(
                 }
             }
         }
+
+        /**
+         * Return if [getItem] is running to post any data modifications.
+         *
+         * This must be done because RecyclerView can't be modified during an onBind, when
+         * [getItem] is generally called.
+         */
+        override fun postEvents(): Boolean {
+            return inGetItem
+        }
     }
 
     suspend fun collectFrom(pagingData: PagingData<T>) {
@@ -131,7 +144,14 @@ open class AsyncPagingDataDiffer<T : Any>(
      * @param index Index of item to get, must be >= 0, and < [itemCount]
      * @return The item, or null, if a null placeholder is at the specified position.
      */
-    open fun getItem(index: Int): T? = differBase[index]
+    open fun getItem(index: Int): T? {
+        try {
+            inGetItem = true
+            return differBase[index]
+        } finally {
+            inGetItem = false
+        }
+    }
 
     /**
      * Get the number of items currently presented by this Differ. This value can be directly
