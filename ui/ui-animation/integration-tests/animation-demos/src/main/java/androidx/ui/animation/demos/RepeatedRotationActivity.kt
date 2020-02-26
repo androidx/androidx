@@ -24,16 +24,16 @@ import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
@@ -63,20 +63,17 @@ fun RepeatedRotation() {
             }) {
                 Text(text = "Reset", style = textStyle)
             }
-            Container(width = 100.dp, height = 100.dp) {
-                Transition(
-                    definition = definition,
-                    toState = state.value
-                ) { state ->
-                    Draw { canvas, parentSize ->
-                        // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
-                        canvas.nativeCanvas.save()
-                        canvas.rotate(state[rotation])
-                        canvas.drawRect(parentSize.toRect(),
-                            Paint().apply { color = Color(0xFF00FF00) })
-                        // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
-                        canvas.nativeCanvas.restore()
-                    }
+            Transition(
+                definition = definition,
+                toState = state.value
+            ) { state ->
+                Canvas(modifier = LayoutSize(100.dp)) {
+                    // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
+                    save()
+                    rotate(state[rotation])
+                    drawRect(size.toRect(), Paint().apply { color = Color(0xFF00FF00) })
+                    // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
+                    restore()
                 }
             }
         }

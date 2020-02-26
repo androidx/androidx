@@ -25,13 +25,13 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 
 class HelloGestureBasedAnimationActivity : Activity() {
 
@@ -74,26 +74,24 @@ fun TransitionExample() {
         onPress = { toState.value = ComponentState.Pressed },
         onRelease = { toState.value = ComponentState.Released },
         onCancel = { toState.value = ComponentState.Released }) {
-            Transition(definition = definition, toState = toState.value) { state ->
-                ScaledColorRect(scale = state[scale], color = state[color])
-            }
+        Transition(definition = definition, toState = toState.value) { state ->
+            ScaledColorRect(scale = state[scale], color = state[color])
+        }
     }
 }
 
 @Composable
 fun ScaledColorRect(scale: Float, color: Color) {
     val paint = remember { Paint() }
-    Container(expanded = true) {
-        Draw { canvas, parentSize ->
-            val centerX = parentSize.width.value / 2
-            val centerY = parentSize.height.value / 2
-            paint.color = color
-            canvas.drawRect(
-                Rect(
-                    centerX - halfSize * scale, centerY - halfSize * scale,
-                    centerX + halfSize * scale, centerY + halfSize * scale
-                ), paint
-            )
-        }
+    Canvas(LayoutSize.Fill) {
+        val centerX = size.width.value / 2
+        val centerY = size.height.value / 2
+        paint.color = color
+        drawRect(
+            Rect(
+                centerX - halfSize * scale, centerY - halfSize * scale,
+                centerX + halfSize * scale, centerY + halfSize * scale
+            ), paint
+        )
     }
 }

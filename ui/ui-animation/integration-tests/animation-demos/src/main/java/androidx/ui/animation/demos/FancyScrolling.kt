@@ -27,18 +27,19 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
-import androidx.ui.core.Draw
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.CanvasScope
 import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -70,6 +71,7 @@ class FancyScrolling : Activity() {
                     animScroll.snapTo(animScroll.value + dragDistance.x.value)
                     return dragDistance
                 }
+
                 override fun onStop(velocity: PxPosition) {
 
                     // Uses default decay animation to calculate where the fling will settle,
@@ -87,25 +89,24 @@ class FancyScrolling : Activity() {
                 }
             }) {
 
-                var paint = remember { Paint() }
-                Container(expanded = true, height = 400.dp) {
-                    Draw { canvas, parentSize ->
-                        val width = parentSize.width.value / 2f
-                        val scroll = animScroll.value + width / 2
-                        itemWidth.value = width
-                        if (DEBUG) {
-                            Log.w("Anim", "Drawing items with updated" +
-                                    " AnimatedFloat: ${animScroll.value}")
-                        }
-                        drawItems(canvas, scroll, width, parentSize.height.value, paint)
+                val paint = remember { Paint() }
+                Canvas(LayoutWidth.Fill + LayoutHeight(400.dp)) {
+                    val width = size.width.value / 2f
+                    val scroll = animScroll.value + width / 2
+                    itemWidth.value = width
+                    if (DEBUG) {
+                        Log.w(
+                            "Anim", "Drawing items with updated" +
+                                    " AnimatedFloat: ${animScroll.value}"
+                        )
                     }
+                    drawItems(scroll, width, size.height.value, paint)
                 }
             }
         }
     }
 
-    private fun drawItems(
-        canvas: Canvas,
+    private fun CanvasScope.drawItems(
         scrollPosition: Float,
         width: Float,
         height: Float,
@@ -121,14 +122,20 @@ class FancyScrolling : Activity() {
             startingColorIndex += colors.size
         }
         paint.color = colors[startingColorIndex]
-        canvas.drawRect(Rect(startingPos + 10, 0f, startingPos + width - 10,
-            height), paint)
+        drawRect(
+            Rect(startingPos + 10, 0f, startingPos + width - 10, height),
+            paint
+        )
         paint.color = colors[(startingColorIndex + colors.size - 1) % colors.size]
-        canvas.drawRect(Rect(startingPos + width + 10, 0f, startingPos + width * 2 - 10,
-            height), paint)
+        drawRect(
+            Rect(startingPos + width + 10, 0f, startingPos + width * 2 - 10, height),
+            paint
+        )
         paint.color = colors[(startingColorIndex + colors.size - 2) % colors.size]
-        canvas.drawRect(Rect(startingPos + width * 2 + 10, 0f, startingPos + width * 3 - 10,
-            height), paint)
+        drawRect(
+            Rect(startingPos + width * 2 + 10, 0f, startingPos + width * 3 - 10, height),
+            paint
+        )
     }
 
     private val colors = listOf(
@@ -139,5 +146,6 @@ class FancyScrolling : Activity() {
         Color(0xFFce0000),
         Color(0xFFff3b3b),
         Color(0xFFff7373),
-        Color(0xFFffa3a3))
+        Color(0xFFffa3a3)
+    )
 }
