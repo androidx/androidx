@@ -53,6 +53,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -60,6 +61,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -449,7 +451,8 @@ class ScrollerTest {
                 }
             }
         })
-        latch.await()
+        assertWithMessage("Scroll didn't finish after 20 seconds")
+            .that(latch.await(20, TimeUnit.SECONDS)).isTrue()
         return this
     }
 }
