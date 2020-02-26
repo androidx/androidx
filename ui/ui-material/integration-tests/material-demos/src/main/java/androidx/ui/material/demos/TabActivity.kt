@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Text
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
@@ -41,15 +40,14 @@ class TabActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
-        val favouriteImage = imageFromResource(resources, R.drawable.ic_favorite)
         Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
             val showingSimple = state { true }
             val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 
             if (showingSimple.value) {
                 TextTabs()
-                IconTabs(favouriteImage)
-                TextAndIconTabs(favouriteImage)
+                IconTabs()
+                TextAndIconTabs()
                 ScrollingTextTabs()
             } else {
                 FancyTabs()

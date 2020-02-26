@@ -26,8 +26,8 @@ import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
+import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
@@ -37,21 +37,20 @@ import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
-import androidx.ui.core.Text
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.tag
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
+import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ScrollerPosition
-import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -60,6 +59,7 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.surface.primarySurface
 import androidx.ui.text.style.TextAlign
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
 import androidx.ui.unit.dp
@@ -161,9 +161,11 @@ fun <T> TabRow(
                 }
                 ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer, divider)
             } else {
+                // TODO: b/150138067 remove modifier here and use the global LayoutFlexible
+                // modifier when it exists
                 val tabs = @Composable { modifier: Modifier ->
                     items.forEachIndexed { index, item ->
-                        Container(modifier) {
+                        Box(modifier, gravity = ContentGravity.Center) {
                             tab(index, item)
                         }
                     }
@@ -195,8 +197,8 @@ private fun FixedTabRow(
         Row(LayoutGravity.Center) {
             tabs(LayoutFlexible(1f))
         }
-        Container(LayoutGravity.BottomCenter + LayoutWidth.Fill, children = divider)
-        Container(LayoutGravity.Stretch) {
+        Box(LayoutGravity.BottomCenter + LayoutWidth.Fill, children = divider)
+        Box(LayoutGravity.Stretch) {
             indicatorContainer(tabPositions)
         }
     }
@@ -244,8 +246,8 @@ private fun ScrollableTabRow(
                     },
                     children = tabs
                 )
-                Container(LayoutTag(indicatorTag), children = indicator)
-                Container(LayoutTag(dividerTag), children = divider)
+                Box(LayoutTag(indicatorTag), children = indicator)
+                Box(LayoutTag(dividerTag), children = divider)
             }
         ) { measurables, constraints ->
             val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
@@ -387,12 +389,11 @@ object TabRow {
             tabPositions[selectedIndex].width.toDp()
         }
 
-        Container(expanded = true, alignment = Alignment.BottomStart) {
+        Box(LayoutSize.Fill, gravity = ContentGravity.BottomStart) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
                 val offset = with(DensityAmbient.current) { indicatorOffset.toDp() }
-                Container(
-                    modifier = LayoutPadding(start = offset),
-                    width = currentTabWidth,
+                Box(
+                    modifier = LayoutPadding(start = offset) + LayoutWidth(currentTabWidth),
                     children = indicator
                 )
             }
@@ -454,11 +455,14 @@ object TabRow {
 }
 
 /**
- * A Tab represents a single page of content using a text label and/or image. It represents its
- * selected state by tinting the text label and/or image with [ColorPalette.onPrimary].
+ * A Tab represents a single page of content using a text label and/or icon. It represents its
+ * selected state by tinting the text label and/or image with [activeColor].
  *
  * This should typically be used inside of a [TabRow], see the corresponding documentation for
  * example usage.
+ *
+ * This Tab has slots for [text] and/or [icon] - see the other Tab overload for a generic Tab
+ * that is not opinionated about its content.
  *
  * @param text the text label displayed in this tab
  * @param icon the icon displayed in this tab
@@ -469,129 +473,46 @@ object TabRow {
  */
 @Composable
 fun Tab(
-    text: String? = null,
-    icon: Image? = null,
+    text: @Composable() () -> Unit = emptyContent(),
+    icon: @Composable() () -> Unit = emptyContent(),
     selected: Boolean,
     onSelected: () -> Unit,
     activeColor: Color = contentColor(),
     inactiveColor: Color = MaterialTheme.emphasisLevels().medium.emphasize(activeColor)
 ) {
-    when {
-        text != null && icon != null -> CombinedTab(
-            text,
-            icon,
-            selected,
-            onSelected,
-            activeColor,
-            inactiveColor
-        )
-        text != null -> TextTab(text, selected, onSelected, activeColor, inactiveColor)
-        icon != null -> IconTab(icon, selected, onSelected, activeColor, inactiveColor)
-        // Nothing provided here (?!), so let's just draw an empty tab that handles clicks
-        else -> BaseTab(selected, onSelected, {})
+    val styledText = @Composable {
+        val style = MaterialTheme.typography().button.copy(textAlign = TextAlign.Center)
+        CurrentTextStyleProvider(style, children = text)
+    }
+    Tab(selected, onSelected) {
+        TabTransition(activeColor, inactiveColor, selected) {
+            TabBaselineLayout(icon = icon, text = styledText)
+        }
     }
 }
 
 /**
- * A base Tab that displays some content inside of a clickable ripple.
+ * Generic [Tab] overload that is not opinionated about content / color. See the other overload
+ * for a Tab that has specific slots for text and / or an icon, as well as providing the correct
+ * colors for selected / unselected states.
  *
- * Also handles setting the correct semantic properties for accessibility purposes.
+ * A custom tab using this API may look like:
  *
- * @param selected whether this tab is selected or not, this is used to set the correct semantics
+ * @sample androidx.ui.material.samples.FancyTab
+ *
+ * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
- * @param children the composable content to be displayed inside of this Tab
+ * @param children the content of this tab
  */
 @Composable
-private fun BaseTab(selected: Boolean, onSelected: () -> Unit, children: @Composable() () -> Unit) {
+fun Tab(
+    selected: Boolean,
+    onSelected: () -> Unit,
+    children: @Composable() () -> Unit
+) {
     Ripple(bounded = true) {
-        MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, children = children)
-    }
-}
-
-/**
- * A Tab that contains a text label, and represents its selected state by using [activeColor] and
- * [inactiveColor] for the color of the text label.
- *
- * @param text the text label displayed in this tab
- * @param selected whether this tab is selected or not
- * @param onSelected the callback to be invoked when this tab is selected
- * @param activeColor the color for the content of this tab when selected
- * @param inactiveColor the color for the content of this tab when not selected
- */
-@Composable
-private fun TextTab(
-    text: String,
-    selected: Boolean,
-    onSelected: () -> Unit,
-    activeColor: Color,
-    inactiveColor: Color
-) {
-    BaseTab(selected = selected, onSelected = onSelected) {
-        Container(LayoutWidth.Fill + LayoutHeight(SmallTabHeight)) {
-            TabTransition(activeColor, inactiveColor, selected) { tabTintColor ->
-                TabTextBaselineLayout {
-                    TabText(text, tabTintColor)
-                }
-            }
-        }
-    }
-}
-
-/**
- * A Tab that contains an icon, and represents its selected state by using [activeColor] and
- * [inactiveColor] for icon color.
- *
- * @param icon the icon displayed in this tab
- * @param selected whether this tab is selected or not
- * @param onSelected the callback to be invoked when this tab is selected
- * @param activeColor the color for the content of this tab when selected
- * @param inactiveColor the color for the content of this tab when not selected
- */
-@Composable
-private fun IconTab(
-    icon: Image,
-    selected: Boolean,
-    onSelected: () -> Unit,
-    activeColor: Color,
-    inactiveColor: Color
-) {
-    BaseTab(selected = selected, onSelected = onSelected) {
-        Container(LayoutWidth.Fill + LayoutHeight(SmallTabHeight)) {
-            TabTransition(activeColor, inactiveColor, selected) { tabTintColor ->
-                TabIcon(icon, tabTintColor)
-            }
-        }
-    }
-}
-
-/**
- * A Tab that contains a text label and an icon, and represents its selected state by using
- * [activeColor] and [inactiveColor] for text and icon color.
- *
- * @param text the text label displayed in this tab
- * @param icon the icon displayed in this tab
- * @param selected whether this tab is selected or not
- * @param onSelected the callback to be invoked when this tab is selected
- * @param activeColor the color for the content of this tab when selected
- * @param inactiveColor the color for the content of this tab when not selected
- */
-@Composable
-private fun CombinedTab(
-    text: String,
-    icon: Image,
-    selected: Boolean,
-    onSelected: () -> Unit,
-    activeColor: Color,
-    inactiveColor: Color
-) {
-    BaseTab(selected = selected, onSelected = onSelected) {
-        Container(LayoutWidth.Fill + LayoutHeight(LargeTabHeight)) {
-            TabTransition(activeColor, inactiveColor, selected) { tabTintColor ->
-                TabTextBaselineLayout(
-                    icon = { TabIcon(icon, tabTintColor) },
-                    text = { TabText(text, tabTintColor) }
-                )
-            }
+        MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
+            Box(LayoutWidth.Fill, gravity = ContentGravity.Center, children = children)
         }
     }
 }
@@ -599,14 +520,16 @@ private fun CombinedTab(
 private val TabTintColor = ColorPropKey()
 
 /**
- * [Transition] defining how the tint color for a tab animates, when a new tab is selected.
+ * [Transition] defining how the tint color for a tab animates, when a new tab is selected. This
+ * component uses [ProvideContentColor] to provide an interpolated value between [activeColor]
+ * and [inactiveColor] depending on the animation status.
  */
 @Composable
 private fun TabTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    children: @Composable() (color: Color) -> Unit
+    children: @Composable() () -> Unit
 ) {
     val transitionDefinition = remember(activeColor, inactiveColor) {
         transitionDefinition {
@@ -635,35 +558,29 @@ private fun TabTransition(
         }
     }
     Transition(transitionDefinition, selected) { state ->
-        children(state[TabTintColor])
+        ProvideContentColor(state[TabTintColor], children = children)
     }
-}
-
-@Composable
-private fun TabText(text: String, color: Color) {
-    val buttonTextStyle = MaterialTheme.typography().button
-    Text(
-        text = text,
-        style = buttonTextStyle.copy(color = color, textAlign = TextAlign.Center),
-        maxLines = TextLabelMaxLines,
-        modifier = LayoutPadding(start = HorizontalTextPadding, end = HorizontalTextPadding)
-    )
 }
 
 /**
  * A [Layout] that positions [text] and an optional [icon] with the correct baseline distances. This
- * Layout will expand to fit the full height of the tab, and then place the text and icon positioned
- * correctly from the bottom edge of the tab.
+ * Layout will either be [SmallTabHeight] or [LargeTabHeight] depending on its content, and then
+ * place the text and/or icon inside with the correct baseline alignment.
  */
 @Composable
-private fun TabTextBaselineLayout(
-    icon: @Composable() () -> Unit = emptyContent(),
-    text: @Composable() () -> Unit
+private fun TabBaselineLayout(
+    text: @Composable() () -> Unit,
+    icon: @Composable() () -> Unit
 ) {
     Layout(
         {
-            Container(LayoutTag("text"), children = text)
-            Container(LayoutTag("icon"), children = icon)
+            Box(
+                LayoutTag("text"),
+                paddingLeft = HorizontalTextPadding,
+                paddingRight = HorizontalTextPadding,
+                children = text
+            )
+            Box(LayoutTag("icon"), children = icon)
         }
     ) { measurables, constraints ->
         val textPlaceable = measurables.first { it.tag == "text" }.measure(
@@ -672,70 +589,118 @@ private fun TabTextBaselineLayout(
             constraints.copy(minHeight = IntPx.Zero)
         )
 
-        val firstBaseline =
-            requireNotNull(textPlaceable[FirstBaseline]) { "No text baselines found" }
-        val lastBaseline =
-            requireNotNull(textPlaceable[LastBaseline]) { "No text baselines found" }
+        val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
 
-        val iconPlaceable = measurables.firstOrNull { it.tag == "icon" }?.measure(constraints)
+        val hasTextPlaceable =
+            textPlaceable.width != IntPx.Zero && textPlaceable.height != IntPx.Zero
 
-        // Total offset from the bottom of this layout to the last text baseline
-        val baselineOffset = if (firstBaseline == lastBaseline) {
-            if (iconPlaceable == null) {
-                SingleLineTextBaseline
-            } else {
-                SingleLineTextBaselineWithIcon
-            }
-        } else {
-            if (iconPlaceable == null) {
-                DoubleLineTextBaseline
-            } else {
-                DoubleLineTextBaselineWithIcon
-            }
-        }.toIntPx() + IndicatorHeight.toIntPx()
+        val hasIconPlaceable =
+            iconPlaceable.width != IntPx.Zero && iconPlaceable.height != IntPx.Zero
 
-        val textHeight = textPlaceable.height
+        val tabWidth = max(textPlaceable.width, iconPlaceable.width)
 
-        // How much space there is between the bottom of the text layout's bounding box (not
-        // baseline) and the bottom of this layout.
-        val textOffsetBelow = baselineOffset - textHeight + lastBaseline
+        val tabHeight =
+            (if (hasTextPlaceable && hasIconPlaceable) LargeTabHeight else SmallTabHeight).toIntPx()
 
-        if (iconPlaceable == null) {
+        val firstBaseline = textPlaceable[FirstBaseline]
+        val lastBaseline = textPlaceable[LastBaseline]
 
-            val containerWidth = textPlaceable.width
-            val contentHeight = textPlaceable.height + textOffsetBelow
-            val containerHeight = constraints.maxHeight
-            layout(containerWidth, containerHeight) {
-                val textPlaceableY = containerHeight - contentHeight
-                textPlaceable.place(IntPx.Zero, textPlaceableY)
-            }
-        } else {
-            // How much space there is between the top of the text layout's bounding box (not
-            // baseline) and the top of the icon (essentially the top of this layout).
-            val textOffsetAbove =
-                iconPlaceable.height + IconDistanceFromBaseline.toIntPx() - firstBaseline
-
-            val containerWidth = max(textPlaceable.width, iconPlaceable.width)
-            val contentHeight = textOffsetAbove + textPlaceable.height + textOffsetBelow
-            val containerHeight = constraints.maxHeight
-            layout(containerWidth, containerHeight) {
-                val iconPlaceableX = (containerWidth - iconPlaceable.width) / 2
-                val iconPlaceableY = containerHeight - contentHeight
-                iconPlaceable.place(iconPlaceableX, iconPlaceableY)
-
-                val textPlaceableX = (containerWidth - textPlaceable.width) / 2
-                val textPlaceableY = iconPlaceableY + textOffsetAbove
-                textPlaceable.place(textPlaceableX, textPlaceableY)
+        layout(tabWidth, tabHeight) {
+            when {
+                hasTextPlaceable && hasIconPlaceable -> placeTextAndIcon(
+                    density = this@Layout,
+                    textPlaceable = textPlaceable,
+                    iconPlaceable = iconPlaceable,
+                    tabWidth = tabWidth,
+                    tabHeight = tabHeight,
+                    firstBaseline = requireNotNull(firstBaseline) { "No text baselines found" },
+                    lastBaseline = requireNotNull(lastBaseline) { "No text baselines found" }
+                )
+                hasTextPlaceable -> placeText(
+                    density = this@Layout,
+                    textPlaceable = textPlaceable,
+                    tabHeight = tabHeight,
+                    firstBaseline = requireNotNull(firstBaseline) { "No text baselines found" },
+                    lastBaseline = requireNotNull(lastBaseline) { "No text baselines found" }
+                )
+                hasIconPlaceable -> placeIcon(iconPlaceable, tabHeight)
+                else -> {}
             }
         }
     }
 }
 
-@Composable
-private fun TabIcon(icon: Image, tint: Color) {
-    Container(width = IconDiameter, height = IconDiameter) {
-        SimpleImage(icon, tint)
+/**
+ * Places the provided [iconPlaceable] in the vertical center of the provided [tabHeight].
+ */
+private fun Placeable.PlacementScope.placeIcon(
+    iconPlaceable: Placeable,
+    tabHeight: IntPx
+) {
+    val iconY = (tabHeight - iconPlaceable.height) / 2
+    iconPlaceable.place(IntPx.Zero, iconY)
+}
+
+/**
+ * Places the provided [textPlaceable] offset from the bottom of the tab using the correct
+ * baseline offset.
+ */
+private fun Placeable.PlacementScope.placeText(
+    density: Density,
+    textPlaceable: Placeable,
+    tabHeight: IntPx,
+    firstBaseline: IntPx,
+    lastBaseline: IntPx
+) {
+    val baselineOffset = if (firstBaseline == lastBaseline) {
+        SingleLineTextBaseline
+    } else {
+        DoubleLineTextBaseline
     }
+
+    // Total offset between the last text baseline and the bottom of the Tab layout
+    val totalOffset = with(density) { baselineOffset.toIntPx() + IndicatorHeight.toIntPx() }
+
+    val textPlaceableY = tabHeight - lastBaseline - totalOffset
+    textPlaceable.place(IntPx.Zero, textPlaceableY)
+}
+
+/**
+ * Places the provided [textPlaceable] offset from the bottom of the tab using the correct
+ * baseline offset, with the provided [iconPlaceable] placed above the text using the correct
+ * baseline offset.
+ */
+private fun Placeable.PlacementScope.placeTextAndIcon(
+    density: Density,
+    textPlaceable: Placeable,
+    iconPlaceable: Placeable,
+    tabWidth: IntPx,
+    tabHeight: IntPx,
+    firstBaseline: IntPx,
+    lastBaseline: IntPx
+) {
+    val baselineOffset = if (firstBaseline == lastBaseline) {
+        SingleLineTextBaselineWithIcon
+    } else {
+        DoubleLineTextBaselineWithIcon
+    }
+
+    // Total offset between the last text baseline and the bottom of the Tab layout
+    val textOffset = with(density) { baselineOffset.toIntPx() + IndicatorHeight.toIntPx() }
+
+    // How much space there is between the top of the icon (essentially the top of this layout)
+    // and the top of the text layout's bounding box (not baseline)
+    val iconOffset = with(density) {
+        iconPlaceable.height + IconDistanceFromBaseline.toIntPx() - firstBaseline
+    }
+
+    val textPlaceableX = (tabWidth - textPlaceable.width) / 2
+    val textPlaceableY = tabHeight - lastBaseline - textOffset
+    textPlaceable.place(textPlaceableX, textPlaceableY)
+
+    val iconPlaceableX = (tabWidth - iconPlaceable.width) / 2
+    val iconPlaceableY = textPlaceableY - iconOffset
+    iconPlaceable.place(iconPlaceableX, iconPlaceableY)
 }
 
 // TabRow specifications
@@ -748,7 +713,6 @@ private val ScrollableTabRowMinimumTabWidth = 90.dp
 // Tab specifications
 private val SmallTabHeight = 48.dp
 private val LargeTabHeight = 72.dp
-private const val TextLabelMaxLines = 2
 
 // Tab transition specifications
 private const val TabFadeInAnimationDuration = 150
@@ -758,17 +722,15 @@ private const val TabFadeOutAnimationDuration = 100
 // The horizontal padding on the left and right of text
 private val HorizontalTextPadding = 16.dp
 
-private val IconDiameter = 24.dp
-
 // Distance from the top of the indicator to the text baseline when there is one line of text
-private val SingleLineTextBaseline = 18.sp
+private val SingleLineTextBaseline = 18.dp
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon
-private val SingleLineTextBaselineWithIcon = 14.sp
+private val SingleLineTextBaselineWithIcon = 14.dp
 // Distance from the top of the indicator to the last text baseline when there are two lines of text
-private val DoubleLineTextBaseline = 10.sp
+private val DoubleLineTextBaseline = 10.dp
 // Distance from the top of the indicator to the last text baseline when there are two lines of text
 // and an icon
-private val DoubleLineTextBaselineWithIcon = 6.sp
+private val DoubleLineTextBaselineWithIcon = 6.dp
 // Distance from the first text baseline to the bottom of the icon in a combined tab
 private val IconDistanceFromBaseline = 20.sp
