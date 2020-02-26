@@ -26,17 +26,42 @@ import androidx.ui.graphics.painter.Painter
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.ceil
+import androidx.ui.unit.max
 import kotlin.math.ceil
 
 /**
  * Create a [DrawModifier] from this [Painter]. This modifier is memoized and re-used across
  * subsequent compositions
  *
+ * @param sizeToIntrinsics: Flag to indicate whether this PainterModifier should be involved with
+ * appropriately sizing the component it is associated with. True if the intrinsic size should
+ * influence the size of the component, false otherwise. A value of false here is equivalent to
+ * the underlying Painter having no intrinsic size, that is [Painter.intrinsicSize] returns
+ * [PxSize.UnspecifiedSize]
+ *
+ * @param alignment: Specifies the rule used to place the contents of the Painter within the
+ * specified bounds, the default of [Alignment.Center] centers the content within the specified
+ * rendering bounds
+ *
+ * @param scaleFit: Specifies the rule used to scale the content of the Painter within the
+ * specified bounds, the default of [ScaleFit.Fit] scales the content to be as large as possible
+ * within the specified bounds while still maintaining the aspect ratio of its intrinsic size
+ *
+ * @param alpha: Specifies the opacity to render the contents of the underlying [Painter]
+ *
+ * @param colorFilter: Specifies an optional tint to apply to the contents of the [Painter] when
+ * drawn in the specified area
+ *
+ * @param rtl: Flag to indicate contents of the [Painter] should render for right to left languages
+ *
  * @sample androidx.ui.framework.samples.PainterModifierSample
  */
 @Composable
 fun Painter.toModifier(
+    sizeToIntrinsics: Boolean = true,
     alignment: Alignment = Alignment.Center,
     scaleFit: ScaleFit = ScaleFit.Fit,
     alpha: Float = DefaultAlpha,
@@ -45,8 +70,8 @@ fun Painter.toModifier(
 ): DrawModifier {
     // TODO potentially create thread-safe PainterModifier pool to allow for re-use
     //  of PainterModifier instances and avoid gc overhead
-    return remember(this, alignment, scaleFit, alpha, colorFilter, rtl) {
-        PainterModifier(this, alignment, scaleFit, alpha, colorFilter, rtl)
+    return remember(this, sizeToIntrinsics, alignment, scaleFit, alpha, colorFilter, rtl) {
+        PainterModifier(this, sizeToIntrinsics, alignment, scaleFit, alpha, colorFilter, rtl)
     }
 }
 
@@ -56,12 +81,74 @@ fun Painter.toModifier(
  */
 private data class PainterModifier(
     val painter: Painter,
+    var sizeToIntrinsics: Boolean,
     var alignment: Alignment = Alignment.Center,
     var scaleFit: ScaleFit = ScaleFit.Fit,
     var alpha: Float = DefaultAlpha,
     var colorFilter: ColorFilter? = null,
     var rtl: Boolean = false
-) : DrawModifier {
+) : LayoutModifier, DrawModifier {
+
+    override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints {
+        val intrinsicSize = painter.intrinsicSize
+        val intrinsicWidth =
+            intrinsicSize.width.takeUnless {
+                !sizeToIntrinsics || it == Px.Infinity
+            }?.ceil() ?: constraints.minWidth
+        val intrinsicHeight =
+            intrinsicSize.height.takeUnless {
+                !sizeToIntrinsics || it == Px.Infinity
+            }?.ceil() ?: constraints.minHeight
+
+        val minWidth = intrinsicWidth.coerceIn(constraints.minWidth, constraints.maxWidth)
+        val minHeight = intrinsicHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
+
+        return if (minWidth == constraints.minWidth && minHeight == constraints.minHeight) {
+            constraints
+        } else {
+            constraints.copy(minWidth = minWidth, minHeight = minHeight)
+        }
+    }
+
+    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+        val constraints = Constraints(maxHeight = height)
+        val layoutWidth = measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+        val painterIntrinsicWidth =
+            painter.intrinsicSize.width.takeUnless {
+                !sizeToIntrinsics || it == Px.Infinity
+            }?.ceil() ?: layoutWidth
+        return max(painterIntrinsicWidth, layoutWidth)
+    }
+
+    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+        val constraints = Constraints(maxHeight = height)
+        val layoutWidth = measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
+        val painterIntrinsicWidth =
+            painter.intrinsicSize.width.takeUnless {
+                !sizeToIntrinsics || it == Px.Infinity
+            }?.ceil() ?: layoutWidth
+        return max(painterIntrinsicWidth, layoutWidth)
+    }
+
+    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+        val constraints = Constraints(maxWidth = width)
+        val layoutHeight = measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+        val painterIntrinsicHeight =
+            painter.intrinsicSize.height.takeUnless {
+                !sizeToIntrinsics || it == Px.Infinity
+            }?.ceil() ?: layoutHeight
+        return max(painterIntrinsicHeight, layoutHeight)
+    }
+
+    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+        val constraints = Constraints(maxWidth = width)
+        val layoutHeight = measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
+        val painterIntrinsicHeight =
+            painter.intrinsicSize.height.takeUnless {
+                !sizeToIntrinsics || it == Px.Infinity
+            }?.ceil() ?: layoutHeight
+        return max(painterIntrinsicHeight, layoutHeight)
+    }
 
     override fun draw(
         density: Density,
