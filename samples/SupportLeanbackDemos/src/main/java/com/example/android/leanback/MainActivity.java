@@ -60,6 +60,9 @@ public class MainActivity extends Activity {
             addAction(actions, BrowseActivity.class, R.string.browse, R.string.browse_description);
             addAction(actions, BrowseSupportActivity.class, R.string.browse_support,
                     R.string.browse_support_description);
+            addAction(actions, BrowseSupportAppCompatActivity.class,
+                    R.string.browse_support_appcompat,
+                    R.string.browse_support_description);
             addAction(actions, SearchActivity.class, R.string.search, R.string.search_description);
             addAction(actions, SearchSupportActivity.class, R.string.search_support,
                     R.string.search_support_description);
@@ -105,6 +108,9 @@ public class MainActivity extends Activity {
                     R.string.vgrid_description);
             addAction(actions, VerticalGridSupportActivity.class, R.string.vgrid_support,
                     R.string.vgrid_support_description);
+            addAction(actions, VerticalGridSupportAppCompatActivity.class,
+                    R.string.vgrid_support_appcompat,
+                    R.string.vgrid_support_description);
             addAction(actions, GuidedStepActivity.class, R.string.guidedstep,
                     R.string.guidedstep_description);
             addAction(actions, GuidedStepSupportActivity.class, R.string.guidedstepsupport,
@@ -126,6 +132,9 @@ public class MainActivity extends Activity {
                     R.string.playback_description);
             addAction(actions, VideoSupportActivity.class, R.string.video_playback_support,
                     R.string.playback_description);
+            addAction(actions, VideoSupportAppCompatActivity.class,
+                    R.string.video_playback_support_appcompat,
+                    R.string.playback_description);
             addAction(actions, HorizontalGridTestActivity.class, R.string.hgrid,
                     R.string.hgrid_description);
             addAction(actions, DetailsPresenterSelectionActivity.class,
@@ -140,6 +149,9 @@ public class MainActivity extends Activity {
             addAction(actions, OnboardingSupportActivity.class,
                     R.string.onboarding_support,
                     R.string.onboarding_description);
+            addAction(actions, OnboardingSupportActivity.class,
+                    R.string.onboarding_support_appcompat,
+                    R.string.onboarding_description);
             addAction(actions, VideoActivityWithDetailedCard.class,
                     R.string.video_play_with_detail_card,
                     R.string.video_play_with_detail_card_description);
@@ -150,6 +162,9 @@ public class MainActivity extends Activity {
 
             addAction(actions, DatePickerActivity.class,
                     R.string.date_picker,
+                    R.string.date_picker_description);
+            addAction(actions, DatePickerAppCompatActivity.class,
+                    R.string.date_picker_appcompat,
                     R.string.date_picker_description);
             addAction(actions, TimePickerActivity.class,
                     R.string.time_picker,
