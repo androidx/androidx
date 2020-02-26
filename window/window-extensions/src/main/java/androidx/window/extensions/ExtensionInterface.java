@@ -14,40 +14,42 @@
  * limitations under the License.
  */
 
-package androidx.window.sidecar;
+package androidx.window.extensions;
 
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 
 /**
- * Main Sidecar interface definition that will be used by the WindowManager library to get custom
+ * Main Extension interface definition that will be used by the WindowManager library to get custom
  * OEM-provided information that isn't covered by platform APIs.
- * @deprecated Use androidx.window.extensions instead of this package.
+ *
+ * <p>This interface should be implemented by OEM and deployed to the target devices.
+ *
+ * @see ExtensionProvider
  */
-@Deprecated
-public interface SidecarInterface {
+public interface ExtensionInterface {
 
     /**
-     * Register the support library as the callback for the sidecar. This interface will be used to
-     * report all sidecar changes to the support library.
+     * Register the support library as the callback for the extension. This interface will be used
+     * to report all extension changes to the support library.
      */
-    void setSidecarCallback(@NonNull SidecarCallback callback);
+    void setExtensionCallback(@NonNull ExtensionCallback callback);
 
     /**
      * Get current information about the display features present within the application window.
      */
     @NonNull
-    SidecarWindowLayoutInfo getWindowLayoutInfo(@NonNull IBinder windowToken);
+    ExtensionWindowLayoutInfo getWindowLayoutInfo(@NonNull IBinder windowToken);
 
     /**
-     * Notify sidecar that a listener for display feature layout changes was registered for the
+     * Notify extension that a listener for display feature layout changes was registered for the
      * given window token.
      */
     void onWindowLayoutChangeListenerAdded(@NonNull IBinder windowToken);
 
     /**
-     * Notify sidecar that a listener for display feature layout changes was removed for the
+     * Notify extension that a listener for display feature layout changes was removed for the
      * given window token.
      */
     void onWindowLayoutChangeListenerRemoved(@NonNull IBinder windowToken);
@@ -57,30 +59,28 @@ public interface SidecarInterface {
      * @see #onDeviceStateListenersChanged(boolean)
      */
     @NonNull
-    SidecarDeviceState getDeviceState();
+    ExtensionDeviceState getDeviceState();
 
     /**
-     * Notify the sidecar that a device state change listener was updated.
+     * Notify the extension that a device state change listener was updated.
      * @param isEmpty flag indicating if the list of device state change listeners is empty.
      */
     void onDeviceStateListenersChanged(boolean isEmpty);
 
     /**
-     * Callback that will be registered with the WindowManager library, and that the sidecar should
-     * use to report all state changes.
-     * @deprecated Use androidx.window.extensions instead of this package.
+     * Callback that will be registered with the WindowManager library, and that the extension
+     * should use to report all state changes.
      */
-    @Deprecated
-    interface SidecarCallback {
+    interface ExtensionCallback {
         /**
-         * Called by sidecar when the device state changes.
+         * Called by extension when the device state changes.
          */
-        void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState);
+        void onDeviceStateChanged(@NonNull ExtensionDeviceState newDeviceState);
 
         /**
-         * Called by sidecar when the feature layout inside the window changes.
+         * Called by extension when the feature layout inside the window changes.
          */
         void onWindowLayoutChanged(@NonNull IBinder windowToken,
-                @NonNull SidecarWindowLayoutInfo newLayout);
+                @NonNull ExtensionWindowLayoutInfo newLayout);
     }
 }

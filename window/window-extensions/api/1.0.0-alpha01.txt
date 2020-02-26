@@ -1,0 +1,47 @@
+// Signature format: 3.0
+package androidx.window.extensions {
+
+  public class ExtensionDeviceState {
+    ctor public ExtensionDeviceState(int);
+    method public int getPosture();
+    field public static final int POSTURE_CLOSED = 1; // 0x1
+    field public static final int POSTURE_FLIPPED = 4; // 0x4
+    field public static final int POSTURE_HALF_OPENED = 2; // 0x2
+    field public static final int POSTURE_OPENED = 3; // 0x3
+    field public static final int POSTURE_UNKNOWN = 0; // 0x0
+  }
+
+  public class ExtensionDisplayFeature {
+    ctor public ExtensionDisplayFeature(android.graphics.Rect, int);
+    method public android.graphics.Rect getBounds();
+    method public int getType();
+    field public static final int TYPE_FOLD = 1; // 0x1
+    field public static final int TYPE_HINGE = 2; // 0x2
+  }
+
+  public interface ExtensionInterface {
+    method public androidx.window.extensions.ExtensionDeviceState getDeviceState();
+    method public androidx.window.extensions.ExtensionWindowLayoutInfo getWindowLayoutInfo(android.os.IBinder);
+    method public void onDeviceStateListenersChanged(boolean);
+    method public void onWindowLayoutChangeListenerAdded(android.os.IBinder);
+    method public void onWindowLayoutChangeListenerRemoved(android.os.IBinder);
+    method public void setExtensionCallback(androidx.window.extensions.ExtensionInterface.ExtensionCallback);
+  }
+
+  public static interface ExtensionInterface.ExtensionCallback {
+    method public void onDeviceStateChanged(androidx.window.extensions.ExtensionDeviceState);
+    method public void onWindowLayoutChanged(android.os.IBinder, androidx.window.extensions.ExtensionWindowLayoutInfo);
+  }
+
+  public class ExtensionProvider {
+    method public static String? getApiVersion();
+    method public static androidx.window.extensions.ExtensionInterface? getExtensionImpl(android.content.Context);
+  }
+
+  public class ExtensionWindowLayoutInfo {
+    ctor public ExtensionWindowLayoutInfo(java.util.List<androidx.window.extensions.ExtensionDisplayFeature!>);
+    method public java.util.List<androidx.window.extensions.ExtensionDisplayFeature!>? getDisplayFeatures();
+  }
+
+}
+

@@ -20,9 +20,6 @@
     <string name="stateUpdateLog">State update log</string>
     <string name="deviceState">Device state</string>
     <string name="windowLayout">Window layout</string>
-    <string name="displayFeature">Display feature</string>
-    <string name="rect">Rect</string>
-    <string name="type">Type</string>
     <string name="hinge">Hinge</string>
     <string name="unknown">Unknown</string>
     <string name="fold">Fold</string>
