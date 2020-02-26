@@ -62,6 +62,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
 import androidx.customview.view.AbsSavedState;
+import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.drawerlayout.R;
 
@@ -103,7 +104,7 @@ import java.util.List;
  * href="{@docRoot}training/implementing-navigation/nav-drawer.html">Creating a Navigation
  * Drawer</a>.</p>
  */
-public class DrawerLayout extends ViewGroup {
+public class DrawerLayout extends ViewGroup implements Openable {
     private static final String TAG = "DrawerLayout";
 
     private static final int[] THEME_ATTRS = {
@@ -1716,6 +1717,19 @@ public class DrawerLayout extends ViewGroup {
     }
 
     /**
+     * Open the {@link GravityCompat#START} drawer by animating it into view.
+     * <p>
+     * This has no effect if the {@link #getDrawerLockMode(int) drawer lock mode} is
+     * {@link #LOCK_MODE_LOCKED_CLOSED}.
+     */
+    @Override
+    public void open() {
+        if (getDrawerLockMode(GravityCompat.START) != LOCK_MODE_LOCKED_CLOSED) {
+            openDrawer(GravityCompat.START);
+        }
+    }
+
+    /**
      * Open the specified drawer view by animating it into view.
      *
      * @param drawerView Drawer view to open
@@ -1783,6 +1797,19 @@ public class DrawerLayout extends ViewGroup {
                     + gravityToString(gravity));
         }
         openDrawer(drawerView, animate);
+    }
+
+    /**
+     * Close the {@link GravityCompat#START} drawer by animating it out of view.
+     * <p>
+     * This has no effect if the {@link #getDrawerLockMode(int) drawer lock mode} is
+     * {@link #LOCK_MODE_LOCKED_OPEN}.
+     */
+    @Override
+    public void close() {
+        if (getDrawerLockMode(GravityCompat.START) != LOCK_MODE_LOCKED_OPEN) {
+            closeDrawer(GravityCompat.START);
+        }
     }
 
     /**
@@ -1868,6 +1895,19 @@ public class DrawerLayout extends ViewGroup {
         }
         LayoutParams drawerLp = (LayoutParams) drawer.getLayoutParams();
         return (drawerLp.openState & LayoutParams.FLAG_IS_OPENED) == 1;
+    }
+
+    /**
+     * Check if the {@link GravityCompat#START} drawer is currently in an open state.
+     * To be considered "open" the drawer must have settled into its fully
+     * visible state. If there is no drawer with the given gravity this method
+     * will return false.
+     *
+     * @return true if the {@link GravityCompat#START} drawer is in an open state
+     */
+    @Override
+    public boolean isOpen() {
+        return isDrawerOpen(GravityCompat.START);
     }
 
     /**

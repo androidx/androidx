@@ -70,12 +70,12 @@ class AppBarConfigurationTest {
     }
 
     @Test
-    fun testSetDrawerLayout() {
+    fun testSetOpenableLayout() {
         val builder = AppBarConfiguration.Builder()
         val drawerLayout = DrawerLayout(context)
-        builder.setDrawerLayout(drawerLayout)
+        builder.setOpenableLayout(drawerLayout)
         val appBarConfiguration = builder.build()
-        assertThat(appBarConfiguration.drawerLayout).isEqualTo(drawerLayout)
+        assertThat(appBarConfiguration.openableLayout).isEqualTo(drawerLayout)
     }
 
     @Test
