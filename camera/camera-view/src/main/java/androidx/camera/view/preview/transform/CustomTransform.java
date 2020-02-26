@@ -20,6 +20,7 @@ import android.graphics.Matrix;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.camera.view.preview.transform.transformation.Transformation;
 
 final class CustomTransform {
 
