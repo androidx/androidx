@@ -19,7 +19,7 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.toModifier
+import androidx.ui.core.asModifier
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -50,7 +50,7 @@ fun SimpleImage(
     tint: Color? = null
 ) {
     with(DensityAmbient.current) {
-        val imageModifier = ImagePainter(image).toModifier(
+        val imageModifier = ImagePainter(image).asModifier(
             scaleFit = ScaleFit.FillMaxDimension,
             colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
         )
