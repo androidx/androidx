@@ -21,10 +21,10 @@ import androidx.ui.core.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.material.MaterialTheme
@@ -43,9 +43,11 @@ fun BillsBody() {
                 val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA).map {
                     Color(it)
                 }
-                Container(modifier = LayoutGravity.Center, height = 300.dp, expanded = true) {
-                    DrawAnimatedCircle(accountsProportion, colors)
-                }
+                AnimatedCircle(
+                    LayoutGravity.Center + LayoutHeight(300.dp) + LayoutWidth.Fill,
+                    accountsProportion,
+                    colors
+                )
                 Column(modifier = LayoutGravity.Center) {
                     Text(
                         text = "Due",

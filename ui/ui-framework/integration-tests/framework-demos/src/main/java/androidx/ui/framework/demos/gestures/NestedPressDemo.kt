@@ -26,10 +26,12 @@ import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.
@@ -59,10 +61,10 @@ class NestedPressDemo : Activity() {
 
 @Composable
 fun PressableContainer(
-    paddingLeft: Dp? = null,
-    paddingTop: Dp? = null,
-    paddingRight: Dp? = null,
-    paddingBottom: Dp? = null,
+    paddingLeft: Dp = 0.dp,
+    paddingTop: Dp = 0.dp,
+    paddingRight: Dp = 0.dp,
+    paddingBottom: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
     val defaultColor = DefaultBackgroundColor
@@ -106,16 +108,15 @@ fun PressableContainer(
         PressReleasedGestureDetector(onTap, false) {
             DoubleTapGestureDetector(onDoubleTap) {
                 LongPressGestureDetector(onLongPress) {
-                    Border(BorderColor, 2.dp) {
-                        DrawBox(
-                            0.px,
-                            0.px,
-                            (-1).dp,
-                            (-1).dp,
-                            color
-                        )
-                        Padding(paddingLeft, paddingTop, paddingRight, paddingBottom, children)
-                    }
+                    Box(
+                        backgroundColor = color, border = Border(2.dp, BorderColor),
+                        paddingLeft = paddingLeft,
+                        paddingTop = paddingTop,
+                        paddingRight = paddingRight,
+                        paddingBottom = paddingBottom,
+                        gravity = ContentGravity.Center,
+                        children = children
+                    )
                 }
             }
         }

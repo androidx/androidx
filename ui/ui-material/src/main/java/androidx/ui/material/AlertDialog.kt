@@ -17,15 +17,16 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
@@ -113,30 +114,25 @@ fun AlertDialog(
     val currentTypography = MaterialTheme.typography()
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
-            Surface(shape = AlertDialogShape) {
-                Container(width = AlertDialogWidth) {
-                    Column {
-                        if (title != null) {
-                            Container(
-                                alignment = Alignment.CenterLeft,
-                                padding = TitlePadding
-                            ) {
-                                val textStyle = MaterialTheme.typography().h6
-                                CurrentTextStyleProvider(textStyle, title)
-                            }
-                        } else {
-                            // TODO(b/138924683): Temporary until padding for the Text's
-                            //  baseline
-                            Spacer(LayoutHeight(NoTitleExtraHeight))
+            Surface(modifier = LayoutWidth(AlertDialogWidth), shape = AlertDialogShape) {
+                Column {
+                    if (title != null) {
+                        Box(modifier = TitlePadding + LayoutGravity.Start) {
+                            val textStyle = MaterialTheme.typography().h6
+                            CurrentTextStyleProvider(textStyle, title)
                         }
-
-                        Container(alignment = Alignment.CenterLeft, padding = TextPadding) {
-                            val textStyle = MaterialTheme.typography().body1
-                            CurrentTextStyleProvider(textStyle, text)
-                        }
-                        Spacer(LayoutHeight(TextToButtonsHeight))
-                        buttons()
+                    } else {
+                        // TODO(b/138924683): Temporary until padding for the Text's
+                        //  baseline
+                        Spacer(LayoutHeight(NoTitleExtraHeight))
                     }
+
+                    Box(modifier = TextPadding + LayoutGravity.Start) {
+                        val textStyle = MaterialTheme.typography().body1
+                        CurrentTextStyleProvider(textStyle, text)
+                    }
+                    Spacer(LayoutHeight(TextToButtonsHeight))
+                    buttons()
                 }
             }
         }
@@ -161,7 +157,7 @@ private fun AlertDialogButtonLayout(
     dismissButton: @Composable() (() -> Unit)?,
     buttonLayout: AlertDialogButtonLayout
 ) {
-    Container(LayoutWidth.Fill, padding = ButtonsPadding, alignment = Alignment.CenterRight) {
+    Box(LayoutWidth.Fill + ButtonsPadding, gravity = ContentGravity.CenterRight) {
         if (buttonLayout == SideBySide) {
             Row(arrangement = Arrangement.End) {
                 if (dismissButton != null) {
@@ -185,14 +181,14 @@ private fun AlertDialogButtonLayout(
 }
 
 private val AlertDialogWidth = 280.dp
-private val ButtonsPadding = EdgeInsets(all = 8.dp)
+private val ButtonsPadding = LayoutPadding(all = 8.dp)
 private val ButtonsWidthSpace = 8.dp
 private val ButtonsHeightSpace = 12.dp
 // TODO(b/138924683): Top padding should be actually be a distance between the Text baseline and
 //  the Title baseline
-private val TextPadding = EdgeInsets(left = 24.dp, top = 20.dp, right = 24.dp, bottom = 0.dp)
+private val TextPadding = LayoutPadding(start = 24.dp, top = 20.dp, end = 24.dp, bottom = 0.dp)
 // TODO(b/138924683): Top padding should be actually be relative to the Text baseline
-private val TitlePadding = EdgeInsets(left = 24.dp, top = 24.dp, right = 24.dp, bottom = 0.dp)
+private val TitlePadding = LayoutPadding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 0.dp)
 // The height difference of the padding between a Dialog with a title and one without a title
 private val NoTitleExtraHeight = 2.dp
 private val TextToButtonsHeight = 28.dp

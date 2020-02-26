@@ -44,15 +44,7 @@ class ScaleGestureDetectorDemo : Activity() {
             }
 
             ScaleGestureDetector(scaleObserver) {
-                MatchParent {
-                    DrawBox(
-                        0.px,
-                        0.px,
-                        width.value,
-                        height.value,
-                        Color(0xFF9e9e9e.toInt())
-                    )
-                }
+                DrawingBox(0.px, 0.px, width.value, height.value, Color(0xFF9e9e9e.toInt()))
             }
         }
     }

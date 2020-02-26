@@ -24,10 +24,10 @@ import androidx.ui.core.Layout
 import androidx.ui.core.gesture.RawScaleGestureDetector
 import androidx.ui.core.gesture.RawScaleObserver
 import androidx.ui.core.setContent
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 /**
  * Demo app created to study some complex interactions of multiple DragGestureDetectors.
@@ -79,13 +79,11 @@ fun Scalable(
         }
     }
 
-    Center {
-        RawScaleGestureDetector(outerScaleObserver) {
-
-            Layout(children = {
-                DrawBox(0.px, 0.px, (-1).dp, (-1).dp, color)
-                children()
-            }, measureBlock = { measurables, constraints ->
+    RawScaleGestureDetector(outerScaleObserver) {
+        Layout(
+            children = children,
+            modifier = LayoutAlign.Center + DrawBackground(color = color),
+            measureBlock = { measurables, constraints ->
                 val newConstraints =
                     constraints.copy(
                         maxWidth = constraints.maxWidth * currentPercent.value,
@@ -107,6 +105,5 @@ fun Scalable(
                     )
                 }
             })
-        }
     }
 }

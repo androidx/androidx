@@ -23,7 +23,8 @@ import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.Transition
-import androidx.ui.core.Draw
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -61,32 +62,36 @@ private val CircularTransition = transitionDefinition {
 /** when calculating a proportion of N elements, the sum of elements has to be (1 - N * 0.005)
  * because there will be N dividers of size 1.8 degrees */
 @Composable
-fun DrawAnimatedCircle(proportions: List<Float>, colors: List<Color>) {
+fun AnimatedCircle(
+    modifier: Modifier = Modifier.None,
+    proportions: List<Float>,
+    colors: List<Color>
+) {
     val strokeWidthDp = 5.dp
     val paint = remember { Paint() }
     Transition(definition = CircularTransition, initState = 0, toState = 1) { state ->
-            Draw { canvas, parentSize ->
-                val strokeWidth = strokeWidthDp.toPx().value
-                paint.style = PaintingStyle.stroke
-                paint.strokeWidth = strokeWidth
-                paint.isAntiAlias = true
+        Canvas(modifier) {
+            val strokeWidth = strokeWidthDp.toPx().value
+            paint.style = PaintingStyle.stroke
+            paint.strokeWidth = strokeWidth
+            paint.isAntiAlias = true
 
-                val innerRadius = (parentSize.minDimension.value - strokeWidth) / 2
-                val parentHalfWidth = parentSize.width.value / 2
-                val parentHalfHeight = parentSize.height.value / 2
-                val rect = Rect(
-                    parentHalfWidth - innerRadius,
-                    parentHalfHeight - innerRadius,
-                    parentHalfWidth + innerRadius,
-                    parentHalfHeight + innerRadius
-                )
-                var startAngle = state[Shift] - 90f
-                proportions.forEachIndexed { index, proportion ->
-                    paint.color = colors[index]
-                    val sweep = proportion * state[AngleOffset]
-                    canvas.drawArc(rect, startAngle, sweep, false, paint = paint)
-                    startAngle += sweep + DividerLengthInDegrees
-                }
+            val innerRadius = (size.minDimension.value - strokeWidth) / 2
+            val parentHalfWidth = size.width.value / 2
+            val parentHalfHeight = size.height.value / 2
+            val rect = Rect(
+                parentHalfWidth - innerRadius,
+                parentHalfHeight - innerRadius,
+                parentHalfWidth + innerRadius,
+                parentHalfHeight + innerRadius
+            )
+            var startAngle = state[Shift] - 90f
+            proportions.forEachIndexed { index, proportion ->
+                paint.color = colors[index]
+                val sweep = proportion * state[AngleOffset]
+                drawArc(rect, startAngle, sweep, false, paint = paint)
+                startAngle += sweep + DividerLengthInDegrees
             }
         }
+    }
 }

@@ -63,15 +63,7 @@ class LongPressDragGestureDetectorDemo : Activity() {
                 }
 
             LongPressDragGestureDetector(longPressDragObserver) {
-                MatchParent {
-                    DrawBox(
-                        xOffset.value,
-                        yOffset.value,
-                        96.dp,
-                        96.dp,
-                        color.value
-                    )
-                }
+                DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color.value)
             }
         }
     }

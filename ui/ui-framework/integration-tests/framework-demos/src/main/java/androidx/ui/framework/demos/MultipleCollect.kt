@@ -20,46 +20,16 @@ package androidx.ui.framework.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.ParentData
 import androidx.ui.core.tag
-import androidx.ui.graphics.Brush
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
-import androidx.ui.unit.Dp
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
-
-@Composable
-fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
-    Layout(children = { DrawFillRect(brush = brush) }) { _, constraints ->
-        layout(
-            width?.toIntPx()?.coerceIn(constraints.minWidth, constraints.maxWidth)
-                ?: constraints.maxWidth,
-            height?.toIntPx()?.coerceIn(constraints.minHeight, constraints.maxHeight)
-                ?: constraints.maxHeight
-        ) {}
-    }
-}
-
-@Composable
-fun ColoredRect(color: Color, width: Dp? = null, height: Dp? = null) {
-    ColoredRect(brush = SolidColor(color), width = width, height = height)
-}
-
-@Composable
-private fun DrawFillRect(brush: Brush) {
-    Draw { canvas, parentSize ->
-        val paint = Paint()
-        brush.applyTo(paint)
-        canvas.drawRect(parentSize.toRect(), paint)
-    }
-}
 
 @Composable
 fun HeaderFooterLayout(
@@ -106,13 +76,13 @@ fun HeaderFooterLayout(
 @Composable
 fun MultipleCollectTest() {
     val header = @Composable {
-        ColoredRect(color = Color(android.graphics.Color.GRAY))
+        Box(LayoutSize.Fill, backgroundColor = Color(android.graphics.Color.GRAY))
     }
     val footer = @Composable {
-        ColoredRect(color = Color(android.graphics.Color.BLUE))
+        Box(LayoutSize.Fill, backgroundColor = Color(android.graphics.Color.BLUE))
     }
     HeaderFooterLayout(header = header, footer = footer) {
-        ColoredRect(color = Color(android.graphics.Color.GREEN))
-        ColoredRect(color = Color(android.graphics.Color.YELLOW))
+        Box(LayoutSize.Fill, backgroundColor = Color(android.graphics.Color.GREEN))
+        Box(LayoutSize.Fill, backgroundColor = Color(android.graphics.Color.YELLOW))
     }
 }
