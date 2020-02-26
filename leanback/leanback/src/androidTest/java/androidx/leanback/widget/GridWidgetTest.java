@@ -1754,6 +1754,56 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testSmoothScrollInScrolling() throws Throwable {
+        final int numItems = 1000;
+        final int[] itemsLength = new int[numItems];
+        for (int i = 0; i < numItems; i++) {
+            itemsLength[i] = 288;
+        }
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, itemsLength);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffsetPercent(10);
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int position = mGridView.getChildAdapterPosition(
+                        mGridView.getChildAt(mGridView.getChildCount() - 1));
+                mGridView.setSelectedPositionSmooth(position);
+            }
+        });
+        final List<Integer> scrollStateChanges = new ArrayList<>();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(mGridView.getScrollState() == BaseGridView.SCROLL_STATE_SETTLING);
+                mGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        scrollStateChanges.add(newState);
+                    }
+                });
+                // start a PendingMoveSmoothScroller
+                mGridView.mLayoutManager.processPendingMovement(true);
+            }
+        });
+        assertTrue(mGridView.getLayoutManager().isSmoothScrolling());
+        assertTrue("PendingMoveSmoothScroller shouldn't change scrollState from "
+                        + "SCROLL_STATE_SETTLING", scrollStateChanges.isEmpty());
+    }
+
+    @Test
     public void testScrollAfterRequestLayout() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
