@@ -280,5 +280,16 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".BottomNavigationActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Bottom Navigation"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

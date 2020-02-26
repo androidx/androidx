@@ -29,7 +29,7 @@ import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
-import androidx.ui.test.findAll
+import androidx.ui.test.find
 import androidx.ui.test.isToggleable
 import androidx.ui.test.positionInParent
 import androidx.ui.unit.dp
@@ -65,8 +65,8 @@ class IconButtonTest {
     fun iconButton_materialIconSize_iconPositioning() {
         val diameter = 24.dp
         lateinit var iconCoords: LayoutCoordinates
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
+        composeTestRule.setMaterialContent {
+            Box {
                 IconButton(onClick = {}) {
                     OnChildPositioned(onPositioned = { coords ->
                         iconCoords = coords
@@ -75,6 +75,7 @@ class IconButtonTest {
                     }
                 }
             }
+        }
 
         composeTestRule.runOnIdleComposeWithDensity {
             val iconX = iconCoords.positionInParent.x
@@ -90,8 +91,8 @@ class IconButtonTest {
         val width = 36.dp
         val height = 14.dp
         lateinit var iconCoords: LayoutCoordinates
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
+        composeTestRule.setMaterialContent {
+            Box {
                 IconButton(onClick = {}) {
                     OnChildPositioned(onPositioned = { coords ->
                         iconCoords = coords
@@ -100,6 +101,7 @@ class IconButtonTest {
                     }
                 }
             }
+        }
 
         composeTestRule.runOnIdleComposeWithDensity {
             val iconX = iconCoords.positionInParent.x
@@ -129,8 +131,8 @@ class IconButtonTest {
     fun iconToggleButton_materialIconSize_iconPositioning() {
         val diameter = 24.dp
         lateinit var iconCoords: LayoutCoordinates
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
+        composeTestRule.setMaterialContent {
+            Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
                     OnChildPositioned(onPositioned = { coords ->
                         iconCoords = coords
@@ -139,6 +141,7 @@ class IconButtonTest {
                     }
                 }
             }
+        }
 
         composeTestRule.runOnIdleComposeWithDensity {
             val iconX = iconCoords.positionInParent.x
@@ -154,8 +157,8 @@ class IconButtonTest {
         val width = 36.dp
         val height = 14.dp
         lateinit var iconCoords: LayoutCoordinates
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
+        composeTestRule.setMaterialContent {
+            Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
                     OnChildPositioned(onPositioned = { coords ->
                         iconCoords = coords
@@ -164,6 +167,7 @@ class IconButtonTest {
                     }
                 }
             }
+        }
 
         composeTestRule.runOnIdleComposeWithDensity {
             val iconX = iconCoords.positionInParent.x
@@ -179,11 +183,10 @@ class IconButtonTest {
 
     @Test
     fun iconToggleButton_semantics() {
-        composeTestRule
-            .setMaterialContent {
-                IconToggleButtonSample()
-            }
-        findAll(isToggleable())[0].apply {
+        composeTestRule.setMaterialContent {
+            IconToggleButtonSample()
+        }
+        find(isToggleable()).apply {
             assertIsOff()
             doClick()
             assertIsOn()
