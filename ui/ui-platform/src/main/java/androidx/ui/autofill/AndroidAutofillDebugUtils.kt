@@ -19,8 +19,8 @@ package androidx.ui.autofill
 import android.os.Build
 import android.util.Log
 import android.view.autofill.AutofillManager
+import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.compose.View
 
 /**
  * Autofill Manager callback.

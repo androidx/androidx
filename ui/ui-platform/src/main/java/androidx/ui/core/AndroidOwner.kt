@@ -34,7 +34,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.compose.trace
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -66,6 +65,7 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.px
+import androidx.ui.util.trace
 
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
