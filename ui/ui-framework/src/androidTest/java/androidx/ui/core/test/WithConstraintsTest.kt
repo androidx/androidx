@@ -26,12 +26,13 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.MeasureBlock
+import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
+import androidx.ui.core.draw
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -87,7 +88,10 @@ class WithConstraintsTest {
                 WithConstraints { constraints ->
                     topConstraints.value = constraints
                     Padding(size = size) {
-                        WithConstraints { constraints ->
+                        val drawModifier = draw { _, _ ->
+                            countDownLatch.countDown()
+                        }
+                        WithConstraints(drawModifier) { constraints ->
                             paddedConstraints.value = constraints
                             Layout(measureBlock = { _, childConstraints ->
                                 firstChildConstraints.value = childConstraints
@@ -97,9 +101,6 @@ class WithConstraintsTest {
                                 secondChildConstraints.value = chilConstraints
                                 layout(size, size) { }
                             }, children = { })
-                            Draw { _, _ ->
-                                countDownLatch.countDown()
-                            }
                         }
                     }
                 }
@@ -129,23 +130,25 @@ class WithConstraintsTest {
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 WithConstraints { constraints ->
+                    val outerModifier = draw { canvas, size ->
+                        val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(size.toRect(), paint)
+                    }
                     Layout(children = {
-                        Draw { canvas, parentSize ->
+                        val innerModifier = draw { canvas, size ->
+                            drawLatch.countDown()
                             val paint = Paint()
-                            paint.color = model.outerColor
-                            canvas.drawRect(parentSize.toRect(), paint)
+                            paint.color = model.innerColor
+                            canvas.drawRect(size.toRect(), paint)
                         }
-                        Layout(children = {
-                            Draw { canvas, parentSize ->
-                                drawLatch.countDown()
-                                val paint = Paint()
-                                paint.color = model.innerColor
-                                canvas.drawRect(parentSize.toRect(), paint)
-                            }
-                        }) { measurables, constraints2 ->
+                        Layout(
+                            children = {},
+                            modifier = innerModifier
+                        ) { measurables, constraints2 ->
                             layout(model.size, model.size) {}
                         }
-                    }) { measurables, constraints3 ->
+                    }, modifier = outerModifier) { measurables, constraints3 ->
                         val placeable = measurables[0].measure(
                             Constraints.fixed(
                                 model.size,
@@ -185,13 +188,8 @@ class WithConstraintsTest {
         val offset = OffsetModel(0.ipx)
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                Draw { canvas, parentSize ->
-                    val paint = Paint()
-                    paint.color = Color.Yellow
-                    canvas.drawRect(parentSize.toRect(), paint)
-                    drawLatch.countDown()
-                }
                 Scroller(
+                    modifier = countdownLatchBackgroundModifier(Color.Yellow),
                     onScrollPositionChanged = { position, _ ->
                         offset.offset = position
                     },
@@ -355,22 +353,15 @@ class WithConstraintsTest {
 
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                Container(100.ipx, 100.ipx) {
-                    Draw { canvas, parentSize ->
-                        canvas.drawRect(parentSize.toRect(),
-                            Paint().apply { color = Color.Red })
-                    }
+                Container(100.ipx, 100.ipx, backgroundModifier(Color.Red)) {
                     ChangingConstraintsLayout(model) {
                         WithConstraints { constraints ->
                             Container(100.ipx, 100.ipx) {
                                 Container(100.ipx, 100.ipx) {
-                                    Layout({
-                                        Draw { canvas, parentSize ->
-                                            canvas.drawRect(parentSize.toRect(),
-                                                Paint().apply { color = Color.Yellow })
-                                            drawLatch.countDown()
-                                        }
-                                    }) { _, _ ->
+                                    Layout(
+                                        {},
+                                        countdownLatchBackgroundModifier(Color.Yellow)
+                                    ) { _, _ ->
                                         // the same as the value inside ValueModel
                                         val size = constraints.maxWidth
                                         layout(size, size) {}
@@ -403,22 +394,22 @@ class WithConstraintsTest {
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
                 Container(width = 100.ipx, height = 100.ipx) {
-                        WithConstraints {
-                            // this replicates the popular pattern we currently use
-                            // where we save some data calculated in the measuring block
-                            // and then use it in the next composition frame
-                            var model by state { false }
-                            Layout({
-                                if (model) {
-                                    latch.countDown()
-                                }
-                            }) { _, _ ->
-                                if (!model) {
-                                    model = true
-                                }
-                                layout(100.ipx, 100.ipx) {}
+                    WithConstraints {
+                        // this replicates the popular pattern we currently use
+                        // where we save some data calculated in the measuring block
+                        // and then use it in the next composition frame
+                        var model by state { false }
+                        Layout({
+                            if (model) {
+                                latch.countDown()
                             }
+                        }) { _, _ ->
+                            if (!model) {
+                                model = true
+                            }
+                            layout(100.ipx, 100.ipx) {}
                         }
+                    }
                 }
             }
         }
@@ -433,12 +424,10 @@ class WithConstraintsTest {
 
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                Container(100.ipx, 100.ipx) {
-                    Draw { canvas, parentSize ->
-                        canvas.drawRect(parentSize.toRect(),
-                            Paint().apply { color = Color.Red })
-                        drawLatch.countDown()
-                    }
+                Container(
+                    100.ipx, 100.ipx,
+                    modifier = countdownLatchBackgroundModifier(Color.Red)
+                ) {
                     // this component changes the constraints which triggers subcomposition
                     // within onMeasure block
                     ChangingConstraintsLayout(model) {
@@ -449,19 +438,16 @@ class WithConstraintsTest {
                                 // marked as not affecting parent size which means the Layout
                                 // will be added into relayoutNodes List separately
                                 Container(100.ipx, 100.ipx) {
-                                    Layout({
-                                        Draw { canvas, parentSize ->
-                                            canvas.drawRect(parentSize.toRect(),
-                                                Paint().apply { color = Color.Yellow })
-                                            drawLatch.countDown()
-                                        }
-                                    }) { _, _ ->
+                                    Layout(
+                                        children = {},
+                                        modifier = countdownLatchBackgroundModifier(Color.Yellow)
+                                    ) { _, _ ->
                                         layout(model.value, model.value) {}
                                     }
                                 }
                             }
                         }
-                        Container(100.ipx, 100.ipx, emptyContent())
+                        Container(100.ipx, 100.ipx, Modifier.None, emptyContent())
                     }
                 }
             }
@@ -491,13 +477,12 @@ class WithConstraintsTest {
             activity.setContent {
                 val state = state { false }
                 var lastLayoutValue: Boolean = false
-                Layout(children = {
-                    Draw { _, _ ->
-                        // this verifies the layout was remeasured before being drawn
-                        assertTrue(lastLayoutValue)
-                        drawlatch.countDown()
-                    }
-                }) { _, _ ->
+                val drawModifier = draw { _, _ ->
+                    // this verifies the layout was remeasured before being drawn
+                    assertTrue(lastLayoutValue)
+                    drawlatch.countDown()
+                }
+                Layout(children = {}, modifier = drawModifier) { _, _ ->
                     lastLayoutValue = state.value
                     // this registers the value read
                     if (!state.value) {
@@ -559,17 +544,15 @@ class WithConstraintsTest {
 
     @Test
     fun triggerRootRemeasureWhileRootIsLayouting() {
-        val latch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
                 val state = state { 0 }
                 ContainerChildrenAffectsParentSize(100.ipx, 100.ipx) {
                     WithConstraints {
-                        Layout(children = {
-                            Draw { _, _ ->
-                                latch.countDown()
-                            }
-                        }) { _, _ ->
+                        Layout(
+                            children = {},
+                            modifier = countdownLatchBackgroundModifier(Color.Transparent)
+                        ) { _, _ ->
                             // read and write once inside measureBlock
                             if (state.value == 0) {
                                 state.value = 1
@@ -584,7 +567,7 @@ class WithConstraintsTest {
             }
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         // before the fix this was failing our internal assertions in AndroidOwner
         // so nothing else to assert, apart from not crashing
     }
@@ -595,6 +578,14 @@ class WithConstraintsTest {
         assertEquals(size, bitmap.width)
         assertEquals(size, bitmap.height)
         return bitmap
+    }
+
+    private fun countdownLatchBackgroundModifier(color: Color) = draw {
+        canvas, size ->
+        val paint = Paint()
+        paint.color = color
+        canvas.drawRect(size.toRect(), paint)
+        drawLatch.countDown()
     }
 }
 
@@ -615,31 +606,40 @@ private fun TestLayout(@Suppress("UNUSED_PARAMETER") someInput: Int) {
 
 @Composable
 private fun NeedsOtherMeasurementComposable(foo: IntPx) {
-    Layout(children = {
-        Draw { canvas, parentSize ->
-            val paint = Paint()
-            paint.color = Color.Red
-            canvas.drawRect(parentSize.toRect(), paint)
-        }
-    }) { _, _ ->
+    Layout(
+        children = {},
+        modifier = backgroundModifier(Color.Red)
+    ) { _, _ ->
         layout(foo, foo) { }
     }
 }
 
 @Composable
-fun Container(width: IntPx, height: IntPx, children: @Composable() () -> Unit) {
-    Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
-        { measurables, _ ->
-            val constraint = Constraints(maxWidth = width, maxHeight = height)
-            layout(width, height) {
-                measurables.forEach {
-                    val placeable = it.measure(constraint)
-                    placeable.place((width - placeable.width) / 2,
-                        (height - placeable.height) / 2)
+fun Container(
+    width: IntPx,
+    height: IntPx,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () ->
+    Unit
+) {
+    Layout(
+        children = children,
+        modifier = modifier,
+        measureBlock = remember<MeasureBlock>(width, height) {
+            { measurables, _ ->
+                val constraint = Constraints(maxWidth = width, maxHeight = height)
+                layout(width, height) {
+                    measurables.forEach {
+                        val placeable = it.measure(constraint)
+                        placeable.place(
+                            (width - placeable.width) / 2,
+                            (height - placeable.height) / 2
+                        )
+                    }
                 }
             }
         }
-    })
+    )
 }
 
 @Composable
@@ -669,4 +669,10 @@ private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Compos
             measurables.first().measure(constraints).place(0.ipx, 0.ipx)
         }
     }
+}
+
+fun backgroundModifier(color: Color) = draw { canvas, size ->
+    val paint = Paint()
+    paint.color = color
+    canvas.drawRect(size.toRect(), paint)
 }

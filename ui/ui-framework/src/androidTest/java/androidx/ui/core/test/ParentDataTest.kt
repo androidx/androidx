@@ -18,10 +18,10 @@ package androidx.ui.core.test
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
+import androidx.ui.core.draw
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -143,12 +143,10 @@ class ParentDataTest {
 
 @Composable
 fun SimpleDrawChild(drawLatch: CountDownLatch) {
-    AtLeastSize(size = 10.ipx) {
-        Draw { canvas, parentSize ->
-            val paint = Paint()
-            paint.color = Color(0xFF008000)
-            canvas.drawRect(parentSize.toRect(), paint)
-            drawLatch.countDown()
-        }
-    }
+    AtLeastSize(size = 10.ipx, modifier = draw { canvas, size ->
+        val paint = Paint()
+        paint.color = Color(0xFF008000)
+        canvas.drawRect(size.toRect(), paint)
+        drawLatch.countDown()
+    }) {}
 }

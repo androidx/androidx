@@ -24,10 +24,10 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Draw
 import androidx.ui.core.DrawShadow
 import androidx.ui.core.Opacity
 import androidx.ui.core.RepaintBoundary
+import androidx.ui.core.draw
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -155,8 +155,7 @@ class DrawShadowTest {
     fun opacityAppliedForTheShadow() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx) {
-                    FillColor(Color.White)
+                AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     Opacity(0.1f) {
                         AtLeastSize(size = 10.ipx) {
                             DrawShadow(rectShape, 4.dp)
@@ -184,8 +183,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx) {
-                    FillColor(Color.White)
+                AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     AtLeastSize(size = 10.ipx) {
                         if (model.value) {
                             DrawShadow(rectShape, 8.dp)
@@ -208,8 +206,7 @@ class DrawShadowTest {
 
     @Composable
     private fun ShadowContainer(elevation: State<Dp> = mutableStateOf(8.dp)) {
-        AtLeastSize(size = 12.ipx) {
-            FillColor(Color.White)
+        AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
             AtLeastSize(size = 10.ipx) {
                 DrawShadow(rectShape, elevation.value)
             }
@@ -220,14 +217,11 @@ class DrawShadowTest {
         assertNotEquals(color(width / 2, height - 1), Color.White)
     }
 
-    @Composable
-    private fun FillColor(color: Color) {
-        Draw { canvas, parentSize ->
-            canvas.drawRect(parentSize.toRect(), Paint().apply {
-                this.color = color
-            })
-            drawLatch.countDown()
-        }
+    private fun background(color: Color) = draw { canvas, size ->
+        canvas.drawRect(size.toRect(), Paint().apply {
+            this.color = color
+        })
+        drawLatch.countDown()
     }
 
     private fun takeScreenShot(width: Int, height: Int = width): Bitmap {
