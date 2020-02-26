@@ -131,9 +131,14 @@ package androidx.ui.test {
   }
 
   public final class FiltersKt {
+    method public static androidx.ui.test.SemanticsPredicate hasAnyAncestorThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasAnyChildThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasAnyDescendantThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasAnySiblingThat(androidx.ui.test.SemanticsPredicate predicate);
     method public static androidx.ui.test.SemanticsPredicate hasClickAction();
     method public static androidx.ui.test.SemanticsPredicate hasNoClickAction();
     method public static androidx.ui.test.SemanticsPredicate hasNoScrollAction();
+    method public static androidx.ui.test.SemanticsPredicate hasParentThat(androidx.ui.test.SemanticsPredicate predicate);
     method public static androidx.ui.test.SemanticsPredicate hasScrollAction();
     method public static androidx.ui.test.SemanticsPredicate hasSubstring(String substring, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsPredicate hasTestTag(String testTag);
@@ -207,9 +212,9 @@ package androidx.ui.test {
   }
 
   public final class SemanticsPredicate {
-    ctor public SemanticsPredicate(String description, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> condition);
+    ctor public SemanticsPredicate(String description, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> condition);
     method public infix androidx.ui.test.SemanticsPredicate and(androidx.ui.test.SemanticsPredicate other);
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> getCondition();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> getCondition();
     method public String getDescription();
     method public operator androidx.ui.test.SemanticsPredicate not();
     method public infix androidx.ui.test.SemanticsPredicate or(androidx.ui.test.SemanticsPredicate other);
