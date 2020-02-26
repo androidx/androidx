@@ -49,6 +49,7 @@ import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -320,6 +321,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testOnPlayFromSearch() throws InterruptedException {
         final String testQuery = "random query";
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -346,6 +348,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testOnPlayFromUri() throws InterruptedException {
         final Uri testUri = Uri.parse("foo://boo");
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -373,6 +376,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testOnPlayFromMediaId() throws InterruptedException {
         final String testMediaId = "media_id";
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -399,6 +403,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testOnPrepareFromSearch() throws InterruptedException {
         final String testQuery = "random query";
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -425,6 +430,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testOnPrepareFromUri() throws InterruptedException {
         final Uri testUri = Uri.parse("foo://boo");
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -451,6 +457,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testOnPrepareFromMediaId() throws InterruptedException {
         final String testMediaId = "media_id";
         final Bundle testExtras = TestUtils.createTestBundle();
