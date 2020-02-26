@@ -73,6 +73,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     static final float MAX_SCROLL_FACTOR = 0.5f;
 
     private static final String TAG = "NestedScrollView";
+    private static final int DEFAULT_SMOOTH_SCROLL_DURATION = 250;
 
     /**
      * Interface definition for a callback to be invoked when the scroll
@@ -1412,7 +1413,18 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * @param dy the number of pixels to scroll by on the Y axis
      */
     public final void smoothScrollBy(int dx, int dy) {
-        smoothScrollBy(dx, dy, false);
+        smoothScrollBy(dx, dy, DEFAULT_SMOOTH_SCROLL_DURATION, false);
+    }
+
+   /**
+     * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
+     *
+     * @param dx the number of pixels to scroll by on the X axis
+     * @param dy the number of pixels to scroll by on the Y axis
+     * @param scrollDurationMs the duration of the smooth scroll operation in milliseconds
+     */
+    public final void smoothScrollBy(int dx, int dy, int scrollDurationMs) {
+        smoothScrollBy(dx, dy, scrollDurationMs, false);
     }
 
     /**
@@ -1420,9 +1432,10 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      *
      * @param dx the number of pixels to scroll by on the X axis
      * @param dy the number of pixels to scroll by on the Y axis
+     * @param scrollDurationMs the duration of the smooth scroll operation in milliseconds
      * @param withNestedScrolling whether to include nested scrolling operations.
      */
-    private void smoothScrollBy(int dx, int dy, boolean withNestedScrolling) {
+    private void smoothScrollBy(int dx, int dy, int scrollDurationMs, boolean withNestedScrolling) {
         if (getChildCount() == 0) {
             // Nothing to do.
             return;
@@ -1436,7 +1449,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             final int scrollY = getScrollY();
             final int maxY = Math.max(0, childSize - parentSpace);
             dy = Math.max(0, Math.min(scrollY + dy, maxY)) - scrollY;
-            mScroller.startScroll(getScrollX(), scrollY, 0, dy);
+            mScroller.startScroll(getScrollX(), scrollY, 0, dy, scrollDurationMs);
             runAnimatedScroll(withNestedScrolling);
         } else {
             if (!mScroller.isFinished()) {
@@ -1454,7 +1467,18 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * @param y the position where to scroll on the Y axis
      */
     public final void smoothScrollTo(int x, int y) {
-        smoothScrollTo(x, y, false);
+        smoothScrollTo(x, y, DEFAULT_SMOOTH_SCROLL_DURATION, false);
+    }
+
+    /**
+     * Like {@link #scrollTo}, but scroll smoothly instead of immediately.
+     *
+     * @param x the position where to scroll on the X axis
+     * @param y the position where to scroll on the Y axis
+     * @param scrollDurationMs the duration of the smooth scroll operation in milliseconds
+     */
+    public final void smoothScrollTo(int x, int y, int scrollDurationMs) {
+        smoothScrollTo(x, y, scrollDurationMs, false);
     }
 
     /**
@@ -1466,7 +1490,20 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      */
     // This should be considered private, it is package private to avoid a synthetic ancestor.
     void smoothScrollTo(int x, int y, boolean withNestedScrolling) {
-        smoothScrollBy(x - getScrollX(), y - getScrollY(), withNestedScrolling);
+        smoothScrollTo(x, y, DEFAULT_SMOOTH_SCROLL_DURATION, withNestedScrolling);
+    }
+
+    /**
+     * Like {@link #scrollTo}, but scroll smoothly instead of immediately.
+     *
+     * @param x the position where to scroll on the X axis
+     * @param y the position where to scroll on the Y axis
+     * @param scrollDurationMs the duration of the smooth scroll operation in milliseconds
+     * @param withNestedScrolling whether to include nested scrolling operations.
+     */
+    // This should be considered private, it is package private to avoid a synthetic ancestor.
+    void smoothScrollTo(int x, int y, int scrollDurationMs, boolean withNestedScrolling) {
+        smoothScrollBy(x - getScrollX(), y - getScrollY(), scrollDurationMs, withNestedScrolling);
     }
 
     /**
