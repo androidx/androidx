@@ -16,71 +16,77 @@
 
 package androidx.serialization.compiler.codegen.java
 
-import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.NameAllocator
-import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 
-internal const val L = "\$L"
-internal const val N = "\$N"
-internal const val S = "\$S"
-internal const val T = "\$T"
+/** This type name annotated with NonNull. */
+internal val TypeName.nonNull: TypeName
+    get() {
+        require(!isPrimitive) { "@NonNull is not applicable to primitive type: $this" }
+        require(annotations.none { it.type == NULLABLE.type }) {
+            "@NonNull conflicts with @Nullable present on type: ${withoutAnnotations()}"
+        }
+        return if (annotations.any { it.type == NON_NULL.type }) this else annotated(NON_NULL)
+    }
 
-internal fun nameAllocatorOf(vararg names: String): NameAllocator {
-    return NameAllocator().apply { names.forEach { newName(it, it) } }
+/** This type name annotated with Nullable. */
+internal val TypeName.nullable: TypeName
+    get() {
+        require(!isPrimitive) { "@Nullable is not applicable to primitive type: $this" }
+        require(annotations.none { it.type == NON_NULL.type }) {
+            "@Nullable conflicts with @NonNull present on type: ${withoutAnnotations()}"
+        }
+        return if (annotations.any { it.type == NULLABLE.type }) this else annotated(NULLABLE)
+    }
+
+/** This class name with type parameters.  */
+internal fun ClassName.parameterized(vararg typeArguments: TypeName): ParameterizedTypeName {
+    return ParameterizedTypeName.get(this, *typeArguments)
 }
 
-internal inline fun buildClass(
-    className: ClassName,
-    javaGenEnv: JavaGenEnvironment,
-    vararg originatingElements: Element?,
-    init: TypeSpec.Builder.() -> Unit
-): JavaFile {
-    return TypeSpec.classBuilder(className).apply {
-        init()
-        afterInit(javaGenEnv, originatingElements)
-    }.toJavaFile(className)
-}
-
-internal fun TypeSpec.Builder.toJavaFile(className: ClassName): JavaFile {
-    return JavaFile.builder(className.packageName(), build()).indent("    ").build()
-}
-
-internal inline fun TypeSpec.Builder.constructor(init: MethodSpec.Builder.() -> Unit) {
-    addMethod(MethodSpec.constructorBuilder().apply(init).build())
-}
-
-internal inline fun TypeSpec.Builder.method(name: String, init: MethodSpec.Builder.() -> Unit) {
-    addMethod(MethodSpec.methodBuilder(name).apply(init).build())
-}
-
-internal fun MethodSpec.Builder.parameter(
-    name: String,
+/** Type-safe builder for a field. */
+internal inline fun TypeSpec.Builder.field(
     type: TypeName,
-    vararg annotations: AnnotationSpec?
+    name: String,
+    vararg modifiers: Modifier,
+    init: FieldSpec.Builder.() -> Unit
 ) {
-    addParameter(ParameterSpec.builder(type, name).run {
-        annotations.forEach { if (it != null) addAnnotation(it) }
+    addField(FieldSpec.builder(type, name, *modifiers).apply(init).build())
+}
+
+/** Type-safe builder for a method. */
+internal inline fun TypeSpec.Builder.method(
+    name: String,
+    vararg modifiers: Modifier,
+    init: MethodSpec.Builder.() -> Unit
+) {
+    addMethod(MethodSpec.methodBuilder(name).run {
+        addModifiers(*modifiers)
+        init()
         build()
     })
 }
 
-internal fun MethodSpec.Builder.returns(
-    type: TypeName,
-    vararg annotations: AnnotationSpec?
+internal inline fun TypeSpec.Builder.overrideMethod(
+    name: String,
+    vararg modifiers: Modifier,
+    init: MethodSpec.Builder.() -> Unit
 ) {
-    returns(type)
-    annotations.forEach { if (it != null) addAnnotation(it) }
+    method(name, *modifiers) {
+        addAnnotation(OVERRIDE)
+        init()
+    }
 }
 
+/** Type-safe builder for a control flow within a method. */
 internal inline fun MethodSpec.Builder.controlFlow(
     format: String,
-    vararg args: Any,
+    vararg args: Any?,
     body: MethodSpec.Builder.() -> Unit
 ) {
     beginControlFlow(format, *args)
@@ -88,28 +94,20 @@ internal inline fun MethodSpec.Builder.controlFlow(
     endControlFlow()
 }
 
+/** Type-safe builder for a `case` block within a `switch`. */
 internal inline fun MethodSpec.Builder.switchCase(
     format: String,
-    vararg args: Any,
+    vararg args: Any?,
     body: MethodSpec.Builder.() -> Unit
 ) {
-    addCode("case $format:\n$>", *args)
+    addCode("case $format:\$>\n", *args)
     body()
-    addCode("$<")
+    addCode("\$<")
 }
 
-internal inline fun MethodSpec.Builder.switchDefault(
-    body: MethodSpec.Builder.() -> Unit
-) {
-    addCode("default:\n$>")
+/** Type-safe builder for a `default` block within a `switch`. */
+internal inline fun MethodSpec.Builder.switchDefault(body: MethodSpec.Builder.() -> Unit) {
+    addCode("default:\n\$>")
     body()
-    addCode("$<")
-}
-
-internal fun TypeSpec.Builder.afterInit(
-    javaGenEnv: JavaGenEnvironment,
-    originatingElements: Array<out Element?>
-) {
-    javaGenEnv.applyGenerated(this)
-    originatingElements.forEach { if (it != null) addOriginatingElement(it) }
+    addCode("\$<")
 }
