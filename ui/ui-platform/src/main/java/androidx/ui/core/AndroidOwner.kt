@@ -563,12 +563,8 @@ class AndroidComposeView constructor(context: Context) :
                     node.needsPaint = false
                 }
                 is RepaintBoundaryNode -> {
-                    val container = node.container
-                    if (node.elevation > 0.dp) {
-                        container.parentElevationHandler.callDrawWithEnabledZ(canvas, container)
-                    } else {
-                        container.callDraw(canvas)
-                    }
+                    val boundary = node.container
+                    boundary.parentElevationHandler.callDrawWithEnabledZ(canvas, boundary)
                 }
                 is LayoutNode -> {
                     if (node.isPlaced) {
@@ -1094,15 +1090,13 @@ private class RepaintBoundaryRenderNode(
 
     override fun callDraw(canvas: Canvas) {
         check(hasSize) { "setSize() should be called before drawing the RepaintBoundary" }
-        if (renderNode.alpha > 0f) {
-            val androidCanvas = canvas.nativeCanvas
-            if (androidCanvas.isHardwareAccelerated) {
-                updateDisplayList()
-                androidCanvas.drawRenderNode(renderNode)
-            } else {
-                ownerView.callChildDraw(androidCanvas, repaintBoundaryNode)
-                dirty = false
-            }
+        val androidCanvas = canvas.nativeCanvas
+        if (androidCanvas.isHardwareAccelerated) {
+            updateDisplayList()
+            androidCanvas.drawRenderNode(renderNode)
+        } else {
+            ownerView.callChildDraw(androidCanvas, repaintBoundaryNode)
+            dirty = false
         }
     }
 
