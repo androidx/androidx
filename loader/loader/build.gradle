@@ -22,6 +22,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

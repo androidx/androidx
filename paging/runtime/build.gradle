@@ -44,6 +44,7 @@ dependencies {
     androidTestImplementation project(':paging:paging-testutils')
     androidTestImplementation project(':internal-testutils-common')
     androidTestImplementation project(':internal-testutils-ktx')
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

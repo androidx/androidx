@@ -25,11 +25,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ViewModelStore;
-import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.loader.app.test.DelayLoaderCallbacks;
 import androidx.loader.app.test.DummyLoaderCallbacks;
 import androidx.loader.content.Loader;
@@ -53,7 +50,7 @@ public class LoaderManagerTest {
 
     @Before
     public void setup() {
-        mLoaderManager = LoaderManager.getInstance(new LoaderOwner());
+        mLoaderManager = LoaderManager.getInstance(new TestLifecycleOwner(), new ViewModelStore());
     }
 
     @Test
@@ -309,27 +306,5 @@ public class LoaderManagerTest {
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_destroyLoader() {
         mLoaderManager.destroyLoader(-1);
-    }
-
-    class LoaderOwner implements LifecycleOwner, ViewModelStoreOwner {
-
-        private LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
-        private ViewModelStore mViewModelStore = new ViewModelStore();
-
-        LoaderOwner() {
-            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        }
-
-        @NonNull
-        @Override
-        public Lifecycle getLifecycle() {
-            return mLifecycle;
-        }
-
-        @NonNull
-        @Override
-        public ViewModelStore getViewModelStore() {
-            return mViewModelStore;
-        }
     }
 }

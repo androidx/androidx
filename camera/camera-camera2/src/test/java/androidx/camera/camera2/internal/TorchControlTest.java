@@ -37,10 +37,9 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -63,6 +62,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import kotlinx.coroutines.test.TestCoroutineDispatcher;
+
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -75,8 +76,7 @@ public class TorchControlTest {
     private TorchControl mNoFlashUnitTorchControl;
     private TorchControl mTorchControl;
     private Camera2CameraControl.CaptureResultListener mCaptureResultListener;
-    private LifecycleOwner mLifecycleOwner;
-    private LifecycleRegistry mLifecycleRegistry;
+    private TestLifecycleOwner mLifecycleOwner;
 
     @Before
     public void setUp() throws CameraAccessException {
@@ -112,10 +112,8 @@ public class TorchControlTest {
         mCaptureResultListener = argumentCaptor.getValue();
 
         /* Prepare Lifecycle for test LiveData */
-        mLifecycleOwner = mock(LifecycleOwner.class);
-        mLifecycleRegistry = new LifecycleRegistry(mLifecycleOwner);
-        when(mLifecycleOwner.getLifecycle()).thenReturn(mLifecycleRegistry);
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
+                new TestCoroutineDispatcher());
     }
 
     @After

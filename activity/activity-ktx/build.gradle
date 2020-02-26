@@ -43,6 +43,8 @@ dependencies {
     }
     api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api(KOTLIN_STDLIB)
+
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
