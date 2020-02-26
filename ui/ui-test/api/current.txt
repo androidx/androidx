@@ -8,6 +8,7 @@ package androidx.ui.test {
   }
 
   public final class AssertionsKt {
+    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsPredicate predicate);
     method public static <T extends java.util.Collection<? extends androidx.ui.test.SemanticsNodeInteraction>> T assertCountEquals(T, int expectedSize);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.ui.test.SemanticsNodeInteraction);
@@ -25,8 +26,6 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertLabelEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
     method public static androidx.ui.test.SemanticsNodeInteraction assertSemanticsIsEqualTo(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
     method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
-    method public static androidx.ui.test.SemanticsNodeInteraction verify(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsPredicate predicate);
-    method public static void verifyHierarchy(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.String> assertionMessage, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> condition);
   }
 
   public final class BitmapHelpersKt {

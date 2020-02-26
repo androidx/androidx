@@ -20,7 +20,6 @@ import androidx.ui.core.LayoutNode
 import androidx.ui.core.RepaintBoundaryNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
@@ -38,7 +37,7 @@ import androidx.ui.unit.toPx
  *
  * Throws [AssertionError] if the component is not hidden.
  */
-fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction = verify(isHidden())
+fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction = assert(isHidden())
 
 /**
  * Asserts that the current component has hidden property set to false.
@@ -49,7 +48,7 @@ fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction = verify
  *
  * Throws [AssertionError] if the component is hidden.
  */
-fun SemanticsNodeInteraction.assertIsNotHidden(): SemanticsNodeInteraction = verify(isNotHidden())
+fun SemanticsNodeInteraction.assertIsNotHidden(): SemanticsNodeInteraction = assert(isNotHidden())
 
 /**
  * Asserts that the current component is displayed on screen.
@@ -88,21 +87,21 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
  *
  * Throws [AssertionError] if the component is not unchecked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction = verify(isOn())
+fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction = assert(isOn())
 
 /**
  * Asserts that the current component is unchecked.
  *
  * Throws [AssertionError] if the component is checked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = verify(isOff())
+fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = assert(isOff())
 
 /**
  * Asserts that the current component is selected.
  *
  * Throws [AssertionError] if the component is unselected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = verify(isSelected())
+fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = assert(isSelected())
 
 /**
  * Asserts that the current component is unselected.
@@ -110,7 +109,7 @@ fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = veri
  * Throws [AssertionError] if the component is selected or not selectable.
  */
 fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction =
-    verify(isUnselected())
+    assert(isUnselected())
 
 /**
  * Asserts that the current component is toggleable.
@@ -118,7 +117,7 @@ fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction =
  * Throws [AssertionError] if the component is not toggleable.
  */
 fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction =
-    verify(isToggleable())
+    assert(isToggleable())
 
 /**
  * Asserts that the current component is selectable.
@@ -126,14 +125,14 @@ fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction =
  * Throws [AssertionError] if the component is not selectable.
  */
 fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction =
-    verify(isSelectable())
+    assert(isSelectable())
 
 /**
  * Asserts the component is in a mutually exclusive group. This is used by radio groups to assert
  * only one is selected at a given time.
  */
 fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction =
-    verify(isInMutuallyExclusiveGroup())
+    assert(isInMutuallyExclusiveGroup())
 
 /**
  * Asserts the component's label equals the given String.
@@ -141,7 +140,7 @@ fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeIn
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
 fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInteraction =
-    verify(hasText(value))
+    assert(hasText(value))
 
 /**
  * Asserts the component's value equals the given value.
@@ -150,7 +149,7 @@ fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInte
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
 fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
-    verify(hasValue(value))
+    assert(hasValue(value))
 
 /**
  * Asserts that the semantics of the component are the same as the given semantics.
@@ -169,7 +168,7 @@ fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
  * Throws [AssertionError] if the component is doesn't have a click action.
  */
 fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
-    verify(hasClickAction())
+    assert(hasClickAction())
 
 /**
  * Asserts that the current component doesn't have a click action.
@@ -177,7 +176,7 @@ fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
  * Throws [AssertionError] if the component has a click action.
  */
 fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction =
-    verify(hasNoClickAction())
+    assert(hasNoClickAction())
 
 /**
  * Asserts that this collection of nodes is equal to the given [expectedSize].
@@ -209,10 +208,13 @@ fun <T : Collection<SemanticsNodeInteraction>> T.assertCountEquals(expectedSize:
 }
 
 /**
- * Verifies that the provided condition is true.
- * Throws [AssertionError] if it is not.
+ * Asserts that the provided [predicate] is satisfied for this node.
+ *
+ * @param predicate Predicate to verify.
+ *
+ * @throws AssertionError if the predicate fails or the node can no longer be found.
  */
-fun SemanticsNodeInteraction.verify(
+fun SemanticsNodeInteraction.assert(
     predicate: SemanticsPredicate
 ): SemanticsNodeInteraction {
     val errorMessageOnFail = "Failed to assert the following: (${predicate.description})"
@@ -222,25 +224,6 @@ fun SemanticsNodeInteraction.verify(
             semanticsTreeInteraction.selector, node, predicate))
     }
     return this
-}
-
-/**
- * Verifies that the provided condition is true on all parent semantics nodes.
- * Throws [AssertionError] if it is not.
- */
-fun SemanticsNodeInteraction.verifyHierarchy(
-    assertionMessage: (SemanticsConfiguration) -> String,
-    condition: (SemanticsConfiguration) -> Boolean
-) {
-    // TODO(b/133217292)
-    var node: SemanticsNode? = fetchSemanticsNode("Failed to verify hierarchy.")
-    while (node != null) {
-        if (!condition.invoke(node.config)) {
-            // TODO(b/133217292)
-            throw AssertionError("Assert failed: ${assertionMessage(node.config)}")
-        }
-        node = node.parent
-    }
 }
 
 private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
