@@ -501,24 +501,24 @@ class AndroidLayoutDrawTest {
                         canvas.drawRect(size.toRect(), paint)
                     },
                     children = {
-                    AtLeastSize(size = model.size, modifier = draw { canvas, size ->
-                        drawLatch.countDown()
-                        val paint = Paint()
-                        paint.color = model.innerColor
-                        canvas.drawRect(size.toRect(), paint)
+                        AtLeastSize(size = model.size, modifier = draw { canvas, size ->
+                            drawLatch.countDown()
+                            val paint = Paint()
+                            paint.color = model.innerColor
+                            canvas.drawRect(size.toRect(), paint)
+                        })
+                    }, measureBlock = { measurables, constraints ->
+                        measureCalls++
+                        layout(30.ipx, 30.ipx) {
+                            layoutCalls++
+                            layoutLatch.countDown()
+                            val placeable = measurables[0].measure(constraints)
+                            placeable.place(
+                                (30.ipx - placeable.width) / 2,
+                                (30.ipx - placeable.height) / 2
+                            )
+                        }
                     })
-                }, measureBlock = { measurables, constraints ->
-                    measureCalls++
-                    layout(30.ipx, 30.ipx) {
-                        layoutCalls++
-                        layoutLatch.countDown()
-                        val placeable = measurables[0].measure(constraints)
-                        placeable.place(
-                            (30.ipx - placeable.width) / 2,
-                            (30.ipx - placeable.height) / 2
-                        )
-                    }
-                })
             }
         }
         layoutLatch.await(1, TimeUnit.SECONDS)
@@ -2131,27 +2131,26 @@ class AndroidLayoutDrawTest {
     private fun composeNestedSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                Draw(children = {
-                    AtLeastSize(size = (model.size * 3)) {
-                        Draw(children = {
-                            FillColor(model, isInner = true)
-                        }, onPaint = { canvas, parentSize ->
-                            val paint = Paint()
-                            paint.color = model.outerColor
-                            canvas.drawRect(parentSize.toRect(), paint)
-                            val start = model.size.value.toFloat()
-                            val end = start * 2
-                            canvas.nativeCanvas.save()
-                            canvas.clipRect(Rect(start, start, end, end))
-                            drawChildren()
-                            canvas.nativeCanvas.restore()
-                        })
-                    }
-                }, onPaint = { canvas, parentSize ->
+                val fillColorModifier = draw { canvas, size ->
+                    canvas.drawRect(size.toRect(), Paint().apply {
+                        this.color = model.innerColor
+                    })
+                    drawLatch.countDown()
+                }
+                val innerDrawWithContentModifier = drawWithContent { canvas, size ->
                     val paint = Paint()
-                    paint.color = Color(0xFF000000)
-                    canvas.drawRect(parentSize.toRect(), paint)
-                })
+                    paint.color = model.outerColor
+                    canvas.drawRect(size.toRect(), paint)
+                    val start = model.size.value.toFloat()
+                    val end = start * 2
+                    canvas.nativeCanvas.save()
+                    canvas.clipRect(Rect(start, start, end, end))
+                    drawChildren()
+                    canvas.nativeCanvas.restore()
+                }
+                AtLeastSize(size = (model.size * 3), modifier = innerDrawWithContentModifier) {
+                    AtLeastSize(size = (model.size * 3), modifier = fillColorModifier)
+                }
             }
         }
     }
@@ -2695,7 +2694,9 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
     }
 }
 
+// TODO (mount): all tests that use this either should be removed or be rewritten to modifiers
 @Composable
 fun DeprecatedDraw(onPaint: Density.(canvas: Canvas, parentSize: PxSize) -> Unit) {
+    @Suppress("DEPRECATION") // remove when b/147606015 is fixed
     Draw(onPaint)
 }

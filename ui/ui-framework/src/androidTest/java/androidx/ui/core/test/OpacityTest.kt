@@ -211,8 +211,10 @@ class OpacityTest {
         }
     }
 
+    // this should be converted to Modifier after LayerModifier are the thing
     @Composable
     private fun FillColor(color: Color) {
+        @Suppress("DEPRECATION") // remove when b/147606015 is fixed
         Draw { canvas, parentSize ->
             canvas.drawRect(parentSize.toRect(), Paint().apply {
                     this.color = color
