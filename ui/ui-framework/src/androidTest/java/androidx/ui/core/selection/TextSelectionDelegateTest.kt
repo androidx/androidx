@@ -19,8 +19,6 @@ package androidx.ui.core.selection
 import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
-import androidx.compose.StructurallyEqual
-import androidx.compose.state
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -78,8 +76,7 @@ class TextSelectionDelegateTest {
                 val text = "hello world\n"
                 val fontSize = 20.sp
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -87,19 +84,17 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val selectableInvalid = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = mock(),
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { null },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('h')
@@ -138,8 +133,7 @@ class TextSelectionDelegateTest {
                 val text = "hello world\n"
                 val fontSize = 20.sp
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -147,19 +141,17 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val selectableInvalid = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = mock(),
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { null },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('h')
@@ -199,8 +191,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -208,13 +199,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('h')
@@ -256,8 +245,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -265,13 +253,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('o')
@@ -313,8 +299,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -322,13 +307,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('\u05D1')
@@ -370,8 +353,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -379,13 +361,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('\u05D5')
@@ -429,8 +409,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -438,13 +417,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('\u05D0')
@@ -488,8 +465,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -497,13 +473,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('\u05D0')
@@ -545,8 +519,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -554,13 +527,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('h')
@@ -602,8 +573,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -611,13 +581,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('o')
@@ -659,8 +627,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -668,13 +635,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('\u05D1')
@@ -716,8 +681,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -725,13 +689,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('\u05D5')
@@ -775,8 +737,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -784,13 +745,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('e')
@@ -834,8 +793,7 @@ class TextSelectionDelegateTest {
                 val fontSize = 20.sp
                 val fontSizeInPx = fontSize.toPx().value
 
-                val layoutResultState = state<TextLayoutResult?>(StructurallyEqual) { null }
-                layoutResultState.value = simpleTextLayout(
+                val layoutResult = simpleTextLayout(
                     text = text,
                     fontSize = fontSize,
                     density = defaultDensity
@@ -843,13 +801,11 @@ class TextSelectionDelegateTest {
 
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
-                val layoutCoordinatesState =
-                    state<LayoutCoordinates?>(StructurallyEqual) { layoutCoordinates }
 
                 val selectable = TextSelectionDelegate(
-                    selectionRangeState = mock(),
-                    layoutCoordinatesState = layoutCoordinatesState,
-                    textLayoutResultState = layoutResultState
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
                 )
 
                 val startOffset = text.indexOf('\u05D2')

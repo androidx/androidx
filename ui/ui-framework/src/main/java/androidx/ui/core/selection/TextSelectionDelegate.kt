@@ -16,7 +16,6 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.MutableState
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.geometry.Offset
 import androidx.ui.text.TextLayoutResult
@@ -29,9 +28,9 @@ import androidx.ui.unit.toRect
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
-    private val selectionRangeState: MutableState<TextRange?>,
-    private val layoutCoordinatesState: MutableState<LayoutCoordinates?>,
-    private val textLayoutResultState: MutableState<TextLayoutResult?>
+    private val selectionRangeUpdate: (TextRange?) -> Unit,
+    private val coordinatesCallback: () -> LayoutCoordinates?,
+    private val layoutResultCallback: () -> TextLayoutResult?
 ) : Selectable {
     override fun getSelection(
         startPosition: PxPosition,
@@ -41,9 +40,8 @@ internal class TextSelectionDelegate(
         previousSelection: Selection?,
         isStartHandle: Boolean
     ): Selection? {
-        val layoutCoordinates = layoutCoordinatesState.value
-        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
-        val textLayoutResult = textLayoutResultState.value ?: return null
+        val layoutCoordinates = getLayoutCoordinates() ?: return null
+        val textLayoutResult = layoutResultCallback() ?: return null
 
         val relativePosition = containerLayoutCoordinates.childToLocal(
             layoutCoordinates, PxPosition.Origin
@@ -61,10 +59,10 @@ internal class TextSelectionDelegate(
         )
 
         return if (selection == null) {
-            selectionRangeState.value = null
+            selectionRangeUpdate(null)
             null
         } else {
-            selectionRangeState.value = selection.toTextRange()
+            selectionRangeUpdate(selection.toTextRange())
             return selection
         }
     }
@@ -76,10 +74,9 @@ internal class TextSelectionDelegate(
             return PxPosition.Origin
         }
 
-        val layoutCoordinates = layoutCoordinatesState.value
-        if (layoutCoordinates == null || !layoutCoordinates.isAttached) return PxPosition.Origin
+        if (getLayoutCoordinates() == null) return PxPosition.Origin
 
-        val textLayoutResult = textLayoutResultState.value ?: return PxPosition.Origin
+        val textLayoutResult = layoutResultCallback() ?: return PxPosition.Origin
         return getSelectionHandleCoordinates(
             textLayoutResult = textLayoutResult,
             offset = if (isStartHandle) selection.start.offset else selection.end.offset,
@@ -89,7 +86,7 @@ internal class TextSelectionDelegate(
     }
 
     override fun getLayoutCoordinates(): LayoutCoordinates? {
-        val layoutCoordinates = layoutCoordinatesState.value
+        val layoutCoordinates = coordinatesCallback()
         if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
         return layoutCoordinates
     }

@@ -181,7 +181,7 @@ class TextLayoutTest {
 
     @Test
     fun testOnTextLayout() = with(density) {
-        val layoutLatch = CountDownLatch(2)
+        val layoutLatch = CountDownLatch(1)
         val callback = mock<(TextLayoutResult) -> Unit>()
         show {
             val text = @Composable {
