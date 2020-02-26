@@ -32,6 +32,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -83,6 +84,12 @@ public class TextureViewImplementation implements PreviewView.Implementation {
 
             tryToProvidePreviewSurface();
         };
+    }
+
+    @Nullable
+    @Override
+    public Size getResolution() {
+        return mResolution;
     }
 
     @Override
