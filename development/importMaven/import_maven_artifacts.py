@@ -38,6 +38,7 @@ def main():
     artifact_name = parse_result.name
     if ("kotlin-native-linux" in artifact_name): artifact_name = fix_kotlin_native(artifact_name)
 
+    # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
     command = './gradlew --build-file build.gradle.kts -PartifactName=%s' % (
         artifact_name)
     process = subprocess.Popen(command,

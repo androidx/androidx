@@ -18,18 +18,8 @@ import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import org.apache.maven.model.Dependency
-import org.apache.maven.model.Parent
-import org.apache.maven.model.Repository
-import org.apache.maven.model.building.DefaultModelBuilderFactory
-import org.apache.maven.model.building.DefaultModelBuildingRequest
-import org.apache.maven.model.building.ModelBuildingException
-import org.apache.maven.model.building.ModelBuildingRequest
-import org.apache.maven.model.building.ModelSource
-import org.apache.maven.model.resolution.ModelResolver
 import org.w3c.dom.Element
 import org.w3c.dom.Node
-import java.io.InputStream
 import java.security.MessageDigest
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
@@ -45,72 +35,10 @@ buildscript {
     }
 
     dependencies {
-        classpath(gradleApi())
         classpath("org.apache.maven:maven-model:3.5.4")
         classpath("org.apache.maven:maven-model-builder:3.5.4")
         classpath("com.squareup.okhttp3:okhttp:3.11.0")
-    }
-}
-
-typealias MavenListener = (String, String, String, File) -> Unit
-
-/**
- * A Maven module resolver which uses Gradle.
- */
-class MavenModuleResolver(val project: Project, val listener: MavenListener) : ModelResolver {
-
-    override fun resolveModel(dependency: Dependency): ModelSource? {
-        return resolveModel(dependency.groupId, dependency.artifactId, dependency.version)
-    }
-
-    override fun resolveModel(parent: Parent): ModelSource? {
-        return resolveModel(parent.groupId, parent.artifactId, parent.version)
-    }
-
-    override fun resolveModel(
-        groupId: String,
-        artifactId: String,
-        version: String
-    ): ModelSource? {
-        val pomQuery = project.dependencies.createArtifactResolutionQuery()
-        val pomQueryResult = pomQuery.forModule(groupId, artifactId, version)
-            .withArtifacts(
-                MavenModule::class.java,
-                MavenPomArtifact::class.java
-            )
-            .execute()
-        var result: File? = null
-        for (component in pomQueryResult.resolvedComponents) {
-            val pomArtifacts = component.getArtifacts(MavenPomArtifact::class.java)
-            for (pomArtifact in pomArtifacts) {
-                val pomFile = pomArtifact as? ResolvedArtifactResult
-                if (pomFile != null) {
-                    result = pomFile.file
-                    listener.invoke(groupId, artifactId, version, result)
-                }
-            }
-        }
-        return object : ModelSource {
-            override fun getInputStream(): InputStream {
-                return result!!.inputStream()
-            }
-
-            override fun getLocation(): String {
-                return result!!.absolutePath
-            }
-        }
-    }
-
-    override fun addRepository(repository: Repository?) {
-        // We don't need to support this
-    }
-
-    override fun addRepository(repository: Repository?, replace: Boolean) {
-        // We don't need to support this
-    }
-
-    override fun newCopy(): ModelResolver {
-        return this
+        classpath("javax.inject:javax.inject:1")
     }
 }
 
@@ -118,9 +46,6 @@ class MavenModuleResolver(val project: Project, val listener: MavenListener) : M
 val prebuiltsLocation = file("../../../../prebuilts/androidx")
 val internalFolder = "internal"
 val externalFolder = "external"
-val configurationName = "fetchArtifacts"
-val fetchArtifacts = configurations.create(configurationName)
-val fetchArtifactsContainer = configurations.getByName(configurationName)
 // Passed in as a project property
 val artifactName = project.findProperty("artifactName")
 val mediaType = MediaType.get("application/json; charset=utf-8")
@@ -176,26 +101,38 @@ repositories {
     }
 }
 
+val allFilesWithDependencies: Configuration by configurations.creating {
+    attributes {
+        // We define this attribute in DirectMetadataAccessVariantRule
+        attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named("all-files-with-dependencies"))
+    }
+    extendsFrom(configurations.runtimeClasspath.get())
+}
+
 if (artifactName != null) {
     dependencies {
         // This is the configuration container that we use to lookup the
         // transitive closure of all dependencies.
-        fetchArtifacts(artifactName)
+        implementation(artifactName)
+
+        // For metadata access
+        components {
+            all<DirectMetadataAccessVariantRule>()
+        }
     }
 }
 
 /**
- * Returns the list of libraries that are *internal*.
+ * Checks if an artifact is *internal*.
  */
-fun filterInternalLibraries(artifacts: Set<ResolvedArtifact>): Set<ResolvedArtifact> {
-    return artifacts.filter {
-        val moduleVersionId = it.moduleVersion.id
-        val group = moduleVersionId.group
-
+fun isInternalArtifact(artifact: ResolvedArtifactResult): Boolean {
+    val component = artifact.id.componentIdentifier as? ModuleComponentIdentifier
+    if (component != null) {
+        val group = component.group
         for (regex in internalArtifacts) {
             val match = regex.matches(group)
             if (match) {
-                return@filter regex.matches(group)
+                return true
             }
         }
 
@@ -206,78 +143,11 @@ fun filterInternalLibraries(artifacts: Set<ResolvedArtifact>): Set<ResolvedArtif
                         !forceExternal.contains(sub)
                     } ?: true
             if (match) {
-                return@filter true
-            }
-        }
-        false
-    }.toSet()
-}
-
-/**
- * Returns the supporting files (POM, Source files) for a given artifact.
- */
-fun supportingArtifacts(
-    artifact: ResolvedArtifact,
-    internal: Boolean = false
-): List<ResolvedArtifactResult> {
-    val supportingArtifacts = mutableListOf<ResolvedArtifactResult>()
-    val pomQuery = project.dependencies.createArtifactResolutionQuery()
-    val modelBuilderFactory = DefaultModelBuilderFactory()
-    val builder = modelBuilderFactory.newInstance()
-    val resolver = MavenModuleResolver(project) { groupId, artifactId, version, pomFile ->
-        copyPomFile(groupId, artifactId, version, pomFile, internal)
-    }
-    val pomQueryResult = pomQuery.forComponents(artifact.id.componentIdentifier)
-        .withArtifacts(
-            MavenModule::class.java,
-            MavenPomArtifact::class.java
-        )
-        .execute()
-
-    for (component in pomQueryResult.resolvedComponents) {
-        val pomArtifacts = component.getArtifacts(MavenPomArtifact::class.java)
-        for (pomArtifact in pomArtifacts) {
-            val pomFile = pomArtifact as? ResolvedArtifactResult
-            if (pomFile != null) {
-                try {
-                    val request: ModelBuildingRequest = DefaultModelBuildingRequest()
-                    request.modelResolver = resolver
-                    request.pomFile = pomFile.file
-                    // Turn off validations becuase there are lots of bad POM files out there.
-                    request.validationLevel = ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL
-                    builder.build(request).effectiveModel
-                } catch (exception: ModelBuildingException) {
-                    println("Error building model request for $pomArtifact")
-                }
-                supportingArtifacts.add(pomFile)
+                return true
             }
         }
     }
-
-    // Create a separate query for a sources. This is because, withArtifacts seems to be an AND.
-    // So if artifacts only have a distributable without a source, we still want to copy the POM file.
-    val sourcesQuery = project.dependencies.createArtifactResolutionQuery()
-    val sourcesQueryResult = sourcesQuery.forComponents(artifact.id.componentIdentifier)
-        .withArtifacts(
-            JvmLibrary::class.java,
-            SourcesArtifact::class.java
-        )
-        .execute()
-
-    if (sourcesQueryResult.resolvedComponents.size > 0) {
-        for (component in sourcesQueryResult.resolvedComponents) {
-            val sourcesArtifacts = component.getArtifacts(SourcesArtifact::class.java)
-            for (sourcesArtifact in sourcesArtifacts) {
-                val sourcesFile = sourcesArtifact as? ResolvedArtifactResult
-                if (sourcesFile != null) {
-                    supportingArtifacts.add(sourcesFile)
-                }
-            }
-        }
-    } else {
-        project.logger.warn("No sources found for $artifact")
-    }
-    return supportingArtifacts
+    return false
 }
 
 /**
@@ -407,42 +277,32 @@ fun transformInternalPomFile(file: File): File {
 /**
  * Copies artifacts to the right locations.
  */
-fun copyArtifact(artifact: ResolvedArtifact, internal: Boolean = false) {
+fun copyArtifact(artifact: ResolvedArtifactResult, internal: Boolean = false) {
     val folder = if (internal) internalFolder else externalFolder
-    val moduleVersionId = artifact.moduleVersion.id
-    val group = moduleVersionId.group
-    val groupPath = groupToPath(group)
-    val pathComponents = listOf(
-        prebuiltsLocation,
-        folder,
-        groupPath,
-        moduleVersionId.name,
-        moduleVersionId.version
-    )
-    val location = pathComponents.joinToString("/")
-    val supportingArtifacts = supportingArtifacts(artifact, internal = internal)
-    // Copy main artifact
-    println("Copying $artifact to $location")
-    copy {
-        from(
-            artifact.file,
-            digest(artifact.file, "MD5"),
-            digest(artifact.file, "SHA1")
+    val file = artifact.file
+    val component = artifact.id.componentIdentifier as? ModuleComponentIdentifier
+    if (component != null) {
+        val group = component.group
+        val moduleName = component.module
+        val moduleVersion = component.version
+        val groupPath = groupToPath(group)
+        val pathComponents = listOf(
+            prebuiltsLocation,
+            folder,
+            groupPath,
+            moduleName,
+            moduleVersion
         )
-        into(location)
-    }
-    // Copy supporting artifacts
-    for (supportingArtifact in supportingArtifacts) {
-        val file = supportingArtifact.file
+        val location = pathComponents.joinToString("/")
+        println("Copying $name to $location")
         if (file.name.endsWith(".pom")) {
-            copyPomFile(group, moduleVersionId.name, moduleVersionId.version, file, internal)
+            copyPomFile(group, moduleName, moduleVersion, file, internal)
         } else {
-            println("Copying $supportingArtifact to $location")
             copy {
                 from(
-                    supportingArtifact.file,
-                    digest(supportingArtifact.file, "MD5"),
-                    digest(supportingArtifact.file, "SHA1")
+                    file,
+                    digest(file, "MD5"),
+                    digest(file, "SHA1")
                 )
                 into(location)
             }
@@ -512,35 +372,64 @@ fun groupToPath(group: String): String {
     }
 }
 
+/**
+ * This rule runs in a sandbox, and does not have access ot things in scope which it should usually
+ * have access to. This is why the constant `all-files-with-dependencies` is being duplicated.
+ */
+@CacheableRule
+open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
+
+    @javax.inject.Inject
+    open fun getObjects(): ObjectFactory = throw UnsupportedOperationException()
+
+    override fun execute(ctx: ComponentMetadataContext) {
+        val id = ctx.details.id
+        ctx.details.maybeAddVariant("allFilesWithDependenciesElements", "runtimeElements") {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.JAVA_RUNTIME))
+                attribute(Category.CATEGORY_ATTRIBUTE, getObjects().named(Category.DOCUMENTATION))
+                attribute(
+                    DocsType.DOCS_TYPE_ATTRIBUTE,
+                    getObjects().named("all-files-with-dependencies")
+                )
+            }
+            withFiles {
+                addFile("${id.name}-${id.version}.pom")
+                addFile("${id.name}-${id.version}.module")
+                addFile("${id.name}-${id.version}.jar")
+                addFile("${id.name}-${id.version}-sources.jar")
+            }
+        }
+        ctx.details.maybeAddVariant("allFilesWithDependencies", "runtime") {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.JAVA_RUNTIME))
+                attribute(Category.CATEGORY_ATTRIBUTE, getObjects().named(Category.DOCUMENTATION))
+                attribute(
+                    DocsType.DOCS_TYPE_ATTRIBUTE,
+                    getObjects().named("all-files-with-dependencies")
+                )
+            }
+            withFiles {
+                addFile("${id.name}-${id.version}.pom")
+                // No harm in leaving it in here.
+                addFile("${id.name}-${id.version}.module")
+                addFile("${id.name}-${id.version}.jar")
+                addFile("${id.name}-${id.version}-sources.jar")
+            }
+        }
+    }
+}
+
 tasks {
     val fetchArtifacts by creating {
         doLast {
-            // Collect all the internal and external dependencies.
-            // Copy the jar/aar's and their respective POM files.
-            val internalLibraries =
-                filterInternalLibraries(
-                    fetchArtifactsContainer
-                        .resolvedConfiguration
-                        .resolvedArtifacts
-                )
-
-            val externalLibraries =
-                fetchArtifactsContainer
-                    .resolvedConfiguration
-                    .resolvedArtifacts.filter {
-                    val isInternal = internalLibraries.contains(it)
-                    !isInternal
-                }
-
-            println("\r\nInternal Libraries")
-            internalLibraries.forEach { library ->
-                copyArtifact(library, internal = true)
+            println("\r\nAll Files with Dependencies")
+            allFilesWithDependencies.incoming.artifactView {
+                lenient(true)
+            }.artifacts.forEach {
+                copyArtifact(it, internal = isInternalArtifact(it))
             }
 
-            println("\r\nExternal Libraries")
-            externalLibraries.forEach { library ->
-                copyArtifact(library, internal = false)
-            }
             println("\r\nResolved artifacts for $artifactName.")
         }
     }
