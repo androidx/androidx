@@ -35,7 +35,7 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
     androidTestImplementation(TRUTH)
-    androidTestAnnotationProcessor project(":versionedparcelable-annotation")
+    androidTestAnnotationProcessor project(":versionedparcelable:versionedparcelable-annotation")
 }
 
 android {
