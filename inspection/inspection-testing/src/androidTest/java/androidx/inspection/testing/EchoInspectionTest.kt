@@ -22,10 +22,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 
+// This test actually tests our InspectorTester infrastructure
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -37,12 +40,40 @@ class EchoInspectionTest {
         assertThat(inspectorTester.channel.isEmpty).isTrue()
         fakeCallCodeInApp()
         val event1 = inspectorTester.channel.receive()
-        assertThat(event1).isEqualTo(byteArrayOf(1))
-        val message = byteArrayOf(1, 2, 3)
-        assertThat(inspectorTester.sendCommand(message)).isEqualTo(message)
+        assertThat(String(event1)).isEqualTo("counter: 1")
+        val message = "hello".toByteArray()
+
+        assertThat(String(inspectorTester.sendCommand(message))).isEqualTo("echoed: hello")
         fakeCallCodeInApp()
         val event2 = inspectorTester.channel.receive()
-        assertThat(event2).isEqualTo(byteArrayOf(2))
+        assertThat(String(event2)).isEqualTo("counter: 2")
+        inspectorTester.dispose()
+    }
+
+    @Test
+    fun testCancellation() = runBlocking {
+        val inspectorTester = InspectorTester(ECHO_INSPECTION_ID)
+        assertThat(inspectorTester.channel.isEmpty).isTrue()
+        val job = launch {
+            inspectorTester.sendCommand("<cancellation-test>".toByteArray())
+        }
+        val listenerEvent = inspectorTester.channel.receive()
+        // wait till cancellation listener added, because we don't want to cancel this job
+        // accidentally too early
+        assertThat(String(listenerEvent)).isEqualTo("cancellation: listener added")
+
+        // check that "concurrent" messages aren't blocked in meanwhile
+        val message = "hello".toByteArray()
+        assertThat(String(inspectorTester.sendCommand(message))).isEqualTo("echoed: hello")
+
+        // cancel command
+        job.cancelAndJoin()
+        val event = inspectorTester.channel.receive()
+        assertThat(String(event)).isEqualTo("cancellation: successfully cancelled")
+
+        // test that next command succeed
+        val followUp = "follow-up".toByteArray()
+        assertThat(String(inspectorTester.sendCommand(followUp))).isEqualTo("echoed: follow-up")
         inspectorTester.dispose()
     }
 
