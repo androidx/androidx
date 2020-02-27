@@ -39,6 +39,9 @@ import java.util.Set;
 @SuppressWarnings("WeakerAccess")
 public final class AppInitializer {
 
+    // Tracing
+    private static final String SECTION_NAME = "Startup";
+
     /**
      * The {@link AppInitializer} instance.
      */
@@ -99,51 +102,60 @@ public final class AppInitializer {
             @NonNull Class<? extends ComponentInitializer<?>> component,
             @NonNull Set<Class<?>> initializing) {
         synchronized (sLock) {
-            if (initializing.contains(component)) {
-                String message = String.format(
-                        "Cannot initialize %s. Cycle detected.", component.getName()
-                );
-                throw new IllegalStateException(message);
-            }
-            Object result;
-            if (!mInitialized.containsKey(component)) {
-                initializing.add(component);
-                try {
-                    Object instance = component.getDeclaredConstructor().newInstance();
-                    ComponentInitializer<?> initializer = (ComponentInitializer<?>) instance;
-                    List<Class<? extends ComponentInitializer<?>>> dependencies =
-                            initializer.dependencies();
+            boolean isTracingEnabled = TraceCompat.isEnabled();
+            try {
+                if (isTracingEnabled) {
+                    // Use the simpleName here because section names would get too big otherwise.
+                    TraceCompat.beginSection(component.getSimpleName());
+                }
+                if (initializing.contains(component)) {
+                    String message = String.format(
+                            "Cannot initialize %s. Cycle detected.", component.getName()
+                    );
+                    throw new IllegalStateException(message);
+                }
+                Object result;
+                if (!mInitialized.containsKey(component)) {
+                    initializing.add(component);
+                    try {
+                        Object instance = component.getDeclaredConstructor().newInstance();
+                        ComponentInitializer<?> initializer = (ComponentInitializer<?>) instance;
+                        List<Class<? extends ComponentInitializer<?>>> dependencies =
+                                initializer.dependencies();
 
-                    if (!dependencies.isEmpty()) {
-                        for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
-                            if (!mInitialized.containsKey(clazz)) {
-                                doInitialize(clazz, initializing);
+                        if (!dependencies.isEmpty()) {
+                            for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
+                                if (!mInitialized.containsKey(clazz)) {
+                                    doInitialize(clazz, initializing);
+                                }
                             }
                         }
+                        if (StartupLogger.DEBUG) {
+                            StartupLogger.i(String.format("Initializing %s", component.getName()));
+                        }
+                        result = initializer.create(mContext);
+                        if (StartupLogger.DEBUG) {
+                            StartupLogger.i(String.format("Initialized %s", component.getName()));
+                        }
+                        initializing.remove(component);
+                        mInitialized.put(component, result);
+                    } catch (Throwable throwable) {
+                        throw new StartupException(throwable);
                     }
-
-                    if (StartupLogger.DEBUG) {
-                        StartupLogger.i(String.format("Initializing %s", component.getName()));
-                    }
-                    result = initializer.create(mContext);
-                    if (StartupLogger.DEBUG) {
-                        StartupLogger.i(String.format("Initialized %s", component.getName()));
-                    }
-                    initializing.remove(component);
-                    mInitialized.put(component, result);
-                } catch (Throwable throwable) {
-                    throw new StartupException(throwable);
+                } else {
+                    result = mInitialized.get(component);
                 }
-            } else {
-                result = mInitialized.get(component);
+                return (T) result;
+            } finally {
+                TraceCompat.endSection();
             }
-            return (T) result;
         }
     }
 
     @SuppressWarnings("unchecked")
     void discoverAndInitialize() {
         try {
+            TraceCompat.beginSection(SECTION_NAME);
             ApplicationInfo applicationInfo =
                     mContext.getPackageManager()
                             .getApplicationInfo(mContext.getPackageName(), GET_META_DATA);
@@ -170,6 +182,8 @@ public final class AppInitializer {
             }
         } catch (PackageManager.NameNotFoundException | ClassNotFoundException exception) {
             throw new StartupException(exception);
+        } finally {
+            TraceCompat.endSection();
         }
     }
 }
