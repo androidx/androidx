@@ -167,12 +167,14 @@ class DatabaseVerifier private constructor(
                         DatabaseVerificationErrors.cannotCreateConnection(ex))
                     return null
                 } finally {
+                    /* // TODO(146217083): uncomment this section when it works
                     val systemPropertyTempDir = System.getProperty(SQLITE_TEMPDIR_FLAG)
                     if (systemPropertyTempDir != sqliteNativeLibDir.toString()) {
                         throw ConcurrentModificationException("System property " +
                             "org.sqlite.tmpdir changed from $sqliteNativeLibDir to " +
                             "$systemPropertyTempDir inside DatabaseVerifier.create")
                     }
+                    */
                 }
             }
             return null
