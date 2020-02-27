@@ -26,8 +26,13 @@ import kotlinx.collections.immutable.persistentSetOf
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * Auto-disposing way to get an [AnimationClockObservable] where all current observers
- * can be unsubscribed at once.
+ * Return a new [AnimationClockObservable] wrapping this one that will auto-unsubscribe all
+ * [AnimationClockObserver]s when this call leaves the composition, preventing clock
+ * subscriptions from persisting beyond the composition lifecycle.
+ *
+ * If you are creating an animation object during composition that will subscribe to an
+ * [AnimationClockObservable] or otherwise hold a long-lived reference to one to subscribe to later,
+ * create that object with a clock returned by this method.
  */
 @Composable
 fun AnimationClockObservable.asDisposableClock(): DisposableAnimationClock {
