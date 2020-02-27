@@ -37,8 +37,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 
-import java.util.Map;
-
 /**
  * A fake {@link FakeUseCase} which contain a repeating surface.
  *
@@ -74,8 +72,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
 
     @Override
     @NonNull
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         FakeUseCaseConfig configWithDefaults = (FakeUseCaseConfig) getUseCaseConfig();
 
         ImageReader imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
@@ -98,10 +95,9 @@ public class FakeRepeatingUseCase extends FakeUseCase {
                 CameraXExecutors.mainThreadExecutor());
         builder.addSurface(mDeferrableSurface);
 
-        String cameraId = getBoundCameraId();
-        attachToCamera(cameraId, builder.build());
+        attachToCamera(builder.build());
         notifyActive();
 
-        return suggestedResolutionMap;
+        return new Size(640, 480);
     }
 }

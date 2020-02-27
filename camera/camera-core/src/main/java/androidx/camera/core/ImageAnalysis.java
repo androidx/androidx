@@ -73,7 +73,6 @@ import androidx.core.util.Preconditions;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -222,7 +221,7 @@ public final class ImageAnalysis extends UseCase {
                     // Only reset the pipeline when the bound camera is the same.
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
-                    attachToCamera(cameraId, sessionConfigBuilder.build());
+                    attachToCamera(sessionConfigBuilder.build());
 
                     notifyReset();
                 }
@@ -450,22 +449,14 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getUseCaseConfig();
 
-        String cameraId = getBoundCameraId();
+        SessionConfig.Builder sessionConfigBuilder = createPipeline(getBoundCameraId(), config,
+                suggestedResolution);
+        attachToCamera(sessionConfigBuilder.build());
 
-        Size resolution = suggestedResolutionMap.get(cameraId);
-        if (resolution == null) {
-            throw new IllegalArgumentException(
-                    "Suggested resolution map missing resolution for camera " + cameraId);
-        }
-
-        SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config, resolution);
-        attachToCamera(cameraId, sessionConfigBuilder.build());
-
-        return suggestedResolutionMap;
+        return suggestedResolution;
     }
 
     private void tryUpdateRelativeRotation() {

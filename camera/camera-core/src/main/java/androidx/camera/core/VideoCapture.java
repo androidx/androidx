@@ -58,7 +58,6 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -224,8 +223,7 @@ public class VideoCapture extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         if (mCameraSurface != null) {
             mVideoEncoder.stop();
             mVideoEncoder.release();
@@ -241,15 +239,8 @@ public class VideoCapture extends UseCase {
             throw new IllegalStateException("Unable to create MediaCodec due to: " + e.getCause());
         }
 
-        String cameraId = getBoundCameraId();
-        Size resolution = suggestedResolutionMap.get(cameraId);
-        if (resolution == null) {
-            throw new IllegalArgumentException(
-                    "Suggested resolution map missing resolution for camera " + cameraId);
-        }
-
-        setupEncoder(cameraId, resolution);
-        return suggestedResolutionMap;
+        setupEncoder(getBoundCameraId(), suggestedResolution);
+        return suggestedResolution;
     }
 
     /**
@@ -306,7 +297,7 @@ public class VideoCapture extends UseCase {
 
         CameraInternal boundCamera = getBoundCamera();
         String cameraId = getBoundCameraId();
-        Size resolution = getAttachedSurfaceResolution(cameraId);
+        Size resolution = getAttachedSurfaceResolution();
         try {
             // video encoder start
             Log.i(TAG, "videoEncoder start");
@@ -512,7 +503,7 @@ public class VideoCapture extends UseCase {
             }
         });
 
-        attachToCamera(cameraId, sessionConfigBuilder.build());
+        attachToCamera(sessionConfigBuilder.build());
 
         // audio encoder setup
         setAudioParametersByCamcorderProfile(resolution, cameraId);

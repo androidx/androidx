@@ -173,7 +173,9 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
                 String useCaseCameraId =
                         Preconditions.checkNotNull(
                                 useCase.getBoundCamera()).getCameraInfoInternal().getCameraId();
-                Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
+                Preconditions.checkArgument(useCaseCameraId.equals(cameraId));
+                Size resolution =
+                        Preconditions.checkNotNull(useCase.getAttachedSurfaceResolution());
 
                 surfaceConfigs.add(
                         transformSurfaceConfig(cameraId, useCase.getImageFormat(), resolution));

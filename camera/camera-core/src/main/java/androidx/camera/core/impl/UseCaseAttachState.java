@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.UseCase;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +37,6 @@ import java.util.Map.Entry;
  * the use case can be in: online and active. Online means the use case is currently ready for the
  * camera capture, but not currently capturing. Active means the use case is either currently
  * issuing a capture request or one has already been issued.
- *
  */
 
 public final class UseCaseAttachState {
@@ -150,7 +150,7 @@ public final class UseCaseAttachState {
 
         // Rebuild the attach info from scratch to get the updated SessionConfig.
         UseCaseAttachInfo newUseCaseAttachInfo =
-                new UseCaseAttachInfo(useCase.getSessionConfig(mCameraId));
+                new UseCaseAttachInfo(useCase.getSessionConfig());
 
         // Retain the online and active flags.
         UseCaseAttachInfo oldUseCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
@@ -209,9 +209,11 @@ public final class UseCaseAttachState {
     }
 
     private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(UseCase useCase) {
+        Preconditions.checkArgument(
+                useCase.getBoundCamera().getCameraInfoInternal().getCameraId().equals(mCameraId));
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
         if (useCaseAttachInfo == null) {
-            useCaseAttachInfo = new UseCaseAttachInfo(useCase.getSessionConfig(mCameraId));
+            useCaseAttachInfo = new UseCaseAttachInfo(useCase.getSessionConfig());
             mAttachedUseCasesToInfoMap.put(useCase, useCaseAttachInfo);
         }
         return useCaseAttachInfo;
@@ -235,6 +237,7 @@ public final class UseCaseAttachState {
     /** The set of state and configuration information for an attached use case. */
     private static final class UseCaseAttachInfo {
         /** The configurations required of the camera for the use case. */
+        @NonNull
         private final SessionConfig mSessionConfig;
         /**
          * True if the use case is currently online (i.e. camera should have a capture session
@@ -248,10 +251,11 @@ public final class UseCaseAttachState {
          */
         private boolean mActive = false;
 
-        UseCaseAttachInfo(SessionConfig sessionConfig) {
+        UseCaseAttachInfo(@NonNull SessionConfig sessionConfig) {
             mSessionConfig = sessionConfig;
         }
 
+        @NonNull
         SessionConfig getSessionConfig() {
             return mSessionConfig;
         }

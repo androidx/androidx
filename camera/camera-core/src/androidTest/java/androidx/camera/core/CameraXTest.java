@@ -58,7 +58,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -382,7 +381,7 @@ public final class CameraXTest {
 
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
 
-        assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
+        assertThat(fakeUseCase.getCameraControl()).isEqualTo(
                 mCameraInternal.getCameraControlInternal());
     }
 
@@ -396,7 +395,7 @@ public final class CameraXTest {
 
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
 
-        Mockito.verify(fakeUseCase).onCameraControlReady(mCameraId);
+        Mockito.verify(fakeUseCase).onCameraControlReady();
     }
 
     @Test
@@ -411,10 +410,10 @@ public final class CameraXTest {
         CameraX.unbind(fakeUseCase);
 
         // after unbind, Camera's CameraControlInternal should be detached from Usecase
-        assertThat(fakeUseCase.getCameraControl(mCameraId)).isNotEqualTo(
+        assertThat(fakeUseCase.getCameraControl()).isNotEqualTo(
                 mCameraInternal.getCameraControlInternal());
         // UseCase still gets a non-null default CameraControlInternal that does nothing.
-        assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
+        assertThat(fakeUseCase.getCameraControl()).isEqualTo(
                 CameraControlInternal.DEFAULT_EMPTY_INSTANCE);
     }
 
@@ -506,14 +505,11 @@ public final class CameraXTest {
 
         @Override
         @NonNull
-        protected Map<String, Size> onSuggestedResolutionUpdated(
-                @NonNull Map<String, Size> suggestedResolutionMap) {
-
+        protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
             SessionConfig.Builder builder = new SessionConfig.Builder();
 
-            String cameraId = getBoundCameraId();
-            attachToCamera(cameraId, builder.build());
-            return suggestedResolutionMap;
+            attachToCamera(builder.build());
+            return suggestedResolution;
         }
     }
 }

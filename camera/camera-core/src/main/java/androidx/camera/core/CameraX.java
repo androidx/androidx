@@ -294,9 +294,7 @@ public final class CameraX {
 
         for (UseCase useCase : useCases) {
             useCaseGroupToBind.addUseCase(useCase);
-            for (String cameraId : useCase.getAttachedCameraIds()) {
-                attach(cameraId, useCase);
-            }
+            attach(useCase.getBoundCameraId(), useCase);
         }
 
         useCaseGroupLifecycleController.notifyState();
@@ -360,7 +358,9 @@ public final class CameraX {
                 UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
                 if (useCaseGroup.removeUseCase(useCase)) {
                     // Saves all detaching use cases and detach them at once.
-                    for (String cameraId : useCase.getAttachedCameraIds()) {
+                    CameraInternal boundCamera = useCase.getBoundCamera();
+                    if (boundCamera != null) {
+                        String cameraId = boundCamera.getCameraInfoInternal().getCameraId();
                         List<UseCase> useCasesOnCameraId = detachingUseCaseMap.get(cameraId);
                         if (useCasesOnCameraId == null) {
                             useCasesOnCameraId = new ArrayList<>();
@@ -881,7 +881,7 @@ public final class CameraX {
         CameraInternal cameraInternal = cameraX.getCameraRepository().getCamera(cameraId);
 
         useCase.addStateChangeCallback(cameraInternal);
-        useCase.attachCameraControl(cameraId, cameraInternal.getCameraControlInternal());
+        useCase.attachCameraControl();
     }
 
     /**
@@ -897,7 +897,7 @@ public final class CameraX {
 
         for (UseCase useCase : useCases) {
             useCase.removeStateChangeCallback(cameraInternal);
-            useCase.detachCameraControl(cameraId);
+            useCase.detachCameraControl();
         }
         cameraInternal.removeOnlineUseCase(useCases);
     }
@@ -916,7 +916,9 @@ public final class CameraX {
 
         // Collect original use cases for different camera devices
         for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
-            for (String cameraId : useCase.getAttachedCameraIds()) {
+            CameraInternal boundCamera = useCase.getBoundCamera();
+            if (boundCamera != null) {
+                String cameraId = boundCamera.getCameraInfoInternal().getCameraId();
                 List<UseCase> useCaseList = originalCameraIdUseCaseMap.get(cameraId);
                 if (useCaseList == null) {
                     useCaseList = new ArrayList<>();
@@ -947,9 +949,7 @@ public final class CameraX {
 
             for (UseCase useCase : newCameraIdUseCaseMap.get(cameraId)) {
                 Size resolution = suggestResolutionsMap.get(useCase);
-                Map<String, Size> suggestedCameraSurfaceResolutionMap = new HashMap<>();
-                suggestedCameraSurfaceResolutionMap.put(cameraId, resolution);
-                useCase.updateSuggestedResolution(suggestedCameraSurfaceResolutionMap);
+                useCase.updateSuggestedResolution(resolution);
             }
         }
     }
