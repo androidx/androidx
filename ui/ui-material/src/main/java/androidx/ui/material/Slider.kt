@@ -25,6 +25,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.AnimatedFloatModel
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
@@ -77,7 +78,7 @@ fun SliderPosition(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0
 ): SliderPosition {
-    val clock = AnimationClockAmbient.current
+    val clock = AnimationClockAmbient.current.asDisposableClock()
     return remember(initial, valueRange, steps, clock) {
         SliderPosition(initial, valueRange, steps, clock)
     }

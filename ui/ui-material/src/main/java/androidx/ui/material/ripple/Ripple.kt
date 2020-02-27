@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
@@ -62,6 +63,9 @@ fun Ripple(
     clock: AnimationClockObservable = AnimationClockAmbient.current,
     children: @Composable() () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING") // don't allow usage of the parameter clock, only the disposable
+    val clock = clock.asDisposableClock()
+
     val density = DensityAmbient.current
     val state = remember { RippleState() }
     val theme = RippleThemeAmbient.current

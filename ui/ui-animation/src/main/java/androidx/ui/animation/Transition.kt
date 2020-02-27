@@ -17,14 +17,15 @@
 package androidx.ui.animation
 
 import androidx.animation.AnimationClockObservable
+import androidx.animation.AnimationVector
 import androidx.animation.PropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
-import androidx.animation.AnimationVector
 import androidx.animation.createAnimation
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 
@@ -74,10 +75,15 @@ fun <T> Transition(
     children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
-        // TODO: This null is workaround for b/132148894
-        val model = remember(definition, null) { TransitionModel(definition, initState, clock) }
+        val disposableClock = clock.asDisposableClock()
+        val model = remember(definition, disposableClock) {
+            TransitionModel(definition, initState, disposableClock)
+        }
+
         model.anim.onStateChangeFinished = onStateChangeFinished
-        model.anim.toState(toState)
+        onCommit(model, toState) {
+            model.anim.toState(toState)
+        }
         children(model)
     } else {
         val state = remember(definition, toState) { definition.getStateFor(toState) }
