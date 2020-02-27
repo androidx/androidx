@@ -18,7 +18,7 @@ package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.toModifier
+import androidx.ui.core.asModifier
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.BlendMode
@@ -68,7 +68,7 @@ fun PainterModifierSample() {
         DrawBackground(Color.Gray) +
                 LayoutPadding(30.dp) +
                 DrawBackground(Color.Yellow) +
-                CustomPainter().toModifier(
+                CustomPainter().asModifier(
                     alpha = 0.5f,
                     colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn)
                 ),
