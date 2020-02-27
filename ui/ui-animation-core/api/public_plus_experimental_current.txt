@@ -141,6 +141,7 @@ package androidx.animation {
   public abstract sealed class BaseAnimationClock implements androidx.animation.AnimationClockObservable {
     method public void subscribe(androidx.animation.AnimationClockObserver observer);
     method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
+    field @Deprecated public static final androidx.animation.BaseAnimationClock.Companion! Companion;
   }
 
   public final class ComplexDoubleKt {
@@ -227,10 +228,12 @@ package androidx.animation {
   }
 
   public final class ManualAnimationClock extends androidx.animation.BaseAnimationClock {
-    ctor public ManualAnimationClock(long initTimeMillis);
+    ctor public ManualAnimationClock(long initTimeMillis, boolean dispatchOnSubscribe);
     method public long getClockTimeMillis();
+    method public boolean getHasObservers();
     method public void setClockTimeMillis(long value);
     property public final long clockTimeMillis;
+    property public final boolean hasObservers;
   }
 
   public interface MutableTransitionState {
