@@ -54,6 +54,8 @@ class MissingTestSizeAnnotation : Detector(), SourceCodeScanner {
             val testPath = context.file.absolutePath
             if (ANDROID_TEST_DIRS.none { testPath.contains(it) }) return
 
+            // TODO: b/148409415 remove this when we upgrade AndroidX to AGP 4.0+
+            @Suppress("DEPRECATION")
             node.methods.filter {
                 it.hasAnnotation(TEST_ANNOTATION)
             }.forEach { method ->
