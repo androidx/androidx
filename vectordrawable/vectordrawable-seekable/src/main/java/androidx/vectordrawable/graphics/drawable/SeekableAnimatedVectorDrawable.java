@@ -555,6 +555,25 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
     }
 
     /**
+     * Pauses a running animation. This method should only be called on the same thread on which
+     * the animation was started. If the animation has not yet been started or has since ended,
+     * then the call is ignored. Paused animations can be resumed by calling {@link #resume()}.
+     */
+    public void pause() {
+        mAnimatedVectorState.mAnimatorSet.pause();
+    }
+
+    /**
+     * Resumes a paused animation. The animation resumes from where it left off when it was
+     * paused. This method should only be called on the same thread on which the animation was
+     * started. Calls will be ignored if this {@link SeekableAnimatedVectorDrawable} is not
+     * currently paused.
+     */
+    public void resume() {
+        mAnimatedVectorState.mAnimatorSet.resume();
+    }
+
+    /**
      * Sets the position of the animation to the specified point in time. This time should be
      * between 0 and the total duration of the animation, including any repetition. If the
      * animation has not yet been started, then it will not advance forward after it is set to this
