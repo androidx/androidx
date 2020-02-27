@@ -46,8 +46,7 @@ abstract class SpecialEffectsController {
      */
     @NonNull
     static SpecialEffectsController getOrCreateController(
-            @NonNull ViewGroup container) {
-        FragmentManager fragmentManager = FragmentManager.findFragmentManager(container);
+            @NonNull ViewGroup container, @NonNull FragmentManager fragmentManager) {
         SpecialEffectsControllerFactory factory =
                 fragmentManager.getSpecialEffectsControllerFactory();
         return getOrCreateController(container, factory);

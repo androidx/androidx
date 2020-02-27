@@ -859,6 +859,11 @@ public abstract class FragmentManager {
         // If there is a Fragment in the hierarchy, get its childFragmentManager, otherwise
         // use the fragmentManager of the Activity.
         if (fragment != null) {
+            if (!fragment.isAdded()) {
+                throw new IllegalStateException("The Fragment " + fragment + " that owns View "
+                        + view + " has already been destroyed. Nested fragments should always "
+                        + "use the child FragmentManager.");
+            }
             fm = fragment.getChildFragmentManager();
         } else {
             Context context = view.getContext();

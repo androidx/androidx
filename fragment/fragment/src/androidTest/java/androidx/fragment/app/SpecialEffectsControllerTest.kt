@@ -127,7 +127,7 @@ class SpecialEffectsControllerTest {
                 .isNotNull()
             // setFragmentManagerState() doesn't call moveToExpectedState() itself
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
-            val controller = SpecialEffectsController.getOrCreateController(container)
+            val controller = SpecialEffectsController.getOrCreateController(container, fm)
             assertThat(controller.isAwaitingCompletion(fragmentStateManager))
                 .isTrue()
             onActivity {
@@ -164,7 +164,7 @@ class SpecialEffectsControllerTest {
             fragment.mAdded = true
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
-            val controller = SpecialEffectsController.getOrCreateController(container)
+            val controller = SpecialEffectsController.getOrCreateController(container, fm)
             onActivity {
                 // moveToExpectedState() first to call enqueueAdd()
                 fragmentStateManager.moveToExpectedState()
@@ -215,7 +215,7 @@ class SpecialEffectsControllerTest {
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
             val controller = SpecialEffectsController
-                .getOrCreateController(container) as TestSpecialEffectsController
+                .getOrCreateController(container, fm) as TestSpecialEffectsController
             onActivity {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
@@ -283,7 +283,7 @@ class SpecialEffectsControllerTest {
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
             val controller = SpecialEffectsController
-                .getOrCreateController(container) as TestSpecialEffectsController
+                .getOrCreateController(container, fm) as TestSpecialEffectsController
             onActivity {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
@@ -325,7 +325,7 @@ class SpecialEffectsControllerTest {
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
             val controller = SpecialEffectsController
-                .getOrCreateController(container) as TestSpecialEffectsController
+                .getOrCreateController(container, fm) as TestSpecialEffectsController
             onActivity {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
