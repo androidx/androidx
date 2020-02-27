@@ -49,6 +49,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 
+import androidx.collection.ArraySet;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
 import androidx.core.graphics.drawable.IconCompat;
@@ -61,8 +62,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -1311,6 +1312,43 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         assertNull(NotificationCompat.getBubbleMetadata(notification));
+    }
+
+    @Test
+    public void testPeopleField() {
+        final Person person = new Person.Builder().setName("test name").setKey("key").build();
+        final Person person2 = new Person.Builder()
+                .setName("test name 2").setKey("key 2").setImportant(true).build();
+
+        final Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .addPerson("self name")
+                .addPerson(person)
+                .addPerson(person2)
+                .build();
+
+        if (Build.VERSION.SDK_INT >= 28) {
+            final ArrayList<android.app.Person> peopleList =
+                    notification.extras.getParcelableArrayList(Notification.EXTRA_PEOPLE_LIST);
+            final ArraySet<android.app.Person> people = new ArraySet<>(peopleList);
+            final ArraySet<android.app.Person> expected = new ArraySet<>();
+            expected.add(new Person.Builder().setUri("self name").build().toAndroidPerson());
+            expected.add(person.toAndroidPerson());
+            expected.add(person2.toAndroidPerson());
+            assertEquals(expected, people);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            final String[] peopleArray =
+                    notification.extras.getStringArray(Notification.EXTRA_PEOPLE);
+            if (peopleArray == null) {
+                throw new IllegalStateException("Notification.EXTRA_PEOPLE is null");
+            }
+            final List<String> peopleList = Arrays.asList(peopleArray);
+            final ArraySet<String> people = new ArraySet<>(peopleList);
+            final ArraySet<String> expected = new ArraySet<>();
+            expected.add("name:test name");
+            expected.add("name:test name 2");
+            expected.add("self name");
+            assertEquals(expected, people);
+        }
     }
 
     // Add the @Test annotation to enable this test. This test is disabled by default as it's not a

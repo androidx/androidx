@@ -396,7 +396,8 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! addExtras(android.os.Bundle!);
     method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder! addInvisibleAction(int, CharSequence!, android.app.PendingIntent!);
     method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder! addInvisibleAction(androidx.core.app.NotificationCompat.Action!);
-    method public androidx.core.app.NotificationCompat.Builder! addPerson(String!);
+    method @Deprecated public androidx.core.app.NotificationCompat.Builder! addPerson(String!);
+    method public androidx.core.app.NotificationCompat.Builder addPerson(androidx.core.app.Person);
     method public android.app.Notification! build();
     method public androidx.core.app.NotificationCompat.Builder! extend(androidx.core.app.NotificationCompat.Extender!);
     method public android.os.Bundle! getExtras();
