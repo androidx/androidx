@@ -438,11 +438,11 @@ public class WorkerWrapper implements Runnable {
                 PackageManagerHelper.setComponentEnabled(
                         mAppContext, RescheduleReceiver.class, false);
             }
+            if (needsReschedule) {
+                // Reset scheduled state so its picked up by background schedulers again.
+                mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+            }
             if (mWorkSpec != null && mWorker != null && mWorker.isRunInForeground()) {
-                if (needsReschedule) {
-                    // Reset scheduled state so its picked up by background schedulers again.
-                    mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
-                }
                 mForegroundProcessor.stopForeground(mWorkSpecId);
             }
             mWorkDatabase.setTransactionSuccessful();

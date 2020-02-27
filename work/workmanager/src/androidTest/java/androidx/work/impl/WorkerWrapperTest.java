@@ -1227,6 +1227,51 @@ public class WorkerWrapperTest extends DatabaseTest {
         verify(worker, never()).onStopped();
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testInterruptionsBeforeCompletion() {
+        // Suppressing this test prior to API 21, because creating a spy() ends up loading
+        // android.net.Network class which does not exist before API 21.
+
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        insertWork(work);
+        // Mark scheduled
+        mWorkSpecDao.markWorkSpecScheduled(work.getStringId(), System.currentTimeMillis());
+
+        WorkerFactory spyingFactory = new WorkerFactory() {
+            @Nullable
+            @Override
+            public ListenableWorker createWorker(
+                    @NonNull Context appContext,
+                    @NonNull String workerClassName,
+                    @NonNull WorkerParameters workerParameters) {
+
+                ListenableWorker instance = getDefaultWorkerFactory()
+                        .createWorkerWithDefaultFallback(
+                                appContext, workerClassName, workerParameters);
+
+                return (instance == null) ? null : spy(instance);
+            }
+        };
+
+        Configuration configuration = new Configuration.Builder(mConfiguration)
+                .setWorkerFactory(spyingFactory)
+                .build();
+
+        WorkerWrapper workerWrapper = new WorkerWrapper.Builder(
+                mContext,
+                configuration,
+                mWorkTaskExecutor,
+                mMockForegroundProcessor,
+                mDatabase,
+                work.getStringId()).build();
+
+        workerWrapper.interrupt();
+        workerWrapper.run();
+        WorkSpec workSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
+        assertThat(workSpec.scheduleRequestedAt, is(-1L));
+    }
+
     private WorkerWrapper.Builder createBuilder(String workSpecId) {
         return new WorkerWrapper.Builder(
                 mContext,
