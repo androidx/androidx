@@ -23,15 +23,14 @@ import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Align
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.GestureScope
 import androidx.ui.test.SemanticsNodeInteraction
@@ -307,7 +306,7 @@ class ScrollerTest {
         // We assume that the height of the device is more than 45 px
         with(composeTestRule.density) {
             composeTestRule.setContent {
-                Align(alignment = Alignment.TopStart) {
+                Stack {
                     TestTag(scrollerTag) {
                         VerticalScroller(
                             scrollerPosition = scrollerPosition,
@@ -340,7 +339,7 @@ class ScrollerTest {
         // We assume that the height of the device is more than 45 px
         with(composeTestRule.density) {
             composeTestRule.setContent {
-                Align(alignment = Alignment.TopStart) {
+                Stack {
                     TestTag(scrollerTag) {
                         HorizontalScroller(
                             scrollerPosition = scrollerPosition,
@@ -409,7 +408,7 @@ class ScrollerTest {
                     }
                 }
             }
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Box(LayoutSize(width, height), backgroundColor = Color.White) {
                     TestTag(scrollerTag) {
                         Semantics(container = true) {

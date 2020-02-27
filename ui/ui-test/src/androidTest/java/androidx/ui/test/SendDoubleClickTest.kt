@@ -18,7 +18,6 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerInput
 import androidx.ui.core.PointerInputHandler
@@ -26,8 +25,8 @@ import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Align
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.PointerInputRecorder
@@ -51,7 +50,7 @@ private const val tag = "widget"
 
 @Composable
 private fun Ui(onDoubleTap: (PxPosition) -> Unit, onPointerInput: PointerInputHandler) {
-    Align(alignment = Alignment.BottomEnd) {
+    Stack {
         TestTag(tag) {
             Semantics(container = true) {
                 DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {

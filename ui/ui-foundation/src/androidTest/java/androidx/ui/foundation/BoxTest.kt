@@ -292,7 +292,7 @@ class BoxTest {
 
     @Composable
     private fun SemanticsParent(children: @Composable Density.() -> Unit) {
-        Stack(LayoutAlign.TopLeft) {
+        Stack(LayoutAlign.TopStart) {
             TestTag(contentTag) {
                 Semantics(container = true) {
                     DensityAmbient.current.children()

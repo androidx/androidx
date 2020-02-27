@@ -18,12 +18,13 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerInput
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Align
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.test.util.PointerInputRecorder
@@ -55,8 +56,8 @@ class SendSwipeTest {
     }
 
     @Composable
-    fun Ui(alignment: Alignment) {
-        Align(alignment = alignment) {
+    fun Ui(alignment: Modifier) {
+        Stack(LayoutSize.Fill + alignment) {
             Semantics(container = true, properties = { testTag = tag }) {
                 PointerInput(
                     pointerInputHandler = recorder::onPointerInput,
@@ -70,7 +71,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeUp() {
-        composeTestRule.setContent { Ui(Alignment.TopStart) }
+        composeTestRule.setContent { Ui(LayoutAlign.TopStart) }
         findByTag(tag).doGesture { sendSwipeUp() }
         composeTestRule.runOnUiThread {
             recorder.run {
@@ -83,7 +84,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeDown() {
-        composeTestRule.setContent { Ui(Alignment.TopEnd) }
+        composeTestRule.setContent { Ui(LayoutAlign.TopEnd) }
         findByTag(tag).doGesture { sendSwipeDown() }
         composeTestRule.runOnUiThread {
             recorder.run {
@@ -96,7 +97,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeLeft() {
-        composeTestRule.setContent { Ui(Alignment.BottomEnd) }
+        composeTestRule.setContent { Ui(LayoutAlign.BottomEnd) }
         findByTag(tag).doGesture { sendSwipeLeft() }
         composeTestRule.runOnUiThread {
             recorder.run {
@@ -109,7 +110,7 @@ class SendSwipeTest {
 
     @Test
     fun swipeRight() {
-        composeTestRule.setContent { Ui(Alignment.BottomStart) }
+        composeTestRule.setContent { Ui(LayoutAlign.BottomStart) }
         findByTag(tag).doGesture { sendSwipeRight() }
         composeTestRule.runOnUiThread {
             recorder.run {

@@ -356,7 +356,7 @@ class FlexTest : LayoutTest() {
         val latch = CountDownLatch(2)
         show {
             Row(
-                LayoutAlign.TopLeft + LayoutPadding(start = leftPadding.toDp()) +
+                LayoutAlign.TopStart + LayoutPadding(start = leftPadding.toDp()) +
                         LayoutWidth.Max(expectedRowWidth.toDp())
             ) {
                 OnPositioned { coordinates -> rowWidth = coordinates.size.width }
@@ -395,7 +395,7 @@ class FlexTest : LayoutTest() {
         val latch = CountDownLatch(3)
         show {
             Row(
-                LayoutAlign.TopLeft + LayoutPadding(start = leftPadding.toDp()) +
+                LayoutAlign.TopStart + LayoutPadding(start = leftPadding.toDp()) +
                         LayoutWidth.Max(expectedRowWidth.toDp())
             ) {
                 OnPositioned { coordinates -> rowWidth = coordinates.size.width }
@@ -442,7 +442,7 @@ class FlexTest : LayoutTest() {
         val latch = CountDownLatch(3)
         show {
             Column(
-                LayoutAlign.TopLeft + LayoutPadding(top = topPadding.toDp()) +
+                LayoutAlign.TopStart + LayoutPadding(top = topPadding.toDp()) +
                         LayoutHeight.Max(expectedColumnHeight.toDp())
             ) {
                 OnPositioned { coordinates -> columnHeight = coordinates.size.height }
@@ -489,7 +489,7 @@ class FlexTest : LayoutTest() {
         val latch = CountDownLatch(2)
         show {
             Column(
-                LayoutAlign.TopLeft + LayoutPadding(top = topPadding.toDp()) +
+                LayoutAlign.TopStart + LayoutPadding(top = topPadding.toDp()) +
                         LayoutHeight.Max(expectedColumnHeight.toDp())
             ) {
                 OnPositioned { coordinates -> columnHeight = coordinates.size.height }

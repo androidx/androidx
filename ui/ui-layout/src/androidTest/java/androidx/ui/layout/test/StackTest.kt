@@ -257,7 +257,7 @@ class StackTest : LayoutTest() {
         val childSize = Array(9) { Ref<IntPxSize>() }
         val childPosition = Array(9) { Ref<PxPosition>() }
         show {
-            Stack(LayoutAlign.TopLeft) {
+            Stack(LayoutAlign.TopStart) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
