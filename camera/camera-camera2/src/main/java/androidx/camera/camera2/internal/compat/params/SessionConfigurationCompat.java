@@ -247,7 +247,6 @@ public final class SessionConfigurationCompat {
         return mImpl.getSessionConfiguration();
     }
 
-    @SuppressWarnings("EqualsHashCode") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
     @Override
     public boolean equals(@Nullable Object obj) {
         if (!(obj instanceof SessionConfigurationCompat)) {
@@ -255,6 +254,11 @@ public final class SessionConfigurationCompat {
         }
 
         return mImpl.equals(((SessionConfigurationCompat) obj).mImpl);
+    }
+
+    @Override
+    public int hashCode() {
+        return mImpl.hashCode();
     }
 
     /** @hide */
@@ -359,15 +363,13 @@ public final class SessionConfigurationCompat {
             return null;
         }
 
-        // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-        @SuppressWarnings("ReferenceEquality")
         @Override
         public boolean equals(@Nullable Object obj) {
             if (this == obj) {
                 return true;
             } else if (obj instanceof SessionConfigurationCompatBaseImpl) {
                 SessionConfigurationCompatBaseImpl other = (SessionConfigurationCompatBaseImpl) obj;
-                if (mInputConfig != other.mInputConfig
+                if (!Objects.equals(mInputConfig, other.mInputConfig)
                         || mSessionType != other.mSessionType
                         || mOutputConfigurations.size() != other.mOutputConfigurations.size()) {
                     return false;
