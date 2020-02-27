@@ -262,7 +262,8 @@ class FragmentStateManager {
                             restoreViewState();
                             if (mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
-                                        .getOrCreateController(mFragment.mContainer);
+                                        .getOrCreateController(mFragment.mContainer,
+                                                mFragment.getParentFragmentManager());
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueAdd(this,
                                         mEnterAnimationCancellationSignal);
@@ -296,7 +297,8 @@ class FragmentStateManager {
                             // TODO call saveViewState()
                             if (mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
-                                        .getOrCreateController(mFragment.mContainer);
+                                        .getOrCreateController(mFragment.mContainer,
+                                                mFragment.getParentFragmentManager());
                                 mExitAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueRemove(this,
                                         mExitAnimationCancellationSignal);
