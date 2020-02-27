@@ -1,0 +1,97 @@
+// Signature format: 3.0
+package androidx.ui.tooling {
+
+  public final class CallGroup extends androidx.ui.tooling.Group {
+    ctor public CallGroup(Object? key, androidx.ui.unit.IntPxBounds box, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+  }
+
+  public abstract sealed class Group {
+    method public final androidx.ui.unit.IntPxBounds getBox();
+    method public final java.util.Collection<androidx.ui.tooling.Group> getChildren();
+    method public final java.util.Collection<java.lang.Object> getData();
+    method public final Object? getKey();
+  }
+
+  public final class InspectableKt {
+    method public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Inspectable(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static java.util.Set<androidx.compose.SlotTable>! getTables();
+  }
+
+  public final class JoinedKey {
+    ctor public JoinedKey(Object? left, Object? right);
+    method public Object? component1();
+    method public Object? component2();
+    method public androidx.ui.tooling.JoinedKey copy(Object? left, Object? right);
+    method public Object? getLeft();
+    method public Object? getRight();
+  }
+
+  public final class NodeGroup extends androidx.ui.tooling.Group {
+    ctor public NodeGroup(Object? key, Object node, androidx.ui.unit.IntPxBounds box, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    method public Object getNode();
+  }
+
+  public final class SlotTreeKt {
+    method public static androidx.ui.tooling.Group asTree(androidx.compose.SlotTable);
+    method public static String? getPosition(androidx.ui.tooling.Group);
+  }
+
+}
+
+package androidx.ui.tooling.preview {
+
+  public final class ComposeViewAdapterKt {
+    field public static final String TOOLS_NS_URI = "http://schemas.android.com/tools";
+  }
+
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=AnnotationTarget.FUNCTION) public @interface Preview {
+    method public abstract int apiLevel() default -1;
+    method public abstract float fontScale() default 1.0f;
+    method public abstract String group() default "";
+    method public abstract int heightDp() default -1;
+    method public abstract String locale() default "";
+    method public abstract String name() default "";
+    method public abstract boolean showBackground() default false;
+    method public abstract boolean showDecoration() default false;
+    method public abstract String theme() default "";
+    method public abstract int widthDp() default -1;
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface PreviewParameter {
+    method public abstract int limit() default 2147483647;
+    method public abstract Class<? extends androidx.ui.tooling.preview.PreviewParameterProvider<?>> provider();
+  }
+
+  public interface PreviewParameterProvider<T> {
+    method public default int getCount();
+    method public kotlin.sequences.Sequence<T> getValues();
+    property public default int count;
+    property public abstract kotlin.sequences.Sequence<T> values;
+  }
+
+  public final class PreviewUtilsKt {
+  }
+
+}
+
+package androidx.ui.tooling.preview.datasource {
+
+  public class CollectionPreviewParameterProvider<T> implements androidx.ui.tooling.preview.PreviewParameterProvider<T> {
+    ctor public CollectionPreviewParameterProvider(java.util.Collection<? extends T> collection);
+    method public kotlin.sequences.Sequence<T> getValues();
+    property public kotlin.sequences.Sequence<T> values;
+  }
+
+  public final class LoremIpsum implements androidx.ui.tooling.preview.PreviewParameterProvider<java.lang.String> {
+    ctor public LoremIpsum(int words);
+    ctor public LoremIpsum();
+    method public kotlin.sequences.Sequence<java.lang.String> getValues();
+    property public kotlin.sequences.Sequence<java.lang.String> values;
+  }
+
+  public final class LoremIpsumKt {
+  }
+
+}
+
