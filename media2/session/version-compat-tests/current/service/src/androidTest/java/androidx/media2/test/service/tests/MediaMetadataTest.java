@@ -117,25 +117,29 @@ public class MediaMetadataTest {
 
         // Bitmaps will not be scaled down since they are small.
         Parcel parcel = Parcel.obtain();
-        parcelImpl.writeToParcel(parcel, 0 /* flags */);
-        parcel.setDataPosition(0);
+        try {
+            parcelImpl.writeToParcel(parcel, 0 /* flags */);
+            parcel.setDataPosition(0);
 
-        MediaMetadata metadataFromParcel =
-                ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+            MediaMetadata metadataFromParcel =
+                    ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
 
-        // Check the bitmap list from the metadata.
-        Set<String> keySet = metadataFromParcel.keySet();
-        assertTrue(keySet.containsAll(keyList));
-        assertTrue(keyList.containsAll(keySet));
+            // Check the bitmap list from the metadata.
+            Set<String> keySet = metadataFromParcel.keySet();
+            assertTrue(keySet.containsAll(keyList));
+            assertTrue(keyList.containsAll(keySet));
 
-        for (String key : keySet) {
-            Bitmap bitmap = metadataFromParcel.getBitmap(key);
-            assertNotNull(bitmap);
-            int newWidth = bitmap.getWidth();
-            int newHeight = bitmap.getHeight();
-            // The bitmaps should not have been scaled down.
-            assertEquals(newWidth, originalWidth);
-            assertEquals(newHeight, originalHeight);
+            for (String key : keySet) {
+                Bitmap bitmap = metadataFromParcel.getBitmap(key);
+                assertNotNull(bitmap);
+                int newWidth = bitmap.getWidth();
+                int newHeight = bitmap.getHeight();
+                // The bitmaps should not have been scaled down.
+                assertEquals(newWidth, originalWidth);
+                assertEquals(newHeight, originalHeight);
+            }
+        } finally {
+            parcel.recycle();
         }
     }
 
@@ -164,25 +168,29 @@ public class MediaMetadataTest {
 
         // Bitmaps will be scaled down when the metadata is written to parcel.
         Parcel parcel = Parcel.obtain();
-        parcelImpl.writeToParcel(parcel, 0 /* flags */);
-        parcel.setDataPosition(0);
+        try {
+            parcelImpl.writeToParcel(parcel, 0 /* flags */);
+            parcel.setDataPosition(0);
 
-        MediaMetadata metadataFromParcel =
-                ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+            MediaMetadata metadataFromParcel =
+                    ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
 
-        // Check the bitmap list from the metadata.
-        Set<String> keySet = metadataFromParcel.keySet();
-        assertTrue(keySet.containsAll(keyList));
-        assertTrue(keyList.containsAll(keySet));
+            // Check the bitmap list from the metadata.
+            Set<String> keySet = metadataFromParcel.keySet();
+            assertTrue(keySet.containsAll(keyList));
+            assertTrue(keyList.containsAll(keySet));
 
-        for (String key : keySet) {
-            Bitmap bitmap = metadataFromParcel.getBitmap(key);
-            assertNotNull(bitmap);
-            int newWidth = bitmap.getWidth();
-            int newHeight = bitmap.getHeight();
-            assertTrue("Resulting bitmap (size=" + newWidth + "x" + newHeight + ") was not "
-                            + "scaled down. ",
-                    newWidth < originalWidth && newHeight < originalHeight);
+            for (String key : keySet) {
+                Bitmap bitmap = metadataFromParcel.getBitmap(key);
+                assertNotNull(bitmap);
+                int newWidth = bitmap.getWidth();
+                int newHeight = bitmap.getHeight();
+                assertTrue("Resulting bitmap (size=" + newWidth + "x" + newHeight + ") was not "
+                                + "scaled down. ",
+                        newWidth < originalWidth && newHeight < originalHeight);
+            }
+        } finally {
+            parcel.recycle();
         }
     }
 
