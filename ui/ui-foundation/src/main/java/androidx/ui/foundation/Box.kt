@@ -87,7 +87,10 @@ fun Box(
         }
     // TODO(malkov): support ContentColor prorogation (b/148129218)
     // TODO(popam): there should be no custom layout, use Column instead (b/148809177)
-    Layout(children, modifier + backgroundModifier + borderModifier) { measurables, constraints ->
+    Layout(
+        children,
+        modifier + backgroundModifier + borderModifier
+    ) { measurables, constraints, _ ->
         val leftPadding = if (paddingLeft != Dp.Unspecified) paddingLeft else padding
         val topPadding = if (paddingTop != Dp.Unspecified) paddingTop else padding
         val rightPadding = if (paddingRight != Dp.Unspecified) paddingRight else padding

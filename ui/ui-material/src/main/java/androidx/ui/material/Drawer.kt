@@ -295,7 +295,7 @@ private fun WithOffset(
 ) {
     Layout(children = {
         RepaintBoundary(children = child)
-    }) { measurables, constraints ->
+    }) { measurables, constraints, _ ->
         if (measurables.size > 1) {
             throw IllegalStateException("Only one child is allowed")
         }

@@ -225,7 +225,7 @@ class PressGestureDetectorTest {
     @Composable
     fun content(onLayout: () -> Unit) {
         Layout(
-            measureBlock = { _, _ ->
+            measureBlock = { _, _, _ ->
                 layout(100.ipx, 100.ipx) {
                     onLayout()
                 }

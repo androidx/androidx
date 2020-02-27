@@ -20,8 +20,9 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.ModifierScope
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -43,7 +44,7 @@ import androidx.ui.unit.max
  */
 @Composable
 fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+    Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
@@ -230,23 +231,28 @@ private data class AlignmentModifier(
     private val alignment: Alignment,
     private val direction: Direction
 ) : LayoutModifier {
-    override fun ModifierScope.modifyConstraints(constraints: Constraints) = when (direction) {
+    override fun Density.modifyConstraints(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ) = when (direction) {
         Direction.Both -> constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
         Direction.Horizontal -> constraints.copy(minWidth = 0.ipx)
         Direction.Vertical -> constraints.copy(minHeight = 0.ipx)
     }
 
-    override fun ModifierScope.modifySize(
+    override fun Density.modifySize(
         constraints: Constraints,
+        layoutDirection: LayoutDirection,
         childSize: IntPxSize
     ): IntPxSize = IntPxSize(
         max(constraints.minWidth, childSize.width),
         max(constraints.minHeight, childSize.height)
     )
 
-    override fun ModifierScope.modifyPosition(
+    override fun Density.modifyPosition(
         childSize: IntPxSize,
-        containerSize: IntPxSize
+        containerSize: IntPxSize,
+        layoutDirection: LayoutDirection
     ): IntPxPosition = alignment.align(
         IntPxSize(
             containerSize.width - childSize.width,

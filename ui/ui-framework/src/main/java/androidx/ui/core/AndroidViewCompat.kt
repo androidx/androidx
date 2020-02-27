@@ -39,6 +39,7 @@ internal val AndroidViewAdapter: (Any, Any) -> Any? = { parent, child ->
  * The component nodes will proxy the Compose core calls to the [View].
  */
 private fun View.toComponentNode(): ComponentNode {
+    // TODO(soboleva): add layout direction here?
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.
     val layoutNode = LayoutNode()
@@ -57,7 +58,8 @@ private fun View.toComponentNode(): ComponentNode {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
         ): MeasureScope.LayoutResult {
             if (constraints.minWidth != 0.ipx) {
                 minimumWidth = constraints.minWidth.value
@@ -65,6 +67,7 @@ private fun View.toComponentNode(): ComponentNode {
             if (constraints.minHeight != 0.ipx) {
                 minimumHeight = constraints.minHeight.value
             }
+            // TODO (soboleva): native view should get LD value from Compose?
             measure(
                 obtainMeasureSpec(constraints.minWidth, constraints.maxWidth, layoutParams.width),
                 obtainMeasureSpec(constraints.minHeight, constraints.maxHeight, layoutParams.height)

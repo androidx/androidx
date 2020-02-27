@@ -17,11 +17,8 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
-import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
 import androidx.ui.layout.Align
@@ -29,6 +26,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
@@ -264,8 +262,7 @@ class StackTest : LayoutTest() {
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
-                        Stack(LayoutSize(tripleSizeDp, tripleSizeDp)) {
+                    Stack(LayoutDirectionModifier.Rtl + LayoutSize(tripleSizeDp, tripleSizeDp)) {
                             Stack(LayoutGravity.TopStart + LayoutSize(sizeDp, sizeDp)) {
                                 SaveLayoutInfo(
                                     size = childSize[0],
@@ -329,7 +326,6 @@ class StackTest : LayoutTest() {
                                     positionedLatch = positionedLatch
                                 )
                             }
-                        }
                     }
                 }
             }

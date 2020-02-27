@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.ui.core.LayoutKt#Layout(kotlin.jvm.functions.Function0<kotlin.Unit>[], androidx.ui.core.Modifier, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult>) parameter #0:
+ArrayReturn: androidx.ui.core.LayoutKt#Layout(kotlin.jvm.functions.Function0<kotlin.Unit>[], androidx.ui.core.Modifier, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult>) parameter #0:
     Method parameter should be Collection<Function0> (or subclass) instead of raw array; was `kotlin.jvm.functions.Function0<kotlin.Unit>[]`
 
 

@@ -150,11 +150,11 @@ open class LayoutTest {
             show {
                 Layout(
                     layout,
-                    minIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
-                    minIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx },
-                    maxIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
-                    maxIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx }
-                ) { measurables, _ ->
+                    minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                    minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
+                    maxIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                    maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
+                ) { measurables, _, _ ->
                     val measurable = measurables.first()
                     test(
                         { h -> measurable.minIntrinsicWidth(h) },
@@ -176,7 +176,7 @@ open class LayoutTest {
         height: IntPx,
         alignmentLines: Map<AlignmentLine, IntPx>
     ) {
-        Layout({}) { _, constraints ->
+        Layout({}) { _, constraints, _ ->
             layout(
                 width.coerceIn(constraints.minWidth, constraints.maxWidth),
                 height.coerceIn(constraints.minHeight, constraints.maxHeight),
@@ -187,7 +187,7 @@ open class LayoutTest {
 
     @Composable
     internal fun WithInfiniteConstraints(children: @Composable() () -> Unit) {
-        Layout(children) { measurables, _ ->
+        Layout(children) { measurables, _, _ ->
             val placeables = measurables.map { it.measure(Constraints()) }
             layout(0.ipx, 0.ipx) {
                 placeables.forEach { it.place(0.ipx, 0.ipx) }
@@ -204,23 +204,23 @@ open class LayoutTest {
         Layout(
             children,
             modifier = modifier,
-            minIntrinsicWidthMeasureBlock = { measurables, h ->
+            minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
                 val width = measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
                 width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
             },
-            minIntrinsicHeightMeasureBlock = { measurables, w ->
+            minIntrinsicHeightMeasureBlock = { measurables, w, _ ->
                 val height = measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
                 height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
             },
-            maxIntrinsicWidthMeasureBlock = { measurables, h ->
+            maxIntrinsicWidthMeasureBlock = { measurables, h, _ ->
                 val width = measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
                 width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
             },
-            maxIntrinsicHeightMeasureBlock = { measurables, w ->
+            maxIntrinsicHeightMeasureBlock = { measurables, w, _ ->
                 val height = measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
                 height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
             }
-        ) { measurables, incomingConstraints ->
+        ) { measurables, incomingConstraints, _ ->
             val measurable = measurables.firstOrNull()
             val childConstraints = Constraints(constraints).enforce(incomingConstraints)
             val placeable = measurable?.measure(childConstraints)

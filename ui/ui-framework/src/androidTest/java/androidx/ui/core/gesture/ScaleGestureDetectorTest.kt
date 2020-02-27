@@ -68,7 +68,7 @@ class ScaleGestureDetectorTest {
                 touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
                 ScaleGestureDetector(scaleObserver) {
                     Layout(
-                        measureBlock = { _, _ ->
+                        measureBlock = { _, _, _ ->
                             layout(
                                 (touchSlop * LayoutDimensionFactor).ceil(),
                                 (touchSlop * LayoutDimensionFactor).ceil()

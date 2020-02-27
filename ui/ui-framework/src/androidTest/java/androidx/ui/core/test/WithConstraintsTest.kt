@@ -93,11 +93,11 @@ class WithConstraintsTest {
                         }
                         WithConstraints(drawModifier) { constraints ->
                             paddedConstraints.value = constraints
-                            Layout(measureBlock = { _, childConstraints ->
+                            Layout(measureBlock = { _, childConstraints, _ ->
                                 firstChildConstraints.value = childConstraints
                                 layout(size, size) { }
                             }, children = { })
-                            Layout(measureBlock = { _, chilConstraints ->
+                            Layout(measureBlock = { _, chilConstraints, _ ->
                                 secondChildConstraints.value = chilConstraints
                                 layout(size, size) { }
                             }, children = { })
@@ -145,10 +145,10 @@ class WithConstraintsTest {
                         Layout(
                             children = {},
                             modifier = innerModifier
-                        ) { measurables, constraints2 ->
+                        ) { measurables, constraints2, _ ->
                             layout(model.size, model.size) {}
                         }
-                    }, modifier = outerModifier) { measurables, constraints3 ->
+                    }, modifier = outerModifier) { measurables, constraints3, _ ->
                         val placeable = measurables[0].measure(
                             Constraints.fixed(
                                 model.size,
@@ -221,7 +221,7 @@ class WithConstraintsTest {
                     // wasn't possible to survide Frames swicth previously so the model read
                     // within the child Layout wasn't recorded
                     DrawVector(100.px, 100.px) { _, _ -> }
-                    Layout({}) { _, _ ->
+                    Layout({}) { _, _, _ ->
                         // read the model
                         model.value
                         latch.countDown()
@@ -361,7 +361,7 @@ class WithConstraintsTest {
                                     Layout(
                                         {},
                                         countdownLatchBackgroundModifier(Color.Yellow)
-                                    ) { _, _ ->
+                                    ) { _, _, _ ->
                                         // the same as the value inside ValueModel
                                         val size = constraints.maxWidth
                                         layout(size, size) {}
@@ -403,7 +403,7 @@ class WithConstraintsTest {
                             if (model) {
                                 latch.countDown()
                             }
-                        }) { _, _ ->
+                        }) { _, _, _ ->
                             if (!model) {
                                 model = true
                             }
@@ -441,7 +441,7 @@ class WithConstraintsTest {
                                     Layout(
                                         children = {},
                                         modifier = countdownLatchBackgroundModifier(Color.Yellow)
-                                    ) { _, _ ->
+                                    ) { _, _, _ ->
                                         layout(model.value, model.value) {}
                                     }
                                 }
@@ -482,7 +482,7 @@ class WithConstraintsTest {
                     assertTrue(lastLayoutValue)
                     drawlatch.countDown()
                 }
-                Layout(children = {}, modifier = drawModifier) { _, _ ->
+                Layout(children = {}, modifier = drawModifier) { _, _, _ ->
                     lastLayoutValue = state.value
                     // this registers the value read
                     if (!state.value) {
@@ -514,7 +514,7 @@ class WithConstraintsTest {
                     WithConstraints {
                         assertEquals(1, innerComposeLatch.count)
                         innerComposeLatch.countDown()
-                        Layout(children = emptyContent()) { _, _ ->
+                        Layout(children = emptyContent()) { _, _, _ ->
                             assertEquals(1, innerMeasureLatch.count)
                             innerMeasureLatch.countDown()
                             layout(100.ipx, 100.ipx) {
@@ -523,7 +523,7 @@ class WithConstraintsTest {
                             }
                         }
                     }
-                }) { measurables, constraints ->
+                }) { measurables, constraints, _ ->
                     assertEquals(1, outerMeasureLatch.count)
                     outerMeasureLatch.countDown()
                     layout(100.ipx, 100.ipx) {
@@ -552,7 +552,7 @@ class WithConstraintsTest {
                         Layout(
                             children = {},
                             modifier = countdownLatchBackgroundModifier(Color.Transparent)
-                        ) { _, _ ->
+                        ) { _, _, _ ->
                             // read and write once inside measureBlock
                             if (state.value == 0) {
                                 state.value = 1
@@ -595,7 +595,7 @@ private fun TestLayout(@Suppress("UNUSED_PARAMETER") someInput: Int) {
         WithConstraints {
             NeedsOtherMeasurementComposable(10.ipx)
         }
-    }) { measurables, constraints ->
+    }) { measurables, constraints, _ ->
         val withConstraintsPlaceable = measurables[0].measure(constraints)
 
         layout(30.ipx, 30.ipx) {
@@ -609,7 +609,7 @@ private fun NeedsOtherMeasurementComposable(foo: IntPx) {
     Layout(
         children = {},
         modifier = backgroundModifier(Color.Red)
-    ) { _, _ ->
+    ) { _, _, _ ->
         layout(foo, foo) { }
     }
 }
@@ -626,7 +626,7 @@ fun Container(
         children = children,
         modifier = modifier,
         measureBlock = remember<MeasureBlock>(width, height) {
-            { measurables, _ ->
+            { measurables, _, _ ->
                 val constraint = Constraints(maxWidth = width, maxHeight = height)
                 layout(width, height) {
                     measurables.forEach {
@@ -649,7 +649,7 @@ fun ContainerChildrenAffectsParentSize(
     children: @Composable() () -> Unit
 ) {
     Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
-        { measurables, _ ->
+        { measurables, _, _ ->
             val constraint = Constraints(maxWidth = width, maxHeight = height)
             val placeables = measurables.map { it.measure(constraint) }
             layout(width, height) {
@@ -663,7 +663,7 @@ fun ContainerChildrenAffectsParentSize(
 
 @Composable
 private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, _ ->
+    Layout(children) { measurables, _, _ ->
         layout(100.ipx, 100.ipx) {
             val constraints = Constraints.fixed(size.value, size.value)
             measurables.first().measure(constraints).place(0.ipx, 0.ipx)

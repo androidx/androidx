@@ -1294,7 +1294,7 @@ class FlexTest : LayoutTest() {
                             assertEquals(Constraints(), constraints)
                             FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
                         }
-                        Layout({}, LayoutFlexible(1f)) { _, constraints ->
+                        Layout({}, LayoutFlexible(1f)) { _, constraints, _ ->
                             assertEquals(
                                 rowMinWidth.toIntPx() - inflexibleChildWidth.toIntPx() * 2,
                                 constraints.minWidth
@@ -1760,7 +1760,7 @@ class FlexTest : LayoutTest() {
                                 assertEquals(Constraints(), constraints)
                                 FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
                             }
-                            Layout(emptyContent(), LayoutFlexible(1f)) { _, constraints ->
+                            Layout(emptyContent(), LayoutFlexible(1f)) { _, constraints, _ ->
                                 assertEquals(
                                     columnMinHeight.toIntPx() - inflexibleChildHeight.toIntPx() * 2,
                                     constraints.minHeight
@@ -3320,7 +3320,7 @@ private fun BaselineTestLayout(
     modifier: Modifier,
     children: @Composable() () -> Unit
 ) {
-    Layout(children = children, modifier = modifier, measureBlock = { _, constraints ->
+    Layout(children = children, modifier = modifier, measureBlock = { _, constraints, _ ->
         val widthPx = max(width.toIntPx(), constraints.minWidth)
         val heightPx = max(height.toIntPx(), constraints.minHeight)
         layout(

@@ -70,7 +70,7 @@ class LayoutTagTest {
                             children = { AtLeastSize(0.ipx, children = emptyContent()) }
                         )
                     }
-                ) { measurables, _ ->
+                ) { measurables, _, _ ->
                     assertEquals(3, measurables.size)
                     assertEquals("first", measurables[0].tag)
                     assertEquals("second", measurables[1].tag)

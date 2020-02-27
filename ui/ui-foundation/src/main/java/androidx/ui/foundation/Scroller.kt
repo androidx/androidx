@@ -269,7 +269,7 @@ private fun ScrollerLayout(
                 }
             }
         },
-        measureBlock = { measurables, constraints ->
+        measureBlock = { measurables, constraints, _ ->
             if (measurables.size > 1) {
                 throw IllegalStateException("Only one child is allowed in a VerticalScroller")
             }

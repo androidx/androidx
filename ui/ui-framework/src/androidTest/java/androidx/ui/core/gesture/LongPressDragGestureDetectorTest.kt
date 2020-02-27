@@ -68,7 +68,7 @@ class LongPressDragGestureDetectorTest {
             activity.setContent {
                 LongPressDragGestureDetector(longPressDragObserver) {
                     Layout(
-                        measureBlock = { _, _ ->
+                        measureBlock = { _, _, _ ->
                             layout(100.ipx, 100.ipx) {
                                 setupLatch.countDown()
                             }

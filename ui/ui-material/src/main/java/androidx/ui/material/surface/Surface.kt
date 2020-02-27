@@ -126,7 +126,7 @@ val ColorPalette.primarySurface: Color get() = if (isLight) primary else surface
 // TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
 @Composable
 private fun SurfaceLayout(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
-    Layout(children, modifier) { measurables, constraints ->
+    Layout(children, modifier) { measurables, constraints, _ ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")
         }

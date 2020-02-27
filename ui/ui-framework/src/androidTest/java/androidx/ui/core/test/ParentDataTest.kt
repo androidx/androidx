@@ -64,7 +64,7 @@ class ParentDataTest {
             activity.setContent {
                 Layout(children = {
                     SimpleDrawChild(drawLatch = drawLatch)
-                }, measureBlock = { measurables, constraints ->
+                }, measureBlock = { measurables, constraints, _ ->
                     assertEquals(1, measurables.size)
                     parentData.value = measurables[0].parentData
 
@@ -89,7 +89,7 @@ class ParentDataTest {
                     ParentData(data = "Hello") {
                         SimpleDrawChild(drawLatch = drawLatch)
                     }
-                }, measureBlock = { measurables, constraints ->
+                }, measureBlock = { measurables, constraints, _ ->
                     assertEquals(1, measurables.size)
                     parentData.value = measurables[0].parentData
 
@@ -114,7 +114,7 @@ class ParentDataTest {
                 ParentData(data = "Hello") {
                     Layout(children = {
                         SimpleDrawChild(drawLatch = drawLatch)
-                    }, measureBlock = { measurables, constraints ->
+                    }, measureBlock = { measurables, constraints, _ ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 

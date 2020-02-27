@@ -60,7 +60,7 @@ class AlignmentLineTest : LayoutTest() {
             Wrap {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
+                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
                         layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -99,7 +99,7 @@ class AlignmentLineTest : LayoutTest() {
             Wrap {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
+                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
                         layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -135,7 +135,7 @@ class AlignmentLineTest : LayoutTest() {
             Wrap {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
+                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
                         layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -167,7 +167,7 @@ class AlignmentLineTest : LayoutTest() {
             Wrap {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
+                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
                         layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -201,7 +201,9 @@ class AlignmentLineTest : LayoutTest() {
                 ConstrainedBox(DpConstraints(maxWidth = maxWidth)) {
                     AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                         SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                        Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
+                        Layout({
+                            SaveLayoutInfo(childSize, childPosition, layoutLatch)
+                        }) { _, _, _ ->
                             layout(
                                 childDp.toIntPx(),
                                 0.ipx,
@@ -241,7 +243,9 @@ class AlignmentLineTest : LayoutTest() {
                 ConstrainedBox(DpConstraints(maxHeight = maxHeight)) {
                     AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                         SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                        Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
+                        Layout({
+                            SaveLayoutInfo(childSize, childPosition, layoutLatch)
+                        }) { _, _, _ ->
                             layout(
                                 0.ipx,
                                 childDp.toIntPx(),
@@ -357,7 +361,7 @@ class AlignmentLineTest : LayoutTest() {
             Layout({
                 CenterAlignmentLine(testLine) {
                     SaveLayoutInfo(centerSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(Ref(), childPosition, layoutLatch) }) { _, _ ->
+                    Layout({ SaveLayoutInfo(Ref(), childPosition, layoutLatch) }) { _, _, _ ->
                         layout(
                             childWidth.toIntPx(),
                             childHeight.toIntPx(),
@@ -365,7 +369,7 @@ class AlignmentLineTest : LayoutTest() {
                         ) { }
                     }
                 }
-            }) { measurables, _ ->
+            }) { measurables, _, _ ->
                 val placeable = measurables.first().measure(Constraints()) // Infinite measuring
                 layout(0.ipx, 0.ipx) {
                     placeable.place(0.ipx, 0.ipx)
@@ -401,7 +405,7 @@ class AlignmentLineTest : LayoutTest() {
             Layout({
                 CenterAlignmentLine(testLine) {
                     SaveLayoutInfo(centerSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(Ref(), childPosition, layoutLatch) }) { _, _ ->
+                    Layout({ SaveLayoutInfo(Ref(), childPosition, layoutLatch) }) { _, _, _ ->
                         layout(
                             childWidth.toIntPx(),
                             childHeight.toIntPx(),
@@ -409,7 +413,7 @@ class AlignmentLineTest : LayoutTest() {
                         ) { }
                     }
                 }
-            }) { measurables, _ ->
+            }) { measurables, _, _ ->
                 val placeable = measurables.first().measure(Constraints()) // Infinite measuring
                 layout(0.ipx, 0.ipx) {
                     placeable.place(0.ipx, 0.ipx)

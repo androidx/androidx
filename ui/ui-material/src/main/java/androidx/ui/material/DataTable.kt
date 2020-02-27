@@ -457,7 +457,7 @@ fun DataTable(
                         }
                     }
                 }
-                Layout(children) { measurables, constraints ->
+                Layout(children) { measurables, constraints, _ ->
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         measurables.forEach { measurable ->
                             val i = measurable.parentData as Int

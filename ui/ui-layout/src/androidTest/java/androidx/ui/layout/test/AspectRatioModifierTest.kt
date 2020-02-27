@@ -100,7 +100,7 @@ class AspectRatioModifierTest : LayoutTest() {
                 Container(LayoutAspectRatio(aspectRatio)) {
                     SaveLayoutInfo(size, position, positionedLatch)
                 }
-            }) { measurables, incomingConstraints ->
+            }) { measurables, incomingConstraints, _ ->
                 require(measurables.isNotEmpty())
                 val placeable = measurables.first().measure(childContraints)
                 layout(incomingConstraints.maxWidth, incomingConstraints.maxHeight) {

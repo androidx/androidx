@@ -33,7 +33,7 @@ fun ParentDataSample() {
             Box(LayoutSize(50.dp), backgroundColor = Color.Blue)
         }
     }
-    Layout(parentDataComposable) { measurables, constraints ->
+    Layout(parentDataComposable) { measurables, constraints, _ ->
         // The parentData will be 5.
         measurables[0].parentData as Int
         layout(constraints.maxWidth, constraints.maxHeight) {}
