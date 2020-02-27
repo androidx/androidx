@@ -21,7 +21,7 @@
     <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
     <application
         android:process="androidx.ui.tooling"
-        android:debuggable="false"
+        android:debuggable="true"
         tools:ignore="HardcodedDebugMode"
         tools:replace="android:debuggable">
         <activity android:name="androidx.ui.tooling.ComposeViewAdapterTest$Companion$TestActivity"
