@@ -37,7 +37,7 @@ class BenchmarkRuleTest {
                 Thread.sleep(5)
             }
         }
-        val min = benchmarkRule.getState().getMin()
+        val min = benchmarkRule.getState().getMinTimeNanos()
         assertTrue("minimum $min should be less than 1ms",
             min < TimeUnit.MILLISECONDS.toNanos(1))
     }
