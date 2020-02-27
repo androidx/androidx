@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -34,8 +35,12 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         updateCallback = AdapterListUpdateCallback(this)
     )
 
-    suspend fun collectFrom(pagingData: PagingData<T>) {
-        differ.collectFrom(pagingData)
+    suspend fun presentData(pagingData: PagingData<T>) {
+        differ.presentData(pagingData)
+    }
+
+    fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
+        differ.submitData(lifecycle, pagingData)
     }
 
     fun retry() {

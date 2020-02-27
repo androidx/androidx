@@ -54,7 +54,7 @@ class V3Activity : AppCompatActivity() {
                 .map { pagingData ->
                     pagingData.map { it.copy(text = "${it.text} - $orientationText") }
                 }
-                .collect { adapter.collectFrom(it) }
+                .collect { adapter.presentData(it) }
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
