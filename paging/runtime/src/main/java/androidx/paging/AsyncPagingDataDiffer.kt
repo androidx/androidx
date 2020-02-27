@@ -94,11 +94,13 @@ open class AsyncPagingDataDiffer<T : Any>(
                     previousList.size == 0 -> {
                         // fast path for no items -> some items
                         callback.onInserted(0, newList.size)
+                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
                         return@withContext null
                     }
                     newList.size == 0 -> {
                         // fast path for some items -> no items
                         callback.onRemoved(0, previousList.size)
+                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
                         return@withContext null
                     }
                     else -> { // full diff
