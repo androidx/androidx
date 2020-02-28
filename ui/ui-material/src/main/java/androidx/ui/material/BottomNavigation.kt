@@ -24,12 +24,12 @@ import androidx.compose.emptyContent
 import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.DrawModifier
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
+import androidx.ui.core.Opacity
 import androidx.ui.core.Placeable
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
@@ -37,7 +37,6 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Arrangement
@@ -49,10 +48,8 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.surface.primarySurface
 import androidx.ui.text.style.TextAlign
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
 
@@ -151,19 +148,11 @@ fun RowScope.BottomNavigationItem(
         MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
             Box(modifier + LayoutFlexible(1f), gravity = ContentGravity.Center) {
                 BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
-                    val textSlot = if (alwaysShowLabels) {
-                        styledText
-                    } else {
-                        @Composable {
-                            Box(DrawScale(progress), children = styledText)
-                        }
-                    }
-
                     val animationProgress = if (alwaysShowLabels) 1f else progress
 
                     BottomNavigationItemBaselineLayout(
                         icon = icon,
-                        text = textSlot,
+                        text = styledText,
                         iconPositionAnimationProgress = animationProgress
                     )
                 }
@@ -203,34 +192,6 @@ private fun BottomNavigationTransition(
     }
 }
 
-// TODO: b/147497445 generify this and extract to public API, this shouldn't be in this file
-/**
- * [DrawModifier] that scales the drawing of its content by [scalePercent] in both axes, from the
- * center of its size.
- */
-private class DrawScale(private val scalePercent: Float) : DrawModifier {
-    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
-        canvas.apply {
-            if (scalePercent == 1f) {
-                drawContent()
-            } else {
-                val centerWidth = size.width.value / 2
-                val centerHeight = size.height.value / 2
-                val adjustedX = centerWidth - (centerWidth * scalePercent)
-                val adjustedY = centerHeight - (centerHeight * scalePercent)
-
-                save()
-                translate(adjustedX, adjustedY)
-                // TODO: b/147497445 use scale overload that accepts a pivot point if / when we
-                // expose it
-                scale(scalePercent)
-                drawContent()
-                restore()
-            }
-        }
-    }
-}
-
 /**
  * Base layout for a [BottomNavigationItem]
  *
@@ -250,12 +211,14 @@ private fun BottomNavigationItemBaselineLayout(
     Layout(
         {
             Box(LayoutTag("icon"), children = icon)
-            Box(
-                LayoutTag("text"),
-                paddingLeft = BottomNavigationItemHorizontalPadding,
-                paddingRight = BottomNavigationItemHorizontalPadding,
-                children = text
-            )
+            Opacity(iconPositionAnimationProgress) {
+                Box(
+                    LayoutTag("text"),
+                    paddingLeft = BottomNavigationItemHorizontalPadding,
+                    paddingRight = BottomNavigationItemHorizontalPadding,
+                    children = text
+                )
+            }
         }
     ) { measurables, constraints, _ ->
         val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
@@ -352,7 +315,7 @@ private fun MeasureScope.placeTextAndIcon(
 
     return layout(containerWidth, height) {
         if (iconPositionAnimationProgress != 0f) {
-            textPlaceable.place(textX, textY)
+            textPlaceable.place(textX, textY + offset)
         }
         iconPlaceable.place(iconX, selectedIconY + offset)
     }
@@ -363,7 +326,7 @@ private fun MeasureScope.placeTextAndIcon(
  * [BottomNavigationItem]s.
  */
 private val BottomNavigationAnimationBuilder = TweenBuilder<Float>().apply {
-    duration = 115
+    duration = 300
     easing = FastOutSlowInEasing
 }
 
