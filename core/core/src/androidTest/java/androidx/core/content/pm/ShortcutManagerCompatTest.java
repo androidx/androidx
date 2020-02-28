@@ -16,6 +16,10 @@
 
 package androidx.core.content.pm;
 
+import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_DYNAMIC;
+import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_MANIFEST;
+import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_PINNED;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -45,6 +49,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.core.app.TestActivity;
@@ -54,12 +59,15 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
+import com.google.common.collect.Lists;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -68,6 +76,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
 
     Context mContext;
     ShortcutInfoCompat mInfoCompat;
+    ShortcutInfoCompatSaver<Void> mShortcutInfoCompatSaver;
 
     public ShortcutManagerCompatTest() {
         super(TestActivity.class);
@@ -82,6 +91,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 .setShortLabel("Test shortcut")
                 .setIntent(new Intent("Dummy"))
                 .build();
+        mShortcutInfoCompatSaver = mock(ShortcutInfoCompatSaver.class);
+        ShortcutManagerCompat.setShortcutInfoCompatSaver(mShortcutInfoCompatSaver);
     }
 
     @Test
@@ -193,6 +204,61 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     @SdkSuppress(maxSdkVersion = 25)
     public void testCreateShortcutResultIntent_v4() throws Throwable {
         verifyLegacyIntent(ShortcutManagerCompat.createShortcutResultIntent(mContext, mInfoCompat));
+    }
+
+    @LargeTest
+    @Test
+    public void testEnableAndDisableShortcut() throws Throwable {
+        final List<String> shortcutIds = Lists.newArrayList("test-id");
+        final String disableMessage = "disabled";
+        final List<ShortcutInfoCompat> shortcuts = Lists.newArrayList(mInfoCompat);
+        final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
+
+        reset(mockShortcutManager);
+        reset(mShortcutInfoCompatSaver);
+        ShortcutManagerCompat.enableShortcuts(mContext, shortcuts);
+        if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).enableShortcuts(shortcutIds);
+        }
+        verify(mShortcutInfoCompatSaver).addShortcuts(shortcuts);
+
+        reset(mockShortcutManager);
+        reset(mShortcutInfoCompatSaver);
+        ShortcutManagerCompat.removeLongLivedShortcuts(mContext, shortcutIds);
+        if (Build.VERSION.SDK_INT >= 30) {
+            verify(mockShortcutManager).removeLongLivedShortcuts(shortcutIds);
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).removeDynamicShortcuts(shortcutIds);
+        }
+        verify(mShortcutInfoCompatSaver).removeShortcuts(shortcutIds);
+
+        reset(mockShortcutManager);
+        reset(mShortcutInfoCompatSaver);
+        ShortcutManagerCompat.disableShortcuts(mContext, shortcutIds, disableMessage);
+        if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).disableShortcuts(shortcutIds, disableMessage);
+        }
+        verify(mShortcutInfoCompatSaver).removeShortcuts(shortcutIds);
+    }
+
+    @LargeTest
+    @Test
+    public void testGetShortcut() throws Throwable {
+        final int flag = FLAG_MATCH_MANIFEST | FLAG_MATCH_DYNAMIC | FLAG_MATCH_PINNED;
+        final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
+        ShortcutManagerCompat.getShortcuts(mContext, flag);
+
+        if (Build.VERSION.SDK_INT >= 30) {
+            verify(mockShortcutManager).getShortcuts(flag);
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).getManifestShortcuts();
+            verify(mockShortcutManager).getDynamicShortcuts();
+            verify(mockShortcutManager).getPinnedShortcuts();
+        } else {
+            verify(mShortcutInfoCompatSaver).getShortcuts();
+        }
     }
 
     private void verifyLegacyIntent(Intent intent) {
