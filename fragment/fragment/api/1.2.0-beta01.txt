@@ -163,7 +163,6 @@ package androidx.fragment.app {
   public class FragmentActivity extends androidx.activity.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.lifecycle.LifecycleOwner {
     ctor public FragmentActivity();
     ctor @ContentView public FragmentActivity(@LayoutRes int);
-    method public androidx.lifecycle.Lifecycle getLifecycle();
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
     method public void onAttachFragment(androidx.fragment.app.Fragment);

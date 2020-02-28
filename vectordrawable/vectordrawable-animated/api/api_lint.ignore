@@ -25,14 +25,6 @@ MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDraw
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#getConstantState():
     Missing nullability on method `getConstantState` return
-MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#getCurrent():
-    Missing nullability on method `getCurrent` return
-MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#getPadding(android.graphics.Rect) parameter #0:
-    Missing nullability on parameter `padding` in method `getPadding`
-MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#getState():
-    Missing nullability on method `getState` return
-MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#getTransparentRegion():
-    Missing nullability on method `getTransparentRegion` return
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `res` in method `inflate`
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#inflate(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet) parameter #1:
@@ -59,10 +51,6 @@ MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDraw
     Missing nullability on parameter `callback` in method `registerAnimationCallback`
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#setColorFilter(android.graphics.ColorFilter) parameter #0:
     Missing nullability on parameter `colorFilter` in method `setColorFilter`
-MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#setColorFilter(int, android.graphics.PorterDuff.Mode) parameter #1:
-    Missing nullability on parameter `mode` in method `setColorFilter`
-MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#setState(int[]) parameter #0:
-    Missing nullability on parameter `stateSet` in method `setState`
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#setTintList(android.content.res.ColorStateList) parameter #0:
     Missing nullability on parameter `tint` in method `setTintList`
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
