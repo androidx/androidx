@@ -191,7 +191,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
         }
         if (Build.VERSION.SDK_INT >= 23) {
-            mBuilder.setSmallIcon(n.getSmallIcon());
+            if (b.mSmallIcon != null) {
+                mBuilder.setSmallIcon(b.mSmallIcon);
+            }
         }
         if (Build.VERSION.SDK_INT >= 24) {
             mBuilder.setExtras(b.mExtras)
