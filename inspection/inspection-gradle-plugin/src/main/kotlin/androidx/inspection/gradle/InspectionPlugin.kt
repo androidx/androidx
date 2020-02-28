@@ -53,9 +53,9 @@ class InspectionPlugin : Plugin<Project> {
                     project.registerDexInspectorTask(variant, libExtension, jarJar)
                 }
             }
-            libExtension.sourceSets {
-                it.getByName("main").resources.srcDirs(File(project.rootDir, "src/main/proto"))
-            }
+            libExtension.sourceSets.findByName("main")!!.resources.srcDirs(
+                File(project.rootDir, "src/main/proto")
+            )
         }
 
         project.apply(plugin = "com.google.protobuf")
