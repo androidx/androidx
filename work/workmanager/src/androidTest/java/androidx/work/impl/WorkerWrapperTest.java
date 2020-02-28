@@ -1228,6 +1228,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     }
 
     @Test
+    @MediumTest
     @SdkSuppress(minSdkVersion = 21)
     public void testInterruptionsBeforeCompletion() {
         // Suppressing this test prior to API 21, because creating a spy() ends up loading
