@@ -869,8 +869,8 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
                 mSeekState.setPlayTime(0, mReversing);
             }
             animateBasedOnPlayTime(playTime, 0, mReversing);
-            notifyUpdateListeners();
             mSeekState.setPlayTime(playTime, mReversing);
+            notifyUpdateListeners();
         } else {
             // If the animation is running, just set the seek time and wait until the next frame
             // (i.e. doAnimationFrame(...)) to advance the animation.
