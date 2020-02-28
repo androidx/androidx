@@ -22,8 +22,8 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
-import androidx.ui.graphics.ImageConfig
+import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.ImageAssetConfig
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shadow
@@ -1747,16 +1747,16 @@ class ParagraphIntegrationTest {
             // Make sure the maxLine is applied correctly
             assertThat(paragraphNoMaxLine.height).isGreaterThan(paragraphWithMaxLine.height)
 
-            val imageNoMaxLine = Image(
+            val imageNoMaxLine = ImageAsset(
                 paragraphNoMaxLine.width.roundToInt(),
                 paragraphNoMaxLine.height.roundToInt(),
-                ImageConfig.Argb8888
+                ImageAssetConfig.Argb8888
             )
             // Same size with imageNoMaxLine for comparison
-            val imageWithMaxLine = Image(
+            val imageWithMaxLine = ImageAsset(
                 paragraphNoMaxLine.width.roundToInt(),
                 paragraphNoMaxLine.height.roundToInt(),
-                ImageConfig.Argb8888
+                ImageAssetConfig.Argb8888
             )
 
             paragraphNoMaxLine.paint(Canvas(imageNoMaxLine))

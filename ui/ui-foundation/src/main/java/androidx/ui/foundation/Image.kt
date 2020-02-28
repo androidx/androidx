@@ -24,7 +24,7 @@ import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.layout.LayoutSize
@@ -46,7 +46,7 @@ import androidx.ui.unit.toRect
 // TODO(Andrey, Matvei, Nader): Support other scale types b/141741141
 @Composable
 fun SimpleImage(
-    image: Image,
+    image: ImageAsset,
     tint: Color? = null
 ) {
     with(DensityAmbient.current) {

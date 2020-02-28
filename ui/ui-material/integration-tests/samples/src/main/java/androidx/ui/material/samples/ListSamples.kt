@@ -20,14 +20,14 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.foundation.SimpleImage
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Column
 import androidx.ui.material.Divider
 import androidx.ui.material.ListItem
 
 @Sampled
 @Composable
-fun OneLineListItems(icon24x24: Image, icon40x40: Image, icon56x56: Image) {
+fun OneLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset, icon56x56: ImageAsset) {
     Column {
         ListItem(text = "One line list item with no icon")
         Divider()
@@ -57,7 +57,7 @@ fun OneLineListItems(icon24x24: Image, icon40x40: Image, icon56x56: Image) {
 
 @Sampled
 @Composable
-fun TwoLineListItems(icon24x24: Image, icon40x40: Image) {
+fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
     Column {
         ListItem(text = "Two line list item", secondaryText = "Secondary text")
         Divider()
@@ -97,7 +97,7 @@ fun TwoLineListItems(icon24x24: Image, icon40x40: Image) {
 
 @Sampled
 @Composable
-fun ThreeLineListItems(icon24x24: Image, icon40x40: Image) {
+fun ThreeLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
     Column {
         ListItem(
             text = "Three line list item",

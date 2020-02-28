@@ -18,75 +18,56 @@ package androidx.ui.graphics
 
 import androidx.ui.graphics.colorspace.ColorSpace
 
-// Opaque handle to raw decoded image data (pixels).
 /**
- *
- * To obtain an [Image] object, use [instantiateImageCodec].
- *
- * To draw an [Image], use one of the methods on the [Canvas] class, such as
- * [Canvas.drawImage].
- */
+ * Handle for the underlying platform primitive for the [ImageAsset] implementation
+  */
+/* expect */ typealias NativeImageAsset = android.graphics.Bitmap
 
 /**
- * This class is created by the engine, and should not be instantiated
- * or extended directly.
- *
- * To obtain an [Image] object, use [instantiateImageCodec].
+ * Graphics object that represents a 2 dimensional array of pixel information represented
+ * as ARGB values
  */
+interface ImageAsset {
 
-// TODO njawad/aelias uncomment implementation when host side testing support is enabled +
-//  uncomment `expect`
-// expect fun Image(
-//    width: Int,
-//    height: Int,
-//    config: ImageConfig = ImageConfig.Argb8888,
-//    hasAlpha: Boolean = true,
-//    colorSpace: ColorSpace = ColorSpace.get(ColorSpace.Named.Srgb)
-// ): Image
-
-/* expect */ typealias NativeImage = android.graphics.Bitmap
-
-interface Image {
-
-    /** The number of image pixels along the image's horizontal axis. */
+    /** The number of image pixels along the ImageAssets's horizontal axis. */
     val width: Int
 
-    /** The number of image pixels along the image's vertical axis. */
+    /** The number of image pixels along the ImageAssets's vertical axis. */
     val height: Int
 
     /** ColorSpace the Image renders in **/
     val colorSpace: ColorSpace
 
-    /** Determines whether or not the Image contains an alpha channel **/
+    /** Determines whether or not the ImageAsset contains an alpha channel **/
     val hasAlpha: Boolean
 
     /**
      * Returns the current configuration of this Image, either:
-     * @see ImageConfig.Argb8888
-     * @see ImageConfig.Rgb565
-     * @see ImageConfig.Alpha8
-     * @see ImageConfig.Gpu
+     * @see ImageAssetConfig.Argb8888
+     * @see ImageAssetConfig.Rgb565
+     * @see ImageAssetConfig.Alpha8
+     * @see ImageAssetConfig.Gpu
      */
-    val config: ImageConfig
+    val config: ImageAssetConfig
 
     /**
-     * Return backing object that implements the Image interface
+     * Return backing object that implements the ImageAsset interface
      */
-    val nativeImage: NativeImage
+    val nativeImage: NativeImageAsset
 
     /**
-     * Builds caches associated with the bitmap that are used for drawing it. This method can
-     * be used as a signal to upload images to the GPU to eventually be rendered
+     * Builds caches associated with the ImageAsset that are used for drawing it. This method can
+     * be used as a signal to upload textures to the GPU to eventually be rendered
      */
     fun prepareToDraw()
 }
 
 /**
- * Possible Image configurations. An Image configuration describes
+ * Possible ImageAsset configurations. An ImageAsset configuration describes
  * how pixels are stored. This affects the quality (color depth) as
  * well as the ability to display transparent/translucent colors.
  */
-enum class ImageConfig {
+enum class ImageAssetConfig {
     /**
      * Each pixel is stored on 4 bytes. Each channel (RGB and alpha
      * for translucency) is stored with 8 bits of precision (256
@@ -159,10 +140,10 @@ enum class ImageConfig {
     F16,
 
     /**
-     * Special configuration, when an Image is stored only in graphic memory.
-     * Images in this configuration are always immutable.
+     * Special configuration, when an ImageAsset is stored only in graphic memory.
+     * ImageAssets in this configuration are always immutable.
      *
-     * It is optimal for cases, when the only operation with the Image is to draw it on a
+     * It is optimal for cases, when the only operation with the ImageAsset is to draw it on a
      * screen.
      */
     Gpu

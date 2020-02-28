@@ -23,7 +23,7 @@ import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
@@ -117,7 +117,7 @@ class VectorComponent(
      * if the Vector graphic is not dirty
      */
     // TODO (njawad) add invalidation logic to re-draw into the offscreen Image
-    private var cachedImage: Image? = null
+    private var cachedImage: ImageAsset? = null
 
     val size: Int
         get() = root.size
@@ -129,7 +129,7 @@ class VectorComponent(
     ) {
         var targetImage = cachedImage
         if (targetImage == null) {
-            targetImage = Image(
+            targetImage = ImageAsset(
                 ceil(defaultWidth.value).toInt(),
                 ceil(defaultHeight.value).toInt()
             )

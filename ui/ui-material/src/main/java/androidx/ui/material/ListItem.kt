@@ -27,7 +27,7 @@ import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
@@ -67,7 +67,7 @@ import androidx.ui.unit.max
 @Composable
 fun ListItem(
     text: String,
-    icon: Image? = null,
+    icon: ImageAsset? = null,
     secondaryText: String? = null,
     // TODO(popam): find a way to remove this
     singleLineSecondaryText: Boolean = true,

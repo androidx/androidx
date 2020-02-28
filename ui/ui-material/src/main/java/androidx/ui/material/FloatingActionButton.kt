@@ -24,7 +24,7 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -97,7 +97,7 @@ fun FloatingActionButton(
  */
 @Composable
 fun FloatingActionButton(
-    icon: Image,
+    icon: ImageAsset,
     modifier: Modifier = Modifier.None,
     onClick: (() -> Unit)? = null,
     shape: Shape = CircleShape,
@@ -136,7 +136,7 @@ fun FloatingActionButton(
 fun FloatingActionButton(
     text: String,
     modifier: Modifier = Modifier.None,
-    icon: Image? = null,
+    icon: ImageAsset? = null,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
     color: Color = MaterialTheme.colors().primary,

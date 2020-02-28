@@ -24,7 +24,7 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
 import androidx.ui.core.Text
 import androidx.ui.foundation.SimpleImage
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Container
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.Dp
@@ -49,9 +49,9 @@ class ListItemTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    val icon24x24 by lazy { Image(width = 24.dp.toIntPx(), height = 24.dp.toIntPx()) }
-    val icon40x40 by lazy { Image(width = 40.dp.toIntPx(), height = 40.dp.toIntPx()) }
-    val icon56x56 by lazy { Image(width = 56.dp.toIntPx(), height = 56.dp.toIntPx()) }
+    val icon24x24 by lazy { ImageAsset(width = 24.dp.toIntPx(), height = 24.dp.toIntPx()) }
+    val icon40x40 by lazy { ImageAsset(width = 40.dp.toIntPx(), height = 40.dp.toIntPx()) }
+    val icon56x56 by lazy { ImageAsset(width = 56.dp.toIntPx(), height = 56.dp.toIntPx()) }
 
     @Test
     fun listItem_oneLine_size() {
