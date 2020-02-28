@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.annotation.FloatRange
-import androidx.compose.Composable
 
 /**
  * Makes its children partially transparent.
@@ -28,12 +27,7 @@ import androidx.compose.Composable
  *
  * @param opacity the fraction of children's alpha value.
  */
-@Composable
-inline fun Opacity(
-    @FloatRange(from = 0.0, to = 1.0) opacity: Float,
-    crossinline children: @Composable() () -> Unit
-) {
-    RepaintBoundaryNode(name = null, opacity = opacity) {
-        children()
-    }
-}
+fun drawOpacity(
+    @FloatRange(from = 0.0, to = 1.0) opacity: Float
+): Modifier =
+    drawLayer(alpha = opacity)

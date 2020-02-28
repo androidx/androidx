@@ -1200,6 +1200,7 @@ class LayoutNode : ComponentNode(), Measurable {
             if (containing != null) {
                 layoutNodeWrapper.wrappedBy = containing.innerLayoutNodeWrapper
             }
+            owner?.onInvalidate(this)
         }
 
     /**

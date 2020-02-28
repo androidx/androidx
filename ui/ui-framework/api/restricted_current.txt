@@ -28,7 +28,7 @@ package androidx.ui.core {
   }
 
   public final class DrawShadowKt {
-    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true);
+    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
   }
 
   public enum DropDownAlignment {
@@ -79,7 +79,7 @@ package androidx.ui.core {
   }
 
   public final class OpacityKt {
-    method public static inline void Opacity(@FloatRange(from=0.0, to=1.0) float opacity, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier drawOpacity(@FloatRange(from=0.0, to=1.0) float opacity);
   }
 
   public final class PainterModifierKt {

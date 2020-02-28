@@ -381,8 +381,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                AtLeastSize(size = 30.ipx, modifier = drawClip(model.value) + draw(drawCallback)) {
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = background(Color.Green) + drawClip(model.value) + draw(drawCallback)
+                ) {
                 }
             }
         }

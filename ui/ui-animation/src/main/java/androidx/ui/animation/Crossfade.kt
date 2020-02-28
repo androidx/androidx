@@ -16,13 +16,14 @@
 
 package androidx.ui.animation
 
+import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationEndReason
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.compose.key
 import androidx.compose.onCommit
 import androidx.compose.remember
-import androidx.ui.core.Opacity
+import androidx.ui.core.drawOpacity
 import androidx.ui.layout.Stack
 
 /**
@@ -46,17 +47,17 @@ fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
         state.items.clear()
         keys.forEach { key ->
             state.items.add(key to @Composable() { children ->
-                Opacity(
-                    opacity = animatedOpacity(
-                        visible = (key == current),
-                        onAnimationFinish = {
-                            if (key == state.current) {
-                                // leave only the current in the list
-                                state.items.removeAll { it.first != state.current }
-                            }
-                        }),
-                    children = children
-                )
+                val opacity = animatedOpacity(
+                    visible = (key == current),
+                    onAnimationFinish = {
+                        if (key == state.current) {
+                            // leave only the current in the list
+                            state.items.removeAll { it.first != state.current }
+                        }
+                    })
+                Stack(modifier = drawOpacity(opacity.value)) {
+                    children()
+                }
             })
         }
     }
@@ -80,7 +81,7 @@ private class CrossfadeState<T> {
 private fun animatedOpacity(
     visible: Boolean,
     onAnimationFinish: () -> Unit = {}
-): Float {
+): AnimatedFloat {
     val animatedFloat = animatedFloat(if (!visible) 1f else 0f)
     onCommit(visible) {
         animatedFloat.animateTo(
@@ -92,5 +93,5 @@ private fun animatedOpacity(
                 }
             })
     }
-    return animatedFloat.value
+    return animatedFloat
 }
