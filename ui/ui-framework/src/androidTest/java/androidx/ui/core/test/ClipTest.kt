@@ -19,6 +19,7 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.Untracked
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -371,7 +372,8 @@ class ClipTest {
     @Composable
     private fun FillColor(color: Color) {
         @Suppress("DEPRECATION") // remove when b/147606015 is fixed
-        Draw { canvas, parentSize ->
+        // TODO(b/150390669): Review use of @Untracked
+        Draw @Untracked { canvas, parentSize ->
             canvas.drawRect(
                 Rect(
                     -100f,

@@ -316,7 +316,10 @@ sealed class ComponentNode : Emittable {
         if (shouldInvalidateSemanticsComponentNode) {
             invalidateSemanticsComponentNode()
         }
-        containingLayoutNode?.layoutChildrenDirty = true
+        containingLayoutNode?.let {
+            it.layoutChildrenDirty = true
+            it.requestRemeasure()
+        }
     }
 
     /**
