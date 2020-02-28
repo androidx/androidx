@@ -21,6 +21,8 @@ import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_7_8;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_10;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_11;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
@@ -72,7 +74,7 @@ import java.util.concurrent.TimeUnit;
         WorkName.class,
         WorkProgress.class,
         Preference.class},
-        version = 10)
+        version = 11)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
     // Delete rows in the workspec table that...
@@ -144,6 +146,9 @@ public abstract class WorkDatabase extends RoomDatabase {
                 .addMigrations(MIGRATION_7_8)
                 .addMigrations(MIGRATION_8_9)
                 .addMigrations(new WorkDatabaseMigrations.WorkMigration9To10(context))
+                .addMigrations(
+                        new WorkDatabaseMigrations.RescheduleMigration(context, VERSION_10,
+                                VERSION_11))
                 .fallbackToDestructiveMigration()
                 .build();
     }
