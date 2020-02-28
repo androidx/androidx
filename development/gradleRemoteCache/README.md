@@ -19,6 +19,7 @@ To setup the [Gradle Remote Cache](https://docs.gradle.com/build-cache-node) you
   *Note*: Use the `external` IP of the newly created node to SSH.
 
 ```bash
+# Note: To switch projects use `gcloud config set project fetch-licenses`
 # Will show the newly created instance
 gcloud compute instances list
 # Will setup ssh configurations
@@ -29,11 +30,11 @@ gcloud compute config-ssh
 
 * Create a folder `Workspace` in the home directory.
 * Copy the contents of this folder, into the `Workspace` folder. Remove the `.empty` file from the `data` folder.
-* Download the build cache [jar](https://docs.gradle.com/build-cache-node/jar/build-cache-node-8.1.jar) and
+* Download the build cache [jar](https://docs.gradle.com/build-cache-node/jar/build-cache-node-9.0.jar) and
   copy it into the `gradle-node` folder.
 * Create a `tmux` session using `tmux new -s gradle`.
 * Run `chmod +x ~/Workspace/run_node`.
-* Install JDK 8 using `sudo apt install openjdk-8-jdk`.
+* Install JDK 11 using `sudo apt install openjdk-11-jdk`.
 * Finally run the `run_node` script using `sudo ./run_node` from inside the `tmux session`.
 * Detach from the `tmux session`.
 
