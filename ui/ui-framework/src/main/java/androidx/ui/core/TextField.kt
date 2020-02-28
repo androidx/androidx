@@ -403,12 +403,13 @@ internal fun BaseTextField(
                 }
                 onFocus()
             },
-            onBlur = {
+            onBlur = { hasNextClient ->
                 state.hasFocus = false
                 TextFieldDelegate.onBlur(
                     textInputService,
                     state.inputSession,
                     state.processor,
+                    hasNextClient,
                     onValueChangeWrapper)
                 onBlur()
             },
@@ -499,7 +500,7 @@ private fun TextInputEventObserver(
     onPress: (PxPosition) -> Unit,
     onRelease: (PxPosition) -> Unit,
     onFocus: () -> Unit,
-    onBlur: () -> Unit,
+    onBlur: (hasNextClient: Boolean) -> Unit,
     focusIdentifier: String?,
     children: @Composable() () -> Unit
 ) {
@@ -513,8 +514,8 @@ private fun TextInputEventObserver(
                 focused.value = true
             }
 
-            override fun onBlur() {
-                onBlur()
+            override fun onBlur(hasNextClient: Boolean) {
+                onBlur(hasNextClient)
                 focused.value = false
             }
         }
@@ -526,6 +527,9 @@ private fun TextInputEventObserver(
     }
 
     onDispose {
+        if (focused.value) {
+            focusManager.blur(focusNode)
+        }
         if (focusIdentifier != null)
             focusManager.unregisterFocusNode(focusIdentifier)
     }

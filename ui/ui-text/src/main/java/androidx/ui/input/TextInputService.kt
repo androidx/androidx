@@ -89,6 +89,13 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
         platformTextInputService.showSoftwareKeyboard()
     }
 
+    /**
+     * Hide onscreen keyboard
+     */
+    open fun hideSoftwareKeyboard(token: InputSessionToken) = ignoreIfExpired(token) {
+        platformTextInputService.hideSoftwareKeyboard()
+    }
+
     /*
      * Notify the new editor model to IME.
      */
@@ -130,6 +137,11 @@ interface PlatformTextInputService {
      * There is no guarantee nor callback of the result of this API.
      */
     fun showSoftwareKeyboard()
+
+    /**
+     * Hide software keyboard
+     */
+    fun hideSoftwareKeyboard()
 
     /*
      * Notify the new editor model to IME.
