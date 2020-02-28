@@ -2,7 +2,6 @@
 package androidx.ui.layout {
 
   public final class AlignKt {
-    method public static void Align(androidx.ui.core.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
@@ -173,34 +172,34 @@ package androidx.ui.layout {
   public final class LayoutAlign {
     method public androidx.ui.core.LayoutModifier getBottom();
     method public androidx.ui.core.LayoutModifier getBottomCenter();
-    method public androidx.ui.core.LayoutModifier getBottomLeft();
-    method public androidx.ui.core.LayoutModifier getBottomRight();
+    method public androidx.ui.core.LayoutModifier getBottomEnd();
+    method public androidx.ui.core.LayoutModifier getBottomStart();
     method public androidx.ui.core.LayoutModifier getCenter();
+    method public androidx.ui.core.LayoutModifier getCenterEnd();
     method public androidx.ui.core.LayoutModifier getCenterHorizontally();
-    method public androidx.ui.core.LayoutModifier getCenterLeft();
-    method public androidx.ui.core.LayoutModifier getCenterRight();
+    method public androidx.ui.core.LayoutModifier getCenterStart();
     method public androidx.ui.core.LayoutModifier getCenterVertically();
     method public androidx.ui.core.LayoutModifier getEnd();
     method public androidx.ui.core.LayoutModifier getStart();
     method public androidx.ui.core.LayoutModifier getTop();
     method public androidx.ui.core.LayoutModifier getTopCenter();
-    method public androidx.ui.core.LayoutModifier getTopLeft();
-    method public androidx.ui.core.LayoutModifier getTopRight();
+    method public androidx.ui.core.LayoutModifier getTopEnd();
+    method public androidx.ui.core.LayoutModifier getTopStart();
     property public final androidx.ui.core.LayoutModifier Bottom;
     property public final androidx.ui.core.LayoutModifier BottomCenter;
-    property public final androidx.ui.core.LayoutModifier BottomLeft;
-    property public final androidx.ui.core.LayoutModifier BottomRight;
+    property public final androidx.ui.core.LayoutModifier BottomEnd;
+    property public final androidx.ui.core.LayoutModifier BottomStart;
     property public final androidx.ui.core.LayoutModifier Center;
+    property public final androidx.ui.core.LayoutModifier CenterEnd;
     property public final androidx.ui.core.LayoutModifier CenterHorizontally;
-    property public final androidx.ui.core.LayoutModifier CenterLeft;
-    property public final androidx.ui.core.LayoutModifier CenterRight;
+    property public final androidx.ui.core.LayoutModifier CenterStart;
     property public final androidx.ui.core.LayoutModifier CenterVertically;
     property public final androidx.ui.core.LayoutModifier End;
     property public final androidx.ui.core.LayoutModifier Start;
     property public final androidx.ui.core.LayoutModifier Top;
     property public final androidx.ui.core.LayoutModifier TopCenter;
-    property public final androidx.ui.core.LayoutModifier TopLeft;
-    property public final androidx.ui.core.LayoutModifier TopRight;
+    property public final androidx.ui.core.LayoutModifier TopEnd;
+    property public final androidx.ui.core.LayoutModifier TopStart;
     field public static final androidx.ui.layout.LayoutAlign! INSTANCE;
   }
 

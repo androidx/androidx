@@ -19,15 +19,15 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerInput
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Align
+import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidInputDispatcher
@@ -149,7 +149,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     @Composable
     fun Ui() {
         val paint = remember { Paint().apply { color = Color.Yellow } }
-        Align(alignment = Alignment.BottomEnd) {
+        Stack(LayoutSize.Fill + LayoutAlign.BottomEnd) {
             Semantics(container = true, properties = { testTag = tag }) {
                 PointerInput(
                     pointerInputHandler = recorder::onPointerInput,

@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnChildPositioned
@@ -29,9 +28,9 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -135,7 +134,7 @@ class CanvasTest {
 
     @Composable
     fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Align(Alignment.TopStart) {
+        Stack {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
                     Container {

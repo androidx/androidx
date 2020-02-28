@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 
 import androidx.ui.core.TestTag
@@ -30,7 +29,6 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
-import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
@@ -115,7 +113,7 @@ class BorderTest(val shape: Shape) {
 
     @Composable
     fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Align(Alignment.TopStart) {
+        Stack {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
                     Container {

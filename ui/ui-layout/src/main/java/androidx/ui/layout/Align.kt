@@ -30,12 +30,11 @@ import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
 
 /**
+ * Note: this composable is deprecated, please use [LayoutAlign] modifier instead.
+ *
  * A layout that takes a child and aligns it within itself, according to the alignment parameter.
  * The layout will be as large as possible for finite incoming constraints,
  * or wrap content otherwise.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.SimpleAlign
  *
  * For a composable that just does center alignment, see [Center].
  * For a composable that does alignment and tries to be the same size as its child, see [Wrap].
@@ -43,7 +42,8 @@ import androidx.ui.unit.max
  * @see Wrap
  */
 @Composable
-fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
+// TODO (b/145599478): remove usages of Align and Center, and fully deprecate them
+internal fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
@@ -74,12 +74,11 @@ fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
 }
 
 /**
+ * Note: this composable is deprecated, please use [LayoutAlign] modifier instead.
+ *
  * A layout that takes a child and centers it within itself.
  * The layout will be as large as possible for finite incoming
  * constraints, or wrap content otherwise.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.SimpleCenter
  *
  * For a composable that supports other alignments than just center, see [Align].
  * For a composable that does alignment and tries to be the same size as its child, see [Wrap].
@@ -171,7 +170,7 @@ object LayoutAlign {
     /**
      * A layout modifier that positions the target component top-left inside its parent.
      */
-    val TopLeft: LayoutModifier =
+    val TopStart: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopStart, direction = Direction.Both)
 
     /**
@@ -183,13 +182,13 @@ object LayoutAlign {
     /**
      * A layout modifier that positions the target component top-right inside its parent.
      */
-    val TopRight: LayoutModifier =
+    val TopEnd: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopEnd, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component center-left inside its parent.
      */
-    val CenterLeft: LayoutModifier =
+    val CenterStart: LayoutModifier =
         AlignmentModifier(alignment = Alignment.CenterStart, direction = Direction.Both)
 
     /**
@@ -201,13 +200,13 @@ object LayoutAlign {
     /**
      * A layout modifier that positions the target component center-right inside its parent.
      */
-    val CenterRight: LayoutModifier =
+    val CenterEnd: LayoutModifier =
         AlignmentModifier(alignment = Alignment.CenterEnd, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component bottom-left inside its parent.
      */
-    val BottomLeft: LayoutModifier =
+    val BottomStart: LayoutModifier =
         AlignmentModifier(alignment = Alignment.BottomStart, direction = Direction.Both)
 
     /**
@@ -219,7 +218,7 @@ object LayoutAlign {
     /**
      * A layout modifier that positions the target component bottom-right inside its parent.
      */
-    val BottomRight: LayoutModifier =
+    val BottomEnd: LayoutModifier =
         AlignmentModifier(alignment = Alignment.BottomEnd, direction = Direction.Both)
 }
 
@@ -257,6 +256,7 @@ private data class AlignmentModifier(
         IntPxSize(
             containerSize.width - childSize.width,
             containerSize.height - childSize.height
-        )
+        ),
+        layoutDirection
     )
 }
