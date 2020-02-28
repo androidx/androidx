@@ -112,7 +112,7 @@ public class SliceProviderCompat {
             @NonNull CompatPermissionManager permissionManager, @NonNull Context context) {
         mProvider = provider;
         mContext = context;
-        String prefsFile = DATA_PREFIX + getClass().getName();
+        String prefsFile = DATA_PREFIX + "androidx.slice.compat.SliceProviderCompat";
         SharedPreferences allFiles = mContext.getSharedPreferences(ALL_FILES, 0);
         Set<String> files = allFiles.getStringSet(ALL_FILES, Collections.<String>emptySet());
         if (!files.contains(prefsFile)) {
