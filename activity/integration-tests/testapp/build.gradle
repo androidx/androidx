@@ -24,12 +24,13 @@ plugins {
 
 android {
     defaultConfig {
-        testInstrumentationRunnerArgument "listener", "com.squareup.leakcanary.FailTestOnLeakRunListener"
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
 }
 
 dependencies {
     implementation(project(":activity:activity"))
+    androidTestImplementation(LEAKCANARY)
     androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

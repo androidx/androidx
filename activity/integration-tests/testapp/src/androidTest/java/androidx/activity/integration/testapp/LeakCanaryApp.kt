@@ -17,19 +17,17 @@
 package androidx.activity.integration.testapp
 
 import android.app.Application
-import com.squareup.leakcanary.AndroidExcludedRefs
-import com.squareup.leakcanary.InstrumentationLeakDetector
-import java.util.EnumSet
+import leakcanary.LeakCanary
+import shark.AndroidReferenceMatchers
+import shark.ReferenceMatcher
 
 class LeakCanaryApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        val refs = EnumSet.allOf(AndroidExcludedRefs::class.java)
-        refs.remove(AndroidExcludedRefs.INPUT_METHOD_MANAGER__LAST_SERVED_VIEW)
-        refs.remove(AndroidExcludedRefs.INPUT_METHOD_MANAGER__ROOT_VIEW)
-        refs.remove(AndroidExcludedRefs.INPUT_METHOD_MANAGER__SERVED_VIEW)
-        val excludedRefs = AndroidExcludedRefs.createBuilder(refs).build()
-        InstrumentationLeakDetector.instrumentationRefWatcher(this)
-            .excludedRefs(excludedRefs).buildAndInstall()
+        @Suppress("UNCHECKED_CAST")
+        LeakCanary.config = LeakCanary.config.copy(
+            referenceMatchers = (AndroidReferenceMatchers.appDefaults - AndroidReferenceMatchers
+                .INPUT_METHOD_MANAGER_IS_TERRIBLE) as List<ReferenceMatcher>
+        )
     }
 }
