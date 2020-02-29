@@ -634,6 +634,11 @@ package androidx.ui.text {
     method public static androidx.ui.text.TextStyle resolveDefaults(androidx.ui.text.TextStyle style, androidx.ui.core.LayoutDirection direction);
   }
 
+  public interface Typeface {
+    method public androidx.ui.text.font.FontFamily getFontFamily();
+    property public abstract androidx.ui.text.font.FontFamily fontFamily;
+  }
+
 }
 
 package androidx.ui.text.font {
@@ -770,6 +775,9 @@ package androidx.ui.text.platform {
   }
 
   public final class AndroidParagraphKt {
+  }
+
+  public final class AndroidTypefaceKt {
   }
 
   public final class PlatformLocaleKt {

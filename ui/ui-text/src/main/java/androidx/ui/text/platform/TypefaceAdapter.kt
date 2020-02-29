@@ -56,6 +56,69 @@ internal open class TypefaceAdapter(
 
         // 16 is a random number and is not based on any strong logic
         val typefaceCache = LruCache<CacheKey, Typeface>(16)
+
+        fun synthesize(
+            typeface: Typeface,
+            font: Font,
+            fontWeight: FontWeight,
+            fontStyle: FontStyle,
+            fontSynthesis: FontSynthesis
+        ): Typeface {
+
+            val synthesizeWeight = fontSynthesis.isWeightOn &&
+                    (fontWeight >= ANDROID_BOLD && font.weight < ANDROID_BOLD)
+
+            val synthesizeStyle = fontSynthesis.isStyleOn && fontStyle != font.style
+
+            if (!synthesizeStyle && !synthesizeWeight) return typeface
+
+            return if (Build.VERSION.SDK_INT < 28) {
+                val targetStyle = getTypefaceStyle(
+                    isBold = synthesizeWeight,
+                    isItalic = synthesizeStyle && fontStyle == FontStyle.Italic
+                )
+                Typeface.create(typeface, targetStyle)
+            } else {
+                val finalFontWeight = if (synthesizeWeight) {
+                    // if we want to synthesize weight, we send the requested fontWeight
+                    fontWeight.weight
+                } else {
+                    // if we do not want to synthesize weight, we keep the loaded font weight
+                    font.weight.weight
+                }
+
+                val finalFontStyle = if (synthesizeStyle) {
+                    // if we want to synthesize style, we send the requested fontStyle
+                    fontStyle == FontStyle.Italic
+                } else {
+                    // if we do not want to synthesize style, we keep the loaded font style
+                    font.style == FontStyle.Italic
+                }
+
+                Typeface.create(typeface, finalFontWeight, finalFontStyle)
+            }
+        }
+
+        /**
+         * Convert given [FontWeight] and [FontStyle] to one of [Typeface.NORMAL], [Typeface.BOLD],
+         * [Typeface.ITALIC], [Typeface.BOLD_ITALIC]. This function should be called for API < 28
+         * since at those API levels system does not accept [FontWeight].
+         */
+        fun getTypefaceStyle(fontWeight: FontWeight, fontStyle: FontStyle): Int {
+            return getTypefaceStyle(fontWeight >= ANDROID_BOLD, fontStyle == FontStyle.Italic)
+        }
+
+        private fun getTypefaceStyle(isBold: Boolean, isItalic: Boolean): Int {
+            return if (isItalic && isBold) {
+                Typeface.BOLD_ITALIC
+            } else if (isBold) {
+                Typeface.BOLD
+            } else if (isItalic) {
+                Typeface.ITALIC
+            } else {
+                Typeface.NORMAL
+            }
+        }
     }
 
     /**
@@ -183,68 +246,5 @@ internal open class TypefaceAdapter(
         }
 
         return synthesize(typeface, font, fontWeight, fontStyle, fontSynthesis)
-    }
-
-    private fun synthesize(
-        typeface: Typeface,
-        font: Font,
-        fontWeight: FontWeight,
-        fontStyle: FontStyle,
-        fontSynthesis: FontSynthesis
-    ): Typeface {
-
-        val synthesizeWeight = fontSynthesis.isWeightOn &&
-                (fontWeight >= ANDROID_BOLD && font.weight < ANDROID_BOLD)
-
-        val synthesizeStyle = fontSynthesis.isStyleOn && fontStyle != font.style
-
-        if (!synthesizeStyle && !synthesizeWeight) return typeface
-
-        return if (Build.VERSION.SDK_INT < 28) {
-            val targetStyle = getTypefaceStyle(
-                isBold = synthesizeWeight,
-                isItalic = synthesizeStyle && fontStyle == FontStyle.Italic
-            )
-            Typeface.create(typeface, targetStyle)
-        } else {
-            val finalFontWeight = if (synthesizeWeight) {
-                // if we want to synthesize weight, we send the requested fontWeight
-                fontWeight.weight
-            } else {
-                // if we do not want to synthesize weight, we keep the loaded font weight
-                font.weight.weight
-            }
-
-            val finalFontStyle = if (synthesizeStyle) {
-                // if we want to synthesize style, we send the requested fontStyle
-                fontStyle == FontStyle.Italic
-            } else {
-                // if we do not want to synthesize style, we keep the loaded font style
-                font.style == FontStyle.Italic
-            }
-
-            Typeface.create(typeface, finalFontWeight, finalFontStyle)
-        }
-    }
-
-    /**
-     * Convert given [FontWeight] and [FontStyle] to one of [Typeface.NORMAL], [Typeface.BOLD],
-     * [Typeface.ITALIC], [Typeface.BOLD_ITALIC]. This function should be called for API < 28
-     * since at those API levels system does not accept [FontWeight].
-     */
-    fun getTypefaceStyle(fontWeight: FontWeight, fontStyle: FontStyle): Int {
-        return getTypefaceStyle(fontWeight >= ANDROID_BOLD, fontStyle == FontStyle.Italic)
-    }
-
-    private fun getTypefaceStyle(isBold: Boolean, isItalic: Boolean): Int {
-        return if (isItalic && isBold) {
-            Typeface.BOLD_ITALIC
-        } else if (isBold) {
-            Typeface.BOLD
-        } else if (isItalic) {
-            Typeface.ITALIC
-        } else {
-            Typeface.NORMAL
-        }
     }
 }

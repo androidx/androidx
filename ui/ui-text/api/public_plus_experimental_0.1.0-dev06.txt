@@ -634,6 +634,11 @@ package androidx.ui.text {
     method public static androidx.ui.text.TextStyle resolveDefaults(androidx.ui.text.TextStyle style, androidx.ui.core.LayoutDirection direction);
   }
 
+  public interface Typeface {
+    method public androidx.ui.text.font.FontFamily getFontFamily();
+    property public abstract androidx.ui.text.font.FontFamily fontFamily;
+  }
+
 }
 
 package androidx.ui.text.font {
@@ -766,10 +771,25 @@ package androidx.ui.text.font {
 
 package androidx.ui.text.platform {
 
+  public final class AndroidDefaultTypeface implements androidx.ui.text.platform.AndroidTypeface {
+    ctor public AndroidDefaultTypeface();
+    method public androidx.ui.text.font.FontFamily getFontFamily();
+    method public android.graphics.Typeface getNativeTypeface(androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style, androidx.ui.text.font.FontSynthesis synthesis);
+    property public androidx.ui.text.font.FontFamily fontFamily;
+  }
+
   public final class AndroidParagraphHelperKt {
   }
 
   public final class AndroidParagraphKt {
+  }
+
+  public interface AndroidTypeface extends androidx.ui.text.Typeface {
+    method public android.graphics.Typeface getNativeTypeface(androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style, androidx.ui.text.font.FontSynthesis synthesis);
+  }
+
+  public final class AndroidTypefaceKt {
+    method public static androidx.ui.text.platform.AndroidTypeface androidTypefaceFromFontFamily(android.content.Context context, androidx.ui.text.font.FontFamily fontFamily, java.util.List<? extends kotlin.Pair<androidx.ui.text.font.FontWeight,? extends androidx.ui.text.font.FontStyle>>? necessaryStyles = null);
   }
 
   public final class PlatformLocaleKt {
