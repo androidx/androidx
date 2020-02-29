@@ -294,10 +294,10 @@ fun copyArtifact(artifact: ResolvedArtifactResult, internal: Boolean = false) {
             moduleVersion
         )
         val location = pathComponents.joinToString("/")
-        println("Copying $name to $location")
         if (file.name.endsWith(".pom")) {
             copyPomFile(group, moduleName, moduleVersion, file, internal)
         } else {
+            println("Copying ${file.name} to $location")
             copy {
                 from(
                     file,
@@ -397,6 +397,7 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                 addFile("${id.name}-${id.version}.pom")
                 addFile("${id.name}-${id.version}.module")
                 addFile("${id.name}-${id.version}.jar")
+                addFile("${id.name}-${id.version}.aar")
                 addFile("${id.name}-${id.version}-sources.jar")
             }
         }
@@ -414,6 +415,7 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                 // No harm in leaving it in here.
                 addFile("${id.name}-${id.version}.module")
                 addFile("${id.name}-${id.version}.jar")
+                addFile("${id.name}-${id.version}.aar")
                 addFile("${id.name}-${id.version}-sources.jar")
             }
         }
