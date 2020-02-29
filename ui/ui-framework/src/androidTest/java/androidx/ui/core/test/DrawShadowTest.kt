@@ -25,8 +25,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Modifier
-import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.draw
+import androidx.ui.core.drawLayer
 import androidx.ui.core.drawShadow
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
@@ -94,9 +94,7 @@ class DrawShadowTest {
     fun shadowDrawnInsideRenderNode() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                RepaintBoundary {
-                    ShadowContainer()
-                }
+                ShadowContainer(modifier = drawLayer(clipToBounds = false))
             }
         }
 
@@ -134,9 +132,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                RepaintBoundary {
-                    ShadowContainer(elevation)
-                }
+                ShadowContainer(elevation, modifier = drawLayer())
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -207,8 +203,11 @@ class DrawShadowTest {
     }
 
     @Composable
-    private fun ShadowContainer(elevation: State<Dp> = mutableStateOf(8.dp)) {
-        AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
+    private fun ShadowContainer(
+        elevation: State<Dp> = mutableStateOf(8.dp),
+        modifier: Modifier = Modifier.None
+    ) {
+        AtLeastSize(size = 12.ipx, modifier = modifier + background(Color.White)) {
             AtLeastSize(
                 size = 10.ipx,
                 modifier = drawShadow(shape = rectShape, elevation = elevation.value)
