@@ -31,13 +31,11 @@ plugins {
 dependencies {
     implementation(project(":serialization:serialization-annotation"))
     implementation(project(":serialization:serialization-schema"))
+
     implementation(AUTO_COMMON)
     implementation(GUAVA)
     implementation(JAVAPOET)
-    implementation(KOTLINPOET)
-    implementation(KOTLIN_METADATA_JVM)
     implementation(KOTLIN_STDLIB)
-    implementation(KOTLIN_REFLECT)
 
     compileOnly(AUTO_SERVICE_ANNOTATIONS)
     kapt(AUTO_SERVICE_PROCESSOR)
@@ -45,15 +43,12 @@ dependencies {
     compileOnly(GRADLE_INCAP_HELPER)
     kapt(GRADLE_INCAP_HELPER_PROCESSOR)
 
-    testImplementation("androidx.annotation:annotation:1.0.0")
-    testImplementation("androidx.collection:collection:1.0.0")
+    testImplementation("androidx.annotation:annotation:1.1.0")
+    testImplementation(project(":serialization:serialization-runtime"))
     testImplementation(files(Jvm.current().getToolsJar()))
     testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation(INTELLIJ_ANNOTATIONS)
     testImplementation(JSR250)
     testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(MOCKITO_KOTLIN)
     testImplementation(TRUTH)
 }
 

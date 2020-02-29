@@ -56,5 +56,5 @@ internal inline fun Messager.error(
     annotationClass: KClass<out Annotation>,
     message: () -> String
 ) {
-    printMessage(ERROR, message(), element, element.getAnnotationMirror(annotationClass))
+    printMessage(ERROR, message(), element, element[annotationClass])
 }

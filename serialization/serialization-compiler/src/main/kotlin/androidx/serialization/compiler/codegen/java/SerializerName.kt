@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler.nullability
+package androidx.serialization.compiler.codegen.java
 
-/** A pair of non-null and nullable annotations */
-internal data class Nullability(
-    val packageName: String,
-    val nonNull: String = "NonNull",
-    val nullable: String = "Nullable"
-) {
-    val qualifiedNonNullName = "$packageName.$nonNull"
-    val qualifiedNullableName = "$packageName.$nullable"
+import com.squareup.javapoet.ClassName
+
+/** Class name of a generated message or enum serializer. */
+internal fun serializerName(className: ClassName): ClassName {
+    return ClassName.get(
+        className.packageName(),
+        className.simpleNames().joinToString(separator = "_", postfix = "Serializer")
+    )
 }

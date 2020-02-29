@@ -17,40 +17,46 @@
 package androidx.serialization.compiler.processing.steps
 
 import androidx.serialization.EnumValue
-import androidx.serialization.Reserved
-import androidx.serialization.compiler.codegen.CodeGenEnvironment
-import androidx.serialization.compiler.codegen.java.JavaGenEnvironment
-import androidx.serialization.compiler.codegen.java.generateEnumCoder
+import androidx.serialization.compiler.codegen.java.JavaGenerator
+import androidx.serialization.compiler.codegen.java.enumSerializer
+import androidx.serialization.compiler.processing.asInt
 import androidx.serialization.compiler.processing.asTypeElement
 import androidx.serialization.compiler.processing.asVariableElement
 import androidx.serialization.compiler.processing.error
 import androidx.serialization.compiler.processing.get
-import androidx.serialization.compiler.processing.getAnnotationMirror
 import androidx.serialization.compiler.processing.isVisibleToPackage
 import androidx.serialization.compiler.processing.isPrivate
 import androidx.serialization.compiler.processing.processReserved
 import androidx.serialization.compiler.schema.Enum
+import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
+import com.google.common.collect.SetMultimap
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ElementKind.ENUM_CONSTANT
 import javax.lang.model.element.TypeElement
-import kotlin.reflect.KClass
 
 /** Processing step that parses and validates enums, and generates enum coders. */
 internal class EnumProcessingStep(
     private val processingEnv: ProcessingEnvironment,
-    private val codeGenEnv: CodeGenEnvironment,
+    private val javaGenerator: JavaGenerator,
     private val onEnum: ((Enum) -> Unit)? = null
-) : AbstractProcessingStep(EnumValue::class, Reserved::class) {
-    private val javaGenEnv = JavaGenEnvironment(codeGenEnv)
+) : ProcessingStep {
     private val messager: Messager = processingEnv.messager
 
-    override fun process(elementsByAnnotation: Map<KClass<out Annotation>, Set<Element>>) {
-        elementsByAnnotation[EnumValue::class]
-            ?.let(::processEnumValues)
-            ?.forEach(::processEnumClass)
+    override fun annotations(): Set<Class<out Annotation>> {
+        return setOf(EnumValue::class.java)
+    }
+
+    override fun process(
+        elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
+    ): Set<Element> {
+        elementsByAnnotation[EnumValue::class.java]
+            .let(::processEnumValues)
+            .forEach(::processEnumClass)
+
+        return emptySet()
     }
 
     /**
@@ -70,7 +76,7 @@ internal class EnumProcessingStep(
                 enumClasses += element.enclosingElement.asTypeElement()
             } else {
                 messager.error(element, EnumValue::class) {
-                    "@${EnumValue::class.simpleName} must annotate an enum constant"
+                    "@EnumValue must annotate an enum constant"
                 }
             }
         }
@@ -112,14 +118,14 @@ internal class EnumProcessingStep(
 
         for (element in enumClass.enclosedElements) {
             if (element.kind == ENUM_CONSTANT) {
-                val annotation = element.getAnnotationMirror(EnumValue::class)
+                val annotation = element[EnumValue::class]
 
                 if (annotation != null) {
-                    values += Enum.Value(element.asVariableElement(), annotation[EnumValue::id])
+                    values += Enum.Value(element.asVariableElement(), annotation["value"].asInt())
                 } else {
                     messager.error(element) {
-                        "To avoid unexpected behavior, all enum constants in a serializable enum " +
-                                "must be annotated with @${EnumValue::class.simpleName}"
+                        "To avoid unexpected behavior, all enum constants in a serializable " +
+                                "enum must be annotated with @EnumValue"
                     }
                     hasError = true
                 }
@@ -128,8 +134,8 @@ internal class EnumProcessingStep(
 
         if (!hasError) {
             val enum = Enum(enumClass, values, processReserved(enumClass))
-            generateEnumCoder(enum, javaGenEnv).writeTo(processingEnv.filer)
             onEnum?.invoke(enum)
+            javaGenerator.enumSerializer(enum).writeTo(processingEnv.filer)
         }
     }
 }
