@@ -229,7 +229,7 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_hitResultHasSingleMatch_pointerInputHandlerCalled() {
         val pin1 = PointerInputNode()
-        pin1.pointerInputHandler = spy(MyPointerInputHandler())
+        pin1.pointerInputHandler = spy(StubPointerInputHandler())
         hitResult.addHitPath(PointerId(13), listOf(pin1))
 
         hitResult.dispatchChanges(listOf(down(13)), PointerEventPass.InitialDown)
@@ -247,9 +247,9 @@ class HitPathTrackerTest {
         val pin1 = PointerInputNode()
         val pin2 = PointerInputNode()
         val pin3 = PointerInputNode()
-        pin1.pointerInputHandler = spy(MyPointerInputHandler())
-        pin2.pointerInputHandler = spy(MyPointerInputHandler())
-        pin3.pointerInputHandler = spy(MyPointerInputHandler())
+        pin1.pointerInputHandler = spy(StubPointerInputHandler())
+        pin2.pointerInputHandler = spy(StubPointerInputHandler())
+        pin3.pointerInputHandler = spy(StubPointerInputHandler())
         hitResult.addHitPath(PointerId(13), listOf(pin1, pin2, pin3))
 
         hitResult.dispatchChanges(listOf(down(13)), PointerEventPass.InitialDown)
@@ -283,9 +283,9 @@ class HitPathTrackerTest {
         val pin1 = PointerInputNode()
         val pin2 = PointerInputNode()
         val pin3 = PointerInputNode()
-        pin1.pointerInputHandler = spy(MyPointerInputHandler())
-        pin2.pointerInputHandler = spy(MyPointerInputHandler())
-        pin3.pointerInputHandler = spy(MyPointerInputHandler())
+        pin1.pointerInputHandler = spy(StubPointerInputHandler())
+        pin2.pointerInputHandler = spy(StubPointerInputHandler())
+        pin3.pointerInputHandler = spy(StubPointerInputHandler())
         hitResult.addHitPath(PointerId(13), listOf(pin1, pin2, pin3))
 
         hitResult.dispatchChanges(
@@ -339,10 +339,10 @@ class HitPathTrackerTest {
         val pin2 = PointerInputNode()
         val pin3 = PointerInputNode()
         val pin4 = PointerInputNode()
-        pin1.pointerInputHandler = spy(MyPointerInputHandler())
-        pin2.pointerInputHandler = spy(MyPointerInputHandler())
-        pin3.pointerInputHandler = spy(MyPointerInputHandler())
-        pin4.pointerInputHandler = spy(MyPointerInputHandler())
+        pin1.pointerInputHandler = spy(StubPointerInputHandler())
+        pin2.pointerInputHandler = spy(StubPointerInputHandler())
+        pin3.pointerInputHandler = spy(StubPointerInputHandler())
+        pin4.pointerInputHandler = spy(StubPointerInputHandler())
         hitResult.addHitPath(PointerId(3), listOf(pin1, pin2))
         hitResult.addHitPath(PointerId(5), listOf(pin3, pin4))
         val event1 = down(3)
@@ -411,9 +411,9 @@ class HitPathTrackerTest {
         val parent = PointerInputNode()
         val child1 = PointerInputNode()
         val child2 = PointerInputNode()
-        parent.pointerInputHandler = spy(MyPointerInputHandler())
-        child1.pointerInputHandler = spy(MyPointerInputHandler())
-        child2.pointerInputHandler = spy(MyPointerInputHandler())
+        parent.pointerInputHandler = spy(StubPointerInputHandler())
+        child1.pointerInputHandler = spy(StubPointerInputHandler())
+        child2.pointerInputHandler = spy(StubPointerInputHandler())
         hitResult.addHitPath(PointerId(3), listOf(parent, child1))
         hitResult.addHitPath(PointerId(5), listOf(parent, child2))
         val event1 = down(3)
@@ -490,8 +490,8 @@ class HitPathTrackerTest {
     fun dispatchChanges_2PointersShareCompletePath_eventsDoNotSplitAndCallOrderCorrect() {
         val child1 = PointerInputNode()
         val child2 = PointerInputNode()
-        child1.pointerInputHandler = spy(MyPointerInputHandler())
-        child2.pointerInputHandler = spy(MyPointerInputHandler())
+        child1.pointerInputHandler = spy(StubPointerInputHandler())
+        child2.pointerInputHandler = spy(StubPointerInputHandler())
         hitResult.addHitPath(PointerId(3), listOf(child1, child2))
         hitResult.addHitPath(PointerId(5), listOf(child1, child2))
         val event1 = down(3)
@@ -585,7 +585,7 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_hitResultHasSingleMatch_changesAreUpdatedCorrectly() {
         val pin1 = PointerInputNode()
-        pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin1.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, _, _ ->
                 changes.map { it.consumeDownChange() }
             }
@@ -602,19 +602,19 @@ class HitPathTrackerTest {
         val pin1 = PointerInputNode()
         val pin2 = PointerInputNode()
         val pin3 = PointerInputNode()
-        pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin1.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 64f
                 changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
-        pin2.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin2.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 4f else 32f
                 changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
-        pin3.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin3.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 8f else 16f
                 changes.map { it.consumePositionChange(0.px, yConsume.px) }
@@ -674,25 +674,25 @@ class HitPathTrackerTest {
         val pin2 = PointerInputNode()
         val pin3 = PointerInputNode()
         val pin4 = PointerInputNode()
-        pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin1.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 12f
                 changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
-        pin2.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin2.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 3f else 6f
                 changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
-        pin3.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin3.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) -2f else -12f
                 changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
-        pin4.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        pin4.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) -3f else -6f
                 changes.map { it.consumePositionChange(0.px, yConsume.px) }
@@ -761,7 +761,7 @@ class HitPathTrackerTest {
         val parent = PointerInputNode()
         val child1 = PointerInputNode()
         val child2 = PointerInputNode()
-        parent.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        parent.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 changes.map {
@@ -773,7 +773,7 @@ class HitPathTrackerTest {
             }
         }
         )
-        child1.pointerInputHandler = spy(MyPointerInputHandler().apply
+        child1.pointerInputHandler = spy(StubPointerInputHandler().apply
         {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
@@ -785,7 +785,7 @@ class HitPathTrackerTest {
                 }
             }
         })
-        child2.pointerInputHandler = spy(MyPointerInputHandler().apply
+        child2.pointerInputHandler = spy(StubPointerInputHandler().apply
         {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 11 else 13
@@ -853,7 +853,7 @@ class HitPathTrackerTest {
     fun dispatchChanges_2PointersShareCompletePath_changesAreUpdatedCorrectly() {
         val child1 = PointerInputNode()
         val child2 = PointerInputNode()
-        child1.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        child1.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 changes.map {
@@ -864,7 +864,7 @@ class HitPathTrackerTest {
                 }
             }
         })
-        child2.pointerInputHandler = spy(MyPointerInputHandler().apply {
+        child2.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                 changes.map {
@@ -3043,7 +3043,7 @@ class HitPathTrackerTest {
         val childLayoutNode = LayoutNode(cX1, cY1, cX2, cY2)
         val childPointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val middleOffset = PxPosition(mX1.px, mY1.px)
         val middleLayoutNode = LayoutNode(mX1, mY1, mX2, mY2).apply {
@@ -3051,14 +3051,14 @@ class HitPathTrackerTest {
         }
         val middlePointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, middleLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode = LayoutNode(pX1, pY1, pX2, pY2).apply {
             emitInsertAt(0, middlePointerInputNode)
         }
         val parentPointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         compositionRoot.emitInsertAt(0, parentPointerInputNode)
 
@@ -3256,14 +3256,14 @@ class HitPathTrackerTest {
         val childLayoutNode = LayoutNode(c1.left, c1.top, c1.right, c1.bottom)
         val childPointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode = LayoutNode(p1.left, p1.top, p1.right, p1.bottom).apply {
             emitInsertAt(0, childPointerInputNode)
         }
         val parentPointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         compositionRoot.emitInsertAt(0, parentPointerInputNode)
@@ -3364,27 +3364,27 @@ class HitPathTrackerTest {
         val childLayoutNode1 = LayoutNode(child1Offset, child1Size)
         val childPointerInputNode1 = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode1)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode1 = LayoutNode(parent1Offset, parent1Size).apply {
             emitInsertAt(0, childPointerInputNode1)
         }
         val parentPointerInputNode1 = PointerInputNode().apply {
             emitInsertAt(0, parentLayoutNode1)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         val childLayoutNode2 = LayoutNode(child2Offset, child2Size)
         val childPointerInputNode2 = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode2)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode2 = LayoutNode(parent2Offset, parent2Size).apply {
             emitInsertAt(0, childPointerInputNode2)
         }
         val parentPointerInputNode2 = PointerInputNode().apply {
             emitInsertAt(0, parentLayoutNode2)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         compositionRoot.emitInsertAt(0, parentPointerInputNode1)
@@ -3527,13 +3527,13 @@ class HitPathTrackerTest {
         val childLayoutNode1 = LayoutNode(child1Offset, child1Size)
         val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode1)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         val childLayoutNode2 = LayoutNode(child2Offset, child2Size)
         val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode2)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         val parentLayoutNode: LayoutNode = LayoutNode(parentOffset, parentSize).apply {
@@ -3542,7 +3542,7 @@ class HitPathTrackerTest {
         }
         val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         compositionRoot.emitInsertAt(0, parentPointerInputNode)
@@ -3671,7 +3671,7 @@ class HitPathTrackerTest {
         val childLayoutNode = LayoutNode(childOffset, childSize)
         val pointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode2 = LayoutNode(parentOffset2, parentSize2).apply {
             emitInsertAt(0, pointerInputNode)
@@ -3747,7 +3747,7 @@ class HitPathTrackerTest {
         val childLayoutNode2 = LayoutNode(childOffset2, childSize2)
         val childPointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode2)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val childLayoutNode1 = LayoutNode(childOffset1, childSize1).apply {
             emitInsertAt(0, childPointerInputNode)
@@ -3757,7 +3757,7 @@ class HitPathTrackerTest {
         }
         val parentPointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, parentLayoutNode3)
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode2 = LayoutNode(parentOffset2, parentSize2).apply {
             emitInsertAt(0, parentPointerInputNode)
@@ -3889,7 +3889,7 @@ class HitPathTrackerTest {
         val pointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(layoutNodeAX1, layoutNodeAY1, layoutNodeAX2, layoutNodeAY2))
             emitInsertAt(1, LayoutNode(layoutNodeBX1, layoutNodeBY1, layoutNodeBX2, layoutNodeBY2))
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         compositionRoot.emitInsertAt(0, pointerInputNode)
@@ -3943,7 +3943,7 @@ class HitPathTrackerTest {
             emitInsertAt(0, LayoutNode(100, 200, 200, 300).apply {
                 emitInsertAt(0, LayoutNode(-20, -40, -60, -80))
             })
-            pointerInputHandler = spy(MyPointerInputHandler())
+            pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         compositionRoot.emitInsertAt(0, pointerInputNode)
@@ -3998,7 +3998,7 @@ class HitPathTrackerTest {
     @Test
     fun processCancel_singlePin_cancelHandlerIsCalled() {
         val pointerInputNode = PointerInputNode().apply {
-            cancelHandler = spy(MyCancelHandler())
+            cancelHandler = spy(StubCancelHandler())
         }
         hitResult.addHitPath(PointerId(3), listOf(pointerInputNode))
 
@@ -4013,9 +4013,9 @@ class HitPathTrackerTest {
         val pointerInputNodeChild = PointerInputNode()
         val pointerInputNodeMiddle = PointerInputNode()
         val pointerInputNodeParent = PointerInputNode()
-        pointerInputNodeChild.cancelHandler = spy(MyCancelHandler())
-        pointerInputNodeMiddle.cancelHandler = spy(MyCancelHandler())
-        pointerInputNodeParent.cancelHandler = spy(MyCancelHandler())
+        pointerInputNodeChild.cancelHandler = spy(StubCancelHandler())
+        pointerInputNodeMiddle.cancelHandler = spy(StubCancelHandler())
+        pointerInputNodeParent.cancelHandler = spy(StubCancelHandler())
         hitResult.addHitPath(
             PointerId(3),
             listOf(pointerInputNodeParent, pointerInputNodeMiddle, pointerInputNodeChild)
@@ -4042,10 +4042,10 @@ class HitPathTrackerTest {
         val pinChild1 = PointerInputNode()
         val pinParent2 = PointerInputNode()
         val pinChild2 = PointerInputNode()
-        pinParent1.cancelHandler = spy(MyCancelHandler())
-        pinChild1.cancelHandler = spy(MyCancelHandler())
-        pinParent2.cancelHandler = spy(MyCancelHandler())
-        pinChild2.cancelHandler = spy(MyCancelHandler())
+        pinParent1.cancelHandler = spy(StubCancelHandler())
+        pinChild1.cancelHandler = spy(StubCancelHandler())
+        pinParent2.cancelHandler = spy(StubCancelHandler())
+        pinChild2.cancelHandler = spy(StubCancelHandler())
 
         hitResult.addHitPath(PointerId(3), listOf(pinParent1, pinChild1))
         hitResult.addHitPath(PointerId(5), listOf(pinParent2, pinChild2))
@@ -4075,9 +4075,9 @@ class HitPathTrackerTest {
         val pinParent = PointerInputNode()
         val pinChild1 = PointerInputNode()
         val pinChild2 = PointerInputNode()
-        pinParent.cancelHandler = spy(MyCancelHandler())
-        pinChild1.cancelHandler = spy(MyCancelHandler())
-        pinChild2.cancelHandler = spy(MyCancelHandler())
+        pinParent.cancelHandler = spy(StubCancelHandler())
+        pinChild1.cancelHandler = spy(StubCancelHandler())
+        pinChild2.cancelHandler = spy(StubCancelHandler())
         hitResult.addHitPath(PointerId(3), listOf(pinParent, pinChild1))
         hitResult.addHitPath(PointerId(5), listOf(pinParent, pinChild2))
 
@@ -4431,4 +4431,4 @@ private data class Box(val left: Int, val top: Int, val right: Int, val bottom: 
 
 private data class Point(val x: Int, val y: Int)
 
-private data class TestCustomEvent(val value: String) : CustomEvent
+internal data class TestCustomEvent(val value: String) : CustomEvent

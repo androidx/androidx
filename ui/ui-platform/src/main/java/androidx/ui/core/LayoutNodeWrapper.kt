@@ -18,6 +18,8 @@
 
 package androidx.ui.core
 
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -60,6 +62,20 @@ internal sealed class LayoutNodeWrapper(
         }
 
     /**
+     * Whether a pointer that is relative to the device screen is in the bounds of this
+     * LayoutNodeWrapper.
+     */
+    fun isGlobalPointerInBounds(globalPointerPosition: PxPosition): Boolean {
+        // TODO(shepshapard): Right now globalToLocal has to traverse the tree all the way back up
+        //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
+        val localPointerPosition = globalToLocal(globalPointerPosition)
+        return localPointerPosition.x.value >= 0 &&
+                localPointerPosition.x < size.width &&
+                localPointerPosition.y.value >= 0 &&
+                localPointerPosition.y < size.height
+    }
+
+    /**
      * Assigns a layout size to this [LayoutNodeWrapper] given the assigned innermost size
      * from the call to [MeasureScope.layout].
      * @return The size after adjusting for the modifier.
@@ -83,6 +99,25 @@ internal sealed class LayoutNodeWrapper(
      * Draws the content of the LayoutNode
      */
     abstract fun draw(canvas: Canvas, density: Density)
+
+    /**
+     * Executes a hit test on any appropriate type associated with this [LayoutNodeWrapper].
+     *
+     * Override appropriately to either add a [PointerInputFilter] to [hitPointerInputFilters] or
+     * to pass the execution on.
+     *
+     * @param pointerPositionRelativeToScreen The tested pointer position, which is relative to
+     * the device screen.
+     * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
+     * added to if hit.
+     *
+     * @return True if any [PointerInputFilter]s were hit and thus added to
+     * [hitPointerInputFilters].
+     */
+    abstract fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean
 
     override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
@@ -188,21 +223,37 @@ internal sealed class DelegatingLayoutNodeWrapper(
         size = wrapped.layoutSize(innermostSize)
         return size
     }
+
     override fun draw(canvas: Canvas, density: Density) {
         withPositionTranslation(canvas) {
             wrapped.draw(canvas, density)
         }
     }
+
+    override fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
+            return wrapped.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
+        } else {
+            // Anything out of bounds of ourselves can't be hit.
+            return false
+        }
+    }
+
     override fun get(line: AlignmentLine): IntPx? {
         val value = wrapped[line] ?: return null
         val px = value.toPx()
         val pos = wrapped.toParentPosition(PxPosition(px, px))
         return if (line is HorizontalAlignmentLine) pos.y.round() else pos.y.round()
     }
+
     override fun place(position: IntPxPosition) {
         this.position = position
         wrapped.place(IntPxPosition.Origin)
     }
+
     override fun measure(constraints: Constraints): Placeable {
         wrapped.measure(constraints)
         return this
@@ -308,6 +359,22 @@ internal class InnerPlaceable(
         }
     }
 
+    override fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
+            // Any because as soon as true is returned, we know we have found a hit path and we must
+            //  not add PointerInputFilters on different paths so we should not even go looking.
+            return layoutNode.children.reversed().any { child ->
+                callHitTest(child, pointerPositionRelativeToScreen, hitPointerInputFilters)
+            }
+        } else {
+            // Anything out of bounds of ourselves can't be hit.
+            return false
+        }
+    }
+
     override fun detach() {
         // Do nothing. InnerPlaceable only is detached when the LayoutNode is detached.
     }
@@ -317,6 +384,22 @@ internal class InnerPlaceable(
             paint.color = Color.Red
             paint.strokeWidth = 1f
             paint.style = PaintingStyle.stroke
+        }
+    }
+}
+
+private fun callHitTest(
+    node: ComponentNode,
+    globalPoint: PxPosition,
+    hitPointerInputFilters: MutableList<PointerInputFilter>
+): Boolean {
+    if (node is LayoutNode) {
+        return node.hitTest(globalPoint, hitPointerInputFilters)
+    } else {
+        // Any because as soon as true is returned, we know we have found a hit path and we must
+        // not add PointerInputFilters on different paths so we should not even go looking.
+        return node.children.reversed().any { child ->
+            callHitTest(child, globalPoint, hitPointerInputFilters)
         }
     }
 }
@@ -474,5 +557,31 @@ internal class ModifiedDrawNode(
     // This is the implementation of drawContent()
     override fun invoke() {
         wrapped.draw(canvas!!, density!!)
+    }
+}
+
+internal class PointerInputDelegatingWrapper(
+    wrapped: LayoutNodeWrapper,
+    private val pointerInputModifier: PointerInputModifier
+) : DelegatingLayoutNodeWrapper(wrapped) {
+
+    init {
+        pointerInputModifier.pointerInputFilter.setLayoutCoordinates(this)
+    }
+
+    override fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
+            // If we were hit, add the pointerInputFilter and keep looking to see if anything
+            // further down the tree is also hit and return true.
+            hitPointerInputFilters.add(pointerInputModifier.pointerInputFilter)
+            super.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
+            return true
+        } else {
+            // Anything out of bounds of ourselves can't be hit.
+            return false
+        }
     }
 }

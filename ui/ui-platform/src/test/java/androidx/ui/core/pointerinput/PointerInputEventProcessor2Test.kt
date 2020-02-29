@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ConsumedData
-import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
+import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerEventPass.InitialDown
@@ -27,8 +27,7 @@ import androidx.ui.core.PointerEventPass.PreUp
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
-import androidx.ui.core.PointerInputNode
-import androidx.ui.core.SemanticsComponentNode
+import androidx.ui.core.PointerInputHandler
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -36,21 +35,19 @@ import androidx.ui.unit.Uptime
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
-import androidx.ui.core.semantics.SemanticsConfiguration
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
 
 // TODO(shepshapard): Write the following PointerInputEvent to PointerInputChangeEvent tests
 // 2 down, 2 move, 2 up, converted correctly
@@ -77,20 +74,17 @@ import org.mockito.Mockito.mock
 
 @SmallTest
 @RunWith(JUnit4::class)
-class PointerInputEventProcessorTest {
+class PointerInputEventProcessor2Test {
 
     private lateinit var root: LayoutNode
-    private lateinit var pointerInputEventProcessor: PointerInputEventProcessor
-    private val mockOwner = mock(Owner::class.java)
-    private lateinit var mTrackerList:
-            MutableList<Triple<PointerInputNode, PointerEventPass, PointerInputChange>>
+    private lateinit var pointerInputEventProcessor: PointerInputEventProcessor2
+    private val testOwner: TestOwner = spy()
 
     @Before
     fun setup() {
         root = LayoutNode(0, 0, 500, 500)
-        root.attach(mockOwner)
-        pointerInputEventProcessor = PointerInputEventProcessor(root)
-        mTrackerList = mutableListOf()
+        root.attach(testOwner)
+        pointerInputEventProcessor = PointerInputEventProcessor2(root)
     }
 
     @Test
@@ -98,11 +92,18 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val layoutNode = LayoutNode(
+            0,
+            0,
+            500,
+            500,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val offset = PxPosition(100.px, 200.px)
         val offset2 = PxPosition(300.px, 400.px)
@@ -136,14 +137,14 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        events.forEach { pointerInputEventProcessor.process(it, IntPxPosition.Origin) }
+        events.forEach { pointerInputEventProcessor.process(it) }
 
         // Assert
 
-        inOrder(pointerInputNode.pointerInputHandler) {
+        inOrder(pointerInputHandler) {
             for (expected in expectedChanges) {
                 for (pass in PointerEventPass.values()) {
-                    verify(pointerInputNode.pointerInputHandler).invoke(
+                    verify(pointerInputHandler).invoke(
                         eq(listOf(expected)),
                         eq(pass),
                         any()
@@ -159,11 +160,15 @@ class PointerInputEventProcessorTest {
         // Arrange
 
         val childOffset = PxPosition(100.px, 200.px)
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(100, 200, 301, 401))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val layoutNode = LayoutNode(
+            100, 200, 301, 401,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val offsets = arrayOf(
             PxPosition(100.px, 200.px),
@@ -192,18 +197,18 @@ class PointerInputEventProcessorTest {
         // Act
 
         events.forEach {
-            pointerInputEventProcessor.process(it, IntPxPosition.Origin)
+            pointerInputEventProcessor.process(it)
         }
 
         // Assert
 
-        verify(pointerInputNode.pointerInputHandler, times(4)).invoke(
+        verify(pointerInputHandler, times(4)).invoke(
             any(),
             eq(InitialDown),
             any()
         )
         for (expected in expectedChanges) {
-            verify(pointerInputNode.pointerInputHandler).invoke(
+            verify(pointerInputHandler).invoke(
                 eq(listOf(expected)),
                 eq(InitialDown),
                 any()
@@ -216,11 +221,15 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(100, 200, 301, 401))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val layoutNode = LayoutNode(
+            100, 200, 301, 401,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val offsets = arrayOf(
             PxPosition(99.px, 200.px),
@@ -240,12 +249,12 @@ class PointerInputEventProcessorTest {
         // Act
 
         events.forEach {
-            pointerInputEventProcessor.process(it, IntPxPosition.Origin)
+            pointerInputEventProcessor.process(it)
         }
 
         // Assert
 
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
+        verify(pointerInputHandler, never()).invoke(any(), any(), any())
     }
 
     @Test
@@ -266,26 +275,36 @@ class PointerInputEventProcessorTest {
     private fun process_partialTreeHits(numberOfChildrenHit: Int) {
         // Arrange
 
-        val childLayoutNode = LayoutNode(100, 100, 200, 200)
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val middleLayoutNode: LayoutNode = LayoutNode(100, 100, 400, 400).apply {
-            emitInsertAt(0, childPointerInputNode)
-        }
-        val middlePointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, middleLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 500, 500).apply {
-            emitInsertAt(0, middlePointerInputNode)
-        }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.emitInsertAt(0, parentPointerInputNode)
+        val childPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val middlePointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val parentPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val childLayoutNode =
+            LayoutNode(
+                100, 100, 200, 200,
+                PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = childPointerInputHandler)
+                )
+            )
+        val middleLayoutNode: LayoutNode =
+            LayoutNode(
+                100, 100, 400, 400,
+                PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = middlePointerInputHandler)
+                )
+            ).apply {
+                emitInsertAt(0, childLayoutNode)
+            }
+        val parentLayoutNode: LayoutNode =
+            LayoutNode(
+                0, 0, 500, 500,
+                PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = parentPointerInputHandler)
+                )
+            ).apply {
+                emitInsertAt(0, middleLayoutNode)
+            }
+        root.emitInsertAt(0, parentLayoutNode)
 
         val offset = when (numberOfChildrenHit) {
             3 -> PxPosition(250.px, 250.px)
@@ -298,57 +317,57 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(event, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(event)
 
         // Assert
 
         when (numberOfChildrenHit) {
             3 -> {
-                verify(parentPointerInputNode.pointerInputHandler).invoke(
+                verify(parentPointerInputHandler).invoke(
                     any(),
                     eq(InitialDown),
                     any()
                 )
-                verify(middlePointerInputNode.pointerInputHandler).invoke(
+                verify(middlePointerInputHandler).invoke(
                     any(),
                     eq(InitialDown),
                     any()
                 )
-                verify(childPointerInputNode.pointerInputHandler).invoke(
+                verify(childPointerInputHandler).invoke(
                     any(),
                     eq(InitialDown),
                     any()
                 )
             }
             2 -> {
-                verify(parentPointerInputNode.pointerInputHandler).invoke(
+                verify(parentPointerInputHandler).invoke(
                     any(),
                     eq(InitialDown),
                     any()
                 )
-                verify(middlePointerInputNode.pointerInputHandler).invoke(
+                verify(middlePointerInputHandler).invoke(
                     any(),
                     eq(InitialDown),
                     any()
                 )
-                verify(childPointerInputNode.pointerInputHandler, never()).invoke(
+                verify(childPointerInputHandler, never()).invoke(
                     any(),
                     any(),
                     any()
                 )
             }
             1 -> {
-                verify(parentPointerInputNode.pointerInputHandler).invoke(
+                verify(parentPointerInputHandler).invoke(
                     any(),
                     eq(InitialDown),
                     any()
                 )
-                verify(middlePointerInputNode.pointerInputHandler, never()).invoke(
+                verify(middlePointerInputHandler, never()).invoke(
                     any(),
                     any(),
                     any()
                 )
-                verify(childPointerInputNode.pointerInputHandler, never()).invoke(
+                verify(childPointerInputHandler, never()).invoke(
                     any(),
                     any(),
                     any()
@@ -384,23 +403,24 @@ class PointerInputEventProcessorTest {
             consumed = ConsumedData(positionChange = PxPosition(13.px, 0.px))
         )
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            whenever(
-                pointerInputHandler.invoke(
-                    listOf(input),
-                    InitialDown,
-                    IntPxSize(500.ipx, 500.ipx)
-                )
+        val pointerInputHandler: PointerInputHandler =
+            spy(StubPointerInputHandler { changes, pass, _ ->
+                if (changes == listOf(input) &&
+                    pass == InitialDown
+                ) {
+                    listOf(output)
+                } else {
+                    changes
+                }
+            })
+        val layoutNode = LayoutNode(
+            0, 0, 500, 500,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
             )
-                .thenReturn(
-                    listOf(
-                        output
-                    )
-                )
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val down = PointerInputEvent(
             0,
@@ -417,14 +437,15 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-        pointerInputEventProcessor.process(move, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
+        reset(pointerInputHandler)
+        pointerInputEventProcessor.process(move)
 
         // Assert
 
-        verify(pointerInputNode.pointerInputHandler)
+        verify(pointerInputHandler)
             .invoke(eq(listOf(input)), eq(InitialDown), any())
-        verify(pointerInputNode.pointerInputHandler)
+        verify(pointerInputHandler)
             .invoke(eq(listOf(output)), eq(PreUp), any())
     }
 
@@ -483,28 +504,38 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
+        val childPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val middlePointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val parentPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+
         val childOffset = PxPosition(cX1.px, cY1.px)
-        val childLayoutNode = LayoutNode(cX1, cY1, cX2, cY2)
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+        val childLayoutNode = LayoutNode(
+            cX1, cY1, cX2, cY2,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler)
+            )
+        )
         val middleOffset = PxPosition(mX1.px, mY1.px)
-        val middleLayoutNode: LayoutNode = LayoutNode(mX1, mY1, mX2, mY2).apply {
-            emitInsertAt(0, childPointerInputNode)
+        val middleLayoutNode: LayoutNode = LayoutNode(
+            mX1, mY1, mX2, mY2,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = middlePointerInputHandler)
+            )
+        ).apply {
+            emitInsertAt(0, childLayoutNode)
         }
-        val middlePointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val parentLayoutNode: LayoutNode = LayoutNode(
+            pX1, pY1, pX2, pY2,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = parentPointerInputHandler)
+            )
+        ).apply {
             emitInsertAt(0, middleLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
         }
-        val parentLayoutNode: LayoutNode = LayoutNode(pX1, pY1, pX2, pY2).apply {
-            emitInsertAt(0, middlePointerInputNode)
-        }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.emitInsertAt(0, parentPointerInputNode)
+
+        testOwner.position = IntPxPosition(aOX.ipx, aOY.ipx)
+
+        root.emitInsertAt(0, parentLayoutNode)
 
         val additionalOffset = IntPxPosition(aOX.ipx, aOY.ipx)
 
@@ -512,10 +543,10 @@ class PointerInputEventProcessorTest {
 
         val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
 
-        val pointerInputNodes = arrayOf(
-            parentPointerInputNode,
-            middlePointerInputNode,
-            childPointerInputNode
+        val pointerInputHandlers = arrayOf(
+            parentPointerInputHandler,
+            middlePointerInputHandler,
+            childPointerInputHandler
         )
 
         val expectedPointerInputChanges = arrayOf(
@@ -559,13 +590,13 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, additionalOffset)
+        pointerInputEventProcessor.process(down)
 
         // Assert
 
         for (pass in PointerEventPass.values()) {
-            for (i in pointerInputNodes.indices) {
-                verify(pointerInputNodes[i].pointerInputHandler).invoke(
+            for (i in pointerInputHandlers.indices) {
+                verify(pointerInputHandlers[i]).invoke(
                     listOf(expectedPointerInputChanges[i]),
                     pass,
                     expectedSizes[i]
@@ -597,17 +628,26 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 50, 50))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(50, 50, 100, 100))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+        val childPointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val childPointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val childLayoutNode1 =
+            LayoutNode(
+                0, 0, 50, 50,
+                PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
+                )
+            )
+        val childLayoutNode2 =
+            LayoutNode(
+                50, 50, 100, 100,
+                PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
+                )
+            )
         root.apply {
-            emitInsertAt(0, childPointerInputNode1)
-            emitInsertAt(0, childPointerInputNode2)
+            emitInsertAt(0, childLayoutNode1)
+            emitInsertAt(0, childLayoutNode2)
         }
 
         val offset1 = PxPosition(25.px, 25.px)
@@ -640,18 +680,18 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
 
         // Assert
 
         for (pointerEventPass in PointerEventPass.values()) {
-            verify(childPointerInputNode1.pointerInputHandler)
+            verify(childPointerInputHandler1)
                 .invoke(
                     listOf(expectedChange1),
                     pointerEventPass,
                     IntPxSize(50.ipx, 50.ipx)
                 )
-            verify(childPointerInputNode2.pointerInputHandler)
+            verify(childPointerInputHandler2)
                 .invoke(
                     listOf(expectedChange2),
                     pointerEventPass,
@@ -659,8 +699,8 @@ class PointerInputEventProcessorTest {
                 )
         }
         verifyNoMoreInteractions(
-            childPointerInputNode1.pointerInputHandler,
-            childPointerInputNode2.pointerInputHandler
+            childPointerInputHandler1,
+            childPointerInputHandler2
         )
     }
 
@@ -688,22 +728,34 @@ class PointerInputEventProcessorTest {
      */
     @Test
     fun process_3DownOnOverlappingPointerNodes_hitAndDispatchInfoAreCorrect() {
-        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 100, 100))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(50, 50, 150, 150))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode3: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(100, 100, 200, 200))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+
+        val childPointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val childPointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
+        val childPointerInputHandler3: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val childLayoutNode1 = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
+            )
+        )
+        val childLayoutNode2 = LayoutNode(
+            50, 50, 150, 150,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
+            )
+        )
+        val childLayoutNode3 = LayoutNode(
+            100, 100, 200, 200,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler3)
+            )
+        )
+
         root.apply {
-            emitInsertAt(0, childPointerInputNode1)
-            emitInsertAt(1, childPointerInputNode2)
-            emitInsertAt(2, childPointerInputNode3)
+            emitInsertAt(0, childLayoutNode1)
+            emitInsertAt(1, childLayoutNode2)
+            emitInsertAt(2, childLayoutNode3)
         }
 
         val offset1 = PxPosition(25.px, 25.px)
@@ -748,22 +800,22 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
 
         // Assert
 
         for (pointerEventPass in PointerEventPass.values()) {
-            verify(childPointerInputNode1.pointerInputHandler)
+            verify(childPointerInputHandler1)
                 .invoke(listOf(expectedChange1), pointerEventPass, IntPxSize(100.ipx, 100.ipx))
-            verify(childPointerInputNode2.pointerInputHandler)
+            verify(childPointerInputHandler2)
                 .invoke(listOf(expectedChange2), pointerEventPass, IntPxSize(100.ipx, 100.ipx))
-            verify(childPointerInputNode3.pointerInputHandler)
+            verify(childPointerInputHandler3)
                 .invoke(listOf(expectedChange3), pointerEventPass, IntPxSize(100.ipx, 100.ipx))
         }
         verifyNoMoreInteractions(
-            childPointerInputNode1.pointerInputHandler,
-            childPointerInputNode2.pointerInputHandler,
-            childPointerInputNode3.pointerInputHandler
+            childPointerInputHandler1,
+            childPointerInputHandler2,
+            childPointerInputHandler3
         )
     }
 
@@ -790,17 +842,26 @@ class PointerInputEventProcessorTest {
      */
     @Test
     fun process_3DownOnFloatingPointerNodeV_hitAndDispatchInfoAreCorrect() {
-        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 100, 150))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(25, 50, 75, 100))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+
+        val childPointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val childPointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val childLayoutNode1 = LayoutNode(
+            0, 0, 100, 150,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
+            )
+        )
+        val childLayoutNode2 = LayoutNode(
+            25, 50, 75, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
+            )
+        )
+
         root.apply {
-            emitInsertAt(0, childPointerInputNode1)
-            emitInsertAt(1, childPointerInputNode2)
+            emitInsertAt(0, childLayoutNode1)
+            emitInsertAt(1, childLayoutNode2)
         }
 
         val offset1 = PxPosition(50.px, 25.px)
@@ -841,18 +902,18 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
 
         // Assert
 
         for (pointerEventPass in PointerEventPass.values()) {
-            verify(childPointerInputNode1.pointerInputHandler)
+            verify(childPointerInputHandler1)
                 .invoke(
                     listOf(expectedChange1, expectedChange3),
                     pointerEventPass,
                     IntPxSize(100.ipx, 150.ipx)
                 )
-            verify(childPointerInputNode2.pointerInputHandler)
+            verify(childPointerInputHandler2)
                 .invoke(
                     listOf(expectedChange2),
                     pointerEventPass,
@@ -860,8 +921,8 @@ class PointerInputEventProcessorTest {
                 )
         }
         verifyNoMoreInteractions(
-            childPointerInputNode1.pointerInputHandler,
-            childPointerInputNode2.pointerInputHandler
+            childPointerInputHandler1,
+            childPointerInputHandler2
         )
     }
 
@@ -884,17 +945,25 @@ class PointerInputEventProcessorTest {
      */
     @Test
     fun process_3DownOnFloatingPointerNodeH_hitAndDispatchInfoAreCorrect() {
-        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 150, 100))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(50, 25, 100, 75))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+        val childPointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val childPointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val childLayoutNode1 = LayoutNode(
+            0, 0, 150, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
+            )
+        )
+        val childLayoutNode2 = LayoutNode(
+            50, 25, 100, 75,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
+            )
+        )
+
         root.apply {
-            emitInsertAt(0, childPointerInputNode1)
-            emitInsertAt(1, childPointerInputNode2)
+            emitInsertAt(0, childLayoutNode1)
+            emitInsertAt(1, childLayoutNode2)
         }
 
         val offset1 = PxPosition(25.px, 50.px)
@@ -935,18 +1004,18 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
 
         // Assert
 
         for (pointerEventPass in PointerEventPass.values()) {
-            verify(childPointerInputNode1.pointerInputHandler)
+            verify(childPointerInputHandler1)
                 .invoke(
                     listOf(expectedChange1, expectedChange3),
                     pointerEventPass,
                     IntPxSize(150.ipx, 100.ipx)
                 )
-            verify(childPointerInputNode2.pointerInputHandler)
+            verify(childPointerInputHandler2)
                 .invoke(
                     listOf(expectedChange2),
                     pointerEventPass,
@@ -954,202 +1023,8 @@ class PointerInputEventProcessorTest {
                 )
         }
         verifyNoMoreInteractions(
-            childPointerInputNode1.pointerInputHandler,
-            childPointerInputNode2.pointerInputHandler
-        )
-    }
-
-    /**
-     * This test creates a layout of this shape:
-     *
-     *    t            t
-     *   |---|
-     *  t|t  |  t      t t
-     *   |   |
-     *   |---|
-     *
-     *    t     t      t
-     *
-     *              |---|
-     *              |   |
-     *  t t     t   |  t|t
-     *              |---|
-     *    t            t
-     *
-     * One PointerInputNode with 2 child LayoutNodes that are far apart.  Touches happen both
-     * inside the bounding box that wraps around the LayoutNodes, and just outside of it.  Those
-     * that happen inside all hit, those that happen outside do not.
-     */
-    @Test
-    fun process_ManyPointersOnPinWith2LnsThatAreTopLeftBottomRight_onlyCorrectPointersHit() {
-
-        // Arrange
-
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(100, 100, 200, 200))
-            emitInsertAt(1, LayoutNode(300, 300, 400, 400))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.apply {
-            emitInsertAt(0, pointerInputNode)
-        }
-        val offsetsThatHit =
-            listOf(
-                PxPosition(100.px, 100.px),
-                PxPosition(250.px, 100.px),
-                PxPosition(399.px, 100.px),
-                PxPosition(100.px, 250.px),
-                PxPosition(250.px, 250.px),
-                PxPosition(399.px, 250.px),
-                PxPosition(100.px, 399.px),
-                PxPosition(250.px, 399.px),
-                PxPosition(399.px, 399.px)
-            )
-        val offsetsThatMiss =
-            listOf(
-                PxPosition(100.px, 99.px),
-                PxPosition(399.px, 99.px),
-                PxPosition(99.px, 100.px),
-                PxPosition(400.px, 100.px),
-                PxPosition(99.px, 399.px),
-                PxPosition(400.px, 399.px),
-                PxPosition(100.px, 400.px),
-                PxPosition(399.px, 400.px)
-            )
-        val allOffsets = offsetsThatHit + offsetsThatMiss
-        val pointerInputEvent =
-            PointerInputEvent(
-                Uptime.Boot + 11.milliseconds,
-                (allOffsets.indices).map {
-                    PointerInputEventData(it, Uptime.Boot + 11.milliseconds, allOffsets[it], true)
-                }
-            )
-
-        // Act
-
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
-
-        // Assert
-
-        val expectedChanges =
-            (offsetsThatHit.indices).map {
-                PointerInputChange(
-                    id = PointerId(it.toLong()),
-                    current = PointerInputData(
-                        Uptime.Boot + 11.milliseconds,
-                        offsetsThatHit[it] - PxPosition(100.px, 100.px),
-                        true
-                    ),
-                    previous = PointerInputData(null, null, false),
-                    consumed = ConsumedData()
-                )
-            }
-        PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(
-                eq(expectedChanges),
-                eq(pointerEventPass),
-                any()
-            )
-        }
-        verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler
-        )
-    }
-
-    /**
-     * This test creates a layout of this shape:
-     *
-     *    t            t
-     *              |---|
-     *  t t     t   |  t|t
-     *              |   |
-     *              |---|
-     *
-     *    t     t      t
-     *
-     *   |---|
-     *   |   |
-     *  t|t  |  t      t t
-     *   |---|
-     *    t            t
-     *
-     * One PointerInputNode with 2 child LayoutNodes that are far apart.  Touches happen both
-     * inside the bounding box that wraps around the LayoutNodes, and just outside of it.  Those
-     * that happen inside all hit, those that happen outside do not.
-     */
-    @Test
-    fun process_ManyPointersOnPinWith2LnsThatAreTopRightBottomLeft_onlyCorrectPointersHit() {
-
-        // Arrange
-
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(300, 100, 400, 200))
-            emitInsertAt(1, LayoutNode(100, 300, 200, 400))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.apply {
-            emitInsertAt(0, pointerInputNode)
-        }
-        val offsetsThatHit =
-            listOf(
-                PxPosition(100.px, 100.px),
-                PxPosition(250.px, 100.px),
-                PxPosition(399.px, 100.px),
-                PxPosition(100.px, 250.px),
-                PxPosition(250.px, 250.px),
-                PxPosition(399.px, 250.px),
-                PxPosition(100.px, 399.px),
-                PxPosition(250.px, 399.px),
-                PxPosition(399.px, 399.px)
-            )
-        val offsetsThatMiss =
-            listOf(
-                PxPosition(100.px, 99.px),
-                PxPosition(399.px, 99.px),
-                PxPosition(99.px, 100.px),
-                PxPosition(400.px, 100.px),
-                PxPosition(99.px, 399.px),
-                PxPosition(400.px, 399.px),
-                PxPosition(100.px, 400.px),
-                PxPosition(399.px, 400.px)
-            )
-        val allOffsets = offsetsThatHit + offsetsThatMiss
-        val pointerInputEvent =
-            PointerInputEvent(
-                Uptime.Boot + 11.milliseconds,
-                (allOffsets.indices).map {
-                    PointerInputEventData(it, Uptime.Boot + 11.milliseconds, allOffsets[it], true)
-                }
-            )
-
-        // Act
-
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
-
-        // Assert
-
-        val expectedChanges =
-            (offsetsThatHit.indices).map {
-                PointerInputChange(
-                    id = PointerId(it.toLong()),
-                    current = PointerInputData(
-                        Uptime.Boot + 11.milliseconds,
-                        offsetsThatHit[it] - PxPosition(100.px, 100.px),
-                        true
-                    ),
-                    previous = PointerInputData(null, null, false),
-                    consumed = ConsumedData()
-                )
-            }
-        PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(
-                eq(expectedChanges),
-                eq(pointerEventPass),
-                any()
-            )
-        }
-        verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler
+            childPointerInputHandler1,
+            childPointerInputHandler2
         )
     }
 
@@ -1168,7 +1043,7 @@ class PointerInputEventProcessorTest {
      * 4 .     t .   . t     .
      *   .........   .........
      *
-     * 4 PointerInputNodes around 4 LayoutNodes that are clipped by their parent LayoutNode. 4
+     * 4 LayoutNodes with PointerInputModifiers that are clipped by their parent LayoutNode. 4
      * touches touch just inside the parent LayoutNode and inside the child LayoutNodes. 8
      * touches touch just outside the parent LayoutNode but inside the child LayoutNodes.
      *
@@ -1176,32 +1051,42 @@ class PointerInputEventProcessorTest {
      * but the other 4 touches are inside both, so hit.
      */
     @Test
-    fun process_4DownInClippedAreaOfLnsWrappedByPins_onlyCorrectPointersHit() {
+    fun process_4DownInClippedAreaOfLnsWithPims_onlyCorrectPointersHit() {
 
         // Arrange
 
-        val singlePointerInputHandler = spy(StubPointerInputHandler())
-        val pointerInputNode1 = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(-1, -1, 1, 1))
-            pointerInputHandler = singlePointerInputHandler
-        }
-        val pointerInputNode2 = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(2, -1, 4, 1))
-            pointerInputHandler = singlePointerInputHandler
-        }
-        val pointerInputNode3 = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(-1, 2, 1, 4))
-            pointerInputHandler = singlePointerInputHandler
-        }
-        val pointerInputNode4 = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(2, 2, 4, 4))
-            pointerInputHandler = singlePointerInputHandler
-        }
+        val singlePointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val layoutNode1 = LayoutNode(
+            -1, -1, 1, 1,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
+            )
+        )
+        val layoutNode2 = LayoutNode(
+            2, -1, 4, 1,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
+            )
+        )
+        val layoutNode3 = LayoutNode(
+            -1, 2, 1, 4,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
+            )
+        )
+        val layoutNode4 = LayoutNode(
+            2, 2, 4, 4,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
+            )
+        )
+
         val parentLayoutNode = LayoutNode(1, 1, 4, 4).apply {
-            emitInsertAt(0, pointerInputNode1)
-            emitInsertAt(1, pointerInputNode2)
-            emitInsertAt(2, pointerInputNode3)
-            emitInsertAt(3, pointerInputNode4)
+            emitInsertAt(0, layoutNode1)
+            emitInsertAt(1, layoutNode2)
+            emitInsertAt(2, layoutNode3)
+            emitInsertAt(3, layoutNode4)
         }
         root.apply {
             emitInsertAt(0, parentLayoutNode)
@@ -1235,7 +1120,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(pointerInputEvent)
 
         // Assert
 
@@ -1272,201 +1157,6 @@ class PointerInputEventProcessorTest {
     /**
      * This test creates a layout of this shape:
      *
-     *                .....
-     *                . B .
-     *                .....
-     *         t   t
-     *        |-----|
-     *       t|t   t|t
-     *        |  A  |
-     *       t|t   t|t
-     *        |-----|
-     *         t   t
-     *  .....
-     *  . C .
-     *  .....
-     *
-     * Here we have a LayoutNode (A) that is the parent of a PointerInputNode that is then a parent
-     * of LayoutNodes B and C.  4 touches are performed in the corners of (A).
-     *
-     * Even though B and C are themselves are not touchable because they are laid out outside of the
-     * bounds of their parent LayoutNode, the PointerInputNode that wraps them is sized to include
-     * the space underneath A, so all 4 touches should hit.
-     */
-    @Test
-    fun process_lnWithPinWith2LnsOutsideOfLayoutBoundsPointerInsidePin_pointersHit() {
-
-        // Arrange
-
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(350, -50, 400, 0))
-            emitInsertAt(1, LayoutNode(-50, 350, 0, 400))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val layoutNode: LayoutNode = LayoutNode(100, 100, 400, 400).apply {
-            emitInsertAt(0, pointerInputNode)
-        }
-        root.apply {
-            emitInsertAt(0, layoutNode)
-        }
-        val offsetsThatHit =
-            listOf(
-                PxPosition(100.px, 100.px),
-                PxPosition(399.px, 100.px),
-                PxPosition(100.px, 399.px),
-                PxPosition(399.px, 399.px)
-            )
-        val offsetsThatMiss =
-            listOf(
-                PxPosition(100.px, 99.px),
-                PxPosition(399.px, 99.px),
-                PxPosition(99.px, 100.px),
-                PxPosition(400.px, 100.px),
-                PxPosition(99.px, 399.px),
-                PxPosition(400.px, 399.px),
-                PxPosition(100.px, 400.px),
-                PxPosition(399.px, 400.px)
-            )
-        val allOffsets = offsetsThatHit + offsetsThatMiss
-        val pointerInputEvent =
-            PointerInputEvent(
-                Uptime.Boot + 11.milliseconds,
-                (allOffsets.indices).map {
-                    PointerInputEventData(it, Uptime.Boot + 11.milliseconds, allOffsets[it], true)
-                }
-            )
-
-        // Act
-
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
-
-        // Assert
-
-        val expectedChanges =
-            (offsetsThatHit.indices).map {
-                PointerInputChange(
-                    id = PointerId(it.toLong()),
-                    current = PointerInputData(
-                        Uptime.Boot + 11.milliseconds,
-                        offsetsThatHit[it] - PxPosition(50.px, 50.px),
-                        true
-                    ),
-                    previous = PointerInputData(null, null, false),
-                    consumed = ConsumedData()
-                )
-            }
-        PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(
-                eq(expectedChanges),
-                eq(pointerEventPass),
-                any()
-            )
-        }
-        verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler
-        )
-    }
-
-    /**
-     * This test creates a layout of this shape:
-     *
-     *    t            t
-     *                  *
-     *  t t     t      t t
-     *
-     *
-     *
-     *    t     t      t
-     *
-     *
-     *
-     *  t t     t      t t
-     *   *
-     *    t            t
-     *
-     * One PointerInputNode with 2 child LayoutNodes that have no size (represented by *).  Touches
-     * happen both inside the bounding box that wraps around the LayoutNodes, and just outside of
-     * it.  Those that happen inside all hit, those that happen outside do not.
-     */
-    @Test
-    fun process_manyPointersOnPinWith2LnsWithNoSize_onlyCorrectPointersHit() {
-
-        // Arrange
-
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(400, 100, 400, 100))
-            emitInsertAt(1, LayoutNode(100, 400, 100, 400))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.apply {
-            emitInsertAt(0, pointerInputNode)
-        }
-        val offsetsThatHit =
-            listOf(
-                PxPosition(100.px, 100.px),
-                PxPosition(250.px, 100.px),
-                PxPosition(399.px, 100.px),
-                PxPosition(100.px, 250.px),
-                PxPosition(250.px, 250.px),
-                PxPosition(399.px, 250.px),
-                PxPosition(100.px, 399.px),
-                PxPosition(250.px, 399.px),
-                PxPosition(399.px, 399.px)
-            )
-        val offsetsThatMiss =
-            listOf(
-                PxPosition(100.px, 99.px),
-                PxPosition(399.px, 99.px),
-                PxPosition(99.px, 100.px),
-                PxPosition(400.px, 100.px),
-                PxPosition(99.px, 399.px),
-                PxPosition(400.px, 399.px),
-                PxPosition(100.px, 400.px),
-                PxPosition(399.px, 400.px)
-            )
-        val allOffsets = offsetsThatHit + offsetsThatMiss
-        val pointerInputEvent =
-            PointerInputEvent(
-                Uptime.Boot + 11.milliseconds,
-                (allOffsets.indices).map {
-                    PointerInputEventData(it, Uptime.Boot + 11.milliseconds, allOffsets[it], true)
-                }
-            )
-
-        // Act
-
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
-
-        // Assert
-
-        val expectedChanges =
-            (offsetsThatHit.indices).map {
-                PointerInputChange(
-                    id = PointerId(it.toLong()),
-                    current = PointerInputData(
-                        Uptime.Boot + 11.milliseconds,
-                        offsetsThatHit[it] - PxPosition(100.px, 100.px),
-                        true
-                    ),
-                    previous = PointerInputData(null, null, false),
-                    consumed = ConsumedData()
-                )
-            }
-        PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(
-                eq(expectedChanges),
-                eq(pointerEventPass),
-                any()
-            )
-        }
-        verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler
-        )
-    }
-
-    /**
-     * This test creates a layout of this shape:
-     *
      *   |---|
      *   |tt |
      *   |t  |
@@ -1485,16 +1175,18 @@ class PointerInputEventProcessorTest {
      *   hit, but with the additional offset, only the bottom right 3 hit.
      */
     @Test
-    fun process_additionalOffsetExists_onlyCorrectPointersHit() {
+    fun process_rootIsOffset_onlyCorrectPointersHit() {
 
         // Arrange
-
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 2, 2))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+        val singlePointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val layoutNode = LayoutNode(
+            0, 0, 2, 2,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
+            )
+        )
         root.apply {
-            emitInsertAt(0, pointerInputNode)
+            emitInsertAt(0, layoutNode)
         }
         val offsetsThatHit =
             listOf(
@@ -1516,10 +1208,11 @@ class PointerInputEventProcessorTest {
                     PointerInputEventData(it, Uptime.Boot + 11.milliseconds, allOffsets[it], true)
                 }
             )
+        testOwner.position = IntPxPosition(1.ipx, 1.ipx)
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition(1.ipx, 1.ipx))
+        pointerInputEventProcessor.process(pointerInputEvent)
 
         // Assert
 
@@ -1537,33 +1230,42 @@ class PointerInputEventProcessorTest {
                 )
             }
         PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(
+            verify(singlePointerInputHandler).invoke(
                 eq(expectedChanges),
                 eq(pointerEventPass),
                 any()
             )
         }
         verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler
+            singlePointerInputHandler
         )
     }
 
     @Test
-    fun process_downOn3NestedPointerInputNodes_hitAndDispatchInfoAreCorrect() {
-        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(25, 50, 75, 100))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childPointerInputNode1)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode3: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childPointerInputNode2)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+    fun process_downOn3NestedPointerInputModifiers_hitAndDispatchInfoAreCorrect() {
+
+        val pointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val pointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
+        val pointerInputHandler3: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val modifier =
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
+            ) +
+                    PointerInputModifier(
+                        TestPointerInputFilter(pointerInputHandler = pointerInputHandler2)
+                    ) +
+                    PointerInputModifier(
+                        TestPointerInputFilter(pointerInputHandler = pointerInputHandler3)
+                    )
+
+        val layoutNode = LayoutNode(
+            25, 50, 75, 100,
+            modifier
+        )
+
         root.apply {
-            emitInsertAt(0, childPointerInputNode3)
+            emitInsertAt(0, layoutNode)
         }
 
         val offset1 = PxPosition(50.px, 75.px)
@@ -1588,44 +1290,47 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
 
         // Assert
 
         for (pointerEventPass in PointerEventPass.values()) {
-            verify(childPointerInputNode1.pointerInputHandler)
+            verify(pointerInputHandler1)
                 .invoke(
                     listOf(expectedChange),
                     pointerEventPass,
                     IntPxSize(50.ipx, 50.ipx)
                 )
-            verify(childPointerInputNode2.pointerInputHandler)
+            verify(pointerInputHandler2)
                 .invoke(
                     listOf(expectedChange),
                     pointerEventPass,
                     IntPxSize(50.ipx, 50.ipx)
                 )
-            verify(childPointerInputNode3.pointerInputHandler)
+            verify(pointerInputHandler3)
                 .invoke(
                     listOf(expectedChange),
                     pointerEventPass,
                     IntPxSize(50.ipx, 50.ipx)
                 )
         }
-        verifyNoMoreInteractions(childPointerInputNode1.pointerInputHandler)
-        verifyNoMoreInteractions(childPointerInputNode2.pointerInputHandler)
-        verifyNoMoreInteractions(childPointerInputNode3.pointerInputHandler)
+        verifyNoMoreInteractions(pointerInputHandler1, pointerInputHandler2, pointerInputHandler3)
     }
 
     @Test
-    fun process_downOnDeeplyNestedPointerInputNode_hitAndDispatchInfoAreCorrect() {
-        val layoutNode1 = LayoutNode(1, 5, 500, 500)
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode1)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+    fun process_downOnDeeplyNestedPointerInputModifier_hitAndDispatchInfoAreCorrect() {
+
+        val pointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val layoutNode1 =
+            LayoutNode(
+                1, 5, 500, 500,
+                PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
+                )
+            )
         val layoutNode2: LayoutNode = LayoutNode(2, 6, 500, 500).apply {
-            emitInsertAt(0, pointerInputNode)
+            emitInsertAt(0, layoutNode1)
         }
         val layoutNode3: LayoutNode = LayoutNode(3, 7, 500, 500).apply {
             emitInsertAt(0, layoutNode2)
@@ -1659,48 +1364,54 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(downEvent, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(downEvent)
 
         // Assert
 
         for (pointerEventPass in PointerEventPass.values()) {
-            verify(pointerInputNode.pointerInputHandler)
+            verify(pointerInputHandler1)
                 .invoke(
                     listOf(expectedChange),
                     pointerEventPass,
                     IntPxSize(499.ipx, 495.ipx)
                 )
         }
-        verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        verifyNoMoreInteractions(pointerInputHandler1)
     }
 
     @Test
     fun process_downOnComplexPointerAndLayoutNodePath_hitAndDispatchInfoAreCorrect() {
-        val layoutNode1 = LayoutNode(1, 6, 500, 500)
-        val pointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode1)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val pointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, pointerInputNode1)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+
+        val pointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
+        val pointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val pointerInputHandler3: PointerInputHandler = spy(StubPointerInputHandler())
+        val pointerInputHandler4: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val layoutNode1 = LayoutNode(
+            1, 6, 500, 500,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
+            ) + PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler2)
+            )
+        )
         val layoutNode2: LayoutNode = LayoutNode(2, 7, 500, 500).apply {
-            emitInsertAt(0, pointerInputNode2)
+            emitInsertAt(0, layoutNode1)
         }
-        val layoutNode3: LayoutNode = LayoutNode(3, 8, 500, 500).apply {
-            emitInsertAt(0, layoutNode2)
-        }
-        val pointerInputNode3: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode3)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val pointerInputNode4: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, pointerInputNode3)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+        val layoutNode3 =
+            LayoutNode(
+                3, 8, 500, 500,
+                PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = pointerInputHandler3)
+                ) + PointerInputModifier(
+                    TestPointerInputFilter(pointerInputHandler = pointerInputHandler4)
+                )
+            ).apply {
+                emitInsertAt(0, layoutNode2)
+            }
+
         val layoutNode4: LayoutNode = LayoutNode(4, 9, 500, 500).apply {
-            emitInsertAt(0, pointerInputNode4)
+            emitInsertAt(0, layoutNode3)
         }
         val layoutNode5: LayoutNode = LayoutNode(5, 10, 500, 500).apply {
             emitInsertAt(0, layoutNode4)
@@ -1745,132 +1456,66 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(downEvent, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(downEvent)
 
         // Assert
 
         for (pointerEventPass in PointerEventPass.values()) {
-            verify(pointerInputNode1.pointerInputHandler)
+            verify(pointerInputHandler1)
                 .invoke(
                     listOf(expectedChange1),
                     pointerEventPass,
                     IntPxSize(499.ipx, 494.ipx)
                 )
-            verify(pointerInputNode2.pointerInputHandler)
+            verify(pointerInputHandler2)
                 .invoke(
                     listOf(expectedChange1),
                     pointerEventPass,
                     IntPxSize(499.ipx, 494.ipx)
                 )
-            verify(pointerInputNode3.pointerInputHandler)
+            verify(pointerInputHandler3)
                 .invoke(
                     listOf(expectedChange2),
                     pointerEventPass,
                     IntPxSize(497.ipx, 492.ipx)
                 )
-            verify(pointerInputNode4.pointerInputHandler)
+            verify(pointerInputHandler4)
                 .invoke(
                     listOf(expectedChange2),
                     pointerEventPass,
                     IntPxSize(497.ipx, 492.ipx)
                 )
         }
-        verifyNoMoreInteractions(pointerInputNode1.pointerInputHandler)
-        verifyNoMoreInteractions(pointerInputNode2.pointerInputHandler)
-        verifyNoMoreInteractions(pointerInputNode3.pointerInputHandler)
-        verifyNoMoreInteractions(pointerInputNode4.pointerInputHandler)
-    }
-
-    @Test
-    fun process_downOnCompletelyOverlappingPointerInputNodes_onlyTopPointerInputNodeReceives() {
-        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 100, 100))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 100, 100))
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.apply {
-            emitInsertAt(0, childPointerInputNode1)
-            emitInsertAt(1, childPointerInputNode2)
-        }
-
-        val down = PointerInputEvent(
-            1, Uptime.Boot + 0.milliseconds, PxPosition(50.px, 50.px), true
+        verifyNoMoreInteractions(
+            pointerInputHandler1,
+            pointerInputHandler2,
+            pointerInputHandler3,
+            pointerInputHandler4
         )
-
-        // Act
-
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-
-        // Assert
-        verify(childPointerInputNode2.pointerInputHandler, times(5)).invoke(any(), any(), any())
-        verify(childPointerInputNode1.pointerInputHandler, never()).invoke(any(), any(), any())
     }
 
     @Test
-    fun process_downOnPointerInputNodeWrappingSemanticsNodeWrappingLayoutNode_downReceived() {
-        val semanticsComponentNode: SemanticsComponentNode =
-            SemanticsComponentNode(
-                1,
-                SemanticsConfiguration()
-            ).apply {
-                emitInsertAt(0, LayoutNode(0, 0, 100, 100))
-            }
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, semanticsComponentNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.apply {
-            emitInsertAt(0, pointerInputNode)
-        }
+    fun process_downOnFullyOverlappingPointerInputModifiers_onlyTopPointerInputModifierReceives() {
 
-        val down = PointerInputEvent(
-            1, Uptime.Boot + 0.milliseconds, PxPosition(50.px, 50.px), true
-        )
+        val pointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val pointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
 
-        // Act
-
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-
-        // Assert
-        verify(pointerInputNode.pointerInputHandler, times(5)).invoke(any(), any(), any())
-    }
-
-    @Test
-    fun process_downOnPointerInputNodeWrappingDrawNode_downNotReceived() {
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, DrawNode())
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.apply {
-            emitInsertAt(0, pointerInputNode)
-        }
-
-        val down = PointerInputEvent(
-            1, Uptime.Boot + 0.milliseconds, PxPosition(50.px, 50.px), true
-        )
-
-        // Act
-
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-
-        // Assert
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
-    }
-
-    @Test
-    fun process_downOnPointerInputNodeWrappingSemanticsNode_downNotReceived() {
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(
-                0,
-                SemanticsComponentNode(1, SemanticsConfiguration())
+        val layoutNode1 = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
             )
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+        )
+        val layoutNode2 = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler2)
+            )
+        )
+
         root.apply {
-            emitInsertAt(0, pointerInputNode)
+            emitInsertAt(0, layoutNode1)
+            emitInsertAt(1, layoutNode2)
         }
 
         val down = PointerInputEvent(
@@ -1879,33 +1524,41 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
+        verify(pointerInputHandler2, times(5)).invoke(any(), any(), any())
+        verify(pointerInputHandler1, never()).invoke(any(), any(), any())
     }
 
     @Test
-    fun process_downOnPointerInputNodeWrappingPointerInputNodeNode_downNotReceived() {
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, PointerInputNode())
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
+    fun process_downOnPointerInputModifierInLayoutNodeWithNoSize_downNotReceived() {
+
+        val pointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+
+        val layoutNode1 = LayoutNode(
+            0, 0, 0, 0,
+            PointerInputModifier(
+                TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
+            )
+        )
+
         root.apply {
-            emitInsertAt(0, pointerInputNode)
+            emitInsertAt(0, layoutNode1)
         }
 
         val down = PointerInputEvent(
-            1, Uptime.Boot + 0.milliseconds, PxPosition(50.px, 50.px), true
+            1, Uptime.Boot + 0.milliseconds, PxPosition(0.px, 0.px), true
         )
 
         // Act
-
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
+        verify(pointerInputHandler1, never()).invoke(any(), any(), any())
     }
+
+    // Cancel Handlers
 
     @Test
     fun processCancel_noPointers_doesntCrash() {
@@ -1913,16 +1566,24 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun processCancel_downThenCancel_pinOnlyReceivesCorrectDownThenCancel() {
+    fun processCancel_downThenCancel_pimOnlyReceivesCorrectDownThenCancel() {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val cancelHandler: () -> Unit = spy()
+
+        val layoutNode = LayoutNode(
+            0, 0, 500, 500,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = pointerInputHandler,
+                    cancelHandler = cancelHandler
+                )
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val pointerInputEvent =
             PointerInputEvent(
@@ -1946,38 +1607,46 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(pointerInputEvent)
         pointerInputEventProcessor.processCancel()
 
         // Assert
 
-        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+        inOrder(pointerInputHandler, cancelHandler) {
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(listOf(expectedChange)),
                     eq(pass),
                     any()
                 )
             }
-            verify(pointerInputNode.cancelHandler).invoke()
+            verify(cancelHandler).invoke()
         }
         verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler,
-            pointerInputNode.cancelHandler
+            pointerInputHandler,
+            cancelHandler
         )
     }
 
     @Test
-    fun processCancel_downDownOnSamePinThenCancel_pinOnlyReceivesCorrectChangesThenCancel() {
+    fun processCancel_downDownOnSamePimThenCancel_pimOnlyReceivesCorrectChangesThenCancel() {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val cancelHandler: () -> Unit = spy()
+
+        val layoutNode = LayoutNode(
+            0, 0, 500, 500,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = pointerInputHandler,
+                    cancelHandler = cancelHandler
+                )
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val pointerInputEvent1 =
             PointerInputEvent(
@@ -2050,52 +1719,66 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent1, IntPxPosition.Origin)
-        pointerInputEventProcessor.process(pointerInputEvent2, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(pointerInputEvent1)
+        pointerInputEventProcessor.process(pointerInputEvent2)
         pointerInputEventProcessor.processCancel()
 
         // Assert
 
-        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+        inOrder(pointerInputHandler, cancelHandler) {
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(expectedChanges1),
                     eq(pass),
                     any()
                 )
             }
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(expectedChanges2),
                     eq(pass),
                     any()
                 )
             }
-            verify(pointerInputNode.cancelHandler).invoke()
+            verify(cancelHandler).invoke()
         }
         verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler,
-            pointerInputNode.cancelHandler
+            pointerInputHandler,
+            cancelHandler
         )
     }
 
     @Test
-    fun processCancel_downOn2DifferentPinsThenCancel_pinsOnlyReceiveCorrectDownsThenCancel() {
+    fun processCancel_downOn2DifferentPimsThenCancel_pimsOnlyReceiveCorrectDownsThenCancel() {
 
         // Arrange
 
-        val pointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 199, 199))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            cancelHandler = spy(StubCancelHandler())
-        }
-        val pointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(200, 200, 399, 399))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode1)
-        root.emitInsertAt(1, pointerInputNode2)
+        val pointerInputHandler1: PointerInputHandler = spy(StubPointerInputHandler())
+        val cancelHandler1: () -> Unit = spy()
+        val layoutNode1 = LayoutNode(
+            0, 0, 199, 199,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = pointerInputHandler1,
+                    cancelHandler = cancelHandler1
+                )
+            )
+        )
+
+        val pointerInputHandler2: PointerInputHandler = spy(StubPointerInputHandler())
+        val cancelHandler2: () -> Unit = spy()
+        val layoutNode2 = LayoutNode(
+            200, 200, 399, 399,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = pointerInputHandler2,
+                    cancelHandler = cancelHandler2
+                )
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode1)
+        root.emitInsertAt(1, layoutNode2)
 
         val pointerInputEventData1 =
             PointerInputEventData(
@@ -2144,50 +1827,57 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(pointerInputEvent)
         pointerInputEventProcessor.processCancel()
 
         // Assert
 
-        inOrder(pointerInputNode1.pointerInputHandler, pointerInputNode1.cancelHandler) {
+        inOrder(pointerInputHandler1, cancelHandler1) {
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode1.pointerInputHandler).invoke(
+                verify(pointerInputHandler1).invoke(
                     eq(listOf(expectedChange1)),
                     eq(pass),
                     any()
                 )
             }
-            verify(pointerInputNode1.cancelHandler).invoke()
+            verify(cancelHandler1).invoke()
         }
-        inOrder(pointerInputNode2.pointerInputHandler, pointerInputNode2.cancelHandler) {
+        inOrder(pointerInputHandler2, cancelHandler2) {
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode2.pointerInputHandler).invoke(
+                verify(pointerInputHandler2).invoke(
                     eq(listOf(expectedChange2)),
                     eq(pass),
                     any()
                 )
             }
-            verify(pointerInputNode2.cancelHandler).invoke()
+            verify(cancelHandler2).invoke()
         }
         verifyNoMoreInteractions(
-            pointerInputNode1.pointerInputHandler,
-            pointerInputNode1.cancelHandler,
-            pointerInputNode2.pointerInputHandler,
-            pointerInputNode2.cancelHandler
+            pointerInputHandler1,
+            cancelHandler1,
+            pointerInputHandler2,
+            cancelHandler2
         )
     }
 
     @Test
-    fun processCancel_downMoveCancel_pinOnlyReceivesCorrectDownMoveCancel() {
+    fun processCancel_downMoveCancel_pimOnlyReceivesCorrectDownMoveCancel() {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val cancelHandler: () -> Unit = spy()
+        val layoutNode = LayoutNode(
+            0, 0, 500, 500,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = pointerInputHandler,
+                    cancelHandler = cancelHandler
+                )
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val down =
             PointerInputEvent(
@@ -2235,46 +1925,53 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-        pointerInputEventProcessor.process(move, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(move)
         pointerInputEventProcessor.processCancel()
 
         // Assert
 
-        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+        inOrder(pointerInputHandler, cancelHandler) {
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(listOf(expectedDown)),
                     eq(pass),
                     any()
                 )
             }
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(listOf(expectedMove)),
                     eq(pass),
                     any()
                 )
             }
-            verify(pointerInputNode.cancelHandler).invoke()
+            verify(cancelHandler).invoke()
         }
         verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler,
-            pointerInputNode.cancelHandler
+            pointerInputHandler,
+            cancelHandler
         )
     }
 
     @Test
-    fun processCancel_downCancelMoveUp_pinOnlyReceivesCorrectDownCancel() {
+    fun processCancel_downCancelMoveUp_pimOnlyReceivesCorrectDownCancel() {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val cancelHandler: () -> Unit = spy()
+        val layoutNode = LayoutNode(
+            0, 0, 500, 500,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = pointerInputHandler,
+                    cancelHandler = cancelHandler
+                )
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val down =
             PointerInputEvent(
@@ -2298,38 +1995,45 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
         pointerInputEventProcessor.processCancel()
 
         // Assert
 
-        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+        inOrder(pointerInputHandler, cancelHandler) {
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(listOf(expectedDown)),
                     eq(pass),
                     any()
                 )
             }
-            verify(pointerInputNode.cancelHandler).invoke()
+            verify(cancelHandler).invoke()
         }
         verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler,
-            pointerInputNode.cancelHandler
+            pointerInputHandler,
+            cancelHandler
         )
     }
 
     @Test
-    fun processCancel_downCancelDown_pinOnlyReceivesCorrectDownCancelDown() {
+    fun processCancel_downCancelDown_pimOnlyReceivesCorrectDownCancelDown() {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
-            pointerInputHandler = spy(StubPointerInputHandler())
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, pointerInputNode)
+        val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val cancelHandler: () -> Unit = spy()
+        val layoutNode = LayoutNode(
+            0, 0, 500, 500,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = pointerInputHandler,
+                    cancelHandler = cancelHandler
+                )
+            )
+        )
+
+        root.emitInsertAt(0, layoutNode)
 
         val down1 =
             PointerInputEvent(
@@ -2373,23 +2077,23 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down1, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down1)
         pointerInputEventProcessor.processCancel()
-        pointerInputEventProcessor.process(down2, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down2)
 
         // Assert
 
-        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+        inOrder(pointerInputHandler, cancelHandler) {
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(listOf(expectedDown1)),
                     eq(pass),
                     any()
                 )
             }
-            verify(pointerInputNode.cancelHandler).invoke()
+            verify(cancelHandler).invoke()
             for (pass in PointerEventPass.values()) {
-                verify(pointerInputNode.pointerInputHandler).invoke(
+                verify(pointerInputHandler).invoke(
                     eq(listOf(expectedDown2)),
                     eq(pass),
                     any()
@@ -2397,29 +2101,39 @@ class PointerInputEventProcessorTest {
             }
         }
         verifyNoMoreInteractions(
-            pointerInputNode.pointerInputHandler,
-            pointerInputNode.cancelHandler
+            pointerInputHandler,
+            cancelHandler
         )
     }
 
     @Test
-    fun process_pointerInputNodeRemovedDuringInput_correctPointerInputChangesReceived() {
+    fun process_layoutNodeRemovedDuringInput_correctPointerInputChangesReceived() {
 
         // Arrange
 
-        val childLayoutNode = LayoutNode(0, 0, 100, 100)
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val childPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val childLayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = childPointerInputHandler
+                )
+            )
+        )
+
+        val parentPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val parentLayoutNode: LayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = parentPointerInputHandler
+                )
+            )
+        ).apply {
             emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
         }
-        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, childPointerInputNode)
-        }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.emitInsertAt(0, parentPointerInputNode)
+
+        root.emitInsertAt(0, parentLayoutNode)
 
         val offset = PxPosition(50.px, 50.px)
 
@@ -2442,42 +2156,52 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
         parentLayoutNode.emitRemoveAt(0, 1)
-        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(up)
 
         // Assert
 
         PointerEventPass.values().forEach {
-            verify(parentPointerInputNode.pointerInputHandler)
+            verify(parentPointerInputHandler)
                 .invoke(eq(listOf(expectedDownChange)), eq(it), any())
-            verify(childPointerInputNode.pointerInputHandler)
+            verify(childPointerInputHandler)
                 .invoke(eq(listOf(expectedDownChange)), eq(it), any())
-            verify(parentPointerInputNode.pointerInputHandler)
+            verify(parentPointerInputHandler)
                 .invoke(eq(listOf(expectedUpChange)), eq(it), any())
         }
-        verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
-        verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)
+        verifyNoMoreInteractions(parentPointerInputHandler)
+        verifyNoMoreInteractions(childPointerInputHandler)
     }
 
     @Test
-    fun process_pointerInputNodeRemovedDuringInput_cancelDispatchedToCorrectPointerInputNode() {
+    fun process_layoutNodeRemovedDuringInput_cancelDispatchedToCorrectPointerInputModifier() {
 
         // Arrange
 
-        val childLayoutNode = LayoutNode(0, 0, 100, 100)
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val childCancelHandler: () -> Unit = spy()
+        val childLayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    cancelHandler = childCancelHandler
+                )
+            )
+        )
+
+        val parentCancelHandler: () -> Unit = spy()
+        val parentLayoutNode: LayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    cancelHandler = parentCancelHandler
+                )
+            )
+        ).apply {
             emitInsertAt(0, childLayoutNode)
-            cancelHandler = spy(StubCancelHandler())
         }
-        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, childPointerInputNode)
-        }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, parentPointerInputNode)
+
+        root.emitInsertAt(0, parentLayoutNode)
 
         val down =
             PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50.px, 50.px), true)
@@ -2486,33 +2210,43 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
         parentLayoutNode.emitRemoveAt(0, 1)
-        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(up)
 
         // Assert
-        verify(childPointerInputNode.cancelHandler).invoke()
-        verify(parentPointerInputNode.cancelHandler, never()).invoke()
+        verify(childCancelHandler).invoke()
+        verify(parentCancelHandler, never()).invoke()
     }
 
     @Test
-    fun process_childLayoutNodeRemovedDuringInput_correctPointerInputChangesReceived() {
+    fun process_pointerInputModifierRemovedDuringInput_correctPointerInputChangesReceived() {
 
         // Arrange
 
-        val childLayoutNode = LayoutNode(0, 0, 100, 100)
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val childPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val childLayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = childPointerInputHandler
+                )
+            )
+        )
+
+        val parentPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
+        val parentLayoutNode: LayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    pointerInputHandler = parentPointerInputHandler
+                )
+            )
+        ).apply {
             emitInsertAt(0, childLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
         }
-        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, childPointerInputNode)
-        }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
-            pointerInputHandler = spy(StubPointerInputHandler())
-        }
-        root.emitInsertAt(0, parentPointerInputNode)
+
+        root.emitInsertAt(0, parentLayoutNode)
 
         val offset = PxPosition(50.px, 50.px)
 
@@ -2535,42 +2269,52 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-        childPointerInputNode.emitRemoveAt(0, 1)
-        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
+        childLayoutNode.modifier = Modifier.None
+        pointerInputEventProcessor.process(up)
 
         // Assert
 
         PointerEventPass.values().forEach {
-            verify(parentPointerInputNode.pointerInputHandler)
+            verify(parentPointerInputHandler)
                 .invoke(eq(listOf(expectedDownChange)), eq(it), any())
-            verify(childPointerInputNode.pointerInputHandler)
+            verify(childPointerInputHandler)
                 .invoke(eq(listOf(expectedDownChange)), eq(it), any())
-            verify(parentPointerInputNode.pointerInputHandler)
+            verify(parentPointerInputHandler)
                 .invoke(eq(listOf(expectedUpChange)), eq(it), any())
         }
-        verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
-        verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)
+        verifyNoMoreInteractions(parentPointerInputHandler)
+        verifyNoMoreInteractions(childPointerInputHandler)
     }
 
     @Test
-    fun process_childLayoutNodeRemovedDuringInput_cancelDispatchedToCorrectPointerInputNode() {
+    fun process_pointerInputModifierRemovedDuringInput_cancelDispatchedToCorrectPim() {
 
         // Arrange
 
-        val childLayoutNode = LayoutNode(0, 0, 100, 100)
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val childCancelHandler: () -> Unit = spy()
+        val childLayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    cancelHandler = childCancelHandler
+                )
+            )
+        )
+
+        val parentCancelHandler: () -> Unit = spy()
+        val parentLayoutNode: LayoutNode = LayoutNode(
+            0, 0, 100, 100,
+            PointerInputModifier(
+                TestPointerInputFilter(
+                    cancelHandler = parentCancelHandler
+                )
+            )
+        ).apply {
             emitInsertAt(0, childLayoutNode)
-            cancelHandler = spy(StubCancelHandler())
         }
-        val parentLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, childPointerInputNode)
-        }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
-            cancelHandler = spy(StubCancelHandler())
-        }
-        root.emitInsertAt(0, parentPointerInputNode)
+
+        root.emitInsertAt(0, parentLayoutNode)
 
         val down =
             PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50.px, 50.px), true)
@@ -2579,12 +2323,22 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
-        childPointerInputNode.emitRemoveAt(0, 1)
-        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(down)
+        childLayoutNode.modifier = Modifier.None
+        pointerInputEventProcessor.process(up)
 
         // Assert
-        verify(childPointerInputNode.cancelHandler).invoke()
-        verify(parentPointerInputNode.cancelHandler, never()).invoke()
+        verify(childCancelHandler).invoke()
+        verify(parentCancelHandler, never()).invoke()
     }
 }
+
+abstract class TestOwner : Owner {
+    var position = IntPxPosition.Origin
+    override fun calculatePosition() = position
+}
+
+class TestPointerInputFilter(
+    override val pointerInputHandler: PointerInputHandler = { changes, _, _ -> changes },
+    override val cancelHandler: () -> Unit = {}
+) : PointerInputFilter()
