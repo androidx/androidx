@@ -18,6 +18,7 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -28,7 +29,7 @@ import androidx.ui.unit.Dp
 
 /**
  * Vector graphics object that is generated as a result of [VectorAssetBuilder]]
- * It can be composed and rendered by passing it as an argument to [DrawVector]
+ * It can be composed and rendered by passing it as an argument to [drawVector]
  */
 data class VectorAsset internal constructor(
 
@@ -242,26 +243,24 @@ data class VectorPath(
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  */
 @Composable
-fun DrawVector(
+fun drawVector(
     vectorImage: VectorAsset,
     tintColor: Color = Color.Transparent,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = Alignment.Center,
     fit: ScaleFit = ScaleFit.Fit
-) {
-    DrawVector(
-        name = vectorImage.name,
-        viewportWidth = vectorImage.viewportWidth,
-        viewportHeight = vectorImage.viewportHeight,
-        defaultWidth = vectorImage.defaultWidth,
-        defaultHeight = vectorImage.defaultHeight,
-        tintColor = tintColor,
-        tintBlendMode = tintBlendMode,
-        alignment = alignment,
-        scaleFit = fit
-    ) { _, _ ->
-        RenderVectorGroup(group = vectorImage.root)
-    }
+): Modifier = drawVector(
+    name = vectorImage.name,
+    viewportWidth = vectorImage.viewportWidth,
+    viewportHeight = vectorImage.viewportHeight,
+    defaultWidth = vectorImage.defaultWidth,
+    defaultHeight = vectorImage.defaultHeight,
+    tintColor = tintColor,
+    tintBlendMode = tintBlendMode,
+    alignment = alignment,
+    scaleFit = fit
+) { _, _ ->
+    RenderVectorGroup(group = vectorImage.root)
 }
 
 /**

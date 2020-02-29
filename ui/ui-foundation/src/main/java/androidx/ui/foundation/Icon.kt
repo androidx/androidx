@@ -24,8 +24,8 @@ import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.VectorAsset
+import androidx.ui.graphics.vector.drawVector
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
@@ -50,8 +50,10 @@ fun Icon(
     // TODO: consider allowing developers to override the intrinsic size, and specify their own
     // size that this icon will be forced to take up.
     // TODO: b/149735981 semantics for content description
-    Box(modifier + LayoutWidth(icon.defaultWidth) + LayoutHeight(icon.defaultHeight)) {
-        DrawVector(vectorImage = icon, tintColor = tint)
+    Box(
+        modifier = modifier + LayoutWidth(icon.defaultWidth) + LayoutHeight(icon.defaultHeight) +
+                drawVector(vectorImage = icon, tintColor = tint)
+    ) {
     }
 }
 
