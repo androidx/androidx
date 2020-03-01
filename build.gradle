@@ -16,6 +16,7 @@
 
 import androidx.build.AndroidXPlugin
 import androidx.build.SdkHelperKt
+import static androidx.build.dependencies.DependenciesKt.*
 
 buildscript {
     ext.supportRootFolder = project.projectDir
@@ -28,6 +29,7 @@ buildscript {
         classpath build_libs.agp
         classpath build_libs.kotlin.gradle_plugin
         classpath build_libs.dokka_gradle
+        classpath HILT_ANDROID_GRADLE_PLUGIN
     }
 }
 
