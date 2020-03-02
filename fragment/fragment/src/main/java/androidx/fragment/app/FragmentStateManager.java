@@ -307,24 +307,6 @@ class FragmentStateManager {
                             destroyFragmentView();
                             break;
                         case Fragment.ATTACHED:
-                            // TODO move this into destroy()
-                            boolean beingRemoved = mFragment.mRemoving
-                                    && !mFragment.isInBackStack();
-                            if (beingRemoved
-                                    || mFragmentStore.getNonConfig().shouldDestroy(mFragment)) {
-                                mFragmentStore.makeInactive(this);
-                            } else {
-                                if (mFragment.mTargetWho != null) {
-                                    Fragment target = mFragmentStore.findActiveFragment(
-                                            mFragment.mTargetWho);
-                                    if (target != null && target.mRetainInstance) {
-                                        // Only keep references to other retained Fragments
-                                        // to avoid developers accessing Fragments that
-                                        // are never coming back
-                                        mFragment.mTarget = target;
-                                    }
-                                }
-                            }
                             // TODO wait for animations to complete
                             destroy();
                             break;
@@ -655,7 +637,33 @@ class FragmentStateManager {
             }
             mFragment.performDestroy();
             mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);
+            // Ensure that any Fragment that had this Fragment as its
+            // target Fragment retains a reference to the Fragment
+            for (FragmentStateManager fragmentStateManager :
+                    mFragmentStore.getActiveFragmentStateManagers()) {
+                if (fragmentStateManager != null) {
+                    Fragment fragment = fragmentStateManager.getFragment();
+                    if (mFragment.mWho.equals(fragment.mTargetWho)) {
+                        fragment.mTarget = mFragment;
+                        fragment.mTargetWho = null;
+                    }
+                }
+            }
+            if (mFragment.mTargetWho != null) {
+                // Restore the target Fragment so that it can be accessed
+                // even after the Fragment is removed.
+                mFragment.mTarget = mFragmentStore.findActiveFragment(mFragment.mTargetWho);
+            }
         } else {
+            if (mFragment.mTargetWho != null) {
+                Fragment target = mFragmentStore.findActiveFragment(mFragment.mTargetWho);
+                if (target != null && target.mRetainInstance) {
+                    // Only keep references to other retained Fragments
+                    // to avoid developers accessing Fragments that
+                    // are never coming back
+                    mFragment.mTarget = target;
+                }
+            }
             mFragment.mState = Fragment.ATTACHED;
         }
     }
