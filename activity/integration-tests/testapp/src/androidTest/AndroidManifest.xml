@@ -14,10 +14,5 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.activity.integration.testapp.test">
-    <application android:name="androidx.activity.integration.testapp.LeakCanaryApp">
-        <activity android:name="androidx.activity.integration.testapp.LeakingActivity"
-                  android:windowSoftInputMode="stateVisible"/>
-    </application>
+<manifest package="androidx.activity.integration.testapp.test">
 </manifest>
