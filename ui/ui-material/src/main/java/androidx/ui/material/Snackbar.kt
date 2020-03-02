@@ -78,12 +78,14 @@ fun Snackbar(
         color = snackbarColor,
         contentColor = colors.surface
     ) {
-        val textStyle = MaterialTheme.typography().body2
-        CurrentTextStyleProvider(value = textStyle) {
-            when {
-                action == null -> TextOnlySnackbar(text)
-                actionOnNewLine -> NewLineButtonSnackbar(text, action)
-                else -> OneRowSnackbar(text, action)
+        ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
+            val textStyle = MaterialTheme.typography().body2
+            CurrentTextStyleProvider(value = textStyle) {
+                when {
+                    action == null -> TextOnlySnackbar(text)
+                    actionOnNewLine -> NewLineButtonSnackbar(text, action)
+                    else -> OneRowSnackbar(text, action)
+                }
             }
         }
     }

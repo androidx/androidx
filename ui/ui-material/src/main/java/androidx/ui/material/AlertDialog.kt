@@ -115,11 +115,14 @@ fun AlertDialog(
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(modifier = LayoutWidth(AlertDialogWidth), shape = AlertDialogShape) {
+                val emphasisLevels = MaterialTheme.emphasisLevels()
                 Column {
                     if (title != null) {
                         Box(modifier = TitlePadding + LayoutGravity.Start) {
-                            val textStyle = MaterialTheme.typography().h6
-                            CurrentTextStyleProvider(textStyle, title)
+                            ProvideEmphasis(emphasisLevels.high) {
+                                val textStyle = MaterialTheme.typography().h6
+                                CurrentTextStyleProvider(textStyle, title)
+                            }
                         }
                     } else {
                         // TODO(b/138924683): Temporary until padding for the Text's
@@ -128,8 +131,10 @@ fun AlertDialog(
                     }
 
                     Box(modifier = TextPadding + LayoutGravity.Start) {
-                        val textStyle = MaterialTheme.typography().body1
-                        CurrentTextStyleProvider(textStyle, text)
+                        ProvideEmphasis(emphasisLevels.medium) {
+                            val textStyle = MaterialTheme.typography().body1
+                            CurrentTextStyleProvider(textStyle, text)
+                        }
                     }
                     Spacer(LayoutHeight(TextToButtonsHeight))
                     buttons()

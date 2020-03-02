@@ -26,7 +26,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
-import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -133,16 +132,20 @@ fun ListItem(
     trailing: @Composable() (() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
-    val styledText = applyTextStyle(PrimaryTextStyle, text)!!
-    val styledSecondaryText = applyTextStyle(SecondaryTextStyle, secondaryText)
-    val styledOverlineText = applyTextStyle(OverlineTextStyle, overlineText)
-    val styledTrailing = applyTextStyle(MetaTextStyle, trailing)
+    val emphasisLevels = MaterialTheme.emphasisLevels()
+    val typography = MaterialTheme.typography()
+
+    val styledText = applyTextStyle(typography.subtitle1, emphasisLevels.high, text)!!
+    val styledSecondaryText = applyTextStyle(typography.body2, emphasisLevels.medium, secondaryText)
+    val styledOverlineText = applyTextStyle(typography.overline, emphasisLevels.high, overlineText)
+    val styledTrailing = applyTextStyle(typography.caption, emphasisLevels.high, trailing)
 
     val item = @Composable {
         if (styledSecondaryText == null && styledOverlineText == null) {
             OneLine.ListItem(icon, styledText, styledTrailing)
         } else if ((styledOverlineText == null && singleLineSecondaryText) ||
-            styledSecondaryText == null) {
+            styledSecondaryText == null
+        ) {
             TwoLine.ListItem(
                 icon,
                 styledText,
@@ -464,33 +467,18 @@ private fun OffsetToBaselineOrCenter(
     }
 }
 
-private data class ListItemTextStyle(
-    val style: Typography.() -> TextStyle,
-    val color: ColorPalette.() -> Color,
-    val opacity: Float
-)
-
 private fun applyTextStyle(
-    textStyle: ListItemTextStyle,
+    textStyle: TextStyle,
+    emphasis: Emphasis,
     children: @Composable() (() -> Unit)?
 ): @Composable() (() -> Unit)? {
     if (children == null) return null
     return {
-        val colors = MaterialTheme.colors()
-        val typography = MaterialTheme.typography()
-        val textColor = textStyle.color(colors).copy(alpha = textStyle.opacity)
-        val appliedTextStyle = textStyle.style(typography).copy(color = textColor)
-        CurrentTextStyleProvider(appliedTextStyle, children)
+        ProvideEmphasis(emphasis) {
+            CurrentTextStyleProvider(textStyle, children)
+        }
     }
 }
 
 // Material spec values.
-private const val PrimaryTextOpacity = 0.87f
-private const val SecondaryTextOpacity = 0.6f
-private const val OverlineTextOpacity = 0.87f
-private const val MetaTextOpacity = 0.87f
 private const val RippleOpacity = 0.16f
-private val PrimaryTextStyle = ListItemTextStyle({ subtitle1 }, { onSurface }, PrimaryTextOpacity)
-private val SecondaryTextStyle = ListItemTextStyle({ body2 }, { onSurface }, SecondaryTextOpacity)
-private val OverlineTextStyle = ListItemTextStyle({ overline }, { onSurface }, OverlineTextOpacity)
-private val MetaTextStyle = ListItemTextStyle({ caption }, { onSurface }, MetaTextOpacity)

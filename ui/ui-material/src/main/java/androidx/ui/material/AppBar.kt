@@ -85,15 +85,17 @@ fun TopAppBar(
     elevation: Dp = TopAppBarElevation
 ) {
     AppBar(color, contentColor, elevation, RectangleShape) {
+        val emphasisLevels = MaterialTheme.emphasisLevels()
         if (navigationIcon == null) {
             Spacer(LayoutWidth(TitleInsetWithoutIcon))
         } else {
             // TODO: make this a row after b/148014745 is fixed
             Box(
                 LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon),
-                gravity = ContentGravity.CenterStart,
-                children = navigationIcon
-            )
+                gravity = ContentGravity.CenterStart
+            ) {
+                ProvideEmphasis(emphasisLevels.high, navigationIcon)
+            }
         }
 
         // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
@@ -103,7 +105,7 @@ fun TopAppBar(
                 Semantics(container = true) {
                     CurrentTextStyleProvider(value = MaterialTheme.typography().h6) {
                         Row {
-                            title()
+                            ProvideEmphasis(emphasisLevels.high, title)
                         }
                     }
                 }
@@ -112,7 +114,11 @@ fun TopAppBar(
 
         // TODO: remove box and center align row's children after b/148014745 is fixed
         Box(modifier = LayoutHeight.Fill, gravity = ContentGravity.CenterEnd) {
-            Row(arrangement = Arrangement.End, children = actions)
+            Row(arrangement = Arrangement.End) {
+                ProvideEmphasis(emphasisLevels.medium) {
+                    actions()
+                }
+            }
         }
     }
 }
@@ -236,6 +242,7 @@ fun BottomAppBar(
     AppBar(color, contentColor, BottomAppBarElevation, shape) {
         // TODO: remove box and inline row's children after b/148014745 is fixed
         Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
+            // TODO: b/150609566 clarify emphasis for children
             Row(LayoutWidth.Fill, children = children)
         }
     }
