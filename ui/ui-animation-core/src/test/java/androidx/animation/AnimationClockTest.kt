@@ -71,7 +71,7 @@ class AnimationClockTest {
             // Call dispatchTime and allow it to hang
             frameCallbackJob = GlobalScope.launch {
                 assertionContinuation.resume(Unit)
-                clock.dispatchTime(100L)
+                clock.clockTimeMillis += 100
             }
         }
 

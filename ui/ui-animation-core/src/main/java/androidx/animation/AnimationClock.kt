@@ -84,8 +84,14 @@ class DefaultAnimationClock : BaseAnimationClock() {
 
 /**
  * A custom clock whose frame time can be manually updated via mutating [clockTimeMillis].
+ * Observers will be called immediately with the current time when they are subscribed. Use
+ * [dispatchOnSubscribe] = false to wait for the next tick instead, which can be useful if the
+ * current time might be outdated.
  */
-class ManualAnimationClock(initTimeMillis: Long) : BaseAnimationClock() {
+class ManualAnimationClock(
+    initTimeMillis: Long,
+    private val dispatchOnSubscribe: Boolean = true
+) : BaseAnimationClock() {
     /**
      * Clock time in milliseconds. When [clockTimeMillis] is updated, the [ManualAnimationClock]
      * notifies all its observers (i.e. animations) the new clock time. The animations will
@@ -98,10 +104,17 @@ class ManualAnimationClock(initTimeMillis: Long) : BaseAnimationClock() {
             dispatchTime(value)
         }
 
+    /**
+     * Whether or not there are [AnimationClockObserver]s observing this clock.
+     */
+    val hasObservers: Boolean get() = hasObservers()
+
     override fun subscribe(observer: AnimationClockObserver) {
         super.subscribe(observer)
-        // Immediately push the current frame time to the new subscriber
-        observer.onAnimationFrame(clockTimeMillis)
+        if (dispatchOnSubscribe) {
+            // Immediately push the current frame time to the new subscriber
+            observer.onAnimationFrame(clockTimeMillis)
+        }
     }
 }
 
@@ -120,18 +133,16 @@ sealed class BaseAnimationClock : AnimationClockObservable {
         synchronized(pendingActions) {
             pendingActions.add(action) && pendingObservers.add(observer)
         }
-    private fun pendingActionsIsNotEmpty(): Boolean = synchronized(pendingActions) {
-        pendingActions.isNotEmpty()
-    }
-    private fun pendingActionsHasAddAction(): Boolean = synchronized(pendingActions) {
-        pendingActions.any { it == AddAction }
-    }
+
+    private fun pendingActionsIsNotEmpty(): Boolean =
+        synchronized(pendingActions) {
+            pendingActions.isNotEmpty()
+        }
 
     private inline fun forEachObserver(crossinline action: (AnimationClockObserver) -> Unit) =
         synchronized(observers) {
             observers.forEach(action)
         }
-    private fun observersIsNotEmpty() = synchronized(observers) { observers.isNotEmpty() }
 
     /**
      * Subscribes [observer] to this clock. Duplicate subscriptions will be ignored.
@@ -160,16 +171,19 @@ sealed class BaseAnimationClock : AnimationClockObservable {
     }
 
     internal fun hasObservers(): Boolean {
-        return observersIsNotEmpty() || pendingActionsHasAddAction()
+        synchronized(observers) {
+            // Start with processing pending actions: it might remove the last observers
+            return processPendingActions().isNotEmpty() || observers.isNotEmpty()
+        }
     }
 
-    // Declare as member for performance
-    private val additions: MutableSet<AnimationClockObserver> = LinkedHashSet(50)
-
     private fun processPendingActions(): Set<AnimationClockObserver> {
-        additions.clear()
         synchronized(observers) {
             synchronized(pendingActions) {
+                if (pendingActions.isEmpty()) {
+                    return emptySet()
+                }
+                val additions = LinkedHashSet<AnimationClockObserver>()
                 pendingActions.forEachIndexed { i, action ->
                     when (action) {
                         AddAction -> {
@@ -187,12 +201,12 @@ sealed class BaseAnimationClock : AnimationClockObservable {
                 }
                 pendingActions.clear()
                 pendingObservers.clear()
+                return additions
             }
         }
-        return additions
     }
 
-    internal companion object {
+    private companion object {
         private const val AddAction = 1
         private const val RemoveAction = 2
     }
