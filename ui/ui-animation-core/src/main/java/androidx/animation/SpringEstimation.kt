@@ -28,10 +28,28 @@ import kotlin.math.sqrt
  */
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 fun estimateAnimationDurationMillis(
+    stiffness: Float,
+    dampingRatio: Float,
+    initialVelocity: Float,
+    initialDisplacement: Float,
+    delta: Float
+): Long = estimateAnimationDurationMillis(
+    stiffness = stiffness.toDouble(),
+    dampingRatio = dampingRatio.toDouble(),
+    initialVelocity = initialVelocity.toDouble(),
+    initialDisplacement = initialDisplacement.toDouble(),
+    delta = delta.toDouble()
+)
+
+/**
+ * Returns the estimated time that the spring will last be at [delta]
+ */
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+fun estimateAnimationDurationMillis(
     stiffness: Double,
     dampingRatio: Double,
     initialVelocity: Double,
-    initialPosition: Double,
+    initialDisplacement: Double,
     delta: Double
 ): Long {
     val dampingCoefficient = 2.0 * dampingRatio * sqrt(stiffness)
@@ -41,7 +59,7 @@ fun estimateAnimationDurationMillis(
         roots,
         dampingRatio,
         initialVelocity,
-        initialPosition,
+        initialDisplacement,
         delta
     )
 }
@@ -55,14 +73,20 @@ fun estimateAnimationDurationMillis(
     dampingCoefficient: Double,
     mass: Double,
     initialVelocity: Double,
-    initialPosition: Double,
+    initialDisplacement: Double,
     delta: Double
 ): Long {
     val criticalDamping = 2.0 * sqrt(springConstant * mass)
     val dampingRatio = dampingCoefficient / criticalDamping
     val roots = complexQuadraticFormula(mass, dampingCoefficient, springConstant)
 
-    return estimateDurationInternal(roots, dampingRatio, initialVelocity, initialPosition, delta)
+    return estimateDurationInternal(
+        roots = roots,
+        dampingRatio = dampingRatio,
+        initialVelocity = initialVelocity,
+        initialPosition = initialDisplacement,
+        delta = delta
+    )
 }
 
 /**
@@ -285,4 +309,5 @@ private inline fun iterateNewtonsMethod(
     return x - fn(x) / fnPrime(x)
 }
 
-private fun Double.isNotFinite() = !this.isFinite()
+@Suppress("NOTHING_TO_INLINE")
+private inline fun Double.isNotFinite() = !this.isFinite()

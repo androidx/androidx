@@ -37,19 +37,6 @@ interface DecayAnimation {
     val absVelocityThreshold: Float
 
     /**
-     * Returns whether the animation is finished at the given time.
-     *
-     * @param playTime The time elapsed in milliseconds since the start of the animation
-     * @param start The start value of the animation
-     * @param startVelocity The start velocity of the animation
-     */
-    fun isFinished(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
-    ): Boolean
-
-    /**
      * Returns the value of the animation at the given time.
      *
      * @param playTime The time elapsed in milliseconds since the start of the animation
@@ -61,6 +48,11 @@ interface DecayAnimation {
         start: Float,
         startVelocity: Float
     ): Float
+
+    fun getDurationMillis(
+        start: Float,
+        startVelocity: Float
+    ): Long
 
     /**
      * Returns the velocity of the animation at the given time.
@@ -105,14 +97,6 @@ class ExponentialDecay(
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))
     private val friction: Float = ExponentialDecayFriction * max(0.0001f, frictionMultiplier)
 
-    override fun isFinished(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
-    ): Boolean {
-        return abs(getVelocity(playTime, start, startVelocity)) <= absVelocityThreshold
-    }
-
     override fun getValue(
         playTime: Long,
         start: Float,
@@ -128,6 +112,11 @@ class ExponentialDecay(
         startVelocity: Float
     ): Float {
         return (startVelocity * exp(((playTime / 1000f) * friction)))
+    }
+
+    override fun getDurationMillis(start: Float, startVelocity: Float): Long {
+        // Inverse of getVelocity
+        return (1000f * ln(absVelocityThreshold / abs(startVelocity)) / friction).toLong()
     }
 
     override fun getTarget(
@@ -164,6 +153,7 @@ internal class DecayAnimationWrapper(
             return target
         }
     }
+
     override fun getVelocity(playTime: Long): AnimationVector1D {
         if (!isFinished(playTime)) {
             velocityVector.value = anim.getVelocity(playTime, startValue, startVelocity)
@@ -172,8 +162,8 @@ internal class DecayAnimationWrapper(
         }
         return velocityVector
     }
-    override fun isFinished(playTime: Long): Boolean =
-        anim.isFinished(playTime, startValue, startVelocity)
+
+    override val durationMillis: Long = anim.getDurationMillis(startValue, startVelocity)
 }
 
 internal fun DecayAnimation.createWrapper(
