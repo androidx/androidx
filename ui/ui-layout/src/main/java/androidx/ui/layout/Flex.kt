@@ -859,9 +859,9 @@ private fun FlexLayout(
                     }
                 }
                 if (orientation == LayoutOrientation.Horizontal) {
-                    placeable.place(mainAxisPositions[index], crossAxis)
+                    placeable.placeAbsolute(mainAxisPositions[index], crossAxis)
                 } else {
-                    placeable.place(crossAxis, mainAxisPositions[index])
+                    placeable.placeAbsolute(crossAxis, mainAxisPositions[index])
                 }
             }
         }

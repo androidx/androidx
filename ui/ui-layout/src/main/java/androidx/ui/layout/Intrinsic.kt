@@ -60,7 +60,7 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
             Constraints.fixedWidth(width).enforce(constraints)
         )
         layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-            placeable?.place(0.ipx, 0.ipx)
+            placeable?.placeAbsolute(0.ipx, 0.ipx)
         }
     }
 }
@@ -105,7 +105,7 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
             Constraints.fixedHeight(height).enforce(constraints)
         )
         layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-            placeable?.place(0.ipx, 0.ipx)
+            placeable?.placeAbsolute(0.ipx, 0.ipx)
         }
     }
 }
@@ -150,7 +150,7 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
             Constraints.fixedWidth(width).enforce(constraints)
         )
         layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-            placeable?.place(0.ipx, 0.ipx)
+            placeable?.placeAbsolute(0.ipx, 0.ipx)
         }
     }
 }
@@ -195,7 +195,7 @@ fun MaxIntrinsicHeight(children: @Composable() () -> Unit) {
             Constraints.fixedHeight(height).enforce(constraints)
         )
         layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-            placeable?.place(0.ipx, 0.ipx)
+            placeable?.placeAbsolute(0.ipx, 0.ipx)
         }
     }
 }

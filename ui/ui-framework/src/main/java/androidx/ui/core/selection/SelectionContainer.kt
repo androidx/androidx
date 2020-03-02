@@ -180,7 +180,7 @@ private fun Wrap(children: @Composable() () -> Unit) {
 
         layout(width, height) {
             placeables.forEach { placeable ->
-                placeable.place(0.ipx, 0.ipx)
+                placeable.placeAbsolute(0.ipx, 0.ipx)
             }
         }
     }
@@ -235,7 +235,7 @@ internal fun SimpleContainer(
                         containerHeight - it.height
                     )
                 )
-                it.place(
+                it.placeAbsolute(
                     position.x,
                     position.y
                 )

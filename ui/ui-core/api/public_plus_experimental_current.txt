@@ -196,7 +196,7 @@ package androidx.ui.core {
     method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> getAlignmentLines();
     method public androidx.ui.unit.IntPx getHeight();
     method public androidx.ui.unit.IntPx getWidth();
-    method public void placeChildren(androidx.ui.core.Placeable.PlacementScope placementScope);
+    method public void placeChildren(androidx.ui.core.LayoutDirection layoutDirection);
     property public abstract java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines;
     property public abstract androidx.ui.unit.IntPx height;
     property public abstract androidx.ui.unit.IntPx width;
@@ -245,6 +245,10 @@ package androidx.ui.core {
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
   }
 
   public enum PointerEventPass {

@@ -136,7 +136,7 @@ private fun SurfaceLayout(modifier: Modifier = Modifier.None, children: @Composa
         } else {
             val placeable = measurable.measure(constraints)
             layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
+                placeable.placeAbsolute(0.ipx, 0.ipx)
             }
         }
     }

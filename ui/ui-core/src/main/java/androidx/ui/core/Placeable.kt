@@ -66,30 +66,110 @@ abstract class Placeable {
      * This permits Compose UI to perform additional layout optimizations allowing repositioning
      * a [Placeable] without remeasuring its original [Measurable] if factors contributing to its
      * potential measurement have not changed.
+     * The scope also allows automatic mirroring of children positions in RTL layout direction
+     * contexts using the [place] methods available in the scope. If the automatic mirroring is not
+     * desired, [placeAbsolute] should be used instead.
      */
+    // TODO(b/150276678): this API is incomplete and should accept the parent width in constructor
+    //  to be used correctly outside the MeasureScope.layout() call.
     companion object PlacementScope {
         /**
+         * Keeps the parent layout node's width to make the automatic mirroring of the position
+         * in RTL environment. If the value is zero, than the [Placeable] will be be placed to
+         * the original position (position will not be mirrored).
+         */
+        internal var parentWidth = IntPx.Zero
+
+        /**
+         * Keeps the layout direction of the parent of the placeable that is being places using
+         * current [PlacementScope]. Used to support automatic position mirroring for convenient
+         * RTL support in custom layouts.
+         */
+        internal var parentLayoutDirection = LayoutDirection.Ltr
+
+        /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
+         * If the layout direction is right-to-left, the given [position] will be horizontally
+         * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
+         * direction contexts.
+         * If this method is used outside the [MeasureScope.layout] positioning block, the
+         * automatic position mirroring will not happen and the [Placeable] will be placed at the
+         * given [position], similar to the [placeAbsolute] method.
          */
         fun Placeable.place(position: IntPxPosition) {
-            performPlace(position)
+            if (parentLayoutDirection == LayoutDirection.Ltr || parentWidth == IntPx.Zero) {
+                performPlace(position)
+            } else {
+                performPlace(IntPxPosition(parentWidth - width - position.x, position.y))
+            }
         }
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
+         * If the layout direction is right-to-left, the given [position] will be horizontally
+         * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
+         * direction contexts.
+         * If this method is used outside the [MeasureScope.layout] positioning block, the
+         * automatic position mirroring will not happen and the [Placeable] will be placed at the
+         * given [position], similar to the [placeAbsolute] method.
          */
         fun Placeable.place(position: PxPosition) {
-            performPlace(position.round())
+            place(position.round())
         }
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
+         * If the layout direction is right-to-left, the given [position] will be horizontally
+         * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
+         * direction contexts.
+         * If this method is used outside the [MeasureScope.layout] positioning block, the
+         * automatic position mirroring will not happen and the [Placeable] will be placed at the
+         * given [position], similar to the [placeAbsolute] method.
          */
         fun Placeable.place(x: IntPx, y: IntPx) = place(IntPxPosition(x, y))
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
+         * If the layout direction is right-to-left, the given [position] will be horizontally
+         * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
+         * direction contexts.
+         * If this method is used outside the [MeasureScope.layout] positioning block, the
+         * automatic position mirroring will not happen and the [Placeable] will be placed at the
+         * given [position], similar to the [placeAbsolute] method.
          */
         fun Placeable.place(x: Px, y: Px) = place(IntPxPosition(x.round(), y.round()))
+
+        /**
+         * Place a [Placeable] at [position] in its parent's coordinate system.
+         * Unlike [place], the given [position] will not implicitly react in RTL layout direction
+         * contexts.
+         */
+        fun Placeable.placeAbsolute(position: IntPxPosition) {
+            performPlace(position)
+        }
+
+        /**
+         * Place a [Placeable] at [position] in its parent's coordinate system.
+         * Unlike [place], the given [position] will not implicitly react in RTL layout direction
+         * contexts.
+         */
+        fun Placeable.placeAbsolute(position: PxPosition) {
+            placeAbsolute(position.round())
+        }
+
+        /**
+         * Place a [Placeable] at [x], [y] in its parent's coordinate system.
+         * Unlike [place], the given [position] will not implicitly react in RTL layout direction
+         * contexts.
+         */
+        fun Placeable.placeAbsolute(x: IntPx, y: IntPx) = placeAbsolute(IntPxPosition(x, y))
+
+        /**
+         * Place a [Placeable] at [x], [y] in its parent's coordinate system.
+         * Unlike [place], the given [position] will not implicitly react in RTL layout direction
+         * contexts.
+         */
+        fun Placeable.placeAbsolute(x: Px, y: Px) =
+            placeAbsolute(IntPxPosition(x.round(), y.round()))
     }
 }
