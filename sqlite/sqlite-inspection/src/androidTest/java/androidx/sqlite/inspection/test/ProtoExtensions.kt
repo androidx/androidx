@@ -17,11 +17,12 @@
 package androidx.sqlite.inspection.test
 
 import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue
-import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue.ValueCase
+import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue.OneOfCase
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand
+import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryParameterValue
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
@@ -29,12 +30,12 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
 val CellValue.value: Any? get() = valueType.first
 val CellValue.type: String get() = valueType.second
 val CellValue.valueType: Pair<Any?, String>
-    get() = when (valueCase) {
-        ValueCase.STRING_VALUE -> stringValue to "text"
-        ValueCase.INT_VALUE -> intValue to "integer"
-        ValueCase.FLOAT_VALUE -> floatValue to "float"
-        ValueCase.BLOB_VALUE -> blobValue.toByteArray().toTypedArray() to "blob"
-        ValueCase.VALUE_NOT_SET -> null to "null"
+    get() = when (oneOfCase) {
+        OneOfCase.STRING_VALUE -> stringValue to "text"
+        OneOfCase.INT_VALUE -> intValue to "integer"
+        OneOfCase.FLOAT_VALUE -> floatValue to "float"
+        OneOfCase.BLOB_VALUE -> blobValue.toByteArray().toTypedArray() to "blob"
+        OneOfCase.ONEOF_NOT_SET -> null to "null"
         else -> throw IllegalArgumentException()
     }
 
@@ -53,8 +54,23 @@ object MessageFactory {
             GetSchemaCommand.newBuilder().setDatabaseId(databaseId).build()
         ).build()
 
-    fun createQueryCommand(databaseId: Int, query: String): Command =
+    fun createQueryCommand(
+        databaseId: Int,
+        query: String,
+        queryParams: List<String?>? = null
+    ): Command =
         Command.newBuilder().setQuery(
-            QueryCommand.newBuilder().setDatabaseId(databaseId).setQuery(query).build()
+            QueryCommand.newBuilder()
+                .setDatabaseId(databaseId)
+                .setQuery(query)
+                .also { queryCommandBuilder ->
+                    if (queryParams != null) queryCommandBuilder.addAllQueryParameterValues(
+                        queryParams.map { param ->
+                            QueryParameterValue.newBuilder()
+                                .also { builder -> if (param != null) builder.stringValue = param }
+                                .build()
+                        })
+                }
+                .build()
         ).build()
 }

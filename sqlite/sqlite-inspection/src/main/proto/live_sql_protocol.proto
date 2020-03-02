@@ -51,6 +51,18 @@ message QueryCommand {
   int32 database_id = 1;
   // Query to execute.
   string query = 2;
+  // The query may include ?s, which will be replaced by values from
+  // query_parameters, in the order that they appear in the query. Values will
+  // be bound as Strings.
+  repeated QueryParameterValue query_parameter_values = 3;
+}
+
+// Value of a parameter in QueryCommand. Currently only string and null values
+// are supported.
+message QueryParameterValue {
+  oneof OneOf {
+    string string_value = 1;
+  }
 }
 
 // --- Responses ---
@@ -86,12 +98,14 @@ message Column {
   string name = 1;
   // Column type affinity.
   string type = 2;
-  // PRIMARY KEY constraint: zero for columns that are not part of the primary key, or the index of
-  // the column in the primary key for columns that are part of the primary key.
+  // PRIMARY KEY constraint: zero for columns that are not part of the primary
+  // key, or the index of the column in the primary key for columns that are
+  // part of the primary key.
   int32 primary_key = 3;
   // NOT NULL constraint.
   bool is_not_null = 4;
-  // UNIQUE constraint on its own (i.e. not as a part of compound-unique-constraint-index).
+  // UNIQUE constraint on its own (i.e. not as a part of
+  // compound-unique-constraint-index).
   bool is_unique = 5;
 }
 
@@ -110,7 +124,7 @@ message Row {
 // Query result cell.
 message CellValue {
   // Resulting cell value depending on type affinity rules.
-  oneof value {
+  oneof OneOf {
     float float_value = 1;
     int32 int_value = 2;
     string string_value = 3;
@@ -134,7 +148,7 @@ message ErrorOccurredResponse {
 // Connection's sendEvent method.
 message Event {
   // Wrapped specialised Event.
-  oneof union {
+  oneof OneOf {
     DatabaseOpenedEvent database_opened = 1;
     ErrorOccurredEvent error_occurred = 400;
   }
