@@ -23,7 +23,7 @@ package androidx.ui.core {
   }
 
   public final class LayoutKt {
-    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method @Deprecated public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static androidx.ui.core.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
@@ -69,7 +69,7 @@ package androidx.ui.core {
   }
 
   public final class PainterModifierKt {
-    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
   }
 
   public final class ParentDataKt {
@@ -291,7 +291,6 @@ package androidx.ui.core.input {
 package androidx.ui.core.selection {
 
   public interface Selectable {
-    method public androidx.ui.unit.PxPosition getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
     method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
   }
@@ -310,14 +309,16 @@ package androidx.ui.core.selection {
   }
 
   public static final class Selection.AnchorInfo {
-    ctor public Selection.AnchorInfo(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
-    method public androidx.ui.text.style.TextDirection component1();
-    method public int component2();
-    method public androidx.ui.core.selection.Selectable component3();
-    method public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.selection.Selectable selectable);
+    ctor public Selection.AnchorInfo(androidx.ui.unit.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
+    method public androidx.ui.unit.PxPosition component1();
+    method public androidx.ui.text.style.TextDirection component2();
+    method public int component3();
+    method public androidx.ui.core.LayoutCoordinates? component4();
+    method public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.unit.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
+    method public androidx.ui.unit.PxPosition getCoordinates();
     method public androidx.ui.text.style.TextDirection getDirection();
+    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public int getOffset();
-    method public androidx.ui.core.selection.Selectable getSelectable();
   }
 
   public final class SelectionContainerKt {
