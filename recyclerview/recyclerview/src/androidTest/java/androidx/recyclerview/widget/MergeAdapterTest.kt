@@ -164,6 +164,7 @@ class MergeAdapterTest {
 
     @UiThreadTest
     @Test
+    @SdkSuppress(minSdkVersion = 16)
     fun failedToRecycleTest() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
