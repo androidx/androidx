@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,21 @@ import androidx.room.Query;
 import java.util.List;
 
 /**
- * Simple Product DAO.
+ * Simple Product DAO with FTS.
  */
 @Dao
-public interface ProductDao {
+public interface ProductFtsDao extends ProductDao {
 
     /**
-     * Insert the product.
+     * Insert a product description.
      */
     @Insert
-    void insert(Product product);
+    void addDescription(Description description);
 
     /**
-     * Insert a review.
+     * Query product with matching description.
      */
-    @Insert
-    void addReview(Review review);
-
-    /**
-     * Query a products reviews.
-     */
-    @Query("SELECT * FROM Review WHERE mProductId = :productId")
-    List<Review> getProductReviews(int productId);
-
+    @Query("SELECT DISTINCT Product.* FROM Product JOIN Description ON mId = mProductId "
+            + "WHERE mText MATCH :query")
+    List<Product> getProductsWithDescription(String query);
 }
