@@ -99,7 +99,7 @@ class DatabaseVerifier private constructor(
             if (reusePreviousSqliteTempdir()) {
                 return
             }
-            // synchronize on System.getProperties in case this method is called concurrently from multiple classloaders
+            // synchronize on System.getProperties in case this method is called concurrently from classes from different classloaders
             synchronized(System.getProperties()) {
                 // check again (inside synchronization) whether a previous initialization succeeded
                 if (reusePreviousSqliteTempdir()) {
@@ -132,54 +132,58 @@ class DatabaseVerifier private constructor(
             entities: List<Entity>,
             views: List<DatabaseView>
         ): DatabaseVerifier? {
-            repeat(NATIVE_LIB_RELOAD_RETRY_CNT) {
-                try {
-                    val connection = JDBC.createConnection(CONNECTION_URL, java.util.Properties())
-                    return DatabaseVerifier(connection, context, entities, views)
-                } catch (unsatisfied: UnsatisfiedLinkError) {
-                    // this is a workaround for an issue w/ sqlite where sometimes it fails to
-                    // load the SO. We can manually retry here
-                    FileChannel.open(sqliteNativeLibDir.toPath()).use {
-                        it.force(true)
-                    }
-                    val nativeLibs = sqliteNativeLibDir.listFiles { file ->
-                        SQLITE_NATIVE_LIB_EXTENSIONS.any { ext ->
-                            file.name.endsWith(ext)
+            // synchronize on System.getProperties in case this method is called concurrently from classes from different classloaders
+            synchronized(System.getProperties()) {
+                repeat(NATIVE_LIB_RELOAD_RETRY_CNT) {
+                    try {
+                        val connection = JDBC.createConnection(CONNECTION_URL,
+                            java.util.Properties())
+                        return DatabaseVerifier(connection, context, entities, views)
+                    } catch (unsatisfied: UnsatisfiedLinkError) {
+                        // this is a workaround for an issue w/ sqlite where sometimes it fails to
+                        // load the SO. We can manually retry here
+                        FileChannel.open(sqliteNativeLibDir.toPath()).use {
+                            it.force(true)
                         }
-                    }
-                    if (nativeLibs.isNotEmpty()) {
-                        nativeLibs.forEach {
-                            it.setExecutable(true)
-                            context.logger.d("reloading the sqlite native file: $it")
-                            try {
-                                System.load(it.absoluteFile.absolutePath)
-                            } catch (unsatisfied: UnsatisfiedLinkError) {
-                                // https://issuetracker.google.com/issues/146061836
-                                // workaround for b/146061836 where we just copy it again as
-                                // another file.
-                                copyNativeLibs()
+                        val nativeLibs = sqliteNativeLibDir.listFiles { file ->
+                            SQLITE_NATIVE_LIB_EXTENSIONS.any { ext ->
+                                file.name.endsWith(ext)
                             }
                         }
-                    } else {
+                        if (nativeLibs.isNotEmpty()) {
+                            nativeLibs.forEach {
+                                it.setExecutable(true)
+                                context.logger.d("reloading the sqlite native file: $it")
+                                try {
+                                    System.load(it.absoluteFile.absolutePath)
+                                } catch (unsatisfied: UnsatisfiedLinkError) {
+                                    // https://issuetracker.google.com/issues/146061836
+                                    // workaround for b/146061836 where we just copy it again as
+                                    // another file.
+                                    copyNativeLibs()
+                                }
+                            }
+                        } else {
+                            context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
+                                DatabaseVerificationErrors.cannotCreateConnection(unsatisfied))
+                            // no reason to retry if file is missing.
+                            return null
+                        }
+                    } catch (ex: Exception) {
                         context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
-                            DatabaseVerificationErrors.cannotCreateConnection(unsatisfied))
-                        // no reason to retry if file is missing.
+                            DatabaseVerificationErrors.cannotCreateConnection(ex))
                         return null
-                    }
-                } catch (ex: Exception) {
-                    context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
-                        DatabaseVerificationErrors.cannotCreateConnection(ex))
-                    return null
-                } finally {
-                    val systemPropertyTempDir = System.getProperty(SQLITE_TEMPDIR_FLAG)
-                    if (systemPropertyTempDir != sqliteNativeLibDir.toString()) {
-                        throw ConcurrentModificationException("System property " +
-                            "org.sqlite.tmpdir changed from $sqliteNativeLibDir to " +
-                            "$systemPropertyTempDir inside DatabaseVerifier.create")
+                    } finally {
+                        val systemPropertyTempDir = System.getProperty(SQLITE_TEMPDIR_FLAG)
+                        if (systemPropertyTempDir != sqliteNativeLibDir.toString()) {
+                            throw ConcurrentModificationException("System property " +
+                                "org.sqlite.tmpdir changed from $sqliteNativeLibDir to " +
+                                "$systemPropertyTempDir inside DatabaseVerifier.create")
+                        }
                     }
                 }
+                return null
             }
-            return null
         }
     }
 
