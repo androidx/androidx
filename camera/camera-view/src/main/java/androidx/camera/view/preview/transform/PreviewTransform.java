@@ -16,7 +16,6 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.graphics.Matrix;
 import android.util.Size;
 import android.view.View;
 
@@ -26,8 +25,7 @@ import androidx.camera.view.PreviewView;
 import androidx.camera.view.preview.transform.transformation.Transformation;
 
 /**
- * Transforms the camera preview using a supported {@link PreviewView.ScaleType} or a custom
- * {@link Transformation}.
+ * Transforms the camera preview using a supported {@link PreviewView.ScaleType}.
  *
  * @hide
  */
@@ -50,17 +48,6 @@ public final class PreviewTransform {
             @NonNull final Size aspectRatio, @NonNull final PreviewView.ScaleType scaleType) {
         final Transformation transformation = ScaleTypeTransform.getTransformation(container,
                 view, aspectRatio, scaleType);
-        applyTransformationToPreview(transformation, view);
-    }
-
-    /**
-     * Transforms a preview using a user provided custom {@linkplain Matrix transformation}.
-     *
-     * @param view   A {@link View} that wraps the camera preview.
-     * @param matrix A user provided custom preview transformation
-     */
-    public static void transform(@NonNull final View view, @NonNull final Matrix matrix) {
-        final Transformation transformation = CustomTransform.getTransformation(view, matrix);
         applyTransformationToPreview(transformation, view);
     }
 
