@@ -226,15 +226,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarPreferences"
-                  android:label="@string/action_bar_preferences"
-                  android:theme="@style/Theme.AppCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".app.ActionBarActionMode"
                   android:label="@string/action_bar_action_mode"
                   android:theme="@style/Theme.Custom">
