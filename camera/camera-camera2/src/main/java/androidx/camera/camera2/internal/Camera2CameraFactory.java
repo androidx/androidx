@@ -31,6 +31,7 @@ import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.LensFacingCameraIdFilter;
+import androidx.core.os.HandlerCompat;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -50,7 +51,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     static {
         sHandlerThread.start();
-        sHandler = new Handler(sHandlerThread.getLooper());
+        sHandler = HandlerCompat.createAsync(sHandlerThread.getLooper());
     }
 
     /** Creates a Camera2 implementation of CameraFactory */
@@ -68,7 +69,7 @@ public final class Camera2CameraFactory implements CameraFactory {
                     "The given camera id is not on the available camera id list.");
         }
         Camera2CameraImpl camera2CameraImpl = new Camera2CameraImpl(mCameraManager, cameraId,
-                mCameraStateRegistry, sHandler);
+                mCameraStateRegistry, sHandler, sHandler);
         return camera2CameraImpl;
     }
 

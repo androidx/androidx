@@ -687,6 +687,7 @@ public final class CaptureSessionTest {
 
     private CaptureSession createCaptureSession(CaptureSessionTestParameters testParams) {
         CaptureSession captureSession = new CaptureSession(testParams.mExecutor,
+                testParams.mHandler,
                 testParams.mScheduledExecutor,
                 testParams.getCloseSurfaceOnSessionClose());
         mCaptureSessions.add(captureSession);
