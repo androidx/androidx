@@ -17,8 +17,8 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.graphics.Image
-import androidx.ui.graphics.ImageConfig
+import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.ImageAssetConfig
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.dp
 import androidx.ui.unit.round
@@ -58,6 +58,6 @@ class FloatingActionButtonUiTest {
 
     private fun createImage() = with(composeTestRule.density) {
         val size = 24.dp.toIntPx().value
-        Image(size, size, ImageConfig.Argb8888)
+        ImageAsset(size, size, ImageAssetConfig.Argb8888)
     }
 }

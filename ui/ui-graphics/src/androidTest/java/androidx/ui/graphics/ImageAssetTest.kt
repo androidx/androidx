@@ -18,8 +18,8 @@ package androidx.ui.core
 
 import androidx.test.filters.SmallTest
 import androidx.ui.graphics.colorspace.ColorSpaces
-import androidx.ui.graphics.Image
-import androidx.ui.graphics.ImageConfig
+import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.ImageAssetConfig
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
@@ -28,22 +28,22 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ImageTest {
+class ImageAssetTest {
 
     @Test
     fun testCreatedImage() {
         val cs = ColorSpaces.Srgb
-        val image = Image(
+        val image = ImageAsset(
             width = 10,
             height = 20,
-            config = ImageConfig.Argb8888,
+            config = ImageAssetConfig.Argb8888,
             hasAlpha = false,
             colorSpace = cs
         )
 
         assertEquals(10, image.width)
         assertEquals(20, image.height)
-        assertEquals(ImageConfig.Argb8888, image.config)
+        assertEquals(ImageAssetConfig.Argb8888, image.config)
         assertFalse(image.hasAlpha)
         assertEquals(cs, image.colorSpace)
     }

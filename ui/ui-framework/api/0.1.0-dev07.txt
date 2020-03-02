@@ -483,8 +483,8 @@ package androidx.ui.res {
   }
 
   public final class ImageResourcesKt {
-    method public static androidx.ui.graphics.Image imageResource(@DrawableRes int id);
-    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.Image> loadImageResource(int id, androidx.ui.graphics.Image? pendingImage = null, androidx.ui.graphics.Image? failedImage = null);
+    method public static androidx.ui.graphics.ImageAsset imageResource(@DrawableRes int id);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.ImageAsset> loadImageResource(int id, androidx.ui.graphics.ImageAsset? pendingImage = null, androidx.ui.graphics.ImageAsset? failedImage = null);
   }
 
   public final class LoadedResource<T> extends androidx.ui.res.Resource<T> {
