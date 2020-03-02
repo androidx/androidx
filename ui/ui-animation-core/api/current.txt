@@ -143,6 +143,9 @@ package androidx.animation {
     method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
   }
 
+  public final class ComplexDoubleKt {
+  }
+
   public final class CubicBezierEasing implements kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> {
     ctor public CubicBezierEasing(float a, float b, float c, float d);
     method public Float! invoke(float fraction);
@@ -281,6 +284,9 @@ package androidx.animation {
     field public static final float StiffnessLow = 200.0f;
     field public static final float StiffnessMedium = 1500.0f;
     field public static final float StiffnessVeryLow = 50.0f;
+  }
+
+  public final class SpringEstimationKt {
   }
 
   public final class SpringSimulationKt {
