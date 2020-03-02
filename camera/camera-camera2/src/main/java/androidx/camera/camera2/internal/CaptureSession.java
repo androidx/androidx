@@ -219,7 +219,8 @@ final class CaptureSession {
      */
     @NonNull
     @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-    ListenableFuture<Void> open(SessionConfig sessionConfig, CameraDevice cameraDevice) {
+    ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
+            @NonNull CameraDevice cameraDevice) {
         synchronized (mStateLock) {
             switch (mState) {
                 case INITIALIZED:
@@ -258,10 +259,10 @@ final class CaptureSession {
                 + "the state: " + mState));
     }
 
-    @NonNull
     @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-    private ListenableFuture<Void> openCaptureSession(List<Surface> configuredSurfaces,
-            SessionConfig sessionConfig, CameraDevice cameraDevice) {
+    @NonNull
+    private ListenableFuture<Void> openCaptureSession(@NonNull List<Surface> configuredSurfaces,
+            @NonNull SessionConfig sessionConfig, @NonNull CameraDevice cameraDevice) {
         synchronized (mStateLock) {
             switch (mState) {
                 case UNINITIALIZED:
@@ -270,6 +271,8 @@ final class CaptureSession {
                     return Futures.immediateFailedFuture(new IllegalStateException(
                             "openCaptureSession() should not be possible in state: " + mState));
                 case GET_SURFACE:
+                    CameraDeviceCompat cameraDeviceCompat =
+                            CameraDeviceCompat.toCameraDeviceCompat(cameraDevice);
                     return CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 Preconditions.checkState(Thread.holdsLock(mStateLock));
@@ -373,7 +376,8 @@ final class CaptureSession {
 
                                 CaptureRequest captureRequest =
                                         Camera2CaptureRequestBuilder.buildWithoutTarget(
-                                                captureConfigBuilder.build(), cameraDevice);
+                                                captureConfigBuilder.build(),
+                                                cameraDeviceCompat.toCameraDevice());
 
                                 if (captureRequest != null) {
                                     sessionConfigCompat.setSessionParameters(captureRequest);
@@ -381,8 +385,7 @@ final class CaptureSession {
 
                                 mOpenCaptureSessionCompleter = completer;
 
-                                CameraDeviceCompat.createCaptureSession(cameraDevice,
-                                        sessionConfigCompat);
+                                cameraDeviceCompat.createCaptureSession(sessionConfigCompat);
 
                                 return "openCaptureSession[session=" + this + "]";
                             });
@@ -493,7 +496,7 @@ final class CaptureSession {
                     if (mReleaseFuture == null) {
                         mReleaseFuture = CallbackToFutureAdapter.getFuture(
                                 new CallbackToFutureAdapter.Resolver<Void>() {
-                                    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+                                    // Lock already held (see Precondition check below).
                                     @SuppressWarnings("GuardedBy")
                                     @Override
                                     public Object attachCompleter(@NonNull

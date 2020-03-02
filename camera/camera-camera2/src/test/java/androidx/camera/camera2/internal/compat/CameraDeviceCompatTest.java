@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,6 +57,7 @@ public final class CameraDeviceCompatTest {
 
     private CameraDevice mCameraDevice;
     private List<OutputConfigurationCompat> mOutputs;
+    private Handler mMockHandler = mock(Handler.class);
 
     @Before
     public void setUp() {
@@ -76,12 +78,14 @@ public final class CameraDeviceCompatTest {
                 mock(Executor.class),
                 mock(CameraCaptureSession.StateCallback.class));
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice,
+                mMockHandler);
+        deviceCompat.createCaptureSession(sessionConfig);
 
         verify(mCameraDevice, times(1)).createCaptureSession(
                 any(List.class),
                 any(CameraCaptureSession.StateCallback.class),
-                any(Handler.class));
+                eq(mMockHandler));
     }
 
     @Test
@@ -95,7 +99,8 @@ public final class CameraDeviceCompatTest {
                 mock(Executor.class),
                 mock(CameraCaptureSession.StateCallback.class));
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice);
+        deviceCompat.createCaptureSession(sessionConfig);
 
         verify(mCameraDevice, times(1)).createCaptureSessionByOutputConfigurations(
                 any(List.class),
@@ -105,7 +110,6 @@ public final class CameraDeviceCompatTest {
 
     @Test
     @Config(minSdk = 28)
-    @SuppressWarnings("unchecked")
     public void createCaptureSession_createsSession_bySessionConfiguration()
             throws CameraAccessException {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
@@ -114,7 +118,8 @@ public final class CameraDeviceCompatTest {
                 mock(Executor.class),
                 mock(CameraCaptureSession.StateCallback.class));
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice);
+        deviceCompat.createCaptureSession(sessionConfig);
 
         verify(mCameraDevice, times(1)).createCaptureSession(
                 any(SessionConfiguration.class));
@@ -132,7 +137,8 @@ public final class CameraDeviceCompatTest {
         // Setting an InputConfiguration will mark the session as reprocessable
         sessionConfig.setInputConfiguration(mock(InputConfigurationCompat.class));
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice);
+        deviceCompat.createCaptureSession(sessionConfig);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -143,7 +149,8 @@ public final class CameraDeviceCompatTest {
                 mOutputs,
                 mock(Executor.class),
                 mock(CameraCaptureSession.StateCallback.class));
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice);
+        deviceCompat.createCaptureSession(sessionConfig);
     }
 
     @Test
@@ -160,7 +167,8 @@ public final class CameraDeviceCompatTest {
         sessionConfig.setInputConfiguration(Objects.requireNonNull(
                 InputConfigurationCompat.wrap(mock(InputConfiguration.class))));
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice);
+        deviceCompat.createCaptureSession(sessionConfig);
 
         verify(mCameraDevice, times(1)).createReprocessableCaptureSession(
                 any(InputConfiguration.class),
@@ -184,7 +192,8 @@ public final class CameraDeviceCompatTest {
         sessionConfig.setInputConfiguration(Objects.requireNonNull(
                 InputConfigurationCompat.wrap(mock(InputConfiguration.class))));
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice);
+        deviceCompat.createCaptureSession(sessionConfig);
 
         verify(mCameraDevice, times(1)).createReprocessableCaptureSessionByConfigurations(
                 any(InputConfiguration.class),
@@ -203,7 +212,8 @@ public final class CameraDeviceCompatTest {
                 mock(Executor.class),
                 mock(CameraCaptureSession.StateCallback.class));
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice);
+        deviceCompat.createCaptureSession(sessionConfig);
 
         verify(mCameraDevice, times(1)).createConstrainedHighSpeedCaptureSession(
                 any(List.class),
