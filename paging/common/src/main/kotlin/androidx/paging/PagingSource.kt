@@ -45,7 +45,7 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * underlying data set is modified, a new [PagingSource] / [PagingData] pair must be created to
  * represent an updated snapshot of the data.
  *
- * <h4>Loading Pages</h4>
+ * ### Loading Pages
  *
  * [PagingData] queries data from its [PagingSource] in response to loading hints generated as
  * the user scrolls in a `RecyclerView`.
@@ -53,7 +53,7 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * To control how and when a [PagingData] queries data from its [PagingSource], see [PagingConfig],
  * which defines behavior such as [PagingConfig.pageSize] and [PagingConfig.prefetchDistance].
  *
- * <h4>Updating Data</h4>
+ * ### Updating Data
  *
  * A [PagingSource] / [PagingData] pair is a snapshot of the data set. A new [PagingData] /
  * [PagingData] must be created if an update occurs, such as a reorder, insert, delete, or content
