@@ -148,7 +148,8 @@ fun AlertDialog(
 /**
  * An enum which specifies how the buttons are positioned inside the [AlertDialog]:
  *
- * [SideBySide] - positions the dismiss button on the left side of the confirm button.
+ * [SideBySide] - positions the dismiss button to the left side of the confirm button in LTR
+ * layout direction contexts, and to the right otherwise.
  * [Stacked] - positions the dismiss button below the confirm button.
  */
 enum class AlertDialogButtonLayout {

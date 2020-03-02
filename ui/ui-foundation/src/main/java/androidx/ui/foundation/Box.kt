@@ -53,14 +53,14 @@ import androidx.ui.unit.max
  * `null`, there will be no border
  * @param padding The padding to be applied inside Box, along its edges. Unless otherwise
  * specified, content will be padded by the [Border.size], if [border] is provided
- * @param paddingLeft specific padding for left side. Setting this will override
- * [padding] for the left side
- * @param paddingTop specific padding for right side. Setting this will override
- * [padding] for the top side
- * @param paddingRight specific padding for top side. Setting this will override
- * [padding] for the right side
- * @param paddingBottom specific padding for bottom side. Setting this will override
- * [padding] for the bottom side
+ * @param paddingStart sets the padding of the start edge. Setting this will override [padding]
+ * for the start edge
+ * @param paddingTop sets the padding of the top edge. Setting this will override [padding] for
+ * the top edge
+ * @param paddingEnd sets the padding of the end edge. Setting this will override [padding] for
+ * the end edge
+ * @param paddingBottom sets the padding of the bottom edge. Setting this will override [padding]
+ * for the bottom edge
  * @param gravity The gravity of the content inside Box
  */
 @Composable
@@ -70,9 +70,9 @@ fun Box(
     backgroundColor: Color = Color.Transparent,
     border: Border? = null,
     padding: Dp = border?.size ?: 0.dp,
-    paddingLeft: Dp = Dp.Unspecified,
+    paddingStart: Dp = Dp.Unspecified,
     paddingTop: Dp = Dp.Unspecified,
-    paddingRight: Dp = Dp.Unspecified,
+    paddingEnd: Dp = Dp.Unspecified,
     paddingBottom: Dp = Dp.Unspecified,
     gravity: ContentGravity = ContentGravity.TopStart,
     children: @Composable() () -> Unit = emptyContent()
@@ -91,11 +91,11 @@ fun Box(
         children,
         modifier + backgroundModifier + borderModifier
     ) { measurables, constraints, _ ->
-        val leftPadding = if (paddingLeft != Dp.Unspecified) paddingLeft else padding
+        val startPadding = if (paddingStart != Dp.Unspecified) paddingStart else padding
         val topPadding = if (paddingTop != Dp.Unspecified) paddingTop else padding
-        val rightPadding = if (paddingRight != Dp.Unspecified) paddingRight else padding
+        val endPadding = if (paddingEnd != Dp.Unspecified) paddingEnd else padding
         val bottomPadding = if (paddingBottom != Dp.Unspecified) paddingBottom else padding
-        val totalHorizontal = leftPadding.toIntPx() + rightPadding.toIntPx()
+        val totalHorizontal = startPadding.toIntPx() + endPadding.toIntPx()
         val totalVertical = topPadding.toIntPx() + bottomPadding.toIntPx()
 
         val childConstraints = constraints
@@ -118,8 +118,8 @@ fun Box(
                         containerHeight - it.height - totalVertical
                     )
                 )
-                it.placeAbsolute(
-                    leftPadding.toIntPx() + position.x,
+                it.place(
+                    startPadding.toIntPx() + position.x,
                     topPadding.toIntPx() + position.y
                 )
             }

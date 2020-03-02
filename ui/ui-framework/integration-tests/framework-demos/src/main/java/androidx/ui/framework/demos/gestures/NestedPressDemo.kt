@@ -110,9 +110,9 @@ fun PressableContainer(
                 LongPressGestureDetector(onLongPress) {
                     Box(
                         backgroundColor = color, border = Border(2.dp, BorderColor),
-                        paddingLeft = paddingLeft,
+                        paddingStart = paddingLeft,
                         paddingTop = paddingTop,
-                        paddingRight = paddingRight,
+                        paddingEnd = paddingRight,
                         paddingBottom = paddingBottom,
                         gravity = ContentGravity.Center,
                         children = children

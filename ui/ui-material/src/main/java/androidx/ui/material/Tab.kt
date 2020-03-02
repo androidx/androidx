@@ -576,8 +576,8 @@ private fun TabBaselineLayout(
         {
             Box(
                 LayoutTag("text"),
-                paddingLeft = HorizontalTextPadding,
-                paddingRight = HorizontalTextPadding,
+                paddingStart = HorizontalTextPadding,
+                paddingEnd = HorizontalTextPadding,
                 children = text
             )
             Box(LayoutTag("icon"), children = icon)
