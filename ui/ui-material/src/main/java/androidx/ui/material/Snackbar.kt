@@ -46,8 +46,8 @@ import androidx.ui.unit.max
  * temporarily, towards the bottom of the screen. They shouldn’t interrupt the user experience,
  * and they don’t require user input to disappear.
  *
- * A snackbar can contain a single action. Because they disappear automatically, the action
- * shouldn’t be “Dismiss” or “Cancel.”
+ * A Snackbar can contain a single action. Because they disappear automatically, the action
+ * shouldn't be "Dismiss" or "Cancel".
  *
  * @sample androidx.ui.material.samples.SimpleSnackbar
  *
@@ -191,8 +191,12 @@ private fun OneRowSnackbar(
  * in a dark theme they appear light, just using [ColorPalette.primary] will not work, and has
  * incorrect contrast.
  *
- * When in light theme, this function applies a color overlay to [ColorPalette.primary] from
- * [colors] to attempt to reduce the contrast, and when it dark theme this function uses
+ * If your light theme has a corresponding dark theme, you should instead directly use
+ * [ColorPalette.primary] from the dark theme when in a light theme, and use
+ * [ColorPalette.primaryVariant] from the dark theme when in a dark theme.
+ *
+ * When in a light theme, this function applies a color overlay to [ColorPalette.primary] from
+ * [colors] to attempt to reduce the contrast, and when in a dark theme this function uses
  * [ColorPalette.primaryVariant].
  *
  * @param colors the [ColorPalette] to calculate the Snackbar primary color for
