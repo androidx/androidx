@@ -59,7 +59,7 @@ dependencies {
         annotationProcessor(project(":room:room-compiler"))
         implementation(project(":room:room-runtime"))
     } else {
-        annotationProcessor("androidx.room:room-compiler:2.2.2")
+        annotationProcessor("androidx.room:room-compiler:2.2.5")
         implementation("androidx.room:room-runtime:2.2.2")
     }
 

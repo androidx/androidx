@@ -62,7 +62,7 @@ android {
 }
 
 dependencies {
-    annotationProcessor("androidx.room:room-compiler:2.2.3")
+    annotationProcessor("androidx.room:room-compiler:2.2.5")
     implementation("androidx.room:room-runtime:2.2.3")
     androidTestImplementation("androidx.room:room-testing:2.2.3")
     implementation("androidx.sqlite:sqlite:2.1.0")
