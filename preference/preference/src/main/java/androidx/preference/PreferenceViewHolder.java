@@ -144,7 +144,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
         }
 
         final TextView titleView = (TextView) findViewById(android.R.id.title);
-        if (titleView != null) {
+        if (titleView != null && mTitleTextColors != null) {
             if (!titleView.getTextColors().equals(mTitleTextColors)) {
                 titleView.setTextColor(mTitleTextColors);
             }
