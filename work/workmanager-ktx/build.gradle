@@ -53,7 +53,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation("androidx.room:room-testing:2.2.3")
+    androidTestImplementation("androidx.room:room-testing:2.2.5")
     testImplementation(JUNIT)
 }
 

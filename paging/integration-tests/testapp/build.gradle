@@ -26,8 +26,8 @@ plugins {
 
 dependencies {
     implementation("androidx.arch.core:core-runtime:2.1.0")
-    implementation("androidx.room:room-runtime:2.2.3")
-    implementation("androidx.room:room-rxjava2:2.2.3")
+    implementation("androidx.room:room-runtime:2.2.5")
+    implementation("androidx.room:room-rxjava2:2.2.5")
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))

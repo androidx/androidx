@@ -38,7 +38,7 @@ android {
 dependencies {
     api(project(':work:work-runtime-ktx'))
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.1.0")
-    implementation("androidx.room:room-runtime:2.2.3")
+    implementation("androidx.room:room-runtime:2.2.5")
 
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
