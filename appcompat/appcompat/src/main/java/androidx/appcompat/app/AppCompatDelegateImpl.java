@@ -1650,7 +1650,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             return;
         }
 
-        final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        final WindowManager wm = (WindowManager) mContext.getApplicationContext()
+                .getSystemService(Context.WINDOW_SERVICE);
         if (wm == null) {
             return;
         }
@@ -1969,7 +1970,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             return;
         }
 
-        final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        final WindowManager wm = (WindowManager) mContext.getApplicationContext()
+                .getSystemService(Context.WINDOW_SERVICE);
         if (wm != null && st.isOpen && st.decorView != null) {
             wm.removeView(st.decorView);
 
@@ -2047,8 +2049,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         if (handled) {
-            AudioManager audioManager = (AudioManager) mContext.getSystemService(
-                    Context.AUDIO_SERVICE);
+            AudioManager audioManager = (AudioManager) mContext.getApplicationContext()
+                    .getSystemService(Context.AUDIO_SERVICE);
             if (audioManager != null) {
                 audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK);
             } else {
@@ -2409,7 +2411,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 return mode;
             case MODE_NIGHT_AUTO_TIME:
                 if (Build.VERSION.SDK_INT >= 23) {
-                    UiModeManager uiModeManager = context.getSystemService(UiModeManager.class);
+                    UiModeManager uiModeManager = context.getApplicationContext()
+                            .getSystemService(UiModeManager.class);
                     if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
                         // If we're set to AUTO and the system's auto night mode is already enabled,
                         // we'll just let the system handle it by returning FOLLOW_SYSTEM
@@ -3245,7 +3248,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         private final PowerManager mPowerManager;
 
         AutoBatteryNightModeManager(@NonNull Context context) {
-            mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mPowerManager = (PowerManager) context.getApplicationContext()
+                    .getSystemService(Context.POWER_SERVICE);
         }
 
         @ApplyableNightMode
