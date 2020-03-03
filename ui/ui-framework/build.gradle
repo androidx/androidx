@@ -42,7 +42,7 @@ dependencies {
     api project(":ui:ui-text")
     implementation project(":ui:ui-util")
     implementation project(":ui:ui-vector")
-    implementation project(":ui:ui-animation-core")
+    api project(":ui:ui-animation-core")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
