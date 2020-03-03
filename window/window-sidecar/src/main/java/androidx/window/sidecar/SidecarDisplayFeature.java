@@ -35,7 +35,7 @@ public final class SidecarDisplayFeature {
      * coordinate space.
      */
     @NonNull
-    private Rect mRect;
+    private Rect mRect = new Rect();
 
     /**
      * The physical type of the feature.

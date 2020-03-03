@@ -68,7 +68,7 @@ public final class WindowLayoutInfo {
      * Builder for {@link WindowLayoutInfo} objects.
      */
     public static class Builder {
-        private List<DisplayFeature> mDisplayFeatures;
+        private List<DisplayFeature> mDisplayFeatures = new ArrayList<>();
 
         /**
          * Creates an initially empty builder.
@@ -81,7 +81,8 @@ public final class WindowLayoutInfo {
          */
         @NonNull
         public Builder setDisplayFeatures(@NonNull List<DisplayFeature> displayFeatures) {
-            mDisplayFeatures = displayFeatures;
+            mDisplayFeatures.clear();
+            mDisplayFeatures.addAll(displayFeatures);
             return this;
         }
 

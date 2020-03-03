@@ -18,7 +18,7 @@ package androidx.window;
 
 import static androidx.window.DeviceState.POSTURE_MAX_KNOWN;
 import static androidx.window.DeviceState.POSTURE_UNKNOWN;
-import static androidx.window.ExtensionHelper.DEBUG;
+import static androidx.window.ExtensionCompat.DEBUG;
 import static androidx.window.Version.VERSION_0_1;
 
 import android.annotation.SuppressLint;
@@ -30,6 +30,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.window.sidecar.SidecarDeviceState;
 import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarInterface;
@@ -45,13 +46,19 @@ import java.util.List;
 final class SidecarCompat implements ExtensionInterfaceCompat {
     private static final String TAG = "SidecarCompat";
 
-    private SidecarInterface mSidecar;
+    @VisibleForTesting
+    final SidecarInterface mSidecar;
 
     SidecarCompat(Context context) {
-        mSidecar = SidecarProvider.getSidecarImpl(context);
+        this(SidecarProvider.getSidecarImpl(context));
         if (mSidecar == null) {
             throw new IllegalArgumentException("Sidecar provider returned null");
         }
+    }
+
+    @VisibleForTesting
+    SidecarCompat(@NonNull SidecarInterface sidecar) {
+        mSidecar = sidecar;
     }
 
     @Override
@@ -204,7 +211,18 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         }
     }
 
+    /**
+     * Convert the display feature from extension. Can return {@code null} if there is an issue with
+     * the value passed from extension.
+     */
+    @Nullable
     private static DisplayFeature displayFeatureFromExtension(SidecarDisplayFeature feature) {
+        if (feature.getRect().width() == 0 && feature.getRect().height() == 0) {
+            if (DEBUG) {
+                Log.d(TAG, "Passed a display feature with empty rect, skipping: " + feature);
+            }
+            return null;
+        }
         return new DisplayFeature(feature.getRect(), feature.getType());
     }
 
@@ -217,7 +235,10 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         }
 
         for (SidecarDisplayFeature sidecarFeature : sidecarWindowLayoutInfo.displayFeatures) {
-            displayFeatures.add(displayFeatureFromExtension(sidecarFeature));
+            final DisplayFeature displayFeature = displayFeatureFromExtension(sidecarFeature);
+            if (displayFeature != null) {
+                displayFeatures.add(displayFeature);
+            }
         }
         return displayFeatures;
     }
