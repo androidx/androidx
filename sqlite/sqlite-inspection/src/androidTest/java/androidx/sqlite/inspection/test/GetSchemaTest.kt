@@ -127,6 +127,17 @@ class GetSchemaTest {
         )
     }
 
+    @Test
+    fun test_get_schema_wrong_database_id() = runBlocking {
+        val databaseId = 123456789
+        testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
+            assertThat(response.hasErrorOccurred()).isEqualTo(true)
+            val error = response.errorOccurred.content
+            assertThat(error.message).isEqualTo("No database with id=$databaseId")
+            assertThat(error.isRecoverable).isEqualTo(true)
+        }
+    }
+
     private fun test_get_schema(
         alreadyOpenDatabases: List<Database>,
         onDatabaseCreated: (SQLiteDatabase) -> Unit = {}

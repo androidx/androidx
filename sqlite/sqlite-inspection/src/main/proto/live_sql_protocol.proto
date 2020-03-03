@@ -134,12 +134,17 @@ message CellValue {
 
 // General Error message.
 // TODO: decide on a more fine-grained approach
-// TODO: decide if to unify ErrorOccurredResponse and ErrorOccurredEvent
 message ErrorOccurredResponse {
+  ErrorContent content = 1;
+}
+
+message ErrorContent {
   // Main error message.
   string message = 1;
   // Optional stack trace.
   string stack_trace = 2;
+  // True for e.g. a query syntax error; False for e.g. corrupt internal inspector state.
+  bool is_recoverable = 3;
 }
 
 // --- Events ---
@@ -168,10 +173,6 @@ message DatabaseOpenedEvent {
 
 // General Error message.
 // TODO: decide on a more fine-grained approach
-// TODO: decide if to unify ErrorOccurredResponse and ErrorOccurredEvent
 message ErrorOccurredEvent {
-  // Main error message.
-  string message = 1;
-  // Optional stack trace.
-  string stack_trace = 2;
+  ErrorContent content = 1;
 }
