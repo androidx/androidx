@@ -23,7 +23,29 @@ import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 
+/**
+ * [RecyclerView.Adapter] base class for presenting paged data from [PagingData]s in
+ * a [RecyclerView].
+ *
+ * This class is a convenience wrapper around [AsyncPagingDataDiffer] that implements common default
+ * behavior for item counting, and listening to update events.
+ *
+ * To present a [Flow]<[PagingData]>, you would connect generally use
+ * [collectLatest][kotlinx.coroutines.flow.collectLatest], and
+ * call [presentData] on the latest generation of [PagingData].
+ *
+ * If you are using RxJava or LiveData as your reactive stream API, you would typically connect
+ * those to [submitData].
+ *
+ * PagingDataAdapter listens to internal PagingData loading events as
+ * [pages][PagingSource.LoadResult.Page] are loaded, and uses [DiffUtil] on a background thread to
+ * compute fine grained updates as updated content in the form of new PagingData objects are
+ * received.
+ *
+ * @sample androidx.paging.samples.pagingDataAdapterSample
+ */
 abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -36,10 +58,31 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         updateCallback = AdapterListUpdateCallback(this)
     )
 
+    /**
+     * Present the new [PagingData], and suspend as long as it is not invalidated.
+     *
+     * This method should be called on the same [CoroutineDispatcher] where updates will be
+     * dispatched to UI, typically [Dispatchers.Main].
+     *
+     * This method is typically used when observing a [Flow]. For a RxJava or LiveData stream,
+     * see [submitData]
+     *
+     * @sample androidx.paging.samples.presentDataSample
+     * @see [submitData]
+     */
     suspend fun presentData(pagingData: PagingData<T>) {
         differ.presentData(pagingData)
     }
 
+    /**
+     * Present the new PagingData until the next call to submitData.
+     *
+     * This method is typically used when observing a RxJava or LiveData stream. For [Flow], see
+     * [presentData]
+     *
+     * @sample androidx.paging.samples.submitDataSample
+     * @see [presentData]
+     */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         differ.submitData(lifecycle, pagingData)
     }
