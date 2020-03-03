@@ -19,8 +19,12 @@ package androidx.ui.layout.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -45,7 +49,7 @@ class RtlDemosActivity : Activity() {
                 testText()
                 Text("ROW", LayoutGravity.Center)
                 testRow()
-                Text("ROW WITH MODIFIER", LayoutGravity.Center)
+                Text("ROW WITH LTR MODIFIER", LayoutGravity.Center)
                 testRow_modifier()
                 Text("RELATIVE TO SIBLINGS", LayoutGravity.Center)
                 testSiblings()
@@ -53,6 +57,10 @@ class RtlDemosActivity : Activity() {
                 CustomLayout(true)
                 Text("PLACE WITHOUT RTL SUPPORT IN CUSTOM LAYOUT", LayoutGravity.Center)
                 CustomLayout(false)
+                Text("WITH CONSTRAINTS", LayoutGravity.Center)
+                LayoutWithConstraints(LayoutDirectionModifier.Ltr, "LD: LTR modifier")
+                LayoutWithConstraints(LayoutDirectionModifier.Rtl, "LD: RTL modifier")
+                LayoutWithConstraints(text = "LD: locale")
             }
         }
     }
@@ -146,6 +154,20 @@ fun CustomLayout(rtlSupport: Boolean) {
                     child.placeAbsolute(IntPxPosition(xPosition, 0.ipx))
                 }
                 xPosition += child.width
+            }
+        }
+    }
+}
+
+@Composable
+fun LayoutWithConstraints(modifier: Modifier = Modifier.None, text: String) {
+    WithConstraints(modifier) { constraints, direction ->
+        with(DensityAmbient.current) {
+            val w = (constraints.maxWidth / 3).toDp()
+            val h = (constraints.maxHeight / 2).toDp()
+            val color = if (direction == LayoutDirection.Ltr) Color.Red else Color.Magenta
+            Stack(LayoutSize(w, h) + DrawBackground(color)) {
+                Text(text, LayoutGravity.Center)
             }
         }
     }

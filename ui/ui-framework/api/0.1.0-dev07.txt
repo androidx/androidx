@@ -29,7 +29,7 @@ package androidx.ui.core {
     method public static androidx.ui.core.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static inline void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static inline void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
-    method public static void WithConstraints(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> children);
+    method public static void WithConstraints(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function2<? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,kotlin.Unit> children);
   }
 
   public final class LayoutTag implements androidx.ui.core.LayoutTagParentData androidx.ui.core.ParentDataModifier {

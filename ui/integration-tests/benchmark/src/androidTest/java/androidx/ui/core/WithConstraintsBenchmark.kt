@@ -88,7 +88,7 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
     override fun emitContent() {
         val size = state { 200.dp }
         this.state = size
-        WithConstraints {
+        WithConstraints { _, _ ->
             Container(width = 300.dp, height = 300.dp) {
                 Spacer(LayoutSize(width = size.value, height = size.value))
             }
@@ -109,7 +109,7 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
         val size = state { 100.ipx }
         this.state = size
         ChangingConstraintsLayout(state) {
-            WithConstraints {
+            WithConstraints { _, _ ->
                 Container(expanded = true) {}
             }
         }
