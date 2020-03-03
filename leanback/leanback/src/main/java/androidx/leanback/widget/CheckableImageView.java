@@ -13,6 +13,7 @@
  */
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Checkable;
@@ -21,6 +22,7 @@ import android.widget.ImageView;
 /**
  * ImageView that supports Checkable states.
  */
+@SuppressLint("AppCompatCustomView")
 class CheckableImageView extends ImageView implements Checkable {
 
     private boolean mChecked;

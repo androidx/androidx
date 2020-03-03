@@ -16,6 +16,7 @@ dependencies {
     api("androidx.media:media:1.0.0")
     api("androidx.fragment:fragment:1.0.0")
     api(project(":recyclerview:recyclerview"))
+    api("androidx.appcompat:appcompat:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

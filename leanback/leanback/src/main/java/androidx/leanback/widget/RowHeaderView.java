@@ -13,6 +13,7 @@
  */
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -24,6 +25,7 @@ import androidx.leanback.R;
 /**
  * RowHeaderView is a header text view.
  */
+@SuppressLint("AppCompatCustomView")
 public final class RowHeaderView extends TextView {
 
     public RowHeaderView(Context context) {

@@ -13,6 +13,7 @@
  */
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -34,6 +35,7 @@ import androidx.core.widget.TextViewCompat;
 /**
  * A custom EditText that satisfies the IME key monitoring requirements of GuidedStepFragment.
  */
+@SuppressLint("AppCompatCustomView")
 public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
         GuidedActionAutofillSupport {
 
