@@ -33,5 +33,8 @@
             android:name="androidx.ui.layout.test.TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
 
+        <activity
+            android:name="android.app.Activity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
     </application>
 </manifest>

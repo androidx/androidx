@@ -294,6 +294,16 @@ package androidx.ui.layout {
     method @Deprecated public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
   }
 
+  public final class LayoutOffset implements androidx.ui.core.LayoutModifier {
+    ctor public LayoutOffset(androidx.ui.unit.Dp x, androidx.ui.unit.Dp y);
+    method public androidx.ui.unit.Dp component1();
+    method public androidx.ui.unit.Dp component2();
+    method public androidx.ui.layout.LayoutOffset copy(androidx.ui.unit.Dp x, androidx.ui.unit.Dp y);
+    method public androidx.ui.unit.Dp getX();
+    method public androidx.ui.unit.Dp getY();
+    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
+  }
+
   public final class LayoutPadding implements androidx.ui.core.LayoutModifier {
     ctor public LayoutPadding(androidx.ui.unit.Dp start, androidx.ui.unit.Dp top, androidx.ui.unit.Dp end, androidx.ui.unit.Dp bottom);
     ctor public LayoutPadding();
