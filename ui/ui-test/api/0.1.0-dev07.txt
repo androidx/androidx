@@ -9,6 +9,18 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);
   }
 
+  public final class AnimationClockTestRule implements org.junit.rules.TestRule {
+    ctor public AnimationClockTestRule();
+    method public void advanceClock(long milliseconds);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+    method public androidx.ui.test.TestAnimationClock getClock();
+    method public boolean isPaused();
+    method public void pauseClock();
+    method public void resumeClock();
+    property public final androidx.ui.test.TestAnimationClock clock;
+    property public final boolean isPaused;
+  }
+
   public final class AssertionsKt {
     method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsPredicate predicate);
     method public static <T extends java.util.Collection<? extends androidx.ui.test.SemanticsNodeInteraction>> T assertCountEquals(T, int expectedSize);
@@ -104,11 +116,13 @@ package androidx.ui.test {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
+    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    property public abstract androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public abstract androidx.ui.unit.Density density;
     property public abstract android.util.DisplayMetrics displayMetrics;
   }
@@ -238,6 +252,16 @@ package androidx.ui.test {
     method public static androidx.ui.unit.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public interface TestAnimationClock extends androidx.animation.AnimationClockObservable {
+    method public void advanceClock(long milliseconds);
+    method public boolean isIdle();
+    method public boolean isPaused();
+    method public void pauseClock();
+    method public void resumeClock();
+    property public abstract boolean isIdle;
+    property public abstract boolean isPaused;
+  }
+
 }
 
 package androidx.ui.test.android {
@@ -258,12 +282,14 @@ package androidx.ui.test.android {
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.test.rule.ActivityTestRule<T> getActivityTestRule();
+    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public final androidx.test.rule.ActivityTestRule<T> activityTestRule;
+    property public androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public androidx.ui.unit.Density density;
     property public android.util.DisplayMetrics displayMetrics;
   }
@@ -280,6 +306,9 @@ package androidx.ui.test.android {
   public final class ComposeIdlingResourceKt {
     method public static void registerComposeWithEspresso();
     method public static void unregisterComposeFromEspresso();
+  }
+
+  public final class InternalUtilsKt {
   }
 
   public final class WindowCaptureKt {
