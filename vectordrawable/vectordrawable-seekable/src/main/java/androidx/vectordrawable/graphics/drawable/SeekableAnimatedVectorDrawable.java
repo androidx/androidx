@@ -581,15 +581,21 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
         }
     }
 
+    /**
+     * Returns whether the animation is running (has started and not yet ended).
+     *
+     * @return {@code true} if the animation is running.
+     */
     @Override
     public boolean isRunning() {
         return mAnimatedVectorState.mAnimatorSet.isRunning();
     }
 
-    public boolean isStarted() {
-        return mAnimatedVectorState.mAnimatorSet.isStarted();
-    }
-
+    /**
+     * Returns whether the animation is currently in a paused state.
+     *
+     * @return {@code true} if the animation is paused.
+     */
     public boolean isPaused() {
         return mAnimatedVectorState.mAnimatorSet.isPaused();
     }

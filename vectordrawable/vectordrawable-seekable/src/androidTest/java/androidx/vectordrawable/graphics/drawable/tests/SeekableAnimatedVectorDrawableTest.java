@@ -302,7 +302,7 @@ public class SeekableAnimatedVectorDrawableTest {
         assertThat(bitmap.getPixel(0, 0)).isEqualTo(Color.RED);
 
         avd.start();
-        assertThat(avd.isStarted()).isTrue();
+        assertThat(avd.isRunning()).isTrue();
         assertThat(avd.isPaused()).isFalse();
         animationRule.advanceTimeBy(100L);
         avd.draw(canvas);
@@ -310,14 +310,14 @@ public class SeekableAnimatedVectorDrawableTest {
         assertThat(Color.red(pausedColor)).isLessThan(0xff);
 
         avd.pause();
-        assertThat(avd.isStarted()).isTrue();
+        assertThat(avd.isRunning()).isTrue();
         assertThat(avd.isPaused()).isTrue();
         animationRule.advanceTimeBy(1000L);
         avd.draw(canvas);
         assertThat(bitmap.getPixel(0, 0)).isEqualTo(pausedColor);
 
         avd.resume();
-        assertThat(avd.isStarted()).isTrue();
+        assertThat(avd.isRunning()).isTrue();
         assertThat(avd.isPaused()).isFalse();
         animationRule.advanceTimeBy(100L);
         avd.draw(canvas);
