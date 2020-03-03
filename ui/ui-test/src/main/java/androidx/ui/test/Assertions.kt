@@ -219,7 +219,7 @@ fun SemanticsNodeInteraction.assert(
 ): SemanticsNodeInteraction {
     val errorMessageOnFail = "Failed to assert the following: (${predicate.description})"
     val node = fetchSemanticsNode(errorMessageOnFail)
-    if (!predicate.condition(node.config)) {
+    if (!predicate.condition(node)) {
         throw AssertionError(buildErrorMessageForPredicateFail(
             semanticsTreeInteraction.selector, node, predicate))
     }

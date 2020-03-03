@@ -44,7 +44,7 @@ internal abstract class SemanticsTreeInteraction(
     fun findAllMatching(): List<SemanticsNodeInteraction> {
         return getAllSemanticsNodes()
             .filter { node ->
-                selector.condition(node.config)
+                selector.condition(node)
             }.map {
                 SemanticsNodeInteraction(it, this)
             }
@@ -57,7 +57,7 @@ internal abstract class SemanticsTreeInteraction(
     internal fun findOne(): SemanticsNodeInteraction {
         val nodes = getAllSemanticsNodes()
             .filter { node ->
-                selector.condition(node.config)
+                selector.condition(node)
             }
         return SemanticsNodeInteraction(nodes, this)
     }
