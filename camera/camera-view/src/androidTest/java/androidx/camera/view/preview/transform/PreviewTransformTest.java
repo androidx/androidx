@@ -69,10 +69,6 @@ public class PreviewTransformTest {
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());
         assertThat(mView.getHeight() * mView.getScaleY()).isAtLeast(mContainer.getHeight());
-
-        // Assert the preview is at the start (top left) of its container
-        assertThat(mView.getX()).isEqualTo(0);
-        assertThat(mView.getY()).isEqualTo(0);
     }
 
     @Test
@@ -83,10 +79,6 @@ public class PreviewTransformTest {
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());
         assertThat(mView.getHeight() * mView.getScaleY()).isAtLeast(mContainer.getHeight());
-
-        // Assert the preview is centered in its container
-        assertThat(mView.getX() + mView.getWidth() / 2).isEqualTo(mContainer.getWidth() / 2);
-        assertThat(mView.getY() + mView.getHeight() / 2).isEqualTo(mContainer.getHeight() / 2);
     }
 
     @Test
@@ -97,9 +89,5 @@ public class PreviewTransformTest {
         // Assert the preview fills its container
         assertThat(mView.getWidth() * mView.getScaleX()).isAtLeast(mContainer.getWidth());
         assertThat(mView.getHeight() * mView.getScaleY()).isAtLeast(mContainer.getHeight());
-
-        // Assert the preview is at the end (bottom right) of its container
-        assertThat(mView.getX() + mView.getWidth()).isEqualTo(mContainer.getWidth());
-        assertThat(mView.getY() + mView.getHeight()).isEqualTo(mContainer.getHeight());
     }
 }
