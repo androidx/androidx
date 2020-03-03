@@ -197,7 +197,19 @@ class FragmentStateManager {
         if (!mFragment.mAdded) {
             maxState = Math.min(maxState, Fragment.CREATED);
         }
-        if (mFragment.mRemoving) {
+        SpecialEffectsController.Operation.Type awaitingEffect = null;
+        if (FragmentManager.USE_STATE_MANAGER && mFragment.mContainer != null) {
+            SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
+                    mFragment.mContainer, mFragment.getParentFragmentManager());
+            awaitingEffect = controller.getAwaitingCompletionType(this);
+        }
+        if (awaitingEffect == SpecialEffectsController.Operation.Type.ADD) {
+            // Fragments awaiting their enter effects cannot proceed beyond that state
+            maxState = Math.min(maxState, Fragment.AWAITING_ENTER_EFFECTS);
+        } else if (awaitingEffect == SpecialEffectsController.Operation.Type.REMOVE) {
+            // Fragments that are in the process of being removed shouldn't go below that state
+            maxState = Math.max(maxState, Fragment.AWAITING_EXIT_EFFECTS);
+        } else if (mFragment.mRemoving) {
             if (mFragment.isInBackStack()) {
                 // Fragments on the back stack shouldn't go higher than CREATED
                 maxState = Math.min(maxState, Fragment.CREATED);
@@ -255,6 +267,10 @@ class FragmentStateManager {
                         case Fragment.CREATED:
                             create();
                             break;
+                        case Fragment.AWAITING_EXIT_EFFECTS:
+                            // There's no exit effects when moving the state upward
+                            mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
+                            break;
                         case Fragment.ACTIVITY_CREATED:
                             ensureInflatedView();
                             createView();
@@ -272,6 +288,13 @@ class FragmentStateManager {
                         case Fragment.STARTED:
                             start();
                             break;
+                        case Fragment.AWAITING_ENTER_EFFECTS:
+                            if (!FragmentManager.USE_STATE_MANAGER) {
+                                // Immediately set the state when not using
+                                // FragmentStateManager to control enter effects
+                                mFragment.mState = Fragment.AWAITING_ENTER_EFFECTS;
+                            }
+                            break;
                         case Fragment.RESUMED:
                             resume();
                             break;
@@ -284,13 +307,16 @@ class FragmentStateManager {
                         mEnterAnimationCancellationSignal.cancel();
                     }
                     switch (nextStep) {
+                        case Fragment.AWAITING_ENTER_EFFECTS:
+                            // There's no enter effects when moving the state downward
+                            mFragment.mState = Fragment.AWAITING_ENTER_EFFECTS;
                         case Fragment.STARTED:
                             pause();
                             break;
                         case Fragment.ACTIVITY_CREATED:
                             stop();
                             break;
-                        case Fragment.CREATED:
+                        case Fragment.AWAITING_EXIT_EFFECTS:
                             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                                 Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                             }
@@ -303,11 +329,16 @@ class FragmentStateManager {
                                 controller.enqueueRemove(this,
                                         mExitAnimationCancellationSignal);
                             }
-                            // TODO wait for the special effects to finish
+                            if (!FragmentManager.USE_STATE_MANAGER) {
+                                // Immediately set the state when not using
+                                // FragmentStateManager to control exit effects
+                                mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
+                            }
+                            break;
+                        case Fragment.CREATED:
                             destroyFragmentView();
                             break;
                         case Fragment.ATTACHED:
-                            // TODO wait for animations to complete
                             destroy();
                             break;
                         case Fragment.INITIALIZING:

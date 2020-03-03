@@ -101,12 +101,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
-    static final int INITIALIZING = -1;    // Not yet attached.
-    static final int ATTACHED = 0;         // Attached to the host.
-    static final int CREATED = 1;          // Created.
-    static final int ACTIVITY_CREATED = 2; // Fully created, not started.
-    static final int STARTED = 3;          // Created and started, not resumed.
-    static final int RESUMED = 4;          // Created started and resumed.
+    static final int INITIALIZING = -1;          // Not yet attached.
+    static final int ATTACHED = 0;               // Attached to the host.
+    static final int CREATED = 1;                // Created.
+    static final int AWAITING_EXIT_EFFECTS = 2;  // Downward state, awaiting exit effects
+    static final int ACTIVITY_CREATED = 3;       // Fully created, not started.
+    static final int STARTED = 4;                // Created and started, not resumed.
+    static final int AWAITING_ENTER_EFFECTS = 5; // Upward state, awaiting enter effects
+    static final int RESUMED = 6;                // Created started and resumed.
 
     int mState = INITIALIZING;
 
