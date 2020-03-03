@@ -31,7 +31,7 @@ def main():
 
 def summarize(inputProfilePath, outputSummaryPath):
   # mapping from the key in the Gradle report to the key in the summary that we generate
-  mapping = {"Total Build Time": "task_execution_duration", "Task Execution": "total_cpu", "Settings and buildSrc": "configuration_duration"}
+  mapping = {"Total Build Time": "task_execution_duration", "Task Execution": "total_cpu", "Configuring Projects": "configuration_duration"}
   parsedValues = parse(inputProfilePath, mapping.keys())
   outputValues = dict()
   for k in mapping:
