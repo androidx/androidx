@@ -30,6 +30,7 @@ class RecordingCallbackTest {
     fun recordReplay() {
         val recordingCallback = RecordingCallback()
 
+        @Suppress("DEPRECATION")
         val failCallback = object : PagedList.Callback() {
             override fun onChanged(position: Int, count: Int) = fail("not expected")
             override fun onInserted(position: Int, count: Int) = fail("not expected")
@@ -44,6 +45,7 @@ class RecordingCallbackTest {
         recordingCallback.onRemoved(5, 6)
 
         var inc = 0
+        @Suppress("DEPRECATION")
         val verifyCallback = object : PagedList.Callback() {
             override fun onChanged(position: Int, count: Int) {
                 assertEquals(inc, 0)
@@ -51,12 +53,14 @@ class RecordingCallbackTest {
                 assertEquals(count, 2)
                 inc += 1
             }
+
             override fun onInserted(position: Int, count: Int) {
                 assertEquals(inc, 1)
                 assertEquals(position, 3)
                 assertEquals(count, 4)
                 inc += 1
             }
+
             override fun onRemoved(position: Int, count: Int) {
                 assertEquals(inc, 2)
                 assertEquals(position, 5)

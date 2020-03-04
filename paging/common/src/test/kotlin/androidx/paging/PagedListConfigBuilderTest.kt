@@ -25,6 +25,7 @@ import org.junit.runners.JUnit4
 class PagedListConfigBuilderTest {
     @Test
     fun defaults() {
+        @Suppress("DEPRECATION")
         val config = PagedList.Config.Builder()
             .setPageSize(10)
             .build()
@@ -32,11 +33,13 @@ class PagedListConfigBuilderTest {
         Assert.assertEquals(30, config.initialLoadSizeHint)
         Assert.assertEquals(true, config.enablePlaceholders)
         Assert.assertEquals(10, config.prefetchDistance)
+        @Suppress("DEPRECATION")
         Assert.assertEquals(PagedList.Config.MAX_SIZE_UNBOUNDED, config.maxSize)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun maxSizeTooSmall() {
+        @Suppress("DEPRECATION")
         PagedList.Config.Builder()
             .setPageSize(20)
             .setPrefetchDistance(15)
@@ -46,6 +49,7 @@ class PagedListConfigBuilderTest {
 
     @Test
     fun maxSizeAccepted() {
+        @Suppress("DEPRECATION")
         PagedList.Config.Builder()
             .setPageSize(20)
             .setPrefetchDistance(15)

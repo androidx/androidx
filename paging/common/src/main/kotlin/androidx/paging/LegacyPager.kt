@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 internal class LegacyPager<K : Any, V : Any>(
     private val pagedListScope: CoroutineScope,
+    @Suppress("DEPRECATION")
     val config: PagedList.Config,
     val source: PagingSource<K, V>,
     private val notifyDispatcher: CoroutineDispatcher,
@@ -33,6 +34,7 @@ internal class LegacyPager<K : Any, V : Any>(
 ) {
     private val detached = AtomicBoolean(false)
 
+    @Suppress("DEPRECATION")
     var loadStateManager = object : PagedList.LoadStateManager() {
         override fun onStateChanged(type: LoadType, state: LoadState) {
             pageConsumer.onStateChanged(type, state)
@@ -105,7 +107,7 @@ internal class LegacyPager<K : Any, V : Any>(
 
         loadStateManager.setState(LoadType.START, LoadState.Loading)
 
-        val loadParams = LoadParams<K>(
+        val loadParams = LoadParams(
             LoadType.START,
             key,
             config.pageSize,

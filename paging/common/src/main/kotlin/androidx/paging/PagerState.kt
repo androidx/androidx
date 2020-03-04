@@ -23,7 +23,6 @@ import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
-import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -202,7 +201,8 @@ internal class PagerState<Key : Any, Value : Any>(
             START -> {
                 // TODO: Incrementally compute this.
                 val currentSize = pages.sumBy { it.data.size }
-                if (maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize) {
+                @Suppress("DEPRECATION")
+                if (maxSize != PagedList.Config.MAX_SIZE_UNBOUNDED && currentSize > maxSize) {
                     var pageCount = 0
                     var itemCount = 0
                     pages.takeWhile {
@@ -217,7 +217,8 @@ internal class PagerState<Key : Any, Value : Any>(
             END -> {
                 // TODO: Incrementally compute this.
                 val currentSize = pages.sumBy { it.data.size }
-                if (maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize) {
+                @Suppress("DEPRECATION")
+                if (maxSize != PagedList.Config.MAX_SIZE_UNBOUNDED && currentSize > maxSize) {
                     var pageCount = 0
                     var itemCount = 0
                     pages.takeLastWhile {
