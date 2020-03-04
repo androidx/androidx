@@ -902,7 +902,90 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void capturedImageHasCorrectCroppingSize() throws ExecutionException,
+    public void capturedImageHasCorrectCroppingSizeWithoutSettingRotation()
+            throws ExecutionException,
+            InterruptedException, CameraInfoUnavailableException {
+        ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
+                DEFAULT_RESOLUTION).build();
+
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // After target rotation is updated, the result cropping aspect ratio should still the
+        // same as original one.
+        Rational expectedCroppingRatio = new Rational(DEFAULT_RESOLUTION.getWidth(),
+                DEFAULT_RESOLUTION.getHeight());
+        Rect cropRect = imageProperties.get().cropRect;
+        Rational resultCroppingRatio;
+
+        // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
+        // displayed image
+        if ((imageProperties.get().rotationDegrees % 180) != 0) {
+            resultCroppingRatio = new Rational(cropRect.height(), cropRect.width());
+        } else {
+            resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
+        }
+
+        assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio);
+    }
+
+    @Test
+    public void capturedImageHasCorrectCroppingSizeSetRotationBuilder() throws ExecutionException,
+            InterruptedException, CameraInfoUnavailableException {
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // that the initial set target cropping aspect ratio matches the sensor orientation.
+        String cameraId = CameraX.getCameraFactory().cameraIdForLensFacing(
+                CameraSelector.LENS_FACING_BACK);
+        boolean isRotateNeeded = (CameraX.getCameraInfo(cameraId).getSensorRotationDegrees(
+                Surface.ROTATION_0) % 180) != 0;
+        ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
+                DEFAULT_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // After target rotation is updated, the result cropping aspect ratio should still the
+        // same as original one.
+        Rational expectedCroppingRatio = new Rational(DEFAULT_RESOLUTION.getWidth(),
+                DEFAULT_RESOLUTION.getHeight());
+        Rect cropRect = imageProperties.get().cropRect;
+        Rational resultCroppingRatio;
+
+        // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
+        // displayed image
+        if ((imageProperties.get().rotationDegrees % 180) != 0) {
+            resultCroppingRatio = new Rational(cropRect.height(), cropRect.width());
+        } else {
+            resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
+        }
+
+        assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio);
+    }
+
+    @Test
+    public void capturedImageHasCorrectCroppingSize_setUseCaseRotation90FromRotationInBuilder()
+            throws ExecutionException,
             InterruptedException, CameraInfoUnavailableException {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // that the initial set target cropping aspect ratio matches the sensor orientation.
@@ -935,9 +1018,19 @@ public final class ImageCaptureTest {
         Rational expectedCroppingRatio = new Rational(DEFAULT_RESOLUTION.getWidth(),
                 DEFAULT_RESOLUTION.getHeight());
         Rect cropRect = imageProperties.get().cropRect;
-        Rational resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
+        Rational resultCroppingRatio;
 
-        assertThat(resultCroppingRatio.equals(expectedCroppingRatio)).isTrue();
+        // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
+        // displayed image. When setting the rotation on the ImageCapture use case it will rotate
+        // the crop aspect ratio relative to the previously set target rotation. Hence in this
+        // case if the rotation degrees is divisible by 180 then aspect ratio needs to be inverted.
+        if ((imageProperties.get().rotationDegrees % 180) == 0) {
+            resultCroppingRatio = new Rational(cropRect.height(), cropRect.width());
+        } else {
+            resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
+        }
+
+        assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio);
     }
 
     private static final class ImageProperties {
@@ -959,8 +1052,8 @@ public final class ImageCaptureTest {
                         imageProperties.format = image.getFormat();
                         imageProperties.rotationDegrees =
                                 image.getImageInfo().getRotationDegrees();
-                        resultProperties.set(imageProperties);
                         imageProperties.cropRect = image.getCropRect();
+                        resultProperties.set(imageProperties);
                     }
                     image.close();
                     return null;
