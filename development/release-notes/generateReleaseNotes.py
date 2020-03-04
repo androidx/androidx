@@ -84,6 +84,7 @@ def get_release_note_object(date, include_all_commits, jetpad_release_info):
 		fromSHA = artifactId_release_line[4]
 		untilSHA = artifactId_release_line[5]
 		path = artifactId_release_line[6]
+		if path[0] == '/': path = path[1:]
 		requiresSameVersion = False
 		if artifactId_release_line[7] == "true":
 			requiresSameVersion = True
