@@ -1650,8 +1650,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             return;
         }
 
-        final WindowManager wm = (WindowManager) mContext.getApplicationContext()
-                .getSystemService(Context.WINDOW_SERVICE);
+        final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         if (wm == null) {
             return;
         }
@@ -1970,8 +1969,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             return;
         }
 
-        final WindowManager wm = (WindowManager) mContext.getApplicationContext()
-                .getSystemService(Context.WINDOW_SERVICE);
+        final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         if (wm != null && st.isOpen && st.decorView != null) {
             wm.removeView(st.decorView);
 
