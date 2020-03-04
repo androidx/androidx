@@ -167,8 +167,8 @@ public class WorkManagerImplTest {
                         mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getWorkTaskExecutor(),
                         mWorkManagerImpl));
-        // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
-        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
+        // Don't return any scheduler. We don't need to actually execute work for most of our tests.
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
@@ -1591,6 +1591,7 @@ public class WorkManagerImplTest {
     @Test
     @MediumTest
     public void testForceStopRunnable_resetsRunningWorkStatuses() {
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -1729,7 +1730,6 @@ public class WorkManagerImplTest {
     @SdkSuppress(maxSdkVersion = 22)
     public void testEnqueueApi22OrLower_withBatteryNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
-
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresBatteryNotLow(true)
@@ -1746,7 +1746,6 @@ public class WorkManagerImplTest {
     @SdkSuppress(maxSdkVersion = 22)
     public void testEnqueueApi22OrLower_withStorageNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
-
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresStorageNotLow(true)
@@ -1763,7 +1762,6 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testEnqueueApi23To25_withBatteryNotLowConstraint_expectsConstraintTrackingWorker()
             throws ExecutionException, InterruptedException {
-
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresBatteryNotLow(true)
@@ -1783,7 +1781,6 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testEnqueueApi23To25_withStorageNotLowConstraint_expectsConstraintTrackingWorker()
             throws ExecutionException, InterruptedException {
-
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresStorageNotLow(true)
@@ -1803,14 +1800,12 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withBatteryNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
-
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresBatteryNotLow(true)
                         .build())
                 .build();
         mWorkManagerImpl.beginWith(work).enqueue().getResult().get();
-
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
     }
@@ -1820,14 +1815,12 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withStorageNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
-
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresStorageNotLow(true)
                         .build())
                 .build();
         mWorkManagerImpl.beginWith(work).enqueue().getResult().get();
-
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
     }
