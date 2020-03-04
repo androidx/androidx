@@ -22,7 +22,8 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -72,11 +73,11 @@ private val transitionDefinition = transitionDefinition {
 @Composable
 private fun WithoutSemanticActions() {
     val animationEndState = state { ComponentState.Released }
-    PressGestureDetector(
-        onPress = { animationEndState.value = ComponentState.Pressed },
-        onRelease = { animationEndState.value = ComponentState.Released }) {
-        Animation(animationEndState = animationEndState.value)
-    }
+    val pressIndicator =
+        PressIndicatorGestureDetector(
+            onStart = { animationEndState.value = ComponentState.Pressed },
+            onStop = { animationEndState.value = ComponentState.Released })
+    Animation(pressIndicator, animationEndState = animationEndState.value)
 }
 
 /**
@@ -105,10 +106,12 @@ private fun Level1Api() {
         properties = setOf(Label("Animating Circle"), Visibility.Visible),
         actions = setOf(pressedAction, releasedAction)
     ) {
-        PressGestureDetectorWithActions(
-            onPress = pressedAction,
-            onRelease = releasedAction
-        ) { Animation(animationEndState = animationEndState.value) }
+        val pressIndication =
+            PressGestureDetectorWithActions(
+                onPress = pressedAction,
+                onRelease = releasedAction
+            )
+        Animation(pressIndication, animationEndState = animationEndState.value)
     }
 }
 
@@ -136,10 +139,12 @@ private fun Level2Api() {
                 // After implementing node merging, we can remove this line.
                 actions = setOf(shrinkAction, enlargeAction)
             ) {
-                PressGestureDetectorWithActions(
-                    onPress = shrinkAction,
-                    onRelease = enlargeAction
-                ) { Animation(animationEndState = animationEndState.value) }
+                val pressIndication =
+                    PressGestureDetectorWithActions(
+                        onPress = shrinkAction,
+                        onRelease = enlargeAction
+                    )
+                Animation(pressIndication, animationEndState = animationEndState.value)
             }
         }
     }
@@ -188,11 +193,11 @@ private fun Level3ApiExtras() {
 }
 
 @Composable
-private fun Animation(animationEndState: ComponentState) {
+private fun Animation(modifier: Modifier = Modifier.None, animationEndState: ComponentState) {
     Transition(definition = transitionDefinition, toState = animationEndState) { state ->
         val color = state[colorKey]
         val sizeRatio = state[sizeKey]
-        Canvas(modifier = LayoutSize.Fill) {
+        Canvas(modifier = modifier + LayoutSize.Fill) {
             drawCircle(
                 center = Offset(size.width.value / 2, size.height.value / 2),
                 radius = min(size.height, size.width).value * sizeRatio / 2,

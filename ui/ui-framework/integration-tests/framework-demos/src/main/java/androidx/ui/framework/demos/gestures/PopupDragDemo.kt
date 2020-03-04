@@ -45,7 +45,7 @@ fun PopupDragDemo() {
     val observer = remember {
         object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
-                offset.value += dragDistance
+                offset.value = offset.value + dragDistance
                 return dragDistance
             }
         }
@@ -53,18 +53,16 @@ fun PopupDragDemo() {
 
     Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
         Stack {
-            RawDragGestureDetector(observer) {
-                Box(
-                    LayoutSize(70.dp),
-                    shape = CircleShape,
-                    backgroundColor = Color.Green,
-                    gravity = ContentGravity.Center
-                ) {
-                    Text(
-                        text = "This is a popup!",
-                        style = TextStyle(textAlign = TextAlign.Center)
-                    )
-                }
+            Box(
+                RawDragGestureDetector(observer) + LayoutSize(70.dp),
+                shape = CircleShape,
+                backgroundColor = Color.Green,
+                gravity = ContentGravity.Center
+            ) {
+                Text(
+                    text = "This is a popup!",
+                    style = TextStyle(textAlign = TextAlign.Center)
+                )
             }
         }
     }

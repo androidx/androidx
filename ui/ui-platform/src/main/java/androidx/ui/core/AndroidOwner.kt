@@ -43,7 +43,7 @@ import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
-import androidx.ui.core.pointerinput.PointerInputEventProcessor
+import androidx.ui.core.pointerinput.PointerInputEventProcessor2
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
@@ -65,7 +65,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.px
 import androidx.ui.util.trace
-
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
 import kotlin.math.roundToInt
@@ -117,7 +116,7 @@ class AndroidComposeView constructor(context: Context) :
         }
 
     private val motionEventAdapter = MotionEventAdapter()
-    private val pointerInputEventProcessor = PointerInputEventProcessor(root)
+    private val pointerInputEventProcessor = PointerInputEventProcessor2(root)
 
     var constraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
@@ -698,7 +697,7 @@ class AndroidComposeView constructor(context: Context) :
         trace("AndroidOwner:onTouch") {
             val pointerInputEvent = motionEventAdapter.processMotionEvent(event)
             if (pointerInputEvent != null) {
-                pointerInputEventProcessor.process(pointerInputEvent, calculatePosition())
+                pointerInputEventProcessor.process(pointerInputEvent)
             } else {
                 pointerInputEventProcessor.processCancel()
             }

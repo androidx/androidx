@@ -19,14 +19,16 @@ package androidx.ui.core.gesture
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.util.anyPointersInBounds
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -50,24 +52,18 @@ import kotlin.coroutines.CoroutineContext
  */
 @Composable
 fun DoubleTapGestureDetector(
-    onDoubleTap: (PxPosition) -> Unit,
-    children: @Composable() () -> Unit
-) {
+    onDoubleTap: (PxPosition) -> Unit
+): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     // TODO(shepshapard): coroutineContext should be a field
-    val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
-    recognizer.onDoubleTap = onDoubleTap
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    val modifier = remember { DoubleTapGestureRecognizer(coroutineContext) }
+    modifier.onDoubleTap = onDoubleTap
+    return PointerInputModifier(modifier)
 }
 
 internal class DoubleTapGestureRecognizer(
     coroutineContext: CoroutineContext
-) {
+) : PointerInputFilter() {
     lateinit var onDoubleTap: (PxPosition) -> Unit
 
     private enum class State {
@@ -78,7 +74,7 @@ internal class DoubleTapGestureRecognizer(
     private var state = State.Idle
     private var job: Job? = null
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var changesToReturn = changes
@@ -116,7 +112,7 @@ internal class DoubleTapGestureRecognizer(
             changesToReturn
         }
 
-    var cancelHandler = {
+    override var cancelHandler = {
         job?.cancel()
         state = State.Idle
     }

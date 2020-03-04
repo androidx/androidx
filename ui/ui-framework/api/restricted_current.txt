@@ -171,7 +171,11 @@ package androidx.ui.core.gesture {
   }
 
   public final class DoubleTapGestureDetectorKt {
-    method public static void DoubleTapGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDoubleTap, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier DoubleTapGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDoubleTap);
+  }
+
+  public final class DragGestureDetectorKt {
+    method public static androidx.ui.core.Modifier DragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, boolean startDragImmediately = false);
   }
 
   public interface DragObserver {
@@ -182,7 +186,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class LongPressDragGestureDetectorKt {
-    method public static void LongPressDragGestureDetector(androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier LongPressDragGestureDetector(androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver);
   }
 
   public interface LongPressDragObserver {
@@ -198,30 +202,23 @@ package androidx.ui.core.gesture {
   }
 
   public final class LongPressGestureDetectorKt {
-    method public static void LongPressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onLongPress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class PressGestureDetectorKt {
-    method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier LongPressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onLongPress);
   }
 
   public final class PressIndicatorGestureDetectorKt {
-    method public static void PressIndicatorGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class PressReleasedGestureDetectorKt {
-    method public static void PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, boolean consumeDownOnStart = true, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier PressIndicatorGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true);
   }
 
   public final class RawDragGestureDetectorKt {
-    method public static void RawDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier RawDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null);
   }
 
   public final class RawPressStartGestureDetectorKt {
+    method public static androidx.ui.core.Modifier RawPressStartStartGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onPressStart, boolean enabled = false, androidx.ui.core.PointerEventPass executionPass = PointerEventPass.PostUp);
   }
 
   public final class RawScaleGestureDetectorKt {
-    method public static void RawScaleGestureDetector(androidx.ui.core.gesture.RawScaleObserver scaleObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartScaling = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier RawScaleGestureDetector(androidx.ui.core.gesture.RawScaleObserver scaleObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartScaling = null);
   }
 
   public interface RawScaleObserver {
@@ -232,7 +229,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class ScaleGestureDetectorKt {
-    method public static void ScaleGestureDetector(androidx.ui.core.gesture.ScaleObserver scaleObserver, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier ScaleGestureDetector(androidx.ui.core.gesture.ScaleObserver scaleObserver);
   }
 
   public interface ScaleObserver {
@@ -243,18 +240,18 @@ package androidx.ui.core.gesture {
   }
 
   public final class ScaleSlopExceededGestureDetectorKt {
-    method public static void ScaleSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onScaleSlopExceeded, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier ScaleSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onScaleSlopExceeded);
   }
 
   public final class ScaleUtilKt {
   }
 
-  public final class TouchSlopDragGestureDetectorKt {
-    method public static void TouchSlopDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  public final class TapGestureDetectorKt {
+    method public static androidx.ui.core.Modifier TapGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onTap = null, boolean enabled = true);
   }
 
   public final class TouchSlopExceededGestureDetectorKt {
-    method public static void TouchSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onTouchSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier TouchSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onTouchSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null);
   }
 
 }

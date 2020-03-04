@@ -18,12 +18,14 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.testutils.consume
 import androidx.ui.unit.IntPxSize
 
@@ -100,7 +102,7 @@ interface RawScaleObserver {
  * Note: By default, this gesture detector will start as soon as the average distance between
  * pointers changes by just a little bit. It is likely that you don't want to use this gesture
  * detector directly, but instead use a scale gesture detector that is less aggressive about
- * starting (such as [ScaleGestureDetector] which waits for a pointer to have passed touch slop
+ * starting (such as [RawScaleGestureDetector] which waits for a pointer to have passed touch slop
  * before starting).
  *
  * Scaling begins when the average distance between a set of pointers changes and either
@@ -119,27 +121,21 @@ interface RawScaleObserver {
 @Composable
 fun RawScaleGestureDetector(
     scaleObserver: RawScaleObserver,
-    canStartScaling: (() -> Boolean)? = null,
-    children: @Composable() () -> Unit
-) {
+    canStartScaling: (() -> Boolean)? = null
+): Modifier {
     val recognizer = remember { RawScaleGestureRecognizer() }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.scaleObserver = scaleObserver
     recognizer.canStartScaling = canStartScaling
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    return PointerInputModifier(recognizer)
 }
 
-internal class RawScaleGestureRecognizer {
+internal class RawScaleGestureRecognizer : PointerInputFilter() {
     private var active = false
     lateinit var scaleObserver: RawScaleObserver
     var canStartScaling: (() -> Boolean)? = null
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             var changesToReturn = changes
@@ -230,7 +226,7 @@ internal class RawScaleGestureRecognizer {
             changesToReturn
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         if (active) {
             scaleObserver.onCancel()
             active = false

@@ -48,15 +48,12 @@ fun PressIndicatorGestureDetectorDemo() {
             Grey
         }
 
-    PressIndicatorGestureDetector(
-        onStart = onStart,
-        onStop = onStop,
-        onCancel = onStop
-    ) {
-        Box(
-            LayoutAlign.Center + LayoutSize(192.dp),
-            backgroundColor = color,
-            border = Border(2.dp, BorderColor)
-        )
-    }
+    Box(
+        LayoutSize.Fill +
+                LayoutAlign.Center +
+                PressIndicatorGestureDetector(onStart, onStop, onStop) +
+                LayoutSize(192.dp),
+        backgroundColor = color,
+        border = Border(2.dp, BorderColor)
+    )
 }

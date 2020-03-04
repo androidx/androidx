@@ -18,7 +18,7 @@ package androidx.ui.framework.demos.focus
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.focus.FocusState.Focused
 import androidx.ui.focus.FocusState.NotFocusable
 import androidx.ui.focus.FocusState.NotFocused
@@ -54,18 +54,17 @@ fun FocusableDemo() {
 @Composable
 private fun FocusableText(text: String) {
     Focusable { focus ->
-        PressGestureDetector(onPress = { focus.requestFocus() }) {
-            Text(
-                text = text,
-                style = TextStyle(
-                    color = when (focus.focusState) {
-                        Focused -> Color.Green
-                        NotFocused -> Color.Black
-                        NotFocusable -> Color.Gray
-                    }
-                )
+        Text(
+            modifier = PressIndicatorGestureDetector(onStart = { focus.requestFocus() }),
+            text = text,
+            style = TextStyle(
+                color = when (focus.focusState) {
+                    Focused -> Color.Green
+                    NotFocused -> Color.Black
+                    NotFocusable -> Color.Gray
+                }
             )
-        }
+        )
     }
 }
 

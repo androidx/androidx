@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.Crossfade
-import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -37,12 +37,15 @@ fun CrossfadeDemo() {
     Column {
         Row {
             tabs.forEach {
-                PressReleasedGestureDetector(onRelease = {
-                    Log.e("Crossfade", "Switch to $it")
-                    current = it
-                }) {
-                    Box(LayoutWeight(1f) + LayoutHeight(48.dp), backgroundColor = it.color)
-                }
+                val pressReleased =
+                    TapGestureDetector(onTap = {
+                        Log.e("Crossfade", "Switch to $it")
+                        current = it
+                    })
+                Box(
+                    pressReleased + LayoutWeight(1f) + LayoutHeight(48.dp),
+                    backgroundColor = it.color
+                )
             }
         }
         Crossfade(current = current) { tab ->

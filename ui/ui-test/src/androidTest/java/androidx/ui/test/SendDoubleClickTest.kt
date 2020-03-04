@@ -19,10 +19,10 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.PointerInput
-import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.DoubleTapGestureDetector
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutSize
@@ -49,19 +49,17 @@ private val expectedDelay = 145.milliseconds
 private const val tag = "widget"
 
 @Composable
-private fun Ui(onDoubleTap: (PxPosition) -> Unit, onPointerInput: PointerInputHandler) {
+private fun Ui(onDoubleTap: (PxPosition) -> Unit, pointerInputRecorder: PointerInputFilter) {
     Stack {
         TestTag(tag) {
             Semantics(container = true) {
-                DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {
-                    PointerInput(pointerInputHandler = onPointerInput, cancelHandler = {}) {
-                        with(DensityAmbient.current) {
-                            Box(
+                with(DensityAmbient.current) {
+                    Box(
+                        DoubleTapGestureDetector(onDoubleTap) +
+                                PointerInputModifier(pointerInputRecorder) +
                                 LayoutSize(width.toDp(), height.toDp()),
-                                backgroundColor = Color.Yellow
-                            )
-                        }
-                    }
+                        backgroundColor = Color.Yellow
+                    )
                 }
             }
         }
@@ -92,7 +90,7 @@ class SendDoubleClickWithoutArgumentsTest {
         // Given some content
         recorder = PointerInputRecorder()
         composeTestRule.setContent {
-            Ui(onDoubleTap = this::recordDoubleClick, onPointerInput = recorder::onPointerInput)
+            Ui(onDoubleTap = this::recordDoubleClick, pointerInputRecorder = recorder)
         }
 
         // When we inject a double click
@@ -167,7 +165,7 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
         // Given some content
         recorder = PointerInputRecorder()
         composeTestRule.setContent {
-            Ui(onDoubleTap = this::recordDoubleClick, onPointerInput = recorder::onPointerInput)
+            Ui(onDoubleTap = this::recordDoubleClick, pointerInputRecorder = recorder)
         }
 
         // When we inject a double click

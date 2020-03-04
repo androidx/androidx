@@ -32,7 +32,7 @@ import androidx.ui.unit.IntPxSize
 internal class HitPathTracker2 {
 
     @VisibleForTesting
-    internal val root: NodeParent2 = NodeParent2()
+    internal val root: NodeParent = NodeParent()
 
     /**
      * Associates a [pointerId] to a list of hit [pointerInputFilters] and keeps track of them.
@@ -45,7 +45,7 @@ internal class HitPathTracker2 {
      * ordered from ancestor to descendant.
      */
     fun addHitPath(pointerId: PointerId, pointerInputFilters: List<PointerInputFilter>) {
-        var parent: NodeParent2 = root
+        var parent: NodeParent = root
         var merging = true
         eachPin@ for (pointerInputFilter in pointerInputFilters) {
             if (merging) {
@@ -58,7 +58,7 @@ internal class HitPathTracker2 {
                     merging = false
                 }
             }
-            val node = Node2(pointerInputFilter).apply {
+            val node = Node(pointerInputFilter).apply {
                 pointerIds.add(pointerId)
             }
             parent.children.add(node)
@@ -112,7 +112,7 @@ internal class HitPathTracker2 {
     @VisibleForTesting
     internal fun dispatchCustomEvent(
         event: CustomEvent,
-        dispatchingNode: Node2
+        dispatchingNode: Node
     ) {
         val associatedPointers = dispatchingNode.pointerIds
 
@@ -142,7 +142,7 @@ internal class HitPathTracker2 {
     }
 
     private class CustomEventDispatcherImpl(
-        val dispatchingNode: Node2,
+        val dispatchingNode: Node,
         val hitPathTracker: HitPathTracker2
     ) : CustomEventDispatcher {
         override fun dispatchCustomEvent(event: CustomEvent) {
@@ -178,8 +178,8 @@ internal class HitPathTracker2 {
  * pointer or [PointerInputFilter] information.
  */
 @VisibleForTesting
-internal open class NodeParent2 {
-    val children: MutableSet<Node2> = mutableSetOf()
+internal open class NodeParent {
+    val children: MutableSet<Node> = mutableSetOf()
 
     /**
      * Dispatches the [pointerInputChanges] to all child nodes.
@@ -202,7 +202,7 @@ internal open class NodeParent2 {
         relevantPointers: Set<PointerId>,
         downPass: PointerEventPass,
         upPass: PointerEventPass?,
-        dispatchingNode: Node2
+        dispatchingNode: Node
     ) {
         children.forEach {
             it.dispatchCustomEvent(
@@ -246,7 +246,8 @@ internal open class NodeParent2 {
     }
 
     /**
-     * Removes the tracking of [pointerId] and removes all child [Node]s that are no longer tracking
+     * Removes the tracking of [pointerId] and removes all child [Node]s that are no longer
+     * tracking
      * any [PointerId]s.
      */
     fun removePointerId(pointerId: PointerId) {
@@ -289,7 +290,7 @@ internal open class NodeParent2 {
  * hit it (tracked as [PointerId]s).
  */
 @VisibleForTesting
-internal class Node2(val pointerInputFilter: PointerInputFilter) : NodeParent2() {
+internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
 
     val pointerIds: MutableSet<PointerId> = mutableSetOf()
 
@@ -363,7 +364,7 @@ internal class Node2(val pointerInputFilter: PointerInputFilter) : NodeParent2()
         relevantPointers: Set<PointerId>,
         downPass: PointerEventPass,
         upPass: PointerEventPass?,
-        dispatchingNode: Node2
+        dispatchingNode: Node
     ) {
         // If we have a PointerInputNode and we don't contain any of the relevant pointers, stop
         // and back track up the tree.
@@ -398,7 +399,7 @@ internal class Node2(val pointerInputFilter: PointerInputFilter) : NodeParent2()
     }
 
     override fun toString(): String {
-        return "Node2(pointerInputFilter=$pointerInputFilter, children=$children, " +
+        return "Node(pointerInputFilter=$pointerInputFilter, children=$children, " +
                 "pointerIds=$pointerIds)"
     }
 

@@ -17,6 +17,8 @@
 package androidx.ui.framework.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Layout
+import androidx.ui.unit.ipx
 
 /**
  * This is a level 3 API, where the user uses the [SemanticActionBuilder] to build the action.
@@ -37,8 +39,18 @@ fun ClickInteraction(
             }
         }.build()
 
+    val press = PressGestureDetectorWithActions(onRelease = clickAction)
+
     Semantics(actions = setOf(clickAction)) {
-        PressGestureDetectorWithActions(onRelease = clickAction, children = children)
+        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+        //  is implemented with modifiers.
+        Layout(children, press) { measurables, constraints, _ ->
+            check(measurables.size == 1) {
+                "Draggable temporarily assumes that it has exactly 1 child."
+            }
+            measurables.first().measure(constraints)
+                .let { layout(it.width, it.height) { it.place(0.ipx, 0.ipx) } }
+        }
     }
 }
 

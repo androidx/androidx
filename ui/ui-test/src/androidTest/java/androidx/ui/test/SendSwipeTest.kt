@@ -19,7 +19,7 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.PointerInput
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAlign
@@ -59,12 +59,10 @@ class SendSwipeTest {
     fun Ui(alignment: Modifier) {
         Stack(LayoutSize.Fill + alignment) {
             Semantics(container = true, properties = { testTag = tag }) {
-                PointerInput(
-                    pointerInputHandler = recorder::onPointerInput,
-                    cancelHandler = {}
-                ) {
-                    Box(LayoutSize(100.dp), backgroundColor = Color.Yellow)
-                }
+                Box(
+                    PointerInputModifier(recorder) + LayoutSize(100.dp),
+                    backgroundColor = Color.Yellow
+                )
             }
         }
     }

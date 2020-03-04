@@ -37,11 +37,12 @@ fun DoubleTapGestureDetectorDemo() {
         color.value = color.value.anotherRandomColor()
     }
 
-    DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {
-        Box(
-            LayoutAlign.Center + LayoutSize(192.dp),
-            backgroundColor = color.value,
-            border = Border(2.dp, BorderColor)
-        )
-    }
+    Box(
+        LayoutSize.Fill +
+                LayoutAlign.Center +
+                DoubleTapGestureDetector(onDoubleTap) +
+                LayoutSize(192.dp),
+        backgroundColor = color.value,
+        border = Border(2.dp, BorderColor)
+    )
 }

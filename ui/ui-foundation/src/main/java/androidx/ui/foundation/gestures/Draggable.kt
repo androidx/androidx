@@ -18,8 +18,9 @@ package androidx.ui.foundation.gestures
 
 import androidx.animation.AnimatedFloat
 import androidx.compose.Composable
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
@@ -31,7 +32,7 @@ import androidx.ui.unit.px
  * on the screen and represent it as one value via [AnimatedFloat].
  *
  * If you need to control the whole dragging flow,
- * consider using [TouchSlopDragGestureDetector] instead.
+ * consider using [DragGestureDetector] instead.
  *
  * @sample androidx.ui.foundation.samples.DraggableSample
  *
@@ -65,7 +66,7 @@ fun Draggable(
     isValueAnimating: Boolean = false,
     children: @Composable() () -> Unit
 ) {
-    TouchSlopDragGestureDetector(
+    val dragModifier = DragGestureDetector(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {
@@ -96,7 +97,11 @@ fun Draggable(
                     dragValue.value
                 )
         },
-        startDragImmediately = isValueAnimating,
-        children = children
+        startDragImmediately = isValueAnimating
     )
+
+    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+    //  is implemented with modifiers.
+    @Suppress("DEPRECATION")
+    PassThroughLayout(dragModifier, children)
 }

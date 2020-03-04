@@ -16,10 +16,15 @@
 
 package androidx.ui.core.pointerinput
 
+import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
+import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputData
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.unit.Uptime
 
 /**
  * The core element that receives [PointerInputEvent]s and process them in Compose UI.
@@ -72,7 +77,7 @@ internal class PointerInputEventProcessor2(val root: LayoutNode) {
      * Responds appropriately to Android ACTION_CANCEL events.
      *
      * Specifically, [PointerInputFilter.cancelHandler] is invoked on tracked [PointerInputFilter]s and
-     * and this [PointerInputEventProcessor] is reset such that it is no longer tracking any
+     * and this [PointerInputEventProcessor2] is reset such that it is no longer tracking any
      * [PointerInputFilter]s and expects the next [PointerInputEvent] it processes to represent only
      * new pointers.
      */
@@ -81,3 +86,49 @@ internal class PointerInputEventProcessor2(val root: LayoutNode) {
         hitPathTracker.processCancel()
     }
 }
+
+/**
+ * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
+ */
+private class PointerInputChangeEventProducer {
+    private val previousPointerInputData: MutableMap<PointerId, PointerInputData> = mutableMapOf()
+
+    /**
+     * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
+     */
+    internal fun produce(pointerEvent: PointerInputEvent):
+            PointerInputChangeEvent {
+        val changes: MutableList<PointerInputChange> = mutableListOf()
+        pointerEvent.pointers.forEach {
+            changes.add(
+                PointerInputChange(
+                    it.id,
+                    it.pointerInputData,
+                    previousPointerInputData[it.id] ?: PointerInputData(),
+                    ConsumedData()
+                )
+            )
+            if (it.pointerInputData.down) {
+                previousPointerInputData[it.id] = it.pointerInputData
+            } else {
+                previousPointerInputData.remove(it.id)
+            }
+        }
+        return PointerInputChangeEvent(pointerEvent.uptime, changes)
+    }
+
+    /**
+     * Clears all tracked information.
+     */
+    internal fun clear() {
+        previousPointerInputData.clear()
+    }
+}
+
+// TODO(shepshapard): The uptime property probably doesn't need to exist (and therefore, nor does
+// this class, but going to wait to refactor it out till after things like API review to avoid
+// thrashing.
+private data class PointerInputChangeEvent(
+    val uptime: Uptime,
+    val changes: List<PointerInputChange>
+)

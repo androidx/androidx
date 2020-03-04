@@ -19,6 +19,7 @@ package androidx.ui.core.gesture
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Direction
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.unit.PxPosition
 
@@ -55,28 +56,23 @@ import androidx.ui.unit.PxPosition
  * touches it, dragging is immediately started so the animation stops and dragging can occur.
  */
 @Composable
-fun TouchSlopDragGestureDetector(
+fun DragGestureDetector(
     dragObserver: DragObserver,
     canDrag: ((Direction) -> Boolean)? = null,
-    startDragImmediately: Boolean = false,
-    children: @Composable() () -> Unit
-) {
+    startDragImmediately: Boolean = false
+): Modifier {
     val glue = remember { TouchSlopDragGestureDetectorGlue() }
     glue.touchSlopDragObserver = dragObserver
 
     // TODO(b/146427920): There is a gap here where RawPressStartGestureDetector can cause a call to
     //  DragObserver.onStart but if the pointer doesn't move and releases, (or if cancel is called)
     //  The appropriate callbacks to DragObserver will not be called.
-    RawDragGestureDetector(glue.rawDragObserver, glue::enabledOrStarted) {
-        TouchSlopExceededGestureDetector(glue::enableDrag, canDrag) {
-            RawPressStartGestureDetector(
+    return RawDragGestureDetector(glue.rawDragObserver, glue::enabledOrStarted) +
+            TouchSlopExceededGestureDetector(glue::enableDrag, canDrag) +
+            RawPressStartStartGestureDetector(
                 glue::startDrag,
                 startDragImmediately,
-                PointerEventPass.InitialDown,
-                children
-            )
-        }
-    }
+                PointerEventPass.InitialDown)
 }
 
 /**

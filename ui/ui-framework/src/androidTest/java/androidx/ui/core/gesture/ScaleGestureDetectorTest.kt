@@ -66,18 +66,17 @@ class ScaleGestureDetectorTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
-                ScaleGestureDetector(scaleObserver) {
-                    Layout(
-                        measureBlock = { _, _, _ ->
-                            layout(
-                                (touchSlop * LayoutDimensionFactor).ceil(),
-                                (touchSlop * LayoutDimensionFactor).ceil()
-                            ) {
-                                setupLatch.countDown()
-                            }
-                        }, children = emptyContent()
-                    )
-                }
+                Layout(
+                    modifier = ScaleGestureDetector(scaleObserver),
+                    measureBlock = { _, _, _ ->
+                        layout(
+                            (touchSlop * LayoutDimensionFactor).ceil(),
+                            (touchSlop * LayoutDimensionFactor).ceil()
+                        ) {
+                            setupLatch.countDown()
+                        }
+                    }, children = emptyContent()
+                )
             }
 
             view = activity.findViewById<ViewGroup>(android.R.id.content)

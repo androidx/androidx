@@ -53,7 +53,7 @@ fun FancyScrollingDemo() {
         )
         val animScroll = animatedFloat(0f)
         val itemWidth = state { 0f }
-        RawDragGestureDetector(dragObserver = object : DragObserver {
+        val gesture = RawDragGestureDetector(dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 // Snap to new drag position
                 animScroll.snapTo(animScroll.value + dragDistance.x.value)
@@ -75,21 +75,19 @@ fun FancyScrollingDemo() {
                     TargetAnimation((target - rem), animation)
                 })
             }
-        }) {
-
-            val paint = remember { Paint() }
-            Canvas(LayoutWidth.Fill + LayoutHeight(400.dp)) {
-                val width = size.width.value / 2f
-                val scroll = animScroll.value + width / 2
-                itemWidth.value = width
-                if (DEBUG) {
-                    Log.w(
-                        "Anim", "Drawing items with updated" +
-                                " AnimatedFloat: ${animScroll.value}"
-                    )
-                }
-                drawItems(scroll, width, size.height.value, paint)
+        })
+        val paint = remember { Paint() }
+        Canvas(gesture + LayoutWidth.Fill + LayoutHeight(400.dp)) {
+            val width = size.width.value / 2f
+            val scroll = animScroll.value + width / 2
+            itemWidth.value = width
+            if (DEBUG) {
+                Log.w(
+                    "Anim", "Drawing items with updated" +
+                            " AnimatedFloat: ${animScroll.value}"
+                )
             }
+            drawItems(scroll, width, size.height.value, paint)
         }
     }
 }

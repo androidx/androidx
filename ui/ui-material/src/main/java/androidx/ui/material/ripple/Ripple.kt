@@ -28,6 +28,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
@@ -71,16 +72,19 @@ fun Ripple(
     val theme = RippleThemeAmbient.current
 
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
-        PressIndicatorGestureDetector(
-            onStart = { position ->
-                if (enabled && transitionsEnabled) {
-                    state.handleStart(position, theme.factory, density, bounded, radius, clock)
-                }
-            },
-            onStop = { state.handleFinish(false) },
-            onCancel = { state.handleFinish(true) },
-            children = children
-        )
+        val press =
+            PressIndicatorGestureDetector(
+                onStart = { position ->
+                    if (enabled && transitionsEnabled) {
+                        state.handleStart(position, theme.factory, density, bounded, radius, clock)
+                    }
+                },
+                onStop = { state.handleFinish(false) },
+                onCancel = { state.handleFinish(true) }
+            )
+        // TODO(b/150706555): This layout is temporary and should be removed in a follow up CL.
+        @Suppress("DEPRECATION")
+        PassThroughLayout(press, children)
     }
 
     Recompose { recompose ->

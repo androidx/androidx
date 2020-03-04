@@ -413,21 +413,16 @@ package androidx.ui.core.pointerinput {
     method public androidx.ui.core.PointerInputData getPointerInputData();
   }
 
-  public final class PointerInputEventProcessorKt {
-  }
-
   public abstract class PointerInputFilter {
     ctor public PointerInputFilter();
     method public abstract kotlin.jvm.functions.Function0<kotlin.Unit> getCancelHandler();
-    method public final kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? getCustomEventHandler();
-    method public final kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? getInitHandler();
+    method public kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? getCustomEventHandler();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? getInitHandler();
     method public abstract kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> getPointerInputHandler();
-    method public final void setCustomEventHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>? p);
-    method public final void setInitHandler(kotlin.jvm.functions.Function1<? super androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? p);
     method public final void setLayoutCoordinates(androidx.ui.core.LayoutCoordinates layoutCoordinates);
     property public abstract kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler;
-    property public final kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? customEventHandler;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? initHandler;
+    property public kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? customEventHandler;
+    property public kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? initHandler;
     property public abstract kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
   }
 

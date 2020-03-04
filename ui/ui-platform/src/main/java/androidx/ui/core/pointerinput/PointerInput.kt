@@ -55,7 +55,7 @@ abstract class PointerInputFilter {
      *
      * @See CustomEventDispatcher
      */
-    var initHandler: ((CustomEventDispatcher) -> Unit)? = null
+    open val initHandler: ((CustomEventDispatcher) -> Unit)? = null
 
     /**
      * Invoked when a [CustomEvent] is dispatched by a [PointerInputNode].
@@ -68,7 +68,7 @@ abstract class PointerInputFilter {
      * @see CustomEvent
      * @see PointerEventPass
      */
-    var customEventHandler: ((CustomEvent, PointerEventPass) -> Unit)? = null
+    open val customEventHandler: ((CustomEvent, PointerEventPass) -> Unit)? = null
 
     internal val size: IntPxSize
         get() = layoutCoordinates.size
