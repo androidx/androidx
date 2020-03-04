@@ -1331,7 +1331,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                         parentLayoutNode?.positionedDuringMeasurePass ?: false
-                lastLayoutResult.placeChildren(Placeable.PlacementScope)
+                lastLayoutResult.placeChildren(layoutDirection!!)
                 layoutChildren.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }

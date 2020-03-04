@@ -611,7 +611,7 @@ fun Table(
                                 height = rowHeights[row] - it.height
                             )
                         )
-                        it.place(
+                        it.placeAbsolute(
                             x = columnOffsets[column] + position.x,
                             y = rowOffsets[row] + position.y
                         )
@@ -621,7 +621,7 @@ fun Table(
             val decorationConstraints =
                 Constraints.fixed(tableSize.width, tableSize.height)
             measurables.filter { it.rowIndex == null }.forEach {
-                it.measure(decorationConstraints).place(IntPx.Zero, IntPx.Zero)
+                it.measure(decorationConstraints).placeAbsolute(IntPx.Zero, IntPx.Zero)
             }
         }
     }

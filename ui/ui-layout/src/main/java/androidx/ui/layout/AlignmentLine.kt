@@ -77,7 +77,7 @@ fun AlignmentLineOffset(
         layout(containerWidth, containerHeight) {
             val x = if (alignmentLine.horizontal) 0.ipx else paddingBefore
             val y = if (alignmentLine.horizontal) paddingBefore else 0.ipx
-            placeable.place(x, y)
+            placeable.placeAbsolute(x, y)
         }
     }
 }
@@ -145,7 +145,7 @@ fun CenterAlignmentLine(alignmentLine: AlignmentLine, children: @Composable() ()
             } else {
                 centeredPosition.y
             }
-            placeable.place(childX, childY)
+            placeable.placeAbsolute(childX, childY)
         }
     }
 }

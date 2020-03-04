@@ -490,7 +490,7 @@ internal class ModifiedLayoutNode(
                 layoutNode.layoutDirection!!
             )
         }
-        placeable.place(relativePosition)
+        placeable.placeAbsolute(relativePosition)
     }
 
     override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {

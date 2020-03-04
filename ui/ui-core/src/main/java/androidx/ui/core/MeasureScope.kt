@@ -37,7 +37,7 @@ abstract class MeasureScope : Density {
         val width: IntPx
         val height: IntPx
         val alignmentLines: Map<AlignmentLine, IntPx>
-        fun placeChildren(placementScope: Placeable.PlacementScope)
+        fun placeChildren(layoutDirection: LayoutDirection)
     }
 
     /**
@@ -64,8 +64,15 @@ abstract class MeasureScope : Density {
         override val width = width
         override val height = height
         override val alignmentLines = alignmentLines
-        override fun placeChildren(placementScope: Placeable.PlacementScope) =
-            placementScope.placementBlock()
+        override fun placeChildren(layoutDirection: LayoutDirection) {
+            with(Placeable.PlacementScope) {
+                this.parentLayoutDirection = layoutDirection
+                val previousParentWidth = parentWidth
+                parentWidth = width
+                placementBlock()
+                parentWidth = previousParentWidth
+            }
+        }
     }
 }
 

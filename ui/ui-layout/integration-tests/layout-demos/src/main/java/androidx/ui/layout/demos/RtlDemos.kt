@@ -19,6 +19,7 @@ package androidx.ui.layout.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
+import androidx.ui.core.Layout
 import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
@@ -31,7 +32,9 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.layout.LayoutDirectionModifier
+import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 
 class RtlDemosActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,12 +49,16 @@ class RtlDemosActivity : Activity() {
                 testRow_modifier()
                 Text("RELATIVE TO SIBLINGS", LayoutGravity.Center)
                 testSiblings()
+                Text("PLACE WITH AUTO RTL SUPPORT IN CUSTOM LAYOUT", LayoutGravity.Center)
+                CustomLayout(true)
+                Text("PLACE WITHOUT RTL SUPPORT IN CUSTOM LAYOUT", LayoutGravity.Center)
+                CustomLayout(false)
             }
         }
     }
 }
 
-val boxSize = LayoutSize(50.dp, 50.dp)
+val boxSize = LayoutSize(50.dp, 30.dp)
 val size = LayoutSize(10.dp, 10.dp)
 
 @Composable
@@ -86,9 +93,9 @@ fun testRow_modifier() {
 fun testText() {
     Column {
         Row {
-            Stack(boxSize + DrawBackground(Color.Red)) {}
-            Stack(boxSize + DrawBackground(Color.Green)) {}
-            Stack(boxSize + DrawBackground(Color.Blue)) {}
+            Stack(size + DrawBackground(Color.Red)) {}
+            Stack(size + DrawBackground(Color.Green)) {}
+            Stack(size + DrawBackground(Color.Blue)) {}
         }
         Text("Text.")
         Text("Width filled text.", LayoutWidth.Fill)
@@ -114,5 +121,32 @@ fun testSiblings() {
                 DrawBackground(Color.Blue) +
                 LayoutGravity.RelativeToSiblings { p -> p.width / 4 }
         ) {}
+    }
+}
+
+@Composable
+fun CustomLayout(rtlSupport: Boolean) {
+    Layout(children = @Composable {
+        Stack(boxSize + DrawBackground(Color.Red)) {}
+        Stack(boxSize + DrawBackground(Color.Green)) {}
+        Stack(boxSize + DrawBackground(Color.Blue)) {}
+    }) { measurables, constraints, _ ->
+        val p = measurables.map { e ->
+            e.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+        }
+        val w = p.fold(0.ipx) { sum, e -> sum + e.width }
+        val h = p.maxBy { it.height }!!.height
+        layout(w, h) {
+            var xPosition = 0.ipx
+            for (child in p) {
+                child.placeAbsolute(IntPxPosition(xPosition, 0.ipx))
+                if (rtlSupport) {
+                    child.place(IntPxPosition(xPosition, 0.ipx))
+                } else {
+                    child.placeAbsolute(IntPxPosition(xPosition, 0.ipx))
+                }
+                xPosition += child.width
+            }
+        }
     }
 }
