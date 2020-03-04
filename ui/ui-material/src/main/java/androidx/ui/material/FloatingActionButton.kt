@@ -21,7 +21,7 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.Image
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
@@ -111,7 +111,7 @@ fun FloatingActionButton(
         color = color,
         elevation = elevation
     ) {
-        SimpleImage(image = icon)
+        Image(image = icon)
     }
 }
 
@@ -159,7 +159,7 @@ fun FloatingActionButton(
             )
         } else {
             Row(LayoutPadding(start = ExtendedFabIconPadding, end = ExtendedFabTextPadding)) {
-                SimpleImage(image = icon)
+                Image(image = icon)
                 Spacer(LayoutWidth(ExtendedFabIconPadding))
                 Text(text = text, style = textStyle)
             }

@@ -23,7 +23,7 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
 import androidx.ui.core.Text
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.Image
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Container
 import androidx.ui.test.createComposeRule
@@ -199,7 +199,7 @@ class ListItemTest {
                 ListItem(
                     text = { SaveLayout(textPosition, textSize) { Text("Primary text") } },
                     trailing = {
-                        SaveLayout(trailingPosition, trailingSize) { SimpleImage(icon24x24) }
+                        SaveLayout(trailingPosition, trailingSize) { Image(icon24x24) }
                     }
                 )
             }
@@ -234,7 +234,7 @@ class ListItemTest {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
                     text = { SaveLayout(textPosition, textSize) { Text("Primary text") } },
-                    icon = { SaveLayout(iconPosition, iconSize) { SimpleImage(icon24x24) } }
+                    icon = { SaveLayout(iconPosition, iconSize) { Image(icon24x24) } }
                 )
             }
         }
@@ -349,7 +349,7 @@ class ListItemTest {
                         }
                     },
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { SimpleImage(icon24x24) }
+                        SaveLayout(iconPosition, iconSize) { Image(icon24x24) }
                     }
                 )
             }
@@ -413,10 +413,10 @@ class ListItemTest {
                         }
                     },
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { SimpleImage(icon40x40) }
+                        SaveLayout(iconPosition, iconSize) { Image(icon40x40) }
                     },
                     trailing = {
-                        SaveLayout(trailingPosition, trailingSize) { SimpleImage(icon24x24) }
+                        SaveLayout(trailingPosition, trailingSize) { Image(icon24x24) }
                     }
                 )
             }
@@ -488,10 +488,10 @@ class ListItemTest {
                     },
                     singleLineSecondaryText = false,
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { SimpleImage(icon24x24) }
+                        SaveLayout(iconPosition, iconSize) { Image(icon24x24) }
                     },
                     trailing = {
-                        SaveLayout(trailingPosition, trailingSize) { SimpleImage(icon24x24) }
+                        SaveLayout(trailingPosition, trailingSize) { Image(icon24x24) }
                     }
                 )
             }
@@ -576,7 +576,7 @@ class ListItemTest {
                         }
                     },
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { SimpleImage(icon40x40) }
+                        SaveLayout(iconPosition, iconSize) { Image(icon40x40) }
                     },
                     trailing = {
                         SaveLayout(

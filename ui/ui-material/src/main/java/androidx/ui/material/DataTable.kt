@@ -27,7 +27,7 @@ import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.Image
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
@@ -212,7 +212,7 @@ class DataTableChildren internal constructor() {
                 Text(text = text(j))
             } else {
                 Row {
-                    SimpleImage(image = image)
+                    Image(image = image)
                     Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }
@@ -257,7 +257,7 @@ class DataTableChildren internal constructor() {
                 Text(text = text(j))
             } else {
                 Row {
-                    SimpleImage(image = image)
+                    Image(image = image)
                     Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }
