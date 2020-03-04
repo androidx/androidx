@@ -310,6 +310,7 @@ class FragmentStateManager {
                         case Fragment.AWAITING_ENTER_EFFECTS:
                             // There's no enter effects when moving the state downward
                             mFragment.mState = Fragment.AWAITING_ENTER_EFFECTS;
+                            break;
                         case Fragment.STARTED:
                             pause();
                             break;
