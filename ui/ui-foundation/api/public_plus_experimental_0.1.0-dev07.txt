@@ -99,8 +99,8 @@ package androidx.ui.foundation {
   }
 
   public final class ImageKt {
-    method public static void Image(androidx.ui.graphics.ImageAsset image, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.core.LayoutDirection layoutDirection = LayoutDirectionAmbient.current);
-    method public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp minHeight = Dp.Unspecified, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.core.LayoutDirection layoutDirection = LayoutDirectionAmbient.current);
+    method public static void Image(androidx.ui.graphics.ImageAsset image, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
     method @Deprecated public static void SimpleImage(androidx.ui.graphics.ImageAsset image, androidx.ui.graphics.Color? tint = null);
   }
 
