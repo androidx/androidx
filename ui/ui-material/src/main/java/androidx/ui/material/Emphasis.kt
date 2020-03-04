@@ -16,6 +16,8 @@
 
 package androidx.ui.material
 
+import androidx.annotation.FloatRange
+import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.staticAmbientOf
@@ -53,25 +55,36 @@ interface Emphasis {
 }
 
 /**
- * Class holding the different levels of [Emphasis] that will be applied to components in a
- * [MaterialTheme].
+ * EmphasisLevels represents the different levels of [Emphasis] that can be applied to a component.
  *
- * @see MaterialTheme.emphasisLevels
+ * By default, the [Emphasis] implementation for each level varies depending on the color being
+ * emphasized (typically [contentColor]). This ensures that the [Emphasis] has the correct
+ * contrast for the background they are on, as [ColorPalette.primary] surfaces typically require
+ * higher contrast for the content color than [ColorPalette.surface] surfaces to ensure they are
+ * accessible.
+ *
+ * This typically should not be customized as the default implementation is optimized for
+ * correct accessibility and contrast on different surfaces.
+ *
+ * See [MaterialTheme.emphasisLevels] to retrieve the current [EmphasisLevels]
  */
-data class EmphasisLevels(
+interface EmphasisLevels {
     /**
      * Emphasis used to express high emphasis, such as for selected text fields.
      */
-    val high: Emphasis = DefaultHighEmphasis,
+    @Composable
+    val high: Emphasis
     /**
      * Emphasis used to express medium emphasis, such as for placeholder text in a text field.
      */
-    val medium: Emphasis = DefaultMediumEmphasis,
+    @Composable
+    val medium: Emphasis
     /**
      * Emphasis used to express disabled state, such as for a disabled button.
      */
-    val disabled: Emphasis = DefaultDisabledEmphasis
-)
+    @Composable
+    val disabled: Emphasis
+}
 
 /**
  * Applies [emphasis] to [children], by modifying the value of [contentColor].
@@ -90,29 +103,57 @@ fun ProvideEmphasis(emphasis: Emphasis, children: @Composable() () -> Unit) {
 /**
  * Ambient containing the current [EmphasisLevels] in this hierarchy.
  */
-val EmphasisAmbient = staticAmbientOf { EmphasisLevels() }
+val EmphasisAmbient: Ambient<EmphasisLevels> = staticAmbientOf { DefaultEmphasisLevels }
 
-/**
- * Default implementation for expressing high emphasis.
- */
-private val DefaultHighEmphasis: Emphasis = object : Emphasis {
-    override fun emphasize(color: Color) = color.copy(alpha = HighEmphasisAlpha)
+private object DefaultEmphasisLevels : EmphasisLevels {
+
+    private class AlphaEmphasis(
+        private val colorPalette: ColorPalette,
+        @FloatRange(from = 0.0, to = 1.0) private val onPrimaryAlpha: Float,
+        @FloatRange(from = 0.0, to = 1.0) private val onSurfaceAlpha: Float
+    ) : Emphasis {
+        override fun emphasize(color: Color): Color {
+            val alpha = when (color) {
+                colorPalette.onPrimary -> onPrimaryAlpha
+                else -> onSurfaceAlpha
+            }
+            return color.copy(alpha = alpha)
+        }
+    }
+
+    @Composable
+    override val high: Emphasis
+        get() = AlphaEmphasis(
+            colorPalette = MaterialTheme.colors(),
+            onPrimaryAlpha = OnPrimaryAlphaLevels.high,
+            onSurfaceAlpha = OnSurfaceAlphaLevels.high
+        )
+
+    @Composable
+    override val medium: Emphasis
+        get() = AlphaEmphasis(
+            colorPalette = MaterialTheme.colors(),
+            onPrimaryAlpha = OnPrimaryAlphaLevels.medium,
+            onSurfaceAlpha = OnSurfaceAlphaLevels.medium
+        )
+
+    @Composable
+    override val disabled: Emphasis
+        get() = AlphaEmphasis(
+            colorPalette = MaterialTheme.colors(),
+            onPrimaryAlpha = OnPrimaryAlphaLevels.disabled,
+            onSurfaceAlpha = OnSurfaceAlphaLevels.disabled
+        )
 }
 
-/**
- * Default implementation for expressing medium emphasis.
- */
-private val DefaultMediumEmphasis: Emphasis = object : Emphasis {
-    override fun emphasize(color: Color) = color.copy(alpha = MediumEmphasisAlpha)
+private object OnPrimaryAlphaLevels {
+    const val high: Float = 1.00f
+    const val medium: Float = 0.74f
+    const val disabled: Float = 0.38f
 }
 
-/**
- * Default implementation for expressing disabled emphasis.
- */
-private val DefaultDisabledEmphasis: Emphasis = object : Emphasis {
-    override fun emphasize(color: Color) = color.copy(alpha = DisabledEmphasisAlpha)
+private object OnSurfaceAlphaLevels {
+    const val high: Float = 0.87f
+    const val medium: Float = 0.60f
+    const val disabled: Float = 0.38f
 }
-
-private const val HighEmphasisAlpha = 0.87f
-private const val MediumEmphasisAlpha = 0.60f
-private const val DisabledEmphasisAlpha = 0.38f
