@@ -64,30 +64,10 @@ class PagingData<T : Any> internal constructor(
      * Returns a [PagingData] containing each original element, with an optional separator generated
      * by [generator], given the elements before and after (or null, in boundary conditions).
      *
-     * For example, to create letter separators in an alphabetically sorted list:
-     *
-     * ```
-     * flow.insertSeparators { before: String?, after: String? ->
-     *     if (before == null || before.get(0) != after?.get(0) ?: null) {
-     *         // separator - after is first item with its first letter
-     *         after.get(0).toUpperCase().toString()
-     *     } else {
-     *         // no separator - first letters of before/after are the same
-     *         null
-     *     }
-     * }
-     * ```
-     *
-     * This transformation would make the example data set:
-     *
-     *     "apple", "apricot", "banana", "carrot"
-     *
-     * Become:
-     *
-     *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
-     *
      * Note that this transform is applied asynchronously, as pages are loaded. Potential
      * separators between pages are only computed once both pages are loaded.
+     *
+     * @sample androidx.paging.samples.insertSeparatorsSample
      */
     fun <R : T> insertSeparators(
         generator: (T?, T?) -> R?
