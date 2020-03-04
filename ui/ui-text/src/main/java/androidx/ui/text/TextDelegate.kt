@@ -89,7 +89,7 @@ class TextDelegate(
 
     private inline fun <T> assumeIntrinsics(block: (MultiParagraphIntrinsics) -> T) =
         block(paragraphIntrinsics
-            ?: throw AssertionError("layoutForIntrinsics must be called first")
+            ?: throw IllegalStateException("layoutForIntrinsics must be called first")
         )
 
     /**
@@ -107,7 +107,7 @@ class TextDelegate(
     val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.px.ceil() }
 
     init {
-        assert(maxLines > 0)
+        check(maxLines > 0)
     }
 
     fun layoutIntrinsics() {

@@ -324,7 +324,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * given rectangle.
      */
     fun addRect(rect: Rect) {
-        assert(_rectIsValid(rect))
+        check(_rectIsValid(rect))
         rectF.set(rect.toFrameworkRect())
         // TODO(njawad) figure out what to do with Path Direction,
         // Flutter does not use it, Platform does
@@ -387,7 +387,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * oval.
      */
     fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-        assert(_rectIsValid(oval))
+        check(_rectIsValid(oval))
         rectF.set(oval.toFrameworkRect())
         internalPath.addArc(rectF, startAngleDegrees, sweepAngleDegrees)
     }
@@ -483,9 +483,9 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     fun extendWithPath(path: Path, offset: Offset, matrix: Matrix4) {
-        assert(Offset.isValid(offset))
+        check(Offset.isValid(offset))
 //        if (matrix != null) {
-            assert(_matrixIsValid(matrix))
+            check(_matrixIsValid(matrix))
             _extendWithPathAndMatrix(path, offset.dx, offset.dy, matrix)
 //        } else {
 //            _extendWithPath(path, offset.dx, offset.dy)
@@ -535,7 +535,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * Returns true if the point is in the path, and false otherwise.
      */
     fun contains(offset: Offset): Boolean {
-        assert(Offset.isValid(offset))
+        check(Offset.isValid(offset))
         return _contains(offset)
     }
 
@@ -709,16 +709,16 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     val isEmpty: Boolean get() = internalPath.isEmpty
 
     private fun _rectIsValid(rect: Rect): Boolean {
-        assert(Float.NaN != rect.left) {
+        check(Float.NaN != rect.left) {
             "Rect.left is NaN"
         }
-        assert(Float.NaN != rect.top) {
+        check(Float.NaN != rect.top) {
             "Rect.top is NaN"
         }
-        assert(Float.NaN != rect.right) {
+        check(Float.NaN != rect.right) {
             "Rect.right is NaN"
         }
-        assert(Float.NaN != rect.bottom) {
+        check(Float.NaN != rect.bottom) {
             "Rect.bottom is NaN"
         }
         return true

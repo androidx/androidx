@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TextDelegateTest() {
+class TextDelegateTest {
     private val density = Density(density = 1f)
     private val resourceLoader = mock<Font.ResourceLoader>()
 
@@ -92,7 +92,7 @@ class TextDelegateTest() {
         assertThat(textDelegate.overflow).isEqualTo(overflow)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalStateException::class)
     fun `minIntrinsicWidth without layout assertion should fail`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
@@ -104,7 +104,7 @@ class TextDelegateTest() {
         textDelegate.minIntrinsicWidth
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalStateException::class)
     fun `maxIntrinsicWidth without layout assertion should fail`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),

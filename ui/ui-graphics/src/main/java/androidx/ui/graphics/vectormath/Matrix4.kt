@@ -214,7 +214,7 @@ data class Matrix4(
     }
 
     fun assignFromStorage(storage: List<Float>) {
-        assert(storage.size == 16)
+        check(storage.size == 16)
         x.assignFromStorage(storage.subList(0, 4))
         y.assignFromStorage(storage.subList(4, 8))
         z.assignFromStorage(storage.subList(8, 12))
@@ -573,7 +573,7 @@ fun Matrix4.getAsScale(): Float? {
 fun matrixEquals(a: Matrix4?, b: Matrix4?): Boolean {
     if (a === b)
         return true
-    assert(a != null || b != null)
+    check(a != null || b != null)
     if (a == null)
         return b!!.isIdentity()
     if (b == null) {
@@ -655,7 +655,7 @@ private fun max4(a: Float, b: Float, c: Float, d: Float): Float {
  * 0.0 before computing its bounding rect.
  */
 fun inverseTransformRect(transform: Matrix4, rect: Rect): Rect {
-    assert(transform.determinant != 0.0f)
+    check(transform.determinant != 0.0f)
     if (transform.isIdentity())
         return rect
     val inverted = Matrix4(transform).apply { invert() }
