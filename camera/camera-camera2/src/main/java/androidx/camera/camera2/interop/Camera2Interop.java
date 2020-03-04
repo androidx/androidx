@@ -58,6 +58,11 @@ public final class Camera2Interop {
         /**
          * Sets a {@link CaptureRequest.Key} and Value on the configuration.
          *
+         * <p>Any values which are in conflict with values already set by CameraX, such as by
+         * {@link androidx.camera.core.CameraControl}, will result in a thrown
+         * exception. The exception will typically be thrown on an internal thread which will
+         * lead to an uncaught exception.
+         *
          * @param key      The {@link CaptureRequest.Key} which will be set.
          * @param value    The value for the key.
          * @param <ValueT> The type of the value.
@@ -77,6 +82,9 @@ public final class Camera2Interop {
          *
          * <p>See {@link CameraDevice} for valid template types. For example, {@link
          * CameraDevice#TEMPLATE_PREVIEW}.
+         *
+         * <p>Only used by {@link androidx.camera.core.ImageCapture} to set the template type
+         * used. For all other {@link androidx.camera.core.UseCase} this value is ignored.
          *
          * @param templateType The template type to set.
          * @return The current Extender.
