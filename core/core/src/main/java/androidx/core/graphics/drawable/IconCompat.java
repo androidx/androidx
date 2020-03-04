@@ -108,11 +108,11 @@ public class IconCompat extends CustomVersionedParcelable {
      * An icon that was created using {@link #createWithAdaptiveBitmap}.
      */
     public static final int TYPE_ADAPTIVE_BITMAP = Icon.TYPE_ADAPTIVE_BITMAP;
-    // TODO: (b/143878043) replace with android.graphics.drawable.TYPE_URI_ADAPTIVE_BITMAP
+
     /**
      * An icon that was created using {@link #createWithAdaptiveBitmapContentUri}.
      */
-    public static final int TYPE_URI_ADAPTIVE_BITMAP = 6;
+    public static final int TYPE_URI_ADAPTIVE_BITMAP = Icon.TYPE_URI_ADAPTIVE_BITMAP;
 
     /**
      * @hide
@@ -327,9 +327,8 @@ public class IconCompat extends CustomVersionedParcelable {
      * design guideline defined by {@link AdaptiveIconDrawable}.
      *
      * @param uri A uri referring to local content:// or file:// image data.
+     * @see android.graphics.drawable.Icon#createWithAdaptiveBitmapContentUri(String)
      */
-    // TODO: (b/143878043) update comment when corresponding api is available
-    // @see android.graphics.drawable.Icon#createWithAdaptiveBitmapContentUri(String)
     @NonNull
     public static IconCompat createWithAdaptiveBitmapContentUri(@NonNull String uri) {
         if (uri == null) {
@@ -345,9 +344,8 @@ public class IconCompat extends CustomVersionedParcelable {
      * design guideline defined by {@link AdaptiveIconDrawable}.
      *
      * @param uri A uri referring to local content:// or file:// image data.
+     * @see android.graphics.drawable.Icon#createWithAdaptiveBitmapContentUri(String)
      */
-    // TODO: (b/143878043) update comment when corresponding api is available
-    // @see android.graphics.drawable.Icon#createWithAdaptiveBitmapContentUri(String)
     @NonNull
     public static IconCompat createWithAdaptiveBitmapContentUri(@NonNull Uri uri) {
         if (uri == null) {
@@ -540,7 +538,10 @@ public class IconCompat extends CustomVersionedParcelable {
                 icon = Icon.createWithContentUri((String) mObj1);
                 break;
             case TYPE_URI_ADAPTIVE_BITMAP:
-                // TODO: (b/143878043) call Icon#createWithAdaptiveBitmapContentUri
+                if (Build.VERSION.SDK_INT >= 30) {
+                    icon = Icon.createWithAdaptiveBitmapContentUri(getUri());
+                    break;
+                }
                 if (context == null) {
                     throw new IllegalArgumentException(
                             "Context is required to resolve the file uri of the icon: " + getUri());
