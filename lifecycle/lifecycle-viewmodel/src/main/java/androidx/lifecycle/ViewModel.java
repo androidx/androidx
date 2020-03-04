@@ -30,7 +30,7 @@ import java.util.Map;
  * It also handles the communication of the Activity / Fragment with the rest of the application
  * (e.g. calling the business logic classes).
  * <p>
- * A ViewModel is always created in association with a scope (an fragment or an activity) and will
+ * A ViewModel is always created in association with a scope (a fragment or an activity) and will
  * be retained as long as the scope is alive. E.g. if it is an Activity, until it is
  * finished.
  * <p>
