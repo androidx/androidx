@@ -25,11 +25,7 @@ message ScreenshotResult {
     PASSED = 1;
     FAILED = 2;
     MISSING_GOLDEN = 3;
-  }
-
-  message ComparisonStatistics {
-    uint32 number_pixels_identical = 1;
-    uint32 number_pixels_different = 2;
+    SIZE_MISMATCH = 4;
   }
 
   Status result = 1;
@@ -52,6 +48,11 @@ message ScreenshotResult {
   string diff_image_file_name = 4;
 
   /**
+   * Detailed output from the comparator that was used to compare the images.
+   */
+  string comparison_statistics = 5;
+
+  /**
    * Path to the root of the repository that contains the golden images
    */
   string repo_root_path = 6;
@@ -63,7 +64,5 @@ message ScreenshotResult {
    * to be updated
    */
   string location_of_golden_in_repo = 7;
-
-  ComparisonStatistics comparison_statistics = 5;
 }
 
