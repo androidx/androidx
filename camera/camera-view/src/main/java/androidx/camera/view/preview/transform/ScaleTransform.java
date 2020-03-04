@@ -16,124 +16,62 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.graphics.Point;
-import android.util.Pair;
-import android.util.Size;
-import android.view.Display;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.camera.view.preview.transform.transformation.ScaleTransformation;
 
+/**
+ * Computes the scale on both the x and y axes to uniformly scale up or down a view inside its
+ * container, so that it entirely fills it, or is entirely container within it.
+ */
 final class ScaleTransform {
 
     private ScaleTransform() {
     }
 
     /**
-     * Computes the scales on both the x and y axes so that the preview can fill its container,
-     * while maintaining the camera output size's aspect ratio.
-     *
-     * @param container  A parent {@link View} that wraps {@code view}.
-     * @param view       A {@link View} that wraps the camera preview.
-     * @param bufferSize A {@link Size} whose aspect ratio must be maintained when
-     *                   scaling the preview.
-     * @return The scales on both the x and y axes so that the preview can entirely fill its
-     * container, while maintaining the camera output size's aspect ratio
+     * Computes the scale on both the x and y axes so that the view can uniformly fill its
+     * container.
      */
-    @SuppressWarnings("SuspiciousNameCombination")
-    static Pair<Float, Float> fill(@NonNull final View container, @NonNull final View view,
-            @NonNull final Size bufferSize) {
+    static ScaleTransformation fill(@NonNull final View container, @NonNull final View view) {
+        return computeScale(container, view, Math::max);
+    }
+
+    /**
+     * Computes the scale on both the x and y axes so that the view can uniformly fit inside its
+     * container.
+     */
+    static ScaleTransformation fit(@NonNull final View container, @NonNull final View view) {
+        return computeScale(container, view, Math::min);
+    }
+
+    private static ScaleTransformation computeScale(@NonNull final View container,
+            @NonNull final View view, @NonNull final FloatBiFunction function) {
         // Scaling only makes sense when none of the dimensions are equal to zero. In the
         // opposite case, a default scale of 1 is returned,
         if (container.getWidth() == 0 || container.getHeight() == 0 || view.getWidth() == 0
-                || view.getHeight() == 0 || bufferSize.getWidth() == 0
-                || bufferSize.getHeight() == 0) {
-            return new Pair<>(1F, 1F);
+                || view.getHeight() == 0) {
+            return new ScaleTransformation(1);
         }
 
         final int viewRotationDegrees = (int) RotationTransform.getRotationDegrees(view);
-        final boolean isNaturalPortrait = isNaturalPortrait(view, viewRotationDegrees);
-
-        final int bufferWidth;
-        final int bufferHeight;
-        if (isNaturalPortrait) {
-            bufferWidth = bufferSize.getHeight();
-            bufferHeight = bufferSize.getWidth();
-        } else {
-            bufferWidth = bufferSize.getWidth();
-            bufferHeight = bufferSize.getHeight();
-        }
-
-        // Scale the buffers back to the original output size.
-        float scaleX = bufferWidth / (float) view.getWidth();
-        float scaleY = bufferHeight / (float) view.getHeight();
-
-        int bufferRotatedWidth;
-        int bufferRotatedHeight;
+        float bufferRotatedWidth;
+        float bufferRotatedHeight;
         if (viewRotationDegrees == 0 || viewRotationDegrees == 180) {
-            bufferRotatedWidth = bufferWidth;
-            bufferRotatedHeight = bufferHeight;
+            bufferRotatedWidth = view.getWidth() * view.getScaleX();
+            bufferRotatedHeight = view.getHeight() * view.getScaleY();
         } else {
-            bufferRotatedWidth = bufferHeight;
-            bufferRotatedHeight = bufferWidth;
+            bufferRotatedWidth = view.getHeight() * view.getScaleY();
+            bufferRotatedHeight = view.getWidth() * view.getScaleX();
         }
 
-        // Scale the buffer so that it completely fills the container.
-        final float scale = Math.max(container.getWidth() / (float) bufferRotatedWidth,
-                container.getHeight() / (float) bufferRotatedHeight);
-        scaleX *= scale;
-        scaleY *= scale;
-
-        return new Pair<>(scaleX, scaleY);
+        final float scale = function.apply(container.getWidth() / bufferRotatedWidth,
+                container.getHeight() / bufferRotatedHeight);
+        return new ScaleTransformation(scale);
     }
 
-    /**
-     * Computes the scales on both the x and y axes so that the preview is entirely contained within
-     * its container, while maintaining the camera output size's aspect ratio.
-     *
-     * @param container  A parent {@link View} that wraps {@code view}.
-     * @param view       A {@link View} that wraps the camera preview.
-     * @param bufferSize A {@link Size} whose aspect ratio must be maintained when
-     *                   scaling the preview.
-     * @return The scales on both the x and y axes so that the preview is entirely contained within
-     * its container, while maintaining the camera output size's aspect ratio.
-     */
-    static Pair<Float, Float> fit(@NonNull final View container, @NonNull final View view,
-            @NonNull final Size bufferSize) {
-        return new Pair<>(1F, 1F);
-    }
-
-    /**
-     * Determines whether the current device is a natural portrait-oriented device
-     *
-     * <p>
-     * Using the current app's window to determine whether the device is a natural
-     * portrait-oriented device doesn't work in all scenarios, one example of this is multi-window
-     * mode.
-     * Taking a natural portrait-oriented device in multi-window mode, rotating it 90 degrees (so
-     * that it's in landscape), with the app open, and its window's width being smaller than its
-     * height. Using the app's width and height would determine that the device isn't
-     * naturally portrait-oriented, where in fact it is, which is why it is important to use the
-     * size of the device instead.
-     * </p>
-     *
-     * @param view            A {@link View} used to get the current {@link Display}.
-     * @param rotationDegrees The device's rotation in degrees from its natural orientation.
-     * @return Whether the device is naturally portrait-oriented.
-     */
-    private static boolean isNaturalPortrait(@NonNull final View view,
-            final int rotationDegrees) {
-        final Display display = view.getDisplay();
-        if (display == null) {
-            return true;
-        }
-
-        final Point deviceSize = new Point();
-        display.getRealSize(deviceSize);
-
-        final int width = deviceSize.x;
-        final int height = deviceSize.y;
-        return ((rotationDegrees == 0 || rotationDegrees == 180) && width < height) || (
-                (rotationDegrees == 90 || rotationDegrees == 270) && width >= height);
+    private interface FloatBiFunction {
+        float apply(float a, float b);
     }
 }
