@@ -237,11 +237,9 @@ class AndroidComposeView constructor(context: Context) :
      * Make sure the containing RepaintBoundary repaints.
      */
     internal fun invalidateRepaintBoundary(node: ComponentNode) {
-        node.requireOwner()
         val repaintBoundary = node.repaintBoundary
-        val repaintBoundaryContainer = repaintBoundary?.container
-        if (repaintBoundaryContainer != null) {
-            repaintBoundaryContainer.dirty = true
+        if (repaintBoundary != null && repaintBoundary.isAttached()) {
+            repaintBoundary.container.dirty = true
         } else {
             invalidate()
         }

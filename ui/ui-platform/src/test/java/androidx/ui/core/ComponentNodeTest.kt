@@ -1617,6 +1617,28 @@ class ComponentNodeTest {
         assertThat(hit).isEmpty()
     }
 
+    @Test
+    fun onRequestMeasureIsNotCalledOnDetachedNodes() {
+        val root = LayoutNode()
+
+        val node1 = LayoutNode()
+        root.add(node1)
+        val node2 = LayoutNode()
+        node1.add(node2)
+
+        val owner = mock(Owner::class.java)
+        root.attach(owner)
+        reset(owner)
+
+        // Dispose
+        root.emitRemoveAt(0, 1)
+
+        assertFalse(node1.isAttached())
+        assertFalse(node2.isAttached())
+        verify(owner, times(0)).onRequestMeasure(node1)
+        verify(owner, times(0)).onRequestMeasure(node2)
+    }
+
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
         val layoutNode = LayoutNode()
         val child1 = LayoutNode()
