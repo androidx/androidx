@@ -48,7 +48,7 @@ fun RallyAlertDialog(
                     TextButton(
                         onClick = onDismiss,
                         shape = RectangleShape,
-                        paddings = EdgeInsets(16.dp),
+                        innerPadding = EdgeInsets(16.dp),
                         modifier = LayoutWidth.Fill
                     ) {
                         Text(buttonText)

@@ -28,15 +28,17 @@ import androidx.ui.semantics.onClick
  *
  * @sample androidx.ui.foundation.samples.ClickableSample
  *
- * @param onClick will be called when user clicked on the button. The children will not be
- *  clickable when it is null.
+ * @param onClick will be called when user clicked on the button
+ * @param enabled Controls the enabled state. When `false`, this component will not be
+ * clickable
  * @param consumeDownOnStart true means [PressReleasedGestureDetector] should consume
- *  down events. Provide false if you have some visual feedback like Ripples,
- *  as it will consume this events instead.
+ * down events. Provide false if you have some visual feedback like Ripples,
+ * as it will consume this events instead
  */
 @Composable
 fun Clickable(
-    onClick: (() -> Unit)? = null,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
     onClickLabel: String? = null,
     consumeDownOnStart: Boolean = false,
     children: @Composable() () -> Unit
@@ -44,8 +46,8 @@ fun Clickable(
     Semantics(
         container = true,
         properties = {
-            enabled = (onClick != null)
-            if (onClick != null) {
+            this.enabled = enabled
+            if (enabled) {
                 onClick(action = onClick, label = onClickLabel)
             }
         }
@@ -53,6 +55,7 @@ fun Clickable(
         PressReleasedGestureDetector(
             onRelease = onClick,
             consumeDownOnStart = consumeDownOnStart,
+            enabled = enabled,
             children = children
         )
     }

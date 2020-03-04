@@ -35,7 +35,7 @@ package androidx.ui.foundation {
   }
 
   public final class ClickableKt {
-    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, String? onClickLabel = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, String? onClickLabel = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ColoredRectKt {

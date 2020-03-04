@@ -383,7 +383,8 @@ fun DataTable(
                     for (j in 0 until columns) {
                         Container(height = headerRowHeight, padding = cellSpacing) {
                             var fontWeight = FontWeight.W500
-                            var onSort = null as (() -> Unit)?
+                            var onSort = {}
+                            var enabled = false
                             var headerDecoration: @Composable() (() -> Unit)? = null
 
                             if (sorting != null && sorting.sortableColumns.contains(j)) {
@@ -392,6 +393,7 @@ fun DataTable(
                                     onSort = {
                                         sorting.onSortChange(j, !sorting.ascending)
                                     }
+                                    enabled = true
                                     headerDecoration = {
                                         // TODO(calintat): Replace with animated arrow icons.
                                         Text(text = if (sorting.ascending) "↑" else "↓")
@@ -406,7 +408,7 @@ fun DataTable(
 
                             CurrentTextStyleProvider(TextStyle(fontWeight = fontWeight)) {
                                 Ripple(bounded = true) {
-                                    Clickable(onClick = onSort) {
+                                    Clickable(onClick = onSort, enabled = enabled) {
                                         Row {
                                             headerDecoration?.invoke()
                                             header.children(index = j)

@@ -465,7 +465,7 @@ fun ColumnScope.ClickableTextWithBackground(
     onClick: (() -> Unit)? = null,
     padding: Dp = 0.dp
 ) {
-    Clickable(onClick = onClick) {
+    Clickable(onClick = onClick ?: {}, enabled = onClick != null) {
         Box(LayoutGravity.Center, backgroundColor = color, padding = padding) {
             Text(text)
         }

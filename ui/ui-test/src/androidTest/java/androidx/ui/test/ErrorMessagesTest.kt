@@ -334,7 +334,7 @@ class ErrorMessagesTest {
         // merge all descendants, or we'll get multiple nodes
         Semantics(container = true, mergeAllDescendants = true) {
             Surface() {
-                Clickable(onClick = onClick) {
+                Clickable(onClick = onClick ?: {}, enabled = onClick != null) {
                     Container(children = children)
                 }
             }

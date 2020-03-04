@@ -52,27 +52,29 @@ import androidx.ui.unit.dp
  *
  * @sample androidx.ui.material.samples.ButtonSample
  *
- * @param modifier Modifier to be applied to the button.
- * @param onClick Will be called when the user clicks the button. The button will be disabled if it
- * is null.
- * @param backgroundColor The background color. Use [Color.Transparent] to have no color
- * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param onClick Will be called when the user clicks the button
+ * @param modifier Modifier to be applied to the button
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not
+ * be clickable
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ * of the shadow below the button
  * @param shape Defines the button's shape as well as its shadow
  * @param border Border to draw around the button
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button
- * @param paddings The spacing values to apply internally between the container and the content
+ * @param backgroundColor The background color. Use [Color.Transparent] to have no color
+ * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param innerPadding The spacing values to apply internally between the container and the content
  */
 @Composable
 fun Button(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    onClick: (() -> Unit)? = null,
-    backgroundColor: Color = MaterialTheme.colors().primary,
-    contentColor: Color = contentColorFor(backgroundColor),
+    enabled: Boolean = true,
+    elevation: Dp = 2.dp,
     shape: Shape = MaterialTheme.shapes().button,
     border: Border? = null,
-    elevation: Dp = 2.dp,
-    paddings: EdgeInsets = ButtonPaddings,
+    backgroundColor: Color = MaterialTheme.colors().primary,
+    contentColor: Color = contentColorFor(backgroundColor),
+    innerPadding: EdgeInsets = Button.DefaultInnerPadding,
     children: @Composable() () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
@@ -86,9 +88,9 @@ fun Button(
             elevation = elevation,
             modifier = modifier
         ) {
-            Ripple(bounded = true, enabled = onClick != null) {
-                Clickable(onClick = onClick) {
-                    Container(constraints = ButtonConstraints, padding = paddings) {
+            Ripple(bounded = true, enabled = enabled) {
+                Clickable(onClick = onClick, enabled = enabled) {
+                    Container(constraints = ButtonConstraints, padding = innerPadding) {
                         CurrentTextStyleProvider(
                             value = MaterialTheme.typography().button,
                             children = children
@@ -120,38 +122,42 @@ fun Button(
  *
  * @sample androidx.ui.material.samples.OutlinedButtonSample
  *
- * @param modifier Modifier to be applied to the button.
- * @param onClick Will be called when the user clicks the button. The button will be disabled if it
- * is null.
- * @param backgroundColor The background color. Use [Color.Transparent] to have no color
- * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param onClick Will be called when the user clicks the button
+ * @param modifier Modifier to be applied to the button
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not
+ * be clickable
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ * of the shadow below the button
  * @param shape Defines the button's shape as well as its shadow
  * @param border Border to draw around the button
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button
- * @param paddings The spacing values to apply internally between the container and the content
+ * @param backgroundColor The background color. Use [Color.Transparent] to have no color
+ * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param innerPadding The spacing values to apply internally between the container and the content
  */
 @Composable
 inline fun OutlinedButton(
+    noinline onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    noinline onClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
+    elevation: Dp = 0.dp,
+    shape: Shape = MaterialTheme.shapes().button,
+    border: Border? = Border(
+        1.dp, MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity)
+    ),
     backgroundColor: Color = MaterialTheme.colors().surface,
     contentColor: Color = MaterialTheme.colors().primary,
-    shape: Shape = MaterialTheme.shapes().button,
-    border: Border? =
-        Border(1.dp, MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity)),
-    elevation: Dp = 0.dp,
-    paddings: EdgeInsets = ButtonPaddings,
+    innerPadding: EdgeInsets = Button.DefaultInnerPadding,
     noinline children: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
-    backgroundColor = backgroundColor,
-    contentColor = contentColor,
+    enabled = enabled,
+    elevation = elevation,
     shape = shape,
     border = border,
-    elevation = elevation,
-    paddings = paddings,
+    backgroundColor = backgroundColor,
+    contentColor = contentColor,
+    innerPadding = innerPadding,
     children = children
 )
 
@@ -172,37 +178,40 @@ inline fun OutlinedButton(
  *
  * @sample androidx.ui.material.samples.TextButtonSample
  *
- * @param modifier Modifier to be applied to the button.
- * @param onClick Will be called when the user clicks the button. The button will be disabled if it
- * is null.
- * @param backgroundColor The background color. Use [Color.Transparent] to have no color
- * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param onClick Will be called when the user clicks the button
+ * @param modifier Modifier to be applied to the button
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not
+ * be clickable
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ * of the shadow below the button
  * @param shape Defines the button's shape as well as its shadow
  * @param border Border to draw around the button
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button
- * @param paddings The spacing values to apply internally between the container and the content
+ * @param backgroundColor The background color. Use [Color.Transparent] to have no color
+ * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param innerPadding The spacing values to apply internally between the container and the content
  */
 @Composable
 inline fun TextButton(
+    noinline onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    noinline onClick: (() -> Unit)? = null,
-    backgroundColor: Color = Color.Transparent,
-    contentColor: Color = MaterialTheme.colors().primary,
+    enabled: Boolean = true,
+    elevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes().button,
     border: Border? = null,
-    elevation: Dp = 0.dp,
-    paddings: EdgeInsets = TextButtonPaddings,
+    backgroundColor: Color = Color.Transparent,
+    contentColor: Color = MaterialTheme.colors().primary,
+    innerPadding: EdgeInsets = TextButton.DefaultInnerPadding,
     noinline children: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
-    backgroundColor = backgroundColor,
-    contentColor = contentColor,
+    enabled = enabled,
+    elevation = elevation,
     shape = shape,
     border = border,
-    elevation = elevation,
-    paddings = paddings,
+    backgroundColor = backgroundColor,
+    contentColor = contentColor,
+    innerPadding = innerPadding,
     children = children
 )
 
@@ -212,23 +221,38 @@ private val ButtonConstraints = DpConstraints(
     minHeight = 36.dp
 )
 
-private val ButtonHorizontalPadding = 16.dp
-private val ButtonVerticalPadding = 8.dp
-private val TextButtonHorizontalPadding = 8.dp
+/**
+ * Contains the default values used by [Button]
+ */
+object Button {
+    private val ButtonHorizontalPadding = 16.dp
+    private val ButtonVerticalPadding = 8.dp
 
-@PublishedApi
-internal val ButtonPaddings = EdgeInsets(
-    left = ButtonHorizontalPadding,
-    top = ButtonVerticalPadding,
-    right = ButtonHorizontalPadding,
-    bottom = ButtonVerticalPadding
-)
+    /**
+     * The default inner padding used by [Button]
+     */
+    val DefaultInnerPadding = EdgeInsets(
+        left = ButtonHorizontalPadding,
+        top = ButtonVerticalPadding,
+        right = ButtonHorizontalPadding,
+        bottom = ButtonVerticalPadding
+    )
+}
 
-@PublishedApi
-internal val TextButtonPaddings = ButtonPaddings.copy(
-    left = TextButtonHorizontalPadding,
-    right = TextButtonHorizontalPadding
-)
+/**
+ * Contains the default values used by [TextButton]
+ */
+object TextButton {
+    private val TextButtonHorizontalPadding = 8.dp
+
+    /**
+     * The default inner padding used by [TextButton]
+     */
+    val DefaultInnerPadding = Button.DefaultInnerPadding.copy(
+        left = TextButtonHorizontalPadding,
+        right = TextButtonHorizontalPadding
+    )
+}
 
 @PublishedApi
 internal const val OutlinedStrokeOpacity = 0.12f
