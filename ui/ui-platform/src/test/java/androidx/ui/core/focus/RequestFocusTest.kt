@@ -112,7 +112,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         val rootNode = FocusNode().apply {
             recompose = {}
             attach(host)
-            emitInsertAt(0, childNode)
+            insertAt(0, childNode)
         }
 
         // Act.
@@ -133,9 +133,9 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         val grandparentNode = FocusNode().apply {
             recompose = {}
             attach(host)
-            emitInsertAt(0, parentNode)
+            insertAt(0, parentNode)
         }
-        parentNode.emitInsertAt(0, childNode)
+        parentNode.insertAt(0, childNode)
 
         // Act.
         parentNode.requestFocus(propagateFocus)
@@ -155,9 +155,9 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         val grandparentNode = FocusNode().apply {
             recompose = {}
             attach(host)
-            emitInsertAt(0, parentNode)
+            insertAt(0, parentNode)
         }
-        parentNode.emitInsertAt(0, childNode)
+        parentNode.insertAt(0, childNode)
 
         // Act.
         childNode.requestFocus(propagateFocus)
@@ -174,9 +174,9 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         val grandparentNode = FocusNode().apply {
             recompose = {}
             attach(host)
-            emitInsertAt(0, parentNode)
+            insertAt(0, parentNode)
         }
-        parentNode.emitInsertAt(0, childNode)
+        parentNode.insertAt(0, childNode)
 
         // Act.
         childNode.requestFocus(propagateFocus)
@@ -193,7 +193,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
             attach(host)
             focusState = Active
             recompose = {}
-            emitInsertAt(0, focusNode)
+            insertAt(0, focusNode)
         }
 
         // Verify Setup.
@@ -215,7 +215,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         val parentNode = FocusNode().apply {
             attach(host)
             recompose = {}
-            emitInsertAt(0, focusNode)
+            insertAt(0, focusNode)
         }
         focusNode.requestFocus(propagateFocus)
 
@@ -246,7 +246,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         val parentNode = FocusNode().apply {
             attach(host)
             recompose = {}
-            emitInsertAt(0, focusNode)
+            insertAt(0, focusNode)
         }
         focusNode.apply {
             requestFocus(propagateFocus)
@@ -274,8 +274,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
             recompose = {}
             focusState = Active
             attach(host)
-            emitInsertAt(0, focusNode)
-            emitInsertAt(1, siblingNode)
+            insertAt(0, focusNode)
+            insertAt(1, siblingNode)
         }
         // After executing requestFocus, siblingNode will be 'Active'.
         siblingNode.requestFocus(propagateFocus)
@@ -303,8 +303,8 @@ class RequestFocusTest(val propagateFocus: Boolean) {
             recompose = {}
             focusState = Active
             attach(host)
-            emitInsertAt(0, focusNode)
-            emitInsertAt(1, siblingNode)
+            insertAt(0, focusNode)
+            insertAt(1, siblingNode)
         }
         // After executing requestFocus, siblingNode will be 'Active'.
         siblingNode.apply {
@@ -355,12 +355,12 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         grandparentNode.apply {
             attach(host)
-            emitInsertAt(0, parentNode)
-            emitInsertAt(1, auntNode)
+            insertAt(0, parentNode)
+            insertAt(1, auntNode)
         }
 
-        parentNode.emitInsertAt(0, focusNode)
-        auntNode.emitInsertAt(0, cousinNode)
+        parentNode.insertAt(0, focusNode)
+        auntNode.insertAt(0, cousinNode)
         cousinNode.requestFocus(propagateFocus)
 
         // Verify Setup.
@@ -384,10 +384,10 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
         grandparentNode.apply {
             attach(host)
-            emitInsertAt(0, parentNode)
+            insertAt(0, parentNode)
             focusState = Active
         }
-        parentNode.emitInsertAt(0, focusNode)
+        parentNode.insertAt(0, focusNode)
 
         // Verify Setup.
         assertThat(grandparentNode.focusState).isEqualTo(Active)

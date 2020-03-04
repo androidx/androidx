@@ -28,7 +28,6 @@ import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.Providers
 import androidx.compose.currentComposer
-import androidx.compose.disposeComposition
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
 import androidx.ui.core.toFrameworkRect
@@ -279,7 +278,6 @@ internal class ComposeViewAdapter : FrameLayout {
      * Disposes the Compose elements allocated during [init]
      */
     internal fun dispose() {
-        disposeComposition()
         composition?.dispose()
         composition = null
     }

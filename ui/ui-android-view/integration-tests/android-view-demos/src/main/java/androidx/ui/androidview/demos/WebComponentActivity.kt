@@ -36,10 +36,10 @@ import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.androidview.adapters.setOnTextChanged
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.setViewContent
 import androidx.compose.state
 import androidx.ui.androidview.WebComponent
 import androidx.ui.androidview.WebContext
+import androidx.ui.core.setViewContent
 
 @Model
 class WebParams {

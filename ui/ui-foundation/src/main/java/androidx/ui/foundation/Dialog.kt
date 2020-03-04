@@ -22,7 +22,7 @@ import android.view.MotionEvent
 import android.view.Window
 import android.widget.FrameLayout
 import androidx.compose.Composable
-import androidx.compose.disposeComposition
+import androidx.compose.Composition
 import androidx.compose.remember
 import androidx.compose.onActive
 import androidx.compose.onCommit
@@ -66,6 +66,7 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
 
 private class DialogWrapper(context: Context, var onCloseRequest: () -> Unit) : Dialog(context) {
     val frameLayout = FrameLayout(context)
+    private var composition: Composition? = null
     init {
         window!!.requestFeature(Window.FEATURE_NO_TITLE)
         window!!.setBackgroundDrawableResource(android.R.color.transparent)
@@ -73,11 +74,11 @@ private class DialogWrapper(context: Context, var onCloseRequest: () -> Unit) : 
     }
 
     fun setContent(children: @Composable() () -> Unit) {
-        frameLayout.setContent(children)
+        composition = frameLayout.setContent(children)
     }
 
     fun disposeComposition() {
-        frameLayout.disposeComposition()
+        composition?.dispose()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

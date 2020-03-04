@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import android.content.Context
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Untracked
@@ -530,7 +529,7 @@ private class WithConstrainsState {
         val node = nodeRef.value!!
         val constraints = lastConstraints!!
         // TODO(b/150390669): Review use of @Untracked
-        Compose.subcomposeInto(node, context!!, compositionRef) @Untracked {
+        subcomposeInto(node, context!!, compositionRef) @Untracked {
             children(constraints, node.layoutDirection!!)
         }
         forceRecompose = false

@@ -21,8 +21,8 @@ import androidx.ui.framework.test.TestActivity
 import androidx.compose.Recompose
 import androidx.compose.onActive
 import androidx.compose.onCommit
-import androidx.compose.setViewContent
 import androidx.ui.core.ComposeView
+import androidx.ui.core.setViewContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

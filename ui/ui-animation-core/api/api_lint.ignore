@@ -27,6 +27,8 @@ DocumentExceptions: androidx.animation.RepeatableBuilder#setIterations(Integer):
     Method RepeatableBuilder.setIterations appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
+HiddenTypeParameter: androidx.animation.BaseAnimationClock#Companion:
+    Field BaseAnimationClock.Companion references hidden type androidx.animation.BaseAnimationClock.Companion.
 HiddenTypeParameter: androidx.animation.DurationBasedAnimationBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
     Method androidx.animation.DurationBasedAnimationBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.DurationBasedAnimation<V>.
 HiddenTypeParameter: androidx.animation.KeyframesBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
@@ -39,14 +41,6 @@ HiddenTypeParameter: androidx.animation.SnapBuilder#build$lintWithKotlin(android
     Method androidx.animation.SnapBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.Animation<V>.
 HiddenTypeParameter: androidx.animation.TweenBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
     Method androidx.animation.TweenBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.DurationBasedAnimation<V>.
-HiddenTypeParameter: androidx.animation.TypeConverter1D#getArithmetic$lintWithKotlin():
-    Method androidx.animation.TypeConverter1D.getArithmetic$lintWithKotlin() references hidden type androidx.animation.Arithmetic<androidx.animation.AnimationVector1D>.
-HiddenTypeParameter: androidx.animation.TypeConverter2D#getArithmetic$lintWithKotlin():
-    Method androidx.animation.TypeConverter2D.getArithmetic$lintWithKotlin() references hidden type androidx.animation.Arithmetic<androidx.animation.AnimationVector2D>.
-HiddenTypeParameter: androidx.animation.TypeConverter3D#getArithmetic$lintWithKotlin():
-    Method androidx.animation.TypeConverter3D.getArithmetic$lintWithKotlin() references hidden type androidx.animation.Arithmetic<androidx.animation.AnimationVector3D>.
-HiddenTypeParameter: androidx.animation.TypeConverter4D#getArithmetic$lintWithKotlin():
-    Method androidx.animation.TypeConverter4D.getArithmetic$lintWithKotlin() references hidden type androidx.animation.Arithmetic<androidx.animation.AnimationVector4D>.
 
 
 MissingBuildMethod: androidx.animation.AnimationBuilder:
