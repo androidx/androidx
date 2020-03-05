@@ -604,20 +604,23 @@ class HitPathTrackerTest {
         val pin3 = PointerInputNode()
         pin1.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 64f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 64f
+                    it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin2.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 4f else 32f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 4f else 32f
+                    it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin3.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 8f else 16f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 8f else 16f
+                    it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         hitResult.addHitPath(PointerId(13), listOf(pin1, pin2, pin3))
@@ -676,26 +679,30 @@ class HitPathTrackerTest {
         val pin4 = PointerInputNode()
         pin1.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 12f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 12f
+                    it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin2.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 3f else 6f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 3f else 6f
+                    it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin3.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) -2f else -12f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) -2f else -12f
+                    it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin4.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) -3f else -6f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) -3f else -6f
+                    it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         hitResult.addHitPath(PointerId(3), listOf(pin1, pin2))
@@ -763,8 +770,8 @@ class HitPathTrackerTest {
         val child2 = PointerInputNode()
         parent.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -776,8 +783,8 @@ class HitPathTrackerTest {
         child1.pointerInputHandler = spy(StubPointerInputHandler().apply
         {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -788,8 +795,8 @@ class HitPathTrackerTest {
         child2.pointerInputHandler = spy(StubPointerInputHandler().apply
         {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 11 else 13
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 11 else 13
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -855,8 +862,8 @@ class HitPathTrackerTest {
         val child2 = PointerInputNode()
         child1.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -866,8 +873,8 @@ class HitPathTrackerTest {
         })
         child2.pointerInputHandler = spy(StubPointerInputHandler().apply {
             modifyBlock = { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px

@@ -29,6 +29,7 @@ plugins {
 }
 
 dependencies {
+    kotlinPlugin project(path: ":compose:compose-compiler")
     implementation(KOTLIN_COROUTINES_ANDROID)
     implementation(KOTLIN_STDLIB)
 
@@ -72,6 +73,12 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "Contains internal implementation that allows separation of android implementation from host-side tests."
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        useIR = true
+    }
 }
 
 android {
