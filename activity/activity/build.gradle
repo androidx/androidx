@@ -22,10 +22,10 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
+    api("androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.3.0-alpha01")
     api("androidx.savedstate:savedstate:1.0.0")
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.0-alpha01")
 
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
