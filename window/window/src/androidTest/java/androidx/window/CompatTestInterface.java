@@ -16,6 +16,15 @@
 
 package androidx.window;
 
-/** Activity that handles orientation configuration change. */
-public final class TestConfigChangeHandlingActivity extends TestActivity {
+/**
+ * The list of tests that every implementation of {@link ExtensionInterfaceCompat} should pass.
+ */
+interface CompatTestInterface {
+    void testGetDeviceState();
+    void testGetWindowLayout();
+    void testGetWindowLayout_featureWithEmptyBounds();
+    void testSetExtensionCallback();
+    void testOnWindowLayoutChangeListenerAdded();
+    void testOnWindowLayoutChangeListenerRemoved();
+    void testOnDeviceStateListenersChanged();
 }

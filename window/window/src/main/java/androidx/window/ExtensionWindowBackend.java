@@ -16,7 +16,7 @@
 
 package androidx.window;
 
-import static androidx.window.ExtensionHelper.DEBUG;
+import static androidx.window.ExtensionCompat.DEBUG;
 import static androidx.window.WindowManager.getActivityFromContext;
 
 import android.annotation.SuppressLint;
@@ -27,7 +27,10 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Consumer;
+import androidx.window.extensions.ExtensionInterface;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,26 +47,34 @@ public final class ExtensionWindowBackend implements WindowBackend {
     private static final Object sLock = new Object();
 
     @GuardedBy("sLock")
-    private ExtensionInterfaceCompat mWindowExtension;
+    @VisibleForTesting
+    ExtensionInterfaceCompat mWindowExtension;
+
     /**
      * List of all registered callbacks for window layout info. Not protected by {@link #sLock} to
      * allow iterating and callback execution without holding the global lock.
      */
-    private final List<WindowLayoutChangeCallbackWrapper> mWindowLayoutChangeCallbacks =
+    @VisibleForTesting
+    final List<WindowLayoutChangeCallbackWrapper> mWindowLayoutChangeCallbacks =
             new CopyOnWriteArrayList<>();
+
     /**
      * List of all registered callbacks for window layout info. Not protected by {@link #sLock} to
      * allow iterating and callback execution without holding the global lock.
      */
-    private final List<DeviceStateChangeCallbackWrapper> mDeviceStateChangeCallbacks =
+    @VisibleForTesting
+    final List<DeviceStateChangeCallbackWrapper> mDeviceStateChangeCallbacks =
             new CopyOnWriteArrayList<>();
+
     /** Device state that was last reported through callbacks, used to filter out duplicates. */
     @GuardedBy("sLock")
-    private DeviceState mLastReportedDeviceState;
+    @VisibleForTesting
+    DeviceState mLastReportedDeviceState;
+
     /** Window layouts that were last reported through callbacks, used to filter out duplicates. */
     @GuardedBy("sLock")
-    private final HashMap<IBinder, WindowLayoutInfo> mLastReportedWindowLayouts =
-            new HashMap<>();
+    @VisibleForTesting
+    final HashMap<IBinder, WindowLayoutInfo> mLastReportedWindowLayouts = new HashMap<>();
 
     private static final String TAG = "WindowServer";
 
@@ -91,7 +102,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     @SuppressLint("SyntheticAccessor")
     @GuardedBy("sLock")
     private void initExtension(Context context) {
-        mWindowExtension = ExtensionHelper.getExtensionImpl(context);
+        mWindowExtension = initAndVerifyExtension(context);
         if (mWindowExtension == null) {
             return;
         }
@@ -108,11 +119,10 @@ public final class ExtensionWindowBackend implements WindowBackend {
         }
 
         synchronized (sLock) {
-            WindowLayoutInfo extensionWindowLayoutInfo = mWindowExtension != null
-                    ? mWindowExtension.getWindowLayoutInfo(windowToken)
-                    : new WindowLayoutInfo(new ArrayList<>());
-            mLastReportedWindowLayouts.put(windowToken, extensionWindowLayoutInfo);
-            return extensionWindowLayoutInfo;
+            WindowLayoutInfo windowLayoutInfo = mWindowExtension != null
+                    ? mWindowExtension.getWindowLayoutInfo(windowToken) : null;
+            return windowLayoutInfo != null
+                    ? windowLayoutInfo : new WindowLayoutInfo(new ArrayList<>());
         }
     }
 
@@ -120,8 +130,9 @@ public final class ExtensionWindowBackend implements WindowBackend {
     @Override
     public DeviceState getDeviceState() {
         synchronized (sLock) {
-            return mWindowExtension != null ? mWindowExtension.getDeviceState() :
-                    new DeviceState(DeviceState.POSTURE_UNKNOWN);
+            DeviceState deviceState = mWindowExtension != null
+                    ? mWindowExtension.getDeviceState() : null;
+            return deviceState != null ? deviceState : new DeviceState(DeviceState.POSTURE_UNKNOWN);
         }
     }
 
@@ -248,8 +259,8 @@ public final class ExtensionWindowBackend implements WindowBackend {
         }
     }
 
-    private class ExtensionListenerImpl implements
-            ExtensionInterfaceCompat.ExtensionCallbackInterface {
+    @VisibleForTesting
+    class ExtensionListenerImpl implements ExtensionInterfaceCompat.ExtensionCallbackInterface {
         @Override
         @SuppressLint("SyntheticAccessor")
         public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
@@ -314,8 +325,9 @@ public final class ExtensionWindowBackend implements WindowBackend {
         return activity;
     }
 
+    @Nullable
     private IBinder getActivityWindowToken(Activity activity) {
-        return activity.getWindow().getAttributes().token;
+        return activity.getWindow() != null ? activity.getWindow().getAttributes().token : null;
     }
 
     /**
@@ -348,5 +360,60 @@ public final class ExtensionWindowBackend implements WindowBackend {
             mExecutor = executor;
             mCallback = callback;
         }
+    }
+
+    /**
+     * Load an instance of {@link ExtensionInterface} implemented by OEM if available on this
+     * device. This also verifies if the loaded implementation conforms to the declared API version.
+     */
+    @Nullable
+    static ExtensionInterfaceCompat initAndVerifyExtension(Context context) {
+        ExtensionInterfaceCompat impl = null;
+        try {
+            if (isExtensionVersionSupported(ExtensionCompat.getExtensionVersion())) {
+                impl = new ExtensionCompat(context);
+            } else if (isExtensionVersionSupported(SidecarCompat.getSidecarVersion())) {
+                impl = new SidecarCompat(context);
+            }
+        } catch (Throwable t) {
+            if (DEBUG) {
+                Log.d(TAG, "Failed to load extension: " + t);
+            }
+            return null;
+        }
+
+        if (impl == null) {
+            if (DEBUG) {
+                Log.d(TAG, "No supported extension found");
+            }
+            return null;
+        }
+
+        if (!impl.validateExtensionInterface()) {
+            if (DEBUG) {
+                Log.d(TAG, "Loaded extension doesn't match the interface version");
+            }
+            return null;
+        }
+
+        return impl;
+    }
+
+    /**
+     * Check if the Extension version provided on this device is supported by the current version
+     * of the library.
+     */
+    @VisibleForTesting
+    static boolean isExtensionVersionSupported(@Nullable Version extensionVersion) {
+        return extensionVersion != null
+                && Version.CURRENT.getMajor() >= extensionVersion.getMajor();
+    }
+
+    /**
+     * Test-only affordance to forget the existing instance.
+     */
+    @VisibleForTesting
+    static void resetInstance() {
+        sInstance = null;
     }
 }

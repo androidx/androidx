@@ -41,6 +41,9 @@ public final class DisplayFeature {
     private int mType;
 
     DisplayFeature(@NonNull Rect bounds, @Type int type) {
+        if (bounds.height() == 0 && bounds.width() == 0) {
+            throw new IllegalArgumentException("Bounding rectangle must not be empty: " + bounds);
+        }
         mBounds = new Rect(bounds);
         mType = type;
     }

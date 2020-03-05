@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,11 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+/** Tests for {@link WindowBackend} class. */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class WindowBackendTest {
-    private ActivityTestRule<TestActivity> mActivityTestRule =
-            new ActivityTestRule<>(TestActivity.class, false, true);
+public final class WindowBackendTest extends WindowTestBase {
 
     /**
      * Verify that {@link WindowManager} instance would use the assigned
@@ -47,8 +45,8 @@ public class WindowBackendTest {
      */
     @Test
     public void testFakeWindowBackend() {
-        WindowLayoutInfo windowLayoutInfo = testWindowLayout();
-        DeviceState deviceState = testDeviceState();
+        WindowLayoutInfo windowLayoutInfo = newTestWindowLayout();
+        DeviceState deviceState = newTestDeviceState();
         WindowBackend windowBackend = new FakeWindowBackend(windowLayoutInfo, deviceState);
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         WindowManager wm = new WindowManager(activity, windowBackend);
@@ -57,7 +55,7 @@ public class WindowBackendTest {
         assertEquals(deviceState, wm.getDeviceState());
     }
 
-    private WindowLayoutInfo testWindowLayout() {
+    private WindowLayoutInfo newTestWindowLayout() {
         List<DisplayFeature> displayFeatureList = new ArrayList<>();
         DisplayFeature displayFeature = new DisplayFeature(
                 new Rect(10, 10, 100, 100), DisplayFeature.TYPE_HINGE);
@@ -65,7 +63,7 @@ public class WindowBackendTest {
         return new WindowLayoutInfo(displayFeatureList);
     }
 
-    private DeviceState testDeviceState() {
+    private DeviceState newTestDeviceState() {
         return new DeviceState(DeviceState.POSTURE_OPENED);
     }
 

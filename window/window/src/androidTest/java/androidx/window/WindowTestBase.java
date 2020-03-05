@@ -16,6 +16,19 @@
 
 package androidx.window;
 
-/** Activity that handles orientation configuration change. */
-public final class TestConfigChangeHandlingActivity extends TestActivity {
+import android.app.Activity;
+import android.os.IBinder;
+
+import androidx.test.rule.ActivityTestRule;
+
+/**
+ * Base class for all tests in the module.
+ */
+class WindowTestBase {
+    ActivityTestRule<TestActivity> mActivityTestRule =
+            new ActivityTestRule<>(TestActivity.class, false, true);
+
+    static IBinder getActivityWindowToken(Activity activity) {
+        return activity.getWindow().getAttributes().token;
+    }
 }

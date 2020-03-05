@@ -18,7 +18,6 @@ package androidx.window;
 
 import static androidx.window.DeviceState.POSTURE_MAX_KNOWN;
 import static androidx.window.DeviceState.POSTURE_UNKNOWN;
-import static androidx.window.ExtensionHelper.DEBUG;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,6 +28,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
 import androidx.window.extensions.ExtensionInterface;
@@ -41,15 +41,22 @@ import java.util.List;
 
 /** Compatibility wrapper for extension versions v1.0+. */
 final class ExtensionCompat implements ExtensionInterfaceCompat {
+    static final boolean DEBUG = false;
     private static final String TAG = "ExtensionVersionCompat";
 
-    private ExtensionInterface mWindowExtension;
+    @VisibleForTesting
+    final ExtensionInterface mWindowExtension;
 
     ExtensionCompat(Context context) {
-        mWindowExtension = ExtensionProvider.getExtensionImpl(context);
+        this(ExtensionProvider.getExtensionImpl(context));
         if (mWindowExtension == null) {
             throw new IllegalArgumentException("Extension provider returned null");
         }
+    }
+
+    @VisibleForTesting
+    ExtensionCompat(ExtensionInterface extension) {
+        mWindowExtension = extension;
     }
 
     @Override
@@ -119,7 +126,18 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
         }
     }
 
+    /**
+     * Convert the display feature from extension. Can return {@code null} if there is an issue with
+     * the value passed from extension.
+     */
+    @Nullable
     private static DisplayFeature displayFeatureFromExtension(ExtensionDisplayFeature feature) {
+        if (feature.getBounds().width() == 0 && feature.getBounds().height() == 0) {
+            if (DEBUG) {
+                Log.d(TAG, "Passed a display feature with empty rect, skipping: " + feature);
+            }
+            return null;
+        }
         return new DisplayFeature(feature.getBounds(), feature.getType());
     }
 
@@ -134,7 +152,10 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
         }
 
         for (ExtensionDisplayFeature extensionFeature : extensionFeatures) {
-            displayFeatures.add(displayFeatureFromExtension(extensionFeature));
+            final DisplayFeature displayFeature = displayFeatureFromExtension(extensionFeature);
+            if (displayFeature != null) {
+                displayFeatures.add(displayFeature);
+            }
         }
         return displayFeatures;
     }
