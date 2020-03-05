@@ -355,13 +355,13 @@ sealed class ComponentNode : Emittable {
      * children. After executing, the [owner] will be `null`.
      */
     open fun detach() {
-        visitChildren { child ->
-            child.detach()
-        }
         val owner = owner ?: ErrorMessages.OwnerAlreadyDetached.state()
         owner.onDetach(this)
         this.owner = null
         depth = 0
+        visitChildren { child ->
+            child.detach()
+        }
     }
 
     internal open fun invalidateSemanticsComponentNode() {
