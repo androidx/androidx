@@ -1705,7 +1705,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * still in the process of being created.  As such, you can not rely
      * on things like the activity's content view hierarchy being initialized
      * at this point.  If you want to do work once the activity itself is
-     * created, see {@link #onActivityCreated(Bundle)}.
+     * created, add a {@link androidx.lifecycle.LifecycleObserver} on the
+     * activity's Lifecycle, removing it when it receives the
+     * {@link Lifecycle.State#CREATED} callback.
      *
      * <p>Any restored child fragments will be created before the base
      * <code>Fragment.onCreate</code> method returns.</p>
@@ -1749,7 +1751,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Called to have the fragment instantiate its user interface view.
      * This is optional, and non-graphical fragments can return null. This will be called between
-     * {@link #onCreate(Bundle)} and {@link #onActivityCreated(Bundle)}.
+     * {@link #onCreate(Bundle)} and {@link #onViewCreated(View, Bundle)}.
      * <p>A default View can be returned by calling {@link #Fragment(int)} in your
      * constructor. Otherwise, this method returns null.
      *
@@ -1832,9 +1834,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
+     *
+     * @deprecated use {@link #onViewCreated(View, Bundle)} for code touching
+     * the Fragment's view and {@link #onCreate(Bundle)} for other initialization.
+     * To get a callback specifically when a Fragment activity's
+     * {@link Activity#onCreate(Bundle)} is called, register a
+     * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
+     * {@link Lifecycle} in {@link #onAttach(Context)}, removing it when it receives the
+     * {@link Lifecycle.State#CREATED} callback.
      */
     @MainThread
     @CallSuper
+    @Deprecated
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         mCalled = true;
     }
@@ -1844,8 +1855,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * of the fragment.  This can be used to do initialization based on saved
      * state that you are letting the view hierarchy track itself, such as
      * whether check box widgets are currently checked.  This is called
-     * after {@link #onActivityCreated(Bundle)} and before
-     * {@link #onStart()}.
+     * after {@link #onViewCreated(View, Bundle)} and before {@link #onStart()}.
      *
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
@@ -1886,7 +1896,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * created, the data you place in the Bundle here will be available
      * in the Bundle given to {@link #onCreate(Bundle)},
      * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}, and
-     * {@link #onActivityCreated(Bundle)}.
+     * {@link #onViewCreated(View, Bundle)}.
      *
      * <p>This corresponds to {@link Activity#onSaveInstanceState(Bundle)
      * Activity.onSaveInstanceState(Bundle)} and most of the discussion there
@@ -2759,6 +2769,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("deprecation")
     void performActivityCreated(Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
         mState = AWAITING_EXIT_EFFECTS;

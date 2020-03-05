@@ -374,6 +374,7 @@ class FragmentLifecycleTest {
      * to at least the CREATED state by the time the parent fragment receives onCreateView.
      * This means the child fragment will have received onAttach/onCreate.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun childFragmentManagerAttach() {
