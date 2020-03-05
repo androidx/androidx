@@ -52,7 +52,6 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.dp

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.surface
+package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.contentColorFor
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 

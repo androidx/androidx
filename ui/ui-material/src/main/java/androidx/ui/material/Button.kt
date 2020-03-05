@@ -30,7 +30,6 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

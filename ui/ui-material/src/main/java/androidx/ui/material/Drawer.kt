@@ -37,7 +37,6 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 import androidx.ui.material.internal.StateDraggable
-import androidx.ui.material.surface.Surface
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
 import androidx.ui.unit.dp
@@ -241,7 +240,12 @@ private fun DrawerContent(
             padding = EdgeInsets(right = VerticalDrawerPadding)
         ) {
             // remove Container when we will support multiply children
-            Surface { Container(expanded = true, children = children) }
+            Surface {
+                Container(
+                    expanded = true,
+                    children = children
+                )
+            }
         }
     }
 }
@@ -255,7 +259,12 @@ private fun BottomDrawerContent(
     WithOffset(yOffset = yOffset) {
         Container(constraints = constraints) {
             // remove Container when we will support multiply children
-            Surface { Container(expanded = true, children = children) }
+            Surface {
+                Container(
+                    expanded = true,
+                    children = children
+                )
+            }
         }
     }
 }

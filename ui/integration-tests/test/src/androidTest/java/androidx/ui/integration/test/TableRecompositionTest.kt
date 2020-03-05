@@ -23,7 +23,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Table
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doFramesUntilNoChangesPending
 import org.junit.Rule

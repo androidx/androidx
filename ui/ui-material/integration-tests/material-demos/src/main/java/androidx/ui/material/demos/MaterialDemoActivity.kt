@@ -39,7 +39,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.demos.MaterialSettingsActivity.SettingsFragment
 import androidx.ui.material.lightColorPalette
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import kotlin.reflect.full.memberProperties
 
 @Model

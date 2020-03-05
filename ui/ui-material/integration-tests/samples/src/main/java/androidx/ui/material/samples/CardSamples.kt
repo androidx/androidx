@@ -19,7 +19,7 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.material.surface.Card
+import androidx.ui.material.Card
 
 @Sampled
 @Composable

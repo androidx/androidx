@@ -32,7 +32,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
 import androidx.ui.material.AlertDialogButtonLayout.Stacked
-import androidx.ui.material.surface.Surface
 import androidx.ui.unit.dp
 
 /**
@@ -114,7 +113,10 @@ fun AlertDialog(
     val currentTypography = MaterialTheme.typography()
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
-            Surface(modifier = LayoutWidth(AlertDialogWidth), shape = AlertDialogShape) {
+            Surface(
+                modifier = LayoutWidth(AlertDialogWidth),
+                shape = AlertDialogShape
+            ) {
                 val emphasisLevels = MaterialTheme.emphasisLevels()
                 Column {
                     if (title != null) {
