@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
+import android.os.PersistableBundle;
 
 import androidx.core.app.Person;
 import androidx.core.app.TestActivity;
@@ -57,6 +58,8 @@ public class ShortcutInfoCompatTest {
 
     private static final String TEST_SHORTCUT_ID = "test-shortcut";
     private static final String TEST_SHORTCUT_SHORT_LABEL = "Test shortcut label";
+    private static final String TEST_EXTRAS_ID = "test-extras-id";
+    private static final String TEST_EXTRAS_VALUE = "test-extras-id-value";
 
     private Intent mAction;
 
@@ -131,6 +134,7 @@ public class ShortcutInfoCompatTest {
         assertNull(compat.getDisabledMessage());
         assertNull(compat.getActivity());
         assertNull(compat.getCategories());
+        assertNull(compat.getExtras());
     }
 
     @Test
@@ -142,12 +146,14 @@ public class ShortcutInfoCompatTest {
         categories.add("cat1");
         categories.add("cat2");
         int rank = 3;
+        PersistableBundle persistableBundle = new PersistableBundle();
         ShortcutInfoCompat compat = mBuilder
                 .setActivity(activity)
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
                 .setRank(rank)
+                .setExtras(persistableBundle)
                 .build();
 
         ShortcutInfoCompat copyCompat = new ShortcutInfoCompat.Builder(compat).build();
@@ -159,6 +165,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(activity, copyCompat.getActivity());
         assertEquals(categories, copyCompat.getCategories());
         assertEquals(rank, copyCompat.getRank());
+        assertEquals(persistableBundle, copyCompat.getExtras());
     }
 
     @Test
@@ -171,6 +178,7 @@ public class ShortcutInfoCompatTest {
         categories.add("cat1");
         categories.add("cat2");
         int rank = 3;
+        PersistableBundle persistableBundle = new PersistableBundle();
         ShortcutInfo.Builder builder = new ShortcutInfo.Builder(mContext, TEST_SHORTCUT_ID);
         ShortcutInfo shortcut = builder.setIntent(mAction)
                 .setShortLabel(TEST_SHORTCUT_SHORT_LABEL)
@@ -179,6 +187,7 @@ public class ShortcutInfoCompatTest {
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
                 .setRank(rank)
+                .setExtras(persistableBundle)
                 .build();
 
         ShortcutInfoCompat compat = new ShortcutInfoCompat.Builder(mContext, shortcut).build();
@@ -191,6 +200,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(activity, compat.getActivity());
         assertEquals(categories, compat.getCategories());
         assertEquals(rank, compat.getRank());
+        assertEquals(persistableBundle, compat.getExtras());
     }
 
     @Test
@@ -202,12 +212,14 @@ public class ShortcutInfoCompatTest {
         categories.add("cat1");
         categories.add("cat2");
         int rank = 3;
+        PersistableBundle persistableBundle = new PersistableBundle();
         ShortcutInfoCompat compat = mBuilder
                 .setActivity(activity)
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
                 .setRank(3)
+                .setExtras(persistableBundle)
                 .build();
         assertEquals(TEST_SHORTCUT_ID, compat.getId());
         assertEquals(TEST_SHORTCUT_SHORT_LABEL, compat.getShortLabel());
@@ -217,6 +229,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(activity, compat.getActivity());
         assertEquals(categories, compat.getCategories());
         assertEquals(rank, compat.getRank());
+        assertEquals(persistableBundle, compat.getExtras());
     }
 
     @Test
@@ -257,15 +270,20 @@ public class ShortcutInfoCompatTest {
                 new Person.Builder().setName("P1").build(),
                 new Person.Builder().setName("P2").build()};
 
+        PersistableBundle persistableBundle = new PersistableBundle();
+        persistableBundle.putString(TEST_EXTRAS_ID, TEST_EXTRAS_VALUE);
+
         ShortcutInfoCompat compat = mBuilder
                 .setPersons(persons)
                 .setLongLived(true)
+                .setExtras(persistableBundle)
                 .build();
 
         ShortcutInfo shortcut = compat.toShortcutInfo();
 
         assertNotNull(shortcut.getExtras());
         assertTrue(ShortcutInfoCompat.getLongLivedFromExtra(shortcut.getExtras()));
+        assertEquals(compat.getExtras().getString(TEST_EXTRAS_ID), TEST_EXTRAS_VALUE);
         Person[] retrievedPersons = ShortcutInfoCompat.getPersonsFromExtra(shortcut.getExtras());
         assertNotNull(retrievedPersons);
         assertEquals(persons.length, retrievedPersons.length);

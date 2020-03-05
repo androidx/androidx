@@ -71,6 +71,8 @@ public class ShortcutInfoCompat {
 
     int mRank;
 
+    PersistableBundle mExtras;
+
     ShortcutInfoCompat() { }
 
     /**
@@ -97,7 +99,9 @@ public class ShortcutInfoCompat {
             builder.setCategories(mCategories);
         }
         builder.setRank(mRank);
-
+        if (mExtras != null) {
+            builder.setExtras(mExtras);
+        }
         if (Build.VERSION.SDK_INT >= 29) {
             if (mPersons != null && mPersons.length > 0) {
                 android.app.Person[] persons = new android.app.Person[mPersons.length];
@@ -122,16 +126,18 @@ public class ShortcutInfoCompat {
     @RequiresApi(22)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     private PersistableBundle buildLegacyExtrasBundle() {
-        PersistableBundle bundle = new PersistableBundle();
+        if (mExtras == null) {
+            mExtras = new PersistableBundle();
+        }
         if (mPersons != null && mPersons.length > 0) {
-            bundle.putInt(EXTRA_PERSON_COUNT, mPersons.length);
+            mExtras.putInt(EXTRA_PERSON_COUNT, mPersons.length);
             for (int i = 0; i < mPersons.length; i++) {
-                bundle.putPersistableBundle(EXTRA_PERSON_ + (i + 1),
+                mExtras.putPersistableBundle(EXTRA_PERSON_ + (i + 1),
                         mPersons[i].toPersistableBundle());
             }
         }
-        bundle.putBoolean(EXTRA_LONG_LIVED, mIsLongLived);
-        return bundle;
+        mExtras.putBoolean(EXTRA_LONG_LIVED, mIsLongLived);
+        return mExtras;
     }
 
     Intent addToIntent(Intent outIntent) {
@@ -310,6 +316,11 @@ public class ShortcutInfoCompat {
         return results;
     }
 
+    @Nullable
+    public PersistableBundle getExtras() {
+        return mExtras;
+    }
+
     /**
      * Builder class for {@link ShortcutInfoCompat} objects.
      */
@@ -346,6 +357,9 @@ public class ShortcutInfoCompat {
             if (shortcutInfo.mCategories != null) {
                 mInfo.mCategories = new HashSet<>(shortcutInfo.mCategories);
             }
+            if (shortcutInfo.mExtras != null) {
+                mInfo.mExtras = shortcutInfo.mExtras;
+            }
         }
 
         /**
@@ -366,6 +380,7 @@ public class ShortcutInfoCompat {
             mInfo.mCategories = shortcutInfo.getCategories();
             mInfo.mPersons = ShortcutInfoCompat.getPersonsFromExtra(shortcutInfo.getExtras());
             mInfo.mRank = shortcutInfo.getRank();
+            mInfo.mExtras = shortcutInfo.getExtras();
         }
 
         /**
@@ -539,6 +554,20 @@ public class ShortcutInfoCompat {
         @NonNull
         public Builder setRank(int rank) {
             mInfo.mRank = rank;
+            return this;
+        }
+
+        /**
+         * Extras that the app can set for any purpose.
+         *
+         * <p>Apps can store arbitrary shortcut metadata in extras and retrieve the
+         * metadata later using {@link ShortcutInfo#getExtras()}.
+         *
+         * @see ShortcutInfo#getExtras
+         */
+        @NonNull
+        public Builder setExtras(@NonNull PersistableBundle extras) {
+            mInfo.mExtras = extras;
             return this;
         }
 
