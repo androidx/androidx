@@ -27,6 +27,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.resources.TextResource
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.ChangeType
@@ -40,8 +41,10 @@ open class ArgumentsGenerationTask : DefaultTask() {
     @get:Input
     lateinit var rFilePackage: Provider<String>
 
+    @get:Internal
     var applicationIdResource: TextResource? = null // null on AGP 3.2.1 and below
 
+    @get:Internal
     var applicationId: String? = null // null on AGP 3.3.0 and above
 
     @get:Input
