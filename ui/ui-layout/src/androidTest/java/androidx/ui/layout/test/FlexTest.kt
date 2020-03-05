@@ -1286,11 +1286,11 @@ class FlexTest : LayoutTest() {
             WithInfiniteConstraints {
                 ConstrainedBox(DpConstraints(minWidth = rowMinWidth)) {
                     Row {
-                        WithConstraints { constraints ->
+                        WithConstraints { constraints, _ ->
                             assertEquals(Constraints(), constraints)
                             FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
                         }
-                        WithConstraints { constraints ->
+                        WithConstraints { constraints, _ ->
                             assertEquals(Constraints(), constraints)
                             FixedSizeLayout(inflexibleChildWidth.toIntPx(), 0.ipx, mapOf())
                         }
@@ -1331,7 +1331,7 @@ class FlexTest : LayoutTest() {
                     )
                 ) {
                     Row {
-                        WithConstraints { constraints ->
+                        WithConstraints { constraints, _ ->
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
@@ -1341,7 +1341,7 @@ class FlexTest : LayoutTest() {
                             )
                             FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
                         }
-                        WithConstraints { constraints ->
+                        WithConstraints { constraints, _ ->
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx() - childWidth.toIntPx(),
@@ -1752,11 +1752,11 @@ class FlexTest : LayoutTest() {
                 WithInfiniteConstraints {
                     ConstrainedBox(DpConstraints(minHeight = columnMinHeight)) {
                         Column {
-                            WithConstraints { constraints ->
+                            WithConstraints { constraints, _ ->
                                 assertEquals(Constraints(), constraints)
                                 FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
                             }
-                            WithConstraints { constraints ->
+                            WithConstraints { constraints, _ ->
                                 assertEquals(Constraints(), constraints)
                                 FixedSizeLayout(0.ipx, inflexibleChildHeight.toIntPx(), mapOf())
                             }
@@ -1796,7 +1796,7 @@ class FlexTest : LayoutTest() {
                     )
                 ) {
                     Column {
-                        WithConstraints { constraints ->
+                        WithConstraints { constraints, _ ->
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
@@ -1806,7 +1806,7 @@ class FlexTest : LayoutTest() {
                             )
                             FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
                         }
-                        WithConstraints { constraints ->
+                        WithConstraints { constraints, _ ->
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),

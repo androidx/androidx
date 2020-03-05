@@ -111,7 +111,7 @@ fun ModalDrawerLayout(
     bodyContent: @Composable() () -> Unit
 ) {
     Container(expanded = true) {
-        WithConstraints { pxConstraints ->
+        WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedWidth) {
                 throw IllegalStateException("Drawer shouldn't have infinite width")
@@ -178,7 +178,7 @@ fun BottomDrawerLayout(
     bodyContent: @Composable() () -> Unit
 ) {
     Container(expanded = true) {
-        WithConstraints { pxConstraints ->
+        WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedHeight) {
                 throw IllegalStateException("Drawer shouldn't have infinite height")

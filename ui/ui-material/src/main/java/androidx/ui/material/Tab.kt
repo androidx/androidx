@@ -150,7 +150,7 @@ fun <T> TabRow(
     tab: @Composable() (Int, T) -> Unit
 ) {
     Surface(color = color, contentColor = contentColor) {
-        WithConstraints { constraints ->
+        WithConstraints { constraints, _ ->
             val width = constraints.maxWidth
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
             if (scrollable) {
