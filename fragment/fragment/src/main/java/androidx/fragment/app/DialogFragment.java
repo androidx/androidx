@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -93,14 +94,16 @@ public class DialogFragment extends Fragment
 
     private Handler mHandler;
     private Runnable mDismissRunnable = new Runnable() {
+        @SuppressLint("SyntheticAccessor")
         @Override
         public void run() {
             mOnDismissListener.onDismiss(mDialog);
         }
     };
 
-    DialogInterface.OnCancelListener mOnCancelListener =
+    private DialogInterface.OnCancelListener mOnCancelListener =
             new DialogInterface.OnCancelListener() {
+        @SuppressLint("SyntheticAccessor")
         @Override
         public void onCancel(@Nullable DialogInterface dialog) {
             if (mDialog != null) {
@@ -109,8 +112,9 @@ public class DialogFragment extends Fragment
         }
     };
 
-    DialogInterface.OnDismissListener mOnDismissListener =
+    private DialogInterface.OnDismissListener mOnDismissListener =
             new DialogInterface.OnDismissListener() {
+        @SuppressLint("SyntheticAccessor")
         @Override
         public void onDismiss(@Nullable DialogInterface dialog) {
             if (mDialog != null) {
@@ -119,16 +123,17 @@ public class DialogFragment extends Fragment
         }
     };
 
-    int mStyle = STYLE_NORMAL;
-    int mTheme = 0;
-    boolean mCancelable = true;
-    boolean mShowsDialog = true;
-    int mBackStackId = -1;
+    private int mStyle = STYLE_NORMAL;
+    private int mTheme = 0;
+    private boolean mCancelable = true;
+    private boolean mShowsDialog = true;
+    private int mBackStackId = -1;
 
-    @Nullable Dialog mDialog;
-    boolean mViewDestroyed;
-    boolean mDismissed;
-    boolean mShownByMe;
+    @Nullable
+    private Dialog mDialog;
+    private boolean mViewDestroyed;
+    private boolean mDismissed;
+    private boolean mShownByMe;
 
 
     /**
@@ -261,7 +266,7 @@ public class DialogFragment extends Fragment
         dismissInternal(true, false);
     }
 
-    void dismissInternal(boolean allowStateLoss, boolean fromOnDismiss) {
+    private void dismissInternal(boolean allowStateLoss, boolean fromOnDismiss) {
         if (mDismissed) {
             return;
         }
@@ -431,13 +436,9 @@ public class DialogFragment extends Fragment
 
         mDialog = onCreateDialog(savedInstanceState);
 
-        if (mDialog != null) {
-            setupDialog(mDialog, mStyle);
+        setupDialog(mDialog, mStyle);
 
-            return (LayoutInflater) mDialog.getContext().getSystemService(
-                    Context.LAYOUT_INFLATER_SERVICE);
-        }
-        return (LayoutInflater) mHost.getContext().getSystemService(
+        return (LayoutInflater) mDialog.getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -446,9 +447,11 @@ public class DialogFragment extends Fragment
     public void setupDialog(@NonNull Dialog dialog, int style) {
         switch (style) {
             case STYLE_NO_INPUT:
-                dialog.getWindow().addFlags(
-                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
                 // fall through...
             case STYLE_NO_FRAME:
             case STYLE_NO_TITLE:
@@ -509,24 +512,26 @@ public class DialogFragment extends Fragment
         }
 
         View view = getView();
-        if (view != null) {
-            if (view.getParent() != null) {
-                throw new IllegalStateException(
-                        "DialogFragment can not be attached to a container view");
+        if (mDialog != null) {
+            if (view != null) {
+                if (view.getParent() != null) {
+                    throw new IllegalStateException(
+                            "DialogFragment can not be attached to a container view");
+                }
+                mDialog.setContentView(view);
             }
-            mDialog.setContentView(view);
-        }
-        final Activity activity = getActivity();
-        if (activity != null) {
-            mDialog.setOwnerActivity(activity);
-        }
-        mDialog.setCancelable(mCancelable);
-        mDialog.setOnCancelListener(mOnCancelListener);
-        mDialog.setOnDismissListener(mOnDismissListener);
-        if (savedInstanceState != null) {
-            Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
-            if (dialogState != null) {
-                mDialog.onRestoreInstanceState(dialogState);
+            final Activity activity = getActivity();
+            if (activity != null) {
+                mDialog.setOwnerActivity(activity);
+            }
+            mDialog.setCancelable(mCancelable);
+            mDialog.setOnCancelListener(mOnCancelListener);
+            mDialog.setOnDismissListener(mOnDismissListener);
+            if (savedInstanceState != null) {
+                Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
+                if (dialogState != null) {
+                    mDialog.onRestoreInstanceState(dialogState);
+                }
             }
         }
     }
@@ -548,9 +553,7 @@ public class DialogFragment extends Fragment
         super.onSaveInstanceState(outState);
         if (mDialog != null) {
             Bundle dialogState = mDialog.onSaveInstanceState();
-            if (dialogState != null) {
-                outState.putBundle(SAVED_DIALOG_STATE_TAG, dialogState);
-            }
+            outState.putBundle(SAVED_DIALOG_STATE_TAG, dialogState);
         }
         if (mStyle != STYLE_NORMAL) {
             outState.putInt(SAVED_STYLE, mStyle);
