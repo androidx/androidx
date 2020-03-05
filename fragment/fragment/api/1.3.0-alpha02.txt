@@ -3,6 +3,7 @@ package androidx.fragment.app {
 
   public class DialogFragment extends androidx.fragment.app.Fragment implements android.content.DialogInterface.OnCancelListener android.content.DialogInterface.OnDismissListener {
     ctor public DialogFragment();
+    ctor public DialogFragment(@LayoutRes int);
     method public void dismiss();
     method public void dismissAllowingStateLoss();
     method public android.app.Dialog? getDialog();
