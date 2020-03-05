@@ -70,7 +70,7 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
 fun Text(
     text: String,
     modifier: Modifier = Modifier.None,
-    style: TextStyle? = null,
+    style: TextStyle = TextStyle.Default,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
     maxLines: Int = DefaultMaxLines,
@@ -107,7 +107,7 @@ fun Text(
 fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier.None,
-    style: TextStyle? = null,
+    style: TextStyle = TextStyle.Default,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
     maxLines: Int = DefaultMaxLines,
