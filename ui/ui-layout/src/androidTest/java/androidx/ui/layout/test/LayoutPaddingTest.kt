@@ -53,6 +53,38 @@ import java.util.concurrent.TimeUnit
 class LayoutPaddingTest : LayoutTest() {
 
     /**
+     * Tests that negative start padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeStartPadding_throws() {
+        LayoutPadding(start = -1f.dp)
+    }
+
+    /**
+     * Tests that negative top padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeTopPadding_throws() {
+        LayoutPadding(top = -1f.dp)
+    }
+
+    /**
+     * Tests that negative end padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeEndPadding_throws() {
+        LayoutPadding(end = -1f.dp)
+    }
+
+    /**
+     * Tests that negative bottom padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeBottomPadding_throws() {
+        LayoutPadding(bottom = -1f.dp)
+    }
+
+    /**
      * Tests that the [LayoutPadding]-all and [LayoutPadding] factories return equivalent modifiers.
      */
     @Test
