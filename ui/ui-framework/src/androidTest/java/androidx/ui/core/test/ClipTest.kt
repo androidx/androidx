@@ -30,6 +30,7 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Rect
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
@@ -69,6 +70,17 @@ class ClipTest {
                     moveTo(size.width.value / 2f, 0f)
                     lineTo(size.width.value, size.height.value)
                     lineTo(0f, size.height.value)
+                    close()
+                }
+            )
+    }
+    private val invertedTriangleShape = object : Shape {
+        override fun createOutline(size: PxSize, density: Density): Outline =
+            Outline.Generic(
+                Path().apply {
+                    lineTo(size.width.value, 0f)
+                    lineTo(size.width.value / 2f, size.height.value)
+                    lineTo(0f, 0f)
                     close()
                 }
             )
@@ -338,6 +350,49 @@ class ClipTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun switchBetweenDifferentPaths() {
+        val model = ValueModel<Shape>(triangleShape)
+        // to be replaced with a DrawModifier wrapped into remember, so the recomposition
+        // is not causing invalidation as the DrawModifier didn't change
+        val drawCallback: Density.(canvas: Canvas, parentSize: PxSize) -> Unit = { canvas, size ->
+            canvas.drawRect(
+                Rect(
+                    -100f,
+                    -100f,
+                    size.width.value + 100f,
+                    size.height.value + 100f
+                ), Paint().apply {
+                    this.color = Color.Cyan
+                })
+            drawLatch.countDown()
+        }
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                FillColor(Color.Green)
+                AtLeastSize(size = 30.ipx) {
+                    Clip(model.value) {
+                        @Suppress("DEPRECATION")
+                        Draw(drawCallback)
+                    }
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertTriangle(Color.Cyan, Color.Green)
+        }
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR { model.value = invertedTriangleShape }
+
+        takeScreenShot(30).apply {
+            assertInvertedTriangle(Color.Cyan, Color.Green)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun emitClipLater() {
         val model = ValueModel(false)
 
@@ -414,6 +469,26 @@ fun Bitmap.assertTriangle(innerColor: Color, outerColor: Color) {
     assertColor(outerColor, center - 4, 0)
     assertColor(outerColor, center + 4, 0)
     assertColor(innerColor, center, 4)
+}
+
+fun Bitmap.assertInvertedTriangle(innerColor: Color, outerColor: Color) {
+    Assert.assertEquals(width, height)
+    val center = (width - 1) / 2
+    val last = width - 1
+    // check center
+    assertColor(innerColor, center, center)
+    // check top corners
+    assertColor(outerColor, 0, 4)
+    assertColor(innerColor, 4, 4)
+    assertColor(outerColor, last, 4)
+    assertColor(innerColor, last - 4, 0)
+    // check bottom corners
+    assertColor(outerColor, 4, last - 4)
+    assertColor(outerColor, last - 4, last - 4)
+    // check bottom center
+    assertColor(outerColor, center - 4, last)
+    assertColor(outerColor, center + 4, last)
+    assertColor(innerColor, center, last - 4)
 }
 
 fun Bitmap.assertColor(expectedColor: Color, x: Int, y: Int) {
