@@ -27,6 +27,7 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
@@ -36,6 +37,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import com.google.common.truth.Truth
@@ -78,21 +80,25 @@ class BoxTest {
     @Test
     fun box_testPadding_separate() {
         var childSize: IntPxSize? = null
+        var childPosition: PxPosition? = null
         val size = 100.dp
-        val left = 17.dp
+        val start = 17.dp
         val top = 2.dp
-        val right = 5.dp
+        val end = 5.dp
         val bottom = 8.dp
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
                     LayoutSize(size),
-                    paddingLeft = left,
-                    paddingRight = right,
+                    paddingStart = start,
+                    paddingEnd = end,
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {
-                    OnChildPositioned({ childSize = it.size }) {
+                    OnChildPositioned({
+                        childSize = it.size
+                        childPosition = it.localToGlobal(PxPosition.Origin)
+                    }) {
                         Box(LayoutSize.Fill)
                     }
                 }
@@ -100,10 +106,50 @@ class BoxTest {
         }
         with(composeTestRule.density) {
             Truth.assertThat(childSize!!.width).isEqualTo(
-                size.toIntPx() - left.toIntPx() - right.toIntPx()
+                size.toIntPx() - start.toIntPx() - end.toIntPx()
             )
             Truth.assertThat(childSize!!.height)
                 .isEqualTo(size.toIntPx() - top.toIntPx() - bottom.toIntPx())
+            Truth.assertThat(childPosition!!)
+                .isEqualTo(PxPosition(start.toIntPx(), top.toIntPx()))
+        }
+    }
+
+    @Test
+    fun box_testPadding_rtl() {
+        var childSize: IntPxSize? = null
+        var childPosition: PxPosition? = null
+        val size = 100.dp
+        val start = 17.dp
+        val top = 2.dp
+        val end = 5.dp
+        val bottom = 8.dp
+        composeTestRule.setContent {
+            SemanticsParent {
+                Box(
+                    LayoutSize(size) + LayoutDirectionModifier.Rtl,
+                    paddingStart = start,
+                    paddingEnd = end,
+                    paddingTop = top,
+                    paddingBottom = bottom
+                ) {
+                    OnChildPositioned({
+                        childSize = it.size
+                        childPosition = it.localToGlobal(PxPosition.Origin)
+                    }) {
+                        Box(LayoutSize.Fill)
+                    }
+                }
+            }
+        }
+        with(composeTestRule.density) {
+            Truth.assertThat(childSize!!.width).isEqualTo(
+                size.toIntPx() - start.toIntPx() - end.toIntPx()
+            )
+            Truth.assertThat(childSize!!.height)
+                .isEqualTo(size.toIntPx() - top.toIntPx() - bottom.toIntPx())
+            Truth.assertThat(childPosition!!)
+                .isEqualTo(PxPosition(end.toIntPx(), top.toIntPx()))
         }
     }
 
@@ -120,7 +166,7 @@ class BoxTest {
                 Box(
                     LayoutSize(size),
                     padding = padding,
-                    paddingLeft = left,
+                    paddingStart = left,
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {

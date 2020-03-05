@@ -214,8 +214,8 @@ private fun BottomNavigationItemBaselineLayout(
             Opacity(iconPositionAnimationProgress) {
                 Box(
                     LayoutTag("text"),
-                    paddingLeft = BottomNavigationItemHorizontalPadding,
-                    paddingRight = BottomNavigationItemHorizontalPadding,
+                    paddingStart = BottomNavigationItemHorizontalPadding,
+                    paddingEnd = BottomNavigationItemHorizontalPadding,
                     children = text
                 )
             }

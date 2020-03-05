@@ -46,7 +46,7 @@ class BoxActivity : Activity() {
                     modifier = LayoutSize(200.dp, 100.dp),
                     shape = RoundedCornerShape(10.dp),
                     border = Border(5.dp, Color.Gray),
-                    paddingLeft = 20.dp,
+                    paddingStart = 20.dp,
                     backgroundColor = Color.White
                 ) {
                     Box(

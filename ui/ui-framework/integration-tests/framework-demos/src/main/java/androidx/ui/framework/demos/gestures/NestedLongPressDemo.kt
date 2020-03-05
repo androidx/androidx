@@ -81,9 +81,9 @@ fun LongPressableContainer(
 
     LongPressGestureDetector(onLongPress) {
         Box(
-            paddingLeft = paddingLeft,
+            paddingStart = paddingLeft,
             paddingTop = paddingTop,
-            paddingRight = paddingRight,
+            paddingEnd = paddingRight,
             paddingBottom = paddingBottom,
             backgroundColor = color,
             gravity = ContentGravity.Center,
