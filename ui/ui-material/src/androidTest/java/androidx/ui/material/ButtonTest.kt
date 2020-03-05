@@ -27,7 +27,7 @@ import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -293,7 +293,7 @@ class ButtonTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Wrap {
+            Stack {
                 button {
                     OnPositioned {
                         parentCoordinates = it

@@ -32,7 +32,7 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.PxPosition
@@ -59,7 +59,7 @@ class PopupDragActivity : Activity() {
             }
 
             Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
-                Wrap {
+                Stack {
                     RawDragGestureDetector(observer) {
                         Box(
                             LayoutSize(70.dp),

@@ -31,7 +31,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
@@ -56,7 +56,7 @@ fun Switch(
     color: Color = MaterialTheme.colors().secondaryVariant
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
-        Wrap {
+        Stack {
             Ripple(bounded = false) {
                 Toggleable(value = checked, onValueChange = onCheckedChange) {
                     Box(LayoutPadding(DefaultSwitchPadding)) {

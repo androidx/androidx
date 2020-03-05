@@ -25,7 +25,6 @@ import androidx.ui.foundation.samples.ScrollableSample
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Wrap
 import androidx.ui.unit.dp
 
 class HighLevelGesturesActivity : Activity() {
@@ -33,14 +32,12 @@ class HighLevelGesturesActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Wrap {
-                Column {
-                    DraggableSample()
-                    Spacer(LayoutHeight(100.dp))
-                    AnchoredDraggableSample()
-                    Spacer(LayoutHeight(100.dp))
-                    ScrollableSample()
-                }
+            Column {
+                DraggableSample()
+                Spacer(LayoutHeight(100.dp))
+                AnchoredDraggableSample()
+                Spacer(LayoutHeight(100.dp))
+                ScrollableSample()
             }
         }
     }

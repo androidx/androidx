@@ -29,7 +29,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.material.ripple.RippleThemeAmbient
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.ripple.RippleEffect
@@ -115,7 +115,7 @@ class RippleEffectTest {
                 latch.countDown()
             }) {
                 Card {
-                    Wrap {
+                    Stack {
                         Row {
                             RippleButton(size)
                             TestTag(tag = "ripple") {

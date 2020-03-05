@@ -31,7 +31,7 @@ import androidx.ui.layout.MaxIntrinsicWidth
 import androidx.ui.layout.MinIntrinsicHeight
 import androidx.ui.layout.MinIntrinsicWidth
 import androidx.ui.layout.Row
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.unit.dp
 
 /**
@@ -46,7 +46,7 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun SameWidthBoxes() {
-    Wrap {
+    Stack {
         MinIntrinsicWidth {
             Column(LayoutHeight.Fill) {
                 Box(
@@ -79,7 +79,7 @@ fun SameWidthBoxes() {
 @Sampled
 @Composable
 fun MatchParentDividerForText() {
-    Wrap {
+    Stack {
         MinIntrinsicHeight {
             Row {
                 Text(
@@ -109,7 +109,7 @@ fun MatchParentDividerForText() {
 @Sampled
 @Composable
 fun SameWidthTextBoxes() {
-    Wrap {
+    Stack {
         MaxIntrinsicWidth {
             Column(LayoutHeight.Fill) {
                 Box(LayoutWidth.Fill, backgroundColor = Color.Gray) {
@@ -139,7 +139,7 @@ fun SameWidthTextBoxes() {
 @Sampled
 @Composable
 fun MatchParentDividerForAspectRatio() {
-    Wrap {
+    Stack {
         MaxIntrinsicHeight {
             Row {
                 val modifier = LayoutHeight.Fill + LayoutFlexible(1f)

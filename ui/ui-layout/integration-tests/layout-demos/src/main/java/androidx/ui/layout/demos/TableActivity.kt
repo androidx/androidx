@@ -19,7 +19,7 @@ package androidx.ui.layout.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.setContent
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.layout.samples.TableWithDecorations
 
 class TableActivity : Activity() {
@@ -27,7 +27,7 @@ class TableActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Wrap {
+            Stack {
                 TableWithDecorations()
             }
         }

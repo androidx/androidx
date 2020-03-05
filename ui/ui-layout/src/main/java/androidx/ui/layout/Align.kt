@@ -37,9 +37,7 @@ import androidx.ui.unit.max
  * or wrap content otherwise.
  *
  * For a composable that just does center alignment, see [Center].
- * For a composable that does alignment and tries to be the same size as its child, see [Wrap].
  * @see Center
- * @see Wrap
  */
 @Composable
 // TODO (b/145599478): remove usages of Align and Center, and fully deprecate them
@@ -81,9 +79,7 @@ internal fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
  * constraints, or wrap content otherwise.
  *
  * For a composable that supports other alignments than just center, see [Align].
- * For a composable that does alignment and tries to be the same size as its child, see [Wrap].
  * @see Align
- * @see Wrap
  */
 @Composable
 fun Center(children: @Composable() () -> Unit) {

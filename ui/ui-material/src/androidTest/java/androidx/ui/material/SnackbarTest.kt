@@ -24,7 +24,7 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.globalPosition
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByText
@@ -54,7 +54,7 @@ class SnackbarTest {
     fun defaultSnackbar_semantics() {
         var clicked = false
         composeTestRule.setMaterialContent {
-            Wrap {
+            Stack {
                 Snackbar(text = { Text("Message") }, action = {
                     TextButton(onClick = { clicked = true }) {
                         Text("UNDO")
