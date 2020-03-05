@@ -93,7 +93,7 @@ private fun AlertHeader(onClickSeeAll: () -> Unit) {
         )
         TextButton(
             onClick = onClickSeeAll,
-            paddings = EdgeInsets(0.dp),
+            innerPadding = EdgeInsets(0.dp),
             modifier = LayoutGravity.Center
         ) {
             Text("SEE ALL")

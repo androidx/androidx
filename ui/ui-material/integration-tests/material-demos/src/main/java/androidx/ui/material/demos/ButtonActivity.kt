@@ -90,13 +90,13 @@ class ButtonActivity : MaterialDemoActivity() {
         Spacer(LayoutHeight(DefaultSpace))
 
         Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-            Button(backgroundColor = MaterialTheme.colors().secondary, onClick = {}) {
+            Button(onClick = {}, backgroundColor = MaterialTheme.colors().secondary) {
                 Text("Secondary Color")
             }
             // TODO(Andrey): Disabled button has wrong bg and text color for now.
             // Need to figure out where will we store their styling. Not a part of
             // ColorPalette right now and specs are not clear about this.
-            Button {
+            Button(onClick = {}, enabled = false) {
                 Text("DISABLED. TODO")
             }
         }
@@ -108,19 +108,13 @@ class ButtonActivity : MaterialDemoActivity() {
         Spacer(LayoutHeight(DefaultSpace))
 
         Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+            FloatingActionButton(onClick = {}, icon = icon)
+            FloatingActionButton(onClick = {}, text = "EXTENDED")
             FloatingActionButton(
-                icon = icon,
-                onClick = {}
-            )
-            FloatingActionButton(
-                text = "EXTENDED",
-                onClick = {}
-            )
-            FloatingActionButton(
+                onClick = {},
                 icon = icon,
                 text = "ADD TO FAVS",
-                color = MaterialTheme.colors().error,
-                onClick = {}
+                color = MaterialTheme.colors().error
             )
         }
     }
@@ -141,8 +135,8 @@ class ButtonActivity : MaterialDemoActivity() {
         Text("Custom shape button")
         Spacer(LayoutHeight(DefaultSpace))
         OutlinedButton(
-            modifier = LayoutSize(100.dp),
             onClick = {},
+            modifier = LayoutSize(100.dp),
             shape = TriangleShape,
             backgroundColor = Color.Yellow,
             border = Border(size = 2.dp, color = Color.Black)

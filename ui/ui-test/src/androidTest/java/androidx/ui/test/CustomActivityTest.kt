@@ -38,7 +38,7 @@ class CustomActivity : Activity() {
         setContent {
             MaterialTheme {
                 Stack {
-                    Button {
+                    Button(onClick = {}) {
                         Text("Hello")
                     }
                 }

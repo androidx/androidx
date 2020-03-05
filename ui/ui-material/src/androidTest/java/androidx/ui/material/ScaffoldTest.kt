@@ -227,7 +227,7 @@ class ScaffoldTest {
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
-                    FloatingActionButton("text")
+                    FloatingActionButton("text", onClick = {})
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked
             ) {
@@ -241,7 +241,7 @@ class ScaffoldTest {
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
-                    FloatingActionButton("text")
+                    FloatingActionButton("text", onClick = {})
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
             ) {
@@ -262,7 +262,7 @@ class ScaffoldTest {
                         fabSize = positioned.size
                         fabPosition = positioned.localToGlobal(positioned.positionInParent)
                     }) {
-                        FloatingActionButton("text")
+                        FloatingActionButton("text", onClick = {})
                     }
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
@@ -293,7 +293,7 @@ class ScaffoldTest {
                         fabSize = positioned.size
                         fabPosition = positioned.localToGlobal(positioned.positionInParent)
                     }) {
-                        FloatingActionButton("text")
+                        FloatingActionButton("text", onClick = {})
                     }
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.EndDocked,

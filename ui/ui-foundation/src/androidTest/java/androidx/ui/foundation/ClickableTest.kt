@@ -66,7 +66,7 @@ class ClickableTest {
         composeTestRule.setContent {
             Center {
                 TestTag(tag = "myClickable") {
-                    Clickable {
+                    Clickable(onClick = {}, enabled = false) {
                         Text("ClickableText")
                     }
                 }
