@@ -68,7 +68,7 @@ class OpacityTest {
                 AtLeastSize(size = 10.ipx) {
                     FillColor(Color.White)
                     Opacity(opacity = 1f) {
-                        FillColor(color)
+                        FillColor(color, needLatch = true)
                     }
                 }
             }
@@ -86,7 +86,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White)
+                    FillColor(Color.White, needLatch = true)
                     Opacity(opacity = 0f) {
                         FillColor(color)
                     }
@@ -109,7 +109,7 @@ class OpacityTest {
                 Row {
                     AtLeastSize(size = 10.ipx) {
                         Opacity(opacity = 0.5f) {
-                            FillColor(color)
+                            FillColor(color, needLatch = true)
                         }
                     }
                     AtLeastSize(size = 10.ipx) {
@@ -135,14 +135,13 @@ class OpacityTest {
                 AtLeastSize(size = 10.ipx) {
                     FillColor(Color.White)
                     Opacity(opacity = model.value) {
-                        FillColor(color)
+                        FillColor(color, needLatch = true)
                     }
                 }
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        drawLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             model.value = 1f
         }
@@ -161,7 +160,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White)
+                    FillColor(Color.White, needLatch = true)
                     Opacity(1f) {
                         Opacity(opacity = opacity) {
                             FillColor(color)
@@ -172,7 +171,6 @@ class OpacityTest {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        drawLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             opacity = 1f
         }
@@ -190,7 +188,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White)
+                    FillColor(Color.White, needLatch = true)
                     if (model.value) {
                         Opacity(opacity = 0f) {
                             FillColor(Color.Green)
@@ -213,13 +211,15 @@ class OpacityTest {
 
     // this should be converted to Modifier after LayerModifier are the thing
     @Composable
-    private fun FillColor(color: Color) {
+    private fun FillColor(color: Color, needLatch: Boolean = false) {
         @Suppress("DEPRECATION") // remove when b/147606015 is fixed
         Draw { canvas, parentSize ->
             canvas.drawRect(parentSize.toRect(), Paint().apply {
                     this.color = color
                 })
-            drawLatch.countDown()
+            if (needLatch) {
+                drawLatch.countDown()
+            }
         }
     }
 
