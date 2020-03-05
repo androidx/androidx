@@ -161,6 +161,9 @@ public class AccessibilityNodeInfoCompatTest {
             actionCompat = AccessibilityActionCompat.ACTION_HIDE_TOOLTIP;
             assertThat(actionCompat.getId(),
                     is(getExpectedActionId(android.R.id.accessibilityActionHideTooltip)));
+            actionCompat = AccessibilityActionCompat.ACTION_PRESS_AND_HOLD;
+            assertThat(actionCompat.getId(),
+                    is(getExpectedActionId(android.R.id.accessibilityActionPressAndHold)));
         } catch (NullPointerException e) {
             Assert.fail("Expected no NullPointerException, but got: " + e.getMessage());
         }
