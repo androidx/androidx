@@ -30,14 +30,13 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 private class MulticastedPagingData<T : Any>(
     val scope: CoroutineScope,
     val parent: PagingData<T>,
     // used in tests
     val tracker: ActiveFlowTracker? = null
 ) {
-    @FlowPreview
     private val accumulated = CachedPageEventFlow(
         src = parent.flow.onStart {
             tracker?.onStart(PAGE_EVENT_FLOW)
@@ -47,15 +46,12 @@ private class MulticastedPagingData<T : Any>(
         scope = scope
     )
 
-    @FlowPreview
-    @ExperimentalCoroutinesApi
     fun asPagingData() = PagingData(
         flow = accumulated.downstreamFlow,
         receiver = parent.receiver
     )
 
     @FlowPreview
-    @ExperimentalCoroutinesApi
     suspend fun close() = accumulated.close()
 }
 
@@ -92,14 +88,11 @@ private class MulticastedPagingData<T : Any>(
  *
  * @param scope The coroutine scope where this page cache will be kept alive.
  */
-@ExperimentalCoroutinesApi
-@FlowPreview
 fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope
 ) = cachedIn(scope, null)
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope,
     // used in tests

@@ -22,13 +22,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingConfig
 import androidx.paging.PagingDataFlow
 import androidx.paging.cachedIn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 
-@ExperimentalCoroutinesApi
 class V3ViewModel : ViewModel() {
-    @FlowPreview
     val flow = PagingDataFlow(PagingConfig(10), ItemPagingSource.Factory)
         .map { pagingData ->
             pagingData
