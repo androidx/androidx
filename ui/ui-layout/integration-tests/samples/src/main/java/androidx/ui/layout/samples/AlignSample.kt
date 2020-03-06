@@ -18,10 +18,8 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Alignment
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Align
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutAlign
@@ -31,22 +29,6 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.unit.dp
-
-@Sampled
-@Composable
-fun SimpleAlign() {
-    Align(Alignment.BottomEnd) {
-        Box(LayoutSize(20.dp, 20.dp), backgroundColor = Color.Blue)
-    }
-}
-
-@Sampled
-@Composable
-fun SimpleCenter() {
-    Center {
-        Box(LayoutSize(20.dp, 20.dp), backgroundColor = Color.Blue)
-    }
-}
 
 @Sampled
 @Composable

@@ -18,12 +18,10 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Alignment
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Align
 import androidx.ui.layout.Center
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutHeight
@@ -66,19 +64,15 @@ fun SimpleFillWidthModifier() {
 @Sampled
 @Composable
 fun SimpleFillHeightModifier() {
-    Align(alignment = Alignment.TopStart) {
-        Box(LayoutHeight.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-            ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
-        }
+    Box(LayoutHeight.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
+        ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
     }
 }
 
 @Sampled
 @Composable
 fun SimpleFillModifier() {
-    Align(alignment = Alignment.TopStart) {
-        Box(LayoutSize.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-            ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
-        }
+    Box(LayoutSize.Fill, backgroundColor = Color.Red, gravity = ContentGravity.Center) {
+        ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
     }
 }
