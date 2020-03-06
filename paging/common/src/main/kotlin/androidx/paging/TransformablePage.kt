@@ -66,4 +66,7 @@ internal data class TransformablePage<T : Any>(
         }
         return ViewportHint(originalPageOffset, indexInPage)
     }
+
+    val originalLastIndex
+        get() = originalPageSize - 1
 }

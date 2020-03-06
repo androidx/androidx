@@ -53,7 +53,7 @@ internal sealed class PageEvent<T : Any> {
 
         internal inline fun <R : Any> transformPages(
             transform: (List<TransformablePage<T>>) -> List<TransformablePage<R>>
-        ): PageEvent<R> = Insert(
+        ): Insert<R> = Insert(
             loadType = loadType,
             pages = transform(pages),
             placeholdersStart = placeholdersStart,
@@ -105,21 +105,6 @@ internal sealed class PageEvent<T : Any> {
             )
         }
 
-        override fun filterOutEmptyPages(
-            currentPages: MutableList<TransformablePage<T>>
-        ): PageEvent<T> {
-            // insert pre-filtered pages into list, so drop
-            // can account for pages we've filtered out here
-            applyToList(currentPages)
-
-            return if (pages.any { it.data.isEmpty() }) {
-                transformPages { pages -> pages.filter { it.data.isNotEmpty() } }
-            } else {
-                // no empty pages, can safely reuse this page
-                this
-            }
-        }
-
         companion object {
             fun <T : Any> Refresh(
                 pages: List<TransformablePage<T>>,
@@ -155,42 +140,6 @@ internal sealed class PageEvent<T : Any> {
                 "Invalid placeholdersRemaining $placeholdersRemaining"
             }
         }
-
-        /**
-         * Alter the drop event to skip dropping any empty pages, since they won't have been
-         * sent downstream.
-         */
-        override fun filterOutEmptyPages(
-            currentPages: MutableList<TransformablePage<T>>
-        ): PageEvent<T> {
-            // decrease count by number of empty pages that would have been dropped, since these
-            // haven't been sent downstream
-            var newCount = count
-            if (loadType == START) {
-                repeat(count) { i ->
-                    if (currentPages[i].data.isEmpty()) {
-                        newCount--
-                    }
-                }
-            } else {
-                repeat(count) { i ->
-                    if (currentPages[currentPages.size - i].data.isEmpty()) {
-                        newCount--
-                    }
-                }
-            }
-
-            // apply drop to currentPages after newCount is computed, so it represents loaded
-            // pages before this tranform is applied
-            applyToList(currentPages)
-
-            return if (newCount == count) {
-                // no empty pages encountered
-                this
-            } else {
-                Drop(loadType, newCount, placeholdersRemaining)
-            }
-        }
     }
 
     data class LoadStateUpdate<T : Any>(
@@ -212,42 +161,55 @@ internal sealed class PageEvent<T : Any> {
     open fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PageEvent<R> = this as PageEvent<R>
 
     open fun filter(predicate: (T) -> Boolean): PageEvent<T> = this
-
-    open fun filterOutEmptyPages(
-        currentPages: MutableList<TransformablePage<T>>
-    ): PageEvent<T> = this
 }
 
-/**
- * TODO: optimize this per usecase, to avoid holding onto the whole page in memory
- */
-internal fun <T : Any> PageEvent.Insert<T>.applyToList(
-    currentPages: MutableList<TransformablePage<T>>
-) {
-    when (loadType) {
-        REFRESH -> {
-            check(currentPages.isEmpty())
-            currentPages.addAll(pages)
-        }
-        START -> {
-            currentPages.addAll(0, pages)
-        }
-        END -> {
-            currentPages.addAll(currentPages.size, pages)
-        }
-    }
+private fun <T> MutableList<T>.removeFirst(count: Int) {
+    repeat(count) { removeAt(0) }
+}
+private fun <T> MutableList<T>.removeLast(count: Int) {
+    repeat(count) { removeAt(lastIndex) }
 }
 
-/**
- * TODO: optimize this per usecase, to avoid holding onto the whole page in memory
- */
-internal fun <T : Any> PageEvent.Drop<T>.applyToList(
-    currentPages: MutableList<TransformablePage<T>>
-) {
-    if (loadType == START) {
-        repeat(count) { currentPages.removeAt(0) }
-    } else {
-        repeat(count) { currentPages.removeAt(currentPages.lastIndex) }
+internal inline fun <R : Any, T : R, PageStash, Stash> Flow<PageEvent<T>>.scan(
+    crossinline createStash: () -> Stash,
+    crossinline createPageStash: (TransformablePage<T>) -> PageStash,
+    crossinline createInsert: (PageEvent.Insert<T>, List<PageStash>, Stash) -> PageEvent.Insert<R>,
+    crossinline createDrop: (PageEvent.Drop<T>, List<PageStash>, Stash) -> PageEvent.Drop<R>
+): Flow<PageEvent<R>> {
+    var stash: Stash = createStash()
+    val pageStash = mutableListOf<PageStash>()
+    return map { event ->
+        @Suppress("UNCHECKED_CAST")
+        when (event) {
+            is PageEvent.Insert<T> -> {
+                // use the stash before modifying it, since we may want to inspect adjacent pages
+                val output = createInsert(event, pageStash, stash)
+                val pageStashes = event.pages.map { createPageStash(it) }
+                when (event.loadType) {
+                    REFRESH -> {
+                        check(pageStash.isEmpty())
+                        pageStash.addAll(pageStashes)
+                    }
+                    START -> {
+                        pageStash.addAll(0, pageStashes)
+                    }
+                    END -> {
+                        pageStash.addAll(pageStash.size, pageStashes)
+                    }
+                }
+                output
+            }
+            is PageEvent.Drop -> {
+                if (event.loadType == START) {
+                    pageStash.removeFirst(event.count)
+                } else {
+                    pageStash.removeLast(event.count)
+                }
+                // use the stash after modifying it
+                createDrop(event, pageStash, stash)
+            }
+            is PageEvent.LoadStateUpdate -> event as PageEvent<R>
+        }
     }
 }
 
@@ -256,25 +218,43 @@ internal fun <T : Any> PageEvent.Drop<T>.applyToList(
  *
  * This can be used before accessing adjacent pages, to ensure adjacent pages have context in
  * them.
- */
-internal fun <T : Any> Flow<PageEvent<T>>.removeEmptyPages(): Flow<PageEvent<T>> {
-    val pages = mutableListOf<TransformablePage<T>>()
-
-    // TODO: consider dropping, or not even creating noop (empty) events entirely
-    return map { it.filterOutEmptyPages(pages) }
-}
-
-/**
- * Transforms the Flow to include optional separators in between each pair of items in the output
- * stream.
  *
- * TODO: support separator at beginning / end - requires tracking of loading state
- *  (to know when an Insert.Start event is terminal)
+ * Note that we don't drop events, since those can contain other important state
  */
-internal fun <R : Any, T : R> Flow<PageEvent<T>>.insertSeparators(
-    generator: (T?, T?) -> R?
-): Flow<PageEvent<R>> {
-    val pages = mutableListOf<TransformablePage<T>>()
-    return removeEmptyPages()
-        .map { event -> event.insertSeparators(pages, generator) }
-}
+internal fun <T : Any> Flow<PageEvent<T>>.removeEmptyPages(): Flow<PageEvent<T>> = scan(
+    createStash = { Unit },
+    createPageStash = { page ->
+        // stash contains whether incoming page was empty
+        page.data.isEmpty()
+    },
+    createInsert = { insert, _, _ ->
+        if (insert.pages.any { it.data.isEmpty() }) {
+            // filter out empty pages
+            insert.transformPages { pages -> pages.filter { it.data.isNotEmpty() } }
+        } else {
+            // no empty pages, can safely reuse this page
+            insert
+        }
+    },
+    createDrop = { drop, pageStash, _ ->
+        var newCount = drop.count
+        if (drop.loadType == START) {
+            repeat(drop.count) { i ->
+                if (pageStash[i]) {
+                    newCount--
+                }
+            }
+        } else {
+            repeat(drop.count) { i ->
+                if (pageStash[pageStash.lastIndex - i]) {
+                    newCount--
+                }
+            }
+        }
+        if (drop.count == newCount) {
+            drop
+        } else {
+            drop.copy(count = newCount)
+        }
+    }
+)
