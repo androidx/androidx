@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.semantics.SemanticsPropertyKey
 
 /**
@@ -25,7 +25,7 @@ import androidx.ui.semantics.SemanticsPropertyKey
  */
 class SemanticsPredicate(
     val description: String,
-    val condition: SemanticsConfiguration.() -> Boolean
+    val condition: SemanticsNode.() -> Boolean
 ) {
     companion object {
         /**
@@ -39,7 +39,7 @@ class SemanticsPredicate(
          */
         fun <T> expectValue(key: SemanticsPropertyKey<T>, expectedValue: T): SemanticsPredicate {
             return SemanticsPredicate("${key.name} = '$expectedValue'") {
-                getOrElseNullable(key) { null } == expectedValue
+                config.getOrElseNullable(key) { null } == expectedValue
             }
         }
 
@@ -48,7 +48,7 @@ class SemanticsPredicate(
          */
         fun <T> keyIsDefined(key: SemanticsPropertyKey<T>): SemanticsPredicate {
             return SemanticsPredicate("${key.name} is defined") {
-                key in this
+                key in this.config
             }
         }
 
@@ -57,7 +57,7 @@ class SemanticsPredicate(
          */
         fun <T> keyNotDefined(key: SemanticsPropertyKey<T>): SemanticsPredicate {
             return SemanticsPredicate("${key.name} is NOT defined") {
-                key !in this
+                key !in this.config
             }
         }
     }
