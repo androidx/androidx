@@ -56,8 +56,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
-import androidx.ui.material.surface.primarySurface
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx

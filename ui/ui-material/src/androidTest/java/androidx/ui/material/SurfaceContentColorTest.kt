@@ -19,7 +19,6 @@ package androidx.ui.material
 import androidx.test.filters.MediumTest
 import androidx.ui.core.currentTextStyle
 import androidx.ui.graphics.Color
-import androidx.ui.material.surface.Surface
 import androidx.ui.foundation.contentColor
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat

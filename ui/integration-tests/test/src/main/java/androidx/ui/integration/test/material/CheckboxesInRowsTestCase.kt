@@ -26,7 +26,7 @@ import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.Row
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 

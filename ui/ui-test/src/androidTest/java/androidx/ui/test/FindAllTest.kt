@@ -21,7 +21,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.layout.Column
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -25,7 +25,7 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.test.util.obfuscateNodesInfo

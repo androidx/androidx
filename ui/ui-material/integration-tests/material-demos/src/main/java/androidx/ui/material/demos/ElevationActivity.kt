@@ -30,7 +30,7 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Card
+import androidx.ui.material.Card
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 

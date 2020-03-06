@@ -23,7 +23,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.TestTag
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
-import androidx.ui.material.surface.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap

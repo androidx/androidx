@@ -32,7 +32,7 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TriStateCheckbox
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

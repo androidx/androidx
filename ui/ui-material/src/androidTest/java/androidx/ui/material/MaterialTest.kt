@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.layout.DpConstraints
-import androidx.ui.material.surface.Surface
 import androidx.ui.test.BigTestConstraints
 import androidx.ui.test.CollectedSizes
 import androidx.ui.test.ComposeTestRule

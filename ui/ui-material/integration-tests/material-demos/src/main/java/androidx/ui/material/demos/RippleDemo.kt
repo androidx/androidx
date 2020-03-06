@@ -26,7 +26,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Card
+import androidx.ui.material.Card
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 

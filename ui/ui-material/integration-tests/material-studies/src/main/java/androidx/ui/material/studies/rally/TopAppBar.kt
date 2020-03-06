@@ -33,7 +33,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import java.util.Locale
@@ -51,7 +51,8 @@ fun RallyTopAppBar(
                     text = screen.name.toUpperCase(Locale.getDefault()),
                     icon = screen.icon,
                     onSelected = { onTabSelected(screen) },
-                    selected = currentScreen.ordinal == index)
+                    selected = currentScreen.ordinal == index
+                )
             }
         }
     }
