@@ -18,17 +18,18 @@ package androidx.ui.core.selection
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.Constraints
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
+import androidx.ui.core.draw
 import androidx.ui.geometry.Rect
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 
 internal val HANDLE_WIDTH = 25.dp
 internal val HANDLE_HEIGHT = 25.dp
@@ -38,56 +39,53 @@ private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 private fun SelectionHandle(left: Boolean) {
     val paint = remember { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
-    FixedDimension(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
-        Draw { canvas, _ ->
-            val path = Path().apply {
-                addRect(
-                    Rect(
-                        top = 0f,
-                        bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
-                        left = if (left) {
-                            0.5f * HANDLE_WIDTH.toPx().value
-                        } else {
-                            0f
-                        },
-                        right = if (left) {
-                            HANDLE_WIDTH.toPx().value
-                        } else {
-                            0.5f * HANDLE_WIDTH.toPx().value
-                        }
-                    )
+    HandleDrawLayout(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) { canvas, _ ->
+        val path = Path().apply {
+            addRect(
+                Rect(
+                    top = 0f,
+                    bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
+                    left = if (left) {
+                        0.5f * HANDLE_WIDTH.toPx().value
+                    } else {
+                        0f
+                    },
+                    right = if (left) {
+                        HANDLE_WIDTH.toPx().value
+                    } else {
+                        0.5f * HANDLE_WIDTH.toPx().value
+                    }
                 )
-
-                addOval(
-                    Rect(
-                        top = 0f,
-                        bottom = HANDLE_HEIGHT.toPx().value,
-                        left = 0f,
-                        right = HANDLE_WIDTH.toPx().value
-                    )
+            )
+            addOval(
+                Rect(
+                    top = 0f,
+                    bottom = HANDLE_HEIGHT.toPx().value,
+                    left = 0f,
+                    right = HANDLE_WIDTH.toPx().value
                 )
-            }
-
-            canvas.drawPath(path, paint)
+            )
         }
+        canvas.drawPath(path, paint)
     }
 }
 
+/**
+ * Simple container to perform drawing of selection handles. This layout takes size on the screen
+ * according to [width] and [height] params and performs drawing in this space as specified in
+ * [onCanvas]
+ */
 @Composable
-private fun FixedDimension(
+private fun HandleDrawLayout(
     width: Dp,
     height: Dp,
-    children: @Composable() () -> Unit
+    onCanvas: Density.(Canvas, PxSize) -> Unit
 ) {
-    Layout(children) { measurables, _ ->
-        val constraints = Constraints.fixed(width.toIntPx(), height.toIntPx())
-        val placeables = measurables.map { measurable ->
-            measurable.measure(constraints)
-        }
+    val modifier = draw(onCanvas)
+    Layout({}, modifier) { _, _ ->
+        // take width and height space of the screen and allow draw modifier to draw inside of it
         layout(width.toIntPx(), height.toIntPx()) {
-            placeables.forEach { placeable ->
-                placeable.place(0.ipx, 0.ipx)
-            }
+            // this layout has no children, only draw modifier.
         }
     }
 }

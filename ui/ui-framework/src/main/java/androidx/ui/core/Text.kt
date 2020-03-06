@@ -155,6 +155,16 @@ fun Text(
             accessibilityLabel = text.text
         }
     ) {
+        val textDrawModifier = draw { canvas, _ ->
+            state.layoutResult?.let { layoutResult ->
+                state.selectionRange?.let {
+                    state.textDelegate.paintBackground(
+                        it.min, it.max, DefaultSelectionColor, canvas, layoutResult
+                    )
+                }
+                state.textDelegate.paint(canvas, layoutResult)
+            }
+        }
         val children = @Composable {
             // Get the layout coordinates of the text composable. This is for hit test of
             // cross-composable selection.
@@ -181,20 +191,10 @@ fun Text(
                     }
                 }
             )
-            Draw { canvas, _ ->
-                state.layoutResult?.let { layoutResult ->
-                    state.selectionRange?.let {
-                        state.textDelegate.paintBackground(
-                            it.min, it.max, DefaultSelectionColor, canvas, layoutResult
-                        )
-                    }
-                    state.textDelegate.paint(canvas, layoutResult)
-                }
-            }
         }
         Layout(
             children = children,
-            modifier = modifier,
+            modifier = modifier + textDrawModifier,
             minIntrinsicWidthMeasureBlock = { _, _ ->
                 state.textDelegate.layoutIntrinsics()
                 state.textDelegate.minIntrinsicWidth
