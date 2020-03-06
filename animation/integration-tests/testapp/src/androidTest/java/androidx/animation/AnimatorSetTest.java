@@ -37,6 +37,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -273,6 +274,24 @@ public class AnimatorSetTest {
         assertEquals((float) a2.getAnimatedValue(), 50f, EPSILON);
 
         set.cancel();
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSeekListener() {
+        final AnimatorSet animatorSet = new AnimatorSet();
+        ValueAnimator anim = ValueAnimator.ofFloat(0f, 1000f);
+        anim.setDuration(1000);
+        animatorSet.playTogether(anim);
+        final AtomicLong notifiedPlayTime = new AtomicLong(0L);
+        animatorSet.addUpdateListener((animation) -> {
+            final AnimatorSet set = (AnimatorSet) animation;
+            notifiedPlayTime.set(set.getCurrentPlayTime());
+        });
+        animatorSet.setCurrentPlayTime(0L);
+        assertEquals(0L, notifiedPlayTime.get());
+        animatorSet.setCurrentPlayTime(100L);
+        assertEquals(100L, notifiedPlayTime.get());
     }
 
     @UiThreadTest
