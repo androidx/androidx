@@ -173,7 +173,8 @@ sealed class BaseAnimationClock : AnimationClockObservable {
     internal fun hasObservers(): Boolean {
         synchronized(observers) {
             // Start with processing pending actions: it might remove the last observers
-            return processPendingActions().isNotEmpty() || observers.isNotEmpty()
+            processPendingActions()
+            return observers.isNotEmpty()
         }
     }
 
