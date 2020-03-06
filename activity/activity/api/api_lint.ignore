@@ -7,12 +7,6 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
-MissingNullability: androidx.activity.ComponentActivity#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
-    Missing nullability on parameter `event` in method `dispatchKeyEvent`
-MissingNullability: androidx.activity.ComponentActivity#dispatchKeyShortcutEvent(android.view.KeyEvent) parameter #0:
-    Missing nullability on parameter `event` in method `dispatchKeyShortcutEvent`
-
-
 RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):
     Callback methods should be named register/unregister; was addCallback
 RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):

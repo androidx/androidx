@@ -1337,9 +1337,6 @@ package androidx.core.graphics {
 
   @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatApi28Impl extends androidx.core.graphics.TypefaceCompatApi26Impl {
     ctor public TypefaceCompatApi28Impl();
-    method public android.graphics.Typeface! createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
-    method public android.graphics.Typeface! createFromFontInfo(android.content.Context!, android.os.CancellationSignal!, androidx.core.provider.FontsContractCompat.FontInfo![], int);
-    method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
   }
 
   @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TypefaceCompatApi29Impl {
@@ -1981,13 +1978,6 @@ package androidx.core.util {
     method public static void buildShortClassTag(Object!, StringBuilder!);
   }
 
-  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LogWriter extends java.io.Writer {
-    ctor @Deprecated public LogWriter(String!);
-    method @Deprecated public void close();
-    method @Deprecated public void flush();
-    method @Deprecated public void write(char[]!, int, int);
-  }
-
   public class ObjectsCompat {
     method public static boolean equals(Object?, Object?);
     method public static int hash(java.lang.Object!...);
@@ -2520,7 +2510,6 @@ package androidx.core.view {
     method public static android.view.ViewParent! getParentForAccessibility(android.view.View);
     method @Deprecated public static float getPivotX(android.view.View!);
     method @Deprecated public static float getPivotY(android.view.View!);
-    method public static androidx.core.view.WindowInsetsCompat? getRootWindowInsets(android.view.View);
     method @Deprecated public static float getRotation(android.view.View!);
     method @Deprecated public static float getRotationX(android.view.View!);
     method @Deprecated public static float getRotationY(android.view.View!);

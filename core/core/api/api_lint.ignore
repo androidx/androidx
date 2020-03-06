@@ -199,6 +199,10 @@ ArrayReturn: androidx.core.widget.TextViewCompat#getCompoundDrawablesRelative(an
     Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 
 
+BadFuture: androidx.core.text.PrecomputedTextCompat#getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor):
+    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.core.text.PrecomputedTextCompat.getTextFuture(CharSequence,androidx.core.text.PrecomputedTextCompat.Params,java.util.concurrent.Executor))
+
+
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int):
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int):
@@ -2107,10 +2111,6 @@ PairedRegistration: androidx.core.view.OneShotPreDrawListener#removeListener():
 
 PublicTypedef: androidx.core.app.NotificationCompat.Action.SemanticAction:
     Don't expose @IntDef: SemanticAction must be hidden.
-
-
-ServiceName: androidx.core.app.NotificationCompat#CATEGORY_SERVICE:
-    Inconsistent service value; expected `CATEGORY`, was `service`
 
 
 StreamFiles: androidx.core.content.FileProvider#getUriForFile(android.content.Context, String, java.io.File):

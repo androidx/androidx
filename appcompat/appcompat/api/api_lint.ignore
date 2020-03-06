@@ -13,6 +13,10 @@ ArrayReturn: androidx.appcompat.app.AlertDialog.Builder#setSingleChoiceItems(Cha
     Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 
 
+BadFuture: androidx.appcompat.widget.AppCompatTextView#setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>) parameter #0:
+    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (parameter future in androidx.appcompat.widget.AppCompatTextView.setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat> future))
+
+
 ContextFirst: androidx.appcompat.app.AppCompatDelegate#createView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
     Context is distinct, so it must be the first argument (method `createView`)
 
@@ -363,8 +367,6 @@ MissingNullability: androidx.appcompat.app.AppCompatActivity#attachBaseContext(a
     Missing nullability on parameter `newBase` in method `attachBaseContext`
 MissingNullability: androidx.appcompat.app.AppCompatActivity#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
     Missing nullability on parameter `event` in method `dispatchKeyEvent`
-MissingNullability: androidx.appcompat.app.AppCompatActivity#dispatchKeyShortcutEvent(android.view.KeyEvent) parameter #0:
-    Missing nullability on parameter `event` in method `dispatchKeyShortcutEvent`
 MissingNullability: androidx.appcompat.app.AppCompatActivity#getResources():
     Missing nullability on method `getResources` return
 MissingNullability: androidx.appcompat.app.AppCompatActivity#onKeyDown(int, android.view.KeyEvent) parameter #1:

@@ -2137,7 +2137,6 @@ package androidx.core.view {
     method public static android.view.ViewParent! getParentForAccessibility(android.view.View);
     method @Deprecated public static float getPivotX(android.view.View!);
     method @Deprecated public static float getPivotY(android.view.View!);
-    method public static androidx.core.view.WindowInsetsCompat? getRootWindowInsets(android.view.View);
     method @Deprecated public static float getRotation(android.view.View!);
     method @Deprecated public static float getRotationX(android.view.View!);
     method @Deprecated public static float getRotationY(android.view.View!);

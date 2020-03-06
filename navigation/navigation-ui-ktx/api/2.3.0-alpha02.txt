@@ -7,9 +7,9 @@ package androidx.navigation.ui {
   }
 
   public final class AppBarConfigurationKt {
-    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, androidx.customview.widget.Openable? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
-    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, androidx.customview.widget.Openable? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
-    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, androidx.customview.widget.Openable? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, androidx.drawerlayout.widget.DrawerLayout? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, androidx.drawerlayout.widget.DrawerLayout? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, androidx.drawerlayout.widget.DrawerLayout? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
   }
 
   public final class BottomNavigationViewKt {
@@ -26,7 +26,7 @@ package androidx.navigation.ui {
   }
 
   public final class NavControllerKt {
-    method public static boolean navigateUp(androidx.navigation.NavController, androidx.customview.widget.Openable? drawerLayout);
+    method public static boolean navigateUp(androidx.navigation.NavController, androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
     method public static boolean navigateUp(androidx.navigation.NavController, androidx.navigation.ui.AppBarConfiguration appBarConfiguration);
   }
 
