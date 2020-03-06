@@ -51,7 +51,7 @@ fun AlignmentLineOffset(
     after: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints ->
+    Layout(children, modifier) { measurables, constraints, _ ->
         require(measurables.isNotEmpty()) { "No child found in AlignmentLineOffset" }
         val placeable = measurables.first().measure(
             // Loose constraints perpendicular on the alignment line.
@@ -102,7 +102,7 @@ fun AlignmentLineOffset(
  */
 @Composable
 fun CenterAlignmentLine(alignmentLine: AlignmentLine, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+    Layout(children) { measurables, constraints, _ ->
         require(measurables.isNotEmpty()) { "No child found in CenterAlignmentLine" }
         val placeable = measurables.first().measure(
             // Loose constraints perpendicular on the alignment line.

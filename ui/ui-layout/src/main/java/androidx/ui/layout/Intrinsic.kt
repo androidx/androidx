@@ -41,19 +41,19 @@ import androidx.ui.unit.ipx
 fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
     Layout(
         children,
-        minIntrinsicWidthMeasureBlock = { measurables, h ->
+        minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
         },
-        minIntrinsicHeightMeasureBlock = { measurables, w ->
+        minIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
         },
-        maxIntrinsicWidthMeasureBlock = { measurables, h ->
+        maxIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
         },
-        maxIntrinsicHeightMeasureBlock = { measurables, w ->
+        maxIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
         }
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         val width = measurable?.minIntrinsicWidth(constraints.maxHeight) ?: 0.ipx
         val placeable = measurable?.measure(
@@ -86,19 +86,19 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
 fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
     Layout(
         children,
-        minIntrinsicWidthMeasureBlock = { measurables, h ->
+        minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
         },
-        minIntrinsicHeightMeasureBlock = { measurables, w ->
+        minIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
         },
-        maxIntrinsicWidthMeasureBlock = { measurables, h ->
+        maxIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
         },
-        maxIntrinsicHeightMeasureBlock = { measurables, w ->
+        maxIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
         }
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         val height = measurable?.minIntrinsicHeight(constraints.maxWidth) ?: 0.ipx
         val placeable = measurable?.measure(
@@ -131,19 +131,19 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
 fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
     Layout(
         children,
-        minIntrinsicWidthMeasureBlock = { measurables, h ->
+        minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
         },
-        minIntrinsicHeightMeasureBlock = { measurables, w ->
+        minIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
         },
-        maxIntrinsicWidthMeasureBlock = { measurables, h ->
+        maxIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
         },
-        maxIntrinsicHeightMeasureBlock = { measurables, w ->
+        maxIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
         }
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         val width = measurable?.maxIntrinsicWidth(constraints.maxHeight) ?: 0.ipx
         val placeable = measurable?.measure(
@@ -176,19 +176,19 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
 fun MaxIntrinsicHeight(children: @Composable() () -> Unit) {
     Layout(
         children,
-        minIntrinsicWidthMeasureBlock = { measurables, h ->
+        minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
         },
-        minIntrinsicHeightMeasureBlock = { measurables, w ->
+        minIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
         },
-        maxIntrinsicWidthMeasureBlock = { measurables, h ->
+        maxIntrinsicWidthMeasureBlock = { measurables, h, _ ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
         },
-        maxIntrinsicHeightMeasureBlock = { measurables, w ->
+        maxIntrinsicHeightMeasureBlock = { measurables, w, _ ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
         }
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         val height = measurable?.maxIntrinsicHeight(constraints.maxWidth) ?: 0.ipx
         val placeable = measurable?.measure(

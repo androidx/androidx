@@ -26,6 +26,7 @@ import androidx.compose.remember
 import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -253,7 +254,8 @@ private class ListState<T>(
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
         ): MeasureScope.LayoutResult {
             measuredThisPass.clear()
             if (forceRecompose) {
@@ -403,7 +405,7 @@ private class ListState<T>(
         if (atEnd || atStart) {
             // This is a new node, either at the end or the start
             node = LayoutNode()
-            node.measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
+            node.measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints, _ ->
                 val placeables = measurables.map { measurable ->
                     measurable.measure(
                         Constraints(

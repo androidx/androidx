@@ -79,6 +79,7 @@ class AndroidComposeView constructor(context: Context) :
 
     val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
+        it.layoutDirection = context.getLayoutDirection()
     }
 
     // LayoutNodes that need measure and layout
@@ -666,6 +667,15 @@ class AndroidComposeView constructor(context: Context) :
         dispatchTouchEvent(event)
     }
 
+    private fun Context.getLayoutDirection() =
+        when (applicationContext.resources.configuration.layoutDirection) {
+            android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
+            android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
+            // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
+            // Fallback to LTR for unexpected return value.
+            else -> LayoutDirection.Ltr
+        }
+
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
 
     val textInputService = TextInputService(textInputServiceAndroid)
@@ -752,7 +762,8 @@ class AndroidComposeView constructor(context: Context) :
             override fun measure(
                 measureScope: MeasureScope,
                 measurables: List<Measurable>,
-                constraints: Constraints
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
             ): MeasureScope.LayoutResult {
                 return when {
                     measurables.isEmpty() -> measureScope.layout(IntPx.Zero, IntPx.Zero) {}
@@ -780,27 +791,31 @@ class AndroidComposeView constructor(context: Context) :
             }
 
             override fun minIntrinsicWidth(
-                modifierScope: ModifierScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
-                h: IntPx
+                h: IntPx,
+                layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun minIntrinsicHeight(
-                modifierScope: ModifierScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
-                w: IntPx
+                w: IntPx,
+                layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicWidth(
-                modifierScope: ModifierScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
-                h: IntPx
+                h: IntPx,
+                layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicHeight(
-                modifierScope: ModifierScope,
+                density: Density,
                 measurables: List<IntrinsicMeasurable>,
-                w: IntPx
+                w: IntPx,
+                layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
         }
     }

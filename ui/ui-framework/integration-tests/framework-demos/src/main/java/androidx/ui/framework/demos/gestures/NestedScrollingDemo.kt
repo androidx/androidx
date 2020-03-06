@@ -114,7 +114,7 @@ private fun Draggable(children: @Composable() () -> Unit) {
         Layout(
             children = children,
             modifier = ClipModifier,
-            measureBlock = { measurables, constraints ->
+            measureBlock = { measurables, constraints, _ ->
                 val placeable =
                     measurables.first()
                         .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))

@@ -36,8 +36,9 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.ModifierScope
+import androidx.ui.unit.Density
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
@@ -80,7 +81,7 @@ class AndroidViewCompatTest {
                 Semantics {
                     Layout(@Composable {
                         ColoredSquareView(size = squareSize.offset.value, ref = squareRef)
-                    }) { measurables, constraints ->
+                    }) { measurables, constraints, _ ->
                         assertEquals(1, measurables.size)
                         val placeable = measurables.first().measure(
                             constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
@@ -369,7 +370,10 @@ class AndroidViewCompatTest {
     }
 
     fun LayoutConstraints(childConstraints: Constraints) = object : LayoutModifier {
-        override fun ModifierScope.modifyConstraints(constraints: Constraints): Constraints {
+        override fun Density.modifyConstraints(
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): Constraints {
             return childConstraints
         }
     }
@@ -379,7 +383,7 @@ class AndroidViewCompatTest {
         modifier: Modifier = Modifier.None,
         children: @Composable() () -> Unit
     ) {
-        Layout(children, modifier) { measurables, constraints ->
+        Layout(children, modifier) { measurables, constraints, _ ->
             val placeable = measurables[0].measure(constraints)
             layout(placeable.width, placeable.height) {
                 placeable.place(0.ipx, 0.ipx)

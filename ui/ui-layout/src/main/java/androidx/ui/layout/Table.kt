@@ -524,7 +524,7 @@ fun Table(
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(columns, columnWidth),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(columns, columnWidth),
         maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(columns, columnWidth)
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val rowMeasurables = measurables.filter { it.rowIndex != null }.groupBy { it.rowIndex }
         val rows = rowMeasurables.size
         fun measurableAt(row: Int, column: Int) = rowMeasurables[row]?.getOrNull(column)
@@ -630,7 +630,7 @@ fun Table(
 private val MinIntrinsicWidthMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableHeight ->
+        { measurables, availableHeight, _ ->
             intrinsicWidth(
                 columns = columns,
                 columnWidth = columnWidth,
@@ -644,7 +644,7 @@ private val MinIntrinsicWidthMeasureBlock:
 private val MinIntrinsicHeightMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableWidth ->
+        { measurables, availableWidth, _ ->
             intrinsicHeight(
                 columns = columns,
                 columnWidth = columnWidth,
@@ -658,7 +658,7 @@ private val MinIntrinsicHeightMeasureBlock:
 private val MaxIntrinsicWidthMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableHeight ->
+        { measurables, availableHeight, _ ->
             intrinsicWidth(
                 columns = columns,
                 columnWidth = columnWidth,
@@ -672,7 +672,7 @@ private val MaxIntrinsicWidthMeasureBlock:
 private val MaxIntrinsicHeightMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableWidth ->
+        { measurables, availableWidth, _ ->
             intrinsicHeight(
                 columns = columns,
                 columnWidth = columnWidth,

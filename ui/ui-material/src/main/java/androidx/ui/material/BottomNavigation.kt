@@ -257,7 +257,7 @@ private fun BottomNavigationItemBaselineLayout(
                 children = text
             )
         }
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
 
         val textPlaceable = measurables.first { it.tag == "text" }.measure(

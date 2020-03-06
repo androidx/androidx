@@ -19,9 +19,6 @@ package androidx.ui.layout.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
-import androidx.compose.Providers
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
@@ -33,6 +30,7 @@ import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
 import androidx.ui.foundation.DrawBackground
+import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.unit.dp
 
 class RtlDemosActivity : Activity() {
@@ -44,8 +42,8 @@ class RtlDemosActivity : Activity() {
                 testText()
                 Text("ROW", LayoutGravity.Center)
                 testRow()
-                Text("ROW WITH AMBIENT", LayoutGravity.Center)
-                testRow_ambient()
+                Text("ROW WITH MODIFIER", LayoutGravity.Center)
+                testRow_modifier()
                 Text("RELATIVE TO SIBLINGS", LayoutGravity.Center)
                 testSiblings()
             }
@@ -71,16 +69,14 @@ fun testRow() {
 }
 
 @Composable
-fun testRow_ambient() {
+fun testRow_modifier() {
     Row {
         Stack(boxSize + DrawBackground(Color.Red)) {}
         Stack(boxSize + DrawBackground(Color.Green)) {}
-        Providers(LayoutDirectionAmbient provides LayoutDirection.Ltr) {
-            Row {
-                Stack(boxSize + DrawBackground(Color.Magenta)) {}
-                Stack(boxSize + DrawBackground(Color.Yellow)) {}
-                Stack(boxSize + DrawBackground(Color.Cyan)) {}
-            }
+        Row(LayoutDirectionModifier.Ltr) {
+            Stack(boxSize + DrawBackground(Color.Magenta)) {}
+            Stack(boxSize + DrawBackground(Color.Yellow)) {}
+            Stack(boxSize + DrawBackground(Color.Cyan)) {}
         }
         Stack(boxSize + DrawBackground(Color.Blue)) {}
     }

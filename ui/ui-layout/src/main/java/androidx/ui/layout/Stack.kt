@@ -48,7 +48,7 @@ fun Stack(
 ) {
     val stackChildren: @Composable() () -> Unit = { StackScope().children() }
 
-    Layout(stackChildren, modifier = modifier) { measurables, constraints ->
+    Layout(stackChildren, modifier = modifier) { measurables, constraints, layoutDirection ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
         val childConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)

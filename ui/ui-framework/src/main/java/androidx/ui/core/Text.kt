@@ -195,24 +195,24 @@ fun Text(
         Layout(
             children = children,
             modifier = modifier + textDrawModifier,
-            minIntrinsicWidthMeasureBlock = { _, _ ->
+            minIntrinsicWidthMeasureBlock = { _, _, _ ->
                 state.textDelegate.layoutIntrinsics()
                 state.textDelegate.minIntrinsicWidth
             },
-            minIntrinsicHeightMeasureBlock = { _, width ->
+            minIntrinsicHeightMeasureBlock = { _, width, _ ->
                 // given the width constraint, determine the min height
                 state.textDelegate
                     .layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
             },
-            maxIntrinsicWidthMeasureBlock = { _, _ ->
+            maxIntrinsicWidthMeasureBlock = { _, _, _ ->
                 state.textDelegate.layoutIntrinsics()
                 state.textDelegate.maxIntrinsicWidth
             },
-            maxIntrinsicHeightMeasureBlock = { _, width ->
+            maxIntrinsicHeightMeasureBlock = { _, width, _ ->
                 state.textDelegate
                     .layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity)).size.height
             }
-        ) { _, constraints ->
+        ) { _, constraints, _ ->
             val layoutResult = state.textDelegate.layout(constraints, state.layoutResult)
             if (state.layoutResult != layoutResult) {
                 onTextLayout(layoutResult)

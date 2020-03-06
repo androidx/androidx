@@ -460,7 +460,7 @@ internal fun BaseTextField(
                         }
                     }
                 },
-                measureBlock = { _, constraints ->
+                measureBlock = { _, constraints, _ ->
                     TextFieldDelegate.layout(
                         state.textDelegate,
                         constraints,

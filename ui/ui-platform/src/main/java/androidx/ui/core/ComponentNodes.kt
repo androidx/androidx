@@ -842,69 +842,78 @@ class LayoutNode : ComponentNode(), Measurable {
         fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
         ): MeasureScope.LayoutResult
 
         /**
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
         fun minIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
 
         /**
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
         fun minIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
 
         /**
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
         fun maxIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
 
         /**
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
         fun maxIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
     }
 
     abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun minIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
     }
 
@@ -921,15 +930,6 @@ class LayoutNode : ComponentNode(), Measurable {
             if (field != value) {
                 field = value
                 requestRemeasure()
-            }
-        }
-
-    var ambientLayoutDirection = LayoutDirection.Ltr
-        internal set(value) {
-            if (value != field) {
-                field = value
-                measureScope.layoutDirection = value
-                measureScope.ambientLayoutDirection = value
             }
         }
 
@@ -950,6 +950,18 @@ class LayoutNode : ComponentNode(), Measurable {
      * The constraints used the last time [layout] was called.
      */
     var constraints: Constraints = Constraints.fixed(IntPx.Zero, IntPx.Zero)
+
+    /**
+     * The layout direction of the layout node.
+     */
+    var layoutDirection: LayoutDirection? = null
+        get() {
+            if (field == null) {
+                // root node doesn't have a parent but its LD value is set during root creation
+                field = parentLayoutNode?.layoutDirection
+            }
+            return field
+        }
 
     /**
      * Implementation oddity around composition; used to capture a reference to this
@@ -1412,7 +1424,8 @@ class LayoutNode : ComponentNode(), Measurable {
             override fun measure(
                 measureScope: MeasureScope,
                 measurables: List<Measurable>,
-                constraints: Constraints
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
             ) = error("Undefined measure and it is required")
         }
 

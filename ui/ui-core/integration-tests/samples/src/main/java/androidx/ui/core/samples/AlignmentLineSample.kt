@@ -38,7 +38,7 @@ fun AlignmentLineSample() {
     @Composable
     fun LineProviderLayout(exampleLinePosition: IntPx) {
         val size: IntPx = 20.ipx
-        Layout({}) { _, _ ->
+        Layout({}) { _, _, _ ->
             layout(size, size, mapOf(exampleLine to exampleLinePosition)) {}
         }
     }
@@ -46,7 +46,7 @@ fun AlignmentLineSample() {
     Layout({
         LineProviderLayout(exampleLinePosition = 5.ipx)
         LineProviderLayout(exampleLinePosition = 10.ipx)
-    }) { measurables, constraints ->
+    }) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
         // placeables[0][line] will be 5.ipx
         // placeables[1][line] will be 10.ipx
