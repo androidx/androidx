@@ -21,26 +21,17 @@ import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.CONSTRAINT_LAYOUT
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id('kotlin-android-extensions')
+}
 
 android {
-    compileSdkVersion 29
-
     defaultConfig {
         applicationId "androidx.window.sample"
         minSdkVersion 23
-    }
-
-    // To inline the bytecode built with JVM target 1.8 into
-    // bytecode that is being built with JVM target 1.6. (e.g. View#doOnLayout)
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
     }
 }
 
