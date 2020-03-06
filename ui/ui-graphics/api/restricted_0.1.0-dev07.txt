@@ -200,6 +200,9 @@ package androidx.ui.graphics {
     method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
   }
 
+  public final class Float16Kt {
+  }
+
   public interface ImageAsset {
     method public androidx.ui.graphics.colorspace.ColorSpace getColorSpace();
     method public androidx.ui.graphics.ImageAssetConfig getConfig();
