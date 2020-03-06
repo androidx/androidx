@@ -1246,20 +1246,6 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.CREATED:
                     if (newState < Fragment.CREATED) {
-                        boolean beingRemoved = f.mRemoving && !f.isInBackStack();
-                        if (beingRemoved || mNonConfig.shouldDestroy(f)) {
-                            mFragmentStore.makeInactive(fragmentStateManager);
-                        } else {
-                            if (f.mTargetWho != null) {
-                                Fragment target = findActiveFragment(f.mTargetWho);
-                                if (target != null && target.getRetainInstance()) {
-                                    // Only keep references to other retained Fragments
-                                    // to avoid developers accessing Fragments that
-                                    // are never coming back
-                                    f.mTarget = target;
-                                }
-                            }
-                        }
                         if (mExitAnimationCancellationSignals.get(f) != null) {
                             // We are waiting for the fragment's view to finish animating away.
                             newState = Fragment.CREATED;
@@ -1478,6 +1464,10 @@ public abstract class FragmentManager {
                 Fragment f = fragmentStateManager.getFragment();
                 if (!f.mIsNewlyAdded) {
                     moveFragmentToExpectedState(f);
+                }
+                boolean beingRemoved = f.mRemoving && !f.isInBackStack();
+                if (beingRemoved) {
+                    mFragmentStore.makeInactive(fragmentStateManager);
                 }
             }
         }
@@ -2488,6 +2478,7 @@ public abstract class FragmentManager {
                     Log.v(TAG, "Discarding retained Fragment " + f
                             + " that was not found in the set of active Fragments " + fms.mActive);
                 }
+                mNonConfig.removeRetainedFragment(f);
                 // We need to ensure that onDestroy and any other clean up is done
                 // so move the Fragment up to CREATED, then mark it as being removed, then
                 // destroy it without actually adding the Fragment to the FragmentStore
