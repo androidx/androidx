@@ -49,7 +49,6 @@ import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Ref
-import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.draw
 import androidx.ui.core.drawLayer
@@ -1561,11 +1560,9 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 Layout(children = {
-                    RepaintBoundary {
-                        Layout(children = emptyContent()) { _, _, _ ->
-                            latch.countDown()
-                            layout(model.size, model.size) {}
-                        }
+                    Layout(modifier = drawLayer(), children = emptyContent()) { _, _, _ ->
+                        latch.countDown()
+                        layout(model.size, model.size) {}
                     }
                 }) { measurables, constraints, _ ->
                     val placeable = measurables[0].measure(constraints)
@@ -1803,13 +1800,11 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 FixedSize(30.ipx, background(Color.Green)) {
-                    RepaintBoundary {
-                        FixedSize(
-                            10.ipx,
-                            PaddingModifier(10.ipx) + background(model, true) +
-                                    drawLatchModifier()
-                        )
-                    }
+                    FixedSize(
+                        10.ipx,
+                        drawLayer() + PaddingModifier(10.ipx) + background(model, true) +
+                                drawLatchModifier()
+                    )
                 }
             }
         }

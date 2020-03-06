@@ -142,16 +142,16 @@ fun drawLayer(
     clipToOutline: Boolean = true
 ): Modifier = SimpleDrawLayerModifier(
     SimpleDrawLayerProperties(
-        scaleX,
-        scaleY,
-        alpha,
-        elevation,
-        rotationX,
-        rotationY,
-        rotationZ,
-        outlineShape,
-        clipToBounds,
-        clipToOutline
+        scaleX = scaleX,
+        scaleY = scaleY,
+        alpha = alpha,
+        elevation = elevation,
+        rotationX = rotationX,
+        rotationY = rotationY,
+        rotationZ = rotationZ,
+        outlineShape = outlineShape,
+        clipToBounds = clipToBounds,
+        clipToOutline = clipToOutline
     )
 )
 
