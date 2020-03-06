@@ -130,6 +130,10 @@ public class LifecycleOwnerUtils {
             instrumentation.runOnMainSync(actionOnUiThread);
         }
 
+        // Wait for the old activity to be destroyed. This helps avoid flakiness on test devices
+        // (ex. API 26) where the system takes a long time to go from STOPPED to DESTROYED.
+        waitUntilState(activity, Lifecycle.State.DESTROYED);
+
         T result;
 
         // this guarantee that we will reinstall monitor between notifications about onDestroy
