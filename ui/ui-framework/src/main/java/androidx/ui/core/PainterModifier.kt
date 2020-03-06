@@ -60,7 +60,7 @@ import kotlin.math.ceil
  * @sample androidx.ui.framework.samples.PainterModifierSample
  */
 @Composable
-fun Painter.toModifier(
+fun Painter.asModifier(
     sizeToIntrinsics: Boolean = true,
     alignment: Alignment = Alignment.Center,
     scaleFit: ScaleFit = ScaleFit.Fit,

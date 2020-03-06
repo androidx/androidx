@@ -69,7 +69,7 @@ package androidx.ui.core {
   }
 
   public final class PainterModifierKt {
-    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public static androidx.ui.core.DrawModifier asModifier(androidx.ui.graphics.painter.Painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
   }
 
   public final class ParentDataKt {

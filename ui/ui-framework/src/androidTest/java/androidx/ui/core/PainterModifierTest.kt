@@ -173,7 +173,7 @@ class PainterModifierTest {
                                 containerWidth * 2,
                                 containerHeight * 2,
                                 paintLatch
-                            ).toModifier(alignment = Alignment.Center, scaleFit = ScaleFit.Fit)) {
+                            ).asModifier(alignment = Alignment.Center, scaleFit = ScaleFit.Fit)) {
                         }
                     }
                 }
@@ -209,7 +209,7 @@ class PainterModifierTest {
                         containerWidth,
                         containerHeight,
                         paintLatch
-                    ).toModifier(
+                    ).asModifier(
                         alignment = Alignment.BottomEnd,
                         scaleFit = ScaleFit.Fit)
                     ) {
@@ -247,7 +247,7 @@ class PainterModifierTest {
             activity.setContent {
                 NoMinSizeContainer {
                     NoIntrinsicSizeContainer(
-                        LatchPainter(containerWidth, containerHeight, paintLatch).toModifier()
+                        LatchPainter(containerWidth, containerHeight, paintLatch).asModifier()
                     ) {
                         // Intentionally empty
                     }
@@ -289,7 +289,7 @@ class PainterModifierTest {
                                 containerWidth,
                                 containerHeight,
                                 paintLatch
-                            ).toModifier(alignment = Alignment.TopStart)
+                            ).asModifier(alignment = Alignment.TopStart)
                     ) {
                         // Intentionally empty
                     }
@@ -336,7 +336,7 @@ class PainterModifierTest {
                             containerWidth,
                             containerHeight,
                             paintLatch
-                        ).toModifier(sizeToIntrinsics = false, alignment = Alignment.TopStart)
+                        ).asModifier(sizeToIntrinsics = false, alignment = Alignment.TopStart)
                     ) {
                         // Intentionally empty
                     }
@@ -372,7 +372,7 @@ class PainterModifierTest {
             val p = LatchPainter(containerWidth, containerHeight, latch, rtl)
             AtLeastSize(
                 modifier = background(Color.White) +
-                        p.toModifier(alpha = alpha, colorFilter =
+                        p.asModifier(alpha = alpha, colorFilter =
                 colorFilter, rtl = rtl),
                 size = containerWidth.roundToInt().ipx
             ) {

@@ -19,7 +19,7 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.ui.core.Modifier
-import androidx.ui.core.toModifier
+import androidx.ui.core.asModifier
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
@@ -70,7 +70,7 @@ fun Icon(
 ) {
     // TODO: consider allowing developers to override the intrinsic size, and specify their own
     // size that this icon will be forced to take up.
-    val iconModifier = icon.toModifier(
+    val iconModifier = icon.asModifier(
         colorFilter = ColorFilter(color = tint, blendMode = BlendMode.srcIn)
     )
 
