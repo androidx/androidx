@@ -25,7 +25,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.Image
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -75,7 +75,7 @@ fun ListItem(
     onClick: (() -> Unit)? = null
 ) {
     val iconComposable: @Composable() (() -> Unit)? = icon?.let {
-        { SimpleImage(it) }
+        { Image(it) }
     }
     val textComposable: @Composable() () -> Unit = text.let {
         { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }

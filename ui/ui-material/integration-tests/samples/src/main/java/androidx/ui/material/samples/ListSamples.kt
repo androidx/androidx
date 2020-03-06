@@ -19,7 +19,7 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.Image
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Column
 import androidx.ui.material.Divider
@@ -43,13 +43,13 @@ fun OneLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset, icon56x56: Im
         Divider()
         ListItem(
             text = { Text("One line list item with trailing icon") },
-            trailing = { SimpleImage(icon24x24) }
+            trailing = { Image(icon24x24) }
         )
         Divider()
         ListItem(
             text = { Text("One line list item") },
-            icon = { SimpleImage(icon40x40) },
-            trailing = { SimpleImage(icon24x24) }
+            icon = { Image(icon40x40) },
+            trailing = { Image(icon24x24) }
         )
         Divider()
     }
@@ -85,10 +85,10 @@ fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
         ListItem(
             text = { Text("Two line list item") },
             secondaryText = { Text("Secondary text") },
-            icon = { SimpleImage(icon40x40) },
+            icon = { Image(icon40x40) },
             trailing = {
                 // TODO(popam): put checkbox here after b/140292836 is fixed
-                SimpleImage(icon24x24)
+                Image(icon24x24)
             }
         )
         Divider()
@@ -126,7 +126,7 @@ fun ThreeLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
             secondaryText = { Text("This is a long secondary text for the current list" +
                 " item, displayed on two lines") },
             singleLineSecondaryText = false,
-            trailing = { SimpleImage(icon40x40) }
+            trailing = { Image(icon40x40) }
         )
         Divider()
         ListItem(
