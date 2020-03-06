@@ -46,7 +46,7 @@ class WarmupManagerTest {
 
         assertApproxEquals(
                 WarmupManager.MAX_DURATION_NS,
-                warmup.totalDuration,
+                warmup.totalDurationNs,
                 TimeUnit.MILLISECONDS.toNanos(100))
     }
 
@@ -68,8 +68,8 @@ class WarmupManagerTest {
 
         // These asserts aren't very tight - the moving average ratios
         // significantly change how fast we detect convergence
-        assertTrue(warmup.totalDuration > TimeUnit.SECONDS.toNanos(2))
-        assertTrue(warmup.totalDuration < TimeUnit.SECONDS.toNanos(6))
+        assertTrue(warmup.totalDurationNs > TimeUnit.SECONDS.toNanos(2))
+        assertTrue(warmup.totalDurationNs < TimeUnit.SECONDS.toNanos(6))
     }
 }
 
@@ -88,13 +88,13 @@ private fun WarmupManager.warmupOnFakeData(warmupNeededNs: Long, idealDurationNs
 private fun generateFakeResults(warmupNeededNs: Long, idealDurationNs: Long): Sequence<Long> {
     val list = ArrayList<Long>()
 
-    var totalDuration = 0L
-    var currentDuration = idealDurationNs.toFloat()
-    while (totalDuration < warmupNeededNs) {
-        val iterDuration = currentDuration.toLong()
-        list.add(0, iterDuration)
-        totalDuration += iterDuration
-        currentDuration *= 1.003f
+    var totalDurationNs = 0L
+    var currentDurationNs = idealDurationNs.toFloat()
+    while (totalDurationNs < warmupNeededNs) {
+        val iterDurationNs = currentDurationNs.toLong()
+        list.add(0, iterDurationNs)
+        totalDurationNs += iterDurationNs
+        currentDurationNs *= 1.003f
     }
 
     // warmup until warmupNeededNs, then just return idealDurationNs

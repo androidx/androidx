@@ -47,7 +47,7 @@ internal object ThrottleDetector {
             Matrix.translateM(resultMatrix, 0, sourceMatrix, 0, 1F, 2F, 3F)
         }
 
-        return state.stats.min
+        return state.getMinTimeNanos()
     }
 
     /**
