@@ -34,7 +34,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
-    androidTestAnnotationProcessor project(":remotecallback-processor")
+    androidTestAnnotationProcessor project(":remotecallback:remotecallback-processor")
 }
 
 android {
