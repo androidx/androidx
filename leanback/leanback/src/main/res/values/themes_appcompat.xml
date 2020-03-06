@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+
+    <!--
+        Alternative leanback theme which is to be used when extending AppCompatActivity.
+        Extending AppCompatActivity might have some performance impact due to AppCompat's layout
+        inflater and some AppCompat widget might not work as expected on TV.
+    -->
+    <style name="Theme.AppCompat.LeanbackBase" parent="Theme.AppCompat.NoActionBar">
+        <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
+        <item name="playbackProgressSecondaryColor">@color/lb_playback_progress_secondary_color_no_theme</item>
+        <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
+        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
+        <item name="defaultBrandColorDark">@color/lb_default_brand_color_dark</item>
+
+        <item name="guidedStepTheme">@style/Theme.AppCompat.Leanback.GuidedStep</item>
+    </style>
+
+    <style name="Theme.AppCompat.Leanback" parent="Theme.AppCompat.LeanbackBase">
+
+        <item name="baseCardViewStyle">@style/Widget.Leanback.BaseCardViewStyle</item>
+        <item name="imageCardViewStyle">@style/Widget.Leanback.ImageCardViewStyle</item>
+        <item name="imageCardViewImageStyle">@style/Widget.Leanback.ImageCardView.ImageStyle</item>
+        <item name="imageCardViewTitleStyle">@style/Widget.Leanback.ImageCardView.TitleStyle</item>
+        <item name="imageCardViewContentStyle">@style/Widget.Leanback.ImageCardView.ContentStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/Widget.Leanback.ImageCardView.BadgeStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/Widget.Leanback.ImageCardView.InfoAreaStyle</item>
+
+        <item name="browsePaddingStart">@dimen/lb_browse_padding_start</item>
+        <item name="browsePaddingEnd">@dimen/lb_browse_padding_end</item>
+        <item name="browsePaddingTop">@dimen/lb_browse_padding_top</item>
+        <item name="browsePaddingBottom">@dimen/lb_browse_padding_bottom</item>
+        <item name="browseRowsMarginStart">@dimen/lb_browse_rows_margin_start</item>
+        <item name="browseRowsMarginTop">@dimen/lb_browse_rows_margin_top</item>
+        <item name="browseRowsFadingEdgeLength">@dimen/lb_browse_rows_fading_edge</item>
+
+        <item name="headersVerticalGridStyle">@style/Widget.Leanback.Headers.VerticalGridView</item>
+        <item name="headerStyle">@style/Widget.Leanback.Header</item>
+        <item name="sectionHeaderStyle">@style/Widget.Leanback.Header.Section</item>
+
+        <item name="rowsVerticalGridStyle">@style/Widget.Leanback.Rows.VerticalGridView</item>
+        <item name="rowHorizontalGridStyle">@style/Widget.Leanback.Row.HorizontalGridView</item>
+        <item name="itemsVerticalGridStyle">@style/Widget.Leanback.GridItems.VerticalGridView</item>
+
+        <item name="browseTitleViewLayout">@layout/lb_browse_title</item>
+        <item name="browseTitleTextStyle">@style/Widget.Leanback.Title.Text</item>
+        <item name="browseTitleIconStyle">@style/Widget.Leanback.Title.Icon</item>
+        <item name="browseTitleViewStyle">@style/Widget.Leanback.TitleView</item>
+
+        <item name="rowHeaderStyle">@style/Widget.Leanback.Row.Header</item>
+        <item name="rowHeaderDescriptionStyle">@style/Widget.Leanback.Row.Header.Description</item>
+        <item name="rowHoverCardTitleStyle">@style/Widget.Leanback.Row.HoverCardTitle</item>
+        <item name="rowHoverCardDescriptionStyle">@style/Widget.Leanback.Row.HoverCardDescription</item>
+        <item name="rowHeaderDockStyle">@style/Widget.Leanback.Row.HeaderDock</item>
+
+        <item name="searchOrbViewStyle">@style/Widget.Leanback.SearchOrbViewStyle</item>
+
+
+        <item name="detailsDescriptionTitleStyle">@style/Widget.Leanback.DetailsDescriptionTitleStyle</item>
+        <item name="detailsDescriptionSubtitleStyle">@style/Widget.Leanback.DetailsDescriptionSubtitleStyle</item>
+        <item name="detailsDescriptionBodyStyle">@style/Widget.Leanback.DetailsDescriptionBodyStyle</item>
+        <item name="detailsActionButtonStyle">@style/Widget.Leanback.DetailsActionButtonStyle</item>
+        <!-- Attributes used for styling of a playback -->
+        <item name="playbackPaddingStart">@dimen/lb_playback_controls_margin_start</item>
+        <item name="playbackPaddingEnd">@dimen/lb_playback_controls_margin_end</item>
+        <item name="playbackMediaItemPaddingStart">@dimen/lb_playback_media_row_horizontal_padding</item>
+
+        <item name="playbackMediaListHeaderStyle">@style/Widget.Leanback.PlaybackMediaListHeaderStyle</item>
+        <item name="playbackMediaItemRowStyle">@style/Widget.Leanback.PlaybackMediaItemRowStyle</item>
+        <item name="playbackMediaItemSeparatorStyle">@style/Widget.Leanback.PlaybackMediaItemSeparatorStyle</item>
+        <item name="playbackMediaListHeaderTitleStyle">@style/Widget.Leanback.PlaybackMediaListHeaderTitleStyle</item>
+        <item name="playbackMediaItemDetailsStyle">@style/Widget.Leanback.PlaybackMediaItemDetailsStyle</item>
+        <item name="playbackMediaItemNumberViewFlipperStyle">@style/Widget.Leanback.PlaybackMediaItemNumberViewFlipperStyle</item>
+        <item name="playbackMediaItemNumberViewFlipperLayout">@layout/lb_media_item_number_view_flipper</item>
+        <item name="playbackMediaItemNumberStyle">@style/Widget.Leanback.PlaybackMediaItemNumberStyle</item>
+        <item name="playbackMediaItemNameStyle">@style/Widget.Leanback.PlaybackMediaItemNameStyle</item>
+        <item name="playbackMediaItemDurationStyle">@style/Widget.Leanback.PlaybackMediaItemDurationStyle</item>
+
+        <item name="playbackControlsButtonStyle">@style/Widget.Leanback.PlaybackControlsButtonStyle</item>
+        <item name="playbackControlButtonLabelStyle">@style/Widget.Leanback.PlaybackControlLabelStyle</item>
+        <item name="playbackControlsTimeStyle">@style/Widget.Leanback.PlaybackControlsTimeStyle</item>
+        <item name="playbackControlsActionIcons">@style/Widget.Leanback.PlaybackControlsActionIconsStyle</item>
+        <item name="playbackControlsAutoHideTimeout">@integer/lb_playback_controls_show_time_ms</item>
+        <item name="playbackControlsAutoHideTickleTimeout">@integer/lb_playback_controls_tickle_timeout_ms</item>
+
+        <item name="errorMessageStyle">@style/Widget.Leanback.ErrorMessageStyle</item>
+
+        <item name="defaultSearchColor">@color/lb_default_search_color</item>
+        <item name="defaultSearchIconColor">@color/lb_default_search_icon_color</item>
+        <item name="defaultSearchBrightColor">?attr/defaultSearchColor</item>
+        <item name="defaultSearchIcon">@drawable/lb_ic_in_app_search</item>
+
+        <item name="defaultSectionHeaderColor">?attr/defaultSearchColor</item>
+
+        <item name="overlayDimMaskColor">@color/lb_view_dim_mask_color</item>
+        <item name="overlayDimActiveLevel">@fraction/lb_view_active_level</item>
+        <item name="overlayDimDimmedLevel">@fraction/lb_view_dimmed_level</item>
+
+        <item name="pickerStyle">@style/Widget.Leanback.PickerStyle</item>
+        <item name="datePickerStyle">@style/Widget.Leanback.PickerStyle.DatePickerStyle</item>
+        <item name="timePickerStyle">@style/Widget.Leanback.PickerStyle.TimePickerStyle</item>
+        <item name="pinPickerStyle">@style/Widget.Leanback.PickerStyle.PinPickerStyle</item>
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.Browse" parent="Theme.AppCompat.Leanback">
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.VerticalGrid" parent="Theme.AppCompat.Leanback">
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.Details" parent="Theme.AppCompat.Leanback">
+    </style>
+
+    <!-- Theme for the details without shared element transition -->
+    <style name="Theme.AppCompat.Leanback.Details.NoSharedElementTransition">
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.GuidedStepBase" parent="Theme.AppCompat.LeanbackBase">
+        <item name="guidedActionsSelectorDrawable">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.GuidedStep" parent="Theme.AppCompat.Leanback.GuidedStepBase">
+        <item name="guidedStepThemeFlag">true</item>
+        <item name="guidedStepHeightWeight">@dimen/lb_guidedstep_height_weight</item>
+
+
+        <!-- background applied to each GuidedStepFragment by default-->
+        <item name="guidedStepBackground">?android:attr/colorBackground</item>
+        <!-- Each GuidedStepFragment has a background so activity does not need a background.
+             But We still need a dumb background to keep the temporary translucent state last
+             as long as the background view fade-in transition -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+
+        <item name="guidedStepImeAppearingAnimation">@animator/lb_guidedstep_slide_up</item>
+        <item name="guidedStepImeDisappearingAnimation">@animator/lb_guidedstep_slide_down</item>
+
+        <item name="guidanceContainerStyle">@style/Widget.Leanback.GuidanceContainerStyle</item>
+        <item name="guidanceIconStyle">@style/Widget.Leanback.GuidanceIconStyle</item>
+        <item name="guidanceTitleStyle">@style/Widget.Leanback.GuidanceTitleStyle</item>
+        <item name="guidanceBreadcrumbStyle">@style/Widget.Leanback.GuidanceBreadcrumbStyle</item>
+        <item name="guidanceDescriptionStyle">@style/Widget.Leanback.GuidanceDescriptionStyle</item>
+
+        <item name="guidedActionsElevation">@dimen/lb_guidedactions_elevation</item>
+        <item name="guidedActionsBackground">@color/lb_guidedactions_background</item>
+        <item name="guidedActionsBackgroundDark">@color/lb_guidedactions_background_dark</item>
+        <item name="guidedActionsListStyle">@style/Widget.Leanback.GuidedActionsListStyle</item>
+        <item name="guidedSubActionsListStyle">@style/Widget.Leanback.GuidedSubActionsListStyle</item>
+        <item name="guidedButtonActionsListStyle">@style/Widget.Leanback.GuidedButtonActionsListStyle</item>
+
+        <item name="guidedActionItemContainerStyle">@style/Widget.Leanback.GuidedActionItemContainerStyle</item>
+        <item name="guidedActionItemCheckmarkStyle">@style/Widget.Leanback.GuidedActionItemCheckmarkStyle</item>
+        <item name="guidedActionItemIconStyle">@style/Widget.Leanback.GuidedActionItemIconStyle</item>
+        <item name="guidedActionItemContentStyle">@style/Widget.Leanback.GuidedActionItemContentStyle</item>
+        <item name="guidedActionItemTitleStyle">@style/Widget.Leanback.GuidedActionItemTitleStyle</item>
+        <item name="guidedActionItemDescriptionStyle">@style/Widget.Leanback.GuidedActionItemDescriptionStyle</item>
+        <item name="guidedActionItemChevronStyle">@style/Widget.Leanback.GuidedActionItemChevronStyle</item>
+
+        <item name="guidedActionPressedAnimation">@animator/lb_guidedactions_item_pressed</item>
+        <item name="guidedActionUnpressedAnimation">@animator/lb_guidedactions_item_unpressed</item>
+        <item name="guidedActionEnabledChevronAlpha">@dimen/lb_guidedactions_item_enabled_chevron_alpha</item>
+        <item name="guidedActionDisabledChevronAlpha">@dimen/lb_guidedactions_item_disabled_chevron_alpha</item>
+        <item name="guidedActionContentWidthWeight">@dimen/lb_guidedactions_width_weight</item>
+        <item name="guidedActionContentWidthWeightTwoPanels">@dimen/lb_guidedactions_width_weight_two_panels</item>
+        <item name="guidedButtonActionsWidthWeight">@dimen/lb_guidedbuttonactions_width_weight</item>
+        <item name="guidedActionTitleMinLines">@integer/lb_guidedactions_item_title_min_lines</item>
+        <item name="guidedActionTitleMaxLines">@integer/lb_guidedactions_item_title_max_lines</item>
+        <item name="guidedActionDescriptionMinLines">@integer/lb_guidedactions_item_description_min_lines</item>
+        <item name="guidedActionVerticalPadding">@dimen/lb_guidedactions_vertical_padding</item>
+        <item name="guidedStepKeyline">@dimen/lb_guidedstep_keyline</item>
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.GuidedStep.HalfBase" parent="Theme.AppCompat.Leanback.GuidedStep">
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.GuidedStep.Half" parent="Theme.AppCompat.Leanback.GuidedStep.HalfBase">
+        <item name="guidedStepHeightWeight">@dimen/lb_guidedstep_height_weight_translucent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.AppCompat.Leanback.Onboarding" parent="Theme.AppCompat.LeanbackBase">
+        <item name="onboardingHeaderStyle">@style/Widget.Leanback.OnboardingHeaderStyle</item>
+        <item name="onboardingTitleStyle">@style/Widget.Leanback.OnboardingTitleStyle</item>
+        <item name="onboardingDescriptionStyle">@style/Widget.Leanback.OnboardingDescriptionStyle</item>
+        <item name="onboardingNavigatorContainerStyle">@style/Widget.Leanback.OnboardingNavigatorContainerStyle</item>
+        <item name="onboardingPageIndicatorStyle">@style/Widget.Leanback.OnboardingPageIndicatorStyle</item>
+        <item name="onboardingStartButtonStyle">@style/Widget.Leanback.OnboardingStartButtonStyle</item>
+        <item name="onboardingLogoStyle">@style/Widget.Leanback.OnboardingLogoStyle</item>
+        <item name="onboardingMainIconStyle">@style/Widget.Leanback.OnboardingMainIconStyle</item>
+    </style>
+
+</resources>
