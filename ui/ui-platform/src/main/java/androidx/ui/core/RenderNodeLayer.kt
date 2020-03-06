@@ -56,10 +56,10 @@ internal class RenderNodeLayer(
         renderNode.rotationY = props.rotationY
         renderNode.clipToOutline = props.clipToOutline
         renderNode.clipToBounds = props.clipToBounds
-        outlineResolver.update(props.outlineShape, renderNode.alpha)
+        val shapeChanged = outlineResolver.update(props.outlineShape, renderNode.alpha)
         renderNode.setOutline(outlineResolver.outline)
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
-        if (wasClippingManually != isClippingManually) {
+        if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()
         }
     }

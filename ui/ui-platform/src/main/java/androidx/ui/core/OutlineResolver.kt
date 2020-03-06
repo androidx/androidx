@@ -115,10 +115,11 @@ internal class OutlineResolver(private val density: Density) {
         }
 
     /**
-     * Updates the values of the outline.
+     * Updates the values of the outline. Returns `true` when the shape has changed.
      */
-    fun update(shape: Shape?, alpha: Float) {
-        if (this.shape != shape) {
+    fun update(shape: Shape?, alpha: Float): Boolean {
+        val shapeChanged = this.shape != shape
+        if (shapeChanged) {
             this.shape = shape
             cacheIsDirty = true
         }
@@ -126,6 +127,7 @@ internal class OutlineResolver(private val density: Density) {
             this.alpha = alpha
             cacheIsDirty = true
         }
+        return shapeChanged
     }
 
     /**
