@@ -268,14 +268,12 @@ class FragmentStateManager {
                             create();
                             break;
                         case Fragment.AWAITING_EXIT_EFFECTS:
-                            // There's no exit effects when moving the state upward
-                            mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
-                            break;
-                        case Fragment.ACTIVITY_CREATED:
                             ensureInflatedView();
                             createView();
                             activityCreated();
                             restoreViewState();
+                            break;
+                        case Fragment.ACTIVITY_CREATED:
                             if (mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
@@ -284,16 +282,13 @@ class FragmentStateManager {
                                 controller.enqueueAdd(this,
                                         mEnterAnimationCancellationSignal);
                             }
+                            mFragment.mState = Fragment.ACTIVITY_CREATED;
                             break;
                         case Fragment.STARTED:
                             start();
                             break;
                         case Fragment.AWAITING_ENTER_EFFECTS:
-                            if (!FragmentManager.USE_STATE_MANAGER) {
-                                // Immediately set the state when not using
-                                // FragmentStateManager to control enter effects
-                                mFragment.mState = Fragment.AWAITING_ENTER_EFFECTS;
-                            }
+                            mFragment.mState = Fragment.AWAITING_ENTER_EFFECTS;
                             break;
                         case Fragment.RESUMED:
                             resume();
@@ -308,11 +303,10 @@ class FragmentStateManager {
                     }
                     switch (nextStep) {
                         case Fragment.AWAITING_ENTER_EFFECTS:
-                            // There's no enter effects when moving the state downward
-                            mFragment.mState = Fragment.AWAITING_ENTER_EFFECTS;
+                            pause();
                             break;
                         case Fragment.STARTED:
-                            pause();
+                            mFragment.mState = Fragment.STARTED;
                             break;
                         case Fragment.ACTIVITY_CREATED:
                             stop();
@@ -330,11 +324,7 @@ class FragmentStateManager {
                                 controller.enqueueRemove(this,
                                         mExitAnimationCancellationSignal);
                             }
-                            if (!FragmentManager.USE_STATE_MANAGER) {
-                                // Immediately set the state when not using
-                                // FragmentStateManager to control exit effects
-                                mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
-                            }
+                            mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
                             break;
                         case Fragment.CREATED:
                             destroyFragmentView();
