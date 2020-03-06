@@ -32,11 +32,22 @@ class AndroidComposeTestCaseSetup(
         testRule.runOnUiThread {
             // TODO: Ensure that no composition exists at this stage!
             val runner = AndroidComposeTestCaseRunner({ testCase }, activity)
+            var cause: Throwable? = null
             try {
                 runner.setupContent()
                 block.invoke(runner)
+            } catch (t: Throwable) {
+                cause = t
+                throw t
             } finally {
-                runner.disposeContent()
+                // It is currently unsafe to dispose a composition if an exception was thrown
+                // during sensitive phases of that composition. Don't lose the original exception
+                // from the test if we encounter problems.
+                try {
+                    runner.disposeContent()
+                } catch (t: Throwable) {
+                    cause?.addSuppressed(t) ?: throw t
+                }
             }
         }
     }
