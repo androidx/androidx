@@ -38,7 +38,6 @@ package androidx.ui.core {
   public final class LayoutKt {
     method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
-    method @Deprecated public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static androidx.ui.core.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static inline void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static inline void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
@@ -60,21 +59,6 @@ package androidx.ui.core {
   public interface LayoutTagParentData {
     method public Object getTag();
     property public abstract Object tag;
-  }
-
-  public final class MultiComposableMeasurables implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.core.Measurable> {
-    method public boolean contains(androidx.ui.core.Measurable element);
-    method public boolean containsAll(java.util.Collection<?> elements);
-    method public operator java.util.List<androidx.ui.core.Measurable> get(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public androidx.ui.core.Measurable get(int index);
-    method public int getSize();
-    method public int indexOf(androidx.ui.core.Measurable element);
-    method public boolean isEmpty();
-    method public java.util.Iterator<androidx.ui.core.Measurable> iterator();
-    method public int lastIndexOf(androidx.ui.core.Measurable element);
-    method public java.util.ListIterator<androidx.ui.core.Measurable> listIterator();
-    method public java.util.ListIterator<androidx.ui.core.Measurable> listIterator(int index);
-    method public java.util.List<androidx.ui.core.Measurable> subList(int fromIndex, int toIndex);
   }
 
   public final class OpacityKt {

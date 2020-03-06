@@ -22,7 +22,6 @@ import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
-import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -366,80 +365,6 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
     val layoutReceiver = IntrinsicsMeasureScope(this)
     val layoutResult = layoutReceiver.measureBlock(mapped, constraints, layoutDirection)
     return layoutResult.height
-}
-
-/**
- * DataNodeKey for grouped child composables. When multiple composables are
- * passed to a `Layout`, they are identified by a `ChildGroupKey` with
- * the value of the composable. The direct children of the LayoutNode must be
- * a DataNodeKey with ChildGroupKey if they are provided.
- */
-private val ChildGroupKey = DataNodeKey<@Composable() () -> Unit>("Compose: ChildGroup")
-
-/**
- * A [List] of [Measurable]s passed in as the argument to the [Layout] `measureBlock` when
- * using the `vararg` variant.
- */
-class MultiComposableMeasurables internal constructor(private val layoutNode: LayoutNode) :
-    List<Measurable> by layoutNode.layoutChildren {
-    /**
-     * When multiple [Composable] children are passed into `Layout`, the [Measurable]s
-     * for each [Composable] can be retrieved using this method.
-     */
-    operator fun get(children: @Composable() () -> Unit): List<Measurable> {
-        if (isEmpty()) return emptyList()
-        for (i in 0 until layoutNode.count) {
-            val child = layoutNode[i] as DataNode<*>
-            if (child.key !== ChildGroupKey) {
-                throw IllegalStateException("Malformed Layout. Must be a ChildGroupKey")
-            }
-            if (child.value === children) {
-                val group = mutableListOf<LayoutNode>()
-                child.visitLayoutChildren { node -> group += node }
-                return group
-            }
-        }
-        return emptyList()
-    }
-}
-
-typealias MultiMeasureBlock =
-        MeasureScope.(
-            MultiComposableMeasurables,
-            Constraints,
-            LayoutDirection
-        ) -> MeasureScope.LayoutResult
-
-/**
- * Temporary component that allows composing and indexing measurables of multiple composables.
- * The logic here will be moved back to Layout, which will accept vararg children argument.
- */
-@Deprecated("Please use the LayoutTagParentData API instead.")
-@Composable
-fun Layout(
-    vararg childrenArray: @Composable() () -> Unit,
-    modifier: Modifier = Modifier.None,
-    measureBlock: MultiMeasureBlock
-) {
-    val children: @Composable() () -> Unit = if (childrenArray.isEmpty()) {
-        emptyContent()
-    } else {
-        @Composable {
-            childrenArray.forEach { childrenComposable ->
-                DataNode(key = ChildGroupKey, value = childrenComposable) {
-                    childrenComposable()
-                }
-            }
-        }
-    }
-
-    Layout(children, modifier) { _, constraints, layoutDirection ->
-        measureBlock(
-            MultiComposableMeasurables((this as LayoutNode.InnerMeasureScope).layoutNode),
-            constraints,
-            layoutDirection
-        )
-    }
 }
 
 /**
