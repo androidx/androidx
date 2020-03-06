@@ -21,6 +21,7 @@ import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
@@ -41,7 +42,7 @@ import androidx.ui.unit.px
 fun ScrollableState(
     onScrollDeltaConsumptionRequested: (Float) -> Float
 ): ScrollableState {
-    val clocks = AnimationClockAmbient.current
+    val clocks = AnimationClockAmbient.current.asDisposableClock()
     val flingConfig = FlingConfig()
     return remember(clocks, flingConfig) {
         ScrollableState(onScrollDeltaConsumptionRequested, flingConfig, clocks)
