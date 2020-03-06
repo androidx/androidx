@@ -74,7 +74,6 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
-import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
@@ -114,7 +113,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -378,7 +376,7 @@ public final class ImageCapture extends UseCase {
             if (isCurrentlyBoundCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
                 mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
-                attachToCamera(cameraId, mSessionConfigBuilder.build());
+                attachToCamera(mSessionConfigBuilder.build());
                 notifyReset();
             }
         });
@@ -419,11 +417,6 @@ public final class ImageCapture extends UseCase {
         return null;
     }
 
-    private CameraControlInternal getCurrentCameraControl() {
-        String cameraId = getBoundCameraId();
-        return getCameraControl(cameraId);
-    }
-
     /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
@@ -431,8 +424,8 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    protected void onCameraControlReady(@NonNull String cameraId) {
-        getCameraControl(cameraId).setFlashMode(mFlashMode);
+    protected void onCameraControlReady() {
+        getCameraControl().setFlashMode(mFlashMode);
     }
 
     /**
@@ -470,7 +463,7 @@ public final class ImageCapture extends UseCase {
         // been not ready yet, just saving the flash mode and updating into camera control when
         // camera control ready callback is called.
         if (getBoundCamera() != null) {
-            getCurrentCameraControl().setFlashMode(flashMode);
+            getCameraControl().setFlashMode(flashMode);
         }
     }
 
@@ -716,8 +709,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
     @Override
-    public void onStateOffline(@NonNull String cameraId) {
-        super.onStateOffline(cameraId);
+    public void onStateOffline() {
         abortImageCaptureRequests();
     }
 
@@ -974,24 +966,16 @@ public final class ImageCapture extends UseCase {
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
-        String cameraId = getBoundCameraId();
-        Size resolution = suggestedResolutionMap.get(cameraId);
-        if (resolution == null) {
-            throw new IllegalArgumentException(
-                    "Suggested resolution map missing resolution for camera " + cameraId);
-        }
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        mSessionConfigBuilder = createPipeline(getBoundCameraId(), mConfig, suggestedResolution);
 
-        mSessionConfigBuilder = createPipeline(cameraId, mConfig, resolution);
-
-        attachToCamera(cameraId, mSessionConfigBuilder.build());
+        attachToCamera(mSessionConfigBuilder.build());
 
         // In order to speed up the take picture process, notifyActive at an early stage to
         // attach the session capture callback to repeating and get capture result all the time.
         notifyActive();
 
-        return suggestedResolutionMap;
+        return suggestedResolution;
     }
 
     final OnImageCloseListener mOnImageCloseListener = new OnImageCloseListener() {
@@ -1154,13 +1138,13 @@ public final class ImageCapture extends UseCase {
     /** Issues a request to start auto focus scan. */
     private void triggerAf(TakePictureState state) {
         state.mIsAfTriggered = true;
-        getCurrentCameraControl().triggerAf();
+        getCameraControl().triggerAf();
     }
 
     /** Issues a request to start auto exposure scan. */
     void triggerAePrecapture(TakePictureState state) {
         state.mIsAePrecaptureTriggered = true;
-        getCurrentCameraControl().triggerAePrecapture();
+        getCameraControl().triggerAePrecapture();
     }
 
     /** Issues a request to cancel auto focus and/or auto exposure scan. */
@@ -1168,7 +1152,7 @@ public final class ImageCapture extends UseCase {
         if (!state.mIsAfTriggered && !state.mIsAePrecaptureTriggered) {
             return;
         }
-        getCurrentCameraControl()
+        getCameraControl()
                 .cancelAfAeTrigger(state.mIsAfTriggered, state.mIsAePrecaptureTriggered);
         state.mIsAfTriggered = false;
         state.mIsAePrecaptureTriggered = false;
@@ -1266,7 +1250,7 @@ public final class ImageCapture extends UseCase {
 
         }
 
-        getCurrentCameraControl().submitCaptureRequests(captureConfigs);
+        getCameraControl().submitCaptureRequests(captureConfigs);
         return Futures.transform(Futures.allAsList(futureList),
                 input -> null, CameraXExecutors.directExecutor());
     }

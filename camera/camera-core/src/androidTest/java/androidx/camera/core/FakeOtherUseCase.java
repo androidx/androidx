@@ -21,8 +21,6 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.camera.testing.fakes.FakeUseCase;
 
-import java.util.Map;
-
 /**
  * A second fake {@link UseCase}.
  *
@@ -51,9 +49,8 @@ public class FakeOtherUseCase extends UseCase {
 
     @Override
     @NonNull
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
-        return suggestedResolutionMap;
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        return suggestedResolution;
     }
 
     /** Returns true if {@link #clear()} has been called previously. */

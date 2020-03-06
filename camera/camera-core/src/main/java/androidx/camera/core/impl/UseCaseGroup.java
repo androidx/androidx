@@ -147,7 +147,9 @@ public final class UseCaseGroup {
         Map<String, Set<UseCase>> cameraIdToUseCases = new HashMap<>();
         synchronized (mUseCasesLock) {
             for (UseCase useCase : mUseCases) {
-                for (String cameraId : useCase.getAttachedCameraIds()) {
+                CameraInternal boundCamera = useCase.getBoundCamera();
+                if (boundCamera != null) {
+                    String cameraId = boundCamera.getCameraInfoInternal().getCameraId();
                     Set<UseCase> useCaseSet = cameraIdToUseCases.get(cameraId);
                     if (useCaseSet == null) {
                         useCaseSet = new HashSet<>();

@@ -65,7 +65,6 @@ import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -75,7 +74,6 @@ import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -761,7 +759,7 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void onCaptureCancelled_onErrorCAMERA_CLOSED() throws InterruptedException {
+    public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
@@ -769,22 +767,19 @@ public final class ImageCaptureTest {
             mLifecycleOwner.startAndResume();
         });
 
-        FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
-                CameraControlInternal.ControlUpdateCallback.class));
-        imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
-        CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
-        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
+        CountingCallback callback = new CountingCallback(3, 500);
 
         imageCapture.takePicture(mMainExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
 
-        captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
-        fakeCameraControl.notifyAllRequestOnCaptureCancelled();
+        mInstrumentation.runOnMainSync(imageCapture::onStateOffline);
 
-        final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
-                ImageCaptureException.class);
-        verify(callback, timeout(500).times(1)).onError(exceptionCaptor.capture());
-        assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
-                ImageCapture.ERROR_CAMERA_CLOSED);
+        assertThat(callback.getNumOnCaptureSuccess() + callback.getNumOnError()).isEqualTo(3);
+
+        for (Integer imageCaptureError : callback.getImageCaptureErrors()) {
+            assertThat(imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
+        }
     }
 
     @Test

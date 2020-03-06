@@ -209,9 +209,7 @@ final class SupportedSurfaceCombination {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
             if (originalUseCases != null) {
                 for (UseCase useCase : originalUseCases) {
-                    Size resolution =
-                            useCase.getAttachedSurfaceResolution(
-                                    useCase.getBoundCamera().getCameraInfoInternal().getCameraId());
+                    Size resolution = useCase.getAttachedSurfaceResolution();
 
                     surfaceConfigList.add(
                             transformSurfaceConfig(useCase.getImageFormat(), resolution));

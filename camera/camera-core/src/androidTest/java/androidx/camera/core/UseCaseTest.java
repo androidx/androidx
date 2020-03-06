@@ -37,9 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Map;
-import java.util.Set;
-
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class UseCaseTest {
@@ -51,27 +48,14 @@ public class UseCaseTest {
     }
 
     @Test
-    public void getAttachedCamera() {
-        FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
-                "UseCase").getUseCaseConfig();
-        TestUseCase testUseCase = new TestUseCase(config);
-        SessionConfig sessionToAttach = new SessionConfig.Builder().build();
-        testUseCase.attachToCamera("Camera", sessionToAttach);
-
-        Set<String> attachedCameras = testUseCase.getAttachedCameraIds();
-
-        assertThat(attachedCameras).contains("Camera");
-    }
-
-    @Test
     public void getAttachedSessionConfig() {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
         SessionConfig sessionToAttach = new SessionConfig.Builder().build();
-        testUseCase.attachToCamera("Camera", sessionToAttach);
+        testUseCase.attachToCamera(sessionToAttach);
 
-        SessionConfig attachedSession = testUseCase.getSessionConfig("Camera");
+        SessionConfig attachedSession = testUseCase.getSessionConfig();
 
         assertThat(attachedSession).isEqualTo(sessionToAttach);
     }
@@ -184,9 +168,8 @@ public class UseCaseTest {
 
         @Override
         @NonNull
-        protected Map<String, Size> onSuggestedResolutionUpdated(
-                @NonNull Map<String, Size> suggestedResolutionMap) {
-            return suggestedResolutionMap;
+        protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+            return suggestedResolution;
         }
     }
 }
