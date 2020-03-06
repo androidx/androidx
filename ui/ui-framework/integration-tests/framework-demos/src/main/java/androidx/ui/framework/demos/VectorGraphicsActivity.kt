@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
 import androidx.ui.unit.dp
@@ -31,12 +32,12 @@ import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.TileMode
 import androidx.ui.graphics.VerticalGradient
-import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.Group
 import androidx.ui.graphics.vector.Path
 import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorScope
+import androidx.ui.graphics.vector.drawVector
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -53,8 +54,7 @@ class VectorGraphicsActivity : Activity() {
                 with(DensityAmbient.current) {
                     vectorAsset.resource.resource?.let {
                         Center {
-                            Container(width = 200.dp, height = 100.dp) {
-                                DrawVector(it)
+                            Container(width = 200.dp, height = 100.dp, modifier = drawVector(it)) {
                             }
                         }
                     }
@@ -63,8 +63,10 @@ class VectorGraphicsActivity : Activity() {
                 Center {
                     val width = 120.dp
                     val height = 120.dp
-                    Container(width = width, height = height) {
-                        VectorShape(width, height)
+                    Container(
+                        width = width,
+                        height = height,
+                        modifier = vectorShape(width, height)) {
                     }
                 }
             }
@@ -72,51 +74,49 @@ class VectorGraphicsActivity : Activity() {
     }
 
     @Composable
-    fun VectorShape(width: Dp, height: Dp) {
-        DrawVector(
+    fun vectorShape(width: Dp, height: Dp): Modifier = drawVector(
             name = "vectorShape",
             defaultWidth = width,
             defaultHeight = height,
             scaleFit = ScaleFit.FillMaxDimension
         ) { viewportWidth, viewportHeight ->
+        Group(
+            scaleX = 0.75f,
+            scaleY = 0.75f,
+            rotation = 45.0f,
+            pivotX = (viewportWidth / 2),
+            pivotY = (viewportHeight / 2)
+        ) {
+            BackgroundPath(viewportWidth, viewportHeight)
+            StripePath(viewportWidth, viewportHeight)
             Group(
-                scaleX = 0.75f,
-                scaleY = 0.75f,
-                rotation = 45.0f,
+                translationX = 50.0f,
+                translationY = 50.0f,
                 pivotX = (viewportWidth / 2),
-                pivotY = (viewportHeight / 2)
+                pivotY = (viewportHeight / 2),
+                rotation = 25.0f
             ) {
-                BackgroundPath(viewportWidth, viewportHeight)
-                StripePath(viewportWidth, viewportHeight)
-                Group(
-                    translationX = 50.0f,
-                    translationY = 50.0f,
-                    pivotX = (viewportWidth / 2),
-                    pivotY = (viewportHeight / 2),
-                    rotation = 25.0f
-                ) {
-                    val pathData = PathData {
-                        moveTo(viewportWidth / 2 - 100, viewportHeight / 2 - 100)
-                        horizontalLineToRelative(200.0f)
-                        verticalLineToRelative(200.0f)
-                        horizontalLineToRelative(-200.0f)
-                        close()
-                    }
-                    Path(
-                        fill = HorizontalGradient(
-                            listOf(
-                                Color.Red,
-                                Color.Blue
-                            ),
-                            startX = Px.Zero,
-                            endX = Px(viewportWidth / 2 + 100)
-                        ),
-                        pathData = pathData
-                    )
+                val pathData = PathData {
+                    moveTo(viewportWidth / 2 - 100, viewportHeight / 2 - 100)
+                    horizontalLineToRelative(200.0f)
+                    verticalLineToRelative(200.0f)
+                    horizontalLineToRelative(-200.0f)
+                    close()
                 }
-                Triangle()
-                TriangleWithOffsets()
+                Path(
+                    fill = HorizontalGradient(
+                        listOf(
+                            Color.Red,
+                            Color.Blue
+                        ),
+                        startX = Px.Zero,
+                        endX = Px(viewportWidth / 2 + 100)
+                    ),
+                    pathData = pathData
+                )
             }
+            Triangle()
+            TriangleWithOffsets()
         }
     }
 
