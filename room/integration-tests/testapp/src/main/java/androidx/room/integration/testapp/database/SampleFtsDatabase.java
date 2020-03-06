@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,17 @@
 
 package androidx.room.integration.testapp.database;
 
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-
-import java.util.List;
+import androidx.room.Database;
+import androidx.room.RoomDatabase;
 
 /**
- * Simple Product DAO.
+ * Sample database of customers and products with FTS.
  */
-@Dao
-public interface ProductDao {
-
+@Database(entities = {Product.class, Review.class, Description.class},
+        version = 1, exportSchema = false)
+public abstract class SampleFtsDatabase extends RoomDatabase {
     /**
-     * Insert the product.
+     * @return product dao.
      */
-    @Insert
-    void insert(Product product);
-
-    /**
-     * Insert a review.
-     */
-    @Insert
-    void addReview(Review review);
-
-    /**
-     * Query a products reviews.
-     */
-    @Query("SELECT * FROM Review WHERE mProductId = :productId")
-    List<Review> getProductReviews(int productId);
-
+    public abstract ProductFtsDao getProductDao();
 }

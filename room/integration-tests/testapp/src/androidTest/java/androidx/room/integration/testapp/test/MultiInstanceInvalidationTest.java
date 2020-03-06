@@ -44,6 +44,7 @@ import androidx.room.integration.testapp.database.CustomerDao;
 import androidx.room.integration.testapp.database.Description;
 import androidx.room.integration.testapp.database.Product;
 import androidx.room.integration.testapp.database.SampleDatabase;
+import androidx.room.integration.testapp.database.SampleFtsDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -130,8 +131,8 @@ public class MultiInstanceInvalidationTest {
 
     @Test
     public void invalidateInAnotherInstanceFts() throws Exception {
-        final SampleDatabase db1 = openDatabase(true);
-        final SampleDatabase db2 = openDatabase(true);
+        final SampleFtsDatabase db1 = openFtsDatabase(true);
+        final SampleFtsDatabase db2 = openFtsDatabase(true);
 
         Product theProduct = new Product(1, "Candy");
         db2.getProductDao().insert(theProduct);
@@ -378,6 +379,19 @@ public class MultiInstanceInvalidationTest {
             builder.enableMultiInstanceInvalidation();
         }
         final SampleDatabase db = builder.build();
+        mDatabases.add(db);
+        return db;
+    }
+
+    private SampleFtsDatabase openFtsDatabase(boolean multiInstanceInvalidation) {
+        final Context context = ApplicationProvider.getApplicationContext();
+        final RoomDatabase.Builder<SampleFtsDatabase> builder = Room
+                .databaseBuilder(context, SampleFtsDatabase.class,
+                        SampleDatabaseService.DATABASE_NAME);
+        if (multiInstanceInvalidation) {
+            builder.enableMultiInstanceInvalidation();
+        }
+        final SampleFtsDatabase db = builder.build();
         mDatabases.add(db);
         return db;
     }
