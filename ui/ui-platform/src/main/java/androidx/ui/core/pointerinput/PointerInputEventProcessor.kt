@@ -206,12 +206,12 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
     }
 }
 
-private data class HitTestBoundingBoxResult(val boundingBox: Rect?, val hit: Boolean)
+internal data class HitTestBoundingBoxResult(val boundingBox: Rect?, val hit: Boolean)
 
 /**
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
  */
-private class PointerInputChangeEventProducer {
+internal class PointerInputChangeEventProducer {
     private val previousPointerInputData: MutableMap<PointerId, PointerInputData> = mutableMapOf()
 
     /**
@@ -249,7 +249,7 @@ private class PointerInputChangeEventProducer {
 // TODO(shepshapard): The uptime property probably doesn't need to exist (and therefore, nor does
 // this class, but going to wait to refactor it out till after things like API review to avoid
 // thrashing.
-private data class PointerInputChangeEvent(
+internal data class PointerInputChangeEvent(
     val uptime: Uptime,
     val changes: List<PointerInputChange>
 )
@@ -261,14 +261,14 @@ private data class PointerInputChangeEvent(
  * expanded by a nonnull Rect such that the result is the nonnull Rect, and a nonnull Rect that
  * is expanded by a null Rect, will just return itself.
  */
-private fun Rect?.expandToInclude(other: Rect?) =
+internal fun Rect?.expandToInclude(other: Rect?) =
     when {
         other == null -> this
         this == null -> other
         else -> this.expandToInclude(other)
     }
 
-private fun Rect(position: IntPxPosition, size: IntPxSize): Rect {
+internal fun Rect(position: IntPxPosition, size: IntPxSize): Rect {
     return Rect(
         position.x.value.toFloat(),
         position.y.value.toFloat(),
@@ -277,12 +277,12 @@ private fun Rect(position: IntPxPosition, size: IntPxSize): Rect {
     )
 }
 
-private fun Rect.translate(offset: IntPxPosition): Rect {
+internal fun Rect.translate(offset: IntPxPosition): Rect {
     return translate(offset.x.value.toFloat(), offset.y.value.toFloat())
 }
 
 // TODO(shepshapard): Remove these when transitioning to modifiers
-private val LayoutNode.contentPosition: IntPxPosition
+internal val LayoutNode.contentPosition: IntPxPosition
     get() {
         val parent =
             parentLayoutNode ?: return innerLayoutNodeWrapper.localToRoot(PxPosition.Origin).round()
@@ -292,5 +292,5 @@ private val LayoutNode.contentPosition: IntPxPosition
         ).round()
     }
 
-private val LayoutNode.contentSize: IntPxSize
+internal val LayoutNode.contentSize: IntPxSize
     get() = innerLayoutNodeWrapper.size
