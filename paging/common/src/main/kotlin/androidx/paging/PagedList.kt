@@ -44,7 +44,7 @@ import java.util.concurrent.Executor
  * [PagedList], see [androidx.paging.PagedListAdapter], which enables the binding of a [PagedList]
  * to a [androidx.recyclerview.widget.RecyclerView].
  *
- * <h4>Loading Data</h4>
+ * ### Loading Data
  *
  * All data in a [PagedList] is loaded from its [PagingSource]. Creating a [PagedList] loads the
  * first chunk of data from the [PagingSource] immediately, and should for this reason be done on a
@@ -64,7 +64,7 @@ import java.util.concurrent.Executor
  * If you use [androidx.paging.LivePagedListBuilder] to get a [androidx.lifecycle.LiveData], it will
  * initialize [PagedList]s on a background thread for you.
  *
- * <h4>Placeholders</h4>
+ * ### Placeholders
  *
  * There are two ways that [PagedList] can represent its not-yet-loaded data - with or without
  * `null` placeholders.
@@ -98,7 +98,7 @@ import java.util.concurrent.Executor
  * [PagingSource] does not count its data set in its initial load, or if  `false` is passed to
  * [Config.Builder.setEnablePlaceholders] when building a [Config].
  *
- * <h4>Mutability and Snapshots</h4>
+ * ### Mutability and Snapshots
  *
  * A [PagedList] is *mutable* while loading, or ready to load from its [PagingSource].
  * As loads succeed, a mutable [PagedList] will be updated via Runnables on the main thread. You can
@@ -789,7 +789,7 @@ abstract class PagedList<T : Any> internal constructor(
      * [Retrofit](https://square.github.io/retrofit/), while handling swipe-to-refresh,
      * network errors, and retry.
      *
-     * <h4>Requesting Network Data</h4>
+     * ### Requesting Network Data
      * [BoundaryCallback] only passes the item at front or end of the list when out of data. This
      * makes it an easy fit for item-keyed network requests, where you can use the item passed to
      * the [BoundaryCallback] to request more data from the network. In these cases, the source of
