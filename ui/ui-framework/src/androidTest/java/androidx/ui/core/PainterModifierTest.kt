@@ -54,6 +54,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 @SmallTest
@@ -88,7 +89,7 @@ class PainterModifierTest {
             }
         }
 
-        paintLatch.await()
+        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
@@ -111,7 +112,7 @@ class PainterModifierTest {
             }
         }
 
-        paintLatch.await()
+        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
@@ -145,7 +146,7 @@ class PainterModifierTest {
             }
         }
 
-        paintLatch.await()
+        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerWidth.roundToInt(),
@@ -180,7 +181,7 @@ class PainterModifierTest {
             }
         }
 
-        paintLatch.await()
+        paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
             containerSizePx.value,
@@ -218,7 +219,7 @@ class PainterModifierTest {
             }
         }
 
-        paintLatch.await()
+        paintLatch.await(5, TimeUnit.SECONDS)
 
         val bottom = containerSizePx.value - 1
         val right = containerSizePx.value - 1

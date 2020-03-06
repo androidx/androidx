@@ -103,7 +103,7 @@ class VectorTest {
             }
         }
 
-        latch1.await()
+        latch1.await(5, TimeUnit.SECONDS)
         val size = testCase.vectorSize
         takeScreenShot(size).apply {
             assertEquals(Color.Blue.toArgb(), getPixel(5, size - 5))
@@ -115,7 +115,7 @@ class VectorTest {
             testCase.toggle()
         }
 
-        latch2.await()
+        latch2.await(5, TimeUnit.SECONDS)
         takeScreenShot(size).apply {
             assertEquals(Color.White.toArgb(), getPixel(5, size - 5))
             assertEquals(Color.Red.toArgb(), getPixel(size - 5, 5))
