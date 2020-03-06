@@ -33,6 +33,7 @@ android {
 
 dependencies {
     api(project(":benchmark:benchmark-common"))
+    implementation(project(':tracing:tracing-ktx'))
 
     api(JUNIT)
     api(KOTLIN_STDLIB)
