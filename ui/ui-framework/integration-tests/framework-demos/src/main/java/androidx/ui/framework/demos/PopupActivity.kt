@@ -19,6 +19,7 @@ package androidx.ui.framework.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
+import androidx.compose.Composition
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DropDownAlignment
@@ -28,7 +29,6 @@ import androidx.ui.core.Popup
 import androidx.ui.core.PopupProperties
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
-import androidx.ui.core.disposeActivityComposition
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
@@ -54,10 +54,11 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
 class PopupActivity : Activity() {
+    private var composition: Composition? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
+        composition = setContent {
             val exampleIndex = state { 0 }
             val totalExamples = 9
 
@@ -135,10 +136,8 @@ class PopupActivity : Activity() {
         }
     }
 
-    // TODO(b/140396932): Replace with Activity.disposeComposition() when it will be working
-    //  properly
     override fun onDestroy() {
-        disposeActivityComposition(this)
+        composition?.dispose()
         super.onDestroy()
     }
 }

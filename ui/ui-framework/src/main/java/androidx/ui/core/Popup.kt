@@ -27,10 +27,10 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Compose
+import androidx.compose.Composition
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
-import androidx.compose.disposeComposition
 import androidx.compose.escapeCompose
 import androidx.compose.onCommit
 import androidx.compose.onDispose
@@ -152,6 +152,8 @@ private fun Popup(
     }
     popupLayout.calculatePopupPosition = calculatePopupPosition
 
+    var composition: Composition? = null
+
     // Get the parent's global position and size
     OnPositioned { coordinates ->
         // Get the global position of the parent
@@ -166,7 +168,7 @@ private fun Popup(
     }
 
     onCommit {
-        popupLayout.setContent {
+        composition = popupLayout.setContent {
             OnChildPositioned({
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
@@ -178,7 +180,7 @@ private fun Popup(
     }
 
     onDispose {
-        popupLayout.disposeComposition()
+        composition?.dispose()
         // Remove the window
         popupLayout.dismiss()
     }
@@ -404,12 +406,17 @@ internal fun calculateDropdownPopupPosition(
 /**
  * Disposes the root view of the Activity.
  */
+@Deprecated(
+    "disposing should be done with the Composition object returned by setContent",
+    replaceWith = ReplaceWith("Composition#dispose()")
+)
 fun disposeActivityComposition(activity: Activity) {
     val composeView = activity.window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidComposeView
         ?: error("No root view found")
 
+    @Suppress("DEPRECATION")
     Compose.disposeComposition(composeView.root, activity, null)
 }
 

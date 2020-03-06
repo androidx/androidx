@@ -63,7 +63,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 /**
- * Corresponds to AndroidViewCompat.kt, testing the support for Android Views in Compose UI.
+ * Testing the support for Android Views in Compose UI.
  */
 @SmallTest
 @RunWith(JUnit4::class)

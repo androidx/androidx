@@ -26,7 +26,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.ui.androidview.adapters.dp
 import androidx.ui.androidview.adapters.setPadding
-import androidx.compose.setViewContent
+import androidx.ui.core.setViewContent
 
 class RippleActivity : Activity() {
 

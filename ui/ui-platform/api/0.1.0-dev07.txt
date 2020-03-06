@@ -78,12 +78,9 @@ package androidx.ui.core {
   public final class AndroidOwnerKt {
   }
 
-  public abstract sealed class ComponentNode implements androidx.compose.Emittable {
+  public abstract sealed class ComponentNode {
     method public void attach(androidx.ui.core.Owner owner);
     method public void detach();
-    method public void emitInsertAt(int index, androidx.compose.Emittable instance);
-    method public void emitMove(int from, int to, int count);
-    method public void emitRemoveAt(int index, int count);
     method public final operator androidx.ui.core.ComponentNode get(int index);
     method protected androidx.ui.core.LayoutNode? getContainingLayoutNode();
     method public final int getCount();
@@ -93,6 +90,9 @@ package androidx.ui.core {
     method public final androidx.ui.core.ComponentNode? getParent();
     method public androidx.ui.core.LayoutNode? getParentLayoutNode();
     method public androidx.ui.core.RepaintBoundaryNode? getRepaintBoundary();
+    method public final void insertAt(int index, androidx.ui.core.ComponentNode instance);
+    method public final void move(int from, int to, int count);
+    method public final void removeAt(int index, int count);
     method public final void setDepth(int p);
     method public final void setOwnerData(Object? p);
     method public final inline void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);

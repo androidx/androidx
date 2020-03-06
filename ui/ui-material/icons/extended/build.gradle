@@ -34,6 +34,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     api project(":ui:ui-material-icons-core")
+    implementation project(":compose:compose-runtime")
 
     androidTestImplementation project(":ui:ui-foundation")
     androidTestImplementation project(":ui:ui-layout")

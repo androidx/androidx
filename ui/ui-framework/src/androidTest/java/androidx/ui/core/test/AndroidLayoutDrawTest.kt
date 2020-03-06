@@ -26,7 +26,6 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.compose.FrameManager
 import androidx.compose.Model
 import androidx.compose.Providers
@@ -464,21 +463,6 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    // TODO(lmr): refactor to use the globally provided one when it lands
-    private fun Activity.compose(composable: @Composable() () -> Unit) {
-        val root = AndroidComposeView(this)
-
-        setContentView(root)
-        Compose.composeInto(root.root, context = this) {
-            Providers(
-                ContextAmbient provides this,
-                DensityAmbient provides Density(this),
-                LayoutDirectionAmbient provides LayoutDirection.Ltr,
-                children = composable
-            )
-        }
-    }
-
     // When a child's measure() is done within the layout, it should not affect the parent's
     // size. The parent's layout shouldn't be called when the child's size changes
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -492,7 +476,7 @@ class AndroidLayoutDrawTest {
 
         val layoutLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            activity.compose {
+            activity.setContent {
                 Layout(
                     modifier = draw { canvas, size ->
                         val paint = Paint()

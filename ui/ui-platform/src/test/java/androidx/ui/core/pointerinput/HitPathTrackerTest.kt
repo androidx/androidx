@@ -953,7 +953,7 @@ class HitPathTrackerTest {
             this.cancelHandler = neverCalled
         }
         val pin3 = PointerInputNode().apply {
-            emitInsertAt(0, pin2)
+            insertAt(0, pin2)
             this.cancelHandler = neverCalled
         }
 
@@ -961,11 +961,11 @@ class HitPathTrackerTest {
             this.cancelHandler = neverCalled
         }
         val pin5 = PointerInputNode().apply {
-            emitInsertAt(0, pin4)
+            insertAt(0, pin4)
             this.cancelHandler = neverCalled
         }
         val pin6 = PointerInputNode().apply {
-            emitInsertAt(0, pin5)
+            insertAt(0, pin5)
             this.cancelHandler = neverCalled
         }
 
@@ -976,18 +976,18 @@ class HitPathTrackerTest {
             this.cancelHandler = neverCalled
         }
         val layoutNode = LayoutNode().apply {
-            emitInsertAt(0, pin7)
-            emitInsertAt(1, pin8)
+            insertAt(0, pin7)
+            insertAt(1, pin8)
         }
         val pin9 = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             this.cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, pin1)
-        compositionRoot.emitInsertAt(1, pin3)
-        compositionRoot.emitInsertAt(2, pin6)
-        compositionRoot.emitInsertAt(3, pin9)
+        compositionRoot.insertAt(0, pin1)
+        compositionRoot.insertAt(1, pin3)
+        compositionRoot.insertAt(2, pin6)
+        compositionRoot.insertAt(3, pin9)
 
         val pointerId1 = PointerId(1)
         val pointerId2 = PointerId(2)
@@ -1048,11 +1048,11 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle = PointerInputNode().apply {
-            emitInsertAt(0, leaf)
+            insertAt(0, leaf)
             cancelHandler = spy {}
         }
         val root = PointerInputNode().apply {
-            emitInsertAt(0, middle)
+            insertAt(0, middle)
             cancelHandler = spy {}
         }
         hitResult.addHitPath(PointerId(0), listOf(root, middle, leaf))
@@ -1074,7 +1074,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle = PointerInputNode().apply {
-            emitInsertAt(0, child)
+            insertAt(0, child)
             cancelHandler = spy {}
         }
         val root = PointerInputNode().apply {
@@ -1110,7 +1110,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val root = PointerInputNode().apply {
-            emitInsertAt(0, middle)
+            insertAt(0, middle)
             cancelHandler = spy {}
         }
         compositionRoot.add(root)
@@ -1145,11 +1145,11 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = neverCalled
         }
         val root1 = PointerInputNode().apply {
-            emitInsertAt(0, middle1)
+            insertAt(0, middle1)
             cancelHandler = neverCalled
         }
 
@@ -1157,11 +1157,11 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
-            emitInsertAt(0, middle2)
+            insertAt(0, middle2)
             cancelHandler = neverCalled
         }
 
@@ -1169,16 +1169,16 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = spy {}
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = spy {}
         }
 
-        compositionRoot.emitInsertAt(0, root1)
-        compositionRoot.emitInsertAt(1, root2)
+        compositionRoot.insertAt(0, root1)
+        compositionRoot.insertAt(1, root2)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1232,7 +1232,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
@@ -1243,11 +1243,11 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
-            emitInsertAt(0, middle2)
+            insertAt(0, middle2)
             cancelHandler = neverCalled
         }
 
@@ -1255,17 +1255,17 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root1)
-        compositionRoot.emitInsertAt(1, root2)
-        compositionRoot.emitInsertAt(2, root3)
+        compositionRoot.insertAt(0, root1)
+        compositionRoot.insertAt(1, root2)
+        compositionRoot.insertAt(2, root3)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1321,11 +1321,11 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = neverCalled
         }
         val root1 = PointerInputNode().apply {
-            emitInsertAt(0, middle1)
+            insertAt(0, middle1)
             cancelHandler = neverCalled
         }
 
@@ -1336,7 +1336,7 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
-            emitInsertAt(0, middle2)
+            insertAt(0, middle2)
             cancelHandler = neverCalled
         }
 
@@ -1344,17 +1344,17 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root1)
-        compositionRoot.emitInsertAt(1, root2)
-        compositionRoot.emitInsertAt(2, root3)
+        compositionRoot.insertAt(0, root1)
+        compositionRoot.insertAt(1, root2)
+        compositionRoot.insertAt(2, root3)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1410,11 +1410,11 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
-            emitInsertAt(0, middle1)
+            insertAt(0, middle1)
             cancelHandler = spy {}
         }
 
@@ -1422,11 +1422,11 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
-            emitInsertAt(0, middle2)
+            insertAt(0, middle2)
             cancelHandler = neverCalled
         }
 
@@ -1434,15 +1434,15 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = spy {}
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = spy {}
         }
 
-        compositionRoot.emitInsertAt(0, root2)
+        compositionRoot.insertAt(0, root2)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1493,7 +1493,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
@@ -1504,7 +1504,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = spy {}
         }
         val root2 = PointerInputNode().apply {
@@ -1515,17 +1515,17 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root1)
-        compositionRoot.emitInsertAt(1, root2)
-        compositionRoot.emitInsertAt(2, root3)
+        compositionRoot.insertAt(0, root1)
+        compositionRoot.insertAt(1, root2)
+        compositionRoot.insertAt(2, root3)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1580,11 +1580,11 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = neverCalled
         }
         val root1 = PointerInputNode().apply {
-            emitInsertAt(0, middle1)
+            insertAt(0, middle1)
             cancelHandler = neverCalled
         }
 
@@ -1595,7 +1595,7 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
-            emitInsertAt(0, middle2)
+            insertAt(0, middle2)
             cancelHandler = neverCalled
         }
 
@@ -1606,13 +1606,13 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root1)
-        compositionRoot.emitInsertAt(1, root2)
-        compositionRoot.emitInsertAt(2, root3)
+        compositionRoot.insertAt(0, root1)
+        compositionRoot.insertAt(1, root2)
+        compositionRoot.insertAt(2, root3)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1663,11 +1663,11 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
-            emitInsertAt(0, middle1)
+            insertAt(0, middle1)
             cancelHandler = spy {}
         }
 
@@ -1675,11 +1675,11 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = spy {}
         }
         val root2 = PointerInputNode().apply {
-            emitInsertAt(0, middle2)
+            insertAt(0, middle2)
             cancelHandler = spy {}
         }
 
@@ -1687,11 +1687,11 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = spy {}
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = spy {}
         }
 
@@ -1733,7 +1733,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
@@ -1744,7 +1744,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = spy {}
         }
         val root2 = PointerInputNode().apply {
@@ -1755,16 +1755,16 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = spy {}
         }
         val root3 = PointerInputNode().apply {
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root1)
-        compositionRoot.emitInsertAt(1, root2)
-        compositionRoot.emitInsertAt(2, root3)
+        compositionRoot.insertAt(0, root1)
+        compositionRoot.insertAt(1, root2)
+        compositionRoot.insertAt(2, root3)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1819,7 +1819,7 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val root1 = PointerInputNode().apply {
-            emitInsertAt(0, middle1)
+            insertAt(0, middle1)
             cancelHandler = neverCalled
         }
 
@@ -1830,7 +1830,7 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val root2 = PointerInputNode().apply {
-            emitInsertAt(0, middle2)
+            insertAt(0, middle2)
             cancelHandler = neverCalled
         }
 
@@ -1841,13 +1841,13 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root1)
-        compositionRoot.emitInsertAt(1, root2)
-        compositionRoot.emitInsertAt(2, root3)
+        compositionRoot.insertAt(0, root1)
+        compositionRoot.insertAt(1, root2)
+        compositionRoot.insertAt(2, root3)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1899,11 +1899,11 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
         val root1 = PointerInputNode().apply {
-            emitInsertAt(0, middle1)
+            insertAt(0, middle1)
             cancelHandler = spy {}
         }
 
@@ -1911,7 +1911,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = spy {}
         }
         val root2 = PointerInputNode().apply {
@@ -1925,12 +1925,12 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val root3 = PointerInputNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root2)
-        compositionRoot.emitInsertAt(1, root3)
+        compositionRoot.insertAt(0, root2)
+        compositionRoot.insertAt(1, root3)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1978,7 +1978,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
 
@@ -1986,7 +1986,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = spy {}
         }
 
@@ -1994,18 +1994,18 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = spy {}
         }
 
         val layoutNode = LayoutNode().apply {
-            emitInsertAt(0, middle1)
-            emitInsertAt(1, middle2)
-            emitInsertAt(2, middle3)
+            insertAt(0, middle1)
+            insertAt(1, middle2)
+            insertAt(2, middle3)
         }
 
         val root = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = spy {}
         }
 
@@ -2048,7 +2048,7 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = neverCalled
         }
 
@@ -2056,7 +2056,7 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = neverCalled
         }
 
@@ -2064,21 +2064,21 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = spy {}
         }
 
         val layoutNode = LayoutNode().apply {
-            emitInsertAt(0, middle1)
-            emitInsertAt(1, middle2)
+            insertAt(0, middle1)
+            insertAt(1, middle2)
         }
 
         val root = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root)
+        compositionRoot.insertAt(0, root)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2131,7 +2131,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
 
@@ -2139,7 +2139,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = spy {}
         }
 
@@ -2147,20 +2147,20 @@ class HitPathTrackerTest {
             cancelHandler = neverCalled
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = neverCalled
         }
 
         val layoutNode = LayoutNode().apply {
-            emitInsertAt(0, middle3)
+            insertAt(0, middle3)
         }
 
         val root = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root)
+        compositionRoot.insertAt(0, root)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2211,7 +2211,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle1 = PointerInputNode().apply {
-            emitInsertAt(0, leaf1)
+            insertAt(0, leaf1)
             cancelHandler = spy {}
         }
 
@@ -2219,7 +2219,7 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle2 = PointerInputNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
             cancelHandler = spy {}
         }
 
@@ -2227,18 +2227,18 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val middle3 = PointerInputNode().apply {
-            emitInsertAt(0, leaf3)
+            insertAt(0, leaf3)
             cancelHandler = spy {}
         }
 
         val layoutNode = LayoutNode()
 
         val root = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root)
+        compositionRoot.insertAt(0, root)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2294,21 +2294,21 @@ class HitPathTrackerTest {
         }
 
         val layoutNode = LayoutNode().apply {
-            emitInsertAt(0, leaf1)
-            emitInsertAt(1, leaf3)
+            insertAt(0, leaf1)
+            insertAt(1, leaf3)
         }
 
         val middle = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
 
         val root = PointerInputNode().apply {
-            emitInsertAt(0, middle)
+            insertAt(0, middle)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root)
+        compositionRoot.insertAt(0, root)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2364,20 +2364,20 @@ class HitPathTrackerTest {
         }
 
         val layoutNode = LayoutNode().apply {
-            emitInsertAt(0, leaf2)
+            insertAt(0, leaf2)
         }
 
         val middle = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
 
         val root = PointerInputNode().apply {
-            emitInsertAt(0, middle)
+            insertAt(0, middle)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root)
+        compositionRoot.insertAt(0, root)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2433,16 +2433,16 @@ class HitPathTrackerTest {
         val layoutNode = LayoutNode()
 
         val middle = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
 
         val root = PointerInputNode().apply {
-            emitInsertAt(0, middle)
+            insertAt(0, middle)
             cancelHandler = neverCalled
         }
 
-        compositionRoot.emitInsertAt(0, root)
+        compositionRoot.insertAt(0, root)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2503,7 +2503,7 @@ class HitPathTrackerTest {
     fun removePointerInputNodesWithNoLayoutNodeDescendants_dnInPin_pinRemovedCancelCalledOnce() {
         val drawNode = DrawNode()
         val pointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, drawNode)
+            insertAt(0, drawNode)
             cancelHandler = spy {}
         }
         hitResult.addHitPath(PointerId(0), listOf(pointerInputNode))
@@ -2519,7 +2519,7 @@ class HitPathTrackerTest {
     fun removePointerInputNodesWithNoLayoutNodeDescendants_snInPin_pinRemoved() {
         val semanticsNode = SemanticsComponentNode(1, SemanticsConfiguration())
         val pointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, semanticsNode)
+            insertAt(0, semanticsNode)
             cancelHandler = spy {}
         }
         hitResult.addHitPath(PointerId(0), listOf(pointerInputNode))
@@ -2535,11 +2535,11 @@ class HitPathTrackerTest {
     fun removePointerInputNodesWithNoLayoutNodeDescendants_smInPinInPin_removesAndCancelsCorrect() {
         val semanticsNode = SemanticsComponentNode(1, SemanticsConfiguration())
         val pointerInputNodeB = PointerInputNode().apply {
-            emitInsertAt(0, semanticsNode)
+            insertAt(0, semanticsNode)
             cancelHandler = spy {}
         }
         val pointerInputNodeA = PointerInputNode().apply {
-            emitInsertAt(0, pointerInputNodeB)
+            insertAt(0, pointerInputNodeB)
             cancelHandler = spy {}
         }
         hitResult.addHitPath(
@@ -2561,11 +2561,11 @@ class HitPathTrackerTest {
     fun removePointerInputNodesWithNoLayoutNodeDescendants_dnInPinInPin_removesAndCancelsCorrect() {
         val drawnode = DrawNode()
         val pointerInputNodeB = PointerInputNode().apply {
-            emitInsertAt(0, drawnode)
+            insertAt(0, drawnode)
             cancelHandler = spy {}
         }
         val pointerInputNodeA = PointerInputNode().apply {
-            emitInsertAt(0, pointerInputNodeB)
+            insertAt(0, pointerInputNodeB)
             cancelHandler = spy {}
         }
         hitResult.addHitPath(
@@ -2587,7 +2587,7 @@ class HitPathTrackerTest {
     fun removePointerInputNodesWithNoLayoutNodeDescendants_pinWithLn_noRemovesOrCancels() {
         val layoutNode = LayoutNode(0, 0, 100, 100)
         val pointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = spy {}
         }
         val pointerId = PointerId(0)
@@ -2610,11 +2610,11 @@ class HitPathTrackerTest {
 
         val layoutNode = LayoutNode(0, 0, 100, 100)
         val pointerInputNodeB = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
         val pointerInputNodeA = PointerInputNode().apply {
-            emitInsertAt(0, pointerInputNodeB)
+            insertAt(0, pointerInputNodeB)
             cancelHandler = neverCalled
         }
         val pointerId = PointerId(0)
@@ -2642,10 +2642,10 @@ class HitPathTrackerTest {
             cancelHandler = spy {}
         }
         val layoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, pointerInputNodeB)
+            insertAt(0, pointerInputNodeB)
         }
         val pointerInputNodeA = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = spy {}
         }
         val pointerId = PointerId(0)
@@ -2673,15 +2673,15 @@ class HitPathTrackerTest {
 
         val layoutNode = LayoutNode(0, 0, 100, 100)
         val pointerInputNodeB = PointerInputNode().apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
             cancelHandler = neverCalled
         }
         val pointerInputNodeC = PointerInputNode().apply {
             cancelHandler = spy {}
         }
         val pointerInputNodeA = PointerInputNode().apply {
-            emitInsertAt(0, pointerInputNodeB)
-            emitInsertAt(0, pointerInputNodeC)
+            insertAt(0, pointerInputNodeB)
+            insertAt(0, pointerInputNodeC)
             cancelHandler = neverCalled
         }
         val pointerId1 = PointerId(0)
@@ -3042,25 +3042,25 @@ class HitPathTrackerTest {
         val childOffset = PxPosition(cX1.px, cY1.px)
         val childLayoutNode = LayoutNode(cX1, cY1, cX2, cY2)
         val childPointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val middleOffset = PxPosition(mX1.px, mY1.px)
         val middleLayoutNode = LayoutNode(mX1, mY1, mX2, mY2).apply {
-            emitInsertAt(0, childPointerInputNode)
+            insertAt(0, childPointerInputNode)
         }
         val middlePointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, middleLayoutNode)
+            insertAt(0, middleLayoutNode)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode = LayoutNode(pX1, pY1, pX2, pY2).apply {
-            emitInsertAt(0, middlePointerInputNode)
+            insertAt(0, middlePointerInputNode)
         }
         val parentPointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
+            insertAt(0, parentLayoutNode)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
-        compositionRoot.emitInsertAt(0, parentPointerInputNode)
+        compositionRoot.insertAt(0, parentPointerInputNode)
 
         hitResult.addHitPath(
             PointerId(3),
@@ -3255,18 +3255,18 @@ class HitPathTrackerTest {
 
         val childLayoutNode = LayoutNode(c1.left, c1.top, c1.right, c1.bottom)
         val childPointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode = LayoutNode(p1.left, p1.top, p1.right, p1.bottom).apply {
-            emitInsertAt(0, childPointerInputNode)
+            insertAt(0, childPointerInputNode)
         }
         val parentPointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
+            insertAt(0, parentLayoutNode)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
-        compositionRoot.emitInsertAt(0, parentPointerInputNode)
+        compositionRoot.insertAt(0, parentPointerInputNode)
 
         hitResult.addHitPath(
             PointerId(3),
@@ -3363,32 +3363,32 @@ class HitPathTrackerTest {
 
         val childLayoutNode1 = LayoutNode(child1Offset, child1Size)
         val childPointerInputNode1 = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode1)
+            insertAt(0, childLayoutNode1)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode1 = LayoutNode(parent1Offset, parent1Size).apply {
-            emitInsertAt(0, childPointerInputNode1)
+            insertAt(0, childPointerInputNode1)
         }
         val parentPointerInputNode1 = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode1)
+            insertAt(0, parentLayoutNode1)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         val childLayoutNode2 = LayoutNode(child2Offset, child2Size)
         val childPointerInputNode2 = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode2)
+            insertAt(0, childLayoutNode2)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode2 = LayoutNode(parent2Offset, parent2Size).apply {
-            emitInsertAt(0, childPointerInputNode2)
+            insertAt(0, childPointerInputNode2)
         }
         val parentPointerInputNode2 = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode2)
+            insertAt(0, parentLayoutNode2)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
-        compositionRoot.emitInsertAt(0, parentPointerInputNode1)
-        compositionRoot.emitInsertAt(1, parentPointerInputNode2)
+        compositionRoot.insertAt(0, parentPointerInputNode1)
+        compositionRoot.insertAt(1, parentPointerInputNode2)
 
         hitResult.addHitPath(
             PointerId(3),
@@ -3526,26 +3526,26 @@ class HitPathTrackerTest {
 
         val childLayoutNode1 = LayoutNode(child1Offset, child1Size)
         val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode1)
+            insertAt(0, childLayoutNode1)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         val childLayoutNode2 = LayoutNode(child2Offset, child2Size)
         val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode2)
+            insertAt(0, childLayoutNode2)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
         val parentLayoutNode: LayoutNode = LayoutNode(parentOffset, parentSize).apply {
-            emitInsertAt(0, childPointerInputNode1)
-            emitInsertAt(1, childPointerInputNode2)
+            insertAt(0, childPointerInputNode1)
+            insertAt(1, childPointerInputNode2)
         }
         val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode)
+            insertAt(0, parentLayoutNode)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
-        compositionRoot.emitInsertAt(0, parentPointerInputNode)
+        compositionRoot.insertAt(0, parentPointerInputNode)
 
         hitResult.addHitPath(
             PointerId(3),
@@ -3670,18 +3670,18 @@ class HitPathTrackerTest {
 
         val childLayoutNode = LayoutNode(childOffset, childSize)
         val pointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode2 = LayoutNode(parentOffset2, parentSize2).apply {
-            emitInsertAt(0, pointerInputNode)
+            insertAt(0, pointerInputNode)
         }
         @Suppress("UNUSED_VARIABLE")
         val parentLayoutNode1 = LayoutNode(parentOffset1, parentSize1).apply {
-            emitInsertAt(0, parentLayoutNode2)
+            insertAt(0, parentLayoutNode2)
         }
 
-        compositionRoot.emitInsertAt(0, parentLayoutNode1)
+        compositionRoot.insertAt(0, parentLayoutNode1)
 
         hitResult.addHitPath(PointerId(3), listOf(pointerInputNode))
 
@@ -3746,28 +3746,28 @@ class HitPathTrackerTest {
 
         val childLayoutNode2 = LayoutNode(childOffset2, childSize2)
         val childPointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, childLayoutNode2)
+            insertAt(0, childLayoutNode2)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val childLayoutNode1 = LayoutNode(childOffset1, childSize1).apply {
-            emitInsertAt(0, childPointerInputNode)
+            insertAt(0, childPointerInputNode)
         }
         val parentLayoutNode3 = LayoutNode(parentOffset3, parentSize3).apply {
-            emitInsertAt(0, childLayoutNode1)
+            insertAt(0, childLayoutNode1)
         }
         val parentPointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, parentLayoutNode3)
+            insertAt(0, parentLayoutNode3)
             pointerInputHandler = spy(StubPointerInputHandler())
         }
         val parentLayoutNode2 = LayoutNode(parentOffset2, parentSize2).apply {
-            emitInsertAt(0, parentPointerInputNode)
+            insertAt(0, parentPointerInputNode)
         }
         @Suppress("UNUSED_VARIABLE")
         val parentLayoutNode1 = LayoutNode(parentOffset1, parentSize1).apply {
-            emitInsertAt(0, parentLayoutNode2)
+            insertAt(0, parentLayoutNode2)
         }
 
-        compositionRoot.emitInsertAt(0, parentLayoutNode1)
+        compositionRoot.insertAt(0, parentLayoutNode1)
 
         hitResult.addHitPath(
             PointerId(3),
@@ -3887,12 +3887,12 @@ class HitPathTrackerTest {
 
         // Arrange
         val pointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(layoutNodeAX1, layoutNodeAY1, layoutNodeAX2, layoutNodeAY2))
-            emitInsertAt(1, LayoutNode(layoutNodeBX1, layoutNodeBY1, layoutNodeBX2, layoutNodeBY2))
+            insertAt(0, LayoutNode(layoutNodeAX1, layoutNodeAY1, layoutNodeAX2, layoutNodeAY2))
+            insertAt(1, LayoutNode(layoutNodeBX1, layoutNodeBY1, layoutNodeBX2, layoutNodeBY2))
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
-        compositionRoot.emitInsertAt(0, pointerInputNode)
+        compositionRoot.insertAt(0, pointerInputNode)
 
         hitResult.addHitPath(PointerId(3), listOf(pointerInputNode))
 
@@ -3940,13 +3940,13 @@ class HitPathTrackerTest {
 
         // Arrange
         val pointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, LayoutNode(100, 200, 200, 300).apply {
-                emitInsertAt(0, LayoutNode(-20, -40, -60, -80))
+            insertAt(0, LayoutNode(100, 200, 200, 300).apply {
+                insertAt(0, LayoutNode(-20, -40, -60, -80))
             })
             pointerInputHandler = spy(StubPointerInputHandler())
         }
 
-        compositionRoot.emitInsertAt(0, pointerInputNode)
+        compositionRoot.insertAt(0, pointerInputNode)
 
         hitResult.addHitPath(PointerId(3), listOf(pointerInputNode))
 

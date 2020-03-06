@@ -19,13 +19,11 @@ package androidx.ui.material.icons.test
 import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
-import android.view.ViewGroup
 import androidx.compose.Composable
-import androidx.compose.Compose
+import androidx.compose.Composition
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.setContent
@@ -74,9 +72,10 @@ class IconComparisonTest {
         AllIcons.forEach { (property, drawableName) ->
             var xmlVector: VectorAsset? = null
             val programmaticVector = property.get()
+            var composition: Composition? = null
 
             activityTestRule.runOnUiThread {
-                activityTestRule.activity.setContent {
+                composition = activityTestRule.activity.setContent {
                     xmlVector = drawableName.toVectorAsset()
                     DrawVectors(programmaticVector, xmlVector!!)
                 }
@@ -94,10 +93,7 @@ class IconComparisonTest {
 
             // Dispose between composing each pair of icons to ensure correctness
             activityTestRule.runOnUiThread {
-                val root =
-                    (activityTestRule.activity.findViewById(android.R.id.content) as ViewGroup)
-                val composeView = root.getChildAt(0) as AndroidComposeView
-                Compose.disposeComposition(composeView.root, activityTestRule.activity, null)
+                composition?.dispose()
             }
         }
     }

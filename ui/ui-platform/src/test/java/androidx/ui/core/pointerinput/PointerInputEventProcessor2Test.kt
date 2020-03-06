@@ -103,7 +103,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val offset = PxPosition(100.px, 200.px)
         val offset2 = PxPosition(300.px, 400.px)
@@ -168,7 +168,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val offsets = arrayOf(
             PxPosition(100.px, 200.px),
@@ -229,7 +229,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val offsets = arrayOf(
             PxPosition(99.px, 200.px),
@@ -293,7 +293,7 @@ class PointerInputEventProcessor2Test {
                     TestPointerInputFilter(pointerInputHandler = middlePointerInputHandler)
                 )
             ).apply {
-                emitInsertAt(0, childLayoutNode)
+                insertAt(0, childLayoutNode)
             }
         val parentLayoutNode: LayoutNode =
             LayoutNode(
@@ -302,9 +302,9 @@ class PointerInputEventProcessor2Test {
                     TestPointerInputFilter(pointerInputHandler = parentPointerInputHandler)
                 )
             ).apply {
-                emitInsertAt(0, middleLayoutNode)
+                insertAt(0, middleLayoutNode)
             }
-        root.emitInsertAt(0, parentLayoutNode)
+        root.insertAt(0, parentLayoutNode)
 
         val offset = when (numberOfChildrenHit) {
             3 -> PxPosition(250.px, 250.px)
@@ -420,7 +420,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val down = PointerInputEvent(
             0,
@@ -522,7 +522,7 @@ class PointerInputEventProcessor2Test {
                 TestPointerInputFilter(pointerInputHandler = middlePointerInputHandler)
             )
         ).apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
         }
         val parentLayoutNode: LayoutNode = LayoutNode(
             pX1, pY1, pX2, pY2,
@@ -530,12 +530,12 @@ class PointerInputEventProcessor2Test {
                 TestPointerInputFilter(pointerInputHandler = parentPointerInputHandler)
             )
         ).apply {
-            emitInsertAt(0, middleLayoutNode)
+            insertAt(0, middleLayoutNode)
         }
 
         testOwner.position = IntPxPosition(aOX.ipx, aOY.ipx)
 
-        root.emitInsertAt(0, parentLayoutNode)
+        root.insertAt(0, parentLayoutNode)
 
         val additionalOffset = IntPxPosition(aOX.ipx, aOY.ipx)
 
@@ -646,8 +646,8 @@ class PointerInputEventProcessor2Test {
                 )
             )
         root.apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(0, childLayoutNode2)
+            insertAt(0, childLayoutNode1)
+            insertAt(0, childLayoutNode2)
         }
 
         val offset1 = PxPosition(25.px, 25.px)
@@ -753,9 +753,9 @@ class PointerInputEventProcessor2Test {
         )
 
         root.apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(1, childLayoutNode2)
-            emitInsertAt(2, childLayoutNode3)
+            insertAt(0, childLayoutNode1)
+            insertAt(1, childLayoutNode2)
+            insertAt(2, childLayoutNode3)
         }
 
         val offset1 = PxPosition(25.px, 25.px)
@@ -860,8 +860,8 @@ class PointerInputEventProcessor2Test {
         )
 
         root.apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(1, childLayoutNode2)
+            insertAt(0, childLayoutNode1)
+            insertAt(1, childLayoutNode2)
         }
 
         val offset1 = PxPosition(50.px, 25.px)
@@ -962,8 +962,8 @@ class PointerInputEventProcessor2Test {
         )
 
         root.apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(1, childLayoutNode2)
+            insertAt(0, childLayoutNode1)
+            insertAt(1, childLayoutNode2)
         }
 
         val offset1 = PxPosition(25.px, 50.px)
@@ -1083,13 +1083,13 @@ class PointerInputEventProcessor2Test {
         )
 
         val parentLayoutNode = LayoutNode(1, 1, 4, 4).apply {
-            emitInsertAt(0, layoutNode1)
-            emitInsertAt(1, layoutNode2)
-            emitInsertAt(2, layoutNode3)
-            emitInsertAt(3, layoutNode4)
+            insertAt(0, layoutNode1)
+            insertAt(1, layoutNode2)
+            insertAt(2, layoutNode3)
+            insertAt(3, layoutNode4)
         }
         root.apply {
-            emitInsertAt(0, parentLayoutNode)
+            insertAt(0, parentLayoutNode)
         }
         val offsetsThatHit =
             listOf(
@@ -1186,7 +1186,7 @@ class PointerInputEventProcessor2Test {
             )
         )
         root.apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
         }
         val offsetsThatHit =
             listOf(
@@ -1265,7 +1265,7 @@ class PointerInputEventProcessor2Test {
         )
 
         root.apply {
-            emitInsertAt(0, layoutNode)
+            insertAt(0, layoutNode)
         }
 
         val offset1 = PxPosition(50.px, 75.px)
@@ -1330,16 +1330,16 @@ class PointerInputEventProcessor2Test {
                 )
             )
         val layoutNode2: LayoutNode = LayoutNode(2, 6, 500, 500).apply {
-            emitInsertAt(0, layoutNode1)
+            insertAt(0, layoutNode1)
         }
         val layoutNode3: LayoutNode = LayoutNode(3, 7, 500, 500).apply {
-            emitInsertAt(0, layoutNode2)
+            insertAt(0, layoutNode2)
         }
         val layoutNode4: LayoutNode = LayoutNode(4, 8, 500, 500).apply {
-            emitInsertAt(0, layoutNode3)
+            insertAt(0, layoutNode3)
         }
         root.apply {
-            emitInsertAt(0, layoutNode4)
+            insertAt(0, layoutNode4)
         }
 
         val offset1 = PxPosition(499.px, 499.px)
@@ -1396,7 +1396,7 @@ class PointerInputEventProcessor2Test {
             )
         )
         val layoutNode2: LayoutNode = LayoutNode(2, 7, 500, 500).apply {
-            emitInsertAt(0, layoutNode1)
+            insertAt(0, layoutNode1)
         }
         val layoutNode3 =
             LayoutNode(
@@ -1407,17 +1407,17 @@ class PointerInputEventProcessor2Test {
                     TestPointerInputFilter(pointerInputHandler = pointerInputHandler4)
                 )
             ).apply {
-                emitInsertAt(0, layoutNode2)
+                insertAt(0, layoutNode2)
             }
 
         val layoutNode4: LayoutNode = LayoutNode(4, 9, 500, 500).apply {
-            emitInsertAt(0, layoutNode3)
+            insertAt(0, layoutNode3)
         }
         val layoutNode5: LayoutNode = LayoutNode(5, 10, 500, 500).apply {
-            emitInsertAt(0, layoutNode4)
+            insertAt(0, layoutNode4)
         }
         root.apply {
-            emitInsertAt(0, layoutNode5)
+            insertAt(0, layoutNode5)
         }
 
         val offset1 = PxPosition(499.px, 499.px)
@@ -1514,8 +1514,8 @@ class PointerInputEventProcessor2Test {
         )
 
         root.apply {
-            emitInsertAt(0, layoutNode1)
-            emitInsertAt(1, layoutNode2)
+            insertAt(0, layoutNode1)
+            insertAt(1, layoutNode2)
         }
 
         val down = PointerInputEvent(
@@ -1544,7 +1544,7 @@ class PointerInputEventProcessor2Test {
         )
 
         root.apply {
-            emitInsertAt(0, layoutNode1)
+            insertAt(0, layoutNode1)
         }
 
         val down = PointerInputEvent(
@@ -1583,7 +1583,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val pointerInputEvent =
             PointerInputEvent(
@@ -1646,7 +1646,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val pointerInputEvent1 =
             PointerInputEvent(
@@ -1777,8 +1777,8 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode1)
-        root.emitInsertAt(1, layoutNode2)
+        root.insertAt(0, layoutNode1)
+        root.insertAt(1, layoutNode2)
 
         val pointerInputEventData1 =
             PointerInputEventData(
@@ -1877,7 +1877,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val down =
             PointerInputEvent(
@@ -1971,7 +1971,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val down =
             PointerInputEvent(
@@ -2033,7 +2033,7 @@ class PointerInputEventProcessor2Test {
             )
         )
 
-        root.emitInsertAt(0, layoutNode)
+        root.insertAt(0, layoutNode)
 
         val down1 =
             PointerInputEvent(
@@ -2130,10 +2130,10 @@ class PointerInputEventProcessor2Test {
                 )
             )
         ).apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
         }
 
-        root.emitInsertAt(0, parentLayoutNode)
+        root.insertAt(0, parentLayoutNode)
 
         val offset = PxPosition(50.px, 50.px)
 
@@ -2157,7 +2157,7 @@ class PointerInputEventProcessor2Test {
         // Act
 
         pointerInputEventProcessor.process(down)
-        parentLayoutNode.emitRemoveAt(0, 1)
+        parentLayoutNode.removeAt(0, 1)
         pointerInputEventProcessor.process(up)
 
         // Assert
@@ -2198,10 +2198,10 @@ class PointerInputEventProcessor2Test {
                 )
             )
         ).apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
         }
 
-        root.emitInsertAt(0, parentLayoutNode)
+        root.insertAt(0, parentLayoutNode)
 
         val down =
             PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50.px, 50.px), true)
@@ -2211,7 +2211,7 @@ class PointerInputEventProcessor2Test {
         // Act
 
         pointerInputEventProcessor.process(down)
-        parentLayoutNode.emitRemoveAt(0, 1)
+        parentLayoutNode.removeAt(0, 1)
         pointerInputEventProcessor.process(up)
 
         // Assert
@@ -2243,10 +2243,10 @@ class PointerInputEventProcessor2Test {
                 )
             )
         ).apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
         }
 
-        root.emitInsertAt(0, parentLayoutNode)
+        root.insertAt(0, parentLayoutNode)
 
         val offset = PxPosition(50.px, 50.px)
 
@@ -2311,10 +2311,10 @@ class PointerInputEventProcessor2Test {
                 )
             )
         ).apply {
-            emitInsertAt(0, childLayoutNode)
+            insertAt(0, childLayoutNode)
         }
 
-        root.emitInsertAt(0, parentLayoutNode)
+        root.insertAt(0, parentLayoutNode)
 
         val down =
             PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50.px, 50.px), true)
