@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.R;
 
@@ -92,18 +93,25 @@ abstract class SpecialEffectsController {
     }
 
     /**
-     * Checks whether the given FragmentStateManager's special effects are still awaiting
-     * completion (or cancellation).
+     * Checks what {@link Operation.Type type} of special effect for the given
+     * FragmentStateManager is still awaiting completion (or cancellation).
      * <p>
      * This could be because the Operation is still pending (and
      * {@link #executePendingOperations()} hasn't been called) or because the
      * controller hasn't called {@link Operation#complete()}.
      *
      * @param fragmentStateManager the FragmentStateManager to check for
-     * @return Whether an Operation is still awaiting completion
+     * @return The {@link Operation.Type} of the awaiting Operation, or null if there is
+     * no special effects still in progress.
      */
-    boolean isAwaitingCompletion(@NonNull FragmentStateManager fragmentStateManager) {
-        return mAwaitingCompletionOperations.containsKey(fragmentStateManager.getFragment());
+    @Nullable
+    Operation.Type getAwaitingCompletionType(@NonNull FragmentStateManager fragmentStateManager) {
+        Operation operation = mAwaitingCompletionOperations.get(
+                fragmentStateManager.getFragment());
+        if (operation != null) {
+            return operation.getType();
+        }
+        return null;
     }
 
     void enqueueAdd(@NonNull FragmentStateManager fragmentStateManager,
