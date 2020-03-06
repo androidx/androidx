@@ -98,6 +98,7 @@ fun Surface(
         }
         val backgroundColor = getBackgroundColorForElevation(color, elevation)
         val background = DrawBackground(shape = shape, color = backgroundColor)
+        @Suppress("DEPRECATION") // remove when b/147606015 is fixed
         Draw { canvas, size ->
             background.draw(this, {}, canvas, size)
         }
