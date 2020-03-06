@@ -39,16 +39,6 @@
         </activity>
 
         <activity
-            android:name=".RippleActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Material/Ripples">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".SelectionControlsActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Selection Controls">
