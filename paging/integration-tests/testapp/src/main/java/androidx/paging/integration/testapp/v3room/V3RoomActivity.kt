@@ -43,7 +43,7 @@ class V3RoomActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.flow.collect {
-                adapter.collectFrom(it)
+                adapter.presentData(it)
             }
         }
 

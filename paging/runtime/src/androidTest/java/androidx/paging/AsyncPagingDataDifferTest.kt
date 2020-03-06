@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
 import androidx.paging.ListUpdateEvent.Moved
@@ -36,6 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.test.assertTrue
 
 private class ListUpdateCapture : ListUpdateCallback {
     val events = mutableListOf<ListUpdateEvent>()
@@ -112,7 +114,7 @@ class AsyncPagingDataDifferTest {
                 currentPagedSource!!
             }
 
-            val job = launch { pagedDataFlow.collectLatest { differ.collectFrom(it) } }
+            val job = launch { pagedDataFlow.collectLatest { differ.presentData(it) } }
 
             // Load REFRESH [50, 51]
             advanceUntilIdle()
@@ -139,6 +141,79 @@ class AsyncPagingDataDifferTest {
             assertEvents(expected, listUpdateCapture.events)
 
             job.cancel()
+        }
+    }
+
+    @Test
+    fun submitData_cancelsLast() = testScope.runBlockingTest {
+        // TODO: Consider making PagedData public, which would simplify this test by allowing it
+        //  to directly construct a flow of PagedData.
+        pauseDispatcher {
+            val listUpdateCapture = ListUpdateCapture()
+            val differ = AsyncPagingDataDiffer(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                updateCallback = listUpdateCapture,
+                workerDispatcher = Dispatchers.Main
+            )
+
+            val pagedDataFlow = PagingDataFlow(
+                config = PagingConfig(
+                    pageSize = 1,
+                    prefetchDistance = 1,
+                    enablePlaceholders = true,
+                    initialLoadSize = 2
+                ),
+                initialKey = 50
+            ) {
+                TestPagingSource()
+            }
+
+            val pagedDataFlow2 = PagingDataFlow(
+                config = PagingConfig(
+                    pageSize = 1,
+                    prefetchDistance = 1,
+                    enablePlaceholders = true,
+                    initialLoadSize = 2
+                ),
+                initialKey = 50
+            ) {
+                TestPagingSource()
+            }
+
+            val lifecycle = TestLifecycleOwner()
+            var jobSubmitted = false
+            val job = launch {
+                pagedDataFlow.collectLatest {
+                    differ.submitData(lifecycle.lifecycle, it)
+                    jobSubmitted = true
+                }
+            }
+
+            advanceUntilIdle()
+
+            var job2Submitted = false
+            val job2 = launch {
+                pagedDataFlow2.collectLatest {
+                    differ.submitData(lifecycle.lifecycle, it)
+                    job2Submitted = true
+                }
+            }
+
+            advanceUntilIdle()
+
+            assertTrue(jobSubmitted)
+            assertTrue(job2Submitted)
+
+            job.cancel()
+            job2.cancel()
         }
     }
 }
