@@ -42,8 +42,8 @@ import androidx.ui.unit.dp
  *
  * Note: Icons that start with a number, such as `360`, are prefixed with a '_', becoming '_360'.
  *
- * Icons are represented as [androidx.ui.graphics.vector.VectorAsset]s and hence can be drawn by
- * simply using [androidx.ui.graphics.vector.DrawVector].
+ * To draw an icon, you can use [androidx.ui.foundation.Icon]. This component applies tint and
+ * provides layout size matching the icon.
  *
  * @sample androidx.ui.material.icons.samples.DrawIcon
  */

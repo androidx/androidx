@@ -16,15 +16,17 @@
 package androidx.ui.material
 
 import androidx.test.filters.LargeTest
+import androidx.ui.core.DensityAmbient
 import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Image
 import androidx.ui.graphics.painter.ColorPainter
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.vector.VectorAssetBuilder
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Menu
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.dp
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +39,7 @@ class IconTest {
     val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
-    fun materialIconSize_vector_dimensions() {
+    fun vector_materialIconSize_dimensions() {
         val width = 24.dp
         val height = 24.dp
         val vector = Icons.Filled.Menu
@@ -50,7 +52,7 @@ class IconTest {
     }
 
     @Test
-    fun customIconSize_vector_dimensions() {
+    fun vector_customIconSize_dimensions() {
         val width = 35.dp
         val height = 83.dp
         val vector = VectorAssetBuilder(defaultWidth = width, defaultHeight = height,
@@ -64,7 +66,7 @@ class IconTest {
     }
 
     @Test
-    fun materialIconSize_painter_dimensions() {
+    fun painter_noIntrinsicSize_dimensions() {
         val width = 24.dp
         val height = 24.dp
         val painter = ColorPainter(Color.Red)
@@ -76,15 +78,22 @@ class IconTest {
             .assertHeightEqualsTo(height)
     }
 
-    @Ignore("TODO(b/149693776): currently we do not use intrinsic size for painters")
     @Test
-    fun customIconSize_painter_dimensions() {
+    fun painter_withIntrinsicSize_dimensions() {
         val width = 35.dp
         val height = 83.dp
-        val painter = ColorPainter(Color.Red)
+
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Icon(painter)
+                val dummyImage = with(DensityAmbient.current) {
+                    Image(
+                        width = width.toIntPx().value,
+                        height = height.toIntPx().value
+                    )
+                }
+
+                val imagePainter = ImagePainter(dummyImage)
+                Icon(imagePainter)
             }
             .assertWidthEqualsTo(width)
             .assertHeightEqualsTo(height)
