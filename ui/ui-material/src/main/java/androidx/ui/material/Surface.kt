@@ -17,13 +17,12 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.Draw
-import androidx.ui.core.DrawShadow
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
+import androidx.ui.core.drawClip
+import androidx.ui.core.drawShadow
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
@@ -87,22 +86,13 @@ fun Surface(
     elevation: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
-    val borderModifier =
-        if (border != null) DrawBorder(border, shape) else Modifier.None
-    SurfaceLayout(modifier + borderModifier) {
-        if (elevation > 0.dp) {
-            DrawShadow(shape = shape, elevation = elevation)
-        }
-        val backgroundColor =
-            getBackgroundColorForElevation(color, elevation)
-        val background = DrawBackground(shape = shape, color = backgroundColor)
-        @Suppress("DEPRECATION") // remove when b/147606015 is fixed
-        Draw { canvas, size ->
-            background.draw(this, {}, canvas, size)
-        }
-        Clip(shape = shape) {
-            ProvideContentColor(contentColor, children)
-        }
+    val borderModifier = if (border != null) DrawBorder(border, shape) else Modifier.None
+    val shadowModifier = drawShadow(shape = shape, elevation = elevation, clipToOutline = false)
+    val backgroundColor = getBackgroundColorForElevation(color, elevation)
+    val background = DrawBackground(shape = shape, color = backgroundColor)
+    val clip = drawClip(shape)
+    SurfaceLayout(modifier + shadowModifier + borderModifier + background + clip) {
+        ProvideContentColor(contentColor, children)
     }
 }
 

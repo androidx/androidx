@@ -105,6 +105,11 @@ class AndroidComposeView constructor(context: Context) :
     internal val dirtyRepaintBoundaryNodes =
         DepthSortedSet<RepaintBoundaryNode>(enableExtraAssertions)
 
+    // OwnedLayers that are dirty and should be redrawn. This is only
+    // used when RenderNodes are active in Q+. When Views are used, the View
+    // system tracks the dirty RenderNodes.
+    internal val dirtyLayers = mutableListOf<OwnedLayer>()
+
     var ref: Ref<AndroidComposeView>? = null
         set(value) {
             field = value
@@ -173,8 +178,18 @@ class AndroidComposeView constructor(context: Context) :
             repaintBoundaryContainer.dirty = true
         }
 
+    internal val onCommitAffectingLayer: (OwnedLayer) -> Unit = { layer ->
+        layer.invalidate()
+    }
+
     private val onCommitAffectingRootDraw: (Unit) -> Unit = { _ ->
         invalidate()
+    }
+
+    private val onCommitAffectingLayerParams: (OwnedLayer) -> Unit = { layer ->
+        handler.postAtFrontOfQueue {
+            updateLayerProperties(layer)
+        }
     }
 
     private val onPositionedDispatcher = OnPositionedDispatcher()
@@ -212,10 +227,16 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-        // ownerScope.launch {
+        val repaintBoundary = drawNode.repaintBoundary
+
+        // This is going to be slow temporarily until we remove DrawNode
+        val layerWrapper = findContainingLayer(drawNode)
+        if (layerWrapper != null &&
+            layerWrapper.layoutNode.repaintBoundary === repaintBoundary) {
+            layerWrapper.layer.invalidate()
+            return
+        }
         invalidateRepaintBoundary(drawNode)
-        // }
     }
 
     override fun onInvalidate(layoutNode: LayoutNode) {
@@ -243,6 +264,15 @@ class AndroidComposeView constructor(context: Context) :
         } else {
             invalidate()
         }
+    }
+
+    private fun findContainingLayer(node: ComponentNode): LayerWrapper? {
+        val layoutNode = if (node is LayoutNode) node else node.parentLayoutNode ?: return null
+        var wrapper: LayoutNodeWrapper? = layoutNode.innerLayoutNodeWrapper
+        while (wrapper != null && wrapper !is LayerWrapper) {
+            wrapper = wrapper.wrappedBy
+        }
+        return wrapper as LayerWrapper?
     }
 
     override fun onPositionChange(layoutNode: LayoutNode) {
@@ -512,6 +542,10 @@ class AndroidComposeView constructor(context: Context) :
         modelObserver.observeReads(node, onCommitAffectingMeasure, block)
     }
 
+    fun observeLayerModelReads(layer: OwnedLayer, block: () -> Unit) {
+        modelObserver.observeReads(layer, onCommitAffectingLayer, block)
+    }
+
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         onPositionedDispatcher.dispatch()
     }
@@ -553,9 +587,7 @@ class AndroidComposeView constructor(context: Context) :
                 }
                 is RepaintBoundaryNode -> {
                     val boundary = node.container
-                    canvas.enableZ()
                     boundary.callDraw(canvas)
-                    canvas.disableZ()
                 }
                 is LayoutNode -> {
                     if (node.isPlaced) {
@@ -571,6 +603,27 @@ class AndroidComposeView constructor(context: Context) :
         }
     }
 
+    override fun createLayer(
+        drawLayerModifier: DrawLayerModifier,
+        drawBlock: (Canvas, Density) -> Unit
+    ): OwnedLayer {
+        val layer = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode()) {
+            ViewLayer(this, drawLayerModifier, drawBlock)
+        } else {
+            RenderNodeLayer(this, drawLayerModifier, drawBlock)
+        }
+
+        updateLayerProperties(layer)
+
+        return layer
+    }
+
+    private fun updateLayerProperties(layer: OwnedLayer) {
+        modelObserver.observeReads(layer, onCommitAffectingLayerParams) {
+            layer.updateLayerProperties()
+        }
+    }
+
     internal fun drawChild(canvas: Canvas, view: View, drawingTime: Long) {
         super.drawChild(canvas.nativeCanvas, view, drawingTime)
     }
@@ -579,11 +632,20 @@ class AndroidComposeView constructor(context: Context) :
         measureAndLayout()
         val uiCanvas = Canvas(canvas)
         val parentSize = PxSize(root.width, root.height)
+        uiCanvas.enableZ()
         modelObserver.observeReads(Unit, onCommitAffectingRootDraw) {
             root.visitChildren { callDraw(uiCanvas, it, parentSize) }
         }
+        uiCanvas.disableZ()
         dirtyRepaintBoundaryNodes.popEach { node ->
             node.container.updateDisplayList()
+        }
+        if (dirtyLayers.isNotEmpty()) {
+            for (i in 0 until dirtyLayers.size) {
+                val layer = dirtyLayers[i]
+                (layer as RenderNodeLayer).updateDisplayList()
+            }
+            dirtyLayers.clear()
         }
     }
 
@@ -601,11 +663,13 @@ class AndroidComposeView constructor(context: Context) :
             layoutNode.innerLayoutNodeWrapper.height
         )
         val uiCanvas = Canvas(canvas)
+        uiCanvas.enableZ()
         observeDrawModelReads(repaintBoundaryNode) {
             repaintBoundaryNode.visitChildren { child ->
                 callDraw(uiCanvas, child, parentSize)
             }
         }
+        uiCanvas.disableZ()
     }
 
     override fun onAttachedToWindow() {
@@ -901,7 +965,7 @@ private class RepaintBoundaryView(
     }
 
     private val density = Density(context)
-    private val outlineResolver = OutlineResolver(density)
+    private val outlineResolver = OutlineResolverWithNode(density)
     private val outlineProviderImpl = object : ViewOutlineProvider() {
         override fun getOutline(view: View, outline: android.graphics.Outline) {
             outlineResolver.applyTo(outline)
@@ -1021,7 +1085,7 @@ private class RepaintBoundaryRenderNode(
     }
     private val outline = android.graphics.Outline()
     private val density = Density(ownerView.context)
-    private val outlineResolver = OutlineResolver(density)
+    private val outlineResolver = OutlineResolverWithNode(density)
     private var clipPath: android.graphics.Path? = null
     private var hasSize = false
 
@@ -1091,7 +1155,7 @@ private val RepaintBoundaryNode.container: RepaintBoundary get() = ownerData as 
 /**
  * Resolves the Android [Outline] from the [Shape] of [RepaintBoundaryNode].
  */
-private class OutlineResolver(private val density: Density) {
+private class OutlineResolverWithNode(private val density: Density) {
     private val cachedOutline = android.graphics.Outline().apply { alpha = 1f }
     private var size: PxSize = PxSize.Zero
     private var shape: Shape? = null

@@ -16,17 +16,15 @@
 
 package androidx.ui.core
 
-import androidx.compose.Composable
 import androidx.ui.graphics.Shape
 
 /**
- * Clips the children with the provided shape.
- *
- * @param shape the [Shape] used for clipping.
+ * Clips the content to the bounds of the layer.
  */
-@Composable
-inline fun Clip(shape: Shape, crossinline children: @Composable() () -> Unit) {
-    RepaintBoundaryNode(name = null, shape = shape, clipToShape = true) {
-        children()
-    }
-}
+val DrawClipToBounds: Modifier = drawLayer(clipToBounds = true)
+
+/**
+ * Clips the content to [shape].
+ */
+fun drawClip(shape: Shape): Modifier =
+    drawLayer(clipToBounds = false, clipToOutline = true, outlineShape = shape)
