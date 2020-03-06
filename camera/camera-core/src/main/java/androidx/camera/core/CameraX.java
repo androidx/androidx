@@ -43,6 +43,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.UseCaseOccupancy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
@@ -280,21 +281,43 @@ public final class CameraX {
         }
 
         String newCameraId = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
+        if (newCameraId == null) {
+            throw new IllegalArgumentException("Unable to find a camera with the given selector.");
+        }
 
-        // Try to get the camera before bind to the use case, and throw the IllegalArgumentException
+        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
         // if the camera not found.
         CameraInternal camera = cameraX.getCameraRepository().getCamera(newCameraId);
+
+        List<UseCase> originalUseCases = new ArrayList<>();
+
+        // Collect original use cases bound to the camera
+        for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
+            CameraInternal boundCamera = useCase.getBoundCamera();
+            if (boundCamera != null) {
+                if (newCameraId.equals(boundCamera.getCameraInfoInternal().getCameraId())) {
+                    originalUseCases.add(useCase);
+                }
+            }
+        }
+
+        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
+                Arrays.asList(useCases))) {
+            throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
+                    + "VideoCapture instances");
+        }
 
         for (UseCase useCase : useCases) {
             // Sets bound camera to use case.
             useCase.onBind(camera);
         }
 
-        Map<UseCase, Size> suggestResolutionsMap = calculateSuggestedResolutions(useCaseGroupToBind,
-                newCameraId,
-                useCases);
+        Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
+                camera.getCameraInfoInternal(),
+                originalUseCases,
+                Arrays.asList(useCases));
 
-        updateSuggestedResolutions(suggestResolutionsMap, useCases);
+        updateSuggestedResolutions(suggestedResolutionsMap, useCases);
 
         for (UseCase useCase : useCases) {
             useCaseGroupToBind.addUseCase(useCase);
@@ -907,24 +930,12 @@ public final class CameraX {
     }
 
     private static Map<UseCase, Size> calculateSuggestedResolutions(
-            @NonNull UseCaseGroup useCaseGroupToBind,
-            @NonNull String cameraId, @NonNull UseCase... useCases) {
-        List<UseCase> originalUseCases = new ArrayList<>();
-        List<UseCase> newUseCases = Arrays.asList(useCases);
-
-        // Collect original use cases for different camera devices
-        for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
-            CameraInternal boundCamera = useCase.getBoundCamera();
-            if (boundCamera != null) {
-                if (cameraId.equals(boundCamera.getCameraInfoInternal().getCameraId())) {
-                    originalUseCases.add(useCase);
-                }
-            }
-        }
+            @NonNull CameraInfoInternal cameraInfo,
+            @NonNull List<UseCase> originalUseCases, @NonNull List<UseCase> newUseCases) {
 
         // Get suggested resolutions and update the use case session configuration
         return getSurfaceManager()
-                .getSuggestedResolutions(cameraId, originalUseCases, newUseCases);
+                .getSuggestedResolutions(cameraInfo.getCameraId(), originalUseCases, newUseCases);
     }
 
     private static void updateSuggestedResolutions(Map<UseCase, Size> suggestResolutionsMap,
