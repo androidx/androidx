@@ -34,32 +34,20 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
     />
-    <Button
-        android:id="@+id/button_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:text="Enqueue Error"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true">
-        <Button
-            android:id="@+id/button_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Top"/>
+        android:layout_alignParentTop="true">
         <Button
             android:id="@+id/button_refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Refresh"/>
         <Button
-            android:id="@+id/button_end"
+            android:id="@+id/button_error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bottom"/>
+            android:text="Enqueue Error"/>
     </LinearLayout>
 </RelativeLayout>
