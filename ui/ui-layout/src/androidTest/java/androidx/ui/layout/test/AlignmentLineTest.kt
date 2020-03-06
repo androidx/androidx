@@ -26,7 +26,7 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.CenterAlignmentLine
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -57,7 +57,7 @@ class AlignmentLineTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Wrap {
+            Stack {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
@@ -96,7 +96,7 @@ class AlignmentLineTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Wrap {
+            Stack {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
@@ -132,7 +132,7 @@ class AlignmentLineTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Wrap {
+            Stack {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
@@ -164,7 +164,7 @@ class AlignmentLineTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Wrap {
+            Stack {
                 AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
@@ -197,7 +197,7 @@ class AlignmentLineTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(DpConstraints(maxWidth = maxWidth)) {
                     AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                         SaveLayoutInfo(parentSize, Ref(), layoutLatch)
@@ -239,7 +239,7 @@ class AlignmentLineTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(DpConstraints(maxHeight = maxHeight)) {
                     AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
                         SaveLayoutInfo(parentSize, Ref(), layoutLatch)
@@ -273,7 +273,7 @@ class AlignmentLineTest : LayoutTest() {
         val latch = CountDownLatch(1)
         val minHeight = 10.dp
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(DpConstraints(minHeight = minHeight)) {
                     AlignmentLineOffset(testLine) {
                         WithConstraints { constraints, _ ->
@@ -293,7 +293,7 @@ class AlignmentLineTest : LayoutTest() {
         val latch = CountDownLatch(1)
         val minWidth = 10.dp
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(DpConstraints(minWidth = minWidth)) {
                     AlignmentLineOffset(testLine) {
                         WithConstraints { constraints, _ ->
@@ -313,7 +313,7 @@ class AlignmentLineTest : LayoutTest() {
         val latch = CountDownLatch(1)
         val minHeight = 10.dp
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(DpConstraints(minHeight = minHeight)) {
                     CenterAlignmentLine(testLine) {
                         WithConstraints { constraints, _ ->
@@ -333,7 +333,7 @@ class AlignmentLineTest : LayoutTest() {
         val latch = CountDownLatch(1)
         val minWidth = 10.dp
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(DpConstraints(minWidth = minWidth)) {
                     CenterAlignmentLine(testLine) {
                         WithConstraints { constraints, _ ->

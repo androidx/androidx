@@ -37,7 +37,7 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
@@ -194,7 +194,7 @@ fun RadioButton(
     color: Color = MaterialTheme.colors().secondary
 ) {
     val radioPaint = remember { Paint() }
-    Wrap {
+    Stack {
         Ripple(bounded = false) {
             MutuallyExclusiveSetItem(
                 selected = selected, onClick = { if (!selected) onSelect?.invoke() }

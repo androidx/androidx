@@ -20,16 +20,13 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.setContent
 import androidx.ui.foundation.samples.VerticalScrollerSample
-import androidx.ui.layout.Wrap
 
 class VerticalScrollerActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Wrap {
-                VerticalScrollerSample()
-            }
+            VerticalScrollerSample()
         }
     }
 }

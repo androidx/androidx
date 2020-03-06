@@ -21,7 +21,7 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.unit.dp
 
@@ -39,7 +39,7 @@ fun AlignmentLineOffsetUsage() {
 
 @Composable
 fun ComplexLayoutDemos() {
-    Wrap {
+    Stack {
         AlignmentLineOffsetUsage()
     }
 }

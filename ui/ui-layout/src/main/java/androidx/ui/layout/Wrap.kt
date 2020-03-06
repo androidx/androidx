@@ -33,6 +33,10 @@ import androidx.ui.unit.max
  * For a composable that does alignment and tries to be as large as possible, see [Align].
  */
 @Composable
+@Deprecated(
+    "Wrap is deprecated. Use the LayoutAlign modifier or Stack instead.",
+    ReplaceWith("Stack(children)")
+)
 fun Wrap(alignment: Alignment = Alignment.TopStart, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()

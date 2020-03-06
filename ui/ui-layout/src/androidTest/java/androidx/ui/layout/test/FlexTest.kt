@@ -48,7 +48,7 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -1321,7 +1321,7 @@ class FlexTest : LayoutTest() {
         val childHeight = 100.dp
         val latch = CountDownLatch(1)
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(
                     DpConstraints(
                         minWidth = availableWidth,
@@ -1786,7 +1786,7 @@ class FlexTest : LayoutTest() {
         val childHeight = 100.dp
         val latch = CountDownLatch(1)
         show {
-            Wrap {
+            Stack {
                 ConstrainedBox(
                     DpConstraints(
                         minWidth = availableWidth,

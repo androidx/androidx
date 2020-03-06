@@ -32,7 +32,7 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -306,7 +306,7 @@ class ContainerTest : LayoutTest() {
         var containerSize: IntPxSize? = null
         val latch = CountDownLatch(1)
         show {
-            Wrap {
+            Stack {
                 Container(padding = edgeInsets) {
                     Spacer(LayoutSize(width = childSizeDp, height = childSizeDp))
                     OnPositioned(onPositioned = { coordinates ->
@@ -331,7 +331,7 @@ class ContainerTest : LayoutTest() {
         var childCoordinates: LayoutCoordinates? = null
         val latch = CountDownLatch(1)
         show {
-            Wrap {
+            Stack {
                 Container(width = containerSize, height = containerSize, padding = edgeInsets) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         childCoordinates = coordinates
