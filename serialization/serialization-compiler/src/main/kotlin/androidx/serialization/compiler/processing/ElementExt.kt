@@ -68,19 +68,7 @@ private object IsVisibleToPackageVisitor : SimpleElementVisitor6<Boolean, Nothin
 internal val Element.packageElement: PackageElement
     get() = MoreElements.getPackage(this)
 
-/** Get an annotation mirror on this element, throwing if it is not directly present. */
-internal operator fun Element.get(annotationClass: KClass<out Annotation>): AnnotationMirror {
-    return requireNotNull(getAnnotationMirror(annotationClass)) {
-        "Expected an annotation of type ${annotationClass.qualifiedName} to be directly present " +
-                "on element $this"
-    }
-}
-
-/**
- * Get an annotation mirror if directly present on this element or else `null`.
- */
-internal fun Element.getAnnotationMirror(
-    annotationClass: KClass<out Annotation>
-): AnnotationMirror? {
+/** Get an annotation mirror if directly present on this element or else `null`. */
+internal operator fun Element.get(annotationClass: KClass<out Annotation>): AnnotationMirror? {
     return MoreElements.getAnnotationMirror(this, annotationClass.java).orNull()
 }
