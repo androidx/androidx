@@ -16,12 +16,12 @@
 
 package androidx.preference;
 
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.IdRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -35,8 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class PreferenceViewHolder extends RecyclerView.ViewHolder {
     @Nullable
     private Drawable mBackground;
-    @ColorInt
-    private int mTitleTextColor;
+    private ColorStateList mTitleTextColors;
     private final SparseArray<View> mCachedViews = new SparseArray<>(4);
     private boolean mDividerAllowedAbove;
     private boolean mDividerAllowedBelow;
@@ -56,7 +55,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
 
         mBackground = itemView.getBackground();
         if (titleView != null) {
-            mTitleTextColor = titleView.getCurrentTextColor();
+            mTitleTextColors = titleView.getTextColors();
         }
     }
 
@@ -146,8 +145,8 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
 
         final TextView titleView = (TextView) findViewById(android.R.id.title);
         if (titleView != null) {
-            if (titleView.getCurrentTextColor() != mTitleTextColor) {
-                titleView.setTextColor(mTitleTextColor);
+            if (!titleView.getTextColors().equals(mTitleTextColors)) {
+                titleView.setTextColor(mTitleTextColors);
             }
         }
     }
