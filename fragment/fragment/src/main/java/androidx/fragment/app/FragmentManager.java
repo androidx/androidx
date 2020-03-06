@@ -57,6 +57,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -74,6 +75,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class FragmentManager {
     private static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
+    static boolean USE_STATE_MANAGER = false;
 
     /**
      * Control whether the framework's internal fragment manager debugging
@@ -360,13 +362,17 @@ public abstract class FragmentManager {
                 @Override
                 public void onStart(@NonNull Fragment fragment,
                         @NonNull CancellationSignal signal) {
-                    addCancellationSignal(fragment, signal);
+                    if (!USE_STATE_MANAGER) {
+                        addCancellationSignal(fragment, signal);
+                    }
                 }
 
                 @Override
                 public void onComplete(@NonNull Fragment f, @NonNull CancellationSignal signal) {
-                    if (!signal.isCanceled()) {
-                        removeCancellationSignal(f, signal);
+                    if (!USE_STATE_MANAGER) {
+                        if (!signal.isCanceled()) {
+                            removeCancellationSignal(f, signal);
+                        }
                     }
                 }
             };
@@ -1099,7 +1105,11 @@ public abstract class FragmentManager {
                 return;
             }
             f.mDeferStart = false;
-            moveToState(f);
+            if (USE_STATE_MANAGER) {
+                fragmentStateManager.moveToExpectedState();
+            } else {
+                moveToState(f);
+            }
         }
     }
 
@@ -1448,18 +1458,22 @@ public abstract class FragmentManager {
 
         mCurState = newState;
 
-        // Must add them in the proper order. mActive fragments may be out of order
-        for (Fragment f : mFragmentStore.getFragments()) {
-            moveFragmentToExpectedState(f);
-        }
-
-        // Now iterate through all active fragments. These will include those that are removed
-        // and detached.
-        for (FragmentStateManager fragmentStateManager :
-                mFragmentStore.getActiveFragmentStateManagers()) {
-            Fragment f = fragmentStateManager.getFragment();
-            if (!f.mIsNewlyAdded) {
+        if (USE_STATE_MANAGER) {
+            mFragmentStore.moveToExpectedState();
+        } else {
+            // Must add them in the proper order. mActive fragments may be out of order
+            for (Fragment f : mFragmentStore.getFragments()) {
                 moveFragmentToExpectedState(f);
+            }
+
+            // Now iterate through all active fragments. These will include those that are removed
+            // and detached.
+            for (FragmentStateManager fragmentStateManager :
+                    mFragmentStore.getActiveFragmentStateManagers()) {
+                Fragment f = fragmentStateManager.getFragment();
+                if (!f.mIsNewlyAdded) {
+                    moveFragmentToExpectedState(f);
+                }
             }
         }
 
@@ -1934,9 +1948,25 @@ public abstract class FragmentManager {
         mTmpAddedFragments.clear();
 
         if (!allowReordering && mCurState >= Fragment.CREATED) {
-            FragmentTransition.startTransitions(mHost.getContext(), mContainer,
-                    records, isRecordPop, startIndex, endIndex,
-                    false, mFragmentTransitionCallback);
+            if (USE_STATE_MANAGER) {
+                // When reordering isn't allowed, we may be operating on Fragments that haven't
+                // been made active
+                for (int index = startIndex; index < endIndex; index++) {
+                    BackStackRecord record = records.get(index);
+                    for (FragmentTransaction.Op op : record.mOps) {
+                        Fragment fragment = op.mFragment;
+                        if (fragment != null) {
+                            FragmentStateManager fragmentStateManager =
+                                    createOrGetFragmentStateManager(fragment);
+                            mFragmentStore.makeActive(fragmentStateManager);
+                        }
+                    }
+                }
+            } else {
+                FragmentTransition.startTransitions(mHost.getContext(), mContainer,
+                        records, isRecordPop, startIndex, endIndex,
+                        false, mFragmentTransitionCallback);
+            }
         }
         executeOps(records, isRecordPop, startIndex, endIndex);
 
@@ -1951,10 +1981,12 @@ public abstract class FragmentManager {
 
         if (postponeIndex != startIndex && allowReordering) {
             // need to run something now
-            if (mCurState >= Fragment.CREATED) {
-                FragmentTransition.startTransitions(mHost.getContext(), mContainer,
-                        records, isRecordPop, startIndex,
-                        postponeIndex, true, mFragmentTransitionCallback);
+            if (!USE_STATE_MANAGER) {
+                if (mCurState >= Fragment.CREATED) {
+                    FragmentTransition.startTransitions(mHost.getContext(), mContainer,
+                            records, isRecordPop, startIndex,
+                            postponeIndex, true, mFragmentTransitionCallback);
+                }
             }
             moveToState(mCurState, true);
         }
@@ -2198,12 +2230,32 @@ public abstract class FragmentManager {
      * This is used prior to saving the state so that the correct state is saved.
      */
     private void endAnimatingAwayFragments() {
-        if (!mExitAnimationCancellationSignals.isEmpty()) {
-            for (Fragment fragment: mExitAnimationCancellationSignals.keySet()) {
-                cancelExitAnimation(fragment);
-                moveToState(fragment);
+        if (USE_STATE_MANAGER) {
+            Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
+            for (SpecialEffectsController controller : controllers) {
+                controller.cancelAllOperations();
+            }
+        } else {
+            if (!mExitAnimationCancellationSignals.isEmpty()) {
+                for (Fragment fragment: mExitAnimationCancellationSignals.keySet()) {
+                    cancelExitAnimation(fragment);
+                    moveToState(fragment);
+                }
             }
         }
+    }
+
+    private Set<SpecialEffectsController> collectAllSpecialEffectsController() {
+        Set<SpecialEffectsController> controllers = new HashSet<>();
+        for (FragmentStateManager fragmentStateManager :
+                mFragmentStore.getActiveFragmentStateManagers()) {
+            ViewGroup container = fragmentStateManager.getFragment().mContainer;
+            if (container != null) {
+                controllers.add(SpecialEffectsController.getOrCreateController(container,
+                        getSpecialEffectsControllerFactory()));
+            }
+        }
+        return controllers;
     }
 
     /**
