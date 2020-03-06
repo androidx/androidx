@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.activity.integration.testapp
+package androidx.activity
 
 import android.app.Application
 import leakcanary.LeakCanary
