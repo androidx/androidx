@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
+import androidx.work.impl.Processor;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
@@ -50,19 +51,23 @@ public class StopWorkRunnable implements Runnable {
     @Override
     public void run() {
         WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
+        Processor processor = mWorkManagerImpl.getProcessor();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
         workDatabase.beginTransaction();
         try {
-            if (workSpecDao.getState(mWorkSpecId) == WorkInfo.State.RUNNING) {
-                workSpecDao.setState(WorkInfo.State.ENQUEUED, mWorkSpecId);
-            }
-
+            boolean isForegroundWork = processor.isEnqueuedInForeground(mWorkSpecId);
             boolean isStopped;
             if (mStopInForeground) {
                 isStopped = mWorkManagerImpl
                         .getProcessor()
                         .stopForegroundWork(mWorkSpecId);
             } else {
+                if (!isForegroundWork
+                        && workSpecDao.getState(mWorkSpecId) == WorkInfo.State.RUNNING) {
+                    workSpecDao.setState(WorkInfo.State.ENQUEUED, mWorkSpecId);
+                }
+                // This call is safe to make for foreground work because Processor ignores requests
+                // to stop for foreground work.
                 isStopped = mWorkManagerImpl
                         .getProcessor()
                         .stopWork(mWorkSpecId);
