@@ -418,10 +418,10 @@ interface Canvas {
     fun drawPath(path: Path, paint: Paint)
 
     /**
-     * Draws the given [Image] into the canvas with its top-left corner at the
+     * Draws the given [ImageAsset] into the canvas with its top-left corner at the
      * given [Offset]. The image is composited into the canvas using the given [Paint].
      */
-    fun drawImage(image: Image, topLeftOffset: Offset, paint: Paint)
+    fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint)
 
     /**
      * Draws the subset of the given image described by the `src` argument into
@@ -430,7 +430,7 @@ interface Canvas {
      * This might sample from outside the `src` rect by up to half the width of
      * an applied filter.
      */
-    fun drawImageRect(image: Image, src: Rect, dst: Rect, paint: Paint)
+    fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint)
 
     /**
      * Draw the given picture onto the canvas. To create a picture, see

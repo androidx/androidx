@@ -31,7 +31,7 @@ import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -202,7 +202,7 @@ class DataTableChildren internal constructor() {
      */
     fun dataRow(
         text: (index: Int) -> String,
-        icon: (index: Int) -> Image? = { null },
+        icon: (index: Int) -> ImageAsset? = { null },
         selected: Boolean = false,
         onSelectedChange: ((Boolean) -> Unit)? = null
     ) {
@@ -248,7 +248,7 @@ class DataTableChildren internal constructor() {
      */
     fun headerRow(
         text: (index: Int) -> String,
-        icon: (index: Int) -> Image? = { null },
+        icon: (index: Int) -> ImageAsset? = { null },
         onSelectAll: ((Boolean) -> Unit)? = null
     ) {
         val children: @Composable() (Int) -> Unit = { j ->

@@ -37,7 +37,7 @@ import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -103,7 +103,7 @@ class ButtonActivity : MaterialDemoActivity() {
     }
 
     @Composable
-    private fun Fabs(icon: Image) {
+    private fun Fabs(icon: ImageAsset) {
         Text("Floating action buttons")
         Spacer(LayoutHeight(DefaultSpace))
 

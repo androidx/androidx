@@ -19,7 +19,7 @@ import androidx.test.filters.LargeTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.vector.VectorAssetBuilder
@@ -86,7 +86,7 @@ class IconTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 val dummyImage = with(DensityAmbient.current) {
-                    Image(
+                    ImageAsset(
                         width = width.toIntPx().value,
                         height = height.toIntPx().value
                     )

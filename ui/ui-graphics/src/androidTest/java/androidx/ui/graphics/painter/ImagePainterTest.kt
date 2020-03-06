@@ -22,7 +22,7 @@ import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.toArgb
@@ -41,8 +41,8 @@ class ImagePainterTest {
     val white = Color.White.toArgb()
     private val srcSize = PxSize(Px(100.0f), Px(100.0f))
 
-    private fun createTestSrcImage(): Image {
-        val src = Image(100, 100)
+    private fun createTestSrcImage(): ImageAsset {
+        val src = ImageAsset(100, 100)
         val canvas = Canvas(src)
         val paint = Paint().apply {
             this.color = Color.Red
@@ -52,8 +52,8 @@ class ImagePainterTest {
         return src
     }
 
-    private fun createTestDstImage(): Image {
-        val dst = Image(200, 200)
+    private fun createTestDstImage(): ImageAsset {
+        val dst = ImageAsset(200, 200)
         val dstCanvas = Canvas(dst)
         val dstPaint = Paint().apply {
             this.color = Color.White
