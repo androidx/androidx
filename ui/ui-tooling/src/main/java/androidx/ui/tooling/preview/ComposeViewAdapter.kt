@@ -43,6 +43,9 @@ import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.jvm.isAccessible
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -164,11 +167,13 @@ internal class ComposeViewAdapter : FrameLayout {
             ?: return ViewInfo("", -1, "", box, childrenViewInfo)
 
         // TODO: Use group names instead of indexing once it's supported
-        return ViewInfo(match.groups[2]?.value ?: "",
+        return ViewInfo(
+            match.groups[2]?.value ?: "",
             match.groups[3]?.value?.toInt() ?: -1,
             match.groups[1]?.value ?: "",
             box,
-            childrenViewInfo)
+            childrenViewInfo
+        )
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -195,10 +200,12 @@ internal class ComposeViewAdapter : FrameLayout {
             .forEach {
                 if (it.hasBounds()) {
                     canvas?.apply {
-                        val pxBounds = PxBounds(it.bounds.left.toPx(),
+                        val pxBounds = PxBounds(
+                            it.bounds.left.toPx(),
                             it.bounds.top.toPx(),
                             it.bounds.right.toPx(),
-                            it.bounds.bottom.toPx())
+                            it.bounds.bottom.toPx()
+                        )
                         drawRect(pxBounds.toRect().toFrameworkRect(), debugBoundsPaint)
                     }
                 }
@@ -222,6 +229,10 @@ internal class ComposeViewAdapter : FrameLayout {
      * Initializes the adapter and populates it with the given [Preview] composable.
      * @param className name of the class containing the preview function
      * @param methodName `@Preview` method name
+     * @param parameterProvider [KClass] for the [PreviewParameterProvider] to be used as
+     * parameter input for this call. If null, no parameters will be passed to the composable.
+     * @param parameterProviderIndex when [parameterProvider] is not null, this index will
+     * reference the element in the [Sequence] to be used as parameter.
      * @param debugPaintBounds if true, the view will paint the boundaries around the layout
      * elements.
      * @param debugViewInfos if true, it will generate the [ViewInfo] structures and will log it.
@@ -230,18 +241,36 @@ internal class ComposeViewAdapter : FrameLayout {
     internal fun init(
         className: String,
         methodName: String,
+        parameterProvider: KClass<out PreviewParameterProvider<*>>? = null,
+        parameterProviderIndex: Int = 0,
         debugPaintBounds: Boolean = false,
         debugViewInfos: Boolean = false
     ) {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
+
+        val previewParameters: Array<Any?> = if (parameterProvider != null) {
+            val constructor = parameterProvider.constructors
+                .singleOrNull { it.parameters.all(KParameter::isOptional) }
+                ?.apply {
+                    isAccessible = true
+                }
+                ?: throw IllegalArgumentException("PreviewParameterProvider constructor can not " +
+                        "have parameters")
+            arrayOf(
+                constructor.callBy(emptyMap()).values.elementAt(parameterProviderIndex)
+            )
+        } else {
+            emptyArray()
+        }
+
         composition = setContent {
             WrapPreview {
                 val composer = currentComposer
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
-                invokeComposableViaReflection(className, methodName, composer)
+                invokeComposableViaReflection(className, methodName, composer, *previewParameters)
             }
         }
     }
@@ -261,10 +290,18 @@ internal class ComposeViewAdapter : FrameLayout {
         val methodName = composableName.substringAfterLast('.')
 
         init(
-            className,
-            methodName,
-            attrs.getAttributeBooleanValue(TOOLS_NS_URI, "paintBounds", debugPaintBounds),
-            attrs.getAttributeBooleanValue(TOOLS_NS_URI, "printViewInfos", debugViewInfos)
+            className = className,
+            methodName = methodName,
+            debugPaintBounds = attrs.getAttributeBooleanValue(
+                TOOLS_NS_URI,
+                "paintBounds",
+                debugPaintBounds
+            ),
+            debugViewInfos = attrs.getAttributeBooleanValue(
+                TOOLS_NS_URI,
+                "printViewInfos",
+                debugViewInfos
+            )
         )
     }
 }
