@@ -28,8 +28,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
@@ -79,7 +77,6 @@ public class PreviewViewTest {
                 R.layout.preview_view_surface_view_mode, null, false);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
     }
 
@@ -91,7 +88,6 @@ public class PreviewViewTest {
         previewView.setImplementationMode(SURFACE_VIEW);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
         assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
     }
 
@@ -134,15 +130,5 @@ public class PreviewViewTest {
     private void setContentView(View view) throws Throwable {
         final Activity activity = mActivityRule.getActivity();
         mActivityRule.runOnUiThread(() -> activity.setContentView(view));
-    }
-
-    /**
-     * Gets sub View inside of the PreviewView.
-     *
-     * @return the first grandchild of the root.
-     */
-    private View getImplementationView() {
-        return ((FrameLayout) ((ViewGroup) mActivityRule.getActivity().findViewById(
-                android.R.id.content)).getChildAt(0)).getChildAt(0);
     }
 }
