@@ -28,17 +28,16 @@ import androidx.annotation.RequiresApi
  * This callback is called when we receive autofill events. It adds some logs that can be useful
  * for debug purposes.
  */
-private val autofillCallback =
-    @RequiresApi(Build.VERSION_CODES.O)
-    object : AutofillManager.AutofillCallback() {
-        override fun onAutofillEvent(view: View, virtualId: Int, event: Int) {
-            super.onAutofillEvent(view, virtualId, event)
-            Log.d(
-                "Autofill Status",
-                when (event) {
-                    EVENT_INPUT_SHOWN -> "Autofill popup was shown."
-                    EVENT_INPUT_HIDDEN -> "Autofill popup was hidden."
-                    EVENT_INPUT_UNAVAILABLE -> """
+@RequiresApi(Build.VERSION_CODES.O)
+private object AutofillCallback : AutofillManager.AutofillCallback() {
+    override fun onAutofillEvent(view: View, virtualId: Int, event: Int) {
+        super.onAutofillEvent(view, virtualId, event)
+        Log.d(
+            "Autofill Status",
+            when (event) {
+                EVENT_INPUT_SHOWN -> "Autofill popup was shown."
+                EVENT_INPUT_HIDDEN -> "Autofill popup was hidden."
+                EVENT_INPUT_UNAVAILABLE -> """
                         |Autofill popup isn't shown because autofill is not available.
                         |
                         |Did you set up autofill?
@@ -50,18 +49,18 @@ private val autofillCallback =
                         |2. Click on the settings icon next to the Autofill Service
                         |3. Add your account
                         """.trimMargin()
-                    else -> "Unknown status event."
-                }
-            )
-        }
+                else -> "Unknown status event."
+            }
+        )
     }
+}
 
 /**
  * Registers the autofill debug callback.
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun AndroidAutofill.registerCallback() {
-    autofillManager.registerCallback(autofillCallback)
+    autofillManager.registerCallback(AutofillCallback)
 }
 
 /**
@@ -69,5 +68,5 @@ internal fun AndroidAutofill.registerCallback() {
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun AndroidAutofill.unregisterCallback() {
-    autofillManager.unregisterCallback(autofillCallback)
+    autofillManager.unregisterCallback(AutofillCallback)
 }
