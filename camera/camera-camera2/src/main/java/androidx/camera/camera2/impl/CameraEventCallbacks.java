@@ -23,7 +23,6 @@ import androidx.camera.core.impl.MultiValueSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -76,9 +75,7 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          */
         @NonNull
         public List<CaptureConfig> onPresetSession() {
-            // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
-            @SuppressWarnings("JdkObsolete")
-            List<CaptureConfig> ret = new LinkedList<>();
+            List<CaptureConfig> ret = new ArrayList<>();
             for (CameraEventCallback callback : mCallbacks) {
                 CaptureConfig presetCaptureStage = callback.onPresetSession();
                 if (presetCaptureStage != null) {
@@ -95,9 +92,8 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          * @return List<CaptureConfig> The request information to customize the session.
          */
         @NonNull
-        @SuppressWarnings("JdkObsolete") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
         public List<CaptureConfig> onEnableSession() {
-            List<CaptureConfig> ret = new LinkedList<>();
+            List<CaptureConfig> ret = new ArrayList<>();
             for (CameraEventCallback callback : mCallbacks) {
                 CaptureConfig enableCaptureStage = callback.onEnableSession();
                 if (enableCaptureStage != null) {
@@ -114,9 +110,8 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          * @return List<CaptureConfig> The request information to customize the session.
          */
         @NonNull
-        @SuppressWarnings("JdkObsolete") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
         public List<CaptureConfig> onRepeating() {
-            List<CaptureConfig> ret = new LinkedList<>();
+            List<CaptureConfig> ret = new ArrayList<>();
             for (CameraEventCallback callback : mCallbacks) {
                 CaptureConfig repeatingCaptureStage = callback.onRepeating();
                 if (repeatingCaptureStage != null) {
@@ -133,9 +128,8 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
          * @return List<CaptureConfig> The request information to customize the session.
          */
         @NonNull
-        @SuppressWarnings("JdkObsolete") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
         public List<CaptureConfig> onDisableSession() {
-            List<CaptureConfig> ret = new LinkedList<>();
+            List<CaptureConfig> ret = new ArrayList<>();
             for (CameraEventCallback callback : mCallbacks) {
                 CaptureConfig disableCaptureStage = callback.onDisableSession();
                 if (disableCaptureStage != null) {
