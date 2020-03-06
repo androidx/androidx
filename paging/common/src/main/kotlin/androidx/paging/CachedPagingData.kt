@@ -70,21 +70,7 @@ private class MulticastedPagingData<T : Any>(
  * Note that this does not turn the `Flow<PagingData>` into a hot stream. It won't execute any
  * unnecessary code unless it is being collected.
  *
- * ```
- * class MyViewModel : ViewModel() {
- *     val pagingData : Flow<PagingData<Item>> = PagingDataFlowBuilder(
- *         pagingSourceFactory = <factory>,
- *         config = <config>)
- *     ).build()
- *     .cached(viewModelScope)
- * }
- *
- * class MyActivity : Activity() {
- *     override fun onCreate() {
- *         val pages = myViewModel.pagingData
- *     }
- * }
- * ```
+ * @sample androidx.paging.samples.cachedInSample
  *
  * @param scope The coroutine scope where this page cache will be kept alive.
  */

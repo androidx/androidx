@@ -41,7 +41,7 @@ import androidx.recyclerview.widget.RecyclerView
  * A complete usage pattern with Room would look like this:
  * ```
  * @Dao
- *     interface UserDao {
+ * interface UserDao {
  *     @Query("SELECT * FROM user ORDER BY lastName ASC")
  *     public abstract DataSource.Factory<Integer, User> usersByLastName();
  * }
