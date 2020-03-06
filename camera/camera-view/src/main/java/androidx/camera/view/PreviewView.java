@@ -21,10 +21,14 @@ import android.content.res.TypedArray;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Size;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 
 import java.util.concurrent.Executor;
@@ -43,20 +47,23 @@ public class PreviewView extends FrameLayout {
 
     private ImplementationMode mImplementationMode;
 
+    private ScaleType mScaleType = ScaleType.FILL_CENTER;
+
     private final DisplayManager.DisplayListener mDisplayListener =
             new DisplayManager.DisplayListener() {
-        @Override
-        public void onDisplayAdded(int displayId) {
-        }
+                @Override
+                public void onDisplayAdded(int displayId) {
+                }
 
-        @Override
-        public void onDisplayRemoved(int displayId) {
-        }
-        @Override
-        public void onDisplayChanged(int displayId) {
-            mImplementation.onDisplayChanged();
-        }
-    };
+                @Override
+                public void onDisplayRemoved(int displayId) {
+                }
+
+                @Override
+                public void onDisplayChanged(int displayId) {
+                    mImplementation.onDisplayChanged();
+                }
+            };
 
     public PreviewView(@NonNull Context context) {
         this(context, null);
@@ -162,6 +169,21 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
+     * Creates a {@link MeteringPointFactory} by a given {@link CameraSelector}
+     *
+     * <p>This {@link MeteringPointFactory} is capable of creating a {@link MeteringPoint} by a
+     * (x, y) in the {@link PreviewView}. It converts the points by current scaleType.
+     *
+     * @param cameraSelector the CameraSelector which the {@link Preview} is bound to.
+     * @return a {@link MeteringPointFactory}
+     */
+    @NonNull
+    public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
+        return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
+                mImplementation.getResolution(), mScaleType, getWidth(), getHeight());
+    }
+
+    /**
      * Implements this interface to create PreviewView implementation.
      */
     interface Implementation {
@@ -180,12 +202,18 @@ public class PreviewView extends FrameLayout {
         Preview.SurfaceProvider getSurfaceProvider();
 
         /**
-         *  Notifies that the display properties have changed.
+         * Notifies that the display properties have changed.
          *
-         *  <p>Implementation might need to adjust transform by latest display properties such as
-         *  display orientation in order to show the preview correctly.
+         * <p>Implementation might need to adjust transform by latest display properties such as
+         * display orientation in order to show the preview correctly.
          */
         void onDisplayChanged();
+
+        /**
+         * Returns current surface resolution.
+         */
+        @Nullable
+        Size getResolution();
     }
 
     /**

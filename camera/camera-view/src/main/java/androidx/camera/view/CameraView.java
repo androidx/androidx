@@ -46,7 +46,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -54,6 +53,7 @@ import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.impl.LensFacingConverter;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -577,8 +577,7 @@ public final class CameraView extends FrameLayout {
                 new CameraSelector.Builder().requireLensFacing(
                         mCameraModule.getLensFacing()).build();
 
-        DisplayOrientedMeteringPointFactory pointFactory = new DisplayOrientedMeteringPointFactory(
-                getDisplay(), cameraSelector, mPreviewView.getWidth(), mPreviewView.getHeight());
+        MeteringPointFactory pointFactory = mPreviewView.createMeteringPointFactory(cameraSelector);
         float afPointWidth = 1.0f / 6.0f;  // 1/6 total area
         float aePointWidth = afPointWidth * 1.5f;
         MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth);
