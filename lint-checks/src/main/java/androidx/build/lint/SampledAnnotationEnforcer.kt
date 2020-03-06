@@ -380,35 +380,39 @@ class SampledAnnotationEnforcer {
         private fun buildSampleLinkCache(context: JavaContext): List<String> {
             val currentProjectPath = context.project.dir.absolutePath
 
-            // The paths of every module the current module depends on
-            val dependenciesPathList = context.project.directLibraries.map {
+            // The paths of every (including transitive) module the current module depends on
+            val dependenciesPathList = context.project.allLibraries.map {
                 it.dir.absolutePath
             }
 
             // Try and find a common path, i.e if we are in a/b/foo/integration-tests/sample, we
-            // will match a/b/foo for the parent
-            var parentProjectPath = dependenciesPathList.find {
-                currentProjectPath.startsWith(it)
-            }
+            // will match a/b/foo for the parent. Find all such matching paths in case there are
+            // multiple modules sampling this one module.
+            var parentProjectPaths = dependenciesPathList
+                .filter {
+                    currentProjectPath.startsWith(it)
+                }
+                .ifEmpty { null }
 
             // If we haven't found a path, it might be that we are on the same top level, i.e
             // we are in a/b/foo/integration-tests/sample, and the module is in a/b/foo/foo-xyz
             // Try matching with the parent directory of each module.
-            parentProjectPath = parentProjectPath ?: dependenciesPathList.find {
-                currentProjectPath.startsWith(File(it).parent)
-            }
+            parentProjectPaths = parentProjectPaths ?: dependenciesPathList
+                .filter {
+                    currentProjectPath.startsWith(File(it).parent)
+                }
+                .ifEmpty { null }
 
             // There is no dependent module that exists above us, or alongside us, so throw
-            if (parentProjectPath == null) {
-                throw IllegalStateException("Couldn't find a parent project for " +
-                        currentProjectPath
-                )
+            checkNotNull(parentProjectPaths) {
+                "Couldn't find a parent project for $currentProjectPath"
             }
 
-            val parentProjectDirectory = navigateToDirectory(context, parentProjectPath)
-
-            return parentProjectDirectory.getAllKtFiles().flatMap { file ->
-                file.findAllSampleLinks()
+            return parentProjectPaths.flatMap { path ->
+                val parentProjectDirectory = navigateToDirectory(context, path)
+                parentProjectDirectory.getAllKtFiles().flatMap { file ->
+                    file.findAllSampleLinks()
+                }
             }
         }
     }
