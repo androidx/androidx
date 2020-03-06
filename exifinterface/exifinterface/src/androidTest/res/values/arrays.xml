@@ -15,7 +15,7 @@
 -->
 
 <resources>
-    <array name="exifbyteorderii_jpg">
+    <array name="jpeg_with_exif_byte_order_ii">
         <!--Whether thumbnail exists-->
         <item>true</item>
         <item>3500</item>
@@ -59,7 +59,7 @@
         <item>0</item>
         <item>0</item>
     </array>
-    <array name="exifbyteorderii_standalone">
+    <array name="standalone_data_with_exif_byte_order_ii">
         <!--Whether thumbnail exists-->
         <item>true</item>
         <item>3494</item>
@@ -103,7 +103,7 @@
         <item>0</item>
         <item>0</item>
     </array>
-    <array name="exifbyteordermm_jpg">
+    <array name="jpeg_with_exif_byte_order_mm">
         <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>
@@ -147,7 +147,7 @@
         <item>0</item>
         <item>0</item>
     </array>
-    <array name="exifbyteordermm_standalone">
+    <array name="standalone_data_with_exif_byte_order_mm">
         <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>
@@ -191,7 +191,7 @@
         <item>0</item>
         <item>0</item>
     </array>
-    <array name="lg_g4_iso_800_dng">
+    <array name="dng_with_exif_with_xmp">
         <!--Whether thumbnail exists-->
         <item>true</item>
         <item>12570</item>
@@ -235,7 +235,7 @@
         <item>826</item>
         <item>10067</item>
     </array>
-    <array name="lg_g4_iso_800_jpg">
+    <array name="jpeg_with_exif_with_xmp">
         <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>
@@ -279,7 +279,7 @@
         <item>1809</item>
         <item>13197</item>
     </array>
-    <array name="exifbyteorderii_png">
+    <array name="png_with_exif_byte_order_ii">
         <!--Whether thumbnail exists-->
         <item>true</item>
         <item>212271</item>
@@ -323,7 +323,7 @@
         <item>0</item>
         <item>0</item>
     </array>
-    <array name="exifbyteorderii_webp">
+    <array name="webp_with_exif">
         <!--Whether thumbnail exists-->
         <item>true</item>
         <item>9646</item>
