@@ -27,6 +27,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
@@ -40,7 +41,7 @@ import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
-import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -164,17 +165,24 @@ private fun assertBitmapsAreEqual(xmlBitmap: Bitmap, programmaticBitmap: Bitmap,
 @Composable
 private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset) {
     Center {
+        // Ideally these icons would be 24 dp, but due to density changes across devices we test
+        // against in CI, on some devices using DP here causes there to be anti-aliasing issues.
+        // Using ipx directly ensures that we will always have a consistent layout / drawing
+        // story, so anti-aliasing should be identical.
+        val layoutSize = with(DensityAmbient.current) {
+            LayoutSize(72.ipx.toDp())
+        }
         Column {
             TestTag(ProgrammaticTestTag) {
                 Semantics(container = true) {
-                    Box(LayoutSize(24.dp)) {
+                    Box(modifier = layoutSize) {
                         DrawVector(vectorImage = programmaticVector, tintColor = Color.Red)
                     }
                 }
             }
             TestTag(XmlTestTag) {
                 Semantics(container = true) {
-                    Box(LayoutSize(24.dp)) {
+                    Box(modifier = layoutSize) {
                         DrawVector(vectorImage = xmlVector, tintColor = Color.Red)
                     }
                 }
