@@ -39,8 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * This gives you certain guarantees on which state the owner is in.
  * <p>
  * If you use <b>Java 8 Language</b>, then observe events with {@link DefaultLifecycleObserver}.
- * To include it you should add {@code "androidx.lifecycle:common-java8:<version>"} to your
- * build.gradle file.
+ * To include it you should add {@code "androidx.lifecycle:lifecycle-common-java8:<version>"} to
+ * your build.gradle file.
  * <pre>
  * class TestObserver implements DefaultLifecycleObserver {
  *     {@literal @}Override
