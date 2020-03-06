@@ -259,8 +259,8 @@ package androidx.ui.material {
   }
 
   public final class SnackbarKt {
-    method public static void Snackbar(String text, String? actionText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onActionClick = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false);
     method public static void Snackbar(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false);
+    method public static androidx.ui.graphics.Color snackbarPrimaryColorFor(androidx.ui.material.ColorPalette colors);
   }
 
   public final class SwitchKt {

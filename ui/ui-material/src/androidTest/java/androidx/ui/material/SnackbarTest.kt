@@ -47,7 +47,7 @@ class SnackbarTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    val longText = "Message Is very long and long and long and long and long " +
+    private val longText = "Message is very long and long and long and long and long " +
             "and long and long and long and long and long and long"
 
     @Test
@@ -55,7 +55,11 @@ class SnackbarTest {
         var clicked = false
         composeTestRule.setMaterialContent {
             Wrap {
-                Snackbar(text = "Message", actionText = "UNDO", onActionClick = { clicked = true })
+                Snackbar(text = { Text("Message") }, action = {
+                    TextButton(onClick = { clicked = true }) {
+                        Text("UNDO")
+                    }
+                })
             }
         }
 

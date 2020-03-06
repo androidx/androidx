@@ -19,39 +19,23 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.graphics.Color
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Snackbar
 import androidx.ui.material.TextButton
+import androidx.ui.material.snackbarPrimaryColorFor
 
 @Sampled
 @Composable
 fun SimpleSnackbar() {
     Snackbar(
-        text = "Action has been done",
-        actionText = "UNDO",
-        onActionClick = { /* call undo here */ }
-    )
-}
-
-@Sampled
-@Composable
-fun SlotsSnackbar() {
-    val customActionColor = Color.Cyan
-    Snackbar(
-        text = {
-            Text(
-                text = "This song already exists in the current playlist",
-                maxLines = 2
-            )
-        },
+        text = { Text("Action has been done") },
         action = {
             TextButton(
-                onClick = { /* call long action here */ },
-                contentColor = customActionColor
+                contentColor = snackbarPrimaryColorFor(MaterialTheme.colors()),
+                onClick = { /* perform undo */ }
             ) {
-                Text("ADD THIS SONG ANYWAY")
+                Text("UNDO")
             }
-        },
-        actionOnNewLine = true
+        }
     )
 }
