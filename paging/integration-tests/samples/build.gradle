@@ -26,6 +26,8 @@ dependencies {
     implementation(project(":annotation:annotation-sampled"))
     implementation(project(":lifecycle:lifecycle-viewmodel-ktx"))
     implementation(project(":fragment:fragment-ktx"))
+    implementation(project(":paging:paging-common"))
     implementation(project(":paging:paging-runtime"))
+    implementation(project(":paging:paging-rxjava2"))
     implementation(project(":recyclerview:recyclerview"))
 }
