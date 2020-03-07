@@ -31,6 +31,7 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
+    testImplementation(KOTLIN_STDLIB)
     lintPublish(project(':recyclerview:recyclerview-lint'))
 }
 
