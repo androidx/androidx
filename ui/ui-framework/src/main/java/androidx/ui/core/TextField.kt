@@ -16,6 +16,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
@@ -441,26 +442,25 @@ internal fun BaseTextField(
                 }
             }
             Layout(
-                modifier = modifier + textDrawModifier,
-                children = @Composable {
-                    OnPositioned {
-                        if (textInputService != null) {
-                            state.layoutCoordinates = it
-                            state.layoutResult?.let { layoutResult ->
-                                TextFieldDelegate.notifyFocusedRect(
-                                    value,
-                                    state.textDelegate,
-                                    layoutResult,
-                                    it,
-                                    textInputService,
-                                    state.inputSession,
-                                    state.hasFocus,
-                                    offsetMap
-                                )
+                modifier = modifier + textDrawModifier +
+                        onPositioned {
+                            if (textInputService != null) {
+                                state.layoutCoordinates = it
+                                state.layoutResult?.let { layoutResult ->
+                                    TextFieldDelegate.notifyFocusedRect(
+                                        value,
+                                        state.textDelegate,
+                                        layoutResult,
+                                        it,
+                                        textInputService,
+                                        state.inputSession,
+                                        state.hasFocus,
+                                        offsetMap
+                                    )
+                                }
                             }
-                        }
-                    }
-                },
+                        },
+                children = emptyContent(),
                 measureBlock = { _, constraints, _ ->
                     TextFieldDelegate.layout(
                         state.textDelegate,

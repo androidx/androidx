@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.layout.DpConstraints
 import androidx.ui.test.BigTestConstraints
 import androidx.ui.test.CollectedSizes
@@ -25,10 +26,13 @@ import androidx.ui.test.setContentAndGetPixelSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 
-fun ComposeTestRule.setMaterialContent(composable: @Composable() () -> Unit) {
+fun ComposeTestRule.setMaterialContent(
+    modifier: Modifier = Modifier.None,
+    composable: @Composable() () -> Unit
+) {
     setContent {
         MaterialTheme {
-            Surface(children = composable)
+            Surface(modifier = modifier, children = composable)
         }
     }
 }
@@ -38,21 +42,23 @@ fun <T> ComposeTestRule.runOnIdleComposeWithDensity(action: Density.() -> T): T 
     }
 }
 fun ComposeTestRule.setMaterialContentAndCollectSizes(
+    modifier: Modifier = Modifier.None,
     parentConstraints: DpConstraints = BigTestConstraints,
     children: @Composable() () -> Unit
 ): CollectedSizes {
-    val sizes = setMaterialContentAndGetPixelSize(parentConstraints, children)
+    val sizes = setMaterialContentAndGetPixelSize(modifier, parentConstraints, children)
     return CollectedSizes(sizes, density)
 }
 
 fun ComposeTestRule.setMaterialContentAndGetPixelSize(
+    modifier: Modifier = Modifier.None,
     parentConstraints: DpConstraints = BigTestConstraints,
     children: @Composable() () -> Unit
 ): PxSize = setContentAndGetPixelSize(
     parentConstraints,
-    { setMaterialContent(it) }
+    { setMaterialContent(composable = it) }
 ) {
     MaterialTheme {
-        Surface(children = children)
+        Surface(modifier = modifier, children = children)
     }
 }

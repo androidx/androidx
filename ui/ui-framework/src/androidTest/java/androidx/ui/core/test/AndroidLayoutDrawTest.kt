@@ -45,7 +45,6 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Ref
@@ -55,6 +54,7 @@ import androidx.ui.core.drawLayer
 import androidx.ui.core.drawWithContent
 import androidx.ui.core.globalPosition
 import androidx.ui.core.offset
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
@@ -1694,18 +1694,18 @@ class AndroidLayoutDrawTest {
                 SimpleRow {
                     for (i in 0 until 2) {
                         if (model.offset.value == i) {
-                            Wrap(minWidth = size, minHeight = size) {
-                                OnPositioned { coordinates ->
+                            Wrap(minWidth = size, minHeight = size,
+                                modifier = onPositioned { coordinates ->
                                     wrap1Position = coordinates.globalPosition.x
                                     latch.countDown()
-                                }
+                                }) {
                             }
                         } else {
-                            Wrap(minWidth = size, minHeight = size) {
-                                OnPositioned { coordinates ->
+                            Wrap(minWidth = size, minHeight = size,
+                                modifier = onPositioned { coordinates ->
                                     wrap2Position = coordinates.globalPosition.x
                                     latch.countDown()
-                                }
+                                }) {
                             }
                         }
                     }

@@ -107,7 +107,7 @@ class SliderTest {
 
         composeTestRule
             .setMaterialContentAndCollectSizes(
-                DpConstraints(maxWidth = 100.dp, maxHeight = 100.dp)
+                parentConstraints = DpConstraints(maxWidth = 100.dp, maxHeight = 100.dp)
             ) { Slider(position) }
             .assertHeightEqualsTo(48.dp)
             .assertWidthEqualsTo(100.dp)

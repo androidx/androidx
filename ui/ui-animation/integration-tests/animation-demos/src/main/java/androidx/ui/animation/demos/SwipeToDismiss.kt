@@ -29,10 +29,10 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
@@ -127,25 +127,23 @@ class SwipeToDismiss : Activity() {
             }
         }) {
 
-            OnChildPositioned({ coordinates ->
+            val heightDp = with(DensityAmbient.current) { height.toDp() }
+            val paint = remember { Paint() }
+            Canvas(LayoutWidth.Fill + LayoutHeight(heightDp) + onPositioned { coordinates ->
                 itemWidth.value = coordinates.size.width.value * 2 / 3f
             }) {
-                val heightDp = with(DensityAmbient.current) { height.toDp() }
-                val paint = remember { Paint() }
-                Canvas(LayoutWidth.Fill + LayoutHeight(heightDp)) {
-                    val progress = 1 - itemBottom.value / height
-                    // TODO: this progress can be used to drive state transitions
-                    val alpha = 1f - FastOutSlowInEasing(progress)
-                    val horizontalOffset = progress * itemWidth.value
-                    drawLeftItems(
-                        paint, horizontalOffset, itemWidth.value, itemHeight, index.value
-                    )
-                    drawDismissingItem(
-                        paint,
-                        itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
-                        alpha
-                    )
-                }
+                val progress = 1 - itemBottom.value / height
+                // TODO: this progress can be used to drive state transitions
+                val alpha = 1f - FastOutSlowInEasing(progress)
+                val horizontalOffset = progress * itemWidth.value
+                drawLeftItems(
+                    paint, horizontalOffset, itemWidth.value, itemHeight, index.value
+                )
+                drawDismissingItem(
+                    paint,
+                    itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
+                    alpha
+                )
             }
         }
     }

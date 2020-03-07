@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.onChildPositioned
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.layout.DpConstraints
@@ -55,12 +55,10 @@ fun ComposeTestRule.setContentAndGetPixelSize(
         Stack {
             Stack(
                 LayoutSize.Min(parentConstraints.minWidth, parentConstraints.minHeight) +
-                        LayoutSize.Max(parentConstraints.maxWidth, parentConstraints.maxHeight)
+                        LayoutSize.Max(parentConstraints.maxWidth, parentConstraints.maxHeight) +
+                        onChildPositioned { coordinates -> realSize = coordinates.size.toPxSize() }
             ) {
-                OnChildPositioned(
-                    onPositioned = { coordinates -> realSize = coordinates.size.toPxSize() },
-                    children = children
-                )
+                    children()
             }
         }
     }
