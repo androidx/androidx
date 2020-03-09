@@ -104,6 +104,7 @@
                 android:process=":mrp">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
         </service>
 
