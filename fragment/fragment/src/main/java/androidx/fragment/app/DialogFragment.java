@@ -39,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
+import androidx.core.view.LayoutInflaterCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -128,6 +129,7 @@ public class DialogFragment extends Fragment
     private boolean mCancelable = true;
     private boolean mShowsDialog = true;
     private int mBackStackId = -1;
+    private boolean mCreatingDialog;
 
     @Nullable
     private Dialog mDialog;
@@ -427,19 +429,32 @@ public class DialogFragment extends Fragment
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * If this is called from within {@link #onCreateDialog(Bundle)}, the layout inflater from
+     * {@link Fragment#onGetLayoutInflater(Bundle)}, without the dialog theme, will be returned.
+     */
     @Override
     @NonNull
     public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
-        if (!mShowsDialog) {
+        if (!mShowsDialog || mCreatingDialog) {
             return super.onGetLayoutInflater(savedInstanceState);
         }
 
-        mDialog = onCreateDialog(savedInstanceState);
+        try {
+            mCreatingDialog = true;
+            mDialog = onCreateDialog(savedInstanceState);
+            setupDialog(mDialog, mStyle);
+        } finally {
+            mCreatingDialog = false;
+        }
 
-        setupDialog(mDialog, mStyle);
-
-        return (LayoutInflater) mDialog.getContext().getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = LayoutInflater.from(mDialog.getContext());
+        LayoutInflaterCompat.setFactory2(layoutInflater,
+                    mChildFragmentManager.getLayoutInflaterFactory());
+        return layoutInflater;
     }
 
     /** @hide */

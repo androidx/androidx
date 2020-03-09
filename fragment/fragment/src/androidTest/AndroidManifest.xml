@@ -50,6 +50,8 @@
         <activity android:name="androidx.fragment.app.SimpleContainerActivity" />
         <activity android:name="androidx.fragment.app.DialogActivity"
                   android:theme="@style/DialogTheme"/>
+        <activity android:name="androidx.fragment.app.TestAppCompatActivity"
+                  android:theme="@style/Theme.AppCompat.Light" />
     </application>
 
 </manifest>
