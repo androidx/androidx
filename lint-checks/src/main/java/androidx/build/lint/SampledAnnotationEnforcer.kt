@@ -16,7 +16,6 @@
 
 package androidx.build.lint
 
-import androidx.build.lint.SampledAnnotationEnforcer.Companion.INTEGRATION_TESTS_DIRECTORY
 import androidx.build.lint.SampledAnnotationEnforcer.Companion.SAMPLED_ANNOTATION
 import androidx.build.lint.SampledAnnotationEnforcer.Companion.SAMPLES_DIRECTORY
 import androidx.build.lint.SampledAnnotationEnforcer.Companion.SAMPLE_KDOC_ANNOTATION
@@ -79,8 +78,6 @@ class SampledAnnotationEnforcer {
         const val SAMPLE_KDOC_ANNOTATION = "sample"
         // The name of the @Sampled annotation that samples must be annotated with
         const val SAMPLED_ANNOTATION = "Sampled"
-        // The name of the integration-tests directory inside a project
-        const val INTEGRATION_TESTS_DIRECTORY = "integration-tests"
         // The name of the samples directory inside a project
         const val SAMPLES_DIRECTORY = "samples"
 
@@ -374,7 +371,7 @@ class SampledAnnotationEnforcer {
          * At this point we are inside some sample module, which is depending on a module that
          * would end up referencing the sample
          *
-         * For example, we could be in :foo:integration-tests:sample, and we want to find the
+         * For example, we could be in :foo:sample, and we want to find the
          * path for module :foo
          */
         private fun buildSampleLinkCache(context: JavaContext): List<String> {
@@ -385,7 +382,7 @@ class SampledAnnotationEnforcer {
                 it.dir.absolutePath
             }
 
-            // Try and find a common path, i.e if we are in a/b/foo/integration-tests/sample, we
+            // Try and find a common path, i.e if we are in a/b/foo/sample, we
             // will match a/b/foo for the parent. Find all such matching paths in case there are
             // multiple modules sampling this one module.
             var parentProjectPaths = dependenciesPathList
@@ -395,7 +392,7 @@ class SampledAnnotationEnforcer {
                 .ifEmpty { null }
 
             // If we haven't found a path, it might be that we are on the same top level, i.e
-            // we are in a/b/foo/integration-tests/sample, and the module is in a/b/foo/foo-xyz
+            // we are in a/b/foo/sample, and the module is in a/b/foo/foo-xyz
             // Try matching with the parent directory of each module.
             parentProjectPaths = parentProjectPaths ?: dependenciesPathList
                 .filter {
@@ -491,8 +488,8 @@ internal fun PsiElement.getAllFunctions(): List<KtNamedFunction> {
  * sibling directory
  *
  * For example, if we are in a/b/foo, the samples directory could either be:
- *     a/b/foo/integration-tests/samples
- *     a/b/integration-tests/samples
+ *     a/b/foo/samples
+ *     a/b/samples
  *
  * For efficiency, first we look inside a/b/foo, and then if that fails we look
  * inside a/b
@@ -502,14 +499,13 @@ internal fun findSampleDirectory(context: JavaContext): PsiDirectory? {
     val currentProjectDir = navigateToDirectory(context, currentProjectPath)
 
     fun PsiDirectory.searchForSampleDirectory(): PsiDirectory? {
-        return subdirectories.find { it.name == INTEGRATION_TESTS_DIRECTORY }
-            ?.subdirectories?.find { it.name == SAMPLES_DIRECTORY }
+        return subdirectories.find { it.name == SAMPLES_DIRECTORY }
     }
 
-    // Look inside a/b/foo/integration-tests
+    // Look inside a/b/foo
     var sampleDir = currentProjectDir.searchForSampleDirectory()
 
-    // Try looking inside /a/b/integration-tests
+    // Try looking inside /a/b
     if (sampleDir == null) {
         sampleDir = currentProjectDir.parent!!.searchForSampleDirectory()
     }
