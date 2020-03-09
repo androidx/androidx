@@ -609,7 +609,7 @@ class PagerTest {
             }
         }
 
-        val pager = Pager(50, pagingSource, config, retryCh.asFlow())
+        val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
         val job = launch {
             pager.pageEventFlow
                 // Return immediately to avoid blocking cancellation. This is analogous to
@@ -630,7 +630,7 @@ class PagerTest {
     fun retry() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryCh.asFlow())
+            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -660,7 +660,7 @@ class PagerTest {
     fun retryNothing() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryCh.asFlow())
+            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -687,7 +687,7 @@ class PagerTest {
     fun retryTwice() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryCh.asFlow())
+            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -719,7 +719,7 @@ class PagerTest {
     fun retryBothDirections() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryCh.asFlow())
+            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -759,7 +759,7 @@ class PagerTest {
     fun retryRefresh() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryCh.asFlow())
+            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -785,7 +785,7 @@ class PagerTest {
     fun retryRefreshWithBufferedHint() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryCh.asFlow())
+            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -918,7 +918,7 @@ class PagerTest {
     @Test
     fun refreshKeyInfo_nullHint() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
-        val pager = Pager(50, pagingSource, config, retryCh.asFlow())
+        val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
         assertNull(pager.refreshKeyInfo())
     }
 
@@ -926,7 +926,7 @@ class PagerTest {
     fun refreshKeyInfo_pagesEmpty() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config, retryCh.asFlow())
+            val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
             pager.addHint(ViewportHint(0, 0))
             assertNull(pager.refreshKeyInfo())
         }
@@ -936,7 +936,7 @@ class PagerTest {
     fun refreshKeyInfo_loadedIndex() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config, retryCh.asFlow())
+            val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -981,7 +981,7 @@ class PagerTest {
     fun refreshKeyInfo_placeholdersStart() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config, retryCh.asFlow())
+            val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -1036,7 +1036,7 @@ class PagerTest {
     @Test
     fun retry_ignoresNewSignalsWhileProcessing() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
-        val pager = Pager(50, pagingSource, config, retryCh.asFlow())
+        val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
 
         val pageEvents = ArrayList<PageEvent<Int>>()
         val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }

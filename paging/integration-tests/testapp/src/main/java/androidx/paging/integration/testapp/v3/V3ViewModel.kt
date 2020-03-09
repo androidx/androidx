@@ -26,7 +26,7 @@ import androidx.paging.insertSeparators
 import kotlinx.coroutines.flow.map
 
 class V3ViewModel : ViewModel() {
-    val flow = PagingDataFlow(PagingConfig(10), ItemPagingSource.Factory)
+    val flow = PagingDataFlow(PagingConfig(10), pagingSourceFactory = ItemPagingSource.Factory)
         .map { pagingData ->
             pagingData
                 .insertSeparators { before: Item?, after: Item? ->

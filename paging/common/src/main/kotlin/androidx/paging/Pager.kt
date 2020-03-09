@@ -24,8 +24,10 @@ import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
+import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Page
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -59,9 +61,9 @@ internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     internal val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
+    private val remoteMediatorAccessor: RemoteMediatorAccessor<Key, Value>? = null,
     private val retryFlow: Flow<Unit>
 ) {
-
     @OptIn(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
     private var lastHint: ViewportHint? = null
@@ -97,7 +99,7 @@ internal class Pager<Key : Any, Value : Any>(
                         state.failedHintsByLoadType.remove(REFRESH)
                     }
                     refreshFailure?.let {
-                        doInitialLoad(state)
+                        doInitialLoad(this, state)
 
                         val newRefreshFailure = stateLock.withLock {
                             state.failedHintsByLoadType[REFRESH]
@@ -109,22 +111,22 @@ internal class Pager<Key : Any, Value : Any>(
 
                     // Handle prepend / append failures.
                     stateLock.withLock {
-                        state.failedHintsByLoadType[START]?.let {
+                        state.failedHintsByLoadType[START]?.also { loadError ->
                             // Reset load state to allow loads in this direction.
                             state.failedHintsByLoadType.remove(START)
-                            hintChannel.offer(it)
+                            handleLoadError(loadError)
                         }
-                        state.failedHintsByLoadType[END]?.let {
+                        state.failedHintsByLoadType[END]?.also { loadError ->
                             // Reset load state to allow loads in this direction.
                             state.failedHintsByLoadType.remove(END)
-                            hintChannel.offer(it)
+                            handleLoadError(loadError)
                         }
                     }
                 }
         }
 
         // Setup finished, we can now start the initial load.
-        doInitialLoad(state)
+        doInitialLoad(this, state)
 
         // Only start collection on ViewportHints if the initial load succeeded.
         if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
@@ -132,9 +134,21 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun CoroutineScope.handleLoadError(failure: LoadError<Key, Value>) {
+        when (failure) {
+            is LoadError.Hint<Key, Value> -> {
+                @OptIn(ExperimentalCoroutinesApi::class)
+                hintChannel.offer(failure.viewportHint)
+            }
+            is LoadError.Mediator<Key, Value> -> {
+                remoteMediatorAccessor?.load(this, failure.loadType, failure.state)
+            }
+        }
+    }
+
     fun addHint(hint: ViewportHint) {
         lastHint = hint
+        @OptIn(ExperimentalCoroutinesApi::class)
         hintChannel.offer(hint)
     }
 
@@ -144,31 +158,11 @@ internal class Pager<Key : Any, Value : Any>(
 
     suspend fun refreshKeyInfo(): PagingState<Key, Value>? {
         return stateLock.withLock {
-            val lastHint = lastHint
-
-            if (lastHint == null) {
-                return null
-            }
-
-            with(state) {
+            lastHint?.let { lastHint ->
                 if (state.pages.isEmpty()) {
-                    return null
-                }
-
-                lastHint.withCoercedHint { indexInPage, pageIndex, _ ->
-                    var lastAccessedIndex = indexInPage
-                    var i = 0
-                    while (i < pageIndex) {
-                        lastAccessedIndex += pages[i].data.size
-                        i++
-                    }
-
-                    PagingState(
-                        pages = state.pages.toList(),
-                        anchorPosition = lastAccessedIndex + state.placeholdersStart,
-                        initialLoadSize = config.initialLoadSize,
-                        placeholdersStart = state.placeholdersStart
-                    )
+                    null
+                } else {
+                    state.currentPagingState(lastHint)
                 }
             }
         }
@@ -178,7 +172,7 @@ internal class Pager<Key : Any, Value : Any>(
     private fun CoroutineScope.startConsumingHints() {
         launch {
             state.consumePrependGenerationIdAsFlow()
-                .transformLatest<Int, GenerationalViewportHint> { generationId ->
+                .transformLatest { generationId ->
                     // Reset state to Idle and setup a new flow for consuming incoming load hints.
                     // Subsequent generationIds are normally triggered by cancellation.
                     stateLock.withLock {
@@ -204,7 +198,7 @@ internal class Pager<Key : Any, Value : Any>(
                 }
                 .filter { it != GenerationalViewportHint.PREPEND_INITIAL_VALUE }
                 .conflate()
-                .collect { generationalHint -> doLoad(state, START, generationalHint) }
+                .collect { generationalHint -> doLoad(this, state, START, generationalHint) }
         }
 
         launch {
@@ -235,33 +229,54 @@ internal class Pager<Key : Any, Value : Any>(
                 }
                 .filter { it != GenerationalViewportHint.APPEND_INITIAL_VALUE }
                 .conflate()
-                .collect { generationalHint -> doLoad(state, END, generationalHint) }
+                .collect { generationalHint ->
+                    doLoad(this, state, END, generationalHint)
+                }
         }
     }
 
-    private suspend fun PagingSource<Key, Value>.load(loadType: LoadType, key: Key?) = load(
-        LoadParams(
-            loadType = loadType,
-            key = key,
-            loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
-            placeholdersEnabled = config.enablePlaceholders,
-            pageSize = config.pageSize
-        )
+    private fun loadParams(loadType: LoadType, key: Key?) = LoadParams(
+        loadType = loadType,
+        key = key,
+        loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
+        placeholdersEnabled = config.enablePlaceholders,
+        pageSize = config.pageSize
     )
 
-    private suspend fun doInitialLoad(state: PagerState<Key, Value>) {
+    private suspend fun doInitialLoad(scope: CoroutineScope, state: PagerState<Key, Value>) {
         stateLock.withLock { state.setLoading(REFRESH) }
 
-        val result = pagingSource.load(REFRESH, initialKey)
+        val params = loadParams(REFRESH, initialKey)
+        val result = pagingSource.load(params)
+
         stateLock.withLock {
             when (result) {
-                is LoadResult.Page<Key, Value> -> {
+                is Page<Key, Value> -> {
                     val insertApplied = state.insert(0, REFRESH, result)
 
-                    // Update loadStates which are sent along with this load's Insert PageEvent.
-                    state.loadStates[REFRESH] = Idle
-                    if (result.prevKey == null) state.loadStates[START] = Done
-                    if (result.nextKey == null) state.loadStates[END] = Done
+                    // If remoteMediator is set, we allow its result to dictate LoadState, otherwise
+                    // we simply rely on the load result.
+                    if (remoteMediatorAccessor == null) {
+                        // Update loadStates which are sent along with this load's Insert PageEvent.
+                        state.loadStates[REFRESH] = Idle
+                        if (result.prevKey == null) state.loadStates[START] = Done
+                        if (result.nextKey == null) state.loadStates[END] = Done
+                    } else {
+                        state.loadStates[REFRESH] = Idle
+                        if (result.prevKey == null || result.nextKey == null) {
+                            val pagingState = lastHint?.let { state.currentPagingState(it) }
+
+                            if (result.prevKey == null) {
+                                state.setLoading(START)
+                                remoteMediatorAccessor.launchBoundaryCall(scope, START, pagingState)
+                            }
+
+                            if (result.nextKey == null) {
+                                state.setLoading(END)
+                                remoteMediatorAccessor.launchBoundaryCall(scope, END, pagingState)
+                            }
+                        }
+                    }
 
                     // Send insert event after load state updates, so that Done / Idle is
                     // correctly reflected in the insert event. Note that we only send the event
@@ -273,8 +288,10 @@ internal class Pager<Key : Any, Value : Any>(
                         }
                     }
                 }
-                is LoadResult.Error -> state.setError(
-                    REFRESH, Error(result.throwable), ViewportHint.DUMMY_VALUE
+                is LoadResult.Error -> state.setHintError(
+                    REFRESH,
+                    Error(result.throwable),
+                    ViewportHint.DUMMY_VALUE
                 )
             }
         }
@@ -282,6 +299,7 @@ internal class Pager<Key : Any, Value : Any>(
 
     // TODO: Consider making this a transform operation which emits PageEvents
     private suspend fun doLoad(
+        scope: CoroutineScope,
         state: PagerState<Key, Value>,
         loadType: LoadType,
         generationalHint: GenerationalViewportHint
@@ -306,9 +324,10 @@ internal class Pager<Key : Any, Value : Any>(
         // loop terminates due to fulfilling prefetchDistance.
         var updateLoadStateToDone = false
         loop@ while (loadKey != null) {
-            val result: LoadResult<Key, Value> = pagingSource.load(loadType, loadKey)
+            val params = loadParams(loadType, loadKey)
+            val result: LoadResult<Key, Value> = pagingSource.load(params)
             when (result) {
-                is LoadResult.Page<Key, Value> -> {
+                is Page<Key, Value> -> {
                     val insertApplied = stateLock.withLock {
                         state.insert(generationalHint.generationId, loadType, result)
                     }
@@ -317,12 +336,15 @@ internal class Pager<Key : Any, Value : Any>(
                     if (!insertApplied) break@loop
 
                     // Send Done instead of Idle if no more data to load in current direction.
-                    if (loadType == START && result.prevKey == null) updateLoadStateToDone = true
-                    else if (loadType == END && result.nextKey == null) updateLoadStateToDone = true
+                    if ((loadType == START && result.prevKey == null) ||
+                        (loadType == END && result.nextKey == null)
+                    ) {
+                        updateLoadStateToDone = true
+                    }
                 }
                 is LoadResult.Error -> {
                     stateLock.withLock {
-                        state.setError(loadType, Error(result.throwable), generationalHint.hint)
+                        state.setHintError(loadType, Error(result.throwable), generationalHint.hint)
                     }
                     return
                 }
@@ -353,10 +375,24 @@ internal class Pager<Key : Any, Value : Any>(
                         }
                 }
 
-                // Update load state to success if this is the final load result for this
-                // load hint, and only if we didn't error out.
-                if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
-                    state.loadStates[loadType] = if (updateLoadStateToDone) Done else Idle
+                if (remoteMediatorAccessor == null) {
+                    // Update load state to success if this is the final load result for this
+                    // load hint, and only if we didn't error out.
+                    if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
+                        state.loadStates[loadType] = if (updateLoadStateToDone) Done else Idle
+                    }
+                } else {
+                    val pagingState = lastHint?.let { state.currentPagingState(it) }
+
+                    if (params.loadType == START && result.prevKey == null) {
+                        state.setLoading(START)
+                        remoteMediatorAccessor.launchBoundaryCall(scope, START, pagingState)
+                    }
+
+                    if (params.loadType == END && result.nextKey == null) {
+                        state.setLoading(END)
+                        remoteMediatorAccessor.launchBoundaryCall(scope, END, pagingState)
+                    }
                 }
 
                 // Send page event for successful insert, now that PagerState has been updated.
@@ -368,25 +404,67 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
-    private suspend fun PagerState<Key, Value>.setLoading(loadType: LoadType) {
-        if (loadStates[loadType] != Loading) {
-            loadStates[loadType] = Loading
-            pageEventCh.send(PageEvent.LoadStateUpdate(loadType, Loading))
+    private fun RemoteMediatorAccessor<Key, Value>.launchBoundaryCall(
+        coroutineScope: CoroutineScope,
+        loadType: LoadType,
+        pagingState: PagingState<Key, Value>?
+    ) {
+        coroutineScope.launch {
+            when (val boundaryResult = load(coroutineScope, loadType, pagingState)) {
+                is RemoteMediator.MediatorResult.Error -> {
+                    this@Pager.state.setBoundaryError(
+                        loadType,
+                        Error(boundaryResult.throwable),
+                        this@Pager.lastHint
+                    )
+                }
+                is RemoteMediator.MediatorResult.Success -> {
+                    if (!boundaryResult.hasMoreData) {
+                        this@Pager.state.loadStates[loadType] = Done
+                    }
+                }
+            }
         }
     }
 
-    private suspend fun PagerState<Key, Value>.setError(
+    private suspend fun PagerState<Key, Value>.setLoading(loadType: LoadType) {
+        if (loadStates[loadType] != Loading) {
+            loadStates[loadType] = Loading
+            pageEventCh.send(LoadStateUpdate(loadType, Loading))
+        }
+    }
+
+    private suspend fun PagerState<Key, Value>.setHintError(
         loadType: LoadType,
         loadState: Error,
         hint: ViewportHint
     ) {
         if (loadStates[loadType] !is Error) {
             loadStates[loadType] = loadState
-            pageEventCh.send(PageEvent.LoadStateUpdate(loadType, loadState))
+            pageEventCh.send(LoadStateUpdate(loadType, loadState))
         }
 
         // Save the hint for retry on incoming retry signal, typically sent from user interaction.
-        failedHintsByLoadType[loadType] = hint
+        failedHintsByLoadType[loadType] = LoadError.Hint(hint)
+    }
+
+    // TODO: We need a map of desired behaviors:
+    //   DB idle/done/load, NW * -> reflect NW state
+    //   DB error, NW load -> reflect DB error? configurable?
+    //   DB error, NW error -> reflect NW error? configurable?
+    private suspend fun PagerState<Key, Value>.setBoundaryError(
+        loadType: LoadType,
+        loadState: Error,
+        hint: ViewportHint?
+    ) {
+        if (loadStates[loadType] !is Error) {
+            loadStates[loadType] = loadState
+            pageEventCh.send(LoadStateUpdate(loadType, loadState))
+        }
+
+        // Save the hint for retry on incoming retry signal, typically sent from user interaction.
+        val state = hint?.let { currentPagingState(it) }
+        failedHintsByLoadType[loadType] = LoadError.Mediator(loadType, state)
     }
 
     /**
@@ -448,6 +526,26 @@ internal class Pager<Key : Any, Value : Any>(
         val itemsIncludingPage = (pageIndex until pages.size).sumBy { pages[it].data.size }
         val shouldLoad = indexInPage + 1 + prefetchDistance > itemsIncludingPage
         return if (shouldLoad) pages.last().nextKey else null
+    }
+
+    private suspend fun PagerState<Key, Value>.currentPagingState(
+        lastHint: ViewportHint
+    ): PagingState<Key, Value> {
+        return lastHint.withCoercedHint { indexInPage, pageIndex, _ ->
+            var lastAccessedIndex = indexInPage
+            var i = 0
+            while (i < pageIndex) {
+                lastAccessedIndex += pages[i].data.size
+                i++
+            }
+
+            PagingState(
+                pages = state.pages.toList(),
+                anchorPosition = lastAccessedIndex + state.placeholdersStart,
+                initialLoadSize = config.initialLoadSize,
+                placeholdersStart = state.placeholdersStart
+            )
+        }
     }
 }
 

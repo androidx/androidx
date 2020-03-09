@@ -40,7 +40,9 @@ import kotlinx.coroutines.rx2.asObservable
 fun <Key : Any, Value : Any> PagingDataObservable(
     config: PagingConfig,
     initialKey: Key? = null,
+    remoteMediator: RemoteMediator<Key, Value>? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
-): Observable<PagingData<Value>> = PagingDataFlow(config, initialKey, pagingSourceFactory)
-    .conflate()
-    .asObservable()
+): Observable<PagingData<Value>> =
+    PagingDataFlow(config, initialKey, remoteMediator, pagingSourceFactory)
+        .conflate()
+        .asObservable()

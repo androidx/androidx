@@ -31,8 +31,10 @@ import androidx.paging.cachedIn
 open class BaseViewModel<T : Any> : ViewModel() {
     private lateinit var pagingSourceFactory: () -> PagingSource<String, T>
 
-    val pagingFlow = PagingDataFlow(PagingConfig(pageSize = 40), pagingSourceFactory)
-        .cachedIn(viewModelScope)
+    val pagingFlow = PagingDataFlow(
+        config = PagingConfig(pageSize = 40),
+        pagingSourceFactory = pagingSourceFactory
+    ).cachedIn(viewModelScope)
 
     val pagingFlowable = PagingDataFlowable(
         config = PagingConfig(pageSize = 40),
