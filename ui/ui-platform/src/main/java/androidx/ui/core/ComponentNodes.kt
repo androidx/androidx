@@ -1170,8 +1170,17 @@ class LayoutNode : ComponentNode(), Measurable {
 
             // Rebuild layoutNodeWrapper
             val oldPlaceable = layoutNodeWrapper
+            val addedCallback = hasNewPositioningCallback()
+            onPositionedCallbacks.clear()
+            onChildPositionedCallbacks.clear()
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
+                if (mod is OnPositionedModifier) {
+                    onPositionedCallbacks += mod.onPositioned
+                }
+                if (mod is OnChildPositionedModifier) {
+                    onChildPositionedCallbacks += mod.onChildPositioned
+                }
                 if (mod is DrawModifier) {
                     wrapper = ModifiedDrawNode(wrapper, mod)
                 }
@@ -1194,6 +1203,10 @@ class LayoutNode : ComponentNode(), Measurable {
             // present in the modifier chain.
             if (oldPlaceable != layoutNodeWrapper) {
                 oldPlaceable.detach()
+                requestRemeasure()
+            } else if (!needsRemeasure && !needsRelayout && addedCallback) {
+                // We need to notify the callbacks of a change in position since there's
+                // a new one.
                 requestRemeasure()
             }
             val containing = parentLayoutNode
@@ -1242,6 +1255,16 @@ class LayoutNode : ComponentNode(), Measurable {
      * Callback to be executed whenever the [LayoutNode] is detached from an [Owner].
      */
     var onDetach: ((Owner) -> Unit)? = null
+
+    /**
+     * List of all OnPositioned callbacks in the modifier chain.
+     */
+    private val onPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
+
+    /**
+     * List of all OnChildPositioned callbacks in the modifier chain.
+     */
+    private val onChildPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
 
     override fun measure(constraints: Constraints): Placeable {
         val owner = requireOwner()
@@ -1326,6 +1349,25 @@ class LayoutNode : ComponentNode(), Measurable {
         }
         pos = wrapper.toParentPosition(pos)
         return if (line is HorizontalAlignmentLine) pos.y.round() else pos.x.round()
+    }
+
+    /**
+     * Return true if there is a new [OnPositionedModifier] or [OnChildPositionedModifier]
+     * assigned to this Layout.
+     */
+    private fun hasNewPositioningCallback(): Boolean {
+        return modifier.foldOut(false) { mod, hasNewCallback ->
+            var ret = hasNewCallback
+            if (!hasNewCallback) {
+                when (mod) {
+                    is OnPositionedModifier ->
+                        ret = !onPositionedCallbacks.contains(mod.onPositioned)
+                    is OnChildPositionedModifier ->
+                        ret = !onChildPositionedCallbacks.contains(mod.onChildPositioned)
+                }
+            }
+            ret
+        }
     }
 
     fun layout() {
@@ -1425,6 +1467,7 @@ class LayoutNode : ComponentNode(), Measurable {
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
+        walkPositionModifiers(this)
         walkOnPosition(this, this.coordinates)
         walkOnChildPositioned(this, this.coordinates)
     }
@@ -1447,6 +1490,24 @@ class LayoutNode : ComponentNode(), Measurable {
                     if (!child.needsRelayout) {
                         child.dispatchOnPositionedCallbacks()
                     }
+                }
+            }
+        }
+
+        private fun walkPositionModifiers(layoutNode: LayoutNode) {
+            if (layoutNode.needsRelayout) {
+                return // it hasn't been properly positioned, so don't make a call
+            }
+            val onPositioned = layoutNode.onPositionedCallbacks
+            for (i in 0..onPositioned.lastIndex) {
+                val callback = onPositioned[i]
+                callback(layoutNode.coordinates)
+            }
+            val onChildPositioned = layoutNode.parentLayoutNode?.onChildPositionedCallbacks
+            if (onChildPositioned != null) {
+                for (i in 0..onChildPositioned.lastIndex) {
+                    val callback = onChildPositioned[i]
+                    callback(layoutNode.coordinates)
                 }
             }
         }
