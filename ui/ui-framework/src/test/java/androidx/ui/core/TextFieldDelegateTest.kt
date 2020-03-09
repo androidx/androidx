@@ -408,6 +408,13 @@ class TextFieldDelegateTest {
         assertThat(res.first).isEqualTo(123.ipx)
         assertEquals(512.ipx, res.second)
 
-        verify(mDelegate, times(1)).layout(Constraints.fixedWidth(123.ipx))
+        verify(mDelegate, times(1)).layout(
+            Constraints(
+                123.ipx,
+                123.ipx,
+                0.ipx,
+                2048.ipx
+            )
+        )
     }
 }
