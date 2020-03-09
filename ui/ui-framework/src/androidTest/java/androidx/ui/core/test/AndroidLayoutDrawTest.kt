@@ -61,8 +61,11 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
+import androidx.ui.graphics.Path
+import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
@@ -2081,6 +2084,46 @@ class AndroidLayoutDrawTest {
         activityTestRule.waitAndScreenShot().apply {
             assertRect(Color.Red, size = 20, centerX = 15, centerY = 15)
         }
+    }
+
+    // Test that when no clip to outline is set that it still draws properly.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun layerModifier_noClip() {
+        val triangleShape = object : Shape {
+            override fun createOutline(size: PxSize, density: Density): Outline =
+                Outline.Generic(
+                    Path().apply {
+                        moveTo(size.width.value / 2f, 0f)
+                        lineTo(size.width.value, size.height.value)
+                        lineTo(0f, size.height.value)
+                        close()
+                    }
+                )
+        }
+        activityTestRule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(
+                    size = 30.ipx
+                ) {
+                    FixedSize(
+                        size = 10.ipx,
+                        modifier = PaddingModifier(10.ipx) +
+                                drawLayer(clipToOutline = false, outlineShape = triangleShape,
+                                    clipToBounds = false) +
+                                draw { canvas, _ ->
+                                    val paint = Paint().apply {
+                                        color = Color.Blue
+                                        style = PaintingStyle.fill
+                                    }
+                                    canvas.drawRect(Rect(-10f, -10f, 20f, 20f), paint)
+                                } +
+                                background(Color.Red) + latch(drawLatch)
+                    ) {}
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.Red, size = 10)
     }
 
     private val AlignTopLeft = object : LayoutModifier {

@@ -111,14 +111,15 @@ internal class RenderNodeLayer(
 
             uiCanvas.enableZ()
             val clipPath = outlineResolver.clipPath
-            if (renderNode.clipToOutline && clipPath != null) {
+            val manuallyClip = renderNode.clipToOutline && clipPath != null
+            if (manuallyClip) {
                 uiCanvas.save()
-                uiCanvas.clipPath(clipPath)
+                uiCanvas.clipPath(clipPath!!)
             }
             ownerView.observeLayerModelReads(this) {
                 drawBlock(uiCanvas, ownerView.density)
             }
-            if (clipPath != null) {
+            if (manuallyClip) {
                 uiCanvas.restore()
             }
             uiCanvas.disableZ()
