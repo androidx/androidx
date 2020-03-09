@@ -92,8 +92,8 @@ class NullPaddedListDiffHelperTest {
         validateTwoListDiff(
                 Storage(5, listOf("a", "b", "c", "d"), 5),
                 Storage(5, listOf("a", "b", "d", "c"), 5)) {
-            // 7, 8 would also be valid, but below is what DiffUtil outputs
-            verify(it).onMoved(8, 7)
+            // 8, 7 would also be valid, but below is what DiffUtil outputs
+            verify(it).onMoved(7, 8)
             verifyNoMoreInteractions(it)
         }
     }
