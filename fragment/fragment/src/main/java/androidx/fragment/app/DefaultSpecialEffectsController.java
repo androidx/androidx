@@ -89,6 +89,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 && operations.get(operations.size() - 1).getType() == Operation.Type.REMOVE;
         List<AnimationInfo> animations = new ArrayList<>();
         List<TransitionInfo> transitions = new ArrayList<>();
+        final List<Operation> awaitingContainerChanges = new ArrayList<>(operations);
 
         for (final Operation operation : operations) {
             // Create the animation CancellationSignal
@@ -103,6 +104,17 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             // Add the transition special effect
             transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop));
 
+            // Ensure that if the Operation is synchronously complete, we still
+            // apply the container changes before the Operation completes
+            operation.addCompletionListener(new Runnable() {
+                @Override
+                public void run() {
+                    if (awaitingContainerChanges.contains(operation)) {
+                        awaitingContainerChanges.remove(operation);
+                        applyContainerChanges(operation);
+                    }
+                }
+            });
             // Ensure that when the Operation is cancelled, we cancel all special effects
             operation.getCancellationSignal().setOnCancelListener(
                     new CancellationSignal.OnCancelListener() {
@@ -120,6 +132,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         for (AnimationInfo animationInfo : animations) {
             startAnimation(animationInfo.getOperation(), animationInfo.getSignal());
         }
+
+        for (final Operation operation : awaitingContainerChanges) {
+            applyContainerChanges(operation);
+        }
+        awaitingContainerChanges.clear();
     }
 
     private void startAnimation(final @NonNull Operation operation,
@@ -257,6 +274,16 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             }
             // Now actually start the transition
             transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void applyContainerChanges(@NonNull Operation operation) {
+        View view = operation.getFragment().mView;
+        if (operation.getType() == Operation.Type.ADD) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            getContainer().removeView(view);
         }
     }
 
