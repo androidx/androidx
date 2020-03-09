@@ -198,7 +198,9 @@ public class VideoSessionService extends MediaSessionService {
                 retriever.release();
             }
 
-            MediaMetadata.Builder builder = new MediaMetadata.Builder(mediaItem.getMetadata());
+            MediaMetadata metadata = mediaItem.getMetadata();
+            MediaMetadata.Builder builder = metadata == null
+                    ? new MediaMetadata.Builder() : new MediaMetadata.Builder(metadata);
             builder.putString(MediaMetadata.METADATA_KEY_TITLE, title);
             builder.putString(MediaMetadata.METADATA_KEY_ARTIST, musicArtistText);
             builder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, musicAlbumBitmap);

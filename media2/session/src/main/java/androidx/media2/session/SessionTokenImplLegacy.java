@@ -42,7 +42,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     // of the writeToParcel()/Parcelable.Creator for sending extra binder.
     @NonParcelField
     private MediaSessionCompat.Token mLegacyToken;
-    // Intermediate Bundle just for CustomVersionedParcelable.
+    // For parceling mLegacyToken. Should be only used by onPreParceling() and onPostParceling().
     @ParcelField(1)
     Bundle mLegacyTokenBundle;
     @ParcelField(2)
@@ -174,22 +174,29 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     }
 
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") // mLegacyToken is effectively final.
     public void onPreParceling(boolean isStream) {
         if (mLegacyToken != null) {
-            // Note: token should be null or SessionToken whose impl equals to this object.
-            VersionedParcelable token = mLegacyToken.getSession2Token();
+            synchronized (mLegacyToken) {
+                // Note: mLegacyTokenBundle should always be recreated, because mLegacyToken is
+                // mutable.
 
-            // Temporarily sets the SessionToken to null to prevent infinite loop when parceling.
-            // Otherwise, this will be called again when mLegacyToken parcelize SessionToken in it
-            // and it never ends.
-            mLegacyToken.setSession2Token(null);
+                // Note: token should be null or SessionToken whose impl equals to this object.
+                VersionedParcelable token = mLegacyToken.getSession2Token();
 
-            // Although mLegacyToken is Parcelable, we should use toBundle() instead here because
-            // extra binder inside of the mLegacyToken are shared only through the toBundle().
-            mLegacyTokenBundle = mLegacyToken.toBundle();
+                // Temporarily sets the SessionToken to null to prevent infinite loop when
+                // parceling. Otherwise, this will be called again when mLegacyToken parcelize
+                // SessionToken in it and it never ends.
+                mLegacyToken.setSession2Token(null);
 
-            // Resets the SessionToken.
-            mLegacyToken.setSession2Token(token);
+                // Although mLegacyToken is Parcelable, we should use toBundle() instead here
+                // because extra binder inside of the mLegacyToken are shared only through the
+                // toBundle().
+                mLegacyTokenBundle = mLegacyToken.toBundle();
+
+                // Resets the SessionToken.
+                mLegacyToken.setSession2Token(token);
+            }
         } else {
             mLegacyTokenBundle = null;
         }
@@ -200,7 +207,6 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         // Although mLegacyToken is Parcelable, we should use fromBundle() instead here because
         // extra binder inside of the mLegacyToken are shared only through the fromBundle().
         mLegacyToken = MediaSessionCompat.Token.fromBundle(mLegacyTokenBundle);
-        mLegacyTokenBundle = null;
     }
 
     @Override

@@ -85,8 +85,10 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     long mCompletionTime;
     @ParcelField(3)
     Bundle mCustomCommandResult;
+    // Parceled via mParcelableItem.
     @NonParcelField
     MediaItem mItem;
+    // For parceling mItem. Should be only used by onPreParceling() and onPostParceling().
     @ParcelField(4)
     MediaItem mParcelableItem;
 
@@ -217,8 +219,15 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
      */
     @RestrictTo(LIBRARY)
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") // mItem is effectively final.
     public void onPreParceling(boolean isStream) {
-        mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
+        if (mItem != null) {
+            synchronized (mItem) {
+                if (mParcelableItem == null) {
+                    mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
+                }
+            }
+        }
     }
 
     /**
@@ -228,6 +237,5 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     @Override
     public void onPostParceling() {
         mItem = mParcelableItem;
-        mParcelableItem = null;
     }
 }

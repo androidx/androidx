@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -93,7 +94,65 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParcelingWithSmallBitmaps() {
+    public void testParcelling_withSmallBitmap_bitmapPreservedAfterParcelled() {
+        // A small bitmap (160kB) that doesn't need to be scaled down.
+        final int testBitmapSize = 200;
+        Bitmap testBitmap = Bitmap.createBitmap(
+                testBitmapSize, testBitmapSize, Bitmap.Config.ARGB_8888);
+        testBitmap.setPixel(2, 2, Color.GREEN);
+        String testKey = MediaMetadata.METADATA_KEY_ALBUM_ART;
+        MediaMetadata metadata = new Builder().putBitmap(testKey, testBitmap).build();
+
+        Parcel parcel = Parcel.obtain();
+        try {
+            // Test twice to ensure internal cache works correctly.
+            for (int i = 0; i < 2; i++) {
+                ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(metadata);
+                parcelImpl.writeToParcel(parcel, 0 /* flags */);
+                parcel.setDataPosition(0);
+
+                MediaMetadata metadataFromParcel =
+                        ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+                assertEquals(testBitmap, metadata.getBitmap(testKey));
+                assertEquals(testBitmapSize, testBitmap.getHeight());
+                assertEquals(testBitmapSize, testBitmap.getWidth());
+            }
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void testParcelling_withLargeBitmap_bitmapPreservedAfterParcelled() {
+        // A large bitmap (4MB) which exceeds the binder limit. Scaling down would happen.
+        final int testBitmapSize = 1024;
+        Bitmap testBitmap = Bitmap.createBitmap(
+                testBitmapSize, testBitmapSize, Bitmap.Config.ARGB_8888);
+        testBitmap.setPixel(2, 2, Color.GREEN);
+        String testKey = MediaMetadata.METADATA_KEY_ALBUM_ART;
+        MediaMetadata metadata = new Builder().putBitmap(testKey, testBitmap).build();
+
+        Parcel parcel = Parcel.obtain();
+        try {
+            // Test twice to ensure internal cache works correctly.
+            for (int i = 0; i < 2; i++) {
+                ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(metadata);
+                parcelImpl.writeToParcel(parcel, 0 /* flags */);
+                parcel.setDataPosition(0);
+
+                MediaMetadata metadataFromParcel =
+                        ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+                assertEquals(testBitmap, metadata.getBitmap(testKey));
+                assertEquals(testBitmapSize, testBitmap.getHeight());
+                assertEquals(testBitmapSize, testBitmap.getWidth());
+            }
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void testParceling_withSmallBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -144,7 +203,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParcelingWithLargeBitmaps() {
+    public void testParceling_withLargeBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
