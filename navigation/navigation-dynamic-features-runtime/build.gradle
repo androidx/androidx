@@ -28,7 +28,7 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-runtime-ktx"))
-    api("com.google.android.play:core:1.6.4")
+    api("com.google.android.play:core:1.6.5")
     api(KOTLIN_STDLIB)
 
     testImplementation(ANDROIDX_TEST_CORE)
