@@ -130,7 +130,7 @@ class DrawerTest {
         val width = composeTestRule.displayMetrics.widthPixels
         val height = composeTestRule.displayMetrics.heightPixels
         // temporary calculation of landscape screen
-        val expectedHeight = if (width > height) height else (height / 2f).roundToInt()
+        val expectedHeight = if (width > height) 0 else (height / 2f).roundToInt()
         composeTestRule.runOnIdleCompose {
             assertThat(position!!.y.round().value).isEqualTo(expectedHeight)
         }
