@@ -57,7 +57,7 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
 
-    androidTestImplementation project(":ui:ui-material:samples")
+    androidTestImplementation project(":ui:ui-material:integration-tests:samples")
     androidTestImplementation project(":ui:ui-platform")
     androidTestImplementation project(":ui:ui-test")
 
