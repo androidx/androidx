@@ -458,6 +458,12 @@ package androidx.ui.graphics.vector.compat {
 
 package androidx.ui.node {
 
+  public final class PointerInteropFilterKt {
+  }
+
+  public final class PointerInteropUtilsKt {
+  }
+
   public final class UiComposer extends androidx.compose.Composer<java.lang.Object> {
     ctor public UiComposer(android.content.Context context, Object root, androidx.compose.SlotTable slotTable, androidx.compose.Recomposer recomposer);
     method public inline <T extends android.view.View> void emit(Object key, kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update);
@@ -590,6 +596,7 @@ package androidx.ui.viewinterop {
 
   public final class ComposedViewKt {
     method public static void AndroidView(@LayoutRes int resId, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> postInflationCallback = { _ ->  });
+    method public static void AndroidView(android.view.View view);
   }
 
 }

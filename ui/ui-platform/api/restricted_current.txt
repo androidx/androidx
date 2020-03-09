@@ -339,10 +339,6 @@ package androidx.ui.core.hapticfeedback {
 
 package androidx.ui.core.pointerinput {
 
-  public final class MotionEventAdapter {
-    ctor public MotionEventAdapter();
-  }
-
   public final class PointerInputEventData {
     method public long component1();
     method public androidx.ui.core.PointerInputData component2();

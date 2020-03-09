@@ -17,16 +17,20 @@
 package androidx.ui.viewinterop
 
 import android.util.TypedValue
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.FrameLayout
 import android.widget.RelativeLayout
+import androidx.activity.ComponentActivity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.filters.SmallTest
 import androidx.ui.framework.test.R
-import androidx.ui.test.createComposeRule
+import androidx.ui.test.android.AndroidComposeTestRule
 import org.hamcrest.CoreMatchers.endsWith
+import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Rule
 import org.junit.Test
@@ -38,10 +42,10 @@ import kotlin.math.roundToInt
 @RunWith(JUnit4::class)
 class ComposedViewTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
     @Test
-    fun androidViewTest() {
+    fun androidViewWithResourceTest() {
         composeTestRule.setContent {
             AndroidView(R.layout.test_layout)
         }
@@ -51,7 +55,20 @@ class ComposedViewTest {
     }
 
     @Test
-    fun androidViewTest_preservesLayoutParams() {
+    fun androidViewWithViewTest() {
+        val frameLayout = FrameLayout(composeTestRule.activityTestRule.activity).apply {
+            layoutParams = ViewGroup.LayoutParams(300, 300)
+        }
+        composeTestRule.setContent {
+            AndroidView(frameLayout)
+        }
+        Espresso
+            .onView(equalTo(frameLayout))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun androidViewWithResourceTest_preservesLayoutParams() {
         composeTestRule.setContent {
             AndroidView(R.layout.test_layout)
         }

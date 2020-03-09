@@ -17,6 +17,7 @@ package androidx.ui.androidview.demos
 
 import android.os.Bundle
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
 import androidx.compose.Recomposer
@@ -39,6 +40,16 @@ open class ComposeNothingInAndroidTap : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.compose_in_android_tap)
+
+        findViewById<TextView>(R.id.text1).text =
+            "Intended to Demonstrate that when no gestureFilterModifiers are added to compose, " +
+                    "Compose will not interact with the pointer input stream. This currently " +
+                    "isn't actually the case however. "
+
+        findViewById<TextView>(R.id.text2).text =
+            "When you tap anywhere within the bounds of the colored, including the grey box in " +
+                    "the middle, the color is supposed to change.  This currently does not occur " +
+                    "when you tap on the grey box however."
 
         val container = findViewById<ViewGroup>(R.id.clickableContainer)
         container.isClickable = true

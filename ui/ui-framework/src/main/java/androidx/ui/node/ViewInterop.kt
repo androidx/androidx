@@ -95,9 +95,9 @@ internal fun View.toComponentNode(): ComponentNode {
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.
     val layoutNode = LayoutNode()
-    layoutNode.modifier = Modifier.drawBehind {
-        draw(nativeCanvas)
-    }
+    layoutNode.modifier = Modifier
+        .pointerInteropModifier(this)
+        .drawBehind { draw(nativeCanvas) }
     layoutNode.onAttach = { owner ->
         (owner as? AndroidOwner)?.addAndroidView(this, layoutNode)
     }

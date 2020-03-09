@@ -18,6 +18,7 @@ package androidx.ui.androidview.demos
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
 import androidx.compose.Recomposer
@@ -45,6 +46,14 @@ open class ComposeScrollInAndroidScrollDifferentOrientation : ComponentActivity(
         setContentView(R.layout.compose_in_android_scroll)
 
         findViewById<View>(R.id.container).setBackgroundColor(Color.DarkGray.toArgb())
+
+        findViewById<TextView>(R.id.text1).text =
+            "Demonstrates that scrolling in Compose and scrolling in Android interop correctly " +
+                    "when Compose is inside of Android."
+
+        findViewById<TextView>(R.id.text2).text =
+            "The inner scrollable container is Compose, the other one is Android. You can only " +
+                    "scroll in one orientation at a time."
 
         val container = findViewById<ViewGroup>(R.id.container)
         composition = container.setContent(Recomposer.current()) {
