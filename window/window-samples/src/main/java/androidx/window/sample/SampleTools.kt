@@ -22,7 +22,7 @@ import android.widget.FrameLayout
 import androidx.window.DisplayFeature
 
 /**
- * Get the bounds of the display feature translated to the View's coordinate space and current
+ * Gets the bounds of the display feature translated to the View's coordinate space and current
  * position in the window. This will also include view padding in the calculations.
  */
 fun getFeaturePositionInViewRect(
@@ -60,7 +60,7 @@ fun getFeaturePositionInViewRect(
 }
 
 /**
- * Get the layout params for placing a rectangle indicating a display feature inside a
+ * Gets the layout params for placing a rectangle indicating a display feature inside a
  * [FrameLayout].
  */
 fun getLayoutParamsForFeatureInFrameLayout(displayFeature: DisplayFeature, view: FrameLayout):

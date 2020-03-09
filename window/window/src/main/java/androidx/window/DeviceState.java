@@ -91,7 +91,7 @@ public final class DeviceState {
     }
 
     /**
-     * Get the posture of a foldable device with a flexible screen or multiple physical screens.
+     * Gets the posture of a foldable device with a flexible screen or multiple physical screens.
      * Devices with a single rigid display will always report {@link #POSTURE_UNKNOWN}.
      */
     @Posture
@@ -136,7 +136,7 @@ public final class DeviceState {
         }
 
         /**
-         * Set the posture for the {@link DeviceState} instance.
+         * Sets the posture for the {@link DeviceState} instance.
          */
         @NonNull
         public Builder setPosture(@Posture int posture) {

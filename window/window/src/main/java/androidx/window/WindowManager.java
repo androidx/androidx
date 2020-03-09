@@ -45,7 +45,7 @@ public final class WindowManager {
     private WindowBackend mWindowBackend;
 
     /**
-     * Get an instance of the class initialized with and connected to the provided {@link Context}.
+     * Gets an instance of the class initialized with and connected to the provided {@link Context}.
      * All methods of this class will return information that is associated with this visual
      * context.
      * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
@@ -66,7 +66,7 @@ public final class WindowManager {
     }
 
     /**
-     * Get current window layout information for the associated {@link Context}. Must be called
+     * Gets current window layout information for the associated {@link Context}. Must be called
      * only after the it is attached to the window and the layout pass has happened.
      * @see Activity#onAttachedToWindow()
      * @see WindowLayoutInfo
@@ -77,7 +77,7 @@ public final class WindowManager {
     }
 
     /**
-     * Get the current device state.
+     * Gets the current device state.
      * @see DeviceState
      */
     @NonNull
@@ -86,7 +86,7 @@ public final class WindowManager {
     }
 
     /**
-     * Register a callback for layout changes of the window of the current visual {@link Context}.
+     * Registers a callback for layout changes of the window of the current visual {@link Context}.
      * Must be called only after the it is attached to the window.
      * @see Activity#onAttachedToWindow()
      */
@@ -96,14 +96,14 @@ public final class WindowManager {
     }
 
     /**
-     * Unregister a callback for window layout changes of the window.
+     * Unregisters a callback for window layout changes of the window.
      */
     public void unregisterLayoutChangeCallback(@NonNull Consumer<WindowLayoutInfo> callback) {
         mWindowBackend.unregisterLayoutChangeCallback(callback);
     }
 
     /**
-     * Register a callback for device state changes.
+     * Registers a callback for device state changes.
      */
     public void registerDeviceStateChangeCallback(@NonNull Executor executor,
             @NonNull Consumer<DeviceState> callback) {
@@ -111,14 +111,14 @@ public final class WindowManager {
     }
 
     /**
-     * Unregister a callback for device state changes.
+     * Unregisters a callback for device state changes.
      */
     public void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback) {
         mWindowBackend.unregisterDeviceStateChangeCallback(callback);
     }
 
     /**
-     * Unwrap the hierarchy of {@link ContextWrapper}-s until {@link Activity} is reached.
+     * Unwraps the hierarchy of {@link ContextWrapper}-s until {@link Activity} is reached.
      * @return Base {@link Activity} context or {@code null} if not available.
      */
     @Nullable

@@ -68,7 +68,7 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
         windowManager.unregisterLayoutChangeCallback(layoutStateChangeCallback)
     }
 
-    /** Update the device state and display feature positions. */
+    /** Updates the device state and display feature positions. */
     internal fun updateCurrentState() {
         // Cleanup previously added feature views
         val rootLayout = findViewById<FrameLayout>(R.id.featureContainerLayout)
@@ -118,7 +118,7 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
         findViewById<TextView>(R.id.currentState).text = stateStringBuilder.toString()
     }
 
-    /** Add the current state to the text log of changes on screen. */
+    /** Adds the current state to the text log of changes on screen. */
     internal fun updateStateLog(info: Any) {
         stateLog.append(getCurrentTimeString())
             .append(" ")

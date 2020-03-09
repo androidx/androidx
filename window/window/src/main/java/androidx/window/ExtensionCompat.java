@@ -127,8 +127,8 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
     }
 
     /**
-     * Convert the display feature from extension. Can return {@code null} if there is an issue with
-     * the value passed from extension.
+     * Converts the display feature from extension. Can return {@code null} if there is an issue
+     * with the value passed from extension.
      */
     @Nullable
     private static DisplayFeature displayFeatureFromExtension(ExtensionDisplayFeature feature) {
@@ -194,7 +194,7 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
         return new DeviceState(posture);
     }
 
-    /** Verify that extension implementation corresponds to the interface of the version. */
+    /** Verifies that extension implementation corresponds to the interface of the version. */
     @Override
     @SuppressWarnings("unused")
     public boolean validateExtensionInterface() {
