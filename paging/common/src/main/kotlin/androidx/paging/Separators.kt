@@ -359,7 +359,7 @@ private class SeparatorState<R : Any, T : R>(
     }
 }
 
-internal fun <R : Any, T : R> Flow<PageEvent<T>>.insertSeparators(
+internal fun <T : R, R : Any> Flow<PageEvent<T>>.insertSeparators(
     generator: (T?, T?) -> R?
 ): Flow<PageEvent<R>> {
     val separatorState = SeparatorState(generator)
