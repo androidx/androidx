@@ -2761,7 +2761,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performActivityCreated(Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
-        mState = ACTIVITY_CREATED;
+        mState = AWAITING_EXIT_EFFECTS;
         mCalled = false;
         onActivityCreated(savedInstanceState);
         if (!mCalled) {
@@ -2923,7 +2923,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
         }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
-        mState = STARTED;
+        mState = AWAITING_ENTER_EFFECTS;
         mCalled = false;
         onPause();
         if (!mCalled) {
