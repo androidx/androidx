@@ -592,6 +592,22 @@ public final class Camera2CameraImplTest {
         verify(mockObserver, timeout(4000).times(1)).onNewData(CameraInternal.State.CLOSED);
     }
 
+    @Test
+    public void closeCaptureSessionImmediateAfterCreateCaptureSession()
+            throws InterruptedException {
+        mCamera2CameraImpl.open();
+        UseCase useCase = createUseCase();
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase));
+        mCamera2CameraImpl.onUseCaseActive(useCase);
+
+        // Wait a little bit for the camera to open.
+        assertTrue(mSessionStateCallback.waitForOnConfigured(1));
+
+        // Remove the useCase and trigger the CaptureSession#close().
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase));
+        assertTrue(mSessionStateCallback.waitForOnClosed(1));
+    }
+
     // Blocks the camera thread handler.
     private void blockHandler() {
         mCameraHandler.post(new Runnable() {
