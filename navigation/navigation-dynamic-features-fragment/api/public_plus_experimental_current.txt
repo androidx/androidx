@@ -14,6 +14,18 @@ package androidx.navigation.dynamicfeatures.fragment {
     property public final String? moduleName;
   }
 
+  public final class DynamicFragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
+    ctor public DynamicFragmentNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator navigator, @IdRes int id, String fragmentClassName);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination build();
+    method public String? getModuleName();
+    method public void setModuleName(String? p);
+    property public final String? moduleName;
+  }
+
+  public final class DynamicFragmentNavigatorDestinationBuilderKt {
+    method public static inline void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+  }
+
   public class DynamicNavHostFragment extends androidx.navigation.fragment.NavHostFragment {
     ctor public DynamicNavHostFragment();
     method protected com.google.android.play.core.splitinstall.SplitInstallManager createSplitInstallManager();

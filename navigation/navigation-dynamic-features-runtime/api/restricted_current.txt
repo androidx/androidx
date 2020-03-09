@@ -14,6 +14,33 @@ package androidx.navigation.dynamicfeatures {
     property public final String? moduleName;
   }
 
+  public final class DynamicActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
+    ctor public DynamicActivityNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.DynamicActivityNavigator activityNavigator, @IdRes int id);
+    method public androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination build();
+    method public String? getAction();
+    method public String? getActivityClassName();
+    method public android.net.Uri? getData();
+    method public String? getDataPattern();
+    method public String? getModuleName();
+    method public String? getTargetPackage();
+    method public void setAction(String? p);
+    method public void setActivityClassName(String? p);
+    method public void setData(android.net.Uri? p);
+    method public void setDataPattern(String? p);
+    method public void setModuleName(String? p);
+    method public void setTargetPackage(String? p);
+    property public final String? action;
+    property public final String? activityClassName;
+    property public final android.net.Uri? data;
+    property public final String? dataPattern;
+    property public final String? moduleName;
+    property public final String? targetPackage;
+  }
+
+  public final class DynamicActivityNavigatorDestinationBuilderKt {
+    method public static inline void activity(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
+  }
+
   public final class DynamicExtras implements androidx.navigation.Navigator.Extras {
     ctor public DynamicExtras(androidx.navigation.dynamicfeatures.DynamicInstallMonitor? installMonitor, androidx.navigation.Navigator.Extras? destinationExtras);
     ctor public DynamicExtras(androidx.navigation.dynamicfeatures.DynamicInstallMonitor? installMonitor);
