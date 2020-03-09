@@ -168,9 +168,9 @@ package androidx.ui.material {
   }
 
   public final class FloatingActionButtonKt {
-    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp minSize = androidx.ui.material.FloatingActionButtonKt.FabSize, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FloatingActionButton(androidx.ui.graphics.ImageAsset icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
-    method public static void FloatingActionButton(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.ImageAsset? icon = null, androidx.ui.text.TextStyle? textStyle = null, boolean enabled = true, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
+    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp minSize = androidx.ui.material.FloatingActionButtonKt.FabSize, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void FloatingActionButton(androidx.ui.graphics.ImageAsset icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
+    method public static void FloatingActionButton(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.ImageAsset? icon = null, androidx.ui.text.TextStyle? textStyle = null, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
   }
 
   public final class IconButtonKt {

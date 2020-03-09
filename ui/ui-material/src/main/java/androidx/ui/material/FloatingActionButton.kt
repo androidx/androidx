@@ -48,8 +48,6 @@ import androidx.ui.unit.dp
  *
  * @param onClick will be called when user clicked on the button
  * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not
- * be clickable
  * @param minSize Minimum size of the FAB
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  * the [Shapes.button] from [ShapeAmbient]
@@ -61,7 +59,6 @@ import androidx.ui.unit.dp
 fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    enabled: Boolean = true,
     minSize: Dp = FabSize,
     shape: Shape = CircleShape,
     color: Color = MaterialTheme.colors().primary,
@@ -69,8 +66,8 @@ fun FloatingActionButton(
     children: @Composable() () -> Unit
 ) {
     Surface(modifier = modifier, shape = shape, color = color, elevation = elevation) {
-        Ripple(bounded = true, enabled = enabled) {
-            Clickable(onClick = onClick, enabled = enabled) {
+        Ripple(bounded = true) {
+            Clickable(onClick = onClick) {
                 Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
                     CurrentTextStyleProvider(MaterialTheme.typography().button, children)
                 }
@@ -91,8 +88,6 @@ fun FloatingActionButton(
  * @param icon Image to draw in the center
  * @param onClick will be called when user clicked on the button
  * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not
- * be clickable
  * @param color The background color
  * @param elevation The z-coordinate at which to place this button. This controls the size
  * of the shadow below the button
@@ -102,7 +97,6 @@ fun FloatingActionButton(
     icon: ImageAsset,
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    enabled: Boolean = true,
     shape: Shape = CircleShape,
     color: Color = MaterialTheme.colors().primary,
     elevation: Dp = 6.dp
@@ -110,7 +104,6 @@ fun FloatingActionButton(
     FloatingActionButton(
         modifier = modifier,
         onClick = onClick,
-        enabled = enabled,
         shape = shape,
         color = color,
         elevation = elevation
@@ -131,8 +124,6 @@ fun FloatingActionButton(
  * @param modifier Modifier to be applied to the button.
  * @param icon Image to draw to the left of the text. It is optional
  * @param textStyle Optional [TextStyle] to apply for a [text]
- * @param enabled Controls the enabled state of the button. When `false`, this button will not
- * be clickable
  * @param color The background color
  * @param elevation The z-coordinate at which to place this button. This controls the size
  * if the shadow below the button.
@@ -144,14 +135,12 @@ fun FloatingActionButton(
     modifier: Modifier = Modifier.None,
     icon: ImageAsset? = null,
     textStyle: TextStyle? = null,
-    enabled: Boolean = true,
     color: Color = MaterialTheme.colors().primary,
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(
         modifier = modifier,
         onClick = onClick,
-        enabled = enabled,
         color = color,
         elevation = elevation,
         minSize = ExtendedFabHeight) {
