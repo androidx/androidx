@@ -81,7 +81,7 @@ class PopupActivity : Activity() {
                     )
 
                     Box(
-                        modifier = LayoutFlexible(1f),
+                        modifier = LayoutWeight(1f),
                         gravity = ContentGravity.Center
                     ) {
                         val description: String = {

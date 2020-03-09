@@ -103,7 +103,7 @@ fun Basics() {
             text = "Jetpack Compose is a modern toolkit for building native Android UI." +
                     " Jetpack Compose simplifies and accelerates UI development on Android " +
                     "with less code, powerful tools, and intuitive Kotlin APIs.",
-            modifier = LayoutFlexible(1f),
+            modifier = LayoutWeight(1f),
             style = commonStyle
         )
     }
@@ -116,7 +116,7 @@ fun AddTextElement() {
         style = commonStyle.merge(header2)
     )
     Row {
-        Column(modifier = LayoutFlexible(1f)) {
+        Column(modifier = LayoutWeight(1f)) {
             Text(
                 text = AnnotatedString {
                     append("To begin, follow the")
@@ -207,7 +207,7 @@ fun MultiLanguage(title: String, content: String) {
         )
         Text(
             text = content,
-            modifier = LayoutFlexible(1f),
+            modifier = LayoutWeight(1f),
             style = commonStyle
         )
     }

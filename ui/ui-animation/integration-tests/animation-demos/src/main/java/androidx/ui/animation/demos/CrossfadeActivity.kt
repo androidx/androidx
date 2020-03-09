@@ -52,7 +52,7 @@ private fun CrossfadeDemo() {
                     Log.e("Crossfade", "Switch to $it")
                     current = it
                 }) {
-                    Box(LayoutFlexible(1f) + LayoutHeight(48.dp), backgroundColor = it.color)
+                    Box(LayoutWeight(1f) + LayoutHeight(48.dp), backgroundColor = it.color)
                 }
             }
         }
