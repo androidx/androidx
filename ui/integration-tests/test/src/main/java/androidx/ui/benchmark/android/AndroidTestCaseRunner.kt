@@ -50,7 +50,7 @@ class AndroidTestCaseRunner<T : AndroidTestCase>(
 
     init {
         val displayMetrics = DisplayMetrics()
-        @Suppress("DEPRECATION")  /* defaultDisplay + getMetrics() */
+        @Suppress("DEPRECATION") /* defaultDisplay + getMetrics() */
         activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
         val height = displayMetrics.heightPixels
         val width = displayMetrics.widthPixels

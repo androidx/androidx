@@ -259,7 +259,7 @@ class SeekBarPreferenceTest {
                 // We want to swipe all the way to the right edge of the screen to avoid
                 // flakiness due to sometimes not reaching the end of the seekbar
                 val metrics = DisplayMetrics()
-                @Suppress("DEPRECATION")  /* defaultDisplay */
+                @Suppress("DEPRECATION") /* defaultDisplay */
                 activityRule.activity.windowManager.defaultDisplay.getMetrics(metrics)
                 val posX = metrics.widthPixels
                 val posY = location[1]
