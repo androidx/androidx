@@ -45,8 +45,6 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
-import androidx.ui.material.surface.primarySurface
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx

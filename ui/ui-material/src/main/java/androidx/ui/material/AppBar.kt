@@ -42,8 +42,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
 import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.surface.Surface
-import androidx.ui.material.surface.primarySurface
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -490,7 +488,12 @@ private fun AppBar(
     shape: Shape,
     children: @Composable() RowScope.() -> Unit
 ) {
-    Surface(color = color, contentColor = contentColor, elevation = elevation, shape = shape) {
+    Surface(
+        color = color,
+        contentColor = contentColor,
+        elevation = elevation,
+        shape = shape
+    ) {
         Row(
             LayoutWidth.Fill + LayoutPadding(
                 start = AppBarHorizontalPadding,

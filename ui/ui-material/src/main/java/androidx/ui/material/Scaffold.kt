@@ -35,7 +35,6 @@ import androidx.ui.layout.Stack
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.Scaffold.FabPosition
-import androidx.ui.material.surface.Surface
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition

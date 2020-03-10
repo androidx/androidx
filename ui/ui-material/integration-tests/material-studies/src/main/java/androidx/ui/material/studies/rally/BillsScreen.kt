@@ -28,7 +28,7 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Card
+import androidx.ui.material.Card
 import androidx.ui.unit.dp
 
 /**

@@ -33,7 +33,6 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

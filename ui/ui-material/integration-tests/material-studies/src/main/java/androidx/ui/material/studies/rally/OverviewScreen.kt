@@ -35,7 +35,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Sort
-import androidx.ui.material.surface.Card
+import androidx.ui.material.Card
 import androidx.ui.unit.dp
 import java.util.Locale
 

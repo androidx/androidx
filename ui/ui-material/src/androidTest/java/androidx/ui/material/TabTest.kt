@@ -30,7 +30,6 @@ import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs
 import androidx.ui.material.samples.TextTabs
-import androidx.ui.material.surface.Surface
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected

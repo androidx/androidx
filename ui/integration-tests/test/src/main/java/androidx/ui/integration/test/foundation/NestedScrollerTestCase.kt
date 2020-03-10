@@ -32,7 +32,7 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.px

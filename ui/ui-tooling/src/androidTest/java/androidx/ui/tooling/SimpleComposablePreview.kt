@@ -19,7 +19,7 @@ package androidx.ui.tooling
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.graphics.Color
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.tooling.preview.Preview
 
 @Preview
