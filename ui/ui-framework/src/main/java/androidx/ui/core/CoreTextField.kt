@@ -39,6 +39,7 @@ import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.round
 
 /**
  * The common TextField implementation.
@@ -197,7 +198,14 @@ fun CoreTextField(
                         state.layoutResult = result
                         onTextLayout(result)
                     }
-                    layout(width, height) {}
+                    layout(
+                        width,
+                        height,
+                        mapOf(
+                            FirstBaseline to result.firstBaseline.round(),
+                            LastBaseline to result.lastBaseline.round()
+                        )
+                    ) {}
                 }
             }
         }
