@@ -18,23 +18,18 @@ package androidx.camera.view.preview.transform;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.os.Build;
-import android.util.Pair;
-import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.camera.view.preview.transform.transformation.ScaleTransformation;
 import androidx.test.filters.SmallTest;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -47,96 +42,146 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ScaleTransformTest {
 
-    private static final Rect CONTAINER = new Rect(0, 0, 400, 600);
-    private static final Size BUFFER = new Size(400, 300);
+    @Test
+    public void fill_viewNotScaled_rotation0() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 1F, 1F, Surface.ROTATION_0);
 
-    private Display mDisplay;
-    private View mView;
+        final ScaleTransformation scale = ScaleTransform.fill(container, view);
 
-    @Before
-    public void setUp() {
-        mDisplay = mock(Display.class);
-        mView = mock(View.class);
-        when(mView.getDisplay()).thenReturn(mDisplay);
-        when(mView.getWidth()).thenReturn(BUFFER.getWidth());
-        when(mView.getHeight()).thenReturn(BUFFER.getHeight());
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
     }
 
     @Test
-    public void fill_naturalPortraitOrientedDevice_portrait() {
-        final View container = mock(View.class);
-        when(container.getWidth()).thenReturn(CONTAINER.width());
-        when(container.getHeight()).thenReturn(CONTAINER.height());
+    public void fill_viewNotScaled_rotation90() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 1F, 1F, Surface.ROTATION_90);
 
-        setDeviceNaturalPortraitOriented_portrait();
+        final ScaleTransformation scale = ScaleTransform.fill(container, view);
 
-        final Pair<Float, Float> scaleXY = ScaleTransform.fill(container, mView, BUFFER);
-        assertThat(mView.getWidth() * scaleXY.first).isAtLeast(container.getWidth());
-        assertThat(mView.getHeight() * scaleXY.second).isAtLeast(container.getHeight());
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
     }
 
     @Test
-    public void fill_naturalPortraitOrientedDevice_landscape() {
-        final View container = mock(View.class);
-        when(container.getWidth()).thenReturn(CONTAINER.height());
-        when(container.getHeight()).thenReturn(CONTAINER.width());
+    public void fill_viewScaled_rotation0() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 2F, 1.5F, Surface.ROTATION_0);
 
-        setDeviceNaturalPortraitOriented_landscape();
+        final ScaleTransformation scale = ScaleTransform.fill(container, view);
 
-        final Pair<Float, Float> scaleXY = ScaleTransform.fill(container, mView, BUFFER);
-        assertThat(mView.getWidth() * scaleXY.first).isAtLeast(container.getHeight());
-        assertThat(mView.getHeight() * scaleXY.second).isAtLeast(container.getWidth());
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
     }
 
     @Test
-    public void fill_naturalLandscapeOrientedDevice_portrait() {
-        final View container = mock(View.class);
-        when(container.getWidth()).thenReturn(CONTAINER.width());
-        when(container.getHeight()).thenReturn(CONTAINER.height());
+    public void fill_viewScaled_rotation90() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 2F, 1.5F, Surface.ROTATION_90);
 
-        setDeviceNaturalLandscapeOriented_portrait();
+        final ScaleTransformation scale = ScaleTransform.fill(container, view);
 
-        final Pair<Float, Float> scaleXY = ScaleTransform.fill(container, mView, BUFFER);
-        assertThat(mView.getWidth() * scaleXY.first).isAtLeast(container.getHeight());
-        assertThat(mView.getHeight() * scaleXY.second).isAtLeast(container.getWidth());
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
     }
 
     @Test
-    public void fill_naturalLandscapeOrientedDevice_landscape() {
+    public void fit_viewNotScaled_rotation0() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 1F, 1F, Surface.ROTATION_0);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
+    }
+
+    @Test
+    public void fit_viewNotScaled_rotation90() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 1F, 1F, Surface.ROTATION_90);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
+    }
+
+    @Test
+    public void fit_viewScaled_rotation0() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 0.5F, 2F, Surface.ROTATION_0);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
+    }
+
+    @Test
+    public void fit_viewScaled_rotation90() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 0.5F, 2F, Surface.ROTATION_90);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
+    }
+
+    @NonNull
+    private View setUpContainer(int width, int height) {
         final View container = mock(View.class);
-        when(container.getWidth()).thenReturn(CONTAINER.height());
-        when(container.getHeight()).thenReturn(CONTAINER.width());
-
-        setDeviceNaturalLandscapeOriented_landscape();
-
-        final Pair<Float, Float> scaleXY = ScaleTransform.fill(container, mView, BUFFER);
-        assertThat(mView.getWidth() * scaleXY.first).isAtLeast(container.getWidth());
-        assertThat(mView.getHeight() * scaleXY.second).isAtLeast(container.getHeight());
+        when(container.getWidth()).thenReturn(width);
+        when(container.getHeight()).thenReturn(height);
+        return container;
     }
 
-    private void setDeviceNaturalPortraitOriented_portrait() {
-        setUpDeviceNaturalOrientation(Surface.ROTATION_0, 300, 400);
+    @NonNull
+    private View setUpView(int width, int height, float scaleX, float scaleY, int rotation) {
+        final View view = mock(View.class);
+        when(view.getWidth()).thenReturn(width);
+        when(view.getHeight()).thenReturn(height);
+        when(view.getScaleX()).thenReturn(scaleX);
+        when(view.getScaleY()).thenReturn(scaleY);
+
+        final Display display = mock(Display.class);
+        when(view.getDisplay()).thenReturn(display);
+        when(display.getRotation()).thenReturn(rotation);
+
+        return view;
     }
 
-    private void setDeviceNaturalPortraitOriented_landscape() {
-        setUpDeviceNaturalOrientation(Surface.ROTATION_90, 400, 300);
+    private float getScaledWidth(@NonNull final View view) {
+        return view.getWidth() * view.getScaleX();
     }
 
-    private void setDeviceNaturalLandscapeOriented_portrait() {
-        setUpDeviceNaturalOrientation(Surface.ROTATION_90, 300, 400);
-    }
-
-    private void setDeviceNaturalLandscapeOriented_landscape() {
-        setUpDeviceNaturalOrientation(Surface.ROTATION_0, 400, 300);
-    }
-
-    private void setUpDeviceNaturalOrientation(final int rotation, final int width,
-            final int height) {
-        when(mDisplay.getRotation()).thenReturn(rotation);
-        doAnswer(invocation -> {
-            final Point point = invocation.getArgument(0);
-            point.set(width, height);
-            return null;
-        }).when(mDisplay).getRealSize(any(Point.class));
+    private float getScaledHeight(@NonNull final View view) {
+        return view.getHeight() * view.getScaleY();
     }
 }
