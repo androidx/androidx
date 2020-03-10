@@ -1,8 +1,21 @@
 // Signature format: 3.0
-package androidx.ui.core {
+package androidx.compose {
 
-  public final class AndroidViewCompatKt {
+  public final class Compose {
+    method @Deprecated @MainThread public androidx.compose.Composition composeInto(android.view.ViewGroup container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method @Deprecated @MainThread public androidx.compose.Composition composeInto(androidx.ui.core.ComponentNode container, android.content.Context context, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method @Deprecated @MainThread public void disposeComposition(android.view.ViewGroup container, androidx.compose.CompositionReference? parent = null);
+    method @Deprecated @MainThread public void disposeComposition(androidx.ui.core.ComponentNode container, android.content.Context context, androidx.compose.CompositionReference? parent = null);
+    field public static final androidx.compose.Compose! INSTANCE;
   }
+
+  public final class ComposerCompatKt {
+    method @Deprecated public static androidx.ui.node.UiComposer getComposer();
+  }
+
+}
+
+package androidx.ui.core {
 
   public final class ClipKt {
     method public static inline void Clip(androidx.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -87,7 +100,7 @@ package androidx.ui.core {
   public final class PopupKt {
     method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Left, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void disposeActivityComposition(android.app.Activity activity);
+    method @Deprecated public static void disposeActivityComposition(android.app.Activity activity);
     method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
   }
 
@@ -129,6 +142,8 @@ package androidx.ui.core {
 
   public final class WrapperKt {
     method public static void ComposeView(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void disposeComposition(android.view.ViewGroup);
+    method @Deprecated public static void disposeComposition(android.app.Activity);
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.Autofill> getAutofillAmbient();
@@ -144,6 +159,9 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
     method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.Composition setViewContent(android.view.ViewGroup, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public static androidx.compose.Composition setViewContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.ComponentNode container, android.content.Context context, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
   }
 
 }
@@ -462,6 +480,35 @@ package androidx.ui.graphics.vector {
 package androidx.ui.graphics.vector.compat {
 
   public final class XmlVectorParserKt {
+  }
+
+}
+
+package androidx.ui.node {
+
+  public final class UiComposer extends androidx.compose.Composer<java.lang.Object> {
+    ctor public UiComposer(android.content.Context context, Object root, androidx.compose.SlotTable slotTable, androidx.compose.Recomposer recomposer);
+    method public inline <T extends android.view.View> void emit(Object key, kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update);
+    method public inline <T extends android.view.ViewGroup> void emit(Object key, kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public inline <T extends androidx.ui.core.ComponentNode> void emit(Object key, kotlin.jvm.functions.Function0<? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update);
+    method public inline <T extends androidx.ui.core.ComponentNode> void emit(Object key, kotlin.jvm.functions.Function0<? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public android.content.Context getContext();
+    method public Object getRoot();
+  }
+
+  public final class UiComposerKt {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ViewAdapter {
+    method public void didInsert(android.view.View view, android.view.ViewGroup parent);
+    method public void didUpdate(android.view.View view, android.view.ViewGroup parent);
+    method public int getId();
+    method public void willInsert(android.view.View view, android.view.ViewGroup parent);
+    property public abstract int id;
+  }
+
+  public final class ViewInteropKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T extends androidx.ui.node.ViewAdapter> T getOrAddAdapter(android.view.View, int id, kotlin.jvm.functions.Function0<? extends T> factory);
   }
 
 }

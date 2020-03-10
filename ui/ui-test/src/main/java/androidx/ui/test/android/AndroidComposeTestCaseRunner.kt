@@ -28,7 +28,6 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.compose.Compose
 import androidx.compose.Composition
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
@@ -218,8 +217,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
             return
         }
 
-        // TODO(pavlis): replace with activity.disposeComposition() after it gets fixed.
-        Compose.disposeComposition((view as AndroidComposeView).root, activity, null)
+        composition?.dispose()
 
         // Clear the view
         val rootView = activity.findViewById(R.id.content) as ViewGroup

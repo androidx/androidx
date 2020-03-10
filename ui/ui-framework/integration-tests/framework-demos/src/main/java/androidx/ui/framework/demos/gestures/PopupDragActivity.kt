@@ -18,12 +18,12 @@ package androidx.ui.framework.demos.gestures
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.compose.Composition
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Popup
 import androidx.ui.core.Text
-import androidx.ui.core.disposeActivityComposition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.setContent
@@ -40,10 +40,11 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.round
 
 class PopupDragActivity : Activity() {
+    private var composition: Composition? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
+        composition = setContent {
 
             val offset = state {
                 PxPosition.Origin
@@ -81,7 +82,7 @@ class PopupDragActivity : Activity() {
     // TODO(b/140396932): Replace with Activity.disposeComposition() when it will be working
     //  properly
     override fun onDestroy() {
-        disposeActivityComposition(this)
+        composition?.dispose()
         super.onDestroy()
     }
 }

@@ -36,7 +36,7 @@ dependencies {
     // TODO: Non-Kotlin dependency, move to Android-specific code
     implementation "androidx.core:core:1.0.2"
 
-    api project(":compose:compose-runtime")
+    implementation project(":compose:compose-runtime")
     api project(":ui:ui-core")
     implementation project(":ui:ui-platform")
     api project(":ui:ui-text")
@@ -79,5 +79,13 @@ androidx {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
+    }
+}
+
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
     }
 }

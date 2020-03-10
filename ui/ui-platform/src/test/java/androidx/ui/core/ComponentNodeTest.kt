@@ -78,25 +78,25 @@ class ComponentNodeTest {
         assertEquals(0, child1.count)
         assertEquals(0, child2.count)
 
-        node.emitRemoveAt(index = 0, count = 1)
+        node.removeAt(index = 0, count = 1)
         assertEquals(1, node.count)
         assertEquals(child2, node[0])
 
-        node.emitInsertAt(index = 0, instance = child1)
+        node.insertAt(index = 0, instance = child1)
         assertEquals(2, node.count)
         assertEquals(child1, node[0])
         assertEquals(child2, node[1])
 
-        node.emitRemoveAt(index = 0, count = 2)
+        node.removeAt(index = 0, count = 2)
         assertEquals(0, node.count)
 
         val child3 = DrawNode()
         val child4 = DrawNode()
 
-        node.emitInsertAt(0, child1)
-        node.emitInsertAt(1, child2)
-        node.emitInsertAt(2, child3)
-        node.emitInsertAt(3, child4)
+        node.insertAt(0, child1)
+        node.insertAt(1, child2)
+        node.insertAt(2, child3)
+        node.insertAt(3, child4)
 
         assertEquals(4, node.count)
         assertEquals(child1, node[0])
@@ -104,14 +104,14 @@ class ComponentNodeTest {
         assertEquals(child3, node[2])
         assertEquals(child4, node[3])
 
-        node.emitMove(from = 3, count = 1, to = 0)
+        node.move(from = 3, count = 1, to = 0)
         assertEquals(4, node.count)
         assertEquals(child4, node[0])
         assertEquals(child1, node[1])
         assertEquals(child2, node[2])
         assertEquals(child3, node[3])
 
-        node.emitMove(from = 0, count = 2, to = 3)
+        node.move(from = 0, count = 2, to = 3)
         assertEquals(4, node.count)
         assertEquals(child2, node[0])
         assertEquals(child3, node[1])
@@ -162,7 +162,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
 
-        node.emitRemoveAt(0, 1)
+        node.removeAt(0, 1)
         assertEquals(owner, node.owner)
         assertNull(child1.owner)
         assertEquals(owner, child2.owner)
@@ -179,10 +179,10 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
 
-        node.emitRemoveAt(0, 1)
+        node.removeAt(0, 1)
         reset(owner)
 
-        node.emitInsertAt(1, child1)
+        node.insertAt(1, child1)
         assertEquals(owner, node.owner)
         assertEquals(owner, child1.owner)
         assertEquals(owner, child2.owner)
@@ -202,7 +202,7 @@ class ComponentNodeTest {
     fun drawNodeAdd() {
         val node = DrawNode()
         val child = DrawNode()
-        node.emitInsertAt(0, child)
+        node.insertAt(0, child)
         assertEquals(1, node.count)
         assertEquals(child, node[0])
     }
@@ -215,7 +215,7 @@ class ComponentNodeTest {
         verify(owner, times(1)).onAttach(node)
 
         val child = DrawNode()
-        node.emitInsertAt(0, child)
+        node.insertAt(0, child)
         verify(owner, times(1)).onAttach(child)
         assertEquals(1, node.count)
         assertEquals(node, child.parent)
@@ -226,7 +226,7 @@ class ComponentNodeTest {
     fun childCount() {
         val node = PointerInputNode()
         assertEquals(0, node.count)
-        node.emitInsertAt(0, PointerInputNode())
+        node.insertAt(0, PointerInputNode())
         assertEquals(1, node.count)
     }
 
@@ -234,14 +234,14 @@ class ComponentNodeTest {
     fun childGet() {
         val node = PointerInputNode()
         val child = PointerInputNode()
-        node.emitInsertAt(0, child)
+        node.insertAt(0, child)
         assertEquals(child, node[0])
     }
 
     @Test
     fun noMove() {
         val (layout, child1, child2) = createSimpleLayout()
-        layout.emitMove(0, 0, 1)
+        layout.move(0, 0, 1)
         assertEquals(child1, layout[0])
         assertEquals(child2, layout[1])
     }
@@ -252,8 +252,8 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         val child = DrawNode()
-        node.emitInsertAt(0, child)
-        node.emitRemoveAt(index = 0, count = 1)
+        node.insertAt(0, child)
+        node.removeAt(index = 0, count = 1)
         verify(owner, times(1)).onDetach(child)
         assertEquals(0, node.count)
         assertEquals(null, child.parent)
@@ -265,7 +265,7 @@ class ComponentNodeTest {
     fun depth() {
         val root = LayoutNode()
         val (child, grand1, grand2) = createSimpleLayout()
-        root.emitInsertAt(0, child)
+        root.insertAt(0, child)
 
         val owner = mock(Owner::class.java)
         root.attach(owner)
@@ -281,7 +281,7 @@ class ComponentNodeTest {
     fun directLayoutNodeHierarchy() {
         val layoutNode = LayoutNode()
         val childLayoutNode = LayoutNode()
-        layoutNode.emitInsertAt(0, childLayoutNode)
+        layoutNode.insertAt(0, childLayoutNode)
 
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
@@ -289,7 +289,7 @@ class ComponentNodeTest {
         assertEquals(1, layoutNodeChildren.size)
         assertEquals(childLayoutNode, layoutNodeChildren[0])
 
-        layoutNode.emitRemoveAt(index = 0, count = 1)
+        layoutNode.removeAt(index = 0, count = 1)
         assertNull(childLayoutNode.parentLayoutNode)
     }
 
@@ -298,7 +298,7 @@ class ComponentNodeTest {
     fun directLayoutAndGestureNodesHierarchy() {
         val layoutNode = LayoutNode()
         val singleChildNode = PointerInputNode()
-        layoutNode.emitInsertAt(0, singleChildNode)
+        layoutNode.insertAt(0, singleChildNode)
 
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, singleChildNode.parentLayoutNode)
@@ -308,7 +308,7 @@ class ComponentNodeTest {
         val childLayoutNodes = findLayoutNodeChildren(singleChildNode)
         assertEquals(0, childLayoutNodes.size)
 
-        layoutNode.emitRemoveAt(index = 0, count = 1)
+        layoutNode.removeAt(index = 0, count = 1)
         assertNull(singleChildNode.parentLayoutNode)
     }
 
@@ -318,10 +318,10 @@ class ComponentNodeTest {
         val layoutNode = LayoutNode()
         val intermediate = PointerInputNode()
         val childLayoutNode = LayoutNode()
-        layoutNode.emitInsertAt(0, intermediate)
+        layoutNode.insertAt(0, intermediate)
         assertEquals(layoutNode, intermediate.parentLayoutNode)
 
-        intermediate.emitInsertAt(0, childLayoutNode)
+        intermediate.insertAt(0, childLayoutNode)
 
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
@@ -334,7 +334,7 @@ class ComponentNodeTest {
         assertEquals(1, intermediateLayoutNodeChildren.size)
         assertEquals(childLayoutNode, intermediateLayoutNodeChildren[0])
 
-        intermediate.emitRemoveAt(index = 0, count = 1)
+        intermediate.removeAt(index = 0, count = 1)
         assertNull(childLayoutNode.parentLayoutNode)
 
         val intermediateLayoutNodeChildren2 = findLayoutNodeChildren(intermediate)
@@ -346,7 +346,7 @@ class ComponentNodeTest {
     fun visitChildren() {
         val (node1, node2, node3) = createSimpleLayout()
         val node4 = PointerInputNode()
-        node3.emitInsertAt(0, node4)
+        node3.insertAt(0, node4)
         val nodes = mutableListOf<ComponentNode>()
         node1.visitChildren { nodes.add(it) }
         assertEquals(2, nodes.size)
@@ -388,7 +388,7 @@ class ComponentNodeTest {
     fun testLayoutNodeAdd() {
         val (layout, child1, child2) = createSimpleLayout()
         val inserted = DrawNode()
-        layout.emitInsertAt(0, inserted)
+        layout.insertAt(0, inserted)
         val children = mutableListOf<ComponentNode>()
         layout.visitChildren { children.add(it) }
         assertEquals(3, children.size)
@@ -402,9 +402,9 @@ class ComponentNodeTest {
         val (layout, child1, _) = createSimpleLayout()
         val child3 = DrawNode()
         val child4 = DrawNode()
-        layout.emitInsertAt(2, child3)
-        layout.emitInsertAt(3, child4)
-        layout.emitRemoveAt(index = 1, count = 2)
+        layout.insertAt(2, child3)
+        layout.insertAt(3, child4)
+        layout.removeAt(index = 1, count = 2)
 
         val children = mutableListOf<ComponentNode>()
         layout.visitChildren { children.add(it) }
@@ -418,10 +418,10 @@ class ComponentNodeTest {
         val (layout, child1, child2) = createSimpleLayout()
         val child3 = DrawNode()
         val child4 = DrawNode()
-        layout.emitInsertAt(2, child3)
-        layout.emitInsertAt(3, child4)
+        layout.insertAt(2, child3)
+        layout.insertAt(3, child4)
 
-        layout.emitMove(from = 2, to = 1, count = 2)
+        layout.move(from = 2, to = 1, count = 2)
 
         val children = mutableListOf<ComponentNode>()
         layout.visitChildren { children.add(it) }
@@ -431,7 +431,7 @@ class ComponentNodeTest {
         assertEquals(child4, children[2])
         assertEquals(child2, children[3])
 
-        layout.emitMove(from = 1, to = 3, count = 2)
+        layout.move(from = 1, to = 3, count = 2)
 
         children.clear()
         layout.visitChildren { children.add(it) }
@@ -467,7 +467,7 @@ class ComponentNodeTest {
         val node0 = LayoutNode()
         node0.attach(mockOwner())
         val node1 = LayoutNode()
-        node0.emitInsertAt(0, node1)
+        node0.insertAt(0, node1)
 
         val x0 = 100.ipx
         val y0 = 10.ipx
@@ -492,7 +492,7 @@ class ComponentNodeTest {
         val node0 = LayoutNode()
         node0.attach(mockOwner())
         val node1 = LayoutNode()
-        node0.emitInsertAt(0, node1)
+        node0.insertAt(0, node1)
 
         val x0 = 100.ipx
         val y0 = 10.ipx
@@ -517,7 +517,7 @@ class ComponentNodeTest {
         val node0 = LayoutNode()
         node0.attach(mockOwner())
         val node1 = LayoutNode()
-        node0.emitInsertAt(0, node1)
+        node0.insertAt(0, node1)
 
         val x0 = 100.ipx
         val y0 = 10.ipx
@@ -542,7 +542,7 @@ class ComponentNodeTest {
         val node0 = LayoutNode()
         node0.attach(mockOwner())
         val node1 = LayoutNode()
-        node0.emitInsertAt(0, node1)
+        node0.insertAt(0, node1)
 
         val x0 = 100.ipx
         val y0 = 10.ipx
@@ -589,7 +589,7 @@ class ComponentNodeTest {
         val node0 = LayoutNode()
         node0.attach(mockOwner())
         val node1 = LayoutNode()
-        node0.emitInsertAt(0, node1)
+        node0.insertAt(0, node1)
 
         val x1 = 50.ipx
         val y1 = 80.ipx
@@ -613,8 +613,8 @@ class ComponentNodeTest {
         node0.attach(mockOwner())
         val node1 = LayoutNode()
         val node2 = LayoutNode()
-        node0.emitInsertAt(0, node1)
-        node1.emitInsertAt(0, node2)
+        node0.insertAt(0, node1)
+        node1.insertAt(0, node2)
 
         thrown.expect(IllegalStateException::class.java)
 
@@ -650,7 +650,7 @@ class ComponentNodeTest {
         val parent = LayoutNode()
         parent.attach(mockOwner())
         val child = LayoutNode()
-        parent.emitInsertAt(0, child)
+        parent.insertAt(0, child)
         parent.place(-100.ipx, 10.ipx)
         child.place(50.ipx, 80.ipx)
 
@@ -664,7 +664,7 @@ class ComponentNodeTest {
         val parent = LayoutNode()
         parent.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
         val child = LayoutNode()
-        parent.emitInsertAt(0, child)
+        parent.insertAt(0, child)
         child.place(50.ipx, 80.ipx)
 
         val actual = child.coordinates.positionInRoot
@@ -677,7 +677,7 @@ class ComponentNodeTest {
         val parent = LayoutNode()
         parent.attach(mockOwner())
         val child = LayoutNode()
-        parent.emitInsertAt(0, child)
+        parent.insertAt(0, child)
         parent.place(-100.ipx, 10.ipx)
         child.place(50.ipx, 80.ipx)
 
@@ -692,8 +692,8 @@ class ComponentNodeTest {
         grandParent.attach(mockOwner())
         val parent = LayoutNode()
         val child = LayoutNode()
-        grandParent.emitInsertAt(0, parent)
-        parent.emitInsertAt(0, child)
+        grandParent.insertAt(0, parent)
+        parent.insertAt(0, child)
         grandParent.place(-7.ipx, 17.ipx)
         parent.place(23.ipx, -13.ipx)
         child.place(-3.ipx, 11.ipx)
@@ -708,7 +708,7 @@ class ComponentNodeTest {
     fun testAddBeyondCurrent() {
         val pointerInputNode = PointerInputNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.emitInsertAt(1, DrawNode())
+        pointerInputNode.insertAt(1, DrawNode())
     }
 
     // ComponentNode shouldn't allow adding below 0
@@ -716,43 +716,43 @@ class ComponentNodeTest {
     fun testAddBelowZero() {
         val pointerInputNode = PointerInputNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.emitInsertAt(-1, DrawNode())
+        pointerInputNode.insertAt(-1, DrawNode())
     }
 
     // ComponentNode should error when removing at index < 0
     @Test
     fun testRemoveNegativeIndex() {
         val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.insertAt(0, DrawNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.emitRemoveAt(-1, 1)
+        pointerInputNode.removeAt(-1, 1)
     }
 
     // ComponentNode should error when removing at index > count
     @Test
     fun testRemoveBeyondIndex() {
         val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.insertAt(0, DrawNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.emitRemoveAt(1, 1)
+        pointerInputNode.removeAt(1, 1)
     }
 
     // ComponentNode should error when removing at count < 0
     @Test
     fun testRemoveNegativeCount() {
         val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.insertAt(0, DrawNode())
         thrown.expect(IllegalArgumentException::class.java)
-        pointerInputNode.emitRemoveAt(0, -1)
+        pointerInputNode.removeAt(0, -1)
     }
 
     // ComponentNode should error when removing at count > entry count
     @Test
     fun testReplaceoMany() {
         val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.insertAt(0, DrawNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.emitRemoveAt(0, 2)
+        pointerInputNode.removeAt(0, 2)
     }
 
     // ComponentNode should error when there aren't enough items
@@ -760,16 +760,16 @@ class ComponentNodeTest {
     fun testReplaceoMany2() {
         val pointerInputNode = PointerInputNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.emitRemoveAt(0, 1)
+        pointerInputNode.removeAt(0, 1)
     }
 
     // ComponentNode should allow removing two items
     @Test
     fun testRemoveTwoItems() {
         val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
-        pointerInputNode.emitInsertAt(0, DrawNode())
-        pointerInputNode.emitRemoveAt(0, 2)
+        pointerInputNode.insertAt(0, DrawNode())
+        pointerInputNode.insertAt(0, DrawNode())
+        pointerInputNode.removeAt(0, 2)
         assertEquals(0, pointerInputNode.count)
     }
 
@@ -812,7 +812,7 @@ class ComponentNodeTest {
         val layoutNode2 = LayoutNode()
         val drawModifier = draw { _, _ -> }
         layoutNode.modifier = drawModifier
-        layoutNode2.emitInsertAt(0, layoutNode)
+        layoutNode2.insertAt(0, layoutNode)
         layoutNode2.attach(mockOwner())
 
         assertEquals(
@@ -905,7 +905,7 @@ class ComponentNodeTest {
                     middlePointerInputFilter
                 )
             ).apply {
-                emitInsertAt(0, childLayoutNode)
+                insertAt(0, childLayoutNode)
             }
         val parentLayoutNode: LayoutNode =
             LayoutNode(
@@ -914,7 +914,7 @@ class ComponentNodeTest {
                     parentPointerInputFilter
                 )
             ).apply {
-                emitInsertAt(0, middleLayoutNode)
+                insertAt(0, middleLayoutNode)
                 attach(mockOwner())
             }
 
@@ -1002,8 +1002,8 @@ class ComponentNodeTest {
             )
 
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(1, childLayoutNode2)
+            insertAt(0, childLayoutNode1)
+            insertAt(1, childLayoutNode2)
             attach(mockOwner())
         }
 
@@ -1078,9 +1078,9 @@ class ComponentNodeTest {
             )
 
         val parentLayoutNode = LayoutNode(0, 0, 200, 200).apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(1, childLayoutNode2)
-            emitInsertAt(2, childLayoutNode3)
+            insertAt(0, childLayoutNode1)
+            insertAt(1, childLayoutNode2)
+            insertAt(2, childLayoutNode3)
             attach(mockOwner())
         }
 
@@ -1141,8 +1141,8 @@ class ComponentNodeTest {
         )
 
         val parentLayoutNode = LayoutNode(0, 0, 150, 150).apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(1, childLayoutNode2)
+            insertAt(0, childLayoutNode1)
+            insertAt(1, childLayoutNode2)
             attach(mockOwner())
         }
 
@@ -1203,8 +1203,8 @@ class ComponentNodeTest {
         )
 
         val parentLayoutNode = LayoutNode(0, 0, 150, 150).apply {
-            emitInsertAt(0, childLayoutNode1)
-            emitInsertAt(1, childLayoutNode2)
+            insertAt(0, childLayoutNode1)
+            insertAt(1, childLayoutNode2)
             attach(mockOwner())
         }
 
@@ -1287,10 +1287,10 @@ class ComponentNodeTest {
         )
 
         val parentLayoutNode = LayoutNode(1, 1, 4, 4).apply {
-            emitInsertAt(0, layoutNode1)
-            emitInsertAt(1, layoutNode2)
-            emitInsertAt(2, layoutNode3)
-            emitInsertAt(3, layoutNode4)
+            insertAt(0, layoutNode1)
+            insertAt(1, layoutNode2)
+            insertAt(2, layoutNode3)
+            insertAt(3, layoutNode4)
             attach(mockOwner())
         }
 
@@ -1467,13 +1467,13 @@ class ComponentNodeTest {
                 )
             )
         val layoutNode2: LayoutNode = LayoutNode(2, 6, 500, 500).apply {
-            emitInsertAt(0, layoutNode1)
+            insertAt(0, layoutNode1)
         }
         val layoutNode3: LayoutNode = LayoutNode(3, 7, 500, 500).apply {
-            emitInsertAt(0, layoutNode2)
+            insertAt(0, layoutNode2)
         }
         val layoutNode4: LayoutNode = LayoutNode(4, 8, 500, 500).apply {
-            emitInsertAt(0, layoutNode3)
+            insertAt(0, layoutNode3)
         }.apply {
             attach(mockOwner())
         }
@@ -1509,7 +1509,7 @@ class ComponentNodeTest {
             )
         )
         val layoutNode2: LayoutNode = LayoutNode(2, 7, 500, 500).apply {
-            emitInsertAt(0, layoutNode1)
+            insertAt(0, layoutNode1)
         }
         val layoutNode3 =
             LayoutNode(
@@ -1520,14 +1520,14 @@ class ComponentNodeTest {
                     pointerInputFilter4
                 )
             ).apply {
-                emitInsertAt(0, layoutNode2)
+                insertAt(0, layoutNode2)
             }
 
         val layoutNode4: LayoutNode = LayoutNode(4, 9, 500, 500).apply {
-            emitInsertAt(0, layoutNode3)
+            insertAt(0, layoutNode3)
         }
         val layoutNode5: LayoutNode = LayoutNode(5, 10, 500, 500).apply {
-            emitInsertAt(0, layoutNode4)
+            insertAt(0, layoutNode4)
         }.apply {
             attach(mockOwner())
         }
@@ -1572,8 +1572,8 @@ class ComponentNodeTest {
         )
 
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).apply {
-            emitInsertAt(0, layoutNode1)
-            emitInsertAt(1, layoutNode2)
+            insertAt(0, layoutNode1)
+            insertAt(1, layoutNode2)
             attach(mockOwner())
         }
 
@@ -1631,7 +1631,7 @@ class ComponentNodeTest {
         reset(owner)
 
         // Dispose
-        root.emitRemoveAt(0, 1)
+        root.removeAt(0, 1)
 
         assertFalse(node1.isAttached())
         assertFalse(node2.isAttached())
@@ -1643,8 +1643,8 @@ class ComponentNodeTest {
         val layoutNode = LayoutNode()
         val child1 = LayoutNode()
         val child2 = LayoutNode()
-        layoutNode.emitInsertAt(0, child1)
-        layoutNode.emitInsertAt(1, child2)
+        layoutNode.insertAt(0, child1)
+        layoutNode.insertAt(1, child2)
         return Triple(layoutNode, child1, child2)
     }
 

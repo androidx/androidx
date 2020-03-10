@@ -22,15 +22,12 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Rect
 import androidx.ui.test.AnimationClockTestRule
@@ -127,14 +124,12 @@ class AndroidComposeTestRule<T : Activity>(
         }
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                activityTestRule.activity.setContent(composable)
+                val composition = activityTestRule.activity.setContent(composable)
                 val contentViewGroup =
                     activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
                 contentViewGroup.viewTreeObserver.addOnGlobalLayoutListener(listener)
-                val view = findComposeView(activityTestRule.activity)
                 disposeContentHook = {
-                    Compose.disposeComposition((view as AndroidComposeView).root,
-                        activityTestRule.activity, null)
+                    composition.dispose()
                 }
             }
         }
@@ -207,27 +202,5 @@ class AndroidComposeTestRule<T : Activity>(
                 }
             }
         }
-    }
-
-    // TODO(pavlis): These methods are only needed because we don't have an API to purge all
-    //  compositions from the app. Remove them once we have the option.
-    private fun findComposeView(activity: Activity): AndroidComposeView? {
-        return findComposeView(activity.findViewById(android.R.id.content) as ViewGroup)
-    }
-
-    private fun findComposeView(view: View): AndroidComposeView? {
-        if (view is AndroidComposeView) {
-            return view
-        }
-
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                val composeView = findComposeView(view.getChildAt(i))
-                if (composeView != null) {
-                    return composeView
-                }
-            }
-        }
-        return null
     }
 }

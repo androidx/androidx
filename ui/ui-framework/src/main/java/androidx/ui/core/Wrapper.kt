@@ -15,23 +15,26 @@
  */
 package androidx.ui.core
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.animation.AnimationClockObservable
 import androidx.animation.rootAnimationClockFactory
+import androidx.annotation.MainThread
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Observe
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
-import androidx.compose.ViewComposer
+import androidx.compose.Untracked
 import androidx.compose.ambientOf
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
@@ -43,10 +46,227 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.node.UiComposer
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.annotations.TestOnly
+import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
+
+private val TAG_COMPOSITION = "androidx.compose.Composition".hashCode()
+private val ROOT_COMPONENTNODES = WeakHashMap<ComponentNode, Composition>()
+private val ROOT_VIEWGROUPS = WeakHashMap<ViewGroup, Composition>()
+
+/**
+ * Apply Code Changes will invoke the two functions before and after a code swap.
+ *
+ * This forces the whole view hierarchy to be redrawn to invoke any code change that was
+ * introduce in the code swap.
+ *
+ * All these are private as within JVMTI / JNI accessibility is mostly a formality.
+ */
+// NOTE(lmr): right now, this class only takes into account Emittables and Views composed using
+// compose. In reality, there might be more (ie, Vectors), and we should figure out a more
+// holistic way to capture those as well.
+private class HotReloader {
+    companion object {
+        private var compositions = mutableListOf<Pair<Composition, @Composable() () -> Unit>>()
+
+        @TestOnly
+        fun clearRoots() {
+            ROOT_COMPONENTNODES.clear()
+            ROOT_VIEWGROUPS.clear()
+        }
+
+        // Called before Dex Code Swap
+        @Suppress("UNUSED_PARAMETER")
+        private fun saveStateAndDispose(context: Any) {
+            compositions.clear()
+
+            val componentNodes = ROOT_COMPONENTNODES.entries.toSet()
+
+            for ((_, composition) in componentNodes) {
+                compositions.add(composition to composition.composable)
+            }
+            for ((_, composition) in componentNodes) {
+                if (composition.isRoot) {
+                    composition.dispose()
+                }
+            }
+
+            val viewRoots = ROOT_VIEWGROUPS.entries.toSet()
+
+            for ((_, composition) in viewRoots) {
+                compositions.add(composition to composition.composable)
+            }
+            for ((_, composition) in viewRoots) {
+                if (composition.isRoot) {
+                    composition.dispose()
+                }
+            }
+        }
+
+        // Called after Dex Code Swap
+        @Suppress("UNUSED_PARAMETER")
+        private fun loadStateAndCompose(context: Any) {
+            for ((composition, composable) in compositions) {
+                composition.composable = composable
+            }
+
+            for ((composition, composable) in compositions) {
+                if (composition.isRoot) {
+                    composition.compose(composable)
+                }
+            }
+
+            compositions.clear()
+        }
+
+        @TestOnly
+        internal fun simulateHotReload(context: Any) {
+            saveStateAndDispose(context)
+            loadStateAndCompose(context)
+        }
+    }
+}
+
+/**
+ * @suppress
+ */
+@TestOnly
+fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)
+
+/**
+ * @suppress
+ */
+@TestOnly
+fun clearRoots() = HotReloader.clearRoots()
+
+internal fun findComposition(view: View): Composition? {
+    return view.getTag(TAG_COMPOSITION) as? Composition
+}
+
+internal fun storeComposition(view: View, composition: Composition) {
+    view.setTag(TAG_COMPOSITION, composition)
+    if (view is ViewGroup)
+        ROOT_VIEWGROUPS[view] = composition
+}
+
+internal fun removeRoot(view: View) {
+    view.setTag(TAG_COMPOSITION, null)
+    if (view is ViewGroup)
+        ROOT_VIEWGROUPS.remove(view)
+}
+
+internal fun findComposition(node: ComponentNode): Composition? {
+    return ROOT_COMPONENTNODES[node]
+}
+
+private fun storeComposition(node: ComponentNode, composition: Composition) {
+    ROOT_COMPONENTNODES[node] = composition
+}
+
+/**
+ * Composes the children of the view with the passed in [composable].
+ *
+ * @see setViewContent
+ * @see Composition.dispose
+ */
+// TODO: Remove this API when View/ComponentNode mixed trees work
+fun ViewGroup.setViewContent(
+    parent: CompositionReference? = null,
+    composable: @Composable() () -> Unit
+): Composition {
+    val composition = findComposition(this)
+        ?: UiComposition(this, context, parent).also {
+            removeAllViews()
+        }
+    composition.compose(composable)
+    return composition
+}
+
+/**
+ * Sets the contentView of an activity to a FrameLayout, and composes the contents of the layout
+ * with the passed in [composable].
+ *
+ * @see setContent
+ * @see Activity.setContentView
+ */
+// TODO: Remove this API when View/ComponentNode mixed trees work
+fun Activity.setViewContent(composable: @Composable() () -> Unit): Composition {
+    // TODO(lmr): add ambients here, or remove API entirely if we can
+    // If there is already a FrameLayout in the root, we assume we want to compose
+    // into it instead of create a new one. This allows for `setContent` to be
+    // called multiple times.
+    val root = window
+        .decorView
+        .findViewById<ViewGroup>(android.R.id.content)
+        .getChildAt(0) as? ViewGroup
+        ?: FrameLayout(this).also { setContentView(it) }
+    return root.setViewContent(null, composable)
+}
+
+/**
+ * @suppress
+ */
+@TestOnly
+fun makeCompositionForTesting(
+    root: Any,
+    context: Context,
+    parent: CompositionReference? = null
+): Composition = UiComposition(
+    root,
+    context,
+    parent
+)
+
+internal class UiComposition(
+    private val root: Any,
+    private val context: Context,
+    parent: CompositionReference? = null
+) : Composition(
+    { slots, recomposer ->
+        UiComposer(
+            context,
+            root,
+            slots,
+            recomposer
+        )
+    },
+    parent
+) {
+    init {
+        when (root) {
+            is ViewGroup -> storeComposition(root, this)
+            is ComponentNode -> storeComposition(root, this)
+        }
+    }
+
+    override fun dispose() {
+        super.dispose()
+        when (root) {
+            is ViewGroup -> removeRoot(root)
+            is ComponentNode -> ROOT_COMPONENTNODES.remove(root)
+        }
+    }
+}
+
+// TODO(chuckj): This is a temporary work-around until subframes exist so that
+// nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
+// instead.
+@MainThread
+fun subcomposeInto(
+    container: ComponentNode,
+    context: Context,
+    parent: CompositionReference? = null,
+    composable: @Composable() () -> Unit
+): Composition {
+    val composition = findComposition(container)
+        ?: UiComposition(container, context, parent)
+        composition.compose(composable)
+    return composition
+}
 
 /**
  * Composes a view containing ui composables into a view composition.
@@ -75,26 +295,26 @@ fun ComposeView(children: @Composable() () -> Unit) {
         // `cc.recomposeSync()` which will only recompose the invalidations in the child context,
         // which means it *will not* call `children()` again if it doesn't have to.
         Observe {
+            mapOf(123 to 234)
             reference = compositionReference()
             cc?.recomposeSync()
             onPreCommit(true) {
                 onDispose {
-                    rootRef.value?.let {
-                        val layoutRootNode = it.root
-                        val context = it.context
-                        Compose.disposeComposition(layoutRootNode, context)
-                    }
+                    cc?.dispose()
                 }
             }
         }
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-        val context = rootRef.value?.context ?: (currentComposer as ViewComposer).context
+        val context = rootRef.value?.context ?: (currentComposer as UiComposer).context
 
         // If this value is inlined where it is used, an error that includes 'Precise Reference:
         // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
         val coroutineContext = Dispatchers.Main
-        cc =
-            Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
+        cc = subcomposeInto(
+                container = rootLayoutNode,
+                context = context,
+                parent = reference
+            ) @Untracked {
                 WrapWithAmbients(rootRef.value!!, context, coroutineContext, children)
             }
     }
@@ -115,7 +335,45 @@ fun Activity.setContent(
         .getChildAt(0) as? AndroidComposeView
         ?: AndroidComposeView(this).also { setContentView(it) }
 
+    // TODO(lmr): setup lifecycle-based dispose since we have Activity here
+
     return doSetContent(composeView, this, content)
+}
+
+/**
+ * Disposes of a composition of the children of this view. This is a convenience method around
+ * [Composition.dispose].
+ *
+ * @see Composition.dispose
+ * @see setContent
+ */
+@Deprecated(
+    "disposing should be done with the Composition object returned by setContent",
+    replaceWith = ReplaceWith("Composition#dispose()")
+)
+fun ViewGroup.disposeComposition() {
+    findComposition(this)?.dispose()
+}
+
+/**
+ * Disposes of a composition that was started using [setContent]. This is a convenience method
+ * around [Composition.dispose].
+ *
+ * @see setContent
+ * @see Composition.dispose
+ */
+@Deprecated(
+    "disposing should be done with the Composition object returned by setContent",
+    replaceWith = ReplaceWith("Composition#dispose()")
+)
+fun Activity.disposeComposition() {
+    val view = window
+        .decorView
+        .findViewById<ViewGroup>(android.R.id.content)
+        .getChildAt(0) as? ViewGroup
+        ?: error("No root view found")
+    val composition = findComposition(view) ?: error("No composition found")
+    composition.dispose()
 }
 
 /**
@@ -145,14 +403,18 @@ private fun doSetContent(
     composeView: AndroidComposeView,
     context: Context,
     content: @Composable() () -> Unit
-): Composition = Compose.composeInto(composeView.root, context) {
-    val currentComposer = currentComposer as ViewComposer
-    remember { currentComposer.adapters?.register(AndroidViewAdapter) }
-    WrapWithAmbients(composeView, context, Dispatchers.Main) {
-        WrapWithSelectionContainer(content)
+): Composition {
+    val composition = findComposition(composeView.root)
+        ?: UiComposition(composeView.root, context, null)
+    composition.compose {
+        WrapWithAmbients(composeView, context, Dispatchers.Main) {
+            WrapWithSelectionContainer(content)
+        }
     }
+    return composition
 }
 
+@SuppressLint("UnnecessaryLambdaCreation")
 @Composable
 private fun WrapWithAmbients(
     composeView: AndroidComposeView,

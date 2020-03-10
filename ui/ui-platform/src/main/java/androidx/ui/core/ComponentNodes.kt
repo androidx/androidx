@@ -15,7 +15,6 @@
  */
 package androidx.ui.core
 
-import androidx.compose.Emittable
 import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
@@ -107,7 +106,7 @@ interface Owner {
 
     /**
      * Called by [ComponentNode] when it is detached from the view system, such as during
-     * [ComponentNode.emitRemoveAt]. This will only be called for [node]s that are already
+     * [ComponentNode.removeAt]. This will only be called for [node]s that are already
      * [ComponentNode.attach]ed.
      */
     fun onDetach(node: ComponentNode)
@@ -167,7 +166,7 @@ interface Owner {
  * Specific components are backed by a tree of nodes: Draw, Layout, SemanticsComponentNode, GestureDetector.
  * All other components are not represented in the backing hierarchy.
  */
-sealed class ComponentNode : Emittable {
+sealed class ComponentNode {
 
     internal val children = mutableListOf<ComponentNode>()
 
@@ -243,10 +242,7 @@ sealed class ComponentNode : Emittable {
      * Inserts a child [ComponentNode] at a particular index. If this ComponentNode [isAttached]
      * then [instance] will become [attach]ed also. [instance] must have a `null` [parent].
      */
-    override fun emitInsertAt(index: Int, instance: Emittable) {
-        if (instance !is ComponentNode) {
-            ErrorMessages.OnlyComponents.state()
-        }
+    fun insertAt(index: Int, instance: ComponentNode) {
         ErrorMessages.ComponentNodeHasParent.validateState(instance.parent == null)
         ErrorMessages.OwnerAlreadyAttached.validateState(instance.owner == null)
 
@@ -277,7 +273,7 @@ sealed class ComponentNode : Emittable {
     /**
      * Removes one or more children, starting at [index].
      */
-    override fun emitRemoveAt(index: Int, count: Int) {
+    fun removeAt(index: Int, count: Int) {
         ErrorMessages.CountOutOfRange.validateArg(count >= 0, count)
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
@@ -293,7 +289,7 @@ sealed class ComponentNode : Emittable {
         }
     }
 
-    override fun emitMove(from: Int, to: Int, count: Int) {
+    fun move(from: Int, to: Int, count: Int) {
         if (from == to) {
             return // nothing to do
         }
@@ -1674,7 +1670,7 @@ fun ComponentNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAtt
  * then [child] will become [isAttached]ed also. [child] must have a `null` [ComponentNode.parent].
  */
 fun ComponentNode.add(child: ComponentNode) {
-    emitInsertAt(count, child)
+    insertAt(count, child)
 }
 
 class Ref<T> {

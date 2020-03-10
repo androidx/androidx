@@ -41,6 +41,7 @@ class PreviewActivityTest {
     @After
     fun tearDown() {
         activityTestRule.runOnUiThread {
+            @Suppress("DEPRECATION")
             Compose.disposeComposition(activityTestRule.activity.findViewById(android.R.id.content))
         }
     }
