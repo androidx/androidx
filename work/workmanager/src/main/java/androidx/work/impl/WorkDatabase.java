@@ -45,6 +45,7 @@ import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.Preference;
 import androidx.work.impl.model.PreferenceDao;
+import androidx.work.impl.model.RawWorkInfoDao;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkName;
@@ -222,4 +223,10 @@ public abstract class WorkDatabase extends RoomDatabase {
      */
     @NonNull
     public abstract PreferenceDao preferenceDao();
+
+    /**
+     * @return The Data Access Object which can be used to execute raw queries.
+     */
+    @NonNull
+    public abstract RawWorkInfoDao rawWorkInfoDao();
 }

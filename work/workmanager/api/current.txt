@@ -287,12 +287,30 @@ package androidx.work {
     method public abstract androidx.lifecycle.LiveData<java.lang.Long!> getLastCancelAllTimeMillisLiveData();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo!> getWorkInfoById(java.util.UUID);
     method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo!> getWorkInfoByIdLiveData(java.util.UUID);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfos(androidx.work.WorkQuery);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTag(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagLiveData(String);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWork(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkLiveData(String);
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData(androidx.work.WorkQuery);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
     method public abstract androidx.work.Operation pruneWork();
+  }
+
+  public final class WorkQuery {
+    method public java.util.List<androidx.work.WorkInfo.State!> getStates();
+    method public java.util.List<java.lang.String!> getTags();
+    method public java.util.List<java.lang.String!> getUniqueWorkNames();
+  }
+
+  public static class WorkQuery.Builder {
+    method public androidx.work.WorkQuery.Builder addStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String!>);
+    method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public androidx.work.WorkQuery build();
+    method public static androidx.work.WorkQuery.Builder withStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public static androidx.work.WorkQuery.Builder withTags(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder withUniqueWorkNames(java.util.List<java.lang.String!>);
   }
 
   public abstract class WorkRequest {

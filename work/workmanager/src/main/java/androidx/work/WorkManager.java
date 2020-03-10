@@ -554,6 +554,28 @@ public abstract class WorkManager {
             @NonNull String uniqueWorkName);
 
     /**
+     * Gets the {@link LiveData} of the {@link List} of {@link WorkInfo} for all work
+     * referenced by the {@link WorkQuery} specification.
+     *
+     * @param workQuery The work query specification
+     * @return A {@link LiveData} of the {@link List} of {@link WorkInfo} for work
+     * referenced by this {@link WorkQuery}.
+     */
+    public abstract @NonNull LiveData<List<WorkInfo>> getWorkInfosLiveData(
+            @NonNull WorkQuery workQuery);
+
+    /**
+     * Gets the {@link ListenableFuture} of the {@link List} of {@link WorkInfo} for all work
+     * referenced by the {@link WorkQuery} specification.
+     *
+     * @param workQuery The work query specification
+     * @return A {@link ListenableFuture} of the {@link List} of {@link WorkInfo} for work
+     * referenced by this {@link WorkQuery}.
+     */
+    public abstract @NonNull ListenableFuture<List<WorkInfo>> getWorkInfos(
+            @NonNull WorkQuery workQuery);
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
