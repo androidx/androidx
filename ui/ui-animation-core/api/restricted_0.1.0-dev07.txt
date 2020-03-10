@@ -244,12 +244,14 @@ package androidx.animation {
   }
 
   public final class PhysicsBuilder<T> extends androidx.animation.AnimationBuilder<T> {
-    ctor public PhysicsBuilder(float dampingRatio, float stiffness);
+    ctor public PhysicsBuilder(float dampingRatio, float stiffness, float displacementThreshold);
     ctor public PhysicsBuilder();
     method public <V extends androidx.animation.AnimationVector> androidx.animation.Animation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
     method public float getDampingRatio();
+    method public float getDisplacementThreshold();
     method public float getStiffness();
     method public void setDampingRatio(float p);
+    method public void setDisplacementThreshold(float p);
     method public void setStiffness(float p);
   }
 

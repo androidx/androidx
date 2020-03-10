@@ -205,11 +205,13 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
  */
 class PhysicsBuilder<T>(
     var dampingRatio: Float = DampingRatioNoBouncy,
-    var stiffness: Float = StiffnessMedium
+    var stiffness: Float = StiffnessMedium,
+    var displacementThreshold: Float = 0.01f
 ) : AnimationBuilder<T>() {
 
     override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
-        return SpringAnimation(dampingRatio, stiffness).buildMultiDimensAnim()
+        return SpringAnimation(dampingRatio, stiffness, displacementThreshold)
+            .buildMultiDimensAnim()
     }
 }
 
