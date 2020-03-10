@@ -45,9 +45,9 @@ import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.unit.round
 
-private const val DefaultSoftWrap: Boolean = true
-private const val DefaultMaxLines = Int.MAX_VALUE
-private val DefaultOverflow: TextOverflow = TextOverflow.Clip
+internal const val DefaultSoftWrap: Boolean = true
+internal const val DefaultMaxLines = Int.MAX_VALUE
+internal val DefaultOverflow: TextOverflow = TextOverflow.Clip
 
 /** The default selection color if none is specified. */
 internal val DefaultSelectionColor = Color(0x6633B5E5)
