@@ -32,7 +32,7 @@ public class SidecarProvider {
     private SidecarProvider() {}
 
     /**
-     * Instantiate the Sidecar for the use by the WindowManager library.
+     * Instantiates the Sidecar for the use by the WindowManager library.
      *
      * <p>The library will instantiate the vendor implementation using this interface.
      * @return A compatible version of the {@link SidecarInterface} for the provided library
@@ -44,7 +44,7 @@ public class SidecarProvider {
     }
 
     /**
-     * Get the version of the vendor library on this device. If the returned version is not
+     * Gets the version of the vendor library on this device. If the returned version is not
      * supported by the WindowManager library, then some functions may not be available or
      * replaced with stub implementations.
      *

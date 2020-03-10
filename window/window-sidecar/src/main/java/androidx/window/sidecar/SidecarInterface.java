@@ -29,38 +29,38 @@ import androidx.annotation.NonNull;
 public interface SidecarInterface {
 
     /**
-     * Register the support library as the callback for the sidecar. This interface will be used to
+     * Registers the support library as the callback for the sidecar. This interface will be used to
      * report all sidecar changes to the support library.
      */
     void setSidecarCallback(@NonNull SidecarCallback callback);
 
     /**
-     * Get current information about the display features present within the application window.
+     * Gets current information about the display features present within the application window.
      */
     @NonNull
     SidecarWindowLayoutInfo getWindowLayoutInfo(@NonNull IBinder windowToken);
 
     /**
-     * Notify sidecar that a listener for display feature layout changes was registered for the
+     * Notifies sidecar that a listener for display feature layout changes was registered for the
      * given window token.
      */
     void onWindowLayoutChangeListenerAdded(@NonNull IBinder windowToken);
 
     /**
-     * Notify sidecar that a listener for display feature layout changes was removed for the
+     * Notifies sidecar that a listener for display feature layout changes was removed for the
      * given window token.
      */
     void onWindowLayoutChangeListenerRemoved(@NonNull IBinder windowToken);
 
     /**
-     * Get current device state.
+     * Gets current device state.
      * @see #onDeviceStateListenersChanged(boolean)
      */
     @NonNull
     SidecarDeviceState getDeviceState();
 
     /**
-     * Notify the sidecar that a device state change listener was updated.
+     * Notifies the sidecar that a device state change listener was updated.
      * @param isEmpty flag indicating if the list of device state change listeners is empty.
      */
     void onDeviceStateListenersChanged(boolean isEmpty);

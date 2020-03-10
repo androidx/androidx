@@ -135,7 +135,7 @@ class PresentationActivity : BaseSampleActivity() {
     }
 
     /**
-     * Update the display of the current device state.
+     * Updates the display of the current device state.
      */
     internal fun updateCurrentState(deviceState: DeviceState) {
         val stateStringBuilder = StringBuilder()
