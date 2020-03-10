@@ -51,6 +51,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
+    androidTestImplementation project(":ui:ui-test")
 }
 
 androidx {
