@@ -568,22 +568,25 @@ class HitPathTracker2Test {
         val pif1: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 64f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 64f
+                    it.consumePositionChange(0.px, yConsume.px) }
             })
         )
         val pif2: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 4f else 32f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 4f else 32f
+                    it.consumePositionChange(0.px, yConsume.px) }
             })
         )
         val pif3: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 8f else 16f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 8f else 16f
+                    it.consumePositionChange(0.px, yConsume.px) }
             })
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
@@ -639,29 +642,33 @@ class HitPathTracker2Test {
         val pif1: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 12f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 12f
+                    it.consumePositionChange(0.px, yConsume.px) }
             })
         )
         val pif2: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 3f else 6f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 3f else 6f
+                    it.consumePositionChange(0.px, yConsume.px) }
             })
         )
         val pif3: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) -2f else -12f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) -2f else -12f
+                    it.consumePositionChange(0.px, yConsume.px) }
             })
         )
         val pif4: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) -3f else -6f
-                changes.map { it.consumePositionChange(0.px, yConsume.px) }
+                changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) -3f else -6f
+                    it.consumePositionChange(0.px, yConsume.px) }
             })
         )
         hitPathTracker.addHitPath(PointerId(3), listOf(pif1, pif2))
@@ -727,8 +734,8 @@ class HitPathTracker2Test {
         val parent = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -739,8 +746,8 @@ class HitPathTracker2Test {
         val child1: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -751,8 +758,8 @@ class HitPathTracker2Test {
         val child2: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 11 else 13
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 11 else 13
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -817,8 +824,8 @@ class HitPathTracker2Test {
         val child1: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px
@@ -829,8 +836,8 @@ class HitPathTracker2Test {
         val child2: PointerInputFilter = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
-                val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                 changes.map {
+                    val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                     it.consumePositionChange(
                         0.px,
                         (it.positionChange().y.value.toInt() / yConsume).px

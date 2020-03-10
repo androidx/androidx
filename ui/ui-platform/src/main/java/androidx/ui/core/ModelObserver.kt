@@ -22,6 +22,7 @@ import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.observeAllReads
 import androidx.compose.frames.registerCommitObserver
+import androidx.ui.util.synchronized
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -43,18 +44,14 @@ import org.jetbrains.annotations.TestOnly
  */
 class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
     private val commitObserver: FrameCommitObserver = { committed, _ ->
-        // This array is in the same order as commitMaps
-        val targetsArray: Array<List<Any>>
         var hasValues = false
-        synchronized(commitMaps) {
-            targetsArray = Array(commitMaps.size) { index ->
-                val commitMap = commitMaps[index]
-                val map = commitMap.map
-                val targets = map.get(committed)
-                if (targets.isNotEmpty()) {
-                    hasValues = true
+        // This array is in the same order as commitMaps
+        val targetsArray = synchronized(commitMaps) {
+            Array(commitMaps.size) { index ->
+                commitMaps[index].map.get(committed).apply {
+                    if (isNotEmpty())
+                        hasValues = true
                 }
-                targets
             }
         }
         if (hasValues) {
@@ -140,12 +137,10 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
         val oldMap = currentMap
         val oldTarget = currentTarget
         val oldPaused = isPaused
-        val map: ObserverMap<Any, Any>
-        synchronized(commitMaps) {
-            map = ensureMap(onCommit)
-            map.removeValue(target)
+
+        currentMap = synchronized(commitMaps) {
+            ensureMap(onCommit).apply { removeValue(target) }
         }
-        currentMap = map
         currentTarget = target
         isPaused = false
         if (!isObserving) {
