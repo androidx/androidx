@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #
 # Copyright 2019, The Android Open Source Project
@@ -67,8 +67,8 @@ def main():
   if not report:
     sys.exit(0)
 
-  print "Invalid, IDEA-specific warning suppression found. These cause warnings during compilation."
-  print report
+  print("Invalid, IDEA-specific warning suppression found. These cause warnings during compilation.")
+  print(report)
   sys.exit(1)
 
 if __name__ == '__main__':
