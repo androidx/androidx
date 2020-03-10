@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
+import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.emptyContent
 import androidx.compose.remember
@@ -528,7 +529,8 @@ private class WithConstrainsState {
     fun subcompose() {
         val node = nodeRef.value!!
         val constraints = lastConstraints!!
-        Compose.subcomposeInto(node, context!!, compositionRef) {
+        // TODO(b/150390669): Review use of @Untracked
+        Compose.subcomposeInto(node, context!!, compositionRef) @Untracked {
             children(constraints)
         }
         forceRecompose = false
