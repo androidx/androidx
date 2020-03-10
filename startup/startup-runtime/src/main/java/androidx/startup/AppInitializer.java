@@ -24,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.tracing.Trace;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,11 +103,11 @@ public final class AppInitializer {
             @NonNull Class<? extends ComponentInitializer<?>> component,
             @NonNull Set<Class<?>> initializing) {
         synchronized (sLock) {
-            boolean isTracingEnabled = TraceCompat.isEnabled();
+            boolean isTracingEnabled = Trace.isEnabled();
             try {
                 if (isTracingEnabled) {
                     // Use the simpleName here because section names would get too big otherwise.
-                    TraceCompat.beginSection(component.getSimpleName());
+                    Trace.beginSection(component.getSimpleName());
                 }
                 if (initializing.contains(component)) {
                     String message = String.format(
@@ -147,7 +148,7 @@ public final class AppInitializer {
                 }
                 return (T) result;
             } finally {
-                TraceCompat.endSection();
+                Trace.endSection();
             }
         }
     }
@@ -155,7 +156,7 @@ public final class AppInitializer {
     @SuppressWarnings("unchecked")
     void discoverAndInitialize() {
         try {
-            TraceCompat.beginSection(SECTION_NAME);
+            Trace.beginSection(SECTION_NAME);
             ApplicationInfo applicationInfo =
                     mContext.getPackageManager()
                             .getApplicationInfo(mContext.getPackageName(), GET_META_DATA);
@@ -183,7 +184,7 @@ public final class AppInitializer {
         } catch (PackageManager.NameNotFoundException | ClassNotFoundException exception) {
             throw new StartupException(exception);
         } finally {
-            TraceCompat.endSection();
+            Trace.endSection();
         }
     }
 }
