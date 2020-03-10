@@ -17,6 +17,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/nav_root"
+            android:label=""
             app:startDestination="@+id/start_test">
 
     <test android:id="@+id/start_test">

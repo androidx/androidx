@@ -21,7 +21,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -84,7 +83,7 @@ abstract class AbstractAppBarOnDestinationChangedListener
             return;
         }
         CharSequence label = destination.getLabel();
-        if (!TextUtils.isEmpty(label)) {
+        if (label != null) {
             // Fill in the data pattern with the args to build a valid URI
             StringBuffer title = new StringBuffer();
             Pattern fillInPattern = Pattern.compile("\\{(.+?)\\}");
