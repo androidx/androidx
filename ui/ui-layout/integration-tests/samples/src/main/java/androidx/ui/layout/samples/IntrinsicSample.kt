@@ -40,7 +40,7 @@ import androidx.ui.unit.dp
  * Here [MinIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose minimum intrinsic width will correspond to the preferred width of the largest
  * [Box]. Then [MinIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured minimum intrinsic width, which due to [LayoutExpandedWidth] will force
+ * as the premeasured minimum intrinsic width, which due to [LayoutWidth.Fill] will force
  * the [Box]'s to use the same width.
  */
 @Sampled
@@ -73,7 +73,7 @@ fun SameWidthBoxes() {
  * Here [MinIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
  * whose minimum intrinsic height will correspond to the height of the largest [Text]. Then
  * [MinIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
- * minimum intrinsic height, which due to [LayoutExpandedHeight] will force the [Text]s and
+ * minimum intrinsic height, which due to [LayoutHeight.Fill] will force the [Text]s and
  * the divider to use the same height.
  */
 @Sampled
@@ -103,7 +103,7 @@ fun MatchParentDividerForText() {
  * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose maximum intrinsic width will correspond to the preferred width of the largest
  * [Box]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured maximum intrinsic width, which due to [LayoutExpandedWidth] modifiers will
+ * as the premeasured maximum intrinsic width, which due to [LayoutWidth.Fill] modifiers will
  * force the [Box]s to use the same width.
  */
 @Sampled
@@ -133,7 +133,7 @@ fun SameWidthTextBoxes() {
  * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [Row], whose
  * maximum intrinsic height will correspond to the height of the taller [LayoutAspectRatio]. Then
  * [MaxIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
- * maximum intrinsic height, which due to [LayoutExpandedHeight] modifier will force the
+ * maximum intrinsic height, which due to [LayoutHeight.Fill] modifier will force the
  * [LayoutAspectRatio]s and the divider to use the same height.
  */
 @Sampled

@@ -28,10 +28,19 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 
 /**
- * Layout modifier that applies the same padding of [all] dp on each side of the target layout.
+ * Layout modifier that applies the same padding of [all] dp on each side of the wrapped layout.
+ * The requested padding will be subtracted from the available space before the wrapped layout has
+ * the chance to choose its own size, so conceptually the padding has higher priority to occupy
+ * the available space than the content.
+ * If you only need to modify the position of the wrapped layout without affecting its size
+ * as described above, you should use the [LayoutOffset] modifier instead.
+ * Also note that padding must be non-negative. If you consider using negative (or positive)
+ * padding to offset the wrapped layout, [LayoutOffset] should be used.
  *
  * Example usage:
  * @sample androidx.ui.layout.samples.LayoutPaddingAllModifier
+ *
+ * @see LayoutOffset
  */
 fun LayoutPadding(all: Dp): LayoutPadding = LayoutPadding(
     start = all,
@@ -41,11 +50,19 @@ fun LayoutPadding(all: Dp): LayoutPadding = LayoutPadding(
 )
 
 /**
- * A [LayoutModifier] that adds [start], [top], [end] and [bottom] padding
- * to the wrapped layout.
+ * A [LayoutModifier] that adds [start], [top], [end] and [bottom] padding to the wrapped layout.
+ * The requested padding will be subtracted from the available space before the wrapped layout has
+ * the chance to choose its own size, so conceptually the padding has higher priority to occupy
+ * the available space than the content.
+ * If you only need to modify the position of the wrapped layout without affecting its size
+ * as described above, you should use the [LayoutOffset] modifier instead.
+ * Also note that padding must be non-negative. If you consider using negative (or positive)
+ * padding to offset the wrapped layout, [LayoutOffset] should be used.
  *
  * Example usage:
  * @sample androidx.ui.layout.samples.LayoutPaddingModifier
+ *
+ * @see LayoutOffset
  */
 data class LayoutPadding(
     val start: Dp = 0.dp,
@@ -53,6 +70,13 @@ data class LayoutPadding(
     val end: Dp = 0.dp,
     val bottom: Dp = 0.dp
 ) : LayoutModifier {
+    init {
+        require(
+            start.value >= 0f && top.value >= 0f && end.value >= 0f && bottom.value >= 0f,
+            PaddingMustBeNonNegative
+        )
+    }
+
     override fun Density.modifyConstraints(
         constraints: Constraints,
         layoutDirection: LayoutDirection
@@ -80,6 +104,10 @@ data class LayoutPadding(
         IntPxPosition(start.toIntPx(), top.toIntPx())
     } else {
         IntPxPosition(end.toIntPx(), top.toIntPx())
+    }
+
+    internal companion object {
+        val PaddingMustBeNonNegative = { "Padding must be non-negative" }
     }
 }
 
