@@ -17,7 +17,7 @@
 package androidx.sqlite.inspection.test
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.inspection.InspectorEnvironment
+import androidx.inspection.InspectorEnvironment.ExitHook
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesResponse
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -85,7 +85,7 @@ class TrackDatabasesTest {
             testEnvironment.assertNoQueuedEvents()
             @Suppress("UNCHECKED_CAST")
             val exitHook = (entry as Hook.ExitHook).exitHook as
-                    InspectorEnvironment.ExitHook<SQLiteDatabase>
+                    ExitHook<SQLiteDatabase>
             val database = Database("db3").createInstance(temporaryFolder)
             assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
             testEnvironment.receiveEvent().let { event ->
@@ -94,5 +94,34 @@ class TrackDatabasesTest {
         }
 
         assertThat(testEnvironment.consumeRegisteredHooks()).isEmpty()
+    }
+
+    @Test
+    fun test_track_databases_the_same_database_opened_twice() = runBlocking {
+        testEnvironment.sendCommand(createTrackDatabasesCommand())
+        val hooks = testEnvironment.consumeRegisteredHooks()
+        assertThat(hooks).hasSize(1)
+
+        val onOpenHook = hooks.first()
+        assertThat(onOpenHook.originMethod).isEqualTo(OPEN_DATABASE_COMMAND_SIGNATURE)
+        val database = Database("db").createInstance(temporaryFolder)
+        @Suppress("UNCHECKED_CAST")
+        val onExit = ((onOpenHook as Hook.ExitHook).exitHook as ExitHook<SQLiteDatabase>)::onExit
+
+        // open event on a database first time
+        onExit(database)
+        testEnvironment.receiveEvent()
+            .let { event -> assertThat(event.hasDatabaseOpened()).isEqualTo(true) }
+
+        // open event on the same database for the second time
+        // TODO: track close database events or handle the below gracefully
+        onExit(database)
+        testEnvironment.receiveEvent().let { event ->
+            assertThat(event.hasErrorOccurred()).isEqualTo(true)
+            val error = event.errorOccurred.content
+            assertThat(error.message).contains("Database is already tracked")
+            assertThat(error.message).contains(database.path)
+            assertThat(error.isRecoverable).isEqualTo(false)
+        }
     }
 }

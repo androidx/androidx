@@ -113,6 +113,59 @@ class QueryTest {
     }
 
     @Test
+    fun test_error_wrong_database_id() = runBlocking {
+        val databaseId = 123456789
+        val command = "select * from sqlite_master"
+        val queryParams = null
+        testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams))
+            .let { response ->
+                assertThat(response.hasErrorOccurred()).isEqualTo(true)
+                val error = response.errorOccurred.content
+                assertThat(error.message).isEqualTo("No database with id=$databaseId")
+                assertThat(error.stackTrace).isEqualTo("")
+                assertThat(error.isRecoverable).isEqualTo(true)
+            }
+    }
+
+    @Test
+    fun test_error_invalid_query() = runBlocking {
+        val databaseId = inspectDatabase(Database("db", table2).createInstance(temporaryFolder))
+        val mistypedSelect = "selecttt"
+        val command = "$mistypedSelect * from sqlite_master"
+        val queryParams = null
+        val response =
+            testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams))
+        assertThat(response.hasErrorOccurred()).isEqualTo(true)
+        val error = response.errorOccurred.content
+        assertThat(error.message).contains("syntax error")
+        assertThat(error.message).contains("near \"$mistypedSelect\"")
+        assertThat(error.message).contains("while compiling: $command")
+        assertThat(error.stackTrace).contains("SqliteInspector.onReceiveCommand")
+        assertThat(error.stackTrace).contains("SQLiteConnection.nativePrepareStatement")
+        assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
+        assertThat(error.isRecoverable).isEqualTo(true)
+    }
+
+    @Test
+    fun test_error_wrong_param_count() = runBlocking {
+        val databaseId = inspectDatabase(Database("db", table2).createInstance(temporaryFolder))
+        val command = "select * from sqlite_master where name=?"
+        val queryParams = listOf("'a'", "'b'") // one too many param
+        val response =
+            testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams))
+        assertThat(response.hasErrorOccurred()).isEqualTo(true)
+        val error = response.errorOccurred.content
+        assertThat(error.message).contains("Cannot bind argument")
+        assertThat(error.message).contains("index is out of range")
+        assertThat(error.message).contains("The statement has 1 parameters")
+        assertThat(error.stackTrace).contains("SqliteInspector.onReceiveCommand")
+        assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
+        assertThat(error.stackTrace).contains("SQLiteDirectCursorDriver.query")
+        assertThat(error.stackTrace).contains("SQLiteProgram.bind")
+        assertThat(error.isRecoverable).isEqualTo(true)
+    }
+
+    @Test
     fun test_valid_query_nested_query_with_a_comment() {
         test_valid_query(
             Database("db", table2),

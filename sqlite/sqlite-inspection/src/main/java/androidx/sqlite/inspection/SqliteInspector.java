@@ -16,10 +16,12 @@
 
 package androidx.sqlite.inspection;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQuery;
 import android.os.Build;
 import android.os.CancellationSignal;
@@ -34,6 +36,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Column;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event;
@@ -48,7 +51,6 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.Table;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -64,6 +66,7 @@ import java.util.Set;
 /**
  * Inspector to work with SQLite databases
  */
+@SuppressWarnings({"TryFinallyCanBeTryWithResources", "SameParameterValue"})
 final class SqliteInspector extends Inspector {
     // TODO: identify all SQLiteDatabase openDatabase methods
     private static final String sOpenDatabaseCommandSignature = "openDatabase"
@@ -75,6 +78,7 @@ final class SqliteInspector extends Inspector {
 
     // Note: this only works on API26+ because of pragma_* functions
     // TODO: replace with a resource file
+    // language=SQLite
     private static final String sQueryTableInfo = "select\n"
             + "  m.type as type,\n"
             + "  m.name as tableName,\n"
@@ -130,10 +134,22 @@ final class SqliteInspector extends Inspector {
             } else if (command.hasQuery()) {
                 handleQuery(command.getQuery(), callback);
             } else {
-                // TODO: handle unrecognised command
+                callback.reply(
+                        createErrorOccurredResponse(
+                                "Unrecognised command type: " + command.getOneOfCase().name(),
+                                null,
+                                true
+                        ).toByteArray());
             }
-        } catch (InvalidProtocolBufferException exception) {
-            // TODO: decide on error handling strategy
+        } catch (Exception exception) {
+            callback.reply(
+                    createErrorOccurredResponse(
+                            "Unhandled Exception while processing the command: "
+                                    + exception.getMessage(),
+                            stackTraceFromException(exception),
+                            false
+                    ).toByteArray()
+            );
         }
     }
 
@@ -147,9 +163,19 @@ final class SqliteInspector extends Inspector {
                 SQLiteDatabase.class,
                 sOpenDatabaseCommandSignature,
                 new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
+                    @SuppressLint("SyntheticAccessor")
                     @Override
                     public SQLiteDatabase onExit(SQLiteDatabase database) {
-                        onDatabaseAdded(database);
+                        try {
+                            onDatabaseAdded(database);
+                        } catch (Exception exception) {
+                            getConnection().sendEvent(createErrorOccurredEvent(
+                                    "Unhandled Exception while processing an onDatabaseAdded "
+                                            + "event: "
+                                            + exception.getMessage(),
+                                    stackTraceFromException(exception), false)
+                                    .toByteArray());
+                        }
                         return database;
                     }
                 });
@@ -172,8 +198,9 @@ final class SqliteInspector extends Inspector {
         if (database == null) return;
 
         String[] params = parseQueryParameterValues(command);
-        Cursor cursor = rawQuery(database, command.getQuery(), params, null);
+        Cursor cursor = null;
         try {
+            cursor = rawQuery(database, command.getQuery(), params, null);
             List<String> columnNames = Arrays.asList(cursor.getColumnNames());
             callback.reply(Response.newBuilder()
                     .setQuery(QueryResponse.newBuilder()
@@ -183,13 +210,18 @@ final class SqliteInspector extends Inspector {
                     .build()
                     .toByteArray()
             );
+        } catch (SQLiteException | IllegalArgumentException exception) {
+            callback.reply(createErrorOccurredResponse(exception, true).toByteArray());
         } finally {
-            cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 
-    private Cursor rawQuery(SQLiteDatabase database, String queryText, final String[] params,
-            CancellationSignal cancellationSignal) {
+    @SuppressLint("Recycle") // For: "The cursor should be freed up after use with #close"
+    private Cursor rawQuery(@NonNull SQLiteDatabase database, @NonNull String queryText,
+            @NonNull final String[] params, @Nullable CancellationSignal cancellationSignal) {
         SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
             @Override
             public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver driver,
@@ -289,12 +321,13 @@ final class SqliteInspector extends Inspector {
 
     private void replyNoDatabaseWithId(CommandCallback callback, int databaseId) {
         callback.reply(createErrorOccurredResponse("No database with id=" + databaseId,
-                null).toByteArray());
+                null, true).toByteArray());
     }
 
     private @NonNull Response querySchema(SQLiteDatabase database) {
-        Cursor cursor = database.rawQuery(sQueryTableInfo, null);
+        Cursor cursor = null;
         try {
+            cursor = rawQuery(database, sQueryTableInfo, new String[0], null);
             GetSchemaResponse.Builder schemaBuilder = GetSchemaResponse.newBuilder();
 
             int tableNameIx = cursor.getColumnIndex("tableName");
@@ -338,7 +371,9 @@ final class SqliteInspector extends Inspector {
 
             return Response.newBuilder().setGetSchema(schemaBuilder.build()).build();
         } finally {
-            cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 
@@ -351,7 +386,13 @@ final class SqliteInspector extends Inspector {
             String name = database.getPath();
             response = createDatabaseOpenedEvent(id, name);
         } catch (IllegalArgumentException exception) {
-            response = createErrorOccurredEvent(exception);
+            String message = exception.getMessage();
+            // TODO: clean up, e.g. replace Exception message check with a custom Exception class
+            if (message != null && message.contains("Database is already tracked")) {
+                response = createErrorOccurredEvent(exception, false);
+            } else {
+                throw exception;
+            }
         }
 
         getConnection().sendEvent(response.toByteArray());
@@ -363,22 +404,49 @@ final class SqliteInspector extends Inspector {
                 .build();
     }
 
-    private Event createErrorOccurredEvent(@NonNull Exception exception) {
+    private Event createErrorOccurredEvent(@Nullable String message, @Nullable String stackTrace,
+            boolean isRecoverable) {
         return Event.newBuilder().setErrorOccurred(
                 ErrorOccurredEvent.newBuilder()
-                        .setMessage(exception.getMessage())
-                        .setStackTrace(stackTraceFromException(exception))
+                        .setContent(
+                                createErrorContentMessage(message,
+                                        stackTrace,
+                                        isRecoverable))
                         .build())
                 .build();
     }
 
-    private Response createErrorOccurredResponse(@NonNull String message,
-            @SuppressWarnings("SameParameterValue") @Nullable String stackTrace) {
-        return Response.newBuilder().setErrorOccurred(
-                ErrorOccurredResponse.newBuilder()
-                        .setMessage(message)
-                        .setStackTrace(stackTrace)
-                        .build())
+    private Event createErrorOccurredEvent(@NonNull Exception exception, boolean isRecoverable) {
+        return createErrorOccurredEvent(exception.getMessage(), stackTraceFromException(exception),
+                isRecoverable);
+    }
+
+    private ErrorContent createErrorContentMessage(@Nullable String message,
+            @Nullable String stackTrace, boolean isRecoverable) {
+        ErrorContent.Builder builder = ErrorContent.newBuilder();
+        if (message != null) {
+            builder.setMessage(message);
+        }
+        if (stackTrace != null) {
+            builder.setStackTrace(stackTrace);
+        }
+        builder.setIsRecoverable(isRecoverable);
+        return builder.build();
+    }
+
+    private Response createErrorOccurredResponse(@NonNull Exception exception,
+            boolean isRecoverable) {
+        return createErrorOccurredResponse(exception.getMessage(),
+                stackTraceFromException(exception), isRecoverable);
+    }
+
+    private Response createErrorOccurredResponse(@Nullable String message,
+            @Nullable String stackTrace, boolean isRecoverable) {
+        return Response.newBuilder()
+                .setErrorOccurred(
+                        ErrorOccurredResponse.newBuilder()
+                                .setContent(createErrorContentMessage(message, stackTrace,
+                                        isRecoverable)))
                 .build();
     }
 
@@ -414,7 +482,8 @@ final class SqliteInspector extends Inspector {
                 // check if already tracked
                 for (Map.Entry<Integer, SQLiteDatabase> entry : mDatabases.entrySet()) {
                     if (entry.getValue() == database) {
-                        throw new IllegalArgumentException("Database is already tracked.");
+                        throw new IllegalArgumentException(
+                                "Database is already tracked: " + database.getPath());
                     }
                 }
 
