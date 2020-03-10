@@ -36,6 +36,9 @@ package androidx.animation {
     field public static final int Infinite = 2147483647; // 0x7fffffff
   }
 
+  public final class AnimationClockKt {
+  }
+
   public interface AnimationClockObservable {
     method public void subscribe(androidx.animation.AnimationClockObserver observer);
     method public void unsubscribe(androidx.animation.AnimationClockObserver observer);

@@ -41,6 +41,11 @@ interface ComposeTestRule : TestRule {
     val density: Density
 
     /**
+     * A test rule that allows you to control the animation clock
+     */
+    val clockTestRule: AnimationClockTestRule
+
+    /**
      * Sets the given composable as a content of the current screen.
      *
      * Use this in your tests to setup the UI content to be tested. This should be called exactly
