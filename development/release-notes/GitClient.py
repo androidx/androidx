@@ -69,6 +69,11 @@ class GitClient:
 		authorEmailDelimiter = "_Author:"
 		dateDelimiter = "_Date:"
 		bodyDelimiter = "_Body:"
+		if subProjectDir[0] == '/':
+			raise RuntimeError("Fatal error: the subproject directory (subProjectDir) passed to " +
+				"GitClient.getGitLog was an absolute filepath.  The subproject directory should " +
+				"be a relative filepath to the GitClient.gitRoot")
+
 		fullProjectDir = os.path.join(self.gitRoot, subProjectDir)
 
 		gitLogOptions = "--pretty=format:" + \

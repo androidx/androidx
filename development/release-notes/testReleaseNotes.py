@@ -430,6 +430,19 @@ class TestGitClient(unittest.TestCase):
 		)
 		self.assertEqual(1, len(commitList))
 
+	def test_gitLogFailsWhenPassedAnAbsolutePath(self):
+		# Tests that you cannot pass an absolute file path to git log
+		gitClient = GitClient(os.getcwd())
+		subProjectDir = os.getcwd().split("frameworks/support/")[1]
+		subProjectDir = '/' + subProjectDir
+		self.assertRaises(RuntimeError, gitClient.getGitLog,
+			fromExclusiveSha = "",
+			untilInclusiveSha = "HEAD",
+			keepMerges = False,
+			subProjectDir = subProjectDir,
+			n = 1
+		)
+
 	def assertCommitsAreEqual(self, commitA, commitB):
 		self.assertEqual(commitA.summary, commitB.summary)
 		self.assertEqual(commitA.files, commitB.files)
