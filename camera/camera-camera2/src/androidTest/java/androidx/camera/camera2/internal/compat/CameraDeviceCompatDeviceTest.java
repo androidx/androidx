@@ -148,7 +148,9 @@ public final class CameraDeviceCompatDeviceTest {
             mSurfaceTexture.release();
         }
 
-        mCompatHandlerThread.quitSafely();
+        if (mCompatHandlerThread != null) {
+            mCompatHandlerThread.quitSafely();
+        }
     }
 
     @Test
