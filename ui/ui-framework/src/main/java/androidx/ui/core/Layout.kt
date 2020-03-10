@@ -459,7 +459,7 @@ fun Layout(
 @Composable
 fun WithConstraints(
     modifier: Modifier = Modifier.None,
-    children: @Composable() (Constraints) -> Unit
+    children: @Composable() (Constraints, LayoutDirection) -> Unit
 ) {
     val state = remember { WithConstrainsState() }
     state.children = children
@@ -486,7 +486,7 @@ private class WithConstrainsState {
     var context: Context? = null
     val nodeRef = Ref<LayoutNode>()
     var lastConstraints: Constraints? = null
-    var children: @Composable() (Constraints) -> Unit = {}
+    var children: @Composable() (Constraints, LayoutDirection) -> Unit = { _, _ -> }
     var forceRecompose = false
     val measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         error = "Intrinsic measurements are not supported by WithConstraints"
@@ -531,7 +531,7 @@ private class WithConstrainsState {
         val constraints = lastConstraints!!
         // TODO(b/150390669): Review use of @Untracked
         Compose.subcomposeInto(node, context!!, compositionRef) @Untracked {
-            children(constraints)
+            children(constraints, node.layoutDirection!!)
         }
         forceRecompose = false
     }

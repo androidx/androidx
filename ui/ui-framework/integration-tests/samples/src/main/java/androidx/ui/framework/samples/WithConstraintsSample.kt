@@ -28,7 +28,7 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun WithConstraintsSample() {
-    WithConstraints { constraints ->
+    WithConstraints { constraints, _ ->
         val rectangleHeight = 100.dp
         val threshold = with(DensityAmbient.current) { (rectangleHeight * 2).toIntPx() }
         if (constraints.maxHeight < threshold) {

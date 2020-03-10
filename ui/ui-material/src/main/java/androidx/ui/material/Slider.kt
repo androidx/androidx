@@ -185,7 +185,7 @@ fun Slider(
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Box(modifier = modifier) {
-            WithConstraints { constraints ->
+            WithConstraints { constraints, _ ->
                 val maxPx = constraints.maxWidth.value.toFloat()
                 val minPx = 0f
                 position.setBounds(minPx, maxPx)
