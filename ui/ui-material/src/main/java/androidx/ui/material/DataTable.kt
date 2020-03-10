@@ -214,7 +214,7 @@ class DataTableChildren internal constructor() {
                 Text(text = text(j))
             } else {
                 Row {
-                    Image(image = image)
+                    Image(asset = image)
                     Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }
@@ -259,7 +259,7 @@ class DataTableChildren internal constructor() {
                 Text(text = text(j))
             } else {
                 Row {
-                    Image(image = image)
+                    Image(asset = image)
                     Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }

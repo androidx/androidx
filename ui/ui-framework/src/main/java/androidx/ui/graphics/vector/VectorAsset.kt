@@ -19,9 +19,11 @@ package androidx.ui.graphics.vector
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.core.asModifier
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
@@ -29,7 +31,7 @@ import androidx.ui.unit.Dp
 
 /**
  * Vector graphics object that is generated as a result of [VectorAssetBuilder]]
- * It can be composed and rendered by passing it as an argument to [drawVector]
+ * It can be composed and rendered by passing it as an argument to [VectorPainter]
  */
 data class VectorAsset internal constructor(
 
@@ -242,6 +244,9 @@ data class VectorPath(
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  */
+@Deprecated("Use VectorPainter instead",
+    ReplaceWith("VectorPainter(vectorAsset)")
+)
 @Composable
 fun drawVector(
     vectorImage: VectorAsset,
@@ -249,54 +254,11 @@ fun drawVector(
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = Alignment.Center,
     fit: ScaleFit = ScaleFit.Fit
-): Modifier = drawVector(
-    name = vectorImage.name,
-    viewportWidth = vectorImage.viewportWidth,
-    viewportHeight = vectorImage.viewportHeight,
-    defaultWidth = vectorImage.defaultWidth,
-    defaultHeight = vectorImage.defaultHeight,
-    tintColor = tintColor,
-    tintBlendMode = tintBlendMode,
+): Modifier = VectorPainter(vectorImage).asModifier(
     alignment = alignment,
-    scaleFit = fit
-) { _, _ ->
-    RenderVectorGroup(group = vectorImage.root)
-}
-
-/**
- * Recursive method for creating the vector graphic composition by traversing
- * the tree structure
- */
-@Composable
-private fun VectorScope.RenderVectorGroup(group: VectorGroup) {
-    for (vectorNode in group) {
-        if (vectorNode is VectorPath) {
-            Path(
-                pathData = vectorNode.pathData,
-                name = vectorNode.name,
-                fill = vectorNode.fill,
-                fillAlpha = vectorNode.fillAlpha,
-                stroke = vectorNode.stroke,
-                strokeAlpha = vectorNode.strokeAlpha,
-                strokeLineWidth = vectorNode.strokeLineWidth,
-                strokeLineCap = vectorNode.strokeLineCap,
-                strokeLineJoin = vectorNode.strokeLineJoin,
-                strokeLineMiter = vectorNode.strokeLineMiter
-            )
-        } else if (vectorNode is VectorGroup) {
-            Group(
-                name = vectorNode.name,
-                rotation = vectorNode.rotation,
-                scaleX = vectorNode.scaleX,
-                scaleY = vectorNode.scaleY,
-                translationX = vectorNode.translationX,
-                translationY = vectorNode.translationY,
-                pivotX = vectorNode.pivotX,
-                pivotY = vectorNode.pivotY,
-                clipPathData = vectorNode.clipPathData
-            ) {
-                RenderVectorGroup(group = vectorNode)
-            }
-        }
-    }
-}
+    scaleFit = fit,
+    colorFilter = if (tintColor != Color.Transparent) {
+        ColorFilter(tintColor, tintBlendMode)
+    } else {
+        null
+    })

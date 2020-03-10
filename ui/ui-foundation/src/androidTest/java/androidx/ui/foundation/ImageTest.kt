@@ -22,6 +22,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
+import androidx.ui.foundation.test.R
 import androidx.ui.test.createComposeRule
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
@@ -30,10 +31,10 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.ScaleFit
-import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutSize
+import androidx.ui.res.loadVectorResource
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
@@ -92,7 +93,7 @@ class ImageTest {
             val size = (containerSize / DensityAmbient.current.density).dp
             Box(modifier = LayoutSize(size) + DrawBackground(Color.White) + LayoutAlign.Center) {
                 TestTag(contentTag) {
-                    Image(image = createImageAsset())
+                    Image(asset = createImageAsset())
                 }
             }
         }
@@ -125,7 +126,7 @@ class ImageTest {
                     // The resultant Image composable should be twice the size of the underlying
                     // ImageAsset that is to be drawn and will stretch the content to fit
                     // the bounds
-                    Image(image = createImageAsset(),
+                    Image(asset = createImageAsset(),
                         modifier = LayoutSize(
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
@@ -163,7 +164,7 @@ class ImageTest {
                 TestTag(contentTag) {
                     // The resultant Image composable should be twice the size of the underlying
                     // ImageAsset that is to be drawn in the bottom end section of the composable
-                    Image(image = createImageAsset(),
+                    Image(asset = createImageAsset(),
                         modifier = LayoutSize(
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
@@ -192,20 +193,23 @@ class ImageTest {
     }
 
     @Test
-    fun testImageMinSizeCentered() {
+    fun testVectorScaledCentered() {
+        val boxWidth = 240
+        val boxHeight = 240
         rule.setContent {
             val density = DensityAmbient.current.density
-            val size = (containerSize * 2 / density).dp
-            val minWidth = (imageWidth / density).dp
-            val minHeight = (imageHeight / density).dp
+            val size = (boxWidth * 2 / density).dp
+            val minWidth = (boxWidth / density).dp
+            val minHeight = (boxHeight / density).dp
             Box(modifier = LayoutSize(size) + DrawBackground(Color.White) + LayoutAlign.Center) {
                 TestTag(contentTag) {
-                    // The resultant Image composable should be sized to the minimum values here
-                    // as [ColorPainter] has no intrinsic width or height
-                    Image(painter = ColorPainter(Color.Red),
-                        modifier = LayoutSize.Min(minWidth, minHeight),
-                        alignment = Alignment.Center
-                    )
+                    loadVectorResource(R.drawable.ic_vector_asset_test).resource.resource?.let {
+                        Image(
+                            it,
+                            modifier = LayoutSize.Min(minWidth, minHeight),
+                            scaleFit = ScaleFit.FillMinDimension
+                        )
+                    }
                 }
             }
         }
@@ -213,23 +217,23 @@ class ImageTest {
         val imageColor = Color.Red.toArgb()
         val containerBgColor = Color.White.toArgb()
         findByTag(contentTag).captureToBitmap().apply {
-            val imageStartX = width / 2 - imageWidth / 2
-            val imageStartY = height / 2 - imageHeight / 2
+            val imageStartX = width / 2 - boxWidth / 2
+            val imageStartY = height / 2 - boxHeight / 2
             Assert.assertEquals(containerBgColor, getPixel(imageStartX - 1, imageStartY - 1))
-            Assert.assertEquals(containerBgColor, getPixel(imageStartX + imageWidth + 1,
+            Assert.assertEquals(containerBgColor, getPixel(imageStartX + boxWidth + 1,
                 imageStartY - 1))
-            Assert.assertEquals(containerBgColor, getPixel(imageStartX + imageWidth + 1,
-                imageStartY + imageHeight + 1))
+            Assert.assertEquals(containerBgColor, getPixel(imageStartX + boxWidth + 1,
+                imageStartY + boxHeight + 1))
             Assert.assertEquals(containerBgColor, getPixel(imageStartX - 1, imageStartY +
-                    imageHeight + 1))
+                    boxHeight + 1))
 
-            Assert.assertEquals(imageColor, getPixel(imageStartX, imageStartY))
-            Assert.assertEquals(imageColor, getPixel(imageStartX + imageWidth - 1,
-                imageStartY))
-            Assert.assertEquals(imageColor, getPixel(imageStartX + imageWidth - 1,
-                imageStartY + imageHeight - 1))
+            Assert.assertEquals(imageColor, getPixel(imageStartX, imageStartY + 15))
+            Assert.assertEquals(containerBgColor, getPixel(imageStartX + boxWidth - 2,
+                imageStartY - 1))
+            Assert.assertEquals(imageColor, getPixel(imageStartX + boxWidth - 10,
+                imageStartY + boxHeight - 2))
             Assert.assertEquals(imageColor, getPixel(imageStartX, imageStartY +
-                    imageHeight - 1))
+                    boxHeight - 2))
         }
     }
 }

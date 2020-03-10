@@ -25,7 +25,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.drawVector
+import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
@@ -52,7 +52,7 @@ fun Icon(
     // TODO: b/149735981 semantics for content description
     Box(
         modifier = modifier + LayoutWidth(icon.defaultWidth) + LayoutHeight(icon.defaultHeight) +
-                drawVector(vectorImage = icon, tintColor = tint)
+                VectorPainter(icon).asModifier(colorFilter = ColorFilter.tint(tint))
     ) {
     }
 }
