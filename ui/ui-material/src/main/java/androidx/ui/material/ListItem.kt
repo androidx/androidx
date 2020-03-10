@@ -215,7 +215,7 @@ private object OneLine {
                 )
             }
             Container(
-                modifier = LayoutFlexible(1f) + LayoutGravity.Center +
+                modifier = LayoutWeight(1f) + LayoutGravity.Center +
                         LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding),
                 alignment = Alignment.CenterStart,
                 children = text
@@ -262,7 +262,7 @@ private object TwoLine {
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(LayoutHeight.Min(minHeight)) {
-            val modifier = LayoutFlexible(1f) + LayoutPadding(
+            val modifier = LayoutWeight(1f) + LayoutPadding(
                 start = ContentLeftPadding,
                 end = ContentRightPadding
             )
@@ -377,7 +377,7 @@ private object ThreeLine {
                     ThreeLineBaselineSecondOffset,
                     ThreeLineBaselineThirdOffset
                 ),
-                LayoutFlexible(1f) +
+                LayoutWeight(1f) +
                         LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding)
             ) {
                 if (overlineText != null) overlineText()

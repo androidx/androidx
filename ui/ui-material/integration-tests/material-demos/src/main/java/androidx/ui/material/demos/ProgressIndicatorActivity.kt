@@ -85,7 +85,7 @@ private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
     onDispose { state.stop() }
 
     Column {
-        val modifier = LayoutFlexible(1f) + LayoutGravity.Center + LayoutWidth.Fill
+        val modifier = LayoutWeight(1f) + LayoutGravity.Center + LayoutWidth.Fill
         Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
             // Determinate indicators
             LinearProgressIndicator(progress = state.progress)
