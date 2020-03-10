@@ -27,6 +27,7 @@ class WorkManagerIssueRegistry : IssueRegistry() {
     override val minApi: Int = CURRENT_API
     override val issues: List<Issue> = listOf(
         BadConfigurationProviderIssueDetector.ISSUE,
+        IdleBatteryChargingConstraintsDetector.ISSUE,
         InvalidPeriodicWorkRequestIntervalDetector.ISSUE,
         PeriodicEnqueueIssueDetector.ISSUE,
         RemoveWorkManagerInitializerDetector.ISSUE,

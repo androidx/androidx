@@ -132,6 +132,21 @@ object Stubs {
         """
     ).indented().within("src")
 
+    val CONSTRAINTS: TestFile = java("androidx/work/Constraints.java", """
+        package androidx.work;
+
+        class Constraints {
+            public static class Builder {
+                public Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
+                    return this;
+                }
+                public Builder setRequiresCharging(boolean requiresDeviceIdle) {
+                    return this;
+                }
+            }
+        }
+    """).indented().within("src")
+
     val NOTIFICATION: TestFile = kotlin(
         "android/app/Notification.kt",
         """
