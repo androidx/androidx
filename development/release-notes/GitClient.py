@@ -137,8 +137,9 @@ class Commit:
 		self.summary = ""
 		self.changeType = CommitType.BUG_FIX
 		self.releaseNote = ""
-		self.releaseNoteDelimiter = "Relnote:"
-		listedCommit = gitCommit.split('\n')
+		self.releaseNoteDelimiter = "relnote:"
+		self.formatGitCommitRelnoteTag()
+		listedCommit = self.gitCommit.split('\n')
 		for line in listedCommit:
 			if line.strip() == "": continue
 			if self.commitSHADelimiter in line:
@@ -152,9 +153,19 @@ class Commit:
 			if ("Bug:" in line) or ("b/" in line) or ("bug:" in line) or ("Fixes:" in line) or ("fixes b/" in line):
 				self.getBugsFromGitLine(line)
 			if self.releaseNoteDelimiter in line:
-				self.getReleaseNotesFromGitLine(line, gitCommit)
+				self.getReleaseNotesFromGitLine(line, self.gitCommit)
 			if self.projectDir.strip('/') in line:
 				self.getFileFromGitLine(line)
+
+	def formatGitCommitRelnoteTag(self):
+		""" This method accounts for the fact that the releaseNoteDelimiter is case insensitive
+			To do this, we just replace it with the tag we expect and can easily parse
+		"""
+		relnoteIndex = self.gitCommit.lower().find(self.releaseNoteDelimiter)
+		if relnoteIndex > -1:
+			self.gitCommit = self.gitCommit[:relnoteIndex] + \
+						self.releaseNoteDelimiter + \
+						self.gitCommit[relnoteIndex + len(self.releaseNoteDelimiter):]
 
 	def isExternalAuthorEmail(self, authorEmail):
 		return "@google.com" not in self.authorEmail
