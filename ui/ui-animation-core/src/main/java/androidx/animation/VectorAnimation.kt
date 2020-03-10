@@ -33,13 +33,6 @@ const val DEBUG = false
  */
 // TODO: Use Duration or TimeStamp for playtime once they are inlined.
 internal interface Animation<V : AnimationVector> {
-    fun isFinished(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
-    ): Boolean
-
     fun getValue(
         playTime: Long,
         start: V,
@@ -53,6 +46,12 @@ internal interface Animation<V : AnimationVector> {
         end: V,
         startVelocity: V
     ): V
+
+    fun getDurationMillis(
+        start: V,
+        end: V,
+        startVelocity: V
+    ): Long
 }
 
 /**
@@ -69,12 +68,7 @@ internal interface DurationBasedAnimation<V : AnimationVector> : Animation<V> {
      */
     val delay: Long
 
-    override fun isFinished(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
-    ): Boolean = playTime >= delay + duration
+    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long = delay + duration
 
     fun clampPlayTime(playTime: Long): Long {
         return (playTime - delay).coerceIn(0, duration)
@@ -171,9 +165,6 @@ internal class Keyframes<V : AnimationVector>(
  * [SnapAnimation] immediately snaps the animating value to the end value.
  */
 internal class SnapAnimation<V : AnimationVector> : Animation<V> {
-    override fun isFinished(playTime: Long, start: V, end: V, startVelocity: V): Boolean {
-        return true
-    }
 
     override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
         return end
@@ -181,6 +172,10 @@ internal class SnapAnimation<V : AnimationVector> : Animation<V> {
 
     override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
         return startVelocity
+    }
+
+    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
+        return 0
     }
 }
 
@@ -217,14 +212,6 @@ internal class Repeatable<V : AnimationVector>(
         } else
             startVelocity
 
-    override fun isFinished(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
-    ): Boolean =
-        duration <= 0 || playTime / duration >= iterationCount
-
     override fun getValue(
         playTime: Long,
         start: V,
@@ -252,6 +239,10 @@ internal class Repeatable<V : AnimationVector>(
             repetitionStartVelocity(playTime, start, startVelocity, end)
         )
     }
+
+    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
+        return iterationCount * duration
+    }
 }
 
 internal class Animation1D(
@@ -259,13 +250,6 @@ internal class Animation1D(
 ) : Animation<AnimationVector1D> {
     private val tempVelocityVector = AnimationVector1D(0f)
     private val tempValueVector = AnimationVector1D(0f)
-    override fun isFinished(
-        playTime: Long,
-        start: AnimationVector1D,
-        end: AnimationVector1D,
-        startVelocity: AnimationVector1D
-    ): Boolean =
-        anim.isFinished(playTime, start.value, end.value, startVelocity.value)
 
     override fun getValue(
         playTime: Long,
@@ -286,6 +270,14 @@ internal class Animation1D(
         tempVelocityVector.apply {
             value = anim.getVelocity(playTime, start.value, end.value, startVelocity.value)
         }
+
+    override fun getDurationMillis(
+        start: AnimationVector1D,
+        end: AnimationVector1D,
+        startVelocity: AnimationVector1D
+    ): Long {
+        return anim.getDurationMillis(start.value, end.value, startVelocity.value)
+    }
 }
 
 /**
@@ -297,15 +289,6 @@ internal class Animation2D(
 ) : Animation<AnimationVector2D> {
     private var velocityVector: AnimationVector2D = AnimationVector2D(0f, 0f)
     private var valueVector: AnimationVector2D = AnimationVector2D(0f, 0f)
-    override fun isFinished(
-        playTime: Long,
-        start: AnimationVector2D,
-        end: AnimationVector2D,
-        startVelocity: AnimationVector2D
-    ): Boolean {
-        return a1.isFinished(playTime, start.v1, end.v1, startVelocity.v1) &&
-                a2.isFinished(playTime, start.v2, end.v2, startVelocity.v2)
-    }
 
     override fun getValue(
         playTime: Long,
@@ -328,6 +311,17 @@ internal class Animation2D(
         velocityVector.v2 = a2.getVelocity(playTime, start.v2, end.v2, startVelocity.v2)
         return velocityVector
     }
+
+    override fun getDurationMillis(
+        start: AnimationVector2D,
+        end: AnimationVector2D,
+        startVelocity: AnimationVector2D
+    ): Long {
+        return maxOf(
+            a1.getDurationMillis(start.v1, end.v1, startVelocity.v1),
+            a2.getDurationMillis(start.v2, end.v2, startVelocity.v2)
+        )
+    }
 }
 
 /**
@@ -340,16 +334,6 @@ internal class Animation3D(
 ) : Animation<AnimationVector3D> {
     private var velocityVector: AnimationVector3D = AnimationVector3D(0f, 0f, 0f)
     private var valueVector: AnimationVector3D = AnimationVector3D(0f, 0f, 0f)
-    override fun isFinished(
-        playTime: Long,
-        start: AnimationVector3D,
-        end: AnimationVector3D,
-        startVelocity: AnimationVector3D
-    ): Boolean {
-        return a1.isFinished(playTime, start.v1, end.v1, startVelocity.v1) &&
-                a2.isFinished(playTime, start.v2, end.v2, startVelocity.v2) &&
-                a3.isFinished(playTime, start.v3, end.v3, startVelocity.v3)
-    }
 
     override fun getValue(
         playTime: Long,
@@ -374,6 +358,18 @@ internal class Animation3D(
         velocityVector.v3 = a3.getVelocity(playTime, start.v3, end.v3, startVelocity.v3)
         return velocityVector
     }
+
+    override fun getDurationMillis(
+        start: AnimationVector3D,
+        end: AnimationVector3D,
+        startVelocity: AnimationVector3D
+    ): Long {
+        return maxOf(
+            a1.getDurationMillis(start.v1, end.v1, startVelocity.v1),
+            a2.getDurationMillis(start.v2, end.v2, startVelocity.v2),
+            a3.getDurationMillis(start.v3, end.v3, startVelocity.v3)
+        )
+    }
 }
 
 /**
@@ -387,17 +383,6 @@ internal class Animation4D(
 ) : Animation<AnimationVector4D> {
     private var velocityVector: AnimationVector4D = AnimationVector4D(0f, 0f, 0f, 0f)
     private var valueVector: AnimationVector4D = AnimationVector4D(0f, 0f, 0f, 0f)
-    override fun isFinished(
-        playTime: Long,
-        start: AnimationVector4D,
-        end: AnimationVector4D,
-        startVelocity: AnimationVector4D
-    ): Boolean {
-        return a1.isFinished(playTime, start.v1, end.v1, startVelocity.v1) &&
-                a2.isFinished(playTime, start.v2, end.v2, startVelocity.v2) &&
-                a3.isFinished(playTime, start.v3, end.v3, startVelocity.v3) &&
-                a4.isFinished(playTime, start.v4, end.v4, startVelocity.v4)
-    }
 
     override fun getValue(
         playTime: Long,
@@ -424,6 +409,21 @@ internal class Animation4D(
         velocityVector.v4 = a4.getVelocity(playTime, start.v4, end.v4, startVelocity.v4)
         return velocityVector
     }
+
+    override fun getDurationMillis(
+        start: AnimationVector4D,
+        end: AnimationVector4D,
+        startVelocity: AnimationVector4D
+    ): Long {
+        return maxOf(
+            a1.getDurationMillis(start.v1, end.v1, startVelocity.v1),
+            a2.getDurationMillis(start.v2, end.v2, startVelocity.v2),
+            maxOf(
+                a3.getDurationMillis(start.v3, end.v3, startVelocity.v3),
+                a4.getDurationMillis(start.v4, end.v4, startVelocity.v4)
+            )
+        )
+    }
 }
 
 /**
@@ -435,7 +435,10 @@ internal class Animation4D(
 internal interface AnimationWrapper<T, V : AnimationVector> {
     fun getValue(playTime: Long): T
     fun getVelocity(playTime: Long): V
-    fun isFinished(playTime: Long): Boolean
+    fun isFinished(playTime: Long): Boolean {
+        return playTime >= durationMillis
+    }
+    val durationMillis: Long
 }
 
 /**
@@ -454,8 +457,6 @@ internal class TargetBasedAnimationWrapper<T, V : AnimationVector>(
 ) : AnimationWrapper<T, V> {
     private val startValueVector = typeConverter.convertToVector.invoke(startValue)
     private val endValueVector = typeConverter.convertToVector.invoke(endValue)
-    override fun isFinished(playTime: Long) =
-        animation.isFinished(playTime, startValueVector, endValueVector, startVelocity)
 
     override fun getValue(playTime: Long): T =
         typeConverter.convertFromVector.invoke(
@@ -464,6 +465,12 @@ internal class TargetBasedAnimationWrapper<T, V : AnimationVector>(
                 endValueVector, startVelocity
             )
         )
+
+    override val durationMillis: Long = animation.getDurationMillis(
+        start = startValueVector,
+        end = endValueVector,
+        startVelocity = startVelocity
+    )
 
     override fun getVelocity(playTime: Long): V =
         animation.getVelocity(playTime, startValueVector, endValueVector, startVelocity)

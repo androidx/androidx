@@ -20,13 +20,6 @@ package androidx.animation
  * FloatAnimation interface to avoid boxing/unboxing on floats.
  */
 internal interface FloatAnimation {
-    fun isFinished(
-        playTime: Long,
-        start: Float,
-        end: Float,
-        startVelocity: Float
-    ): Boolean
-
     fun getValue(
         playTime: Long,
         start: Float,
@@ -40,6 +33,16 @@ internal interface FloatAnimation {
         end: Float,
         startVelocity: Float
     ): Float
+
+    /**
+     * Note that this may be a computation that is expensive - especially with spring based
+     * animations
+     */
+    fun getDurationMillis(
+        start: Float,
+        end: Float,
+        startVelocity: Float
+    ): Long
 }
 
 /**
@@ -111,16 +114,6 @@ internal class SpringAnimation(
         it.stiffness = stiffness
     }
 
-    override fun isFinished(
-        playTime: Long,
-        start: Float,
-        end: Float,
-        startVelocity: Float
-    ): Boolean {
-        spring.finalPosition = end
-        return spring.isAtEquilibrium(start, startVelocity, playTime)
-    }
-
     override fun getValue(
         playTime: Long,
         start: Float,
@@ -142,6 +135,15 @@ internal class SpringAnimation(
         val (_, velocity) = spring.updateValues(start, startVelocity, playTime)
         return velocity
     }
+
+    override fun getDurationMillis(start: Float, end: Float, startVelocity: Float): Long =
+        estimateAnimationDurationMillis(
+            stiffness = spring.stiffness,
+            dampingRatio = spring.dampingRatio,
+            initialDisplacement = (start - end) * 100f,
+            initialVelocity = startVelocity * 100f,
+            delta = 1f
+        )
 }
 
 /**
@@ -154,13 +156,6 @@ internal class Tween(
     val delay: Long,
     private val easing: Easing
 ) : FloatAnimation {
-    override fun isFinished(
-        playTime: Long,
-        start: Float,
-        end: Float,
-        startVelocity: Float
-    ): Boolean = playTime >= delay + duration
-
     override fun getValue(
         playTime: Long,
         start: Float,
@@ -175,6 +170,10 @@ internal class Tween(
 
     private fun clampPlayTime(playTime: Long): Long {
         return (playTime - delay).coerceIn(0, duration)
+    }
+
+    override fun getDurationMillis(start: Float, end: Float, startVelocity: Float): Long {
+        return delay + duration
     }
 
     /**
