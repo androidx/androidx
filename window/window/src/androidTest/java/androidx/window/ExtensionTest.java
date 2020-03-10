@@ -16,6 +16,7 @@
 
 package androidx.window;
 
+import static androidx.window.ExtensionWindowBackend.initAndVerifyExtension;
 import static androidx.window.Version.VERSION_0_1;
 import static androidx.window.Version.VERSION_1_0;
 
@@ -28,7 +29,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -42,13 +42,17 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
 
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/** Tests for the extension implementation on the device. */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class ExtensionTest {
+public final class ExtensionTest extends WindowTestBase {
 
     private Context mContext;
     private ActivityTestRule<TestActivity> mActivityTestRule =
@@ -57,38 +61,39 @@ public class ExtensionTest {
             new ActivityTestRule<>(TestConfigChangeHandlingActivity.class, false, true);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
     }
 
     @Test
-    public void testExtensionInterface() throws Exception {
+    public void testExtensionInterface() {
         assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = ExtensionHelper.getExtensionImpl(mContext);
+        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
         assertTrue(extension.validateExtensionInterface());
     }
 
     @Test
-    public void testGetDeviceState() throws Exception {
+    public void testGetDeviceState() {
         assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = ExtensionHelper.getExtensionImpl(mContext);
+        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
         DeviceState deviceState = extension.getDeviceState();
 
-        assertThat(deviceState.getPosture()).isAtLeast(ExtensionDeviceState.POSTURE_UNKNOWN);
-        assertThat(deviceState.getPosture()).isAtMost(ExtensionDeviceState.POSTURE_FLIPPED);
+        assertThat(deviceState.getPosture()).isIn(Range.range(
+                ExtensionDeviceState.POSTURE_UNKNOWN, BoundType.CLOSED,
+                ExtensionDeviceState.POSTURE_FLIPPED, BoundType.CLOSED));
     }
 
     @Test
-    public void testRegisterDeviceStateChangeListener() throws Exception {
+    public void testRegisterDeviceStateChangeListener() {
         assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = ExtensionHelper.getExtensionImpl(mContext);
+        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
 
         extension.onDeviceStateListenersChanged(false);
         extension.onDeviceStateListenersChanged(true);
     }
 
     @Test
-    public void testDisplayFeatureDataClass() throws Exception {
+    public void testDisplayFeatureDataClass() {
         assumeExtensionV10_V01();
 
         Rect rect = new Rect(1, 2, 3, 4);
@@ -99,9 +104,9 @@ public class ExtensionTest {
     }
 
     @Test
-    public void testGetWindowLayoutInfo() throws Exception {
+    public void testGetWindowLayoutInfo() {
         assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = ExtensionHelper.getExtensionImpl(mContext);
+        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
 
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         IBinder windowToken = getActivityWindowToken(activity);
@@ -130,9 +135,9 @@ public class ExtensionTest {
     }
 
     @Test
-    public void testRegisterWindowLayoutChangeListener() throws Exception {
+    public void testRegisterWindowLayoutChangeListener() {
         assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = ExtensionHelper.getExtensionImpl(mContext);
+        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
 
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         IBinder windowToken = getActivityWindowToken(activity);
@@ -143,9 +148,9 @@ public class ExtensionTest {
     }
 
     @Test
-    public void testWindowLayoutUpdatesOnConfigChange() throws Exception {
+    public void testWindowLayoutUpdatesOnConfigChange() {
         assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = ExtensionHelper.getExtensionImpl(mContext);
+        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
 
         TestConfigChangeHandlingActivity activity =
                 mConfigHandlingActivityTestRule.launchActivity(new Intent());
@@ -173,9 +178,9 @@ public class ExtensionTest {
     }
 
     @Test
-    public void testWindowLayoutUpdatesOnRecreate() throws Exception {
+    public void testWindowLayoutUpdatesOnRecreate() {
         assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = ExtensionHelper.getExtensionImpl(mContext);
+        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
 
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
 
@@ -208,7 +213,7 @@ public class ExtensionTest {
     }
 
     @Test
-    public void testVersionSupport() throws Exception {
+    public void testVersionSupport() {
         // Only versions 1.0 and 0.1 are supported for now
         Version version = SidecarCompat.getSidecarVersion();
         if (version != null) {
@@ -223,9 +228,5 @@ public class ExtensionTest {
     private void assumeExtensionV10_V01() {
         assumeTrue(VERSION_1_0.equals(ExtensionCompat.getExtensionVersion())
                 || VERSION_0_1.equals(SidecarCompat.getSidecarVersion()));
-    }
-
-    private IBinder getActivityWindowToken(Activity activity) {
-        return activity.getWindow().getAttributes().token;
     }
 }
