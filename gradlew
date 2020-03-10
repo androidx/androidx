@@ -105,6 +105,7 @@ DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=$APP_HOME/../../prebuilts/fullsdk-$plat/pl
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
 export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86"
+export STUDIO_JDK=$JAVA_HOME
 
 # ----------------------------------------------------------------------------
 
