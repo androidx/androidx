@@ -81,7 +81,9 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             Center {
                 TestTag(tag = "myButton") {
-                    Button { Text("myButton") }
+                    Button(onClick = {}, enabled = false) {
+                        Text("myButton")
+                    }
                 }
             }
         }
@@ -123,15 +125,11 @@ class ButtonTest {
         val tag = "myButton"
 
         composeTestRule.setMaterialContent {
-            val enabled = state { true }
-            val onClick: (() -> Unit)? = if (enabled.value) {
-                { enabled.value = false }
-            } else {
-                null
-            }
+            var enabled by state { true }
+            val onClick = { enabled = false }
             Center {
                 TestTag(tag = tag) {
-                    Button(onClick = onClick) {
+                    Button(onClick = onClick, enabled = enabled) {
                         Text("Hello")
                     }
                 }

@@ -50,10 +50,10 @@ fun SubcomponentModifierSample() {
         buttonModifier: Modifier = Modifier.None
     ) {
         Row(modifier) {
-            Button(buttonModifier, onClick = onCancel) {
+            Button(onCancel, buttonModifier) {
                 Text("Cancel")
             }
-            Button(buttonModifier, onClick = onOk) {
+            Button(onOk, buttonModifier) {
                 Text("Ok")
             }
         }
