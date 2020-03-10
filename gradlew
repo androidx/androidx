@@ -218,9 +218,6 @@ function tryToDiagnosePossibleDaemonFailure() {
     if [ -n "$DIST_DIR" ]; then
       cp -r "$GRADLE_USER_HOME/daemon" "$DIST_DIR/gradle-daemon"
       cp ./hs_err* $DIST_DIR/ 2>/dev/null || true
-      # TODO (146217083): consider removing these after the Gradle daemons stop occasionally dying
-      dmesg | tail -n 40 || true
-      echo "Current java processes: '$(ps -eF | grep java)'"
     fi
   fi
 }
