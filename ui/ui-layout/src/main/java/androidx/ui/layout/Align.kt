@@ -22,6 +22,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Modifier
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -41,8 +42,12 @@ import androidx.ui.unit.max
  */
 @Composable
 // TODO (b/145599478): remove usages of Align and Center, and fully deprecate them
-internal fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+internal fun Align(
+    alignment: Alignment,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    Layout(children, modifier) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))

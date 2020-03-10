@@ -19,8 +19,8 @@ package androidx.ui.layout.test
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -58,28 +58,37 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopStart) {
                 Column {
                     Container(
-                        LayoutWidth.Max(sizeDp * 2) + LayoutWidth.Min(sizeDp) + LayoutHeight(sizeDp)
+                        LayoutWidth.Max(sizeDp * 2) +
+                                LayoutWidth.Min(sizeDp) + LayoutHeight(sizeDp) +
+                                saveLayoutInfo(size[0], position[0], positionedLatch)
                     ) {
-                        SaveLayoutInfo(size[0], position[0], positionedLatch)
-                    }
-                    Container(LayoutWidth.Max(sizeDp * 2) + LayoutHeight(sizeDp)) {
-                        SaveLayoutInfo(size[1], position[1], positionedLatch)
-                    }
-                    Container(LayoutWidth.Min(sizeDp) + LayoutHeight(sizeDp)) {
-                        SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(
-                        LayoutWidth.Max(sizeDp) + LayoutWidth.Min(sizeDp * 2) + LayoutHeight(sizeDp)
+                        LayoutWidth.Max(sizeDp * 2) + LayoutHeight(sizeDp) +
+                                saveLayoutInfo(size[1], position[1], positionedLatch)
                     ) {
-                        SaveLayoutInfo(size[3], position[3], positionedLatch)
                     }
                     Container(
-                        LayoutWidth.Min(sizeDp * 2) + LayoutWidth.Max(sizeDp) + LayoutHeight(sizeDp)
+                        LayoutWidth.Min(sizeDp) + LayoutHeight(sizeDp) +
+                                saveLayoutInfo(size[2], position[2], positionedLatch)
                     ) {
-                        SaveLayoutInfo(size[4], position[4], positionedLatch)
                     }
-                    Container(LayoutWidth(sizeDp) + LayoutHeight(sizeDp)) {
-                        SaveLayoutInfo(size[5], position[5], positionedLatch)
+                    Container(
+                        LayoutWidth.Max(sizeDp) + LayoutWidth.Min(sizeDp * 2) +
+                                LayoutHeight(sizeDp) +
+                                saveLayoutInfo(size[3], position[3], positionedLatch)
+                    ) {
+                    }
+                    Container(
+                        LayoutWidth.Min(sizeDp * 2) + LayoutWidth.Max(sizeDp) +
+                                LayoutHeight(sizeDp) +
+                                saveLayoutInfo(size[4], position[4], positionedLatch)
+                    ) {
+                    }
+                    Container(
+                        LayoutWidth(sizeDp) + LayoutHeight(sizeDp) +
+                                saveLayoutInfo(size[5], position[5], positionedLatch)
+                    ) {
                     }
                 }
             }
@@ -117,25 +126,37 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopStart) {
                 Row {
                     Container(LayoutHeight.Max(sizeDp * 2) + LayoutHeight.Min(sizeDp) +
-                            LayoutWidth(sizeDp)) {
-                        SaveLayoutInfo(size[0], position[0], positionedLatch)
+                            LayoutWidth(sizeDp) +
+                            saveLayoutInfo(size[0], position[0], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutHeight.Max(sizeDp * 2) + LayoutWidth(sizeDp)) {
-                        SaveLayoutInfo(size[1], position[1], positionedLatch)
+                    Container(
+                        LayoutHeight.Max(sizeDp * 2) +
+                                LayoutWidth(sizeDp) +
+                                saveLayoutInfo(size[1], position[1], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutHeight.Min(sizeDp) + LayoutWidth(sizeDp)) {
-                        SaveLayoutInfo(size[2], position[2], positionedLatch)
+                    Container(
+                        LayoutHeight.Min(sizeDp) + LayoutWidth(sizeDp) +
+                                saveLayoutInfo(size[2], position[2], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutHeight.Max(sizeDp) + LayoutHeight.Min(sizeDp * 2) +
-                            LayoutWidth(sizeDp)) {
-                        SaveLayoutInfo(size[3], position[3], positionedLatch)
+                    Container(
+                        LayoutHeight.Max(sizeDp) + LayoutHeight.Min(sizeDp * 2) +
+                                LayoutWidth(sizeDp) +
+                                saveLayoutInfo(size[3], position[3], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutHeight.Min(sizeDp * 2) + LayoutHeight.Max(sizeDp) +
-                            LayoutWidth(sizeDp)) {
-                        SaveLayoutInfo(size[4], position[4], positionedLatch)
+                    Container(
+                        LayoutHeight.Min(sizeDp * 2) + LayoutHeight.Max(sizeDp) +
+                                LayoutWidth(sizeDp) +
+                                saveLayoutInfo(size[4], position[4], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutHeight(sizeDp) + LayoutWidth(sizeDp)) {
-                        SaveLayoutInfo(size[5], position[5], positionedLatch)
+                    Container(
+                        LayoutHeight(sizeDp) + LayoutWidth(sizeDp) +
+                                saveLayoutInfo(size[5], position[5], positionedLatch)
+                    ) {
                     }
                 }
             }
@@ -172,20 +193,30 @@ class SizeModifiersTest : LayoutTest() {
         show {
             Align(alignment = Alignment.TopStart) {
                 Row {
-                    Container(LayoutSize.Max(sizeDp * 2) + LayoutSize.Min(sizeDp)) {
-                        SaveLayoutInfo(size[0], position[0], positionedLatch)
+                    Container(
+                        LayoutSize.Max(sizeDp * 2) + LayoutSize.Min(sizeDp) +
+                                saveLayoutInfo(size[0], position[0], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutSize.Max(sizeDp) + LayoutSize.Min(sizeDp * 2, sizeDp)) {
-                        SaveLayoutInfo(size[1], position[1], positionedLatch)
+                    Container(
+                        LayoutSize.Max(sizeDp) + LayoutSize.Min(sizeDp * 2, sizeDp) +
+                                saveLayoutInfo(size[1], position[1], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutSize.Min(sizeDp) + LayoutSize.Max(sizeDp * 2)) {
-                        SaveLayoutInfo(size[2], position[2], positionedLatch)
+                    Container(
+                        LayoutSize.Min(sizeDp) + LayoutSize.Max(sizeDp * 2) +
+                                saveLayoutInfo(size[2], position[2], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutSize.Min(sizeDp * 2) + LayoutSize.Max(sizeDp)) {
-                        SaveLayoutInfo(size[3], position[3], positionedLatch)
+                    Container(
+                        LayoutSize.Min(sizeDp * 2) + LayoutSize.Max(sizeDp) +
+                                saveLayoutInfo(size[3], position[3], positionedLatch)
+                    ) {
                     }
-                    Container(LayoutSize(sizeDp)) {
-                        SaveLayoutInfo(size[4], position[4], positionedLatch)
+                    Container(
+                        LayoutSize(sizeDp) +
+                                saveLayoutInfo(size[4], position[4], positionedLatch)
+                    ) {
                     }
                 }
             }
@@ -220,18 +251,20 @@ class SizeModifiersTest : LayoutTest() {
         show {
             Align(alignment = Alignment.TopStart) {
                 Container(width = sizeDp, height = sizeDp) {
-                    OnChildPositioned(onPositioned = { coordinates ->
-                        constrainedBoxSize.value = coordinates.size
-                        positionedLatch.countDown()
-                    }) {
-                        Container(LayoutWidth(sizeDp * 2) + LayoutHeight(sizeDp * 3)) {
-                            Container(expanded = true) {
-                                SaveLayoutInfo(
-                                    size = childSize,
-                                    position = childPosition,
-                                    positionedLatch = positionedLatch
-                                )
-                            }
+                    Container(
+                        LayoutWidth(sizeDp * 2) + LayoutHeight(sizeDp * 3) +
+                                onPositioned { coordinates ->
+                                    constrainedBoxSize.value = coordinates.size
+                                    positionedLatch.countDown()
+                                }
+                    ) {
+                        Container(expanded = true,
+                            modifier = saveLayoutInfo(
+                                size = childSize,
+                                position = childPosition,
+                                positionedLatch = positionedLatch
+                            )
+                        ) {
                         }
                     }
                 }
@@ -256,24 +289,27 @@ class SizeModifiersTest : LayoutTest() {
             Align(alignment = Alignment.TopStart) {
                 Row {
                     Container(LayoutWidth.Max(Dp.Infinity)) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            SaveLayoutInfo(size[0], position[0], positionedLatch)
+                        Container(width = sizeDp, height = sizeDp,
+                            modifier = saveLayoutInfo(size[0], position[0], positionedLatch)
+                        ) {
                         }
                     }
                     Container(LayoutHeight.Max(Dp.Infinity)) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            SaveLayoutInfo(size[1], position[1], positionedLatch)
+                        Container(width = sizeDp, height = sizeDp,
+                            modifier = saveLayoutInfo(size[1], position[1], positionedLatch)
+                        ) {
                         }
                     }
                     Container(
                         LayoutWidth(sizeDp) + LayoutHeight(sizeDp) + LayoutWidth.Max(Dp.Infinity) +
-                                LayoutHeight.Max(Dp.Infinity)
+                                LayoutHeight.Max(Dp.Infinity) +
+                        saveLayoutInfo(size[2], position[2], positionedLatch)
                     ) {
-                        SaveLayoutInfo(size[2], position[2], positionedLatch)
                     }
                     Container(LayoutSize.Max(Dp.Infinity)) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            SaveLayoutInfo(size[3], position[3], positionedLatch)
+                        Container(width = sizeDp, height = sizeDp, modifier =
+                            saveLayoutInfo(size[3], position[3], positionedLatch)
+                        ) {
                         }
                     }
                 }

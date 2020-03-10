@@ -26,12 +26,11 @@ import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.Ref
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.globalPosition
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
@@ -85,20 +84,26 @@ class FlexTest : LayoutTest() {
         show {
             Container(alignment = Alignment.TopStart) {
                 Row {
-                    Container(width = sizeDp, height = sizeDp) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
 
-                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = (sizeDp * 2),
+                        height = (sizeDp * 2),
+                        modifier = onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
                 }
             }
@@ -129,20 +134,18 @@ class FlexTest : LayoutTest() {
         show {
             Container(alignment = Alignment.TopStart) {
                 Row {
-                    Container(LayoutWeight(1f), width = width, height = height) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                            drawLatch.countDown()
-                        })
+                    Container(LayoutWeight(1f) + onPositioned { coordinates ->
+                        childSize[0] = coordinates.size
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    }, width = width, height = height) {
                     }
 
-                    Container(LayoutWeight(2f), width = width, height = height) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                            drawLatch.countDown()
-                        })
+                    Container(LayoutWeight(2f) + onPositioned { coordinates ->
+                        childSize[1] = coordinates.size
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        drawLatch.countDown()
+                    }, width = width, height = height) {
                     }
                 }
             }
@@ -179,27 +182,25 @@ class FlexTest : LayoutTest() {
             Container(alignment = Alignment.TopStart) {
                 Row {
                     Container(
-                        LayoutWeight(1f, fill = false),
-                        width = width,
-                        height = height
-                    ) {
-                        OnPositioned(onPositioned = { coordinates ->
+                        LayoutWeight(1f, fill = false) + onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        },
+                        width = width,
+                        height = height
+                        ) {
                     }
 
                     Container(
-                        LayoutWeight(2f, fill = false),
-                        width = width,
-                        height = height * 2
-                    ) {
-                        OnPositioned(onPositioned = { coordinates ->
+                        LayoutWeight(2f, fill = false) + onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        },
+                        width = width,
+                        height = height * 2
+                        ) {
                     }
                 }
             }
@@ -226,19 +227,25 @@ class FlexTest : LayoutTest() {
         show {
             Container(alignment = Alignment.TopStart) {
                 Column {
-                    Container(width = sizeDp, height = sizeDp) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
-                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = (sizeDp * 2),
+                        height = (sizeDp * 2),
+                        modifier = onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
                 }
             }
@@ -269,20 +276,26 @@ class FlexTest : LayoutTest() {
         show {
             Container(alignment = Alignment.TopStart) {
                 Column {
-                    Container(LayoutWeight(1f), width = width, height = height) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        LayoutWeight(1f) + onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        },
+                        width = width,
+                        height = height
+                    ) {
                     }
 
-                    Container(LayoutWeight(2f), width = width, height = height) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        LayoutWeight(2f) + onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        },
+                        width = width,
+                        height = height
+                    ) {
                     }
                 }
             }
@@ -316,19 +329,25 @@ class FlexTest : LayoutTest() {
         show {
             Container(alignment = Alignment.TopStart) {
                 Column {
-                    Container(LayoutWeight(1f, fill = false), width = width, height = height) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        LayoutWeight(1f, fill = false) + onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        },
+                        width = width,
+                        height = height
+                    ) {
                     }
-                    Container(LayoutWeight(2f, fill = false), width = width, height = height) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        LayoutWeight(2f, fill = false) + onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        },
+                        width = width,
+                        height = height
+                    ) {
                     }
                 }
             }
@@ -357,22 +376,24 @@ class FlexTest : LayoutTest() {
         show {
             Row(
                 LayoutAlign.TopStart + LayoutPadding(start = leftPadding.toDp()) +
-                        LayoutWidth.Max(expectedRowWidth.toDp())
+                        LayoutWidth.Max(expectedRowWidth.toDp()) +
+                        onPositioned { coordinates -> rowWidth = coordinates.size.width }
             ) {
-                OnPositioned { coordinates -> rowWidth = coordinates.size.width }
-                Container(LayoutWeight(1f)) {
-                    OnPositioned { coordinates ->
-                        width[0] = coordinates.size.width
-                        x[0] = coordinates.globalPosition.x
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(1f) +
+                        onPositioned { coordinates ->
+                            width[0] = coordinates.size.width
+                            x[0] = coordinates.globalPosition.x
+                            latch.countDown()
+                        }
+                ) {
                 }
-                Container(LayoutWeight(1f)) {
-                    OnPositioned { coordinates ->
-                        width[1] = coordinates.size.width
-                        x[1] = coordinates.globalPosition.x
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(1f) +
+                        onPositioned { coordinates ->
+                            width[1] = coordinates.size.width
+                            x[1] = coordinates.globalPosition.x
+                            latch.countDown()
+                        }
+                ) {
                 }
             }
         }
@@ -396,29 +417,32 @@ class FlexTest : LayoutTest() {
         show {
             Row(
                 LayoutAlign.TopStart + LayoutPadding(start = leftPadding.toDp()) +
-                        LayoutWidth.Max(expectedRowWidth.toDp())
+                        LayoutWidth.Max(expectedRowWidth.toDp()) +
+                        onPositioned { coordinates -> rowWidth = coordinates.size.width }
             ) {
-                OnPositioned { coordinates -> rowWidth = coordinates.size.width }
-                Container(LayoutWeight(2f)) {
-                    OnPositioned { coordinates ->
-                        width[0] = coordinates.size.width
-                        x[0] = coordinates.globalPosition.x
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(2f) +
+                        onPositioned { coordinates ->
+                            width[0] = coordinates.size.width
+                            x[0] = coordinates.globalPosition.x
+                            latch.countDown()
+                        }
+                ) {
                 }
-                Container(LayoutWeight(2f)) {
-                    OnPositioned { coordinates ->
-                        width[1] = coordinates.size.width
-                        x[1] = coordinates.globalPosition.x
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(2f) +
+                        onPositioned { coordinates ->
+                            width[1] = coordinates.size.width
+                            x[1] = coordinates.globalPosition.x
+                            latch.countDown()
+                        }
+                ) {
                 }
-                Container(LayoutWeight(3f)) {
-                    OnPositioned { coordinates ->
-                        width[2] = coordinates.size.width
-                        x[2] = coordinates.globalPosition.x
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(3f) +
+                        onPositioned { coordinates ->
+                            width[2] = coordinates.size.width
+                            x[2] = coordinates.globalPosition.x
+                            latch.countDown()
+                        }
+                ) {
                 }
             }
         }
@@ -443,29 +467,32 @@ class FlexTest : LayoutTest() {
         show {
             Column(
                 LayoutAlign.TopStart + LayoutPadding(top = topPadding.toDp()) +
-                        LayoutHeight.Max(expectedColumnHeight.toDp())
+                        LayoutHeight.Max(expectedColumnHeight.toDp()) +
+                        onPositioned { coordinates -> columnHeight = coordinates.size.height }
             ) {
-                OnPositioned { coordinates -> columnHeight = coordinates.size.height }
-                Container(LayoutWeight(1f)) {
-                    OnPositioned { coordinates ->
-                        height[0] = coordinates.size.height
-                        y[0] = coordinates.globalPosition.y
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(1f) +
+                        onPositioned { coordinates ->
+                            height[0] = coordinates.size.height
+                            y[0] = coordinates.globalPosition.y
+                            latch.countDown()
+                        }
+                ) {
                 }
-                Container(LayoutWeight(1f)) {
-                    OnPositioned { coordinates ->
-                        height[1] = coordinates.size.height
-                        y[1] = coordinates.globalPosition.y
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(1f) +
+                        onPositioned { coordinates ->
+                            height[1] = coordinates.size.height
+                            y[1] = coordinates.globalPosition.y
+                            latch.countDown()
+                        }
+                ) {
                 }
-                Container(LayoutWeight(1f)) {
-                    OnPositioned { coordinates ->
-                        height[2] = coordinates.size.height
-                        y[2] = coordinates.globalPosition.y
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(1f) +
+                        onPositioned { coordinates ->
+                            height[2] = coordinates.size.height
+                            y[2] = coordinates.globalPosition.y
+                            latch.countDown()
+                        }
+                ) {
                 }
             }
         }
@@ -490,22 +517,24 @@ class FlexTest : LayoutTest() {
         show {
             Column(
                 LayoutAlign.TopStart + LayoutPadding(top = topPadding.toDp()) +
-                        LayoutHeight.Max(expectedColumnHeight.toDp())
+                        LayoutHeight.Max(expectedColumnHeight.toDp()) +
+                        onPositioned { coordinates -> columnHeight = coordinates.size.height }
             ) {
-                OnPositioned { coordinates -> columnHeight = coordinates.size.height }
-                Container(LayoutWeight(1f)) {
-                    OnPositioned { coordinates ->
-                        height[0] = coordinates.size.height
-                        y[0] = coordinates.globalPosition.y
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(1f) +
+                        onPositioned { coordinates ->
+                            height[0] = coordinates.size.height
+                            y[0] = coordinates.globalPosition.y
+                            latch.countDown()
+                        }
+                ) {
                 }
-                Container(LayoutWeight(1f)) {
-                    OnPositioned { coordinates ->
-                        height[1] = coordinates.size.height
-                        y[1] = coordinates.globalPosition.y
-                        latch.countDown()
-                    }
+                Container(LayoutWeight(1f) +
+                        onPositioned { coordinates ->
+                            height[1] = coordinates.size.height
+                            y[1] = coordinates.globalPosition.y
+                            latch.countDown()
+                        }
+                ) {
                 }
             }
         }
@@ -532,24 +561,26 @@ class FlexTest : LayoutTest() {
         show {
             Align(Alignment.CenterStart) {
                 Row {
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutHeight.Fill) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutHeight.Fill + onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
 
                     Container(
                         width = (sizeDp * 2),
                         height = (sizeDp * 2),
-                        modifier = LayoutHeight.Fill
-                    ) {
-                        OnPositioned(onPositioned = { coordinates ->
+                        modifier = LayoutHeight.Fill + onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
                 }
             }
@@ -579,26 +610,35 @@ class FlexTest : LayoutTest() {
         show {
             Align(Alignment.TopStart) {
                 Row(LayoutHeight.Fill) {
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Top) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutGravity.Top + onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.globalPosition
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Center) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutGravity.Center + onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.globalPosition
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Bottom) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutGravity.Bottom + onPositioned { coordinates ->
                             childSize[2] = coordinates.size
                             childPosition[2] = coordinates.globalPosition
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
                 }
             }
@@ -641,47 +681,47 @@ class FlexTest : LayoutTest() {
                         baseline = baseline1Dp,
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = LayoutGravity.RelativeToSiblings(TestHorizontalLine)
+                        modifier = LayoutGravity.RelativeToSiblings(TestHorizontalLine) +
+                                onPositioned { coordinates ->
+                                    childSize[0] = coordinates.size
+                                    childPosition[0] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                                }
                     ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
                     }
                     Container(
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = LayoutGravity.RelativeToSiblings { it.height * 0.5 }
+                        modifier = LayoutGravity.RelativeToSiblings { it.height * 0.5 } +
+                                onPositioned { coordinates ->
+                                    childSize[1] = coordinates.size
+                                    childPosition[1] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                                }
                     ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
                     }
                     BaselineTestLayout(
                         baseline = baseline2Dp,
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = LayoutGravity.RelativeToSiblings(TestHorizontalLine)
+                        modifier = LayoutGravity.RelativeToSiblings(TestHorizontalLine) +
+                                onPositioned { coordinates ->
+                                    childSize[2] = coordinates.size
+                                    childPosition[2] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                                }
                     ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[2] = coordinates.size
-                            childPosition[2] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
                     }
                     Container(
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = LayoutGravity.RelativeToSiblings { it.height * 0.75 }
-                    ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[3] = coordinates.size
-                            childPosition[3] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
+                        modifier = LayoutGravity.RelativeToSiblings { it.height * 0.75 } +
+                                onPositioned { coordinates ->
+                                    childSize[3] = coordinates.size
+                                    childPosition[3] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                        }
+                        ) {
                     }
                 }
             }
@@ -723,22 +763,26 @@ class FlexTest : LayoutTest() {
         show {
             Align(Alignment.TopCenter) {
                 Column {
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutWidth.Fill) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutWidth.Fill + onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
 
                     Container(
-                        width = (sizeDp * 2), height = (sizeDp * 2), modifier = LayoutWidth.Fill
-                    ) {
-                        OnPositioned(onPositioned = { coordinates ->
+                        width = (sizeDp * 2),
+                        height = (sizeDp * 2),
+                        modifier = LayoutWidth.Fill + onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
                 }
             }
@@ -768,26 +812,35 @@ class FlexTest : LayoutTest() {
         show {
             Align(Alignment.TopCenter) {
                 Column(LayoutWidth.Fill) {
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Start) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutGravity.Start + onPositioned { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.globalPosition
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.Center) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutGravity.Center + onPositioned { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.globalPosition
                             drawLatch.countDown()
-                        })
+                        }
+                    ) {
                     }
-                    Container(width = sizeDp, height = sizeDp, modifier = LayoutGravity.End) {
-                        OnPositioned(onPositioned = { coordinates ->
+                    Container(
+                        width = sizeDp,
+                        height = sizeDp,
+                        modifier = LayoutGravity.End + onPositioned { coordinates ->
                             childSize[2] = coordinates.size
                             childPosition[2] = coordinates.globalPosition
                             drawLatch.countDown()
-                        })
+                        }
+                        ) {
                     }
                 }
             }
@@ -827,48 +880,48 @@ class FlexTest : LayoutTest() {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = LayoutGravity.RelativeToSiblings { it.width }
+                        modifier = LayoutGravity.RelativeToSiblings { it.width } +
+                                onPositioned { coordinates ->
+                                    childSize[0] = coordinates.size
+                                    childPosition[0] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                                }
                     ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
                     }
                     Container(
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = LayoutGravity.RelativeToSiblings { 0.ipx }
+                        modifier = LayoutGravity.RelativeToSiblings { 0.ipx } +
+                                onPositioned { coordinates ->
+                                    childSize[1] = coordinates.size
+                                    childPosition[1] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                                }
                     ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
                     }
                     BaselineTestLayout(
                         width = sizeDp,
                         height = sizeDp,
                         baseline = firstBaseline1Dp,
-                        modifier = LayoutGravity.RelativeToSiblings(TestVerticalLine)
+                        modifier = LayoutGravity.RelativeToSiblings(TestVerticalLine) +
+                                onPositioned { coordinates ->
+                                    childSize[2] = coordinates.size
+                                    childPosition[2] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                                }
                     ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[2] = coordinates.size
-                            childPosition[2] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
                     }
                     BaselineTestLayout(
                         width = sizeDp,
                         height = sizeDp,
                         baseline = firstBaseline2Dp,
-                        modifier = LayoutGravity.RelativeToSiblings(TestVerticalLine)
+                        modifier = LayoutGravity.RelativeToSiblings(TestVerticalLine) +
+                                onPositioned { coordinates ->
+                                    childSize[3] = coordinates.size
+                                    childPosition[3] = coordinates.globalPosition
+                                    drawLatch.countDown()
+                                }
                     ) {
-                        OnPositioned(onPositioned = { coordinates ->
-                            childSize[3] = coordinates.size
-                            childPosition[3] = coordinates.globalPosition
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -904,14 +957,12 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: IntPxSize
         show {
             Center {
-                Row(LayoutWidth.Fill) {
+                Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                    rowSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        rowSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -934,14 +985,12 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: IntPxSize
         show {
             Center {
-                Row {
+                Row(onPositioned { coordinates ->
+                    rowSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        rowSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -964,7 +1013,10 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: IntPxSize
         show {
             Center {
-                Row {
+                Row(onPositioned { coordinates ->
+                    rowSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Container(
                         LayoutWeight(1f),
                         width = sizeDp,
@@ -976,11 +1028,6 @@ class FlexTest : LayoutTest() {
                         height = (sizeDp * 2),
                         children = emptyContent()
                     )
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        rowSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1003,14 +1050,12 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: IntPxSize
         show {
             Center {
-                Row(LayoutHeight.Fill) {
+                Row(LayoutHeight.Fill + onPositioned { coordinates ->
+                    rowSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        rowSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1033,14 +1078,12 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: IntPxSize
         show {
             Center {
-                Row {
+                Row(onPositioned { coordinates ->
+                    rowSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        rowSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1065,14 +1108,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
-                    Row(LayoutWidth.Fill) {
+                    Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            rowSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1098,7 +1139,10 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
-                    Row {
+                    Row(onPositioned { coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Container(
                             LayoutWeight(1f),
                             width = sizeDp,
@@ -1110,11 +1154,6 @@ class FlexTest : LayoutTest() {
                             height = sizeDp * 2,
                             children = emptyContent()
                         )
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            rowSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1140,14 +1179,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
-                    Row {
+                    Row(onPositioned { coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            rowSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1173,14 +1210,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
-                    Row(LayoutHeight.Fill) {
+                    Row(LayoutHeight.Fill + onPositioned { coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            rowSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1206,14 +1241,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = rowHeightDp)) {
-                    Row {
+                    Row(onPositioned { coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            rowSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1247,17 +1280,19 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
                     // TODO: add maxWidth(IntPx.Infinity) modifier
-                    Row {
-                        Container(modifier = LayoutWeight(1f), width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                    Row(onPositioned { coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
+                        Container(
+                            modifier = LayoutWeight(1f) + onPositioned { coordinates ->
                                 expandedChildSize = coordinates.size
                                 drawLatch.countDown()
-                            })
+                            },
+                            width = sizeDp,
+                            height = sizeDp
+                        ) {
                         }
-                        OnPositioned(onPositioned = { coordinates ->
-                            rowSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1369,14 +1404,12 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: IntPxSize
         show {
             Center {
-                Column(LayoutHeight.Fill) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    columnSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        columnSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1399,14 +1432,12 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: IntPxSize
         show {
             Center {
-                Column {
+                Column(onPositioned { coordinates ->
+                    columnSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        columnSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1429,7 +1460,10 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: IntPxSize
         show {
             Center {
-                Column {
+                Column(onPositioned { coordinates ->
+                    columnSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Container(
                         LayoutWeight(1f),
                         width = sizeDp,
@@ -1441,11 +1475,6 @@ class FlexTest : LayoutTest() {
                         height = (sizeDp * 2),
                         children = emptyContent()
                     )
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        columnSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1468,14 +1497,12 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: IntPxSize
         show {
             Center {
-                Column(LayoutWidth.Fill) {
+                Column(LayoutWidth.Fill + onPositioned { coordinates ->
+                    columnSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        columnSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1498,14 +1525,12 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: IntPxSize
         show {
             Center {
-                Column {
+                Column(onPositioned { coordinates ->
+                    columnSize = coordinates.size
+                    drawLatch.countDown()
+                }) {
                     Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                     Spacer(LayoutSize(width = (sizeDp * 2), height = (sizeDp * 2)))
-
-                    OnPositioned(onPositioned = { coordinates ->
-                        columnSize = coordinates.size
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -1530,14 +1555,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
-                    Column(LayoutHeight.Fill) {
+                    Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            columnSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1563,7 +1586,10 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
-                    Column {
+                    Column(onPositioned { coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Container(
                             LayoutWeight(1f),
                             width = sizeDp,
@@ -1575,11 +1601,6 @@ class FlexTest : LayoutTest() {
                             height = sizeDp * 2,
                             children = emptyContent()
                         )
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            columnSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1605,14 +1626,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
-                    Column {
+                    Column(onPositioned { coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            columnSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1638,14 +1657,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = columnWidthDp)) {
-                    Column(LayoutWidth.Fill) {
+                    Column(LayoutWidth.Fill + onPositioned { coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            columnSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1671,14 +1688,12 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = columnWidthDp)) {
-                    Column {
+                    Column(onPositioned { coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
                         Spacer(LayoutSize(width = sizeDp, height = sizeDp))
                         Spacer(LayoutSize(width = sizeDp * 2, height = sizeDp * 2))
-
-                        OnPositioned(onPositioned = { coordinates ->
-                            columnSize = coordinates.size
-                            drawLatch.countDown()
-                        })
                     }
                 }
             }
@@ -1712,17 +1727,15 @@ class FlexTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
                     // TODO: add maxHeight(IntPx.Infinity) modifier
-                    Column(LayoutHeight.Max(Dp.Infinity)) {
-                        Container(LayoutWeight(1f), width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
-                                expandedChildSize = coordinates.size
-                                drawLatch.countDown()
-                            })
-                        }
-                        OnPositioned(onPositioned = { coordinates ->
-                            columnSize = coordinates.size
+                    Column(LayoutHeight.Max(Dp.Infinity) + onPositioned { coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    }) {
+                        Container(LayoutWeight(1f) + onPositioned { coordinates ->
+                            expandedChildSize = coordinates.size
                             drawLatch.countDown()
-                        })
+                        }, width = sizeDp, height = sizeDp) {
+                        }
                     }
                 }
             }
@@ -1836,28 +1849,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Row(LayoutWidth.Fill) {
+                Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1877,28 +1892,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Row(LayoutWidth.Fill, arrangement = Arrangement.End) {
+                Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.End) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1918,28 +1935,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
+                Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.Center) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1960,28 +1979,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+                Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.SpaceEvenly) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2002,28 +2023,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceBetween) {
+                Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.SpaceBetween) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2044,28 +2067,33 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceAround) {
+                Row(
+                    LayoutWidth.Fill + onPositioned { coordinates ->
+                        parentLayoutCoordinates = coordinates
+                        drawLatch.countDown()
+                    },
+                    arrangement = Arrangement.SpaceAround
+                ) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2086,28 +2114,30 @@ class FlexTest : LayoutTest() {
             PxPosition.Origin, PxPosition.Origin, PxPosition.Origin
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Row(LayoutWidth.Fill, arrangement = customHorizontalArrangement) {
+                Row(LayoutWidth.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = customHorizontalArrangement) {
                     for (i in childPosition.indices) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in childPosition.indices) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2133,28 +2163,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Column(LayoutHeight.Fill) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2174,28 +2206,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = Arrangement.Bottom) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.Bottom) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2215,28 +2249,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = Arrangement.Center) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.Center) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2257,28 +2293,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceEvenly) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.SpaceEvenly) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2287,6 +2325,17 @@ class FlexTest : LayoutTest() {
         assertEquals(PxPosition(0.px, gap.round().toPx()), childPosition[0])
         assertEquals(PxPosition(0.px, (size.toPx() + gap * 2).round().toPx()), childPosition[1])
         assertEquals(PxPosition(0.px, (size.toPx() * 2 + gap * 3).round().toPx()), childPosition[2])
+    }
+
+    private fun calculateChildPositions(
+        childPosition: Array<PxPosition>,
+        parentLayoutCoordinates: LayoutCoordinates?,
+        childLayoutCoordinates: Array<LayoutCoordinates?>
+    ) {
+        for (i in childPosition.indices) {
+            childPosition[i] = parentLayoutCoordinates!!
+                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+        }
     }
 
     @Test
@@ -2299,28 +2348,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.SpaceBetween) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2341,28 +2392,30 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = Arrangement.SpaceAround) {
                     for (i in 0 until childPosition.size) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in 0 until childPosition.size) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2389,28 +2442,30 @@ class FlexTest : LayoutTest() {
             PxPosition.Origin, PxPosition.Origin, PxPosition.Origin
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        var parentLayoutCoordinates: LayoutCoordinates? = null
         show {
             Center {
-                Column(LayoutHeight.Fill, arrangement = customVerticalArrangement) {
+                Column(LayoutHeight.Fill + onPositioned { coordinates ->
+                    parentLayoutCoordinates = coordinates
+                    drawLatch.countDown()
+                }, arrangement = customVerticalArrangement) {
                     for (i in childPosition.indices) {
-                        Container(width = sizeDp, height = sizeDp) {
-                            OnPositioned(onPositioned = { coordinates ->
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = onPositioned { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            })
+                            }
+                        ) {
                         }
                     }
-                    OnPositioned(onPositioned = { coordinates ->
-                        for (i in childPosition.indices) {
-                            childPosition[i] = coordinates
-                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
-                        }
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
+
+        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -2438,12 +2493,11 @@ class FlexTest : LayoutTest() {
                     constraints = DpConstraints.fixed(sizeDp, sizeDp)
                 ) {
                     Row {
-                        OnChildPositioned(onPositioned = { coordinates ->
-                            containerSize.value = coordinates.size
-                            layoutLatch.countDown()
-                        }) {
-                            Spacer(LayoutSize(width = childSizeDp, height = childSizeDp))
-                        }
+                        Spacer(LayoutSize(width = childSizeDp, height = childSizeDp) +
+                                onPositioned { coordinates ->
+                                    containerSize.value = coordinates.size
+                                    layoutLatch.countDown()
+                                })
                     }
                 }
             }
@@ -2467,12 +2521,11 @@ class FlexTest : LayoutTest() {
                     constraints = DpConstraints.fixed(sizeDp, sizeDp)
                 ) {
                     Column {
-                        OnChildPositioned(onPositioned = { coordinates ->
-                            containerSize.value = coordinates.size
-                            layoutLatch.countDown()
-                        }) {
-                            Spacer(LayoutSize(width = childSizeDp, height = childSizeDp))
-                        }
+                        Spacer(LayoutSize(width = childSizeDp, height = childSizeDp) +
+                                onPositioned { coordinates ->
+                                    containerSize.value = coordinates.size
+                                    layoutLatch.countDown()
+                                })
                     }
                 }
             }
@@ -3033,15 +3086,14 @@ class FlexTest : LayoutTest() {
         show {
             Align(Alignment.TopStart) {
                 Column(LayoutHeight(columnHeight.toDp())) {
-                    OnChildPositioned(onPositioned = { coordinates ->
-                        containerHeight.value = coordinates.size.height
-                        positionedLatch.countDown()
-                    }) {
-                        Container(
-                            LayoutWeight(2f) + LayoutWeight(1f),
-                            children = emptyContent()
-                        )
-                    }
+                    Container(
+                        LayoutWeight(2f) + LayoutWeight(1f) +
+                                onPositioned { coordinates ->
+                                    containerHeight.value = coordinates.size.height
+                                    positionedLatch.countDown()
+                                },
+                        children = emptyContent()
+                    )
                     Container(LayoutWeight(1f), children = emptyContent())
                 }
             }
@@ -3068,19 +3120,18 @@ class FlexTest : LayoutTest() {
                     height = size,
                     children = emptyContent()
                 )
-                OnChildPositioned(onPositioned = { coordinates ->
-                    containerSize.value = coordinates.size
-                    containerPosition.value = coordinates.globalPosition
-                    positionedLatch.countDown()
-                }) {
-                    Container(
-                        modifier = LayoutGravity.RelativeToSiblings { 0.ipx } +
-                                LayoutGravity.RelativeToSiblings { it.height * 0.5 },
-                        width = size,
-                        height = size,
-                        children = emptyContent()
-                    )
-                }
+                Container(
+                    modifier = LayoutGravity.RelativeToSiblings { 0.ipx } +
+                            LayoutGravity.RelativeToSiblings { it.height * 0.5 } +
+                            onPositioned { coordinates ->
+                                containerSize.value = coordinates.size
+                                containerPosition.value = coordinates.globalPosition
+                                positionedLatch.countDown()
+                            },
+                    width = size,
+                    height = size,
+                    children = emptyContent()
+                )
             }
         }
 
@@ -3101,18 +3152,19 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
         show {
             Row(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
-                Container(LayoutSize(sizeDp, sizeDp)) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Container(LayoutSize(sizeDp, sizeDp) + onPositioned { coordinates ->
+                    childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                }
+                ) {
                 }
 
-                Container(LayoutSize(sizeDp * 2, sizeDp * 2)) {
-                    OnPositioned(onPositioned = { coordinates ->
+                Container(
+                    LayoutSize(sizeDp * 2, sizeDp * 2) + onPositioned { coordinates ->
                         childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         drawLatch.countDown()
-                    })
+                    }
+                ) {
                 }
             }
         }
@@ -3140,18 +3192,18 @@ class FlexTest : LayoutTest() {
                 LayoutWidth.Fill + LayoutDirectionModifier.Rtl,
                 arrangement = Arrangement.End
             ) {
-                Container(LayoutSize(sizeDp, sizeDp)) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Container(LayoutSize(sizeDp, sizeDp) + onPositioned { coordinates ->
+                    childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                }
+                ) {
                 }
 
-                Container(LayoutSize(sizeDp * 2, sizeDp * 2)) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Container(LayoutSize(sizeDp * 2, sizeDp * 2) + onPositioned { coordinates ->
+                    childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                }
+                ) {
                 }
             }
         }
@@ -3173,18 +3225,21 @@ class FlexTest : LayoutTest() {
                 LayoutWidth.Fill + LayoutDirectionModifier.Rtl,
                 arrangement = customHorizontalArrangement
             ) {
-                Container(width = sizeDp, height = sizeDp) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Container(width = sizeDp, height = sizeDp, modifier = onPositioned { coordinates ->
+                    childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                }
+                ) {
                 }
 
-                Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
-                    OnPositioned(onPositioned = { coordinates ->
+                Container(
+                    width = (sizeDp * 2),
+                    height = (sizeDp * 2),
+                    modifier = onPositioned { coordinates ->
                         childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         drawLatch.countDown()
-                    })
+                    }
+                ) {
                 }
             }
         }
@@ -3206,18 +3261,18 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
         show {
             Column(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
-                Container(LayoutSize(sizeDp, sizeDp)) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Container(LayoutSize(sizeDp, sizeDp) + onPositioned { coordinates ->
+                    childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                }
+                ) {
                 }
 
-                Container(LayoutSize(sizeDp * 2, sizeDp * 2)) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Container(LayoutSize(sizeDp * 2, sizeDp * 2) + onPositioned { coordinates ->
+                    childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                    drawLatch.countDown()
+                }
+                ) {
                 }
             }
         }
@@ -3243,18 +3298,21 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOf(PxPosition.Origin, PxPosition.Origin)
         show {
             Column(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
-                Container(LayoutSize(sizeDp, sizeDp) + LayoutGravity.End) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Container(LayoutSize(sizeDp, sizeDp) + LayoutGravity.End +
+                        onPositioned { coordinates ->
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }
+                ) {
                 }
 
-                Container(LayoutSize(sizeDp * 2, sizeDp * 2) + LayoutGravity.End) {
-                    OnPositioned(onPositioned = { coordinates ->
+                Container(
+                    LayoutSize(sizeDp * 2, sizeDp * 2) + LayoutGravity.End +
+                    onPositioned { coordinates ->
                         childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         drawLatch.countDown()
-                    })
+                    }
+                    ) {
                 }
             }
         }
@@ -3275,21 +3333,21 @@ class FlexTest : LayoutTest() {
         show {
             Column(LayoutWidth.Fill + LayoutDirectionModifier.Rtl) {
                 Container(LayoutSize(sizeDp, sizeDp) +
-                        LayoutGravity.RelativeToSiblings { it.width }
+                        LayoutGravity.RelativeToSiblings { it.width } +
+                        onPositioned { coordinates ->
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }
                 ) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
                 }
 
                 Container(LayoutSize(sizeDp, sizeDp) +
-                        LayoutGravity.RelativeToSiblings { it.width / 2 }
+                        LayoutGravity.RelativeToSiblings { it.width / 2 } +
+                        onPositioned { coordinates ->
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }
                 ) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
                 }
             }
         }

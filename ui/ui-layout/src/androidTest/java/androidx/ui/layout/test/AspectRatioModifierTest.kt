@@ -97,8 +97,9 @@ class AspectRatioModifierTest : LayoutTest() {
         val position = Ref<PxPosition>()
         show {
             Layout(@Composable {
-                Container(LayoutAspectRatio(aspectRatio)) {
-                    SaveLayoutInfo(size, position, positionedLatch)
+                Container(LayoutAspectRatio(aspectRatio) +
+                    saveLayoutInfo(size, position, positionedLatch)
+                ) {
                 }
             }) { measurables, incomingConstraints, _ ->
                 require(measurables.isNotEmpty())

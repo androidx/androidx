@@ -17,7 +17,7 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -53,12 +53,12 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                OnChildPositioned(onPositioned = { position ->
-                    size = position.size
-                    drawLatch.countDown()
-                }) {
-                    Spacer(LayoutSize(width = width, height = height))
-                }
+                Spacer(LayoutSize(width = width, height = height) +
+                        onPositioned { position ->
+                            size = position.size
+                            drawLatch.countDown()
+                        }
+                )
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
@@ -86,12 +86,12 @@ class SpacerTest : LayoutTest() {
                         maxHeight = containerHeight
                     )
                 ) {
-                    OnChildPositioned(onPositioned = { position ->
-                        size = position.size
-                        drawLatch.countDown()
-                    }) {
-                        Spacer(LayoutSize(width = width, height = height))
-                    }
+                    Spacer(LayoutSize(width = width, height = height) +
+                            onPositioned { position ->
+                                size = position.size
+                                drawLatch.countDown()
+                            }
+                    )
                 }
             }
         }
@@ -111,12 +111,10 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                OnChildPositioned(onPositioned = { position ->
+                Spacer(LayoutWidth(width) + onPositioned { position ->
                     size = position.size
                     drawLatch.countDown()
-                }) {
-                    Spacer(LayoutWidth(width))
-                }
+                })
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
@@ -143,12 +141,10 @@ class SpacerTest : LayoutTest() {
                         maxHeight = containerHeight
                     )
                 ) {
-                    OnChildPositioned(onPositioned = { position ->
+                    Spacer(LayoutWidth(width) + onPositioned { position ->
                         size = position.size
                         drawLatch.countDown()
-                    }) {
-                        Spacer(LayoutWidth(width))
-                    }
+                    })
                 }
             }
         }
@@ -168,12 +164,10 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                OnChildPositioned(onPositioned = { position ->
+                Spacer(LayoutHeight(height) + onPositioned { position ->
                     size = position.size
                     drawLatch.countDown()
-                }) {
-                    Spacer(LayoutHeight(height))
-                }
+                })
             }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
@@ -200,12 +194,10 @@ class SpacerTest : LayoutTest() {
                         maxHeight = containerHeight
                     )
                 ) {
-                    OnChildPositioned(onPositioned = { position ->
+                    Spacer(LayoutHeight(height) + onPositioned { position ->
                         size = position.size
                         drawLatch.countDown()
-                    }) {
-                        Spacer(LayoutHeight(height))
-                    }
+                    })
                 }
             }
         }
