@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * @suppress
  */
+@Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.LoadParams<Key> =
     PagingSource.LoadParams(

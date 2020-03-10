@@ -23,9 +23,9 @@ import io.reactivex.Scheduler
 
 private fun <Key : Any, Value : Any> createRxPagedListBuilder(
     dataSourceFactory: DataSource.Factory<Key, Value>,
-    config: PagedList.Config,
+    @Suppress("DEPRECATION") config: PagedList.Config,
     initialLoadKey: Key?,
-    boundaryCallback: PagedList.BoundaryCallback<Value>?,
+    @Suppress("DEPRECATION") boundaryCallback: PagedList.BoundaryCallback<Value>?,
     fetchScheduler: Scheduler?,
     notifyScheduler: Scheduler?
 ): RxPagedListBuilder<Key, Value> {
@@ -40,9 +40,9 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
 
 private fun <Key : Any, Value : Any> createRxPagedListBuilder(
     pagingSourceFactory: () -> PagingSource<Key, Value>,
-    config: PagedList.Config,
+    @Suppress("DEPRECATION") config: PagedList.Config,
     initialLoadKey: Key?,
-    boundaryCallback: PagedList.BoundaryCallback<Value>?,
+    @Suppress("DEPRECATION") boundaryCallback: PagedList.BoundaryCallback<Value>?,
     fetchScheduler: Scheduler?,
     notifyScheduler: Scheduler?
 ): RxPagedListBuilder<Key, Value> {
@@ -74,6 +74,7 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
  * @see RxPagedListBuilder
  * @see toFlowable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -130,6 +131,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
  * @see RxPagedListBuilder
  * @see toFlowable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -181,6 +183,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
  * @see RxPagedListBuilder
  * @see toObservable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -239,6 +242,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
  * @see RxPagedListBuilder
  * @see toObservable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -290,6 +294,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
  * @see RxPagedListBuilder
  * @see toFlowable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -346,6 +351,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
  * @see RxPagedListBuilder
  * @see toFlowable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -395,6 +401,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
  * @see RxPagedListBuilder
  * @see toObservable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -451,6 +458,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
  * @see RxPagedListBuilder
  * @see toObservable
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(

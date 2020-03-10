@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
 
+@Suppress("DEPRECATION")
 internal class LivePagedList<Key : Any, Value : Any>(
     private val coroutineScope: CoroutineScope,
     initialKey: Key?,
@@ -122,6 +123,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
  *
  * @see LivePagedListBuilder
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -147,7 +149,6 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
 ): LiveData<PagedList<Value>> {
-    @Suppress("DEPRECATION")
     return LivePagedListBuilder(this, config)
         .setInitialLoadKey(initialLoadKey)
         .setBoundaryCallback(boundaryCallback)
@@ -169,6 +170,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -188,7 +190,6 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
 ): LiveData<PagedList<Value>> {
-    @Suppress("DEPRECATION")
     return LivePagedListBuilder(this, Config(pageSize))
         .setInitialLoadKey(initialLoadKey)
         .setBoundaryCallback(boundaryCallback)
@@ -215,6 +216,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
@@ -270,6 +272,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(

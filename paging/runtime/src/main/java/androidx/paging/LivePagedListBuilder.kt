@@ -39,9 +39,11 @@ import java.util.concurrent.Executor
 class LivePagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
+    @Suppress("DEPRECATION")
     private val config: PagedList.Config
     private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
+    @Suppress("DEPRECATION")
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
     private var fetchDispatcher = Dispatchers.IO
 
@@ -70,7 +72,11 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             "kotlinx.coroutines.Dispatchers"
         )
     )
-    constructor(dataSourceFactory: DataSource.Factory<Key, Value>, config: PagedList.Config) {
+    constructor(
+        dataSourceFactory: DataSource.Factory<Key, Value>,
+        @Suppress("DEPRECATION")
+        config: PagedList.Config
+    ) {
         this.pagingSourceFactory = null
         this.dataSourceFactory = dataSourceFactory
         this.config = config
@@ -139,7 +145,11 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             "androidx.paging.PagingConfig"
         )
     )
-    constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, config: PagedList.Config) {
+    constructor(
+        pagingSourceFactory: () -> PagingSource<Key, Value>,
+        @Suppress("DEPRECATION")
+        config: PagedList.Config
+    ) {
         this.pagingSourceFactory = pagingSourceFactory
         this.dataSourceFactory = null
         this.config = config
@@ -231,7 +241,10 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * @param boundaryCallback The boundary callback for listening to PagedList load state.
      * @return this
      */
-    fun setBoundaryCallback(boundaryCallback: PagedList.BoundaryCallback<Value>?) = this.apply {
+    fun setBoundaryCallback(
+        @Suppress("DEPRECATION")
+        boundaryCallback: PagedList.BoundaryCallback<Value>?
+    ) = this.apply {
         this.boundaryCallback = boundaryCallback
     }
 
@@ -257,6 +270,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      *
      * @return The [LiveData] of [PagedList]s
      */
+    @Suppress("DEPRECATION")
     fun build(): LiveData<PagedList<Value>> {
         val pagingSourceFactory = pagingSourceFactory
             ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
