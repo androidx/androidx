@@ -42,6 +42,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -994,6 +995,7 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
+    @CallSuper
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1013,6 +1015,7 @@ public class CameraXActivity extends AppCompatActivity
             default:
                 // No-op
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Nullable

@@ -47,6 +47,11 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -80,6 +85,8 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Static library support version of the framework's {@link android.app.Fragment}.
@@ -97,7 +104,8 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
-        ViewModelStoreOwner, HasDefaultViewModelProviderFactory, SavedStateRegistryOwner {
+        ViewModelStoreOwner, HasDefaultViewModelProviderFactory, SavedStateRegistryOwner,
+        ActivityResultCaller {
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
@@ -276,6 +284,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @LayoutRes
     private int mContentLayoutId;
+
+    private final AtomicInteger mNextLocalRequestCode = new AtomicInteger();
 
     /**
      * {@inheritDoc}
@@ -3094,6 +3104,65 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void setHideReplaced(boolean replaced) {
         ensureAnimationInfo().mIsHideReplaced = replaced;
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(
+            @NonNull final ActivityResultContract<I, O> contract,
+            @NonNull final ActivityResultCallback<O> callback) {
+        final String key = generateActivityResultKey();
+        final AtomicReference<ActivityResultLauncher<I>> ref =
+                new AtomicReference<ActivityResultLauncher<I>>();
+
+        getLifecycle().addObserver(new LifecycleEventObserver() {
+            @Override
+            public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
+                    @NonNull Lifecycle.Event event) {
+
+                if (Lifecycle.Event.ON_CREATE.equals(event)) {
+                    ref.set(getActivity()
+                            .getActivityResultRegistry()
+                            .registerActivityResultCallback(
+                                    key, Fragment.this, contract, callback));
+                }
+            }
+        });
+
+        return new ActivityResultLauncher<I>() {
+            @Override
+            public void launch(I input) {
+                ActivityResultLauncher<I> delegate = ref.get();
+                if (delegate == null) {
+                    throw new IllegalStateException("Operation cannot be started before fragment "
+                            + "is in created state");
+                }
+                delegate.launch(input);
+            }
+
+            @Override
+            public void dispose() {
+                ActivityResultLauncher<I> delegate = ref.getAndSet(null);
+                if (delegate != null) {
+                    delegate.dispose();
+                }
+            }
+        };
+    }
+
+    @NonNull
+    private String generateActivityResultKey() {
+        return "fragment_" + mWho + "_rq#" + mNextLocalRequestCode.getAndIncrement();
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(
+            @NonNull final ActivityResultContract<I, O> contract,
+            @NonNull ActivityResultRegistry registry,
+            @NonNull final ActivityResultCallback<O> callback) {
+        return registry.registerActivityResultCallback(
+                generateActivityResultKey(), this, contract, callback);
     }
 
     /**
