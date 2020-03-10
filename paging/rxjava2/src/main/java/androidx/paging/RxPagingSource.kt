@@ -21,6 +21,8 @@ import kotlinx.coroutines.rx2.await
 
 /**
  * Rx-based compatibility wrapper around [PagingSource]'s suspending APIs.
+ *
+ * @sample androidx.paging.samples.rxPagingSourceSample
  */
 abstract class RxPagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
     /**

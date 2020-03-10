@@ -68,6 +68,8 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * is distinct from e.g. Room's `<Value>` type loaded by the [PagingSource].
  * @param Value Type of data loaded in by this [PagingSource]. E.g., the type of data that will be
  * passed to a [androidx.paging.PagingDataAdapter] to be displayed in a `RecyclerView`.
+ *
+ * @sample androidx.paging.samples.pagingSourceSample
  */
 @Suppress("KDocUnresolvedReference")
 abstract class PagingSource<Key : Any, Value : Any> {
