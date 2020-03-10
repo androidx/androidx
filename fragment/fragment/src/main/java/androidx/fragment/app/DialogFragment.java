@@ -32,6 +32,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -129,7 +130,35 @@ public class DialogFragment extends Fragment
     boolean mDismissed;
     boolean mShownByMe;
 
+
+    /**
+     * Constructor used by the default {@link FragmentFactory}. You must
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
+     * if you want to use a non-default constructor to ensure that your constructor
+     * is called when the fragment is re-instantiated.
+     *
+     * <p>It is strongly recommended to supply arguments with {@link #setArguments}
+     * and later retrieved by the Fragment with {@link #getArguments}. These arguments
+     * are automatically saved and restored alongside the Fragment.
+     *
+     * <p>Applications should generally not implement a constructor. Prefer
+     * {@link #onAttach(Context)} instead. It is the first place application code can run where
+     * the fragment is ready to be used - the point where the fragment is actually associated with
+     * its context.
+     */
     public DialogFragment() {
+        super();
+    }
+
+    /**
+     * Alternate constructor that can be used to provide a default layout
+     * that will be inflated by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     *
+     * @see #DialogFragment()
+     * @see #onCreateView(LayoutInflater, ViewGroup, Bundle)
+     */
+    public DialogFragment(@LayoutRes int contentLayoutId) {
+        super(contentLayoutId);
     }
 
     /**
