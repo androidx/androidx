@@ -39,6 +39,7 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
     TransformableSurfaceView mSurfaceView;
+    private Size mResolution;
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
@@ -46,13 +47,12 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
             new SurfaceRequestCallback();
 
     private Preview.SurfaceProvider mSurfaceProvider =
-            new Preview.SurfaceProvider() {
-                @Override
-                public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
-                    mSurfaceView.post(
-                            () -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest));
-                }
+            surfaceRequest -> {
+                mResolution = surfaceRequest.getResolution();
+                mSurfaceView.post(
+                        () -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest));
             };
+
 
     /**
      * {@inheritDoc}
@@ -66,6 +66,12 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
                         FrameLayout.LayoutParams.MATCH_PARENT));
         parent.addView(mSurfaceView);
         mSurfaceView.getHolder().addCallback(mSurfaceRequestCallback);
+    }
+
+    @Nullable
+    @Override
+    public Size getResolution() {
+        return mResolution;
     }
 
     /**
