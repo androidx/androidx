@@ -105,6 +105,8 @@ class PopupTest {
 
     // TODO(b/139861182): Remove all of this and provide helpers on ComposeTestRule
     private fun popupMatches(viewMatcher: Matcher<in View>) {
+        // Make sure that current measurement/drawing is finished
+        composeTestRule.runOnIdleCompose { }
         Espresso.onView(instanceOf(AndroidComposeView::class.java))
             .inRoot(PopupLayoutMatcher())
             .check(matches(viewMatcher))
