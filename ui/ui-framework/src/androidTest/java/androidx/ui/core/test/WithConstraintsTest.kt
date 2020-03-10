@@ -33,7 +33,6 @@ import androidx.ui.core.MeasureBlock
 import androidx.ui.core.Modifier
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Ref
-import androidx.ui.core.TextFieldDelegate.Companion.layout
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.draw
 import androidx.ui.core.setContent
@@ -515,26 +514,37 @@ class WithConstraintsTest {
             activity.setContent {
                 assertEquals(1, outerComposeLatch.count)
                 outerComposeLatch.countDown()
-                Layout(children = {
-                    WithConstraints { _, _ ->
-                        assertEquals(1, innerComposeLatch.count)
-                        innerComposeLatch.countDown()
-                        Layout(children = emptyContent()) { _, _, _ ->
-                            assertEquals(1, innerMeasureLatch.count)
-                            innerMeasureLatch.countDown()
-                            layout(100.ipx, 100.ipx) {
-                                assertEquals(1, innerLayoutLatch.count)
-                                innerLayoutLatch.countDown()
+                val children = @Composable {
+                    Layout(children = {
+                        WithConstraints { _, _ ->
+                            assertEquals(1, innerComposeLatch.count)
+                            innerComposeLatch.countDown()
+                            Layout(children = emptyContent()) { _, _, _ ->
+                                assertEquals(1, innerMeasureLatch.count)
+                                innerMeasureLatch.countDown()
+                                layout(100.ipx, 100.ipx) {
+                                    assertEquals(1, innerLayoutLatch.count)
+                                    innerLayoutLatch.countDown()
+                                }
                             }
                         }
+                    }) { measurables, constraints, _ ->
+                        assertEquals(1, outerMeasureLatch.count)
+                        outerMeasureLatch.countDown()
+                        layout(100.ipx, 100.ipx) {
+                            assertEquals(1, outerLayoutLatch.count)
+                            outerLayoutLatch.countDown()
+                            measurables.forEach { it.measure(constraints).place(0.ipx, 0.ipx) }
+                        }
                     }
-                }) { measurables, constraints, _ ->
-                    assertEquals(1, outerMeasureLatch.count)
-                    outerMeasureLatch.countDown()
+                }
+
+                Layout(children) { measurables, _, _ ->
                     layout(100.ipx, 100.ipx) {
-                        assertEquals(1, outerLayoutLatch.count)
-                        outerLayoutLatch.countDown()
-                        measurables.forEach { it.measure(constraints).place(0.ipx, 0.ipx) }
+                        // we fix the constraints used by children so if the constraints given
+                        // by the android view will change it would not affect the test
+                        val constraints = Constraints(maxWidth = 100.ipx, maxHeight = 100.ipx)
+                        measurables.first().measure(constraints).place(0.ipx, 0.ipx)
                     }
                 }
             }
