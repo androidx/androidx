@@ -26,6 +26,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Size;
 
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -41,8 +42,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Instrument tests for {@link ImageCapture}.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ImageCaptureTest {
@@ -118,12 +123,50 @@ public class ImageCaptureTest {
                 ImageCapture.ERROR_CAPTURE_FAILED);
     }
 
+    // TODO(b/149336664): add a test to verify jpeg quality is 100 when CaptureMode is MAX_QUALITY.
+    @Test
+    public void captureWithMinLatency_jpegQualityIs95() throws InterruptedException {
+        // Arrange.
+        ImageCapture imageCapture = createImageCapture();
+        mInstrumentation.runOnMainSync(() -> bind(imageCapture));
+        FakeCameraControl fakeCameraControl =
+                ((FakeCameraControl) mFakeCamera.getCameraControlInternal());
+
+        FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
+                mock(FakeCameraControl.OnNewCaptureRequestListener.class);
+        fakeCameraControl.setOnNewCaptureRequestListener(mockCaptureRequestListener);
+
+        // Act.
+        mInstrumentation.runOnMainSync(
+                () -> imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
+                        mock(ImageCapture.OnImageCapturedCallback.class)));
+
+        // Assert.
+        ArgumentCaptor<List<CaptureConfig>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mockCaptureRequestListener,
+                timeout(1000).times(1)).onNewCaptureRequests(argumentCaptor.capture());
+        assertThat(hasJpegQuality(argumentCaptor.getValue(), (byte) 95)).isTrue();
+    }
+
+    private boolean hasJpegQuality(List<CaptureConfig> captureConfigs, byte jpegQuality) {
+        for (CaptureConfig captureConfig : captureConfigs) {
+            if (jpegQuality == captureConfig.getImplementationOptions().retrieveOption(
+                    CaptureConfig.OPTION_JPEG_QUALITY)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private ImageCapture createImageCapture() {
         return new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-                .setCaptureOptionUnpacker((config, builder) -> { })
-                .setSessionOptionUnpacker((config, builder) -> { })
+                .setCaptureOptionUnpacker((config, builder) -> {
+                })
+                .setSessionOptionUnpacker((config, builder) -> {
+                })
                 .build();
     }
 
