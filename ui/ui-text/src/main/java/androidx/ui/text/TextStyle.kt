@@ -160,7 +160,7 @@ data class TextStyle(
      * If the given text style is null, returns this text style.
      */
     fun merge(other: TextStyle? = null): TextStyle {
-        if (other == null) return this
+        if (other == null || other == Default) return this
         return TextStyle(
             spanStyle = toSpanStyle().merge(other.toSpanStyle()),
             paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle())
@@ -183,9 +183,9 @@ data class TextStyle(
 
     companion object {
         /**
-         * Constant for no text style.
+         * Constant for default text style.
          */
-        val Empty = TextStyle()
+        val Default = TextStyle()
     }
 }
 
