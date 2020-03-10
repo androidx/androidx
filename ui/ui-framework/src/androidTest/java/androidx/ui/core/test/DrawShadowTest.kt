@@ -24,10 +24,10 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.DrawShadow
-import androidx.ui.core.Opacity
+import androidx.ui.core.Modifier
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.draw
+import androidx.ui.core.drawShadow
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -156,10 +156,10 @@ class DrawShadowTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
-                    Opacity(0.1f) {
-                        AtLeastSize(size = 10.ipx) {
-                            DrawShadow(rectShape, 4.dp)
-                        }
+                    AtLeastSize(
+                        size = 10.ipx,
+                        modifier = drawShadow(rectShape, 4.dp, opacity = 0.5f)
+                    ) {
                     }
                 }
             }
@@ -171,8 +171,8 @@ class DrawShadowTest {
             // assert the shadow is still visible
             assertNotEquals(shadowColor, Color.White)
             // but the shadow is not as dark as it would be without opacity.
-            // with full opacity it is around 0.85, with 10% opacity it is 0.98
-            assertTrue(shadowColor.luminance() > 0.95f)
+            // with full opacity it is around 0.85, with 50% opacity it is 0.96
+            assertTrue(shadowColor.luminance() > 0.94f)
         }
     }
 
@@ -184,10 +184,12 @@ class DrawShadowTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
-                    AtLeastSize(size = 10.ipx) {
-                        if (model.value) {
-                            DrawShadow(rectShape, 8.dp)
-                        }
+                    val shadow = if (model.value) {
+                        drawShadow(rectShape, 8.dp)
+                    } else {
+                        Modifier.None
+                    }
+                    AtLeastSize(size = 10.ipx, modifier = shadow) {
                     }
                 }
             }
@@ -207,8 +209,10 @@ class DrawShadowTest {
     @Composable
     private fun ShadowContainer(elevation: State<Dp> = mutableStateOf(8.dp)) {
         AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
-            AtLeastSize(size = 10.ipx) {
-                DrawShadow(rectShape, elevation.value)
+            AtLeastSize(
+                size = 10.ipx,
+                modifier = drawShadow(shape = rectShape, elevation = elevation.value)
+            ) {
             }
         }
     }

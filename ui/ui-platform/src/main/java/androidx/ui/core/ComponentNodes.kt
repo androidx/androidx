@@ -157,6 +157,14 @@ interface Owner {
      */
     fun measureAndLayout()
 
+    /**
+     * Creates and returns an [OwnedLayer] for the given [drawLayerModifier].
+     */
+    fun createLayer(
+        drawLayerModifier: DrawLayerModifier,
+        drawBlock: (Canvas, Density) -> Unit
+    ): OwnedLayer
+
     val measureIteration: Long
 }
 
@@ -1167,6 +1175,9 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is DrawModifier) {
                     wrapper = ModifiedDrawNode(wrapper, mod)
                 }
+                if (mod is DrawLayerModifier) {
+                    wrapper = LayerWrapper(wrapper, mod)
+                }
                 if (mod is LayoutModifier) {
                     wrapper = ModifiedLayoutNode(wrapper, mod)
                 }
@@ -1189,6 +1200,7 @@ class LayoutNode : ComponentNode(), Measurable {
             if (containing != null) {
                 layoutNodeWrapper.wrappedBy = containing.innerLayoutNodeWrapper
             }
+            owner?.onInvalidate(this)
         }
 
     /**
@@ -1212,11 +1224,17 @@ class LayoutNode : ComponentNode(), Measurable {
     var onAttach: ((Owner) -> Unit)? = null
 
     override fun detach() {
-        parentLayoutNode?.layoutChildrenDirty = true
-        parentLayoutNode?.requestRemeasure()
+        val owner = owner!!
+        val parentLayoutNode = parentLayoutNode
+        if (parentLayoutNode != null) {
+            owner.onInvalidate(parentLayoutNode)
+            parentLayoutNode.layoutChildrenDirty = true
+            parentLayoutNode.requestRemeasure()
+        }
         parentDataDirty = true
         alignmentLinesQueryOwner = null
-        onDetach?.invoke(owner!!)
+        onDetach?.invoke(owner)
+        layoutNodeWrapper.detach()
         super.detach()
     }
 

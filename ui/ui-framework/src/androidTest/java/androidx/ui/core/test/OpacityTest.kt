@@ -23,16 +23,15 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.Opacity
+import androidx.ui.core.Modifier
+import androidx.ui.core.draw
+import androidx.ui.core.drawOpacity
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -51,6 +50,7 @@ class OpacityTest {
     val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
+    private val unlatch = draw { _, _ -> drawLatch.countDown() }
 
     @Before
     fun setup() {
@@ -65,11 +65,11 @@ class OpacityTest {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White)
-                    Opacity(opacity = 1f) {
-                        FillColor(color, needLatch = true)
-                    }
+                AtLeastSize(size = 10.ipx,
+                    modifier = background(Color.White) +
+                            drawOpacity(1f) +
+                            background(color) +
+                            unlatch) {
                 }
             }
         }
@@ -85,11 +85,12 @@ class OpacityTest {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White, needLatch = true)
-                    Opacity(opacity = 0f) {
-                        FillColor(color)
-                    }
+                AtLeastSize(size = 10.ipx,
+                    modifier = background(Color.White) +
+                            drawOpacity(0f) +
+                            background(color) +
+                            unlatch
+                ) {
                 }
             }
         }
@@ -105,15 +106,17 @@ class OpacityTest {
         val color = Color.Red
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.White)
-                Row {
-                    AtLeastSize(size = 10.ipx) {
-                        Opacity(opacity = 0.5f) {
-                            FillColor(color, needLatch = true)
-                        }
+                Row(background(Color.White)) {
+                    AtLeastSize(size = 10.ipx,
+                        modifier = background(Color.White) +
+                                drawOpacity(0.5f) +
+                                background(color) +
+                                unlatch
+                    ) {
                     }
-                    AtLeastSize(size = 10.ipx) {
-                        FillColor(color.copy(alpha = 0.5f))
+                    AtLeastSize(size = 10.ipx,
+                        modifier = background(color.copy(alpha = 0.5f))
+                    ) {
                     }
                 }
             }
@@ -132,11 +135,12 @@ class OpacityTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White)
-                    Opacity(opacity = model.value) {
-                        FillColor(color, needLatch = true)
-                    }
+                AtLeastSize(size = 10.ipx,
+                    modifier = background(Color.White) +
+                            drawOpacity(model.value) +
+                            unlatch +
+                            background(color)
+                ) {
                 }
             }
         }
@@ -159,13 +163,13 @@ class OpacityTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White, needLatch = true)
-                    Opacity(1f) {
-                        Opacity(opacity = opacity) {
-                            FillColor(color)
-                        }
-                    }
+                AtLeastSize(size = 10.ipx,
+                    modifier = background(Color.White) +
+                            drawOpacity(1f) +
+                            drawOpacity(opacity) +
+                            unlatch +
+                            background(color)
+                ) {
                 }
             }
         }
@@ -187,13 +191,16 @@ class OpacityTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx) {
-                    FillColor(Color.White, needLatch = true)
-                    if (model.value) {
-                        Opacity(opacity = 0f) {
-                            FillColor(Color.Green)
-                        }
-                    }
+                AtLeastSize(size = 10.ipx,
+                    modifier = background(Color.White) +
+                            if (model.value) {
+                                drawOpacity(0f) +
+                                        background(Color.Green)
+                            } else {
+                                Modifier.None
+                            } +
+                            unlatch
+                ) {
                 }
             }
         }
@@ -209,20 +216,6 @@ class OpacityTest {
         }
     }
 
-    // this should be converted to Modifier after LayerModifier are the thing
-    @Composable
-    private fun FillColor(color: Color, needLatch: Boolean = false) {
-        @Suppress("DEPRECATION") // remove when b/147606015 is fixed
-        Draw { canvas, parentSize ->
-            canvas.drawRect(parentSize.toRect(), Paint().apply {
-                    this.color = color
-                })
-            if (needLatch) {
-                drawLatch.countDown()
-            }
-        }
-    }
-
     private fun takeScreenShot(width: Int, height: Int = width): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
@@ -233,8 +226,8 @@ class OpacityTest {
 }
 
 @Composable
-fun Row(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+fun Row(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
         var width = 0.ipx
         var height = 0.ipx

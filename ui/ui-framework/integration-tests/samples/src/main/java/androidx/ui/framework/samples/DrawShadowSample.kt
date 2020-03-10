@@ -18,12 +18,14 @@ package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.DrawShadow
+import androidx.ui.core.drawShadow
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun DrawShadowSample() {
-    DrawShadow(shape = RectangleShape, elevation = 12.dp)
+    Box(drawShadow(shape = RectangleShape, elevation = 12.dp) + LayoutSize(100.dp, 100.dp))
 }

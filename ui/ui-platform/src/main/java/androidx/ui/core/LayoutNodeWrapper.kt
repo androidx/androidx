@@ -45,7 +45,7 @@ internal sealed class LayoutNodeWrapper(
 ) : Placeable(), Measurable, LayoutCoordinates {
     protected open val wrapped: LayoutNodeWrapper? = null
     internal var wrappedBy: LayoutNodeWrapper? = null
-    var position = IntPxPosition.Origin
+    open var position = IntPxPosition.Origin
 
     private var dirtySize: Boolean = false
     fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
@@ -583,5 +583,39 @@ internal class PointerInputDelegatingWrapper(
             // Anything out of bounds of ourselves can't be hit.
             return false
         }
+    }
+}
+
+internal class LayerWrapper(
+    wrapped: LayoutNodeWrapper,
+    val drawLayerModifier: DrawLayerModifier
+) : DelegatingLayoutNodeWrapper(wrapped) {
+    private var _layer: OwnedLayer? = null
+    val layer: OwnedLayer
+        get() {
+            return _layer ?: layoutNode.requireOwner().createLayer(
+                drawLayerModifier,
+                wrapped::draw
+            ).also { _layer = it }
+        }
+
+    override fun place(position: IntPxPosition) {
+        super.place(position)
+        layer.move(position)
+    }
+
+    override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
+        val size = super.layoutSize(innermostSize)
+        layer.resize(size)
+        return size
+    }
+
+    override fun draw(canvas: Canvas, density: Density) {
+        layer.drawLayer(canvas)
+    }
+
+    override fun detach() {
+        super.detach()
+        _layer?.destroy()
     }
 }

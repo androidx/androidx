@@ -16,6 +16,7 @@ package androidx.ui.core {
     method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
     method public androidx.ui.unit.IntPxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
+    method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.Density,kotlin.Unit> drawBlock);
     method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticNodes();
     method public androidx.ui.autofill.Autofill? getAutofill();
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
@@ -32,6 +33,7 @@ package androidx.ui.core {
     method public androidx.ui.input.TextInputService getTextInputService();
     method public void measureAndLayout();
     method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void observeLayerModelReads(androidx.ui.core.OwnedLayer layer, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void onAttach(androidx.ui.core.ComponentNode node);
@@ -268,9 +270,19 @@ package androidx.ui.core {
     method public void pauseObservingReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
+  public interface OwnedLayer {
+    method public void destroy();
+    method public void drawLayer(androidx.ui.graphics.Canvas canvas);
+    method public void invalidate();
+    method public void move(androidx.ui.unit.IntPxPosition position);
+    method public void resize(androidx.ui.unit.IntPxSize size);
+    method public void updateLayerProperties();
+  }
+
   public interface Owner {
     method public androidx.ui.unit.IntPxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
+    method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.Density,kotlin.Unit> drawBlock);
     method public androidx.ui.unit.Density getDensity();
     method public long getMeasureIteration();
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
