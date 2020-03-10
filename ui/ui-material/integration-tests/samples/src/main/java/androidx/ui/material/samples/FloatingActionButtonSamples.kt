@@ -18,7 +18,7 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.Image
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.material.FloatingActionButton
 
@@ -32,7 +32,7 @@ fun FloatingActionButtonSimple(icon: ImageAsset) {
 @Composable
 fun FloatingActionButtonCustomContent(icon: ImageAsset) {
     FloatingActionButton(onClick = { /*do something*/ }) {
-        SimpleImage(image = icon)
+        Image(image = icon)
     }
 }
 
