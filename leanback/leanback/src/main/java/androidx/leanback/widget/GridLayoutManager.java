@@ -2078,8 +2078,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutCompleted(State state) {
         if (mOnLayoutCompletedListeners != null) {
-            for (BaseGridView.OnLayoutCompletedListener listener : mOnLayoutCompletedListeners) {
-                listener.onLayoutCompleted(state);
+            for (int i = mOnLayoutCompletedListeners.size() - 1; i >= 0; i--) {
+                mOnLayoutCompletedListeners.get(i).onLayoutCompleted(state);
             }
         }
     }
