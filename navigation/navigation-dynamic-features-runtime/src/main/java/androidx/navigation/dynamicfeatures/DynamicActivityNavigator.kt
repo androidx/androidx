@@ -16,7 +16,6 @@
 
 package androidx.navigation.dynamicfeatures
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.util.AttributeSet
@@ -32,9 +31,9 @@ import androidx.navigation.NavigatorProvider
  */
 @Navigator.Name("activity")
 class DynamicActivityNavigator(
-    activity: Activity,
+    context: Context,
     private val installManager: DynamicInstallManager
-) : ActivityNavigator(activity) {
+) : ActivityNavigator(context) {
 
     override fun navigate(
         destination: ActivityNavigator.Destination,
