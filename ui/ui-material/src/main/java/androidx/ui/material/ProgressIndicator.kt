@@ -39,7 +39,7 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.max
@@ -57,7 +57,7 @@ fun LinearProgressIndicator(
     color: Color = MaterialTheme.colors().primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
-        Wrap {
+        Stack {
             val paint = paint(color, StrokeCap.butt)
             val backgroundPaint = paint(
                 color.copy(alpha = BackgroundOpacity),
@@ -79,7 +79,7 @@ fun LinearProgressIndicator(
  */
 @Composable
 fun LinearProgressIndicator(color: Color = MaterialTheme.colors().primary) {
-    Wrap {
+    Stack {
         Transition(
             definition = LinearIndeterminateTransition,
             initState = 0,
@@ -140,7 +140,7 @@ fun CircularProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
     color: Color = MaterialTheme.colors().primary
 ) {
-    Wrap {
+    Stack {
         DeterminateProgressIndicator(progress = progress) {
             val paint = paint(color, StrokeCap.butt)
             Canvas(
@@ -164,7 +164,7 @@ fun CircularProgressIndicator(
  */
 @Composable
 fun CircularProgressIndicator(color: Color = MaterialTheme.colors().primary) {
-    Wrap {
+    Stack {
         val paint = paint(color, StrokeCap.square)
         Transition(
             definition = CircularIndeterminateTransition,

@@ -616,7 +616,7 @@ package androidx.ui.layout {
   }
 
   public final class WrapKt {
-    method public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

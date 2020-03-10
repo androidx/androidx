@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.unit.dp
 
 @Sampled
@@ -29,7 +29,7 @@ import androidx.ui.unit.dp
 fun DarkThemeSample() {
     val dark = isSystemInDarkTheme()
     val color = if (dark) Color.White else Color.Black
-    Wrap {
+    Stack {
         ColoredRect(color = color, width = 50.dp, height = 50.dp)
     }
 }
