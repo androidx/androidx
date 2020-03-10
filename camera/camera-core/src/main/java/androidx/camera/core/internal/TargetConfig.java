@@ -20,14 +20,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.Config.Option;
+import androidx.camera.core.impl.ReadableConfig;
 
 /**
  * Configuration containing options used to identify the target class and object being configured.
  *
  * @param <T> The type of the object being configured.
  */
-public interface TargetConfig<T> {
+public interface TargetConfig<T> extends ReadableConfig {
 
     // Option Declarations:
     // *********************************************************************************************
@@ -59,8 +59,11 @@ public interface TargetConfig<T> {
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
+    @SuppressWarnings("unchecked")
     @Nullable
-    Class<T> getTargetClass(@Nullable Class<T> valueIfMissing);
+    default Class<T> getTargetClass(@Nullable Class<T> valueIfMissing) {
+        return (Class<T>) retrieveOption(OPTION_TARGET_CLASS, valueIfMissing);
+    }
 
     /**
      * Retrieves the class of the object being configured.
@@ -68,8 +71,11 @@ public interface TargetConfig<T> {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
+    @SuppressWarnings("unchecked")
     @NonNull
-    Class<T> getTargetClass();
+    default Class<T> getTargetClass() {
+        return (Class<T>) retrieveOption(OPTION_TARGET_CLASS);
+    }
 
     /**
      * Retrieves the name of the target object being configured.
@@ -82,7 +88,9 @@ public interface TargetConfig<T> {
      * configuration.
      */
     @Nullable
-    String getTargetName(@Nullable String valueIfMissing);
+    default String getTargetName(@Nullable String valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
+    }
 
     /**
      * Retrieves the name of the target object being configured.
@@ -94,7 +102,9 @@ public interface TargetConfig<T> {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    String getTargetName();
+    default String getTargetName() {
+        return retrieveOption(OPTION_TARGET_NAME);
+    }
 
     /**
      * Builder for a {@link TargetConfig}.

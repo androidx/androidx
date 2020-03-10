@@ -17,10 +17,10 @@
 package androidx.camera.camera2.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -28,7 +28,6 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.internal.TargetConfig;
 
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -43,168 +42,10 @@ public class MeteringRepeatingConfig implements UseCaseConfig<MeteringRepeating>
         mConfig = config;
     }
 
-    // Start of the default implementation of Config
-    // *********************************************************************************************
-
-    // Implementations of Config default methods
-
-    @Override
-    public boolean containsOption(@NonNull Option<?> id) {
-        return mConfig.containsOption(id);
-    }
-
-    @Nullable
-    @Override
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
-        return mConfig.retrieveOption(id);
-    }
-
-    @Nullable
-    @Override
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
-            @Nullable ValueT valueIfMissing) {
-        return mConfig.retrieveOption(id, valueIfMissing);
-    }
-
-    @Override
-    public void findOptions(@NonNull String idSearchString, @NonNull OptionMatcher matcher) {
-        mConfig.findOptions(idSearchString, matcher);
-    }
-
     @NonNull
     @Override
-    public Set<Option<?>> listOptions() {
-        return mConfig.listOptions();
-    }
-
-    // Implementations of TargetConfig default methods
-
-    @Nullable
-    @Override
-    public Class<MeteringRepeating> getTargetClass(
-            @Nullable Class<MeteringRepeating> valueIfMissing) {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<MeteringRepeating> storedClass =
-                (Class<MeteringRepeating>) retrieveOption(
-                        OPTION_TARGET_CLASS,
-                        valueIfMissing);
-        return storedClass;
-    }
-
-    @NonNull
-    @Override
-    public Class<MeteringRepeating> getTargetClass() {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<MeteringRepeating> storedClass =
-                (Class<MeteringRepeating>) retrieveOption(
-                        OPTION_TARGET_CLASS);
-        return storedClass;
-    }
-
-    @Nullable
-    @Override
-    public String getTargetName(@Nullable String valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
-    }
-
-    @NonNull
-    @Override
-    public String getTargetName() {
-        return retrieveOption(OPTION_TARGET_NAME);
-    }
-
-
-
-    // Implementations of UseCaseConfig default methods
-
-    @Nullable
-    @Override
-    public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
-        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
-    }
-
-    @NonNull
-    @Override
-    public SessionConfig getDefaultSessionConfig() {
-        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
-    }
-
-    @Nullable
-    @Override
-    public CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
-        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
-    }
-
-    @NonNull
-    @Override
-    public CaptureConfig getDefaultCaptureConfig() {
-        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
-    }
-
-    @Nullable
-    @Override
-    public SessionConfig.OptionUnpacker getSessionOptionUnpacker(
-            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
-        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER, valueIfMissing);
-    }
-
-    @NonNull
-    @Override
-    public SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
-        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
-    }
-
-    @Nullable
-    @Override
-    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
-            @Nullable CaptureConfig.OptionUnpacker valueIfMissing) {
-        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER, valueIfMissing);
-    }
-
-    @NonNull
-    @Override
-    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
-        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
-    }
-
-    @Override
-    public int getSurfaceOccupancyPriority(int valueIfMissing) {
-        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
-    }
-
-    @Override
-    public int getSurfaceOccupancyPriority() {
-        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
-    }
-
-    @Nullable
-    @Override
-    public CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing) {
-        return retrieveOption(OPTION_CAMERA_SELECTOR, valueIfMissing);
-    }
-
-    @NonNull
-    @Override
-    public CameraSelector getCameraSelector() {
-        return retrieveOption(OPTION_CAMERA_SELECTOR);
-    }
-
-    @Nullable
-    @Override
-    public UseCase.EventCallback getUseCaseEventCallback(
-            @Nullable UseCase.EventCallback valueIfMissing) {
-        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
-    }
-
-    @NonNull
-    @Override
-    public UseCase.EventCallback getUseCaseEventCallback() {
-        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK);
-    }
-
-    @Override
-    public int getInputFormat() {
-        return retrieveOption(OPTION_INPUT_FORMAT);
+    public Config getConfig() {
+        return mConfig;
     }
 
     /** Builder for an empty Config */
@@ -344,6 +185,5 @@ public class MeteringRepeatingConfig implements UseCaseConfig<MeteringRepeating>
         }
 
     }
-
 }
 
