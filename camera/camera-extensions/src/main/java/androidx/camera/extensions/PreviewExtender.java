@@ -228,12 +228,13 @@ public abstract class PreviewExtender {
         }
 
         @Override
-        @SuppressWarnings("GuardedBy") // TODO(b/141956018): Suppressed during upgrade to AGP 3.6.
         public void onBind(@NonNull String cameraId) {
-            if (mActive) {
-                CameraCharacteristics cameraCharacteristics =
-                        CameraUtil.getCameraCharacteristics(cameraId);
-                mImpl.onInit(cameraId, cameraCharacteristics, CameraX.getContext());
+            synchronized (mLock) {
+                if (mActive) {
+                    CameraCharacteristics cameraCharacteristics =
+                            CameraUtil.getCameraCharacteristics(cameraId);
+                    mImpl.onInit(cameraId, cameraCharacteristics, CameraX.getContext());
+                }
             }
         }
 
