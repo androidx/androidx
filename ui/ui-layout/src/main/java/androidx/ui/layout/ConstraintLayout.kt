@@ -37,7 +37,7 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
-import androidx.ui.core.Placeable.PlacementScope.placeAbsolute
+import androidx.ui.core.Placeable.PlacementScope.place
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.tag
@@ -646,7 +646,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         for (child in root.children) {
             val measurable = child.companionWidget
             if (measurable !is Measurable) continue
-            placeables[measurable]?.placeAbsolute(IntPx(child.x), IntPx(child.y))
+            // TODO(popam): check if measurer's rtl support should be used instead
+            placeables[measurable]?.place(IntPx(child.x), IntPx(child.y))
         }
     }
 
