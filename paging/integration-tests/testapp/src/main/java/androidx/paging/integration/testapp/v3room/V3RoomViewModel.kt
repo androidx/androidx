@@ -32,7 +32,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
-@ExperimentalCoroutinesApi
 class V3RoomViewModel(application: Application) : AndroidViewModel(application) {
     val database = Room.databaseBuilder(
         getApplication(),
@@ -62,7 +61,6 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
     private val pagingSourceFactory = database.customerDao.loadPagedAgeOrder()
         .asPagingSourceFactory()
 
-    @FlowPreview
     val flow = PagingDataFlow(PagingConfig(10), pagingSourceFactory)
         .map { pagingData ->
             pagingData
