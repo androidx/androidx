@@ -15,15 +15,11 @@ package androidx.navigation.dynamicfeatures {
   }
 
   public final class DynamicExtras implements androidx.navigation.Navigator.Extras {
+    ctor public DynamicExtras(androidx.navigation.dynamicfeatures.DynamicInstallMonitor? installMonitor, androidx.navigation.Navigator.Extras? destinationExtras);
+    ctor public DynamicExtras(androidx.navigation.dynamicfeatures.DynamicInstallMonitor? installMonitor);
+    ctor public DynamicExtras();
     method public androidx.navigation.Navigator.Extras? getDestinationExtras();
     method public androidx.navigation.dynamicfeatures.DynamicInstallMonitor? getInstallMonitor();
-  }
-
-  public static final class DynamicExtras.Builder {
-    ctor public DynamicExtras.Builder();
-    method public androidx.navigation.dynamicfeatures.DynamicExtras build();
-    method public androidx.navigation.dynamicfeatures.DynamicExtras.Builder setDestinationExtras(androidx.navigation.Navigator.Extras destinationExtras);
-    method public androidx.navigation.dynamicfeatures.DynamicExtras.Builder setInstallMonitor(androidx.navigation.dynamicfeatures.DynamicInstallMonitor monitor);
   }
 
   @androidx.navigation.Navigator.Name("navigation") public final class DynamicGraphNavigator extends androidx.navigation.NavGraphNavigator {
