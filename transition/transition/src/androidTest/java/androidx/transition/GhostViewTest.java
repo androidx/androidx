@@ -287,10 +287,20 @@ public class GhostViewTest extends BaseTest {
                 float offsetLargerThanSize = SIZE * 2;
                 Matrix matrix = new Matrix();
                 matrix.postTranslate(0f, offsetLargerThanSize);
-                Matrix invertedMatrix = new Matrix();
-                invertedMatrix.postTranslate(0f, -offsetLargerThanSize);
                 GhostViewUtils.addGhost(view, parent2, matrix);
-                ViewUtils.setAnimationMatrix(view, invertedMatrix);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                        && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    // this test uses setAnimationMatrix which applies the matrix for the
+                    // RenderNode starting from 21 and RenderNode is only used with the
+                    // hardware acceleration. and the logic we use in drawBitmap() is drawing
+                    // without the hardware acceleration for the API before 26. so instead of
+                    // setAnimationMatrix we will just use TranslationY for this API versions
+                    view.setTranslationY(-offsetLargerThanSize);
+                } else {
+                    Matrix invertedMatrix = new Matrix();
+                    invertedMatrix.postTranslate(0f, -offsetLargerThanSize);
+                    ViewUtils.setAnimationMatrix(view, invertedMatrix);
+                }
             }
         });
 
