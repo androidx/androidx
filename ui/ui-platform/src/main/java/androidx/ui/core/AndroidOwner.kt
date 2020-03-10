@@ -32,6 +32,7 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -92,6 +93,7 @@ internal class AndroidComposeView constructor(
 ) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
+    private val accessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
 
     override var density = Density(context)
         private set
@@ -234,6 +236,7 @@ internal class AndroidComposeView constructor(
         isFocusableInTouchMode = true
         clipChildren = false
         root.isPlaced = true
+        ViewCompat.setAccessibilityDelegate(this, accessibilityDelegate)
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
@@ -770,6 +773,10 @@ internal class AndroidComposeView constructor(
     }
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+
+    public override fun dispatchHoverEvent(event: MotionEvent): Boolean {
+        return accessibilityDelegate.dispatchHoverEvent(event)
+    }
 
     companion object {
         private var systemPropertiesClass: Class<*>? = null

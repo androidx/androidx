@@ -598,6 +598,36 @@ package androidx.ui.semantics {
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getRange();
   }
 
+  public final class SemanticsActions {
+    ctor public SemanticsActions();
+    field public static final androidx.ui.semantics.SemanticsActions.Companion! Companion;
+  }
+
+  public static final class SemanticsActions.Companion {
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> getCustomActions();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> getOnClick();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> getScrollTo();
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> CustomActions;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> OnClick;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> ScrollTo;
+  }
+
+  public final class SemanticsProperties {
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityLabel();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> getAccessibilityRangeInfo();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityValue();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getEnabled();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getHidden();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Enabled;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Hidden;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
+    field public static final androidx.ui.semantics.SemanticsProperties! INSTANCE;
+  }
+
   public class SemanticsPropertyKey<T> implements kotlin.properties.ReadWriteProperty<androidx.ui.semantics.SemanticsPropertyReceiver,T> {
     ctor public SemanticsPropertyKey(String name);
     method public final String getName();

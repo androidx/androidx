@@ -16,8 +16,61 @@
 
 package androidx.ui.semantics
 
+import androidx.ui.unit.Px
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+
+/**
+ * This class defines the APIs for accessibility properties.
+ */
+object SemanticsProperties {
+    // content description of the semantics node
+    val AccessibilityLabel = object : SemanticsPropertyKey<String>("AccessibilityLabel") {
+        override fun merge(existingValue: String, newValue: String): String {
+            // TODO(b/138173613): Needs TextDirection, probably needs to pass both nodes
+            //  to retrieve it
+            return existingValue + "\n" + newValue
+        }
+    }
+
+    // state description of the semantics node
+    val AccessibilityValue = SemanticsPropertyKey<String>("AccessibilityValue")
+
+    // a data structure which contains the current value and range of values
+    val AccessibilityRangeInfo =
+        SemanticsPropertyKey<AccessibilityRangeInfo>("AccessibilityRangeInfo")
+
+    // whether this semantics node is enabled
+    val Enabled = SemanticsPropertyKey<Boolean>("Enabled")
+
+    // whether this semantics node is hidden
+    val Hidden = SemanticsPropertyKey<Boolean>("Hidden")
+
+    // TODO(b/151228491): TextDirection needs to be in core for platform use
+    // val TextDirection = SemanticsPropertyKey<TextDirection>("TextDirection")
+
+    // TODO(b/138172781): Move to FoundationSemanticsProperties
+    val TestTag = SemanticsPropertyKey<String>("TestTag")
+}
+
+/**
+ * Ths class defines keys of the actions which can be set in semantics and performed on the
+ * semantics node.
+ */
+class SemanticsActions {
+    companion object {
+        // action to be performed when the node is clicked
+        val OnClick = SemanticsPropertyKey<AccessibilityAction<() -> Unit>>("OnClick")
+
+        // action to scroll to a specified position
+        val ScrollTo =
+            SemanticsPropertyKey<AccessibilityAction<(x: Px, y: Px) -> Unit>>("ScrollTo")
+
+        // custom actions which are defined by app developers
+        val CustomActions =
+            SemanticsPropertyKey<List<AccessibilityAction<() -> Unit>>>("CustomActions")
+    }
+}
 
 open class SemanticsPropertyKey<T>(
     /**
