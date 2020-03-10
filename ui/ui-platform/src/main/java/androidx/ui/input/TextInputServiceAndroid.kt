@@ -106,10 +106,15 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
         onImeActionPerformed = {}
 
         imm.restartInput(view)
+        editorHasFocus = false
     }
 
     override fun showSoftwareKeyboard() {
         imm.showSoftInput(view, 0)
+    }
+
+    override fun hideSoftwareKeyboard() {
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun onStateUpdated(model: InputState) {

@@ -119,6 +119,7 @@ package androidx.ui.input {
   }
 
   public interface PlatformTextInputService {
+    method public void hideSoftwareKeyboard();
     method public void notifyFocusedRect(androidx.ui.geometry.Rect rect);
     method public void onStateUpdated(androidx.ui.input.InputState model);
     method public void showSoftwareKeyboard();
@@ -158,6 +159,7 @@ package androidx.ui.input {
 
   public class TextInputService {
     ctor public TextInputService(androidx.ui.input.PlatformTextInputService platformTextInputService);
+    method public void hideSoftwareKeyboard(int token);
     method public void notifyFocusedRect(int token, androidx.ui.geometry.Rect rect);
     method public void onStateUpdated(int token, androidx.ui.input.InputState model);
     method public void showSoftwareKeyboard(int token);
