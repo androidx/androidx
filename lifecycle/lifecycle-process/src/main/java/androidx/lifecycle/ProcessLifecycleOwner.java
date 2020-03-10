@@ -25,6 +25,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.ReportFragment.ActivityInitializationListener;
 
@@ -159,6 +160,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         Application app = (Application) context.getApplicationContext();
         app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
+            @RequiresApi(29)
             @Override
             public void onActivityPreCreated(@NonNull Activity activity,
                     @Nullable Bundle savedInstanceState) {
