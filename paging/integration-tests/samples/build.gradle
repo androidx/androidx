@@ -21,6 +21,11 @@ plugins {
 }
 
 dependencies {
-    implementation project(":annotation:annotation-sampled")
-    implementation(project(":paging:paging-common"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
+
+    implementation(project(":annotation:annotation-sampled"))
+    implementation(project(":lifecycle:lifecycle-viewmodel-ktx"))
+    implementation(project(":fragment:fragment-ktx"))
+    implementation(project(":paging:paging-runtime"))
+    implementation(project(":recyclerview:recyclerview"))
 }
