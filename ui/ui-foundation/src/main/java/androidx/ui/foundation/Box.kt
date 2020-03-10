@@ -118,7 +118,7 @@ fun Box(
                         containerHeight - it.height - totalVertical
                     )
                 )
-                it.place(
+                it.placeAbsolute(
                     leftPadding.toIntPx() + position.x,
                     topPadding.toIntPx() + position.y
                 )

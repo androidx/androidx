@@ -17,10 +17,10 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.core.Placeable
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
@@ -74,7 +74,7 @@ internal fun LayoutNode.resize(width: IntPx, height: IntPx) {
             override val width: IntPx = width
             override val height: IntPx = height
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
-            override fun placeChildren(placementScope: Placeable.PlacementScope) {}
+            override fun placeChildren(layoutDirection: LayoutDirection) {}
         }
     )
 }

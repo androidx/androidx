@@ -369,7 +369,7 @@ class ComponentNodeTest {
             override val width: IntPx = 10.ipx
             override val height: IntPx = 10.ipx
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
-            override fun placeChildren(placementScope: Placeable.PlacementScope) {}
+            override fun placeChildren(layoutDirection: LayoutDirection) {}
         })
         verify(owner, times(1)).onSizeChange(node)
     }

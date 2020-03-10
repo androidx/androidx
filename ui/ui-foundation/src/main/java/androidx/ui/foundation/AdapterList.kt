@@ -424,7 +424,7 @@ private class ListState<T>(
                 layout(columnWidth, columnHeight) {
                     var top = 0.ipx
                     placeables.forEach { placeable ->
-                        placeable.place(0.ipx, top)
+                        placeable.placeAbsolute(0.ipx, top)
                         top += placeable.height
                     }
                 }

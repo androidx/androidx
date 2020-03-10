@@ -467,7 +467,7 @@ fun DataTable(
                                     height = verticalOffsets[i + 2] - verticalOffsets[i + 1]
                                 )
                             )
-                            placeable.place(
+                            placeable.placeAbsolute(
                                 x = IntPx.Zero,
                                 y = verticalOffsets[i + 1]
                             )
