@@ -67,7 +67,8 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * represent an item's position in a [PagingSource] that is keyed by item position. Note that this
  * is distinct from e.g. Room's `<Value>` type loaded by the [PagingSource].
  * @param Value Type of data loaded in by this [PagingSource]. E.g., the type of data that will be
- * passed to a [androidx.paging.PagingDataAdapter] to be displayed in a `RecyclerView`.
+ * passed to a [PagingDataAdapter][androidx.paging.PagingDataAdapter] to be displayed in a
+ * `RecyclerView`.
  *
  * @sample androidx.paging.samples.pagingSourceSample
  */

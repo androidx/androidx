@@ -22,6 +22,7 @@ import androidx.annotation.Sampled
 import androidx.paging.RxPagingSource
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
 import java.io.IOException
 
 private class RxBackendService {
@@ -60,10 +61,12 @@ fun rxPagingSourceSample() {
                 }
                 .onErrorReturn { e ->
                     when (e) {
-                        // Retrofit throws an IOException when an
-                        // error occurs, like a 404. We check for expected
-                        // errors, and return them.
+                        // Retrofit calls that return the body type throw either IOException for
+                        // network failures, or HttpException for any non-2xx HTTP status codes.
+                        // This code reports all errors to the UI, but you can inspect/wrap the
+                        // exceptions to provide more context.
                         is IOException -> LoadResult.Error(e)
+                        is HttpException -> LoadResult.Error(e)
                         else -> throw e
                     }
                 }
