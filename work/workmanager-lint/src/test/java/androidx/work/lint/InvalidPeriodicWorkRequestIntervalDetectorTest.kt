@@ -212,4 +212,47 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun testWithPeriodicRequestHelper() {
+        val worker = kotlin(
+            "com/example/TestWorker.kt",
+            """
+            package com.example
+
+            import androidx.work.ListenableWorker
+
+            class TestWorker: ListenableWorker() {
+
+            }
+            """
+        ).indented().within("src")
+
+        val snippet = kotlin(
+            "com/example/Test.kt",
+            """
+            package com.example
+
+            import androidx.work.PeriodicWorkRequest
+            import com.example.TestWorker
+            import java.util.concurrent.TimeUnit
+
+            class Test {
+                fun buildPeriodicRequest(interval: Long) {
+                    val worker = TestWorker()
+                    val builder = PeriodicWorkRequest.Builder(worker, interval, TimeUnit.MINUTES)
+                }
+            }
+            """
+        ).indented().within("src")
+
+        lint().files(
+            LISTENABLE_WORKER,
+            PERIODIC_WORK_REQUEST,
+            worker,
+            snippet
+        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+            .run()
+            .expectClean()
+    }
 }
