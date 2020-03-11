@@ -298,6 +298,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
+        mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
         mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
 
         final int testCurrentItemIndex = 3;
@@ -337,6 +338,55 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void testOnCurrentMediaItemChanged_notCalledWithSameValue() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // TODO(b/143999611): Remove this once the corresponding fixes are released.
+            return;
+        }
+
+        final int testListSize = 5;
+        final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
+        mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
+        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
+
+        final int testCurrentItemIndex = 3;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final long testDuration = 10123;
+
+        MediaController controller = createController(mRemoteSession2.getToken(),
+                true, null /* connectionHints */, new MediaController.ControllerCallback() {
+                    private String mPreviousMediaId;
+                    private long mPreviousDuration;
+
+                    @Override
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                            MediaItem currentMediaItem) {
+                        String mediaId = currentMediaItem.getMetadata().getMediaId();
+                        long duration =
+                                currentMediaItem.getMetadata().getLong(
+                                        MediaMetadata.METADATA_KEY_DURATION);
+                        if (TextUtils.equals(mediaId, mPreviousMediaId)
+                                && duration == mPreviousDuration) {
+                            // Error!
+                            latch.countDown();
+                        }
+                        mPreviousMediaId = mediaId;
+                        mPreviousDuration = duration;
+                    }
+                });
+
+        mRemoteSession2.getMockPlayer().setDuration(testDuration);
+        // This make session to trust duration from the player.
+        mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_PLAYING);
+        mRemoteSession2.getMockPlayer().notifyPlayerStateChanged(
+                SessionPlayer.PLAYER_STATE_PLAYING);
+        mRemoteSession2.getMockPlayer().setCurrentMediaItem(testCurrentItemIndex);
+        mRemoteSession2.getMockPlayer().notifyCurrentMediaItemChanged(testCurrentItemIndex);
+
+        assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
     public void testOnCurrentMediaItemChanged_withUpdatedMetadata() throws Exception {
         if (!MediaTestUtils.isServiceToT()) {
             // TODO(b/143999611): Remove this once the corresponding fixes are released.
@@ -345,6 +395,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
+        mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
         mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
 
         final int testCurrentItemIndex = 3;
