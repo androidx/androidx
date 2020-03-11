@@ -18,7 +18,7 @@ package androidx.ui.material
 import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
@@ -68,11 +68,10 @@ class IconButtonTest {
         composeTestRule.setMaterialContent {
             Box {
                 IconButton(onClick = {}) {
-                    OnChildPositioned(onPositioned = { coords ->
-                        iconCoords = coords
-                    }) {
-                        Box(LayoutSize(diameter), children = emptyContent())
-                    }
+                    Box(
+                        LayoutSize(diameter) + onPositioned { iconCoords = it },
+                        children = emptyContent()
+                    )
                 }
             }
         }
@@ -94,11 +93,11 @@ class IconButtonTest {
         composeTestRule.setMaterialContent {
             Box {
                 IconButton(onClick = {}) {
-                    OnChildPositioned(onPositioned = { coords ->
-                        iconCoords = coords
-                    }) {
-                        Box(LayoutWidth(width) + LayoutHeight(height), children = emptyContent())
-                    }
+                    Box(
+                        LayoutWidth(width) + LayoutHeight(height) +
+                        onPositioned { iconCoords = it },
+                        children = emptyContent()
+                    )
                 }
             }
         }
@@ -134,11 +133,10 @@ class IconButtonTest {
         composeTestRule.setMaterialContent {
             Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
-                    OnChildPositioned(onPositioned = { coords ->
-                        iconCoords = coords
-                    }) {
-                        Box(LayoutSize(diameter), children = emptyContent())
-                    }
+                    Box(
+                        LayoutSize(diameter) + onPositioned { iconCoords = it },
+                        children = emptyContent()
+                    )
                 }
             }
         }
@@ -160,11 +158,10 @@ class IconButtonTest {
         composeTestRule.setMaterialContent {
             Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
-                    OnChildPositioned(onPositioned = { coords ->
-                        iconCoords = coords
-                    }) {
-                        Box(LayoutWidth(width) + LayoutHeight(height), children = emptyContent())
-                    }
+                    Box(
+                        LayoutWidth(width) + LayoutHeight(height) +
+                                onPositioned { iconCoords = it },
+                        children = emptyContent())
                 }
             }
         }
