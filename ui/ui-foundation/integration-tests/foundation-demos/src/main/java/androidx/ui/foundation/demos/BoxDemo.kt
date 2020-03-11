@@ -16,10 +16,8 @@
 
 package androidx.ui.foundation.demos
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -34,31 +32,26 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.unit.dp
 
-class BoxActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Column(LayoutPadding(10.dp)) {
-                SimpleCircleBox()
-                Spacer(LayoutHeight(30.dp))
-                Box(
-                    modifier = LayoutSize(200.dp, 100.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    border = Border(5.dp, Color.Gray),
-                    paddingStart = 20.dp,
-                    backgroundColor = Color.White
-                ) {
-                    Box(
-                        modifier = LayoutPadding(10.dp) + LayoutSize.Fill,
-                        backgroundColor = Color.DarkGray,
-                        shape = CutCornerShape(10.dp),
-                        border = Border(10.dp, Color.LightGray),
-                        gravity = ContentGravity.Center
-                    ) {
-                        Text("Nested boxes")
-                    }
-                }
+@Composable
+fun BoxDemo() {
+    Column(LayoutPadding(10.dp)) {
+        SimpleCircleBox()
+        Spacer(LayoutHeight(30.dp))
+        Box(
+            modifier = LayoutSize(200.dp, 100.dp),
+            shape = RoundedCornerShape(10.dp),
+            border = Border(5.dp, Color.Gray),
+            paddingStart = 20.dp,
+            backgroundColor = Color.White
+        ) {
+            Box(
+                modifier = LayoutPadding(10.dp) + LayoutSize.Fill,
+                backgroundColor = Color.DarkGray,
+                shape = CutCornerShape(10.dp),
+                border = Border(10.dp, Color.LightGray),
+                gravity = ContentGravity.Center
+            ) {
+                Text("Nested boxes")
             }
         }
     }

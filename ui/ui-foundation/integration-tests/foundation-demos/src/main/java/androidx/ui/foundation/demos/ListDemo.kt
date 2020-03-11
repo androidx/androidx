@@ -16,17 +16,27 @@
 
 package androidx.ui.foundation.demos
 
-import android.app.Activity
-import android.os.Bundle
-import androidx.ui.core.setContent
-import androidx.ui.foundation.samples.TableWithBorders
+import androidx.compose.Composable
+import androidx.ui.core.Text
+import androidx.ui.foundation.AdapterList
+import androidx.ui.text.TextStyle
+import androidx.ui.unit.sp
 
-class TableBordersActivity : Activity() {
+@Composable
+fun ListDemo() {
+    AdapterList(
+        data = listOf(
+            "Hello,", "World:", "It works!", "",
+            "this one is really long and spans a few lines for scrolling purposes",
+            "these", "are", "offscreen"
+        ) + (1..100).map { "$it" }.toList()
+    ) {
+        Text(text = it, style = TextStyle(fontSize = 80.sp))
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            TableWithBorders()
+        if (it.contains("works")) {
+            Text("You can even emit multiple components per item.")
         }
+
+        println("Composed item: $it")
     }
 }

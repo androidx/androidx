@@ -16,17 +16,22 @@
 
 package androidx.ui.foundation.demos
 
-import android.app.Activity
-import android.os.Bundle
-import androidx.ui.core.setContent
-import androidx.ui.foundation.samples.DialogSample
+import androidx.compose.Composable
+import androidx.ui.foundation.samples.AnchoredDraggableSample
+import androidx.ui.foundation.samples.DraggableSample
+import androidx.ui.foundation.samples.ScrollableSample
+import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.Spacer
+import androidx.ui.unit.dp
 
-class DialogActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            DialogSample()
-        }
+@Composable
+fun HighLevelGesturesDemo() {
+    Column {
+        DraggableSample()
+        Spacer(LayoutHeight(100.dp))
+        AnchoredDraggableSample()
+        Spacer(LayoutHeight(100.dp))
+        ScrollableSample()
     }
 }

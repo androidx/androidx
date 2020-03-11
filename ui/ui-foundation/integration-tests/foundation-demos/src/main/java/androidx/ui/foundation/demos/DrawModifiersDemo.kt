@@ -16,9 +16,7 @@
 
 package androidx.ui.foundation.demos
 
-import android.app.Activity
-import android.os.Bundle
-import androidx.ui.core.setContent
+import androidx.compose.Composable
 import androidx.ui.foundation.samples.BorderSample
 import androidx.ui.foundation.samples.BorderSampleWithBrush
 import androidx.ui.foundation.samples.BorderSampleWithDataClass
@@ -31,25 +29,20 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.unit.dp
 
-class DrawModifiersActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Row {
-                Column(LayoutWeight(1f) + LayoutPadding(10.dp)) {
-                    BorderSample()
-                    Spacer(LayoutHeight(30.dp))
-                    BorderSampleWithBrush()
-                    Spacer(LayoutHeight(30.dp))
-                    BorderSampleWithDataClass()
-                }
-                Column(LayoutWeight(1f) + LayoutPadding(10.dp)) {
-                    DrawBackgroundColor()
-                    Spacer(LayoutHeight(30.dp))
-                    DrawBackgroundShapedBrush()
-                }
-            }
+@Composable
+fun DrawModifiersDemo() {
+    Row {
+        Column(LayoutWeight(1f) + LayoutPadding(10.dp)) {
+            BorderSample()
+            Spacer(LayoutHeight(30.dp))
+            BorderSampleWithBrush()
+            Spacer(LayoutHeight(30.dp))
+            BorderSampleWithDataClass()
+        }
+        Column(LayoutWeight(1f) + LayoutPadding(10.dp)) {
+            DrawBackgroundColor()
+            Spacer(LayoutHeight(30.dp))
+            DrawBackgroundShapedBrush()
         }
     }
 }
