@@ -185,7 +185,7 @@ class AnnotatedStringBuilderTest {
         val buildResult = AnnotatedString.Builder().apply {
             pushStyle(style)
             append(text)
-            popStyle()
+            pop()
         }.toAnnotatedString()
 
         assertThat(buildResult.text).isEqualTo(text)
@@ -196,7 +196,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun pushStyle_without_popStyle() {
+    fun pushStyle_without_pop() {
         val styles = arrayOf(
             SpanStyle(color = Color.Red),
             SpanStyle(fontStyle = FontStyle.Italic),
@@ -235,8 +235,8 @@ class AnnotatedStringBuilderTest {
             append("Test")
             pushStyle(spanStyle2)
             append(" me")
-            popStyle()
-            popStyle()
+            pop()
+            pop()
             toAnnotatedString()
         }
 
@@ -293,12 +293,12 @@ class AnnotatedStringBuilderTest {
             append("layer2-1")
             pushStyle(styles[2])
             append("layer3-1")
-            popStyle()
+            pop()
             pushStyle(styles[3])
             append("layer3-2")
-            popStyle()
+            pop()
             append("layer2-2")
-            popStyle()
+            pop()
             append("layer1-2")
             toAnnotatedString()
         }
@@ -323,16 +323,16 @@ class AnnotatedStringBuilderTest {
             append("layer1-1")
             pushStyle(styles[1])
             append("layer2-1")
-            popStyle()
+            pop()
             pushStyle(styles[2])
             append("layer2-2")
             pushStyle(styles[3])
             append("layer3-1")
-            popStyle()
+            pop()
             append("layer2-3")
-            popStyle()
+            pop()
             append("layer1-2")
-            popStyle()
+            pop()
             toAnnotatedString()
         }
 
@@ -344,7 +344,7 @@ class AnnotatedStringBuilderTest {
 
     @Test(expected = IllegalStateException::class)
     fun pop_when_empty_does_not_throw_exception() {
-        AnnotatedString.Builder().popStyle()
+        AnnotatedString.Builder().pop()
     }
 
     @Test
@@ -356,10 +356,10 @@ class AnnotatedStringBuilderTest {
             append("Style0")
             pushStyle(spanStyle1)
             append("Style1")
-            popStyle()
+            pop()
             pushStyle(spanStyle2)
             append("Style2")
-            popStyle()
+            pop()
             append("Style3")
             toAnnotatedString()
         }
@@ -392,7 +392,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun push_reduces_the_style_index_after_popStyle() {
+    fun push_reduces_the_style_index_after_pop() {
         val spanStyle = SpanStyle(color = Color.Red)
         val paragraphStyle = ParagraphStyle(lineHeight = 18.sp)
 
@@ -404,7 +404,7 @@ class AnnotatedStringBuilderTest {
             assertThat(styleIndex1).isEqualTo(1)
 
             // a pop should reduce the next index to one
-            popStyle()
+            pop()
 
             val paragraphStyleIndex = pushStyle(paragraphStyle)
             assertThat(paragraphStyleIndex).isEqualTo(1)
@@ -418,7 +418,7 @@ class AnnotatedStringBuilderTest {
             val styleIndex = pushStyle(style)
 
             // should throw exception
-            popStyle(styleIndex + 1)
+            pop(styleIndex + 1)
         }
     }
 
@@ -431,7 +431,7 @@ class AnnotatedStringBuilderTest {
             val styleIndex = pushStyle(style)
             pushStyle(style)
             // pop up to and including styleIndex
-            popStyle(styleIndex)
+            pop(styleIndex)
             // push again to get a new index to compare
             val newStyleIndex = pushStyle(style)
 
@@ -501,7 +501,7 @@ class AnnotatedStringBuilderTest {
             pushStyle(paragraphStyle2)
             pushStyle(spanStyle2)
             append(text2)
-            popStyle()
+            pop()
         }
 
         val expectedString = "$text1 $text2"
@@ -544,8 +544,8 @@ class AnnotatedStringBuilderTest {
 
         val buildResult1 = builder.toAnnotatedString()
         val buildResult2 = with(builder) {
-            popStyle()
-            popStyle()
+            pop()
+            pop()
             pushStyle(SpanStyle(fontSize = 18.sp))
             append("!")
             toAnnotatedString()
@@ -561,6 +561,113 @@ class AnnotatedStringBuilderTest {
         }
 
         assertThat(buildResult2).isEqualTo(expectedResult)
+    }
+
+    @Test
+    fun pushAnnotation() {
+        val text = "Test"
+        val annotation = "Annotation"
+        val scope = "Scope"
+        val buildResult = AnnotatedString.Builder().apply {
+            pushAnnotationString(scope, annotation)
+            append(text)
+            pop()
+        }.toAnnotatedString()
+
+        assertThat(buildResult.text).isEqualTo(text)
+        assertThat(buildResult.getAnnotationString(scope, 0, text.length)).hasSize(1)
+    }
+
+    @Test
+    fun pushAnnotation_multiple_nested() {
+        val annotation1 = "Annotation1"
+        val annotation2 = "Annotation2"
+        val scope = "Scope"
+        val buildResult = AnnotatedString.Builder().apply {
+            pushAnnotationString(scope, annotation1)
+            append("Hello")
+            pushAnnotationString(scope, annotation2)
+            append("world")
+            pop()
+            append("!")
+            pop()
+        }.toAnnotatedString()
+
+        // The final result is Helloworld!
+        //                     [         ]
+        //                          [   ]
+        assertThat(buildResult.text).isEqualTo("Helloworld!")
+        assertThat(buildResult.getAnnotationString(scope, 0, 11)).hasSize(2)
+        assertThat(buildResult.getAnnotationString(scope, 0, 5)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope, 5, 10)).hasSize(2)
+        assertThat(buildResult.getAnnotationString(scope, 10, 11)).hasSize(1)
+        val annotations = buildResult.getAnnotationString(scope, 0, 11)
+        assertThat(annotations[0]).isEqualTo(
+            AnnotatedString.Item(annotation1, 0, 11, scope)
+        )
+        assertThat(annotations[1]).isEqualTo(
+            AnnotatedString.Item(annotation2, 5, 10, scope)
+        )
+    }
+
+    @Test
+    fun pushAnnotation_multiple_differentScope() {
+        val annotation1 = "Annotation1"
+        val annotation2 = "Annotation2"
+        val scope1 = "Scope1"
+        val scope2 = "Scope2"
+        val buildResult = AnnotatedString.Builder().apply {
+            pushAnnotationString(scope1, annotation1)
+            append("Hello")
+            pushAnnotationString(scope2, annotation2)
+            append("world")
+            pop()
+            append("!")
+            pop()
+        }.toAnnotatedString()
+
+        // The final result is Helloworld!
+        //                     [         ]
+        //                          [   ]
+        assertThat(buildResult.text).isEqualTo("Helloworld!")
+        assertThat(buildResult.getAnnotationString(scope1, 0, 11)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope1, 0, 5)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope1, 5, 10)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope1, 5, 10).first())
+            .isEqualTo(AnnotatedString.Item(annotation1, 0, 11, scope1))
+
+        assertThat(buildResult.getAnnotationString(scope2, 5, 10)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope2, 5, 10).first())
+            .isEqualTo(AnnotatedString.Item(annotation2, 5, 10, scope2))
+        assertThat(buildResult.getAnnotationString(scope2, 10, 11)).hasSize(0)
+    }
+
+    @Test
+    fun getAnnotation() {
+        val annotation = "Annotation"
+        val scope = "Scope"
+        val buildResult = AnnotatedString.Builder().apply {
+            append("Hello")
+            pushAnnotationString(scope, annotation)
+            append("World")
+            pop()
+            append("Hello")
+            pushAnnotationString(scope, annotation)
+            pop()
+            append("World")
+        }.toAnnotatedString()
+        // The final result is: HelloWorldHelloWorld
+        //                           [   ]
+        //                                    []
+        assertThat(buildResult.getAnnotationString(scope, 0, 5)).hasSize(0)
+        assertThat(buildResult.getAnnotationString(scope, 0, 6)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope, 6, 6)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope, 10, 10)).hasSize(0)
+        assertThat(buildResult.getAnnotationString(scope, 8, 13)).hasSize(1)
+
+        assertThat(buildResult.getAnnotationString(scope, 15, 15)).hasSize(1)
+        assertThat(buildResult.getAnnotationString(scope, 10, 15)).hasSize(0)
+        assertThat(buildResult.getAnnotationString(scope, 15, 20)).hasSize(1)
     }
 
     private fun createAnnotatedString(

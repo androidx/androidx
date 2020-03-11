@@ -32,7 +32,7 @@ fun AnnotatedStringBuilderSample() {
         // append new text, this text will be rendered as green
         append(" World")
         // pop the green style
-        popStyle()
+        pop()
         // append a string without style
         append("!")
         // then style the last added word as red, exclamation mark will be red
@@ -50,7 +50,7 @@ fun AnnotatedStringBuilderPushSample() {
         // append string, this text will be rendered green
         append("Hello")
         // pop the green text style
-        popStyle()
+        pop()
         // append new string, this string will be default color
         append(" World")
 
@@ -66,8 +66,24 @@ fun AnnotatedStringBuilderPushParagraphStyleSample() {
         // append a paragraph which will have lineHeight 18.sp
         append("Paragraph One\n")
         // pop the ParagraphStyle
-        popStyle()
+        pop()
         // append new paragraph, this paragraph will not have the line height defined.
+        append("Paragraph Two\n")
+
+        toAnnotatedString()
+    }
+}
+
+@Sampled
+fun AnnotatedStringBuilderPushAnnotationStringSample() {
+    with(AnnotatedString.Builder()) {
+        // push a string annotation to be applied to any appended text after this point.
+        pushAnnotationString("ParagrapLabel", "paragraph1")
+        // append a paragraph, the annotation "paragraph1" is attached
+        append("Paragraph One\n")
+        // pop the annotation
+        pop()
+        // append new paragraph
         append("Paragraph Two\n")
 
         toAnnotatedString()
