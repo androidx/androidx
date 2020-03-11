@@ -20,7 +20,6 @@ import android.os.SystemClock.sleep
 import androidx.compose.Model
 import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Clickable
@@ -64,9 +63,12 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Container(onPositioned { coords ->
-                    position = coords.localToGlobal(PxPosition.Origin)
-                }, expanded = true) {
+                Container(
+                    onPositioned { coords ->
+                        position = coords.localToGlobal(PxPosition.Origin)
+                    },
+                    expanded = true
+                ) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -80,9 +82,12 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Container(onPositioned { coords ->
-                    position = coords.localToGlobal(PxPosition.Origin)
-                }, expanded = true) {
+                Container(
+                    onPositioned { coords ->
+                        position = coords.localToGlobal(PxPosition.Origin)
+                    },
+                    expanded = true
+                ) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -97,9 +102,12 @@ class DrawerTest {
         var size: IntPxSize? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Container(onPositioned { coords ->
-                    size = coords.size
-                }, expanded = true) {
+                Container(
+                    onPositioned { coords ->
+                        size = coords.size
+                    },
+                    expanded = true
+                ) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -116,9 +124,12 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Container(onPositioned { coords ->
-                    position = coords.localToGlobal(PxPosition.Origin)
-                }, expanded = true) {
+                Container(
+                    onPositioned { coords ->
+                        position = coords.localToGlobal(PxPosition.Origin)
+                    },
+                    expanded = true
+                ) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -137,9 +148,12 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Container(onPositioned { coords ->
-                    position = coords.localToGlobal(PxPosition.Origin)
-                }, expanded = true) {
+                Container(
+                    onPositioned { coords ->
+                        position = coords.localToGlobal(PxPosition.Origin)
+                    },
+                    expanded = true
+                ) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -172,23 +186,27 @@ class DrawerTest {
                 Semantics(container = true) {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
-                            OnChildPositioned({ info ->
-                                val pos = info.localToGlobal(PxPosition.Origin)
-                                if (pos.x == 0.px) {
-                                    // If fully opened, mark the openedLatch if present
-                                    openedLatch?.countDown()
-                                } else if (-pos.x.round() == contentWidth) {
-                                    // If fully closed, mark the closedLatch if present
-                                    closedLatch?.countDown()
+                            Container(
+                                expanded = true,
+                                children = emptyContent(),
+                                modifier = onPositioned { info ->
+                                    val pos = info.localToGlobal(PxPosition.Origin)
+                                    if (pos.x == 0.px) {
+                                        // If fully opened, mark the openedLatch if present
+                                        openedLatch?.countDown()
+                                    } else if (-pos.x.round() == contentWidth) {
+                                        // If fully closed, mark the closedLatch if present
+                                        closedLatch?.countDown()
+                                    }
                                 }
-                            }) {
-                                Container(expanded = true, children = emptyContent())
-                            }
+                            )
                         },
                         bodyContent = {
-                            OnChildPositioned({ contentWidth = it.size.width }) {
-                                Container(expanded = true, children = emptyContent())
-                            }
+                            Container(
+                                expanded = true,
+                                children = emptyContent(),
+                                modifier = onPositioned { contentWidth = it.size.width }
+                            )
                         })
                 }
             }
@@ -274,27 +292,32 @@ class DrawerTest {
                 Semantics(container = true) {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
-                            OnChildPositioned({ info ->
-                                val pos = info.localToGlobal(PxPosition.Origin)
-                                if (pos.y.round() == openedHeight) {
-                                    // If fully opened, mark the openedLatch if present
-                                    openedLatch?.countDown()
-                                } else if (pos.y.round() == contentHeight) {
-                                    // If fully closed, mark the closedLatch if present
-                                    closedLatch?.countDown()
+                            Container(
+                                expanded = true,
+                                children = emptyContent(),
+                                modifier = onPositioned { info ->
+                                    val pos = info.localToGlobal(PxPosition.Origin)
+                                    if (pos.y.round() == openedHeight) {
+                                        // If fully opened, mark the openedLatch if present
+                                        openedLatch?.countDown()
+                                    } else if (pos.y.round() == contentHeight) {
+                                        // If fully closed, mark the closedLatch if present
+                                        closedLatch?.countDown()
+                                    }
                                 }
-                            }) {
-                                Container(expanded = true, children = emptyContent())
-                            }
+                            )
                         },
                         bodyContent = {
-                            OnChildPositioned({
-                                contentHeight = it.size.height
-                                openedHeight = it.size.height * BottomDrawerOpenFraction
-                            }) {
-                                Container(expanded = true, children = emptyContent())
-                            }
-                        })
+                            Container(
+                                expanded = true,
+                                children = emptyContent(),
+                                modifier = onPositioned {
+                                    contentHeight = it.size.height
+                                    openedHeight = it.size.height * BottomDrawerOpenFraction
+                                }
+                            )
+                        }
+                    )
                 }
             }
         }
