@@ -19,6 +19,8 @@ package androidx.sqlite.inspection.test
 import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.testing.InspectorTester
+import androidx.sqlite.inspection.SqliteInspectorFactory
+import androidx.sqlite.inspection.SqliteInspectorProtocol
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
@@ -30,13 +32,21 @@ import org.junit.rules.ExternalResource
 
 private const val SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection"
 
-class SqliteInspectorTestEnvironment : ExternalResource() {
+class SqliteInspectorTestEnvironment(
+    val factoryOverride: SqliteInspectorFactory? = null
+) : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
     private lateinit var environment: FakeInspectorEnvironment
 
     override fun before() {
         environment = FakeInspectorEnvironment()
-        inspectorTester = runBlocking { InspectorTester(SQLITE_INSPECTOR_ID, environment) }
+        inspectorTester = runBlocking {
+            InspectorTester(
+                inspectorId = SQLITE_INSPECTOR_ID,
+                environment = environment,
+                factoryOverride = factoryOverride
+            )
+        }
     }
 
     override fun after() {
@@ -79,6 +89,27 @@ class SqliteInspectorTestEnvironment : ExternalResource() {
             }
         }
     }
+}
+
+suspend fun SqliteInspectorTestEnvironment.issueQuery(
+    databaseId: Int,
+    command: String,
+    queryParams: List<String?>? = null
+): SqliteInspectorProtocol.QueryResponse =
+    sendCommand(
+        MessageFactory.createQueryCommand(
+            databaseId,
+            command,
+            queryParams
+        )
+    ).query
+
+suspend fun SqliteInspectorTestEnvironment.inspectDatabase(
+    databaseInstance: SQLiteDatabase
+): Int {
+    registerAlreadyOpenDatabases(listOf(databaseInstance))
+    sendCommand(MessageFactory.createTrackDatabasesCommand())
+    return awaitDatabaseOpenedEvent(databaseInstance.path).databaseId
 }
 
 /**
