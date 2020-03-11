@@ -23,10 +23,10 @@ import androidx.ui.framework.test.R
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.font.font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -72,18 +72,18 @@ class TextLayoutTest {
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
         show {
-            OnChildPositioned({ coordinates ->
-                textSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aa", style = TextStyle(fontFamily = fontFamily))
-            }
-            OnChildPositioned({ coordinates ->
-                doubleTextSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aaaa", style = TextStyle(fontFamily = fontFamily))
-            }
+            Text("aa", style = TextStyle(fontFamily = fontFamily),
+                modifier = onPositioned { coordinates ->
+                    textSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
+            Text("aaaa", style = TextStyle(fontFamily = fontFamily),
+                modifier = onPositioned { coordinates ->
+                    doubleTextSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertNotNull(textSize.value)
@@ -100,18 +100,18 @@ class TextLayoutTest {
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
         show {
-            OnChildPositioned({ coordinates ->
-                textSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aa ", style = TextStyle(fontFamily = fontFamily))
-            }
-            OnChildPositioned({ coordinates ->
-                doubleTextSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aa aa ", style = TextStyle(fontFamily = fontFamily))
-            }
+            Text("aa ", style = TextStyle(fontFamily = fontFamily),
+                modifier = onPositioned { coordinates ->
+                    textSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
+            Text("aa aa ", style = TextStyle(fontFamily = fontFamily),
+                modifier = onPositioned { coordinates ->
+                    doubleTextSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         val textWidth = textSize.value!!.width

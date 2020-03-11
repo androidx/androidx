@@ -31,11 +31,11 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.MeasureBlock
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.Ref
 import androidx.ui.core.TextFieldDelegate.Companion.layout
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.draw
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -309,24 +309,23 @@ class WithConstraintsTest {
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 Container(width = 200.ipx, height = 200.ipx) {
-                    WithConstraints { _, _ ->
-                        OnPositioned {
-                            // OnPositioned can be fired multiple times with the same value
-                            // for example when requestLayout() was triggered on ComposeView.
-                            // if we called twice, let's make sure we got the correct values.
-                            assertTrue(withConstSize == null || withConstSize == it.size)
-                            withConstSize = it.size
-                            withConstLatch.countDown()
-                        }
-                        Container(width = size.value, height = size.value) {
-                            OnPositioned {
+                    WithConstraints(modifier = onPositioned {
+                        // OnPositioned can be fired multiple times with the same value
+                        // for example when requestLayout() was triggered on ComposeView.
+                        // if we called twice, let's make sure we got the correct values.
+                        assertTrue(withConstSize == null || withConstSize == it.size)
+                        withConstSize = it.size
+                        withConstLatch.countDown()
+                    }) { _, _ ->
+                        Container(width = size.value, height = size.value,
+                            modifier = onPositioned {
                                 // OnPositioned can be fired multiple times with the same value
                                 // for example when requestLayout() was triggered on ComposeView.
                                 // if we called twice, let's make sure we got the correct values.
                                 assertTrue(childSize == null || childSize == it.size)
                                 childSize = it.size
                                 childLatch.countDown()
-                            }
+                            }) {
                         }
                     }
                 }
