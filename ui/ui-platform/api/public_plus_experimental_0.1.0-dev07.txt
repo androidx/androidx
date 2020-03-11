@@ -179,6 +179,7 @@ package androidx.ui.core {
     method public androidx.ui.unit.IntPx? getAlignmentLine(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.LayoutCoordinates getCoordinates();
+    method @Deprecated public boolean getHandlesParentData();
     method public androidx.ui.unit.IntPx getHeight();
     method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
     method public androidx.ui.core.LayoutDirection? getLayoutDirection();
@@ -208,6 +209,7 @@ package androidx.ui.core {
     method public void place(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
     method public void requestRemeasure();
     method public void setConstraints(androidx.ui.core.Constraints p);
+    method @Deprecated public void setHandlesParentData(boolean p);
     method public void setLayoutDirection(androidx.ui.core.LayoutDirection? p);
     method public void setMeasureBlocks(androidx.ui.core.LayoutNode.MeasureBlocks value);
     method public void setModifier(androidx.ui.core.Modifier value);
@@ -219,6 +221,7 @@ package androidx.ui.core {
     property public final androidx.ui.core.Constraints constraints;
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
     property public final androidx.ui.core.LayoutCoordinates coordinates;
+    property @Deprecated public final boolean handlesParentData;
     property public final androidx.ui.unit.IntPx height;
     property public final boolean isLayingOut;
     property public final boolean isMeasuring;

@@ -1216,6 +1216,11 @@ class LayoutNode : ComponentNode(), Measurable {
             owner?.onInvalidate(this)
         }
 
+    @Deprecated("Temporary API to support our transition from single child composables to " +
+            "modifiers.")
+    // TODO(popam): remove this
+    var handlesParentData: Boolean = true
+
     /**
      * Coordinates of just the contents of the LayoutNode, after being affected by all modifiers.
      */
