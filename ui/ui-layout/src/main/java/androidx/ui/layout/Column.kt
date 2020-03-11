@@ -71,6 +71,29 @@ fun Column(
         children = { ColumnScope.children() }
     )
 }
+
+/**
+ * Horizontal alignments for use with [ColumnScope.gravity].
+ *
+ * TODO: Unify with other alignment API
+ */
+enum class ColumnAlign {
+    /**
+     * Position the element along the starting edge of the [Column]. The start edge is determined
+     * as either left or right by the column's layout direction.
+     */
+    Start,
+    /**
+     * Center the element horizontally within the [Column].
+     */
+    Center,
+    /**
+     * Position the element along the ending edge of the [Column]. The end edge is determined as
+     * either left or right by the column's layout direction.
+     */
+    End
+}
+
 /**
  * Scope for the children of [Column].
  */
@@ -81,19 +104,52 @@ object ColumnScope {
      * A layout modifier within a [Column] that positions its target component horizontally
      * such that its start edge is aligned to the start edge of the [Column].
      */
+    @Deprecated(
+        "Use Modifier.gravity(ColumnAlign.Start)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(ColumnAlign.Start)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ColumnAlign"
+        )
+    )
     val LayoutGravity.Start: ParentDataModifier get() = StartGravityModifier
 
     /**
      * A layout modifier within a [Column] that positions its target component horizontally
      * such that its center is in the middle of the [Column].
      */
+    @Deprecated(
+        "Use Modifier.gravity(ColumnAlign.Center)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(ColumnAlign.Center)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ColumnAlign"
+        )
+    )
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
 
     /**
      * A layout modifier within a [Column] that positions its target component horizontally
      * such that its end edge is aligned to the end edge of the [Column].
      */
+    @Deprecated(
+        "Use Modifier.gravity(ColumnAlign.End)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(ColumnAlign.End)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ColumnAlign"
+        )
+    )
     val LayoutGravity.End: ParentDataModifier get() = EndGravityModifier
+
+    /**
+     * Position the element horizontally within the [Column] according to [align].
+     */
+    fun Modifier.gravity(align: ColumnAlign) = this + when (align) {
+        ColumnAlign.Start -> StartGravityModifier
+        ColumnAlign.Center -> CenterGravityModifier
+        ColumnAlign.End -> EndGravityModifier
+    }
 
     /**
      * A layout modifier within a [Column] that positions its target component horizontally
@@ -112,8 +168,25 @@ object ColumnScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInColumn
      */
+    @Deprecated(
+        "Use Modifier.alignWithSiblings",
+        replaceWith = ReplaceWith(
+            "Modifier.alignWithSiblings(alignmentLine)",
+            "androidx.ui.core.Modifier"
+        )
+    )
     fun LayoutGravity.RelativeToSiblings(alignmentLine: VerticalAlignmentLine): ParentDataModifier =
         SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
+
+    /**
+     * Position the element horizontally such that its [alignmentLine] aligns with sibling elements
+     * also configured to [alignWithSiblings] with the same [alignmentLine].
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInColumn
+     */
+    fun Modifier.alignWithSiblings(alignmentLine: VerticalAlignmentLine) =
+        this + SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     /**
      * A scoped modifier within a [Column] that sets the vertical weight of the layout.
@@ -131,12 +204,34 @@ object ColumnScope {
      *
      * @sample androidx.ui.layout.samples.SimpleColumn
      */
+    @Deprecated(
+        "Use Modifier.weight",
+        replaceWith = ReplaceWith(
+            "Modifier.weight(weight, fill)",
+            "androidx.ui.core.Modifier"
+        )
+    )
     fun LayoutWeight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true
     ): ParentDataModifier {
         require(weight > 0.0) { "Weight values should be strictly greater than zero." }
         return LayoutWeightImpl(weight, fill)
+    }
+
+    /**
+     * Size the element's height proportional to its [weight] relative to other weighted sibling
+     * elements in the [Column]. The parent will divide the vertical space remaining after measuring
+     * unweighted child elements and distribute it according to this weight.
+     *
+     * @sample androidx.ui.layout.samples.SimpleColumn
+     */
+    fun Modifier.weight(
+        @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
+        fill: Boolean = true
+    ): Modifier {
+        require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
+        return this + LayoutWeightImpl(weight, fill)
     }
 
     /**
@@ -156,10 +251,29 @@ object ColumnScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
      */
+    @Deprecated(
+        "Use Modifier.alignWithSiblings",
+        replaceWith = ReplaceWith(
+            "Modifier.alignWithSiblings(alignmentLineBlock)",
+            "androidx.ui.core.Modifier"
+        )
+    )
     @Suppress("unused")
     fun LayoutGravity.RelativeToSiblings(
         alignmentLineBlock: (Placeable) -> IntPx
     ): ParentDataModifier = SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
+
+    /**
+     * Position the element horizontally such that the alignment line for the content as
+     * determined by [alignmentLineBlock] aligns with sibling elements also configured to
+     * [alignWithSiblings] with an [alignmentLineBlock].
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
+     */
+    fun Modifier.alignWithSiblings(
+        alignmentLineBlock: (Placeable) -> IntPx
+    ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
 }
 
 private val StartGravityModifier = GravityModifier(CrossAxisAlignment.Start)

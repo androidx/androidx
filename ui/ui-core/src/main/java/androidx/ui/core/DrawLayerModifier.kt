@@ -194,6 +194,15 @@ private data class SimpleDrawLayerModifier(
  * @param clipToBounds [DrawLayerModifier.clipToBounds]
  * @param clipToOutline [DrawLayerModifier.clipToOutline]
  */
+@Deprecated(
+    "Use Modifier.drawLayer",
+    replaceWith = ReplaceWith(
+        "Modifier.drawLayer(scaleX, scaleY, alpha, elevation, rotationX, rotationY, rotationZ, " +
+                "transformOrigin, outlineShape, clipToBounds, clipToOutline)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.drawLayer"
+    )
+)
 fun drawLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
@@ -209,6 +218,52 @@ fun drawLayer(
     clipToBounds: Boolean = true,
     clipToOutline: Boolean = true
 ): Modifier = SimpleDrawLayerModifier(
+    scaleX = scaleX,
+    scaleY = scaleY,
+    alpha = alpha,
+    translationX = translationX,
+    translationY = translationY,
+    elevation = elevation,
+    rotationX = rotationX,
+    rotationY = rotationY,
+    rotationZ = rotationZ,
+    transformOrigin = transformOrigin,
+    outlineShape = outlineShape,
+    clipToBounds = clipToBounds,
+    clipToOutline = clipToOutline
+)
+
+/**
+ * Draw the content into a layer. This permits applying special effects and transformations:
+ *
+ * @sample androidx.ui.core.samples.ChangeOpacity
+ *
+ * @param scaleX [DrawLayerModifier.scaleX]
+ * @param scaleY [DrawLayerModifier.scaleY]
+ * @param alpha [DrawLayerModifier.alpha]
+ * @param elevation [DrawLayerModifier.elevation]
+ * @param rotationX [DrawLayerModifier.rotationX]
+ * @param rotationY [DrawLayerModifier.rotationY]
+ * @param rotationZ [DrawLayerModifier.rotationZ]
+ * @param outlineShape [DrawLayerModifier.outlineShape]
+ * @param clipToBounds [DrawLayerModifier.clipToBounds]
+ * @param clipToOutline [DrawLayerModifier.clipToOutline]
+ */
+fun Modifier.drawLayer(
+    scaleX: Float = 1f,
+    scaleY: Float = 1f,
+    alpha: Float = 1f,
+    translationX: Float = 0f,
+    translationY: Float = 0f,
+    elevation: Float = 0f,
+    rotationX: Float = 0f,
+    rotationY: Float = 0f,
+    rotationZ: Float = 0f,
+    transformOrigin: TransformOrigin = TransformOrigin.Center,
+    outlineShape: Shape? = null,
+    clipToBounds: Boolean = true,
+    clipToOutline: Boolean = true
+) = this + SimpleDrawLayerModifier(
     scaleX = scaleX,
     scaleY = scaleY,
     alpha = alpha,

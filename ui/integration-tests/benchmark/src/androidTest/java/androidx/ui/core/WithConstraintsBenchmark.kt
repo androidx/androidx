@@ -27,10 +27,11 @@ import androidx.ui.benchmark.toggleStateBenchmarkMeasureLayout
 import androidx.ui.core.Placeable.PlacementScope.place
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Spacer
-import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
@@ -71,8 +72,8 @@ private class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
     override fun emitContent() {
         val size = state { 200.dp }
         this.state = size
-        Box(LayoutSize(300.dp), gravity = ContentGravity.Center) {
-            Spacer(LayoutSize(width = size.value, height = size.value))
+        Box(Modifier.preferredSize(300.dp), gravity = ContentGravity.Center) {
+            Spacer(Modifier.preferredSize(width = size.value, height = size.value))
         }
     }
 
@@ -90,8 +91,8 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
         val size = state { 200.dp }
         this.state = size
         WithConstraints { _, _ ->
-            Box(LayoutSize(300.dp), gravity = ContentGravity.Center) {
-                Spacer(LayoutSize(width = size.value, height = size.value))
+            Box(Modifier.preferredSize(300.dp), gravity = ContentGravity.Center) {
+                Spacer(Modifier.preferredSize(width = size.value, height = size.value))
             }
         }
     }
@@ -111,7 +112,7 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
         this.state = size
         ChangingConstraintsLayout(state) {
             WithConstraints { _, _ ->
-                Box(LayoutSize.Fill)
+                Box(Modifier.fillMaxSize())
             }
         }
     }

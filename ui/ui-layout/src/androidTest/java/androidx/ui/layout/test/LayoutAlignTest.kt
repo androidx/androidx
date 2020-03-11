@@ -21,16 +21,21 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.enforce
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutDirectionModifier
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
+import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
+import androidx.ui.layout.rtl
+import androidx.ui.layout.wrapContentHeight
+import androidx.ui.layout.wrapContentSize
+import androidx.ui.layout.wrapContentWidth
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -62,19 +67,19 @@ class LayoutAlignTest : LayoutTest() {
         show {
             Align(
                 alignment = Alignment.BottomEnd,
-                modifier = saveLayoutInfo(
-                    size = alignSize,
-                    position = alignPosition,
-                    positionedLatch = positionedLatch
+                modifier = Modifier.saveLayoutInfo(
+                    alignSize,
+                    alignPosition,
+                    positionedLatch
                 )
             ) {
                 Container(
                     width = sizeDp,
                     height = sizeDp,
-                    modifier = saveLayoutInfo(
-                        size = childSize,
-                        position = childPosition,
-                        positionedLatch = positionedLatch
+                    modifier = Modifier.saveLayoutInfo(
+                        childSize,
+                        childPosition,
+                        positionedLatch
                     )
                 ) {
                 }
@@ -105,21 +110,12 @@ class LayoutAlignTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Container(
-                saveLayoutInfo(
-                    size = alignSize,
-                    position = alignPosition,
-                    positionedLatch = positionedLatch
-                )
-            ) {
-
+            Container(Modifier.saveLayoutInfo(alignSize, alignPosition, positionedLatch)) {
                 Container(
-                    LayoutSize.Fill + LayoutAlign.BottomEnd + LayoutSize(sizeDp, sizeDp) +
-                            saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
+                    Modifier.fillMaxSize()
+                        .wrapContentSize(Alignment.BottomEnd)
+                        .preferredSize(sizeDp)
+                        .saveLayoutInfo(childSize, childPosition, positionedLatch)
                 ) {
                 }
             }
@@ -150,19 +146,17 @@ class LayoutAlignTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Container(
-                saveLayoutInfo(
+                Modifier.saveLayoutInfo(
                     size = alignSize,
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
             ) {
                 Container(
-                    LayoutSize.Fill + LayoutAlign.End + LayoutWidth(sizeDp) +
-                            saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
+                    Modifier.fillMaxSize()
+                        .wrapContentWidth(Alignment.CenterEnd)
+                        .preferredWidth(sizeDp)
+                        .saveLayoutInfo(childSize, childPosition, positionedLatch)
                 ) {
                 }
             }
@@ -187,37 +181,25 @@ class LayoutAlignTest : LayoutTest() {
         val childSize = Array(3) { Ref<IntPxSize>() }
         val childPosition = Array(3) { Ref<PxPosition>() }
         show {
-            Stack(LayoutDirectionModifier.Rtl) {
-                Stack(LayoutSize.Fill + LayoutAlign.TopStart) {
+            Stack(Modifier.rtl) {
+                Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
                     Stack(
-                        LayoutSize(sizeDp, sizeDp) +
-                                saveLayoutInfo(
-                                    size = childSize[0],
-                                    position = childPosition[0],
-                                    positionedLatch = positionedLatch
-                                )
+                        Modifier.preferredSize(sizeDp)
+                            .saveLayoutInfo(childSize[0], childPosition[0], positionedLatch)
                     ) {
                     }
                 }
-                Stack(LayoutSize.Fill + LayoutAlign.CenterVertically) {
+                Stack(Modifier.fillMaxSize().wrapContentHeight(Alignment.Center)) {
                     Stack(
-                        LayoutSize(sizeDp, sizeDp) +
-                                saveLayoutInfo(
-                                    size = childSize[1],
-                                    position = childPosition[1],
-                                    positionedLatch = positionedLatch
-                                )
+                        Modifier.preferredSize(sizeDp)
+                            .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch)
                     ) {
                     }
                 }
-                Stack(LayoutSize.Fill + LayoutAlign.BottomEnd) {
+                Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
                     Stack(
-                        LayoutSize(sizeDp, sizeDp) +
-                                saveLayoutInfo(
-                                    size = childSize[2],
-                                    position = childPosition[2],
-                                    positionedLatch = positionedLatch
-                                )
+                        Modifier.preferredSize(sizeDp)
+                            .saveLayoutInfo(childSize[2], childPosition[2], positionedLatch)
                     ) {
                     }
                 }
@@ -249,8 +231,11 @@ class LayoutAlignTest : LayoutTest() {
         val latch = CountDownLatch(1)
         show {
             Container {
-                Container(saveLayoutInfo(size, Ref(), latch)) {
-                    Container(LayoutAlign.TopStart + LayoutSize(contentSize)) {}
+                Container(Modifier.saveLayoutInfo(size, Ref(), latch)) {
+                    Container(
+                        Modifier.wrapContentSize(Alignment.TopStart)
+                            .preferredSize(contentSize)
+                    ) {}
                 }
             }
         }
@@ -274,18 +259,18 @@ class LayoutAlignTest : LayoutTest() {
                 children = {
                     Align(
                         alignment = Alignment.BottomEnd,
-                        modifier = saveLayoutInfo(
-                            size = alignSize,
-                            position = alignPosition,
-                            positionedLatch = positionedLatch
+                        modifier = Modifier.saveLayoutInfo(
+                            alignSize,
+                            alignPosition,
+                            positionedLatch
                         )
                     ) {
                         Container(
                             width = sizeDp, height = sizeDp,
-                            modifier = saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
+                            modifier = Modifier.saveLayoutInfo(
+                                childSize,
+                                childPosition,
+                                positionedLatch
                             )
                         ) {
                         }
@@ -311,9 +296,7 @@ class LayoutAlignTest : LayoutTest() {
     }
 
     @Test
-    fun testAlignedModifier_wrapsContent_whenMeasuredWithInfiniteConstraints() = with(
-        density
-    ) {
+    fun testAlignedModifier_wrapsContent_whenMeasuredWithInfiniteConstraints() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -326,19 +309,12 @@ class LayoutAlignTest : LayoutTest() {
             Layout(
                 children = {
                     Container(
-                        saveLayoutInfo(
-                            size = alignSize,
-                            position = alignPosition,
-                            positionedLatch = positionedLatch
-                        )
+                        Modifier.saveLayoutInfo(alignSize, alignPosition, positionedLatch)
                     ) {
                         Container(
-                            LayoutAlign.BottomEnd + LayoutSize(sizeDp, sizeDp) +
-                                    saveLayoutInfo(
-                                        size = childSize,
-                                        position = childPosition,
-                                        positionedLatch = positionedLatch
-                                    )
+                            Modifier.wrapContentSize(Alignment.BottomEnd)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize, childPosition, positionedLatch)
                         ) {
                         }
                     }
@@ -374,20 +350,17 @@ class LayoutAlignTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Container(LayoutAlign.TopStart) {
+            Container(Modifier.wrapContentSize(Alignment.TopStart)) {
                 Layout(
-                    modifier = onPositioned { coordinates ->
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         wrapSize.value = coordinates.size
                         positionedLatch.countDown()
                     },
                     children = {
                         Container(
-                            LayoutAlign.Center + LayoutSize(sizeDp, sizeDp) +
-                                    saveLayoutInfo(
-                                        size = childSize,
-                                        position = childPosition,
-                                        positionedLatch = positionedLatch
-                                    )
+                            Modifier.wrapContentSize(Alignment.Center)
+                                .preferredSize(sizeDp)
+                                .saveLayoutInfo(childSize, childPosition, positionedLatch)
                         ) {
                         }
                     },
@@ -449,7 +422,7 @@ class LayoutAlignTest : LayoutTest() {
     fun testAlign_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Align(alignment = Alignment.TopStart) {
-                Container(LayoutAspectRatio(2f)) { }
+                Container(Modifier.aspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -470,7 +443,7 @@ class LayoutAlignTest : LayoutTest() {
     @Test
     fun test2DAlignedModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutAlign.TopStart + LayoutAspectRatio(2f)) { }
+            Container(Modifier.wrapContentSize(Alignment.TopStart).aspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
             assertEquals(0.ipx, minIntrinsicWidth(0.ipx))
@@ -497,7 +470,7 @@ class LayoutAlignTest : LayoutTest() {
     @Test
     fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutAlign.CenterVertically + LayoutAspectRatio(2f)) { }
+            Container(Modifier.wrapContentHeight(Alignment.Center).aspectRatio(2f)) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
 
             // Min width.
@@ -561,18 +534,18 @@ class LayoutAlignTest : LayoutTest() {
                     Container(width = parentSize, height = parentSize) {
                         Align(
                             alignment = Alignment.BottomEnd,
-                            modifier = saveLayoutInfo(
-                                size = alignSize,
-                                position = alignPosition,
-                                positionedLatch = positionedLatch
+                            modifier = Modifier.saveLayoutInfo(
+                                alignSize,
+                                alignPosition,
+                                positionedLatch
                             )
                         ) {
                             Container(
                                 width = childSizeDp, height = childSizeDp,
-                                modifier = saveLayoutInfo(
-                                    size = childSize,
-                                    position = childPosition,
-                                    positionedLatch = positionedLatch
+                                modifier = Modifier.saveLayoutInfo(
+                                    childSize,
+                                    childPosition,
+                                    positionedLatch
                                 )
                             ) {
                             }
@@ -622,21 +595,14 @@ class LayoutAlignTest : LayoutTest() {
             Layout(
                 children = {
                     Container(
-                        LayoutSize(parentSize, parentSize) +
-                                saveLayoutInfo(
-                                    size = alignSize,
-                                    position = alignPosition,
-                                    positionedLatch = positionedLatch
-                                )
+                        Modifier.preferredSize(parentSize)
+                            .saveLayoutInfo(alignSize, alignPosition, positionedLatch)
                     ) {
                         Container(
-                            LayoutSize.Fill + LayoutAlign.BottomEnd +
-                                    LayoutSize(childSizeDp, childSizeDp) +
-                                    saveLayoutInfo(
-                                        size = childSize,
-                                        position = childPosition,
-                                        positionedLatch = positionedLatch
-                                    )
+                            Modifier.fillMaxSize()
+                                .wrapContentSize(Alignment.BottomEnd)
+                                .preferredSize(childSizeDp)
+                                .saveLayoutInfo(childSize, childPosition, positionedLatch)
                         ) {
                         }
                     }

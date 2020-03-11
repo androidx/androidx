@@ -28,10 +28,10 @@ import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -61,7 +61,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<IntPxSize>()
         show {
             Align(alignment = Alignment.TopStart) {
-                Container(onPositioned { coordinates ->
+                Container(Modifier.onPositioned { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
@@ -86,15 +86,19 @@ class ContainerTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopStart) {
-                Container(padding = EdgeInsets(paddingDp), modifier = onPositioned { coordinates ->
-                    containerSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
+                Container(
+                    padding = EdgeInsets(paddingDp),
+                    modifier = Modifier.onPositioned { coordinates ->
+                        containerSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
                     EmptyBox(width = sizeDp, height = sizeDp,
-                        modifier = onPositioned { coordinates ->
+                        modifier = Modifier.onPositioned { coordinates ->
                             childPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             positionedLatch.countDown()
-                        })
+                        }
+                    )
                 }
             }
         }
@@ -122,20 +126,20 @@ class ContainerTest : LayoutTest() {
         val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
         show {
             Align(alignment = Alignment.TopStart) {
-                Row(onPositioned { coordinates ->
+                Row(Modifier.onPositioned { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
                     Container(width = childWidthDp, height = childHeightDp) {
                         EmptyBox(width = sizeDp, height = sizeDp,
-                            modifier = onPositioned { coordinates ->
+                            modifier = Modifier.onPositioned { coordinates ->
                                 childSize[0] = coordinates.size
                                 positionedLatch.countDown()
                             })
                     }
                     Container(constraints = childConstraints) {
                         EmptyBox(width = sizeDp, height = sizeDp,
-                            modifier = onPositioned { coordinates ->
+                            modifier = Modifier.onPositioned { coordinates ->
                                 childSize[1] = coordinates.size
                                 positionedLatch.countDown()
                             })
@@ -147,7 +151,7 @@ class ContainerTest : LayoutTest() {
                         height = (childHeightDp * 2)
                     ) {
                         EmptyBox(width = sizeDp, height = sizeDp,
-                            modifier = onPositioned { coordinates ->
+                            modifier = Modifier.onPositioned { coordinates ->
                                 childSize[2] = coordinates.size
                                 positionedLatch.countDown()
                             })
@@ -176,18 +180,24 @@ class ContainerTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Container(alignment = Alignment.TopStart, modifier = onPositioned { coordinates ->
-                alignSize.value = coordinates.size
-                positionedLatch.countDown()
-            }) {
-                Container(expanded = true, modifier = onPositioned { coordinates ->
-                    containerSize.value = coordinates.size
+            Container(
+                alignment = Alignment.TopStart,
+                modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                    alignSize.value = coordinates.size
                     positionedLatch.countDown()
-                }) {
+                }
+            ) {
+                Container(
+                    expanded = true,
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        containerSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
                     EmptyBox(
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = onPositioned { coordinates ->
+                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize.value = coordinates.size
                             childPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             positionedLatch.countDown()
@@ -224,7 +234,7 @@ class ContainerTest : LayoutTest() {
             Align(alignment = Alignment.TopStart) {
                 val constraints = DpConstraints(minWidth = sizeDp * 2, minHeight = sizeDp * 2)
                 ConstrainedBox(
-                    modifier = onPositioned { coordinates ->
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         containerSize.value = coordinates.size
                         positionedLatch.countDown()
                     },
@@ -232,7 +242,7 @@ class ContainerTest : LayoutTest() {
                 ) {
                     Container(alignment = Alignment.BottomEnd) {
                         EmptyBox(width = sizeDp, height = sizeDp,
-                            modifier = onPositioned { coordinates ->
+                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                                 childSize.value = coordinates.size
                                 childPosition.value =
                                     coordinates.localToGlobal(PxPosition(0.px, 0.px))
@@ -262,7 +272,7 @@ class ContainerTest : LayoutTest() {
         show {
             Align(alignment = Alignment.TopStart) {
                 Container(width = sizeDp, height = sizeDp, padding = EdgeInsets(10.dp),
-                    modifier = onPositioned { coordinates ->
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         containerSize.value = coordinates.size
                         latch.countDown()
                     }) {
@@ -295,13 +305,13 @@ class ContainerTest : LayoutTest() {
         show {
             Stack {
                 Container(
-                    onPositioned { coordinates ->
+                    Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         containerSize = coordinates.size
                         latch.countDown()
                     },
                     padding = edgeInsets
                 ) {
-                    Spacer(LayoutSize(width = childSizeDp, height = childSizeDp))
+                    Spacer(Modifier.preferredSize(width = childSizeDp, height = childSizeDp))
                 }
             }
         }
@@ -322,8 +332,9 @@ class ContainerTest : LayoutTest() {
         show {
             Stack {
                 Container(width = containerSize, height = containerSize, padding = edgeInsets) {
-                    Spacer(LayoutSize(width = childSize, height = childSize) +
-                            onPositioned { coordinates ->
+                    Spacer(
+                        Modifier.preferredSize(width = childSize, height = childSize) +
+                            Modifier.onPositioned { coordinates: LayoutCoordinates ->
                                 childCoordinates = coordinates
                                 latch.countDown()
                             })
@@ -352,9 +363,11 @@ class ContainerTest : LayoutTest() {
             Align(alignment = Alignment.TopStart) {
                 Layout(children = {
                     Container {
-                        EmptyBox(width = model.size, height = 10.dp, modifier = onPositioned {
-                            layoutLatch.countDown()
-                        })
+                        EmptyBox(
+                            width = model.size,
+                            height = 10.dp,
+                            modifier = Modifier.onPositioned { layoutLatch.countDown() }
+                        )
                     }
                 }) { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(constraints)
@@ -388,9 +401,11 @@ class ContainerTest : LayoutTest() {
             Align(alignment = Alignment.TopStart) {
                 Layout(children = {
                     Container(expanded = true) {
-                        EmptyBox(width = model.size, height = 10.dp, modifier = onPositioned {
-                            layoutLatch.countDown()
-                        })
+                        EmptyBox(
+                            width = model.size,
+                            height = 10.dp,
+                            modifier = Modifier.onPositioned { layoutLatch.countDown() }
+                        )
                     }
                 }) { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(constraints)
@@ -424,9 +439,11 @@ class ContainerTest : LayoutTest() {
             Align(alignment = Alignment.TopStart) {
                 Layout(children = {
                     Container(width = 20.dp, height = 20.dp) {
-                        EmptyBox(width = model.size, height = 10.dp, modifier = onPositioned {
-                            layoutLatch.countDown()
-                        })
+                        EmptyBox(
+                            width = model.size,
+                            height = 10.dp,
+                            modifier = Modifier.onPositioned { layoutLatch.countDown() }
+                        )
                     }
                 }) { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(constraints)

@@ -85,7 +85,7 @@ fun SelectionContainer(
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
         // Get the layout coordinates of the selection container. This is for hit test of
         // cross-composable selection.
-        Wrap(gestureModifiers + onPositioned { manager.containerLayoutCoordinates = it }) {
+        Wrap(gestureModifiers.onPositioned { manager.containerLayoutCoordinates = it }) {
             children()
             addHandles(
                 manager = manager,

@@ -30,13 +30,13 @@ import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -56,7 +56,7 @@ fun NestedScrollingDemo() {
     // Outer composable that scrollsAll mea
     Draggable {
         RepeatingList(repetitions = 3) {
-            Box(LayoutHeight(398.dp), padding = 72.dp) {
+            Box(Modifier.preferredHeight(398.dp), padding = 72.dp) {
                 // Inner composable that scrolls
                 Draggable {
                     RepeatingList(repetitions = 5) {
@@ -171,11 +171,11 @@ private fun Pressable(
             DoubleTapGestureDetector(onDoubleTap) +
             LongPressGestureDetector(onLongPress)
 
-    val layout = LayoutWidth.Fill + LayoutHeight(height)
+    val layout = Modifier.fillMaxWidth().preferredHeight(height)
 
     val pressOverlay =
-        if (showPressed.value) DrawBackground(pressedColor) else Modifier.None
-    Box(gestureDetectors + layout + DrawBackground(color = color.value) + pressOverlay)
+        if (showPressed.value) Modifier.drawBackground(pressedColor) else Modifier.None
+    Box(gestureDetectors.plus(layout).drawBackground(color.value).plus(pressOverlay))
 }
 
 /**
@@ -189,7 +189,7 @@ private fun RepeatingList(repetitions: Int, row: @Composable() () -> Unit) {
             row()
             if (i != repetitions) {
                 Box(
-                    LayoutWidth.Fill + LayoutHeight(1.dp),
+                    Modifier.fillMaxWidth().preferredHeight(1.dp),
                     backgroundColor = Color(0f, 0f, 0f, .12f)
                 )
             }

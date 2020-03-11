@@ -17,6 +17,7 @@
 package androidx.ui.foundation.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -26,26 +27,27 @@ import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Composable
 fun BoxDemo() {
-    Column(LayoutPadding(10.dp)) {
+    Column(Modifier.padding(10.dp)) {
         SimpleCircleBox()
-        Spacer(LayoutHeight(30.dp))
+        Spacer(Modifier.preferredHeight(30.dp))
         Box(
-            modifier = LayoutSize(200.dp, 100.dp),
+            modifier = Modifier.preferredSize(200.dp, 100.dp),
             shape = RoundedCornerShape(10.dp),
             border = Border(5.dp, Color.Gray),
             paddingStart = 20.dp,
             backgroundColor = Color.White
         ) {
             Box(
-                modifier = LayoutPadding(10.dp) + LayoutSize.Fill,
+                modifier = Modifier.padding(10.dp).fillMaxSize(),
                 backgroundColor = Color.DarkGray,
                 shape = CutCornerShape(10.dp),
                 border = Border(10.dp, Color.LightGray),

@@ -20,6 +20,12 @@ import androidx.compose.Immutable
 import androidx.ui.unit.Density
 
 /**
+ * Tag the element with [tag] to identify the element within its parent.
+ */
+@Suppress("DEPRECATION")
+fun Modifier.tag(tag: Any) = this + LayoutTag(tag)
+
+/**
  * A [ParentDataModifier] which tags the target with the given [tag]. The provided tag
  * will act as parent data, and can be used for example by parent layouts to associate
  * composable children to [Measurable]s when doing layout, as shown below.
@@ -28,7 +34,16 @@ import androidx.ui.unit.Density
  * @sample androidx.ui.framework.samples.LayoutTagChildrenUsage
  */
 @Immutable
-data class LayoutTag(override val tag: Any) : ParentDataModifier, LayoutTagParentData {
+data class LayoutTag
+@Deprecated(
+    "Use Modifier.tag",
+    replaceWith = ReplaceWith(
+        "Modifier.tag(tag)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.tag"
+    )
+)
+constructor(override val tag: Any) : ParentDataModifier, LayoutTagParentData {
     override fun Density.modifyParentData(parentData: Any?): Any? {
         return this@LayoutTag
     }

@@ -24,6 +24,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.foundation.Canvas
@@ -33,9 +34,10 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -44,15 +46,15 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SpringBackScrollingDemo() {
-    Column(LayoutHeight.Fill) {
+    Column(Modifier.fillMaxHeight()) {
         Text(
             "<== Scroll horizontally ==>",
             style = TextStyle(fontSize = 20.sp),
-            modifier = LayoutPadding(40.dp)
+            modifier = Modifier.padding(40.dp)
         )
         val animScroll = animatedFloat(0f)
         val itemWidth = state { 0f }
-        var isFlinging = state { false }
+        val isFlinging = state { false }
         val gesture = RawDragGestureDetector(dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 animScroll.snapTo(animScroll.targetValue + dragDistance.x.value)
@@ -67,7 +69,7 @@ fun SpringBackScrollingDemo() {
             }
         })
         val paint = remember { Paint() }
-        Canvas(gesture + LayoutWidth.Fill + LayoutHeight(400.dp)) {
+        Canvas(gesture.fillMaxWidth().preferredHeight(400.dp)) {
             itemWidth.value = size.width.value / 2f
             if (isFlinging.value) {
                 // Figure out what position to spring back to

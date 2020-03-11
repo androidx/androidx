@@ -21,9 +21,10 @@ import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirectionAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.layout.MaxIntrinsicWidth
+import androidx.ui.layout.rtl
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -44,7 +45,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
         val children = @Composable {
             Layout(
                 children = @Composable() {},
-                modifier = LayoutDirectionModifier.Rtl
+                modifier = Modifier.rtl
             ) { _, _, incomingLayoutDirection ->
                 layoutDirection.value = incomingLayoutDirection
                 latch.countDown()
@@ -71,7 +72,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
             MaxIntrinsicWidth {
                 Layout(
                     children = @Composable() {},
-                    modifier = LayoutDirectionModifier.Rtl,
+                    modifier = Modifier.rtl,
                     minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
                     minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
                     maxIntrinsicWidthMeasureBlock = { _, _, incomingLayoutDirection ->

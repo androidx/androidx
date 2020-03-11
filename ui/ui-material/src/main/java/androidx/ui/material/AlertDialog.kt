@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Dialog
@@ -24,12 +25,13 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
 import androidx.ui.material.AlertDialogButtonLayout.Stacked
 import androidx.ui.unit.dp
@@ -114,13 +116,13 @@ fun AlertDialog(
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(
-                modifier = LayoutWidth(AlertDialogWidth),
+                modifier = AlertDialogWidth,
                 shape = AlertDialogShape
             ) {
                 val emphasisLevels = MaterialTheme.emphasisLevels
                 Column {
                     if (title != null) {
-                        Box(modifier = TitlePadding + LayoutGravity.Start) {
+                        Box(TitlePadding.gravity(ColumnAlign.Start)) {
                             ProvideEmphasis(emphasisLevels.high) {
                                 val textStyle = MaterialTheme.typography.h6
                                 ProvideTextStyle(textStyle, title)
@@ -129,16 +131,16 @@ fun AlertDialog(
                     } else {
                         // TODO(b/138924683): Temporary until padding for the Text's
                         //  baseline
-                        Spacer(LayoutHeight(NoTitleExtraHeight))
+                        Spacer(NoTitleExtraHeight)
                     }
 
-                    Box(modifier = TextPadding + LayoutGravity.Start) {
+                    Box(TextPadding.gravity(ColumnAlign.Start)) {
                         ProvideEmphasis(emphasisLevels.medium) {
                             val textStyle = MaterialTheme.typography.body1
                             ProvideTextStyle(textStyle, text)
                         }
                     }
-                    Spacer(LayoutHeight(TextToButtonsHeight))
+                    Spacer(TextToButtonsHeight)
                     buttons()
                 }
             }
@@ -165,12 +167,12 @@ private fun AlertDialogButtonLayout(
     dismissButton: @Composable() (() -> Unit)?,
     buttonLayout: AlertDialogButtonLayout
 ) {
-    Box(LayoutWidth.Fill + ButtonsPadding, gravity = ContentGravity.CenterEnd) {
+    Box(ButtonsBoxModifier, gravity = ContentGravity.CenterEnd) {
         if (buttonLayout == SideBySide) {
             Row(arrangement = Arrangement.End) {
                 if (dismissButton != null) {
                     dismissButton()
-                    Spacer(LayoutWidth(ButtonsWidthSpace))
+                    Spacer(ButtonsWidthSpace)
                 }
 
                 confirmButton()
@@ -180,7 +182,7 @@ private fun AlertDialogButtonLayout(
                 confirmButton()
 
                 if (dismissButton != null) {
-                    Spacer(LayoutHeight(ButtonsHeightSpace))
+                    Spacer(ButtonsHeightSpace)
                     dismissButton()
                 }
             }
@@ -188,17 +190,17 @@ private fun AlertDialogButtonLayout(
     }
 }
 
-private val AlertDialogWidth = 280.dp
-private val ButtonsPadding = LayoutPadding(all = 8.dp)
-private val ButtonsWidthSpace = 8.dp
-private val ButtonsHeightSpace = 12.dp
+private val AlertDialogWidth = Modifier.preferredWidth(280.dp)
+private val ButtonsBoxModifier = Modifier.fillMaxWidth().padding(all = 8.dp)
+private val ButtonsWidthSpace = Modifier.preferredWidth(8.dp)
+private val ButtonsHeightSpace = Modifier.preferredHeight(12.dp)
 // TODO(b/138924683): Top padding should be actually be a distance between the Text baseline and
 //  the Title baseline
-private val TextPadding = LayoutPadding(start = 24.dp, top = 20.dp, end = 24.dp, bottom = 0.dp)
+private val TextPadding = Modifier.padding(start = 24.dp, top = 20.dp, end = 24.dp, bottom = 0.dp)
 // TODO(b/138924683): Top padding should be actually be relative to the Text baseline
-private val TitlePadding = LayoutPadding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 0.dp)
+private val TitlePadding = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 0.dp)
 // The height difference of the padding between a Dialog with a title and one without a title
-private val NoTitleExtraHeight = 2.dp
-private val TextToButtonsHeight = 28.dp
+private val NoTitleExtraHeight = Modifier.preferredHeight(2.dp)
+private val TextToButtonsHeight = Modifier.preferredHeight(28.dp)
 // TODO: The corner radius should be customizable
 private val AlertDialogShape = RoundedCornerShape(4.dp)

@@ -18,12 +18,15 @@ package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
@@ -50,10 +53,10 @@ fun PressIndicatorGestureDetectorDemo() {
         }
 
     Box(
-        LayoutSize.Fill +
-                LayoutAlign.Center +
-                PressIndicatorGestureDetector(onStart, onStop, onStop) +
-                LayoutSize(192.dp),
+        Modifier.fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+            .plus(PressIndicatorGestureDetector(onStart, onStop, onStop))
+            .preferredSize(192.dp),
         backgroundColor = color,
         border = Border(2.dp, BorderColor)
     )

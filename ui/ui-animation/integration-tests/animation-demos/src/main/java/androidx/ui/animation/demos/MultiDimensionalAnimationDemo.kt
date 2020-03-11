@@ -23,12 +23,13 @@ import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.RectPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Clickable
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 
 @Composable
 fun MultiDimensionalAnimationDemo() {
@@ -51,7 +52,7 @@ fun MultiDimensionalAnimationDemo() {
             toState = currentState.value
         ) { state ->
             val paint = remember { Paint() }
-            Canvas(modifier = LayoutSize.Fill) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
                 width.value = size.width.value
                 height.value = size.height.value
 

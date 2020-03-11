@@ -20,8 +20,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.Dp
 
 /**
@@ -46,9 +48,11 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    val widthModifier = if (width != null) LayoutWidth(width) else LayoutWidth.Fill
-    val heightModifier = if (height != null) LayoutHeight(height) else LayoutHeight.Fill
-    Box(modifier + widthModifier + heightModifier + DrawBackground(brush))
+    val widthModifier =
+        if (width != null) Modifier.preferredWidth(width) else Modifier.fillMaxWidth()
+    val heightModifier =
+        if (height != null) Modifier.preferredHeight(height) else Modifier.fillMaxHeight()
+    Box(modifier + widthModifier + heightModifier + Modifier.drawBackground(brush))
 }
 
 /**
@@ -67,7 +71,9 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    val widthModifier = if (width != null) LayoutWidth(width) else LayoutWidth.Fill
-    val heightModifier = if (height != null) LayoutHeight(height) else LayoutHeight.Fill
-    Box(modifier + widthModifier + heightModifier + DrawBackground(color))
+    val widthModifier =
+        if (width != null) Modifier.preferredWidth(width) else Modifier.fillMaxWidth()
+    val heightModifier =
+        if (height != null) Modifier.preferredHeight(height) else Modifier.fillMaxHeight()
+    Box(modifier + widthModifier + heightModifier + Modifier.drawBackground(color))
 }

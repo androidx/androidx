@@ -22,8 +22,8 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Build
 import android.view.View
-import android.view.ViewGroup
 import android.view.View.MeasureSpec
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.compose.Composable
@@ -37,7 +37,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.unit.Density
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.Ref
@@ -51,6 +50,7 @@ import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
 import junit.framework.TestCase.assertNotNull
@@ -136,7 +136,7 @@ class AndroidViewCompatTest {
         composeTestRule.setContent {
             TestTag("content") {
                 Semantics {
-                    Container(modifier = drawLayer(clipToBounds = false)) {
+                    Container(modifier = Modifier.drawLayer(clipToBounds = false)) {
                         ColoredSquareView(color = colorModel.color, ref = squareRef)
                     }
                 }

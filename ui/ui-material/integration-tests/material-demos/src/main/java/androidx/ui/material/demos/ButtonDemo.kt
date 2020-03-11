@@ -17,18 +17,19 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedButton
@@ -46,13 +47,13 @@ private val DefaultSpace = 20.dp
 
 @Composable
 fun ButtonDemo() {
-    Column(LayoutPadding(10.dp)) {
+    Column(Modifier.padding(10.dp)) {
         Buttons()
-        Spacer(LayoutHeight(DefaultSpace))
+        Spacer(Modifier.preferredHeight(DefaultSpace))
         Fabs()
-        Spacer(LayoutHeight(DefaultSpace))
+        Spacer(Modifier.preferredHeight(DefaultSpace))
         IconButtons()
-        Spacer(LayoutHeight(DefaultSpace))
+        Spacer(Modifier.preferredHeight(DefaultSpace))
         CustomShapeButton()
     }
 }
@@ -60,16 +61,16 @@ fun ButtonDemo() {
 @Composable
 private fun Buttons() {
     Text("Buttons")
-    Spacer(LayoutHeight(DefaultSpace))
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Spacer(Modifier.preferredHeight(DefaultSpace))
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         ButtonSample()
         OutlinedButtonSample()
         TextButtonSample()
     }
 
-    Spacer(LayoutHeight(DefaultSpace))
+    Spacer(Modifier.preferredHeight(DefaultSpace))
 
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = {}, backgroundColor = MaterialTheme.colors.secondary) {
             Text("Secondary Color")
         }
@@ -85,9 +86,9 @@ private fun Buttons() {
 @Composable
 private fun Fabs() {
     Text("Floating action buttons")
-    Spacer(LayoutHeight(DefaultSpace))
+    Spacer(Modifier.preferredHeight(DefaultSpace))
 
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         SimpleFab()
         SimpleExtendedFabNoIcon()
         SimpleExtendedFabWithIcon()
@@ -97,7 +98,7 @@ private fun Fabs() {
 @Composable
 private fun IconButtons() {
     Text("Icon buttons")
-    Spacer(LayoutHeight(DefaultSpace))
+    Spacer(Modifier.preferredHeight(DefaultSpace))
 
     Row {
         IconButtonSample()
@@ -108,10 +109,10 @@ private fun IconButtons() {
 @Composable
 private fun CustomShapeButton() {
     Text("Custom shape button")
-    Spacer(LayoutHeight(DefaultSpace))
+    Spacer(Modifier.preferredHeight(DefaultSpace))
     OutlinedButton(
         onClick = {},
-        modifier = LayoutSize(100.dp),
+        modifier = Modifier.preferredSize(100.dp),
         shape = TriangleShape,
         backgroundColor = Color.Yellow,
         border = Border(size = 2.dp, color = Color.Black)

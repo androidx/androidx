@@ -21,13 +21,13 @@ import androidx.compose.emptyContent
 import androidx.compose.state
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
-import androidx.ui.foundation.TextField
+import androidx.ui.core.Modifier
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
@@ -249,7 +249,7 @@ fun VariousInputFieldDemo() {
                 // Force 4.ipx with red color cursor
                 Layout(
                     children = emptyContent(),
-                    modifier = DrawBackground(Color.Red)
+                    modifier = Modifier.drawBackground(Color.Red)
                 ) { _, constraints, _ -> layout(4.ipx, constraints.maxHeight) {} }
             }
         }
@@ -280,7 +280,7 @@ private fun HintEditText(hintText: @Composable() () -> Unit) {
 
     val inputField = @Composable {
         TextField(
-            modifier = LayoutTag("inputField"),
+            modifier = Modifier.tag("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
             textStyle = TextStyle(fontSize = fontSize8)
@@ -292,7 +292,7 @@ private fun HintEditText(hintText: @Composable() () -> Unit) {
     } else {
         Layout({
             inputField()
-            Box(LayoutTag("hintText"), children = hintText)
+            Box(Modifier.tag("hintText"), children = hintText)
         }) { measurable, constraints, _ ->
             val inputFieldPlacable =
                 measurable.first { it.tag == "inputField" }.measure(constraints)
@@ -311,13 +311,13 @@ private fun CustomCursorTextField(cursor: @Composable() () -> Unit) {
     val layoutResult = state<TextLayoutResult?> { null }
     Layout({
         TextField(
-            modifier = LayoutTag("inputField"),
+            modifier = Modifier.tag("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
             textStyle = TextStyle(fontSize = fontSize8),
             onTextLayout = { layoutResult.value = it }
         )
-        Box(LayoutTag("cursor"), children = cursor)
+        Box(Modifier.tag("cursor"), children = cursor)
     }) { measurable, constraints, _ ->
         val inputFieldPlacable =
             measurable.first { it.tag == "inputField" }.measure(constraints)

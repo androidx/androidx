@@ -29,13 +29,14 @@ import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.ui.animation.Transition
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
@@ -260,7 +261,7 @@ class AnimationSynchronizationTest {
         val paint = remember { Paint().also { it.color = Color.Cyan } }
 
         hasRecomposed = true
-        Box(modifier = DrawBackground(color = Color.Yellow) + LayoutSize.Fill) {
+        Box(modifier = Modifier.drawBackground(Color.Yellow).fillMaxSize()) {
             hasRecomposed = true
             Transition(
                 definition = animationDefinition,
@@ -268,7 +269,7 @@ class AnimationSynchronizationTest {
                 onStateChangeFinished = { animationRunning = false }
             ) { state ->
                 hasRecomposed = true
-                Canvas(modifier = LayoutSize.Fill) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
                     recordedAnimatedValues.add(state[x])
                     drawRect(animatedRect.translate(state[x], 0f), paint)
                 }

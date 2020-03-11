@@ -25,7 +25,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.draw
+import androidx.ui.core.drawBehind
 import androidx.ui.core.drawOpacity
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
@@ -50,7 +50,7 @@ class OpacityTest {
     val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
-    private val unlatch = draw { _, _ -> drawLatch.countDown() }
+    private val unlatch = Modifier.drawBehind { _, _ -> drawLatch.countDown() }
 
     @Before
     fun setup() {
@@ -67,7 +67,7 @@ class OpacityTest {
             activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
-                            drawOpacity(1f) +
+                            Modifier.drawOpacity(1f) +
                             background(color) +
                             unlatch) {
                 }
@@ -87,7 +87,7 @@ class OpacityTest {
             activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
-                            drawOpacity(0f) +
+                            Modifier.drawOpacity(0f) +
                             background(color) +
                             unlatch
                 ) {
@@ -109,7 +109,7 @@ class OpacityTest {
                 Row(background(Color.White)) {
                     AtLeastSize(size = 10.ipx,
                         modifier = background(Color.White) +
-                                drawOpacity(0.5f) +
+                                Modifier.drawOpacity(0.5f) +
                                 background(color) +
                                 unlatch
                     ) {
@@ -137,7 +137,7 @@ class OpacityTest {
             activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
-                            drawOpacity(model.value) +
+                            Modifier.drawOpacity(model.value) +
                             unlatch +
                             background(color)
                 ) {
@@ -165,8 +165,8 @@ class OpacityTest {
             activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
-                            drawOpacity(1f) +
-                            drawOpacity(opacity) +
+                            Modifier.drawOpacity(1f) +
+                            Modifier.drawOpacity(opacity) +
                             unlatch +
                             background(color)
                 ) {
@@ -194,7 +194,7 @@ class OpacityTest {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
                             if (model.value) {
-                                drawOpacity(0f) +
+                                Modifier.drawOpacity(0f) +
                                         background(Color.Green)
                             } else {
                                 Modifier.None

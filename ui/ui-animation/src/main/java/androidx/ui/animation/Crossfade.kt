@@ -24,6 +24,7 @@ import androidx.compose.invalidate
 import androidx.compose.key
 import androidx.compose.onCommit
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
 import androidx.ui.layout.Stack
 
@@ -58,7 +59,7 @@ fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
                         }
                     }
                 )
-                Stack(modifier = drawOpacity(opacity.value)) {
+                Stack(Modifier.drawOpacity(opacity.value)) {
                     children()
                 }
             }

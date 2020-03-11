@@ -23,9 +23,9 @@ import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
-import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawLayer
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
@@ -257,10 +257,10 @@ private fun ScrollerLayout(
     child: @Composable() () -> Unit
 ) {
     Layout(
-        modifier = modifier + DrawClipToBounds,
+        modifier = modifier.clipToBounds(),
         children = {
             Box(
-                modifier = drawLayer(),
+                modifier = Modifier.drawLayer(),
                 children = child
             )
         },

@@ -20,9 +20,9 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.Modifier
-import androidx.ui.core.asModifier
+import androidx.ui.core.clipToBounds
+import androidx.ui.core.paint
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
@@ -34,7 +34,7 @@ import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 
 /**
  * A composable that lays out and draws a given [ImageAsset]. This will attempt to
@@ -147,14 +147,15 @@ fun Image(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
-    val painterModifier = painter.asModifier(
-        alignment = alignment,
-        scaleFit = scaleFit,
-        alpha = alpha,
-        colorFilter = colorFilter
+    Box(
+        modifier.clipToBounds().paint(
+            painter,
+            alignment = alignment,
+            scaleFit = scaleFit,
+            alpha = alpha,
+            colorFilter = colorFilter
+        )
     )
-
-    Box(modifier + DrawClipToBounds + painterModifier)
 }
 
 /**
@@ -181,14 +182,14 @@ fun SimpleImage(
     tint: Color? = null
 ) {
     with(DensityAmbient.current) {
-        val imageModifier = ImagePainter(image).asModifier(
-            scaleFit = ScaleFit.FillMaxDimension,
-            colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
-        )
         Box(
-            LayoutSize(image.width.toDp(), image.height.toDp()) +
-            DrawClipToBounds +
-            imageModifier
+            Modifier.preferredSize(image.width.toDp(), image.height.toDp())
+                .clipToBounds()
+                .paint(
+                    ImagePainter(image),
+                    scaleFit = ScaleFit.FillMaxDimension,
+                    colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
+                )
         )
     }
 }

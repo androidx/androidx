@@ -18,13 +18,15 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Button
 import androidx.ui.material.samples.FancyIndicatorContainerTabs
 import androidx.ui.material.samples.FancyIndicatorTabs
@@ -38,7 +40,7 @@ import androidx.ui.unit.dp
 
 @Composable
 fun TabDemo() {
-    Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
+    Column(Modifier.fillMaxHeight(), arrangement = Arrangement.SpaceBetween) {
         val showingSimple = state { true }
         val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 
@@ -54,7 +56,7 @@ fun TabDemo() {
             ScrollingFancyIndicatorContainerTabs()
         }
         Button(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             onClick = {
                 showingSimple.value = !showingSimple.value
             },
@@ -62,6 +64,6 @@ fun TabDemo() {
         ) {
             Text(buttonText)
         }
-        Spacer(LayoutHeight(50.dp))
+        Spacer(Modifier.preferredHeight(50.dp))
     }
 }

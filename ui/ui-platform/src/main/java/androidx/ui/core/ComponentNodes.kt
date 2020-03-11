@@ -1007,10 +1007,10 @@ class LayoutNode : ComponentNode(), Measurable {
                 // that implements both DrawModifier and LayoutModifier will have it's draw bounds
                 // reflect the dimensions defined by the LayoutModifier.
                 if (mod is OnPositionedModifier) {
-                    onPositionedCallbacks += mod.onPositioned
+                    onPositionedCallbacks += mod
                 }
                 if (mod is OnChildPositionedModifier) {
-                    onChildPositionedCallbacks += mod.onChildPositioned
+                    onChildPositionedCallbacks += mod
                 }
                 if (mod is DrawModifier) {
                     wrapper = ModifiedDrawNode(wrapper, mod)
@@ -1097,12 +1097,12 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * List of all OnPositioned callbacks in the modifier chain.
      */
-    private val onPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
+    private val onPositionedCallbacks = mutableListOf<OnPositionedModifier>()
 
     /**
      * List of all OnChildPositioned callbacks in the modifier chain.
      */
-    private val onChildPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
+    private val onChildPositionedCallbacks = mutableListOf<OnChildPositionedModifier>()
 
     override fun measure(constraints: Constraints): Placeable {
         val owner = requireOwner()
@@ -1195,16 +1195,11 @@ class LayoutNode : ComponentNode(), Measurable {
      */
     private fun hasNewPositioningCallback(): Boolean {
         return modifier.foldOut(false) { mod, hasNewCallback ->
-            var ret = hasNewCallback
-            if (!hasNewCallback) {
-                when (mod) {
-                    is OnPositionedModifier ->
-                        ret = !onPositionedCallbacks.contains(mod.onPositioned)
-                    is OnChildPositionedModifier ->
-                        ret = !onChildPositionedCallbacks.contains(mod.onChildPositioned)
-                }
+            hasNewCallback || when (mod) {
+                is OnPositionedModifier -> mod !in onPositionedCallbacks
+                is OnChildPositionedModifier -> mod !in onChildPositionedCallbacks
+                else -> false
             }
-            ret
         }
     }
 
@@ -1335,13 +1330,13 @@ class LayoutNode : ComponentNode(), Measurable {
             val onPositioned = layoutNode.onPositionedCallbacks
             for (i in 0..onPositioned.lastIndex) {
                 val callback = onPositioned[i]
-                callback(layoutNode.coordinates)
+                callback.onPositioned(layoutNode.coordinates)
             }
             val onChildPositioned = layoutNode.parentLayoutNode?.onChildPositionedCallbacks
             if (onChildPositioned != null) {
                 for (i in 0..onChildPositioned.lastIndex) {
                     val callback = onChildPositioned[i]
-                    callback(layoutNode.coordinates)
+                    callback.onChildPositioned(layoutNode.coordinates)
                 }
             }
         }

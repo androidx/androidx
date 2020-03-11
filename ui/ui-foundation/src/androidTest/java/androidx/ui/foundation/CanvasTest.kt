@@ -28,8 +28,8 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -75,8 +75,10 @@ class CanvasTest {
         var canvasSize: IntPxSize? = null
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
-                Canvas(modifier = LayoutSize(100.dp) +
-                        onPositioned { position -> canvasSize = position.size }) {
+                Canvas(
+                    Modifier.preferredSize(100.dp)
+                        .onPositioned { position -> canvasSize = position.size }
+                ) {
                     drawRect(size.toRect(), Paint().apply { color = Color.Red })
                 }
             }
@@ -101,13 +103,16 @@ class CanvasTest {
         var canvasSize: IntPxSize? = null
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
-                Canvas(modifier = LayoutSize(100.dp) +
-                        onPositioned { position -> canvasSize = position.size }) {
+                Canvas(
+                    Modifier.preferredSize(100.dp)
+                        .onPositioned { position -> canvasSize = position.size }
+                ) {
                     drawRect(size.toRect(), Paint().apply { color = Color.Red })
                     drawCircle(
                         size.center().toOffset(),
                         10f,
-                        Paint().apply { color = Color.Blue })
+                        Paint().apply { color = Color.Blue }
+                    )
                 }
             }
         }

@@ -18,6 +18,7 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -26,14 +27,14 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.drawOutline
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
     override fun emitContent() {
         Box(
-            modifier = LayoutSize(48.dp),
+            modifier = Modifier.preferredSize(48.dp),
             shape = CircleShape,
             border = Border(1.dp, Color.Cyan),
             gravity = ContentGravity.Center
@@ -42,7 +43,7 @@ class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
                 Paint().apply { color = Color.Cyan }
             }
             val innerSize = getInnerSize().value
-            Canvas(LayoutSize(innerSize)) {
+            Canvas(Modifier.preferredSize(innerSize)) {
                 drawOutline(CircleShape.createOutline(size, this), paint)
             }
         }

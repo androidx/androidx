@@ -18,13 +18,14 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.drawBorders
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Table
+import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.padding
 import androidx.ui.unit.dp
 
 @Sampled
@@ -47,7 +48,7 @@ fun TableWithBorders() {
                 repeat(8) {
                     ColoredRect(
                         color = Color.Magenta,
-                        modifier = LayoutPadding(2.dp) + LayoutAspectRatio(1f)
+                        modifier = Modifier.padding(2.dp).aspectRatio(1f)
                     )
                 }
             }

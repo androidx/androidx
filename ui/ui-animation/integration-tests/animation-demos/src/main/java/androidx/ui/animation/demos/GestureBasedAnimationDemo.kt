@@ -29,7 +29,7 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 
 private const val halfSize = 200f
 
@@ -74,7 +74,7 @@ fun GestureBasedAnimationDemo() {
 @Composable
 private fun ScaledColorRect(modifier: Modifier = Modifier.None, scale: Float, color: Color) {
     val paint = remember { Paint() }
-    Canvas(modifier + LayoutSize.Fill) {
+    Canvas(modifier.fillMaxSize()) {
         val centerX = size.width.value / 2
         val centerY = size.height.value / 2
         paint.color = color

@@ -17,13 +17,13 @@
 package androidx.ui.foundation
 
 import android.os.Build
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.test.R
-import androidx.ui.test.createComposeRule
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -32,10 +32,12 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.test.captureToBitmap
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
 import org.junit.Assert
@@ -92,7 +94,11 @@ class ImageTest {
     fun testImage() {
         rule.setContent {
             val size = (containerSize / DensityAmbient.current.density).dp
-            Box(modifier = LayoutSize(size) + DrawBackground(Color.White) + LayoutAlign.Center) {
+            Box(
+                Modifier.preferredSize(size)
+                    .drawBackground(Color.White)
+                    .wrapContentSize(Alignment.Center)
+            ) {
                 TestTag(contentTag) {
                     Image(asset = createImageAsset())
                 }
@@ -122,13 +128,17 @@ class ImageTest {
         rule.setContent {
             val density = DensityAmbient.current.density
             val size = (containerSize * 2 / density).dp
-            Box(modifier = LayoutSize(size) + DrawBackground(Color.White) + LayoutAlign.Center) {
+            Box(
+                Modifier.preferredSize(size)
+                    .drawBackground(Color.White)
+                    .wrapContentSize(Alignment.Center)
+            ) {
                 TestTag(contentTag) {
                     // The resultant Image composable should be twice the size of the underlying
                     // ImageAsset that is to be drawn and will stretch the content to fit
                     // the bounds
                     Image(asset = createImageAsset(),
-                        modifier = LayoutSize(
+                        modifier = Modifier.preferredSize(
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
                         ),
@@ -161,12 +171,16 @@ class ImageTest {
         rule.setContent {
             val density = DensityAmbient.current.density
             val size = (containerSize * 2 / density).dp
-            Box(modifier = LayoutSize(size) + DrawBackground(Color.White) + LayoutAlign.Center) {
+            Box(
+                Modifier.preferredSize(size)
+                    .drawBackground(Color.White)
+                    .wrapContentSize(Alignment.Center)
+            ) {
                 TestTag(contentTag) {
                     // The resultant Image composable should be twice the size of the underlying
                     // ImageAsset that is to be drawn in the bottom end section of the composable
                     Image(asset = createImageAsset(),
-                        modifier = LayoutSize(
+                        modifier = Modifier.preferredSize(
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
                         ),
@@ -203,12 +217,19 @@ class ImageTest {
             val size = (boxWidth * 2 / density).dp
             val minWidth = (boxWidth / density).dp
             val minHeight = (boxHeight / density).dp
-            Box(modifier = LayoutSize(size) + DrawBackground(Color.White) + LayoutAlign.Center) {
+            Box(
+                Modifier.preferredSize(size)
+                    .drawBackground(Color.White)
+                    .wrapContentSize(Alignment.Center)
+            ) {
                 TestTag(contentTag) {
                     loadVectorResource(R.drawable.ic_vector_asset_test).resource.resource?.let {
                         Image(
                             it,
-                            modifier = LayoutSize.Min(minWidth, minHeight),
+                            modifier = Modifier.preferredSizeIn(
+                                minWidth = minWidth,
+                                minHeight = minHeight
+                            ),
                             scaleFit = ScaleFit.FillMinDimension
                         )
                     }

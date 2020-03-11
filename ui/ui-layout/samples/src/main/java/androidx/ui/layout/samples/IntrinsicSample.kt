@@ -18,20 +18,22 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.MaxIntrinsicHeight
 import androidx.ui.layout.MaxIntrinsicWidth
 import androidx.ui.layout.MinIntrinsicHeight
 import androidx.ui.layout.MinIntrinsicWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.dp
 
 /**
@@ -48,17 +50,17 @@ import androidx.ui.unit.dp
 fun SameWidthBoxes() {
     Stack {
         MinIntrinsicWidth {
-            Column(LayoutHeight.Fill) {
+            Column(Modifier.fillMaxHeight()) {
                 Box(
-                    modifier = LayoutWidth.Fill + LayoutSize(20.dp, 10.dp),
+                    modifier = Modifier.fillMaxWidth().preferredSize(20.dp, 10.dp),
                     backgroundColor = Color.Gray
                 )
                 Box(
-                    modifier = LayoutWidth.Fill + LayoutSize(30.dp, 10.dp),
+                    modifier = Modifier.fillMaxWidth().preferredSize(30.dp, 10.dp),
                     backgroundColor = Color.Blue
                 )
                 Box(
-                    modifier = LayoutWidth.Fill + LayoutSize(10.dp, 10.dp),
+                    modifier = Modifier.fillMaxWidth().preferredSize(10.dp, 10.dp),
                     backgroundColor = Color.Magenta
                 )
             }
@@ -84,13 +86,13 @@ fun MatchParentDividerForText() {
             Row {
                 Text(
                     text = "This is a really short text",
-                    modifier = LayoutWeight(1f) + LayoutHeight.Fill
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 )
-                Box(LayoutWidth(1.dp) + LayoutHeight.Fill, backgroundColor = Color.Black)
+                Box(Modifier.preferredWidth(1.dp).fillMaxHeight(), backgroundColor = Color.Black)
                 Text(
                     text = "This is a much much much much much much much much much much" +
                             " much much much much much much longer text",
-                    modifier = LayoutWeight(1f) + LayoutHeight.Fill
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 )
             }
         }
@@ -111,14 +113,14 @@ fun MatchParentDividerForText() {
 fun SameWidthTextBoxes() {
     Stack {
         MaxIntrinsicWidth {
-            Column(LayoutHeight.Fill) {
-                Box(LayoutWidth.Fill, backgroundColor = Color.Gray) {
+            Column(Modifier.fillMaxHeight()) {
+                Box(Modifier.fillMaxWidth(), backgroundColor = Color.Gray) {
                     Text("Short text")
                 }
-                Box(LayoutWidth.Fill, backgroundColor = Color.Blue) {
+                Box(Modifier.fillMaxWidth(), backgroundColor = Color.Blue) {
                     Text("Extremely long text giving the width of its siblings")
                 }
-                Box(LayoutWidth.Fill, backgroundColor = Color.Magenta) {
+                Box(Modifier.fillMaxWidth(), backgroundColor = Color.Magenta) {
                     Text("Medium length text")
                 }
             }
@@ -142,10 +144,10 @@ fun MatchParentDividerForAspectRatio() {
     Stack {
         MaxIntrinsicHeight {
             Row {
-                val modifier = LayoutHeight.Fill + LayoutWeight(1f)
-                Box(modifier + LayoutAspectRatio(2f), backgroundColor = Color.Gray)
-                Box(LayoutWidth(1.dp) + LayoutHeight.Fill, backgroundColor = Color.Black)
-                Box(modifier + LayoutAspectRatio(1f), backgroundColor = Color.Blue)
+                val modifier = Modifier.fillMaxHeight().weight(1f)
+                Box(modifier.aspectRatio(2f), backgroundColor = Color.Gray)
+                Box(Modifier.preferredWidth(1.dp).fillMaxHeight(), backgroundColor = Color.Black)
+                Box(modifier.aspectRatio(1f), backgroundColor = Color.Blue)
             }
         }
     }

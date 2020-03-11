@@ -59,6 +59,14 @@ import kotlin.math.ceil
  *
  * @sample androidx.ui.framework.samples.PainterModifierSample
  */
+@Deprecated(
+    "Use Modifier.paint",
+    replaceWith = ReplaceWith(
+        "Modifier.paint(this, sizeToIntrinsics, alignment, scaleFit, alpha, colorFilter, rtl)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.paint"
+    )
+)
 @Composable
 fun Painter.asModifier(
     sizeToIntrinsics: Boolean = true,
@@ -76,17 +84,45 @@ fun Painter.asModifier(
 }
 
 /**
+ * Paint the content using [painter].
+ *
+ * @param sizeToIntrinsics `true` to size the element relative to [Painter.intrinsicSize]
+ * @param alignment specifies alignment of the [painter] relative to content
+ * @param scaleFit strategy for scaling [painter] if its size does not match the content size
+ * @param alpha opacity of [painter]
+ * @param colorFilter optional [ColorFilter] to apply to [painter]
+ * @param rtl layout direction to report to [painter] when drawing
+ */
+fun Modifier.paint(
+    painter: Painter,
+    sizeToIntrinsics: Boolean = true,
+    alignment: Alignment = Alignment.Center,
+    scaleFit: ScaleFit = ScaleFit.Fit,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    rtl: Boolean = false
+) = this + PainterModifier(
+    painter = painter,
+    sizeToIntrinsics = sizeToIntrinsics,
+    alignment = alignment,
+    scaleFit = scaleFit,
+    alpha = alpha,
+    colorFilter = colorFilter,
+    rtl = rtl
+)
+
+/**
  * [DrawModifier] used to draw the provided [Painter] followed by the contents
  * of the component itself
  */
 private data class PainterModifier(
     val painter: Painter,
-    var sizeToIntrinsics: Boolean,
-    var alignment: Alignment = Alignment.Center,
-    var scaleFit: ScaleFit = ScaleFit.Fit,
-    var alpha: Float = DefaultAlpha,
-    var colorFilter: ColorFilter? = null,
-    var rtl: Boolean = false
+    val sizeToIntrinsics: Boolean,
+    val alignment: Alignment = Alignment.Center,
+    val scaleFit: ScaleFit = ScaleFit.Fit,
+    val alpha: Float = DefaultAlpha,
+    val colorFilter: ColorFilter? = null,
+    val rtl: Boolean = false
 ) : LayoutModifier, DrawModifier {
 
     override fun Density.modifyConstraints(

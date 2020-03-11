@@ -17,11 +17,13 @@
 package androidx.ui.integration.test.core.text
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.RandomTextGenerator
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.preferredWidth
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
@@ -52,7 +54,7 @@ class TextMultiStyleTestCase(
     override fun emitContent() {
         Text(
             text = text, style = TextStyle(color = Color.Black, fontSize = 8.sp),
-            modifier = LayoutAlign.Center + LayoutWidth(160.dp)
+            modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(160.dp)
         )
     }
 }

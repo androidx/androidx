@@ -17,15 +17,16 @@
 package androidx.ui.integration.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.unit.dp
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Table
+import androidx.ui.layout.padding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doFramesUntilNoChangesPending
+import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +61,7 @@ class TableRecompositionTest(private val numberOfCells: Int) {
                                     color = Color.Black,
                                     width = 100.dp,
                                     height = 50.dp,
-                                    modifier = LayoutPadding(2.dp)
+                                    modifier = Modifier.padding(2.dp)
                                 )
                             }
                         }

@@ -23,8 +23,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
@@ -179,7 +179,7 @@ class DraggableTest {
     @Test
     fun draggable_disabledWontCallLambda() {
         var total = 0f
-        var enabled = mutableStateOf(true)
+        val enabled = mutableStateOf(true)
         setDraggableContent {
             draggable(
                 dragDirection = DragDirection.Horizontal,
@@ -308,14 +308,14 @@ class DraggableTest {
                 TestTag(draggableBoxTag) {
                     Semantics(container = true) {
                         Box(gravity = ContentGravity.Center,
-                            modifier = LayoutSize(300.dp) + draggable(
+                            modifier = Modifier.preferredSize(300.dp) + draggable(
                                 dragDirection = DragDirection.Horizontal,
                                 onDragDeltaConsumptionRequested = { delta ->
                                     outerDrag += delta
                                     delta
                                 }
                             )) {
-                            Box(modifier = LayoutSize(300.dp) + draggable(
+                            Box(modifier = Modifier.preferredSize(300.dp) + draggable(
                                 dragDirection = DragDirection.Horizontal,
                                 onDragDeltaConsumptionRequested = { delta ->
                                     innerDrag += delta / 2
@@ -348,7 +348,7 @@ class DraggableTest {
                 val draggable = draggableFactory()
                 TestTag(draggableBoxTag) {
                     Semantics(container = true) {
-                        Box(modifier = LayoutSize(100.dp) + draggable)
+                        Box(modifier = Modifier.preferredSize(100.dp) + draggable)
                     }
                 }
             }

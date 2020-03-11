@@ -50,15 +50,17 @@ import androidx.ui.graphics.Shader
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutOffset
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
+import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.offset
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.ui.text.style.TextAlign
@@ -85,8 +87,11 @@ fun ColorPickerDemo() {
 
 @Composable
 private fun ColorPicker(onColorChange: (Color) -> Unit) {
-    WithConstraints(LayoutPadding(50.dp) + LayoutSize.Fill +
-            LayoutAspectRatio(1f)) { constraints, _ ->
+    WithConstraints(
+        Modifier.padding(50.dp)
+            .fillMaxSize()
+            .aspectRatio(1f)
+    ) { constraints, _ ->
         val diameter = constraints.maxWidth.value
         var position by state { PxPosition.Origin }
         val colorWheel = remember(diameter) { ColorWheel(diameter) }
@@ -106,7 +111,7 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
             onDragStateChange = { isDragging = it }
         )
 
-        Stack(LayoutSize.Fill) {
+        Stack(Modifier.fillMaxSize()) {
             Image(modifier = inputModifier, asset = colorWheel.image)
             val color = colorWheel.colorForPosition(position)
             if (color != null) {
@@ -160,7 +165,7 @@ private fun SimplePointerInput(
 @Composable
 private fun Magnifier(visible: Boolean, position: PxPosition, color: Color) {
     val offset = with(DensityAmbient.current) {
-        LayoutOffset(
+        Modifier.offset(
             position.x.toDp() - MagnifierWidth / 2,
             // Align with the center of the selection circle
             position.y.toDp() - (MagnifierHeight - (SelectionCircleDiameter / 2))
@@ -173,20 +178,18 @@ private fun Magnifier(visible: Boolean, position: PxPosition, color: Color) {
     ) { labelWidth: Dp, selectionDiameter: Dp,
         opacity: Float ->
         Column(
-            modifier = offset + LayoutSize(
-                width = MagnifierWidth,
-                height = MagnifierHeight
-            ) + drawOpacity(opacity)
+            offset.preferredSize(width = MagnifierWidth, height = MagnifierHeight)
+                .drawOpacity(opacity)
         ) {
-            Box(LayoutWidth.Fill, gravity = ContentGravity.Center) {
-                MagnifierLabel(LayoutSize(labelWidth, MagnifierLabelHeight), color)
+            Box(Modifier.fillMaxWidth(), gravity = ContentGravity.Center) {
+                MagnifierLabel(Modifier.preferredSize(labelWidth, MagnifierLabelHeight), color)
             }
-            Spacer(LayoutWeight(1f))
+            Spacer(Modifier.weight(1f))
             Box(
-                LayoutWidth.Fill + LayoutHeight(SelectionCircleDiameter),
+                Modifier.fillMaxWidth().preferredHeight(SelectionCircleDiameter),
                 gravity = ContentGravity.Center
             ) {
-                MagnifierSelectionCircle(LayoutSize(selectionDiameter), color)
+                MagnifierSelectionCircle(Modifier.preferredSize(selectionDiameter), color)
             }
         }
     }
@@ -252,13 +255,13 @@ private val OpacityPropKey = FloatPropKey()
 private fun MagnifierLabel(modifier: Modifier, color: Color) {
     Surface(shape = MagnifierPopupShape, elevation = 4.dp) {
         Row(modifier) {
-            Box(LayoutWeight(0.25f) + LayoutHeight.Fill, backgroundColor = color)
+            Box(Modifier.weight(0.25f).fillMaxHeight(), backgroundColor = color)
             // Add `#` and drop alpha characters
             val text = "#" + Integer.toHexString(color.toArgb()).toUpperCase(Locale.ROOT).drop(2)
             val textStyle = currentTextStyle().copy(textAlign = TextAlign.Center)
             Text(
                 text = text,
-                modifier = LayoutWeight(0.75f) + LayoutPadding(bottom = 20.dp, top = 10.dp),
+                modifier = Modifier.weight(0.75f).padding(top = 10.dp, bottom = 20.dp),
                 style = textStyle,
                 maxLines = 1
             )

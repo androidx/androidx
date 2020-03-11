@@ -107,46 +107,44 @@ fun CoreText(
         maxLines = maxLines
     )
 
-    val textDrawModifier = draw { canvas, _ ->
-        state.layoutResult?.let { layoutResult ->
-            state.selectionRange?.let {
-                state.textDelegate.paintBackground(
-                    it.min,
-                    it.max,
-                    DefaultSelectionColor,
-                    canvas,
-                    layoutResult
-                )
+    Layout(
+        children = emptyContent(),
+        modifier = modifier.drawBehind { canvas, _ ->
+            state.layoutResult?.let { layoutResult ->
+                state.selectionRange?.let {
+                    state.textDelegate.paintBackground(
+                        it.min,
+                        it.max,
+                        DefaultSelectionColor,
+                        canvas,
+                        layoutResult
+                    )
+                }
+                state.textDelegate.paint(canvas, layoutResult)
             }
-            state.textDelegate.paint(canvas, layoutResult)
-        }
-    }
-    // Get the layout coordinates of the text composable. This is for hit test of
-    // cross-composable selection.
-    val onPositioned = onPositioned {
-        val oldLayoutCoordinates = state.layoutCoordinates
-        state.layoutCoordinates = it
+        }.onPositioned {
+            // Get the layout coordinates of the text composable. This is for hit test of
+            // cross-composable selection.
+            val oldLayoutCoordinates = state.layoutCoordinates
+            state.layoutCoordinates = it
 
-        if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
-            it.isAttached
-        ) {
-            selectionRegistrar?.onPositionChange()
-        }
-
-        if (oldLayoutCoordinates != null && oldLayoutCoordinates.isAttached &&
-            it.isAttached
-        ) {
-            if (
-                oldLayoutCoordinates.localToGlobal(PxPosition.Origin) !=
-                it.localToGlobal(PxPosition.Origin)
+            if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
+                it.isAttached
             ) {
                 selectionRegistrar?.onPositionChange()
             }
-        }
-    }
-    Layout(
-        children = emptyContent(),
-        modifier = modifier + textDrawModifier + onPositioned,
+
+            if (oldLayoutCoordinates != null && oldLayoutCoordinates.isAttached &&
+                it.isAttached
+            ) {
+                if (
+                    oldLayoutCoordinates.localToGlobal(PxPosition.Origin) !=
+                    it.localToGlobal(PxPosition.Origin)
+                ) {
+                    selectionRegistrar?.onPositionChange()
+                }
+            }
+        },
         minIntrinsicWidthMeasureBlock = { _, _, _ ->
             state.textDelegate.layoutIntrinsics()
             state.textDelegate.minIntrinsicWidth

@@ -72,13 +72,13 @@ class TextLayoutTest {
         show {
             TestingText(
                 "aa",
-                modifier = onPositioned { coordinates ->
+                modifier = Modifier.onPositioned { coordinates ->
                     textSize.value = coordinates.size
                     layoutLatch.countDown()
                 }
             )
             TestingText("aaaa",
-                modifier = onPositioned { coordinates ->
+                modifier = Modifier.onPositioned { coordinates ->
                     doubleTextSize.value = coordinates.size
                     layoutLatch.countDown()
                 }
@@ -100,13 +100,13 @@ class TextLayoutTest {
         val doubleTextSize = Ref<IntPxSize>()
         show {
             TestingText("aa ",
-                modifier = onPositioned { coordinates ->
+                modifier = Modifier.onPositioned { coordinates ->
                     textSize.value = coordinates.size
                     layoutLatch.countDown()
                 }
             )
             TestingText("aa aa ",
-                modifier = onPositioned { coordinates ->
+                modifier = Modifier.onPositioned { coordinates ->
                     doubleTextSize.value = coordinates.size
                     layoutLatch.countDown()
                 }

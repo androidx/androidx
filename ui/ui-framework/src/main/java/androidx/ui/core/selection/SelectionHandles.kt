@@ -17,9 +17,11 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.core.Layout
-import androidx.ui.core.draw
+import androidx.ui.core.Modifier
+import androidx.ui.core.drawBehind
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -81,8 +83,7 @@ private fun HandleDrawLayout(
     height: Dp,
     onCanvas: Density.(Canvas, PxSize) -> Unit
 ) {
-    val modifier = draw(onCanvas)
-    Layout({}, modifier) { _, _, _ ->
+    Layout(emptyContent(), Modifier.drawBehind(onCanvas)) { _, _, _ ->
         // take width and height space of the screen and allow draw modifier to draw inside of it
         layout(width.toIntPx(), height.toIntPx()) {
             // this layout has no children, only draw modifier.
