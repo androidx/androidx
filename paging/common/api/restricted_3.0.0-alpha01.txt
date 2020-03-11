@@ -2,7 +2,7 @@
 package androidx.paging {
 
   public final class CachedPagingDataKt {
-    method public static <T> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>> cachedIn(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
+    method @CheckResult public static <T> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>> cachedIn(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
   }
 
   public final class CancelableChannelFlowKt {
@@ -248,19 +248,19 @@ package androidx.paging {
   }
 
   public final class PagingData<T> {
-    method public androidx.paging.PagingData<T> addFooter(T item);
-    method public androidx.paging.PagingData<T> addHeader(T item);
+    method @CheckResult public androidx.paging.PagingData<T> addFooter(T item);
+    method @CheckResult public androidx.paging.PagingData<T> addHeader(T item);
     method public static <T> androidx.paging.PagingData<T> empty();
-    method public androidx.paging.PagingData<T> filter(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
-    method public <R> androidx.paging.PagingData<R> flatMap(kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
-    method public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
-    method public <R> androidx.paging.PagingData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
+    method @CheckResult public androidx.paging.PagingData<T> filter(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
+    method @CheckResult public <R> androidx.paging.PagingData<R> flatMap(kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
+    method @CheckResult public <R> androidx.paging.PagingData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
     field public static final androidx.paging.PagingData.Companion! Companion;
   }
 
   public static final class PagingData.Companion {
     method public <T> androidx.paging.PagingData<T> empty();
-    method public <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
+    method @CheckResult public <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
   }
 
   public final class PagingDataFlow {
@@ -269,7 +269,7 @@ package androidx.paging {
   }
 
   public final class PagingDataKt {
-    method public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
   }
 
   public abstract class PagingSource<Key, Value> {
