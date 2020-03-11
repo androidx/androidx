@@ -29,22 +29,19 @@ import androidx.ui.material.samples.SwitchSample
 import androidx.ui.material.samples.TriStateCheckboxSample
 import androidx.ui.unit.dp
 
-class SelectionControlsActivity : MaterialDemoActivity() {
-
-    @Composable
-    override fun materialContent() {
-        val headerStyle = MaterialTheme.typography().h6
-        Column(LayoutPadding(10.dp), arrangement = Arrangement.SpaceEvenly) {
-            Text(text = "Checkbox", style = headerStyle)
-            TriStateCheckboxSample()
-            Text(text = "Switch", style = headerStyle)
-            SwitchSample()
-            Text(text = "RadioButton", style = headerStyle)
-            RadioButtonSample()
-            Text(text = "Radio group :: Default usage", style = headerStyle)
-            DefaultRadioGroupSample()
-            Text(text = "Radio group :: Custom usage", style = headerStyle)
-            CustomRadioGroupSample()
-        }
+@Composable
+fun SelectionControlsDemo() {
+    val headerStyle = MaterialTheme.typography().h6
+    Column(LayoutPadding(10.dp), arrangement = Arrangement.SpaceEvenly) {
+        Text(text = "Checkbox", style = headerStyle)
+        TriStateCheckboxSample()
+        Text(text = "Switch", style = headerStyle)
+        SwitchSample()
+        Text(text = "RadioButton", style = headerStyle)
+        RadioButtonSample()
+        Text(text = "Radio group :: Default usage", style = headerStyle)
+        DefaultRadioGroupSample()
+        Text(text = "Radio group :: Custom usage", style = headerStyle)
+        CustomRadioGroupSample()
     }
 }

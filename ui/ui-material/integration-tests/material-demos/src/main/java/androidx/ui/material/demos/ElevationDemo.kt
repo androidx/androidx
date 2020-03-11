@@ -34,20 +34,17 @@ import androidx.ui.material.Card
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
-class ElevationActivity : MaterialDemoActivity() {
-
-    @Composable
-    override fun materialContent() {
-        Column {
-            Container(LayoutPadding(20.dp) + LayoutWidth.Fill) {
-                val text = getMessage(MaterialTheme.colors().isLight)
-                Text(text)
-            }
-            VerticalScroller {
-                Column(LayoutPadding(25.dp) + LayoutSize.Fill) {
-                    elevations.forEach { elevation ->
-                        ElevatedCard(elevation)
-                    }
+@Composable
+fun ElevationDemo() {
+    Column {
+        Container(LayoutPadding(20.dp) + LayoutWidth.Fill) {
+            val text = getMessage(MaterialTheme.colors().isLight)
+            Text(text)
+        }
+        VerticalScroller {
+            Column(LayoutPadding(25.dp) + LayoutSize.Fill) {
+                elevations.forEach { elevation ->
+                    ElevatedCard(elevation)
                 }
             }
         }

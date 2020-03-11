@@ -17,20 +17,16 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.material.samples.MaterialThemeSample
-import androidx.ui.material.samples.ThemeColorSample
-import androidx.ui.material.samples.ThemeTextStyleSample
+import androidx.ui.layout.Spacer
+import androidx.ui.material.samples.SimpleBottomAppBar
+import androidx.ui.material.samples.SimpleTopAppBar
 
-class MaterialThemeActivity : MaterialDemoActivity() {
-    @Composable
-    override fun materialContent() {
-        Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
-            MaterialThemeSample()
-            ThemeTextStyleSample()
-            ThemeColorSample()
-        }
+@Composable
+fun AppBarDemo() {
+    Column {
+        SimpleTopAppBar()
+        Spacer(LayoutWeight(1f))
+        SimpleBottomAppBar()
     }
 }

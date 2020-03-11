@@ -36,35 +36,32 @@ import androidx.ui.material.samples.TextAndIconTabs
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.unit.dp
 
-class TabActivity : MaterialDemoActivity() {
+@Composable
+fun TabDemo() {
+    Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
+        val showingSimple = state { true }
+        val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 
-    @Composable
-    override fun materialContent() {
-        Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceBetween) {
-            val showingSimple = state { true }
-            val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
-
-            if (showingSimple.value) {
-                TextTabs()
-                IconTabs()
-                TextAndIconTabs()
-                ScrollingTextTabs()
-            } else {
-                FancyTabs()
-                FancyIndicatorTabs()
-                FancyIndicatorContainerTabs()
-                ScrollingFancyIndicatorContainerTabs()
-            }
-            Button(
-                modifier = LayoutGravity.Center,
-                onClick = {
-                    showingSimple.value = !showingSimple.value
-                },
-                backgroundColor = Color.Cyan
-            ) {
-                Text(buttonText)
-            }
-            Spacer(LayoutHeight(50.dp))
+        if (showingSimple.value) {
+            TextTabs()
+            IconTabs()
+            TextAndIconTabs()
+            ScrollingTextTabs()
+        } else {
+            FancyTabs()
+            FancyIndicatorTabs()
+            FancyIndicatorContainerTabs()
+            ScrollingFancyIndicatorContainerTabs()
         }
+        Button(
+            modifier = LayoutGravity.Center,
+            onClick = {
+                showingSimple.value = !showingSimple.value
+            },
+            backgroundColor = Color.Cyan
+        ) {
+            Text(buttonText)
+        }
+        Spacer(LayoutHeight(50.dp))
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.demos
+package androidx.ui.material.studies
 
-import androidx.compose.Composable
-import androidx.ui.material.samples.SideBySideAlertDialogSample
+import androidx.ui.demos.common.ActivityDemo
+import androidx.ui.demos.common.DemoCategory
+import androidx.ui.material.studies.rally.RallyActivity
 
-class AlertDialogActivity : MaterialDemoActivity() {
-
-    @Composable
-    override fun materialContent() {
-        SideBySideAlertDialogSample()
-    }
-}
+val MaterialStudies = DemoCategory("Material Studies", listOf(
+    ActivityDemo("Rally", RallyActivity::class)
+))

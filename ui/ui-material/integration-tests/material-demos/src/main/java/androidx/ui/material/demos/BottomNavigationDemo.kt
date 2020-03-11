@@ -27,33 +27,30 @@ import androidx.ui.material.samples.BottomNavigationSample
 import androidx.ui.material.samples.BottomNavigationWithOnlySelectedLabelsSample
 import androidx.ui.unit.dp
 
-class BottomNavigationActivity : MaterialDemoActivity() {
+@Composable
+fun BottomNavigationDemo() {
+    var alwaysShowLabels by state { false }
 
-    @Composable
-    override fun materialContent() {
-        var alwaysShowLabels by state { false }
+    Column(LayoutHeight.Fill, arrangement = Arrangement.Bottom) {
+        RadioGroup {
+            RadioGroupTextItem(
+                selected = !alwaysShowLabels,
+                onSelect = { alwaysShowLabels = false },
+                text = "Only show labels when selected"
+            )
+            RadioGroupTextItem(
+                selected = alwaysShowLabels,
+                onSelect = { alwaysShowLabels = true },
+                text = "Always show labels"
+            )
+        }
 
-        Column(arrangement = Arrangement.Bottom) {
-            RadioGroup {
-                RadioGroupTextItem(
-                    selected = !alwaysShowLabels,
-                    onSelect = { alwaysShowLabels = false },
-                    text = "Only show labels when selected"
-                )
-                RadioGroupTextItem(
-                    selected = alwaysShowLabels,
-                    onSelect = { alwaysShowLabels = true },
-                    text = "Always show labels"
-                )
-            }
+        Spacer(LayoutHeight(50.dp))
 
-            Spacer(LayoutHeight(50.dp))
-
-            if (alwaysShowLabels) {
-                BottomNavigationSample()
-            } else {
-                BottomNavigationWithOnlySelectedLabelsSample()
-            }
+        if (alwaysShowLabels) {
+            BottomNavigationSample()
+        } else {
+            BottomNavigationWithOnlySelectedLabelsSample()
         }
     }
 }

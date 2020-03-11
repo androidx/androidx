@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.onActive
 import androidx.compose.onDispose
+import androidx.compose.remember
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Arrangement
@@ -30,11 +31,33 @@ import androidx.ui.layout.Row
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.LinearProgressIndicator
 
-class ProgressIndicatorActivity : MaterialDemoActivity() {
+@Composable
+fun ProgressIndicatorDemo() {
+    val state = remember { ProgressState() }
 
-    @Composable
-    override fun materialContent() {
-        ProgressIndicatorDemo()
+    onActive { state.start() }
+    onDispose { state.stop() }
+
+    Column {
+        val modifier = LayoutWeight(1f) + LayoutGravity.Center + LayoutWidth.Fill
+        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+            // Determinate indicators
+            LinearProgressIndicator(progress = state.progress)
+            CircularProgressIndicator(progress = state.progress)
+        }
+        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+            // Fancy colours!
+            LinearProgressIndicator(progress = (state.progress), color = state.generateColor())
+            CircularProgressIndicator(
+                progress = (state.progress),
+                color = state.generateColor()
+            )
+        }
+        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+            // Indeterminate indicators
+            LinearProgressIndicator()
+            CircularProgressIndicator()
+        }
     }
 }
 
@@ -74,35 +97,6 @@ private class ProgressState {
                 progress += 0.25f
             }
             handler.postDelayed(this, 400)
-        }
-    }
-}
-
-@Composable
-private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
-
-    onActive { state.start() }
-    onDispose { state.stop() }
-
-    Column {
-        val modifier = LayoutWeight(1f) + LayoutGravity.Center + LayoutWidth.Fill
-        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
-            // Determinate indicators
-            LinearProgressIndicator(progress = state.progress)
-            CircularProgressIndicator(progress = state.progress)
-        }
-        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
-            // Fancy colours!
-            LinearProgressIndicator(progress = (state.progress), color = state.generateColor())
-            CircularProgressIndicator(
-                progress = (state.progress),
-                color = state.generateColor()
-            )
-        }
-        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
-            // Indeterminate indicators
-            LinearProgressIndicator()
-            CircularProgressIndicator()
         }
     }
 }

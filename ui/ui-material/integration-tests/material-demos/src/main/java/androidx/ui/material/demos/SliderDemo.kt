@@ -23,12 +23,10 @@ import androidx.ui.material.samples.SliderSample
 import androidx.ui.material.samples.StepsSliderSample
 import androidx.ui.unit.dp
 
-class SliderActivity : MaterialDemoActivity() {
-    @Composable
-    override fun materialContent() {
-        Column(LayoutPadding(10.dp)) {
-            SliderSample()
-            StepsSliderSample()
-        }
+@Composable
+fun SliderDemo() {
+    Column(LayoutPadding(10.dp)) {
+        SliderSample()
+        StepsSliderSample()
     }
 }

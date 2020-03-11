@@ -27,26 +27,24 @@ import androidx.ui.material.samples.SimpleSnackbar
 import androidx.ui.material.snackbarPrimaryColorFor
 import androidx.ui.unit.dp
 
-class SnackbarActivity : MaterialDemoActivity() {
-    @Composable
-    override fun materialContent() {
-        Column(LayoutPadding(start = 12.dp, end = 12.dp)) {
-            val textSpacing = LayoutPadding(top = 12.dp, bottom = 12.dp)
-            Text("Default Snackbar", modifier = textSpacing)
-            SimpleSnackbar()
-            Text("Snackbar with long text", modifier = textSpacing)
-            Snackbar(
-                text = { Text("This song already exists in the current playlist") },
-                action = {
-                    TextButton(
-                        contentColor = snackbarPrimaryColorFor(MaterialTheme.colors()),
-                        onClick = { /* perform undo */ }
-                    ) {
-                        Text("ADD THIS SONG ANYWAY")
-                    }
-                },
-                actionOnNewLine = true
-            )
-        }
+@Composable
+fun SnackbarDemo() {
+    Column(LayoutPadding(start = 12.dp, end = 12.dp)) {
+        val textSpacing = LayoutPadding(top = 12.dp, bottom = 12.dp)
+        Text("Default Snackbar", modifier = textSpacing)
+        SimpleSnackbar()
+        Text("Snackbar with long text", modifier = textSpacing)
+        Snackbar(
+            text = { Text("This song already exists in the current playlist") },
+            action = {
+                TextButton(
+                    contentColor = snackbarPrimaryColorFor(MaterialTheme.colors()),
+                    onClick = { /* perform undo */ }
+                ) {
+                    Text("ADD THIS SONG ANYWAY")
+                }
+            },
+            actionOnNewLine = true
+        )
     }
 }

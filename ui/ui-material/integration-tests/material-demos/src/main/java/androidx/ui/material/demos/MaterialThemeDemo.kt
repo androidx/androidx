@@ -17,12 +17,18 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.material.samples.SimpleDataTable
+import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.material.samples.MaterialThemeSample
+import androidx.ui.material.samples.ThemeColorSample
+import androidx.ui.material.samples.ThemeTextStyleSample
 
-class DataTableActivity : MaterialDemoActivity() {
-
-    @Composable
-    override fun materialContent() {
-        SimpleDataTable()
+@Composable
+fun MaterialThemeDemo() {
+    Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
+        MaterialThemeSample()
+        ThemeTextStyleSample()
+        ThemeColorSample()
     }
 }
