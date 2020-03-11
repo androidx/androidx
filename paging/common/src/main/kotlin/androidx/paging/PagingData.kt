@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.CheckResult
 import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadType.END
@@ -46,18 +47,21 @@ class PagingData<T : Any> internal constructor(
      * Returns a [PagingData] containing the result of applying the given [transform] to each
      * element, as it is loaded.
      */
+    @CheckResult
     fun <R : Any> map(transform: (T) -> R): PagingData<R> = transform { it.map(transform) }
 
     /**
      * Returns a [PagingData] of all elements returned from applying the given [transform]
      * to each element, as it is loaded.
      */
+    @CheckResult
     fun <R : Any> flatMap(transform: (T) -> Iterable<R>): PagingData<R> =
         transform { it.flatMap(transform) }
 
     /**
      * Returns a [PagingData] containing only elements matching the given [predicate]
      */
+    @CheckResult
     fun filter(predicate: (T) -> Boolean): PagingData<T> = transform { it.filter(predicate) }
 
     /**
@@ -73,6 +77,7 @@ class PagingData<T : Any> internal constructor(
      * more headers to the start of the list, which can be useful if multiple header items are
      * required.
      */
+    @CheckResult
     fun addHeader(item: T) = PagingData(flow.addHeader(item), receiver)
 
     /**
@@ -88,6 +93,7 @@ class PagingData<T : Any> internal constructor(
      * more footer to the end of the list, which can be useful if multiple footer items are
      * required.
      */
+    @CheckResult
     fun addFooter(item: T) = PagingData(flow.addFooter(item), receiver)
 
     companion object {
@@ -195,6 +201,7 @@ class PagingData<T : Any> internal constructor(
          * }
          */
         @JvmStatic
+        @CheckResult
         fun <T : R, R : Any> insertSeparators(
             pagingData: PagingData<T>,
             generator: (T?, T?) -> R?
@@ -217,6 +224,7 @@ class PagingData<T : Any> internal constructor(
  * @sample androidx.paging.samples.insertSeparatorsSample
  * @sample androidx.paging.samples.insertSeparatorsUiModelSample
  */
+@CheckResult
 fun <T : R, R : Any> PagingData<T>.insertSeparators(
     generator: (T?, T?) -> R?
 ): PagingData<R> {
