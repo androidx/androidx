@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-@file:JvmName("PagingDataObservable")
+@file:JvmMultifileClass
+@file:JvmName("RxPaging")
 
 package androidx.paging
 
 import io.reactivex.Observable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.rx2.asObservable
 
 /**
@@ -32,12 +34,13 @@ import kotlinx.coroutines.rx2.asObservable
  * @see PagingDataFlow
  */
 @Suppress("FunctionName", "unused")
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@JvmName("observable")
 @JvmOverloads
-@JvmName("create")
+@UseExperimental(ExperimentalCoroutinesApi::class)
 fun <Key : Any, Value : Any> PagingDataObservable(
     config: PagingConfig,
     initialKey: Key? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
-): Observable<PagingData<Value>> =
-    PagingDataFlow(config, initialKey, pagingSourceFactory).asObservable()
+): Observable<PagingData<Value>> = PagingDataFlow(config, initialKey, pagingSourceFactory)
+    .conflate()
+    .asObservable()
