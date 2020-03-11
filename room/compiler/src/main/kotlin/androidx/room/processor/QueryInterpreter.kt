@@ -159,7 +159,9 @@ class QueryInterpreter(
         }.map { field ->
             if (table != null && table is Entity) {
                 // Should not happen when defining a view
-                "`${table.tableName}`.`${field.columnName}` AS `${field.columnName}`"
+                val tableAlias = nameToAlias[table.tableName.toLowerCase(Locale.ENGLISH)]
+                    ?: table.tableName
+                "`$tableAlias`.`${field.columnName}` AS `${field.columnName}`"
             } else {
                 "`${field.columnName}`"
             }
