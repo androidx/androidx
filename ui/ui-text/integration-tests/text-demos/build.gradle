@@ -14,16 +14,14 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
 
-    implementation "androidx.activity:activity:1.0.0-alpha01"
-    api "androidx.annotation:annotation:1.1.0"
-
     implementation project(":compose:compose-runtime")
+    implementation project(":ui:integration-tests:demos:common")
     implementation project(":ui:ui-core")
-    implementation project(':ui:ui-framework')
-    implementation project(':ui:ui-foundation')
-    implementation project(':ui:ui-layout')
-    implementation project(':ui:ui-text')
-    implementation project(':ui:ui-text:samples')
+    implementation project(":ui:ui-framework")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-layout")
+    implementation project(":ui:ui-text")
+    implementation project(":ui:ui-text:samples")
 }
 
 android {
