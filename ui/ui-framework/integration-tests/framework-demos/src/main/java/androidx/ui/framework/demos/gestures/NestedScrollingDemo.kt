@@ -16,8 +16,6 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
@@ -30,7 +28,6 @@ import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.DrawBackground
@@ -54,23 +51,19 @@ import androidx.ui.unit.toRect
 /**
  * Demonstration for how multiple DragGestureDetectors interact.
  */
-class NestedScrollingDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            // Outer composable that scrollsAll mea
-            Draggable {
-                RepeatingList(repititions = 3) {
-                    Box(LayoutHeight(398.dp), padding = 72.dp) {
-                        // Inner composable that scrolls
-                        Draggable {
-                            RepeatingList(repititions = 5) {
-                                // Composable that indicates it is being pressed
-                                Pressable(
-                                    height = 72.dp
-                                )
-                            }
-                        }
+@Composable
+fun NestedScrollingDemo() {
+    // Outer composable that scrollsAll mea
+    Draggable {
+        RepeatingList(repetitions = 3) {
+            Box(LayoutHeight(398.dp), padding = 72.dp) {
+                // Inner composable that scrolls
+                Draggable {
+                    RepeatingList(repetitions = 5) {
+                        // Composable that indicates it is being pressed
+                        Pressable(
+                            height = 72.dp
+                        )
                     }
                 }
             }
@@ -189,15 +182,15 @@ private fun Pressable(
 }
 
 /**
- * A simple composable that repeats it's children as a vertical list of divided items [repititions]
+ * A simple composable that repeats its children as a vertical list of divided items [repetitions]
  * times.
  */
 @Composable
-private fun RepeatingList(repititions: Int, row: @Composable() () -> Unit) {
+private fun RepeatingList(repetitions: Int, row: @Composable() () -> Unit) {
     Column(DrawBorder(border = Border(2.dp, BorderColor))) {
-        for (i in 1..repititions) {
+        for (i in 1..repetitions) {
             row()
-            if (i != repititions) {
+            if (i != repetitions) {
                 Box(
                     LayoutWidth.Fill + LayoutHeight(1.dp),
                     backgroundColor = Color(0f, 0f, 0f, .12f)

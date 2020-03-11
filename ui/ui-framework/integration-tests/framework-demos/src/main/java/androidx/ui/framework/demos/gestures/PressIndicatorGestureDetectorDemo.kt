@@ -16,11 +16,9 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.layout.LayoutAlign
@@ -31,38 +29,34 @@ import androidx.ui.unit.dp
 /**
  * Simple PressIndicatorGestureDetector demo.
  */
-class PressIndicatorGestureDetectorDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val pressed = state { false }
+@Composable
+fun PressIndicatorGestureDetectorDemo() {
+    val pressed = state { false }
 
-            val onStart: (PxPosition) -> Unit = {
-                pressed.value = true
-            }
+    val onStart: (PxPosition) -> Unit = {
+        pressed.value = true
+    }
 
-            val onStop = {
-                pressed.value = false
-            }
+    val onStop = {
+        pressed.value = false
+    }
 
-            val color =
-                if (pressed.value) {
-                    PressedColor.over(Grey)
-                } else {
-                    Grey
-                }
-
-            PressIndicatorGestureDetector(
-                onStart = onStart,
-                onStop = onStop,
-                onCancel = onStop
-            ) {
-                Box(
-                    LayoutAlign.Center + LayoutSize(192.dp),
-                    backgroundColor = color,
-                    border = Border(2.dp, BorderColor)
-                )
-            }
+    val color =
+        if (pressed.value) {
+            PressedColor.over(Grey)
+        } else {
+            Grey
         }
+
+    PressIndicatorGestureDetector(
+        onStart = onStart,
+        onStop = onStop,
+        onCancel = onStop
+    ) {
+        Box(
+            LayoutAlign.Center + LayoutSize(192.dp),
+            backgroundColor = color,
+            border = Border(2.dp, BorderColor)
+        )
     }
 }

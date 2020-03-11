@@ -16,11 +16,9 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.layout.LayoutAlign
@@ -30,23 +28,19 @@ import androidx.ui.unit.dp
 /**
  * Simple PressReleasedGestureDetector demo.
  */
-class PressReleasedGestureDetectorDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val color = state { Colors.random() }
+@Composable
+fun PressReleasedGestureDetectorDemo() {
+    val color = state { Colors.random() }
 
-            val onRelease = {
-                color.value = color.value.anotherRandomColor()
-            }
+    val onRelease = {
+        color.value = color.value.anotherRandomColor()
+    }
 
-            PressReleasedGestureDetector(onRelease) {
-                Box(
-                    LayoutAlign.Center + LayoutSize(192.dp),
-                    backgroundColor = color.value,
-                    border = Border(2.dp, BorderColor)
-                )
-            }
-        }
+    PressReleasedGestureDetector(onRelease) {
+        Box(
+            LayoutAlign.Center + LayoutSize(192.dp),
+            backgroundColor = color.value,
+            border = Border(2.dp, BorderColor)
+        )
     }
 }

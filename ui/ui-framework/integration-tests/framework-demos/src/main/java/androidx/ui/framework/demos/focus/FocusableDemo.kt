@@ -16,15 +16,12 @@
 
 package androidx.ui.framework.demos.focus
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.setContent
-import androidx.ui.focus.FocusState.NotFocused
-import androidx.ui.focus.FocusState.NotFocusable
 import androidx.ui.focus.FocusState.Focused
+import androidx.ui.focus.FocusState.NotFocusable
+import androidx.ui.focus.FocusState.NotFocused
 import androidx.ui.focus.Focusable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
@@ -32,30 +29,23 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
-import androidx.ui.material.MaterialTheme
 import androidx.ui.text.TextStyle
 
-class FocusableActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Focusable {
-                MaterialTheme {
-                    Column(arrangement = Arrangement.SpaceEvenly) {
-                        CenteredRow {
-                            Text("Click on any focusable to bring it into focus:")
-                        }
-                        CenteredRow {
-                            FocusableText("Focusable 1")
-                        }
-                        CenteredRow {
-                            FocusableText("Focusable 2")
-                        }
-                        CenteredRow {
-                            FocusableText("Focusable 3")
-                        }
-                    }
-                }
+@Composable
+fun FocusableDemo() {
+    Focusable {
+        Column(arrangement = Arrangement.SpaceEvenly) {
+            CenteredRow {
+                Text("Click on any focusable to bring it into focus:")
+            }
+            CenteredRow {
+                FocusableText("Focusable 1")
+            }
+            CenteredRow {
+                FocusableText("Focusable 2")
+            }
+            CenteredRow {
+                FocusableText("Focusable 3")
             }
         }
     }

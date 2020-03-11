@@ -16,8 +16,6 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
@@ -25,7 +23,6 @@ import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -36,31 +33,27 @@ import androidx.ui.unit.dp
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.
  */
-class NestedPressDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            PressableContainer(
-                paddingLeft = 48.dp,
-                paddingRight = 48.dp,
-                paddingTop = 96.dp,
-                paddingBottom = 96.dp
-            ) {
-                PressableContainer(
-                    paddingLeft = 48.dp,
-                    paddingRight = 48.dp,
-                    paddingTop = 96.dp,
-                    paddingBottom = 96.dp
-                ) {
-                    PressableContainer {}
-                }
-            }
+@Composable
+fun NestedPressDemo() {
+    PressableContainer(
+        paddingLeft = 48.dp,
+        paddingRight = 48.dp,
+        paddingTop = 96.dp,
+        paddingBottom = 96.dp
+    ) {
+        PressableContainer(
+            paddingLeft = 48.dp,
+            paddingRight = 48.dp,
+            paddingTop = 96.dp,
+            paddingBottom = 96.dp
+        ) {
+            PressableContainer {}
         }
     }
 }
 
 @Composable
-fun PressableContainer(
+private fun PressableContainer(
     paddingLeft: Dp = 0.dp,
     paddingTop: Dp = 0.dp,
     paddingRight: Dp = 0.dp,
@@ -123,4 +116,4 @@ fun PressableContainer(
     }
 }
 
-data class Single<T>(var value: T)
+private data class Single<T>(var value: T)

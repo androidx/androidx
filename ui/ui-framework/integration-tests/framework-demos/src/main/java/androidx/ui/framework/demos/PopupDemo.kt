@@ -16,10 +16,7 @@
 
 package androidx.ui.framework.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
-import androidx.compose.Composition
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DropDownAlignment
@@ -29,7 +26,6 @@ import androidx.ui.core.Popup
 import androidx.ui.core.PopupProperties
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
@@ -53,97 +49,86 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
-class PopupActivity : Activity() {
-    private var composition: Composition? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+@Composable
+fun PopupDemo() {
+    val exampleIndex = state { 0 }
+    val totalExamples = 9
 
-        composition = setContent {
-            val exampleIndex = state { 0 }
-            val totalExamples = 9
-
-            Column {
-                Row(
-                    LayoutWidth.Fill + LayoutGravity.Center,
-                    arrangement = Arrangement.SpaceBetween
-                ) {
-                    this@Column.ClickableTextWithBackground(
-                        text = "Prev",
-                        color = Color.Cyan,
-                        onClick = {
-                            if (exampleIndex.value == 0) {
-                                exampleIndex.value = totalExamples
-                            }
-
-                            exampleIndex.value = (exampleIndex.value - 1) % totalExamples
-                        },
-                        padding = 20.dp
-                    )
-
-                    Box(
-                        modifier = LayoutWeight(1f),
-                        gravity = ContentGravity.Center
-                    ) {
-                        val description: String = {
-                            when (exampleIndex.value) {
-                                0 -> "Toggle a simple popup"
-                                1 -> "Different content for the popup"
-                                2 -> "Popup's behavior when the parent's size or position " +
-                                        "changes"
-                                3 -> "Aligning the popup below the parent"
-                                4 -> "Aligning the popup inside a parent"
-                                5 -> "Insert an email in the popup and then click outside to " +
-                                        "dismiss"
-                                6 -> "[bug] Undesired visual effect caused by" +
-                                        " having a new size content displayed at the old" +
-                                        " position, until the new one is calculated"
-                                7 -> "The popup is aligning to its parent when the parent is" +
-                                        " inside a Scroller"
-                                8 -> "[bug] The popup is not repositioned " +
-                                        "when the parent is moved by the keyboard"
-                                else -> "Demo description here"
-                            }
-                        }.invoke()
-
-                        Text(
-                            text = description,
-                            style = TextStyle(textAlign = TextAlign.Center)
-                        )
+    Column {
+        Row(
+            LayoutWidth.Fill + LayoutGravity.Center,
+            arrangement = Arrangement.SpaceBetween
+        ) {
+            this@Column.ClickableTextWithBackground(
+                text = "Prev",
+                color = Color.Cyan,
+                onClick = {
+                    if (exampleIndex.value == 0) {
+                        exampleIndex.value = totalExamples
                     }
 
-                    this@Column.ClickableTextWithBackground(
-                        text = "Next",
-                        color = Color.Cyan,
-                        onClick = {
-                            exampleIndex.value = (exampleIndex.value + 1) % totalExamples
-                        },
-                        padding = 20.dp
-                    )
-                }
+                    exampleIndex.value = (exampleIndex.value - 1) % totalExamples
+                },
+                padding = 20.dp
+            )
 
-                when (exampleIndex.value) {
-                    0 -> PopupToggle()
-                    1 -> PopupWithChangingContent()
-                    2 -> PopupWithChangingParent()
-                    3 -> PopupDropdownAlignment()
-                    4 -> PopupAlignmentDemo()
-                    5 -> PopupWithEditText()
-                    6 -> PopupWithChangingSize()
-                    7 -> PopupInsideScroller()
-                    8 -> PopupOnKeyboardUp()
-                }
+            Box(
+                modifier = LayoutWeight(1f),
+                gravity = ContentGravity.Center
+            ) {
+                val description: String = {
+                    when (exampleIndex.value) {
+                        0 -> "Toggle a simple popup"
+                        1 -> "Different content for the popup"
+                        2 -> "Popup's behavior when the parent's size or position " +
+                                "changes"
+                        3 -> "Aligning the popup below the parent"
+                        4 -> "Aligning the popup inside a parent"
+                        5 -> "Insert an email in the popup and then click outside to " +
+                                "dismiss"
+                        6 -> "[bug] Undesired visual effect caused by" +
+                                " having a new size content displayed at the old" +
+                                " position, until the new one is calculated"
+                        7 -> "The popup is aligning to its parent when the parent is" +
+                                " inside a Scroller"
+                        8 -> "[bug] The popup is not repositioned " +
+                                "when the parent is moved by the keyboard"
+                        else -> "Demo description here"
+                    }
+                }.invoke()
+
+                Text(
+                    text = description,
+                    style = TextStyle(textAlign = TextAlign.Center)
+                )
             }
-        }
-    }
 
-    override fun onDestroy() {
-        composition?.dispose()
-        super.onDestroy()
+            this@Column.ClickableTextWithBackground(
+                text = "Next",
+                color = Color.Cyan,
+                onClick = {
+                    exampleIndex.value = (exampleIndex.value + 1) % totalExamples
+                },
+                padding = 20.dp
+            )
+        }
+
+        when (exampleIndex.value) {
+            0 -> PopupToggle()
+            1 -> PopupWithChangingContent()
+            2 -> PopupWithChangingParent()
+            3 -> PopupDropdownAlignment()
+            4 -> PopupAlignmentDemo()
+            5 -> PopupWithEditText()
+            6 -> PopupWithChangingSize()
+            7 -> PopupInsideScroller()
+            8 -> PopupOnKeyboardUp()
+        }
     }
 }
 
 @Composable
-fun ColumnScope.PopupToggle() {
+private fun ColumnScope.PopupToggle() {
     val showPopup = state { true }
 
     Column(LayoutGravity.Center) {
@@ -176,7 +161,7 @@ fun ColumnScope.PopupToggle() {
 }
 
 @Composable
-fun ColumnScope.PopupWithChangingContent() {
+private fun ColumnScope.PopupWithChangingContent() {
     Column(LayoutGravity.Center) {
         val heightSize = 120.dp
         val widthSize = 160.dp
@@ -215,7 +200,7 @@ fun ColumnScope.PopupWithChangingContent() {
 }
 
 @Composable
-fun ColumnScope.PopupWithChangingParent() {
+private fun ColumnScope.PopupWithChangingParent() {
     val containerWidth = 400.dp
     val containerHeight = 200.dp
     val parentGravity = state { ContentGravity.TopStart }
@@ -262,7 +247,7 @@ fun ColumnScope.PopupWithChangingParent() {
 }
 
 @Composable
-fun ColumnScope.PopupDropdownAlignment() {
+private fun ColumnScope.PopupDropdownAlignment() {
     Column(LayoutGravity.Center) {
         val heightSize = 120.dp
         val widthSize = 160.dp
@@ -292,7 +277,7 @@ fun ColumnScope.PopupDropdownAlignment() {
 }
 
 @Composable
-fun ColumnScope.PopupAlignmentDemo() {
+private fun ColumnScope.PopupAlignmentDemo() {
     Column(LayoutGravity.Center) {
         val heightSize = 200.dp
         val widthSize = 400.dp
@@ -334,7 +319,7 @@ fun ColumnScope.PopupAlignmentDemo() {
 }
 
 @Composable
-fun ColumnScope.PopupWithEditText() {
+private fun ColumnScope.PopupWithEditText() {
     Column(LayoutGravity.Center) {
         val widthSize = 190.dp
         val heightSize = 120.dp
@@ -377,7 +362,7 @@ fun ColumnScope.PopupWithEditText() {
 }
 
 @Composable
-fun ColumnScope.PopupWithChangingSize() {
+private fun ColumnScope.PopupWithChangingSize() {
     Column(LayoutGravity.Center) {
         val showPopup = state { true }
         val heightSize = 120.dp
@@ -413,7 +398,7 @@ fun ColumnScope.PopupWithChangingSize() {
 }
 
 @Composable
-fun ColumnScope.PopupInsideScroller() {
+private fun ColumnScope.PopupInsideScroller() {
     VerticalScroller(modifier = LayoutSize(200.dp, 400.dp) + LayoutGravity.Center) {
         Column(LayoutHeight.Fill) {
             Box(
@@ -433,7 +418,7 @@ fun ColumnScope.PopupInsideScroller() {
 }
 
 @Composable
-fun PopupOnKeyboardUp() {
+private fun PopupOnKeyboardUp() {
     Column {
         val widthSize = 190.dp
         val heightSize = 120.dp
@@ -458,7 +443,7 @@ fun PopupOnKeyboardUp() {
 }
 
 @Composable
-fun ColumnScope.ClickableTextWithBackground(
+private fun ColumnScope.ClickableTextWithBackground(
     text: String,
     color: Color,
     onClick: (() -> Unit)? = null,
@@ -472,7 +457,7 @@ fun ColumnScope.ClickableTextWithBackground(
 }
 
 @Composable
-fun EditLine(
+private fun EditLine(
     modifier: Modifier = Modifier.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
