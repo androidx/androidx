@@ -16,9 +16,7 @@
 
 package androidx.ui.animation.demos
 
-import android.app.Activity
 import android.graphics.PointF
-import android.os.Bundle
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.TransitionDefinition
@@ -30,7 +28,6 @@ import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -40,14 +37,6 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
-class StateBasedRippleAnimation : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { StateBasedRippleDemo() }
-    }
-}
-
 @Composable
 fun StateBasedRippleDemo() {
     Container(expanded = true) {
@@ -56,7 +45,7 @@ fun StateBasedRippleDemo() {
 }
 
 @Composable
-fun RippleRect() {
+private fun RippleRect() {
     val radius = with(DensityAmbient.current) { TargetRadius.toPx() }
     val toState = state { ButtonStatus.Initial }
     val rippleTransDef = remember { createTransDef(radius.value) }
@@ -77,7 +66,7 @@ fun RippleRect() {
 }
 
 @Composable
-fun RippleRectFromState(state: TransitionState) {
+private fun RippleRectFromState(state: TransitionState) {
     Canvas(LayoutSize.Fill) {
         // TODO: file bug for when "down" is not a file level val, it's not memoized correctly
         val x = down.x

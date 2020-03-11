@@ -16,8 +16,6 @@
 
 package androidx.ui.animation.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
@@ -26,22 +24,13 @@ import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.LayoutSize
 
-class HelloGestureBasedAnimationActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { TransitionExample() }
-    }
-}
-
-const val halfSize = 200f
+private const val halfSize = 200f
 
 private enum class ComponentState { Pressed, Released }
 
@@ -68,7 +57,7 @@ private val definition = transitionDefinition {
 }
 
 @Composable
-fun TransitionExample() {
+fun GestureBasedAnimationDemo() {
     val toState = state { ComponentState.Released }
     PressGestureDetector(
         onPress = { toState.value = ComponentState.Pressed },
@@ -81,7 +70,7 @@ fun TransitionExample() {
 }
 
 @Composable
-fun ScaledColorRect(scale: Float, color: Color) {
+private fun ScaledColorRect(scale: Float, color: Color) {
     val paint = remember { Paint() }
     Canvas(LayoutSize.Fill) {
         val centerX = size.width.value / 2

@@ -16,30 +16,19 @@
 
 package androidx.ui.animation.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.animate
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutSize
 
-class SingleValueAnimation : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { AnimateSingleValue() }
-    }
-
-    @Composable
-    fun AnimateSingleValue() {
-        val enabled = state { true }
-        Clickable({ enabled.value = !enabled.value }) {
-            val color = animate(if (enabled.value) Color.Green else Color.Red)
-            Box(LayoutSize.Fill, backgroundColor = color)
-        }
+@Composable
+fun SingleValueAnimationDemo() {
+    val enabled = state { true }
+    Clickable({ enabled.value = !enabled.value }) {
+        val color = animate(if (enabled.value) Color.Green else Color.Red)
+        Box(LayoutSize.Fill, backgroundColor = color)
     }
 }

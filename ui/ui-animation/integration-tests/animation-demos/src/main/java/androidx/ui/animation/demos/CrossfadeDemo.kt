@@ -16,15 +16,12 @@
 
 package androidx.ui.animation.demos
 
-import android.app.Activity
-import android.os.Bundle
 import android.util.Log
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -34,16 +31,8 @@ import androidx.ui.layout.Row
 import androidx.ui.unit.dp
 import kotlin.random.Random
 
-class CrossfadeActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { CrossfadeDemo() }
-    }
-}
-
 @Composable
-private fun CrossfadeDemo() {
+fun CrossfadeDemo() {
     var current by state { tabs[0] }
     Column {
         Row {

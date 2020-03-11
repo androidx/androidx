@@ -16,8 +16,6 @@
 
 package androidx.ui.animation.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
@@ -26,7 +24,6 @@ import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -39,16 +36,8 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import androidx.ui.unit.toRect
 
-class RepeatedRotationActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { RepeatedRotation() }
-    }
-}
-
 @Composable
-fun RepeatedRotation() {
+fun RepeatedRotationDemo() {
     Center {
         val state = state { RotationStates.Original }
         Column(arrangement = Arrangement.SpaceEvenly) {
@@ -80,7 +69,7 @@ fun RepeatedRotation() {
     }
 }
 
-enum class RotationStates {
+private enum class RotationStates {
     Original,
     Rotated
 }

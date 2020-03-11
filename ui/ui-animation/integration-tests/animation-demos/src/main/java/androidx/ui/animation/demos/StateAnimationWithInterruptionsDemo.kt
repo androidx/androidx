@@ -16,8 +16,6 @@
 
 package androidx.ui.animation.demos
 
-import android.app.Activity
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.animation.FloatPropKey
@@ -27,7 +25,6 @@ import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.geometry.Rect
@@ -36,16 +33,8 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 
-class HelloAnimationActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { HelloAnimation() }
-    }
-}
-
 @Composable
-fun HelloAnimation() {
+fun StateAnimationWithInterruptionsDemo() {
     Container(expanded = true) {
         ColorRect()
     }
@@ -80,10 +69,10 @@ private val definition = transitionDefinition {
     }
 }
 
-val handler = Handler(Looper.getMainLooper())
+private val handler = Handler(Looper.getMainLooper())
 
 @Composable
-fun ColorRect() {
+private fun ColorRect() {
     var toState = OverlayState.Closed
     Recompose { recompose ->
         handler.postDelayed(object : Runnable {
@@ -103,7 +92,7 @@ fun ColorRect() {
 }
 
 @Composable
-fun ColorRectState(state: TransitionState) {
+private fun ColorRectState(state: TransitionState) {
     val color = state[background]
     val scaleY = state[y]
     Canvas(LayoutSize.Fill + DrawBackground(color = color)) {
