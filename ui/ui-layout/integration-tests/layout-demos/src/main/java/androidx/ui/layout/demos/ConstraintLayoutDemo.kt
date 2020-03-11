@@ -16,12 +16,9 @@
 
 package androidx.ui.layout.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Text
-import androidx.ui.core.setContent
 import androidx.ui.layout.constraintlayout.ConstraintLayout
 import androidx.ui.layout.constraintlayout.ConstraintSet
 import androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope
@@ -32,18 +29,8 @@ import androidx.ui.unit.sp
 /**
  * Simple ConstraintLayout demo
  */
-class ConstraintLayoutActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            CLDemo()
-        }
-    }
-}
-
 @Composable
-fun CLDemo() {
+fun ConstraintLayoutDemo() {
     ConstraintLayout(ConstraintSet {
         val text1 = tag("text1")
         val text2 = tag("text2")

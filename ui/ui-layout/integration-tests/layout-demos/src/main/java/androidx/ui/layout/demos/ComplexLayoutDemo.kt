@@ -16,14 +16,30 @@
 
 package androidx.ui.layout.demos
 
-import android.app.Activity
-import android.os.Bundle
-import androidx.ui.core.setContent
+import androidx.compose.Composable
+import androidx.ui.core.FirstBaseline
+import androidx.ui.core.Text
+import androidx.ui.graphics.Color
+import androidx.ui.layout.AlignmentLineOffset
+import androidx.ui.layout.Stack
+import androidx.ui.foundation.DrawBackground
+import androidx.ui.unit.dp
 
-class ComplexLayoutActivity : Activity() {
+@Composable
+private fun AlignmentLineOffsetUsage() {
+    AlignmentLineOffset(
+        FirstBaseline,
+        modifier = DrawBackground(Color.Gray),
+        before = 20.dp,
+        after = 40.dp
+    ) {
+        Text("Text providing baseline")
+    }
+}
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { ComplexLayoutDemos() }
+@Composable
+fun ComplexLayoutDemo() {
+    Stack {
+        AlignmentLineOffsetUsage()
     }
 }

@@ -16,8 +16,6 @@
 
 package androidx.ui.layout.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
@@ -25,52 +23,47 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.setContent
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Row
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
-import androidx.ui.foundation.DrawBackground
-import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 
-class RtlDemosActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Column(arrangement = Arrangement.SpaceEvenly) {
-                Text("TEXT", LayoutGravity.Center)
-                testText()
-                Text("ROW", LayoutGravity.Center)
-                testRow()
-                Text("ROW WITH LTR MODIFIER", LayoutGravity.Center)
-                testRow_modifier()
-                Text("RELATIVE TO SIBLINGS", LayoutGravity.Center)
-                testSiblings()
-                Text("PLACE WITH AUTO RTL SUPPORT IN CUSTOM LAYOUT", LayoutGravity.Center)
-                CustomLayout(true)
-                Text("PLACE WITHOUT RTL SUPPORT IN CUSTOM LAYOUT", LayoutGravity.Center)
-                CustomLayout(false)
-                Text("WITH CONSTRAINTS", LayoutGravity.Center)
-                LayoutWithConstraints(LayoutDirectionModifier.Ltr, "LD: LTR modifier")
-                LayoutWithConstraints(LayoutDirectionModifier.Rtl, "LD: RTL modifier")
-                LayoutWithConstraints(text = "LD: locale")
-            }
-        }
+@Composable
+fun RtlDemo() {
+    Column(arrangement = Arrangement.SpaceEvenly) {
+        Text("TEXT", LayoutGravity.Center)
+        testText()
+        Text("ROW", LayoutGravity.Center)
+        testRow()
+        Text("ROW WITH LTR MODIFIER", LayoutGravity.Center)
+        testRow_modifier()
+        Text("RELATIVE TO SIBLINGS", LayoutGravity.Center)
+        testSiblings()
+        Text("PLACE WITH AUTO RTL SUPPORT IN CUSTOM LAYOUT", LayoutGravity.Center)
+        CustomLayout(true)
+        Text("PLACE WITHOUT RTL SUPPORT IN CUSTOM LAYOUT", LayoutGravity.Center)
+        CustomLayout(false)
+        Text("WITH CONSTRAINTS", LayoutGravity.Center)
+        LayoutWithConstraints(LayoutDirectionModifier.Ltr, "LD: LTR modifier")
+        LayoutWithConstraints(LayoutDirectionModifier.Rtl, "LD: RTL modifier")
+        LayoutWithConstraints(text = "LD: locale")
     }
 }
 
-val boxSize = LayoutSize(50.dp, 30.dp)
-val size = LayoutSize(10.dp, 10.dp)
+private val boxSize = LayoutSize(50.dp, 30.dp)
+private val size = LayoutSize(10.dp, 10.dp)
 
 @Composable
-fun testRow() {
+private fun testRow() {
     Row {
         Stack(boxSize + DrawBackground(Color.Red)) {}
         Stack(boxSize + DrawBackground(Color.Green)) {}
@@ -84,7 +77,7 @@ fun testRow() {
 }
 
 @Composable
-fun testRow_modifier() {
+private fun testRow_modifier() {
     Row {
         Stack(boxSize + DrawBackground(Color.Red)) {}
         Stack(boxSize + DrawBackground(Color.Green)) {}
@@ -98,7 +91,7 @@ fun testRow_modifier() {
 }
 
 @Composable
-fun testText() {
+private fun testText() {
     Column {
         Row {
             Stack(size + DrawBackground(Color.Red)) {}
@@ -115,7 +108,7 @@ fun testText() {
 }
 
 @Composable
-fun testSiblings() {
+private fun testSiblings() {
     Column {
         Stack(boxSize +
                 DrawBackground(Color.Red) +
@@ -133,7 +126,7 @@ fun testSiblings() {
 }
 
 @Composable
-fun CustomLayout(rtlSupport: Boolean) {
+private fun CustomLayout(rtlSupport: Boolean) {
     Layout(children = @Composable {
         Stack(boxSize + DrawBackground(Color.Red)) {}
         Stack(boxSize + DrawBackground(Color.Green)) {}
@@ -160,7 +153,7 @@ fun CustomLayout(rtlSupport: Boolean) {
 }
 
 @Composable
-fun LayoutWithConstraints(modifier: Modifier = Modifier.None, text: String) {
+private fun LayoutWithConstraints(modifier: Modifier = Modifier.None, text: String) {
     WithConstraints(modifier) { constraints, direction ->
         with(DensityAmbient.current) {
             val w = (constraints.maxWidth / 3).toDp()

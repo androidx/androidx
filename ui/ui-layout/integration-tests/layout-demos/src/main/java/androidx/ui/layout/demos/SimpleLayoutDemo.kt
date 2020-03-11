@@ -16,16 +16,14 @@
 
 package androidx.ui.layout.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
 import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
@@ -33,23 +31,12 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
-import androidx.ui.foundation.DrawBackground
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
-class LayoutActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            LayoutDemo()
-        }
-    }
-}
-
 @Composable
-fun LayoutDemo() {
+fun SimpleLayoutDemo() {
     val lightGrey = Color(0xFFCFD8DC)
     Column {
         Text(text = "Row", style = TextStyle(fontSize = 48.sp))
@@ -130,12 +117,12 @@ fun LayoutDemo() {
 }
 
 @Composable
-fun PurpleSquare(modifier: Modifier = Modifier.None) {
+private fun PurpleSquare(modifier: Modifier = Modifier.None) {
     Box(modifier + LayoutSize(48.dp), backgroundColor = Color(0xFF6200EE))
 }
 
 @Composable
-fun CyanSquare(modifier: Modifier = Modifier.None) {
+private fun CyanSquare(modifier: Modifier = Modifier.None) {
     Box(modifier + LayoutSize(24.dp), backgroundColor = Color(0xFF03DAC6))
 }
 
