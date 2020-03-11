@@ -74,12 +74,13 @@ abstract class PreviewViewImplementation {
     }
 
     /**
-     * Invoked when the display properties have changed.
+     * Invoked when the layout bounds of the preview's container {@link PreviewView} have
+     * changed.
      *
      * <p>Corrects and adjusts the preview using the latest display properties such as the display
-     * orientation.
+     * orientation and size.
      */
-    void onDisplayChanged() {
+    void onLayoutChanged() {
         applyCurrentScaleType();
     }
 
