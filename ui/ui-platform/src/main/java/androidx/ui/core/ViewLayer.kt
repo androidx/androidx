@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.ui.graphics.Canvas
@@ -24,6 +25,8 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 /**
  * View implementation of OwnedLayer.
@@ -39,6 +42,7 @@ internal class ViewLayer(
     private var clipBoundsCache: android.graphics.Rect? = null
     private val manualClipPath: Path? get() =
         if (!clipToOutline) null else outlineResolver.clipPath
+    private var isInvalidated = false
 
     init {
         setWillNotDraw(false) // we WILL draw
@@ -130,6 +134,15 @@ internal class ViewLayer(
         if (clipPath != null) {
             uiCanvas.restore()
         }
+        isInvalidated = false
+    }
+
+    override fun invalidate() {
+        if (!isInvalidated) {
+            isInvalidated = true
+            super.invalidate()
+            ownerView.dirtyLayers += this
+        }
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -137,6 +150,12 @@ internal class ViewLayer(
 
     override fun destroy() {
         ownerView.removeView(this)
+        ownerView.dirtyLayers -= this
+    }
+
+    override fun updateDisplayList() {
+        updateDisplayList(this)
+        isInvalidated = false
     }
 
     companion object {
@@ -145,6 +164,43 @@ internal class ViewLayer(
                 view as ViewLayer
                 outline.set(view.outlineResolver.outline!!)
             }
+        }
+        private var updateDisplayListIfDirtyMethod: Method? = null
+        private var recreateDisplayList: Field? = null
+        private var hasRetrievedMethod = false
+
+        fun updateDisplayList(view: View) {
+            if (!hasRetrievedMethod) {
+                hasRetrievedMethod = true
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    updateDisplayListIfDirtyMethod =
+                        View::class.java.getDeclaredMethod("updateDisplayListIfDirty")
+                    recreateDisplayList =
+                        View::class.java.getDeclaredField("mRecreateDisplayList")
+                } else {
+                    val getDeclaredMethod = Class::class.java.getDeclaredMethod(
+                        "getDeclaredMethod",
+                        String::class.java,
+                        arrayOf<Class<*>>()::class.java
+                    )
+                    updateDisplayListIfDirtyMethod = getDeclaredMethod.invoke(
+                        View::class.java,
+                        "updateDisplayListIfDirty", emptyArray<Class<*>>()
+                    ) as Method?
+                    val getDeclaredField = Class::class.java.getDeclaredMethod(
+                        "getDeclaredField",
+                        String::class.java
+                    )
+                    recreateDisplayList = getDeclaredField.invoke(
+                        View::class.java,
+                        "mRecreateDisplayList"
+                    ) as Field?
+                }
+                updateDisplayListIfDirtyMethod?.isAccessible = true
+                recreateDisplayList?.isAccessible = true
+            }
+            recreateDisplayList?.setBoolean(view, true)
+            updateDisplayListIfDirtyMethod?.invoke(view)
         }
     }
 }

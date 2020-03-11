@@ -280,6 +280,7 @@ package androidx.ui.core {
     method public void invalidate();
     method public void move(androidx.ui.unit.IntPxPosition position);
     method public void resize(androidx.ui.unit.IntPxSize size);
+    method public void updateDisplayList();
     method public void updateLayerProperties();
   }
 

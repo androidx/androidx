@@ -105,9 +105,7 @@ class AndroidComposeView constructor(context: Context) :
     internal val dirtyRepaintBoundaryNodes =
         DepthSortedSet<RepaintBoundaryNode>(enableExtraAssertions)
 
-    // OwnedLayers that are dirty and should be redrawn. This is only
-    // used when RenderNodes are active in Q+. When Views are used, the View
-    // system tracks the dirty RenderNodes.
+    // OwnedLayers that are dirty and should be redrawn.
     internal val dirtyLayers = mutableListOf<OwnedLayer>()
 
     var ref: Ref<AndroidComposeView>? = null
@@ -644,7 +642,7 @@ class AndroidComposeView constructor(context: Context) :
         if (dirtyLayers.isNotEmpty()) {
             for (i in 0 until dirtyLayers.size) {
                 val layer = dirtyLayers[i]
-                (layer as RenderNodeLayer).updateDisplayList()
+                layer.updateDisplayList()
             }
             dirtyLayers.clear()
         }

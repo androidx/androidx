@@ -30,6 +30,7 @@ import androidx.compose.FrameManager
 import androidx.compose.Model
 import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
+import androidx.compose.remember
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -2124,6 +2125,45 @@ class AndroidLayoutDrawTest {
             }
         }
         validateSquareColors(outerColor = Color.Blue, innerColor = Color.Red, size = 10)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testInvalidationMultipleLayers() {
+        val innerColor = mutableStateOf(Color.Red)
+        activityTestRule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                val children: @Composable() () -> Unit = remember {
+                    @Composable() {
+                        val modifier = drawLayer() + PaddingModifier(10.ipx) +
+                                background(innerColor.value) + latch(drawLatch)
+                        FixedSize(
+                            size = 10.ipx,
+                            modifier = modifier
+                        ) {}
+                    }
+                }
+                FixedSize(
+                    size = 30.ipx,
+                    modifier = drawLayer() + background(Color.Blue)
+                ) {
+                    FixedSize(
+                        size = 30.ipx,
+                        modifier = drawLayer(),
+                        children = children
+                    )
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.Red, size = 10)
+
+        drawLatch = CountDownLatch(1)
+
+        activityTestRule.runOnUiThread {
+            innerColor.value = Color.White
+        }
+
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
     private val AlignTopLeft = object : LayoutModifier {
