@@ -47,6 +47,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.ArcSwipe;
+import androidx.wear.widget.util.FrameLocationAvoidingEdges;
 import androidx.wear.widget.util.WakeLockRule;
 
 import org.junit.Rule;
@@ -58,6 +59,14 @@ import org.junit.runner.RunWith;
 public class SwipeDismissFrameLayoutTest {
 
     private static final long MAX_WAIT_TIME = 4000; //ms
+    /**
+     * Gap from the edge of the screen to allow for navigation gestures and room to start a swipe.
+     * This needs to be at larger than the offset that is being applied by
+     * {@link FrameLocationAvoidingEdges.Constants#OFFSET_FROM_EDGE}
+     */
+    private static final float SWIPE_MARGIN_PX =
+            FrameLocationAvoidingEdges.Constants.OFFSET_FROM_EDGE + 10.0f;
+
     private final SwipeDismissFrameLayout.Callback mDismissCallback = new DismissCallback();
 
     @Rule
@@ -73,6 +82,8 @@ public class SwipeDismissFrameLayoutTest {
 
     private int mLayoutWidth;
     private int mLayoutHeight;
+    private int mXPositionOnScreen;
+    private int mYPositionOnScreen;
 
     @Test
     public void testCanScrollHorizontally() {
@@ -214,7 +225,7 @@ public class SwipeDismissFrameLayoutTest {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         setUpSwipeDismissWithHorizontalRecyclerView();
         // WHEN we perform a swipe to dismiss from the left edge of the screen.
-        onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftEdge());
+        onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftCenterAvoidingEdge());
         // THEN the layout is hidden
         assertHidden(R.id.swipe_dismiss_root);
     }
@@ -225,7 +236,7 @@ public class SwipeDismissFrameLayoutTest {
         // inner circle.
         setUpSwipeableRegion();
         // WHEN we perform a swipe to dismiss from the left edge of the screen.
-        onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftEdge());
+        onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftCenterAvoidingEdge());
         // THEN the layout is not not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
     }
@@ -261,7 +272,8 @@ public class SwipeDismissFrameLayoutTest {
         int halfBound = mLayoutWidth / 2;
         RectF bounds = new RectF(0, center - halfBound, mLayoutWidth, center + halfBound);
         // WHEN the view is scrolled on an arc from top to bottom.
-        onView(withId(R.id.swipe_dismiss_root)).perform(swipeTopFromBottomOnArc(bounds));
+        onView(withId(R.id.swipe_dismiss_root)).perform(
+                swipeTopFromBottomOnArcAvoidingEdge(bounds));
         // THEN the layout is not dismissed and not hidden.
         assertNotHidden(R.id.swipe_dismiss_root);
         // AND the content view is scrolled.
@@ -325,12 +337,17 @@ public class SwipeDismissFrameLayoutTest {
                     @Override
                     public boolean onPreSwipeStart(SwipeDismissFrameLayout layout, float x,
                             float y) {
-                        float normalizedX = x - mLayoutWidth / 2;
-                        float normalizedY = y - mLayoutWidth / 2;
+                        float normalizedX = (x - mXPositionOnScreen) - (mLayoutWidth / 2);
+                        float normalizedY = (y - mYPositionOnScreen) - (mLayoutHeight / 2);
                         float squareX = normalizedX * normalizedX;
                         float squareY = normalizedY * normalizedY;
-                        // 30 is an arbitrary number limiting the circle.
-                        return Math.sqrt(squareX + squareY) < (mLayoutWidth / 2 - 30);
+
+                        // We want the circle to take up a decent chunk of the screen, but need to
+                        // keep it away from the screen edges in order to allow swipe gestures to be
+                        // started outside of the circle and inside of any grab handles that the
+                        // frame may have.
+                        return Math.sqrt(squareX + squareY) < ((mLayoutWidth / 2)
+                                - SWIPE_MARGIN_PX);
                     }
                 });
     }
@@ -382,6 +399,10 @@ public class SwipeDismissFrameLayoutTest {
     private void setCallback(SwipeDismissFrameLayout.Callback callback) {
         Activity activity = activityRule.getActivity();
         SwipeDismissFrameLayout testLayout = activity.findViewById(R.id.swipe_dismiss_root);
+        int[] locationOnScreen = new int[2];
+        testLayout.getLocationOnScreen(locationOnScreen);
+        mXPositionOnScreen = locationOnScreen[0];
+        mYPositionOnScreen = locationOnScreen[1];
         mLayoutWidth = testLayout.getWidth();
         mLayoutHeight = testLayout.getHeight();
         testLayout.addCallback(callback);
@@ -427,16 +448,29 @@ public class SwipeDismissFrameLayoutTest {
                 Swipe.SLOW, GeneralLocation.CENTER, GeneralLocation.CENTER_RIGHT, Press.FINGER);
     }
 
+
+    /**
+     * Be careful if you are using this method. If the device you are testing on
+     * has "Gesture navigation" enabled then swiping from the edge of the screen may be
+     * interpreted as a navigation gesture.
+     */
     private static ViewAction swipeRightFromLeftEdge() {
         return new GeneralSwipeAction(
                 Swipe.SLOW, GeneralLocation.CENTER_LEFT, GeneralLocation.CENTER_RIGHT,
                 Press.FINGER);
     }
 
-    private static ViewAction swipeTopFromBottomOnArc(RectF bounds) {
+    private static ViewAction swipeRightFromLeftCenterAvoidingEdge() {
+        return new GeneralSwipeAction(
+                Swipe.SLOW, FrameLocationAvoidingEdges.CENTER_LEFT_AVOIDING_EDGE,
+                GeneralLocation.CENTER_RIGHT,
+                Press.FINGER);
+    }
+
+    private static ViewAction swipeTopFromBottomOnArcAvoidingEdge(RectF bounds) {
         return new GeneralSwipeAction(
                 new ArcSwipe(ArcSwipe.Gesture.SLOW_ANTICLOCKWISE, bounds),
-                GeneralLocation.BOTTOM_CENTER,
+                FrameLocationAvoidingEdges.BOTTOM_CENTER_AVOIDING_EDGE,
                 GeneralLocation.TOP_CENTER,
                 Press.FINGER);
     }

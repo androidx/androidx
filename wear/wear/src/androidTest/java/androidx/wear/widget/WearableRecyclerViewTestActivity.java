@@ -53,7 +53,9 @@ public class WearableRecyclerViewTestActivity extends Activity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.mView.setText("holder at position " + position);
+            // Print the position first as we want to see the line number even if the text is
+            // truncated due to its width
+            holder.mView.setText(position + ": holder at position");
             holder.mView.setTag(position);
         }
 
