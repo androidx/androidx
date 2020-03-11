@@ -16,13 +16,13 @@
 
 package androidx.ui.material
 
-import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.FirstBaseline
-import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.Text
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Image
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Container
@@ -197,9 +197,9 @@ class ListItemTest {
         composeTestRule.setMaterialContent {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
-                    text = { SaveLayout(textPosition, textSize) { Text("Primary text") } },
+                    text = { Text("Primary text", saveLayout(textPosition, textSize)) },
                     trailing = {
-                        SaveLayout(trailingPosition, trailingSize) { Image(icon24x24) }
+                        Image(icon24x24, saveLayout(trailingPosition, trailingSize))
                     }
                 )
             }
@@ -233,8 +233,8 @@ class ListItemTest {
         composeTestRule.setMaterialContent {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
-                    text = { SaveLayout(textPosition, textSize) { Text("Primary text") } },
-                    icon = { SaveLayout(iconPosition, iconSize) { Image(icon24x24) } }
+                    text = { Text("Primary text", saveLayout(textPosition, textSize)) },
+                    icon = { Image(icon24x24, saveLayout(iconPosition, iconSize)) }
                 )
             }
         }
@@ -273,23 +273,20 @@ class ListItemTest {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
                     text = {
-                        SaveLayout(textPosition, textSize, textBaseline) {
-                            Text("Primary text")
-                        }
+                        Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
                     },
                     secondaryText = {
-                        SaveLayout(
-                            secondaryTextPosition,
-                            secondaryTextSize,
-                            secondaryTextBaseline
-                        ) {
-                            Text("Secondary text")
-                        }
+                        Text(
+                            "Secondary text",
+                            saveLayout(
+                                secondaryTextPosition,
+                                secondaryTextSize,
+                                secondaryTextBaseline
+                            )
+                        )
                     },
                     trailing = {
-                        SaveLayout(trailingPosition, trailingSize, trailingBaseline) {
-                            Text("meta")
-                        }
+                        Text("meta", saveLayout(trailingPosition, trailingSize, trailingBaseline))
                     }
                 )
             }
@@ -335,21 +332,20 @@ class ListItemTest {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
                     text = {
-                        SaveLayout(textPosition, textSize, textBaseline) {
-                            Text("Primary text")
-                        }
+                        Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
                     },
                     secondaryText = {
-                        SaveLayout(
-                            secondaryTextPosition,
-                            secondaryTextSize,
-                            secondaryTextBaseline
-                        ) {
-                            Text("Secondary text")
-                        }
+                        Text(
+                            "Secondary text",
+                            saveLayout(
+                                secondaryTextPosition,
+                                secondaryTextSize,
+                                secondaryTextBaseline
+                            )
+                        )
                     },
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { Image(icon24x24) }
+                        Image(icon24x24, saveLayout(iconPosition, iconSize))
                     }
                 )
             }
@@ -399,24 +395,23 @@ class ListItemTest {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
                     text = {
-                        SaveLayout(textPosition, textSize, textBaseline) {
-                            Text("Primary text")
-                        }
+                        Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
                     },
                     secondaryText = {
-                        SaveLayout(
-                            secondaryTextPosition,
-                            secondaryTextSize,
-                            secondaryTextBaseline
-                        ) {
-                            Text("Secondary text")
-                        }
+                        Text(
+                            "Secondary text",
+                            saveLayout(
+                                secondaryTextPosition,
+                                secondaryTextSize,
+                                secondaryTextBaseline
+                            )
+                        )
                     },
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { Image(icon40x40) }
+                        Image(icon40x40, saveLayout(iconPosition, iconSize))
                     },
                     trailing = {
-                        SaveLayout(trailingPosition, trailingSize) { Image(icon24x24) }
+                        Image(icon24x24, saveLayout(trailingPosition, trailingSize))
                     }
                 )
             }
@@ -473,25 +468,24 @@ class ListItemTest {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
                     text = {
-                        SaveLayout(textPosition, textSize, textBaseline) {
-                            Text("Primary text")
-                        }
+                        Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
                     },
                     secondaryText = {
-                        SaveLayout(
-                            secondaryTextPosition,
-                            secondaryTextSize,
-                            secondaryTextBaseline
-                        ) {
-                            Text("Secondary text")
-                        }
+                        Text(
+                            "Secondary text",
+                            saveLayout(
+                                secondaryTextPosition,
+                                secondaryTextSize,
+                                secondaryTextBaseline
+                            )
+                        )
                     },
                     singleLineSecondaryText = false,
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { Image(icon24x24) }
+                        Image(icon24x24, saveLayout(iconPosition, iconSize))
                     },
                     trailing = {
-                        SaveLayout(trailingPosition, trailingSize) { Image(icon24x24) }
+                        Image(icon24x24, saveLayout(trailingPosition, trailingSize))
                     }
                 )
             }
@@ -553,39 +547,43 @@ class ListItemTest {
             Container(alignment = Alignment.TopStart) {
                 ListItem(
                     overlineText = {
-                        SaveLayout(
-                            overlineTextPosition,
-                            overlineTextSize,
-                            overlineTextBaseline
-                        ) {
-                            Text("OVERLINE")
-                        }
+                        Text(
+                            "OVERLINE",
+                            saveLayout(
+                                overlineTextPosition,
+                                overlineTextSize,
+                                overlineTextBaseline
+                            )
+                        )
                     },
                     text = {
-                        SaveLayout(textPosition, textSize, textBaseline) {
-                            Text("Primary text")
-                        }
+                        Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
                     },
                     secondaryText = {
-                        SaveLayout(
-                            secondaryTextPosition,
-                            secondaryTextSize,
-                            secondaryTextBaseline
-                        ) {
-                            Text("Secondary text")
-                        }
+                        Text(
+                            "Secondary text",
+                            saveLayout(
+                                secondaryTextPosition,
+                                secondaryTextSize,
+                                secondaryTextBaseline
+                            )
+                        )
                     },
                     icon = {
-                        SaveLayout(iconPosition, iconSize) { Image(icon40x40) }
+                        Image(
+                            icon40x40,
+                            saveLayout(iconPosition, iconSize)
+                        )
                     },
                     trailing = {
-                        SaveLayout(
-                            trailingPosition,
-                            trailingSize,
-                            trailingBaseline
-                        ) {
-                            Text("meta")
-                        }
+                        Text(
+                            "meta",
+                            saveLayout(
+                                trailingPosition,
+                                trailingSize,
+                                trailingBaseline
+                            )
+                        )
                     }
                 )
             }
@@ -632,22 +630,15 @@ class ListItemTest {
 
     private fun Dp.toIntPx() = (this.value * composeTestRule.density.density).roundToInt()
 
-    @Composable
-    private fun SaveLayout(
+    private fun saveLayout(
         coords: Ref<PxPosition>,
         size: Ref<IntPxSize>,
-        baseline: Ref<Px> = Ref(),
-        children: @Composable() () -> Unit
-    ) {
-        OnChildPositioned(
-            { coordinates ->
-                coords.value = coordinates.localToGlobal(PxPosition.Origin)
-                baseline.value = coordinates[FirstBaseline]?.toPx()?.let {
-                    it + coords.value!!.y
-                }
-                size.value = coordinates.size
-            },
-            children
-        )
+        baseline: Ref<Px> = Ref()
+    ): Modifier = onPositioned { coordinates ->
+        coords.value = coordinates.localToGlobal(PxPosition.Origin)
+        baseline.value = coordinates[FirstBaseline]?.toPx()?.let {
+            it + coords.value!!.y
+        }
+        size.value = coordinates.size
     }
 }
