@@ -71,7 +71,7 @@ public @interface RestrictTo {
         /**
          * Restrict usage to code within packages whose groups share
          * the same library group prefix up to the last ".", so for
-         * example libraries foo.bar:lib1 amd foo.baz:lib2 share
+         * example libraries foo.bar:lib1 and foo.baz:lib2 share
          * the prefix "foo." and so they can use each other's
          * apis that are restricted to this scope. Similarly for
          * com.foo.bar:lib1 and com.foo.baz:lib2 where they share
