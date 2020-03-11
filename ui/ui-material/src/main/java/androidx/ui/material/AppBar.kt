@@ -20,6 +20,7 @@ import androidx.compose.Immutable
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.shape.RectangleShape
@@ -76,13 +77,14 @@ import kotlin.math.sqrt
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
+    modifier: Modifier = Modifier.None,
     navigationIcon: @Composable() (() -> Unit)? = null,
     actions: @Composable() RowScope.() -> Unit = {},
     color: Color = MaterialTheme.colors().primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = TopAppBarElevation
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape) {
+    AppBar(color, contentColor, elevation, RectangleShape, modifier) {
         val emphasisLevels = MaterialTheme.emphasisLevels()
         if (navigationIcon == null) {
             Spacer(LayoutWidth(TitleInsetWithoutIcon))
@@ -138,12 +140,13 @@ fun TopAppBar(
  */
 @Composable
 fun TopAppBar(
+    modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = TopAppBarElevation,
     children: @Composable() RowScope.() -> Unit
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape, children)
+    AppBar(color, contentColor, elevation, RectangleShape, modifier = modifier, children = children)
 }
 
 object BottomAppBar {
@@ -222,6 +225,7 @@ object BottomAppBar {
  */
 @Composable
 fun BottomAppBar(
+    modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().primarySurface,
     contentColor: Color = contentColorFor(color),
     fabConfiguration: FabConfiguration? = null,
@@ -237,7 +241,7 @@ fun BottomAppBar(
             fabConfiguration.fabSize.toPxSize()
         )
     }
-    AppBar(color, contentColor, BottomAppBarElevation, shape) {
+    AppBar(color, contentColor, BottomAppBarElevation, shape, modifier) {
         // TODO: remove box and inline row's children after b/148014745 is fixed
         Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
             // TODO: b/150609566 clarify emphasis for children
@@ -486,13 +490,15 @@ private fun AppBar(
     contentColor: Color,
     elevation: Dp,
     shape: Shape,
+    modifier: Modifier = Modifier.None,
     children: @Composable() RowScope.() -> Unit
 ) {
     Surface(
         color = color,
         contentColor = contentColor,
         elevation = elevation,
-        shape = shape
+        shape = shape,
+        modifier = modifier
     ) {
         Row(
             LayoutWidth.Fill + LayoutPadding(
