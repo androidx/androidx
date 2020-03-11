@@ -18,8 +18,10 @@ package androidx.ui.foundation.gestures
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
+import androidx.animation.AnimationClockObserver
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
@@ -79,11 +81,25 @@ class ScrollableState(
         animatedFloat.animateTo(to, onEnd)
     }
 
+    private val isAnimationRunningState = mutableStateOf(false)
+
+    private val clocksProxy = object : AnimationClockObservable {
+        override fun subscribe(observer: AnimationClockObserver) {
+            isAnimationRunningState.value = true
+            animationClock.subscribe(observer)
+        }
+
+        override fun unsubscribe(observer: AnimationClockObserver) {
+            isAnimationRunningState.value = false
+            animationClock.unsubscribe(observer)
+        }
+    }
+
     /**
      * whether this [ScrollableState] is currently animating/flinging
      */
     val isAnimating
-        get() = animatedFloat.isRunning
+        get() = isAnimationRunningState.value
 
     /**
      * Stop any animation, smooth scrolling or fling ongoing for this scrollable
@@ -95,7 +111,7 @@ class ScrollableState(
     }
 
     private val animatedFloat =
-        DeltaAnimatedFloat(0f, animationClock, onScrollDeltaConsumptionRequested)
+        DeltaAnimatedFloat(0f, clocksProxy, onScrollDeltaConsumptionRequested)
 
     /**
      * current position for scrollable

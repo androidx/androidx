@@ -43,6 +43,7 @@ import androidx.ui.test.doGesture
 import androidx.ui.test.doScrollTo
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.sendClick
 import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
@@ -247,6 +248,138 @@ class ScrollerTest {
         swipeScrollerAndBack(false, GestureScope::sendSwipeLeft, GestureScope::sendSwipeRight)
     }
 
+    @Test
+    fun scroller_coerce_whenScrollTo() {
+        val clock = ManualAnimationClock(0)
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = clock
+        )
+
+        createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
+
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(0f)
+            assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
+        }
+        composeTestRule.runOnUiThread {
+            scrollerPosition.scrollTo(-100f)
+        }
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(0f)
+        }
+        composeTestRule.runOnUiThread {
+            scrollerPosition.scrollBy(-100f)
+        }
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(0f)
+        }
+        composeTestRule.runOnUiThread {
+            scrollerPosition.scrollTo(scrollerPosition.maxPosition)
+        }
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
+        }
+        composeTestRule.runOnUiThread {
+            scrollerPosition.scrollTo(scrollerPosition.maxPosition + 1000)
+        }
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
+        }
+        composeTestRule.runOnUiThread {
+            scrollerPosition.scrollBy(100f)
+        }
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
+        }
+    }
+
+    @Test
+    fun scroller_coerce_whenScrollSmoothTo() {
+        val clock = ManualAnimationClock(0)
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = clock
+        )
+
+        createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
+
+        val max = composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(0f)
+            assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
+            scrollerPosition.maxPosition
+        }
+
+        performWithAnimationWaitAndAssertPosition(0f, scrollerPosition, clock) {
+            scrollerPosition.smoothScrollTo(-100f)
+        }
+
+        performWithAnimationWaitAndAssertPosition(0f, scrollerPosition, clock) {
+            scrollerPosition.smoothScrollBy(-100f)
+        }
+
+        performWithAnimationWaitAndAssertPosition(max, scrollerPosition, clock) {
+            scrollerPosition.smoothScrollTo(scrollerPosition.maxPosition)
+        }
+
+        performWithAnimationWaitAndAssertPosition(max, scrollerPosition, clock) {
+            scrollerPosition.smoothScrollTo(scrollerPosition.maxPosition + 1000)
+        }
+        performWithAnimationWaitAndAssertPosition(max, scrollerPosition, clock) {
+            scrollerPosition.smoothScrollBy(100f)
+        }
+    }
+
+    @Test
+    fun scroller_whenFling_stopsByTouchDown() {
+        val clock = ManualAnimationClock(0)
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = clock
+        )
+
+        createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
+
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(0f)
+            assertThat(scrollerPosition.isAnimating).isEqualTo(false)
+        }
+
+        findByTag(scrollerTag)
+            .doGesture { sendSwipeUp() }
+
+        composeTestRule.runOnIdleCompose {
+            clock.clockTimeMillis += 100
+            assertThat(scrollerPosition.isAnimating).isEqualTo(true)
+        }
+
+        // TODO (matvei/jelle): this should be down, and not click to be 100% fair
+        findByTag(scrollerTag)
+            .doGesture { sendClick() }
+
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.isAnimating).isEqualTo(false)
+        }
+    }
+
+    private fun performWithAnimationWaitAndAssertPosition(
+        assertValue: Float,
+        scrollerPosition: ScrollerPosition,
+        clock: ManualAnimationClock,
+        uiAction: () -> Unit
+    ) {
+        composeTestRule.runOnUiThread {
+            uiAction.invoke()
+        }
+        composeTestRule.runOnIdleCompose {
+            clock.clockTimeMillis += 5000
+        }
+        findByTag(scrollerTag).awaitScrollAnimation(scrollerPosition)
+        composeTestRule.runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(assertValue)
+        }
+    }
+
     private fun swipeScrollerAndBack(
         isVertical: Boolean,
         firstSwipe: GestureScope.() -> Unit,
@@ -436,9 +569,6 @@ class ScrollerTest {
     private fun SemanticsNodeInteraction.awaitScrollAnimation(
         scroller: ScrollerPosition
     ): SemanticsNodeInteraction {
-        if (!scroller.isAnimating) {
-            return this
-        }
         val latch = CountDownLatch(1)
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {
