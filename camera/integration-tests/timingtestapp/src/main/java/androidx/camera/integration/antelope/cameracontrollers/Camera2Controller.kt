@@ -262,7 +262,7 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
             }
 
             // Orientation
-            @Suppress("DEPRECATION")  /* defaultDisplay */
+            @Suppress("DEPRECATION") /* defaultDisplay */
             val rotation = activity.windowManager.defaultDisplay.rotation
             val capturedImageRotation = getOrientation(params, rotation)
             params.captureRequestBuilder

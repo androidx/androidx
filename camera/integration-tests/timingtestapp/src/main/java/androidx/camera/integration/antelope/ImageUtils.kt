@@ -71,7 +71,7 @@ class ImageAvailableListener(
         when (image.format) {
             ImageFormat.JPEG -> {
                 // Orientation
-                @Suppress("DEPRECATION")  /* defaultDisplay */
+                @Suppress("DEPRECATION") /* defaultDisplay */
                 val rotation = activity.windowManager.defaultDisplay.rotation
                 val capturedImageRotation = getOrientation(params, rotation)
 
