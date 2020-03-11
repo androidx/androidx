@@ -20,9 +20,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.globalPosition
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.ui.test.createComposeRule
@@ -82,9 +82,7 @@ class SnackbarTest {
         ) {
             Snackbar(
                 text = {
-                    OnChildPositioned(onPositioned = { textCoords = it }) {
-                        Text("Message")
-                    }
+                    Text("Message", onPositioned { textCoords = it })
                 }
             )
         }
@@ -112,24 +110,17 @@ class SnackbarTest {
         val sizes = composeTestRule.setMaterialContentAndCollectSizes(
             parentConstraints = DpConstraints(maxWidth = 300.dp)
         ) {
-            OnChildPositioned(onPositioned = { snackCoords = it }) {
-                Snackbar(
-                    text = {
-                        OnChildPositioned(onPositioned = { textCoords = it }) {
-                            Text("Message")
-                        }
-                    },
-                    action = {
-                        OnChildPositioned(onPositioned = { buttonCoords = it }) {
-                            TextButton(onClick = {}) {
-                                OnChildPositioned(onPositioned = { buttonTextCoords = it }) {
-                                    Text("Undo")
-                                }
-                            }
-                        }
+            Snackbar(
+                modifier = onPositioned { snackCoords = it },
+                text = {
+                    Text("Message", onPositioned { textCoords = it })
+                },
+                action = {
+                    TextButton(onClick = {}, modifier = onPositioned { buttonCoords = it }) {
+                        Text("Undo", onPositioned { buttonTextCoords = it })
                     }
-                )
-            }
+                }
+            )
         }
         sizes
             .assertHeightEqualsTo(48.dp)
@@ -172,9 +163,7 @@ class SnackbarTest {
         ) {
             Snackbar(
                 text = {
-                    OnChildPositioned(onPositioned = { textCoords = it }) {
-                        Text(longText, maxLines = 2)
-                    }
+                    Text(longText, onPositioned { textCoords = it }, maxLines = 2)
                 }
             )
         }
@@ -202,22 +191,17 @@ class SnackbarTest {
         val sizes = composeTestRule.setMaterialContentAndCollectSizes(
             parentConstraints = DpConstraints(maxWidth = 300.dp)
         ) {
-            OnChildPositioned(onPositioned = { snackCoords = it }) {
-                Snackbar(
-                    text = {
-                        OnChildPositioned(onPositioned = { textCoords = it }) {
-                            Text(longText, maxLines = 2)
-                        }
-                    },
-                    action = {
-                        OnChildPositioned(onPositioned = { buttonCoords = it }) {
-                            TextButton(onClick = {}) {
-                                Text("Undo")
-                            }
-                        }
+            Snackbar(
+                modifier = onPositioned { snackCoords = it },
+                text = {
+                    Text(longText, onPositioned { textCoords = it }, maxLines = 2)
+                },
+                action = {
+                    TextButton(modifier = onPositioned { buttonCoords = it }, onClick = {}) {
+                        Text("Undo")
                     }
-                )
-            }
+                }
+            )
         }
         sizes
             .assertHeightEqualsTo(68.dp)
@@ -258,23 +242,18 @@ class SnackbarTest {
         composeTestRule.setMaterialContentAndCollectSizes(
             parentConstraints = DpConstraints(maxWidth = 300.dp)
         ) {
-            OnChildPositioned(onPositioned = { snackCoords = it }) {
-                Snackbar(
-                    text = {
-                        OnChildPositioned(onPositioned = { textCoords = it }) {
-                            Text("Message")
-                        }
-                    },
-                    action = {
-                        OnChildPositioned(onPositioned = { buttonCoords = it }) {
-                            TextButton(onClick = {}) {
-                                Text("Undo")
-                            }
-                        }
-                    },
-                    actionOnNewLine = true
-                )
-            }
+            Snackbar(
+                modifier = onPositioned { snackCoords = it },
+                text = {
+                    Text("Message", onPositioned { textCoords = it })
+                },
+                action = {
+                    TextButton(onClick = {}, modifier = onPositioned { buttonCoords = it }) {
+                        Text("Undo")
+                    }
+                },
+                actionOnNewLine = true
+            )
         }
         assertThat(textCoords).isNotNull()
         assertThat(buttonCoords).isNotNull()
