@@ -50,6 +50,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -429,7 +430,6 @@ public class ViewPager extends ViewGroup {
                 new androidx.core.view.OnApplyWindowInsetsListener() {
                     private final Rect mTempRect = new Rect();
 
-                    @SuppressWarnings("deprecation") // b/146364839
                     @Override
                     public WindowInsetsCompat onApplyWindowInsets(final View v,
                             final WindowInsetsCompat originalInsets) {
@@ -470,8 +470,9 @@ public class ViewPager extends ViewGroup {
                         }
 
                         // Now return a new WindowInsets, using the consumed window insets
-                        return applied.replaceSystemWindowInsets(
-                                res.left, res.top, res.right, res.bottom);
+                        return new WindowInsetsCompat.Builder(applied)
+                                .setSystemWindowInsets(Insets.of(res))
+                                .build();
                     }
                 });
     }
