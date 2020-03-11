@@ -20,11 +20,13 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.webkit.WebViewRenderProcessClient;
 
 /**
  * Adapter class to pass a {@link android.webkit.WebViewRenderProcessClient} over to chromium.
  */
+@RequiresApi(29)
 public class WebViewRenderProcessClientFrameworkAdapter extends
             android.webkit.WebViewRenderProcessClient {
     private WebViewRenderProcessClient mWebViewRenderProcessClient;

@@ -37,7 +37,7 @@ class ComponentInitializerConstructorDetector : Detector(), SourceCodeScanner {
     companion object {
         private const val DESCRIPTION = "Missing ComponentInitializer no-arg constructor"
         val ISSUE = Issue.create(
-            id = "EnsureComponentInitializerNoArgConstructor",
+            id = "EnsureComponentInitializerNoArgConstr",
             briefDescription = DESCRIPTION,
             explanation = """
                 Every `ComponentInitializer` must have a no argument constructor.
