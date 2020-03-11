@@ -29,9 +29,9 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.Ref
 import androidx.ui.core.enforce
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Constraints
@@ -128,17 +128,14 @@ open class LayoutTest {
         assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 
-    @Composable
-    internal fun SaveLayoutInfo(
+    internal fun saveLayoutInfo(
         size: Ref<IntPxSize>,
         position: Ref<PxPosition>,
         positionedLatch: CountDownLatch
-    ) {
-        OnPositioned(onPositioned = { coordinates ->
-            size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
-            position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-            positionedLatch.countDown()
-        })
+    ): Modifier = onPositioned { coordinates ->
+        size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
+        position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+        positionedLatch.countDown()
     }
 
     internal fun testIntrinsics(
