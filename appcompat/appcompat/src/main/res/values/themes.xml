@@ -25,6 +25,9 @@
          that need to vary based on platform version should be defined in the corresponding
          "Theme.Base" theme. -->
 
+    <!-- Empty theme used to create a no-op ContextThemeWrapper. -->
+    <style name="Theme.AppCompat.Empty" parent="" />
+
     <!-- Platform-independent theme providing an action bar in a dark-themed activity. -->
     <style name="Theme.AppCompat" parent="Base.Theme.AppCompat" />
 

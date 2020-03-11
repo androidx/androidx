@@ -446,7 +446,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Next, we'll wrap the base context to ensure any method overrides or themes are left
         // intact. Since ThemeOverlay.AppCompat theme is empty, we'll get the base context's theme.
         final ContextThemeWrapper wrappedContext = new ContextThemeWrapper(baseContext,
-                R.style.ThemeOverlay_AppCompat);
+                R.style.Theme_AppCompat_Empty);
         wrappedContext.applyOverrideConfiguration(config);
 
         // Check whether the base context has an explicit theme or is able to obtain one
