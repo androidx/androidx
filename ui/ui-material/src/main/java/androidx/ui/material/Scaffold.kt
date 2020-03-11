@@ -24,8 +24,8 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.ParentData
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
@@ -271,14 +271,12 @@ private fun BottomBarContainer(
     bottomBar: @Composable() ((FabConfiguration?) -> Unit)
 ) {
     onDispose(callback = { scaffoldState.bottomBarSize = null })
-    OnChildPositioned(
-        onPositioned = {
+    ScaffoldSlot(
+        modifier = onPositioned {
             if (scaffoldState.bottomBarSize != it.size) scaffoldState.bottomBarSize = it.size
         },
         children = {
-            ScaffoldSlot(children = {
-                bottomBar(scaffoldState.fabConfiguration)
-            })
+            bottomBar(scaffoldState.fabConfiguration)
         }
     )
 }
@@ -291,7 +289,7 @@ private fun FabContainer(
     fab: @Composable() () -> Unit
 ) {
     onDispose(callback = { scaffoldState.fabConfiguration = null })
-    OnChildPositioned(onPositioned = { coords ->
+    val onPositioned = onPositioned { coords ->
         // TODO(mount): This should probably use bounding box rather than position/size
         val position = coords.parentCoordinates?.childToLocal(coords, PxPosition.Origin)
             ?: PxPosition.Origin
@@ -308,9 +306,8 @@ private fun FabContainer(
                 }
             }
         if (scaffoldState.fabConfiguration != config) scaffoldState.fabConfiguration = config
-    }) {
-        ScaffoldSlot(modifier = modifier, children = fab)
     }
+    ScaffoldSlot(modifier = modifier + onPositioned, children = fab)
 }
 
 /**
