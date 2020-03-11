@@ -93,7 +93,7 @@ public class SeekableDemo extends AppCompatActivity {
         seekBar.setMax((int) avd.getTotalDuration());
 
         start.setOnClickListener((v) -> {
-            if (!avd.isStarted()) {
+            if (!avd.isRunning()) {
                 avd.start();
             } else if (!avd.isPaused()) {
                 avd.pause();
