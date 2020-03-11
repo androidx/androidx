@@ -243,6 +243,9 @@ public abstract class ActivityResultRegistry {
                 savedInstanceState.getIntegerArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_RCS);
         ArrayList<String> keys =
                 savedInstanceState.getStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS);
+        if (keys == null || rcs == null) {
+            return;
+        }
         int numKeys = keys.size();
         for (int i = 0; i < numKeys; i++) {
             bindRcKey(rcs.get(i), keys.get(i));
