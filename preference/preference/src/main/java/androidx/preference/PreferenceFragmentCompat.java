@@ -593,7 +593,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         }
 
         // check if dialog is already showing
-        if (getFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
+        if (getParentFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
             return;
         }
 
@@ -612,7 +612,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                             + "displaying a custom dialog for this Preference.");
         }
         f.setTargetFragment(this, 0);
-        f.show(getFragmentManager(), DIALOG_FRAGMENT_TAG);
+        f.show(getParentFragmentManager(), DIALOG_FRAGMENT_TAG);
     }
 
     /**
