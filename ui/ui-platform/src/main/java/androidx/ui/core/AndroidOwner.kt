@@ -321,18 +321,14 @@ class AndroidComposeView constructor(context: Context) :
             while (layout.affectsParentSize && layout.parentLayoutNode != null) {
                 val parent = layout.parentLayoutNode!!
                 if (parent.isMeasuring || parent.isLayingOut) {
-                    if (layout.measureIteration == measureIteration) {
-                        // the node we want to remeasure is the child of the parent which is
-                        // currently being measured and this parent did already measure us as a
-                        // child. so we have to postpone the measure request till the end of
-                        // the measuring pass to remeasure our parent again after it.
-                        // this can happen if the already measured child was requested to be
-                        // remeasured for example if the used @Model has been modified and the
-                        // frame has been committed during the measuring pass.
+                    if (!layout.needsRemeasure) {
+                        layout.needsRemeasure = true
+                        // parent is currently measuring and we set needsRemeasure to true so if
+                        // the parent didn't yet try to measure the node it will remeasure it.
+                        // if the parent didn't plan to measure during this pass then needsRemeasure
+                        // stay 'true' and we will manually call 'onRequestMeasure' for all
+                        // the not-measured nodes in 'postponedMeasureRequests'.
                         postponedMeasureRequests.add(layout)
-                    } else {
-                        // otherwise we finished. this child wasn't measured yet, will be
-                        // measured soon.
                     }
                     consistencyChecker?.assertConsistent()
                     return
@@ -487,7 +483,9 @@ class AndroidComposeView constructor(context: Context) :
                     // execute postponed `onRequestMeasure`
                     if (postponedMeasureRequests.isNotEmpty()) {
                         postponedMeasureRequests.forEach {
-                            if (it.isAttached()) {
+                            // if it was detached or already measured by the parent then skip it
+                            if (it.isAttached() && it.needsRemeasure) {
+                                it.needsRemeasure = false
                                 onRequestMeasure(it)
                             }
                         }

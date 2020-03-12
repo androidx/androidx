@@ -70,20 +70,22 @@ internal class LayoutTreeConsistencyChecker(
                 return relayoutNodes.contains(this)
             }
             if (needsRemeasure) {
+                if (postponedMeasureRequests.contains(this)) {
+                    // this node is waiting to be measured by parent or if this will not happen
+                    // `onRequestMeasure` will be called for all items in `postponedMeasureRequests`
+                    return true
+                }
                 if (parent.isMeasuring || parent.isLayingOut) {
-                    return !duringMeasureLayout() ||
-                            parent.measureIteration != measureIteration
+                    return parent.measureIteration != measureIteration
                 } else {
-                    val parentRemeasureScheduled = parent.needsRemeasure ||
-                            postponedMeasureRequests.contains(parent)
                     if (affectsParentSize) {
                         // node and parent both not yet laid out -> parent remeasure
                         // should be scheduled
-                        return parentRemeasureScheduled
+                        return parent.needsRemeasure
                     } else {
                         // node is not affecting parent size and parent relayout(or
                         // remeasure, as it includes relayout) is scheduled
-                        return parent.needsRelayout || parentRemeasureScheduled
+                        return parent.needsRelayout || parent.needsRemeasure
                     }
                 }
             }
