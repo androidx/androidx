@@ -28,6 +28,7 @@ package androidx.ui.core {
     method public long getMeasureIteration();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
+    method public androidx.ui.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
     method public androidx.ui.input.TextInputService getTextInputService();
@@ -47,6 +48,7 @@ package androidx.ui.core {
     method public void sendEvent(android.view.MotionEvent event);
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setConstraints(androidx.ui.core.Constraints p);
+    method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? value);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setShowLayoutBounds(boolean p);
     property public final androidx.ui.autofill.Autofill? autofill;
@@ -59,6 +61,7 @@ package androidx.ui.core {
     property public long measureIteration;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? ref;
     property public final androidx.ui.core.LayoutNode root;
+    property public final androidx.ui.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
     property public androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
     property public boolean showLayoutBounds;
     property public final androidx.ui.input.TextInputService textInputService;
@@ -325,6 +328,9 @@ package androidx.ui.core {
     method public T? getValue();
     method public void setValue(T? p);
     property public final T? value;
+  }
+
+  public final class SavedStateDelegateKt {
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {

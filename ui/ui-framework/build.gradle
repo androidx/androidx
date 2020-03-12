@@ -42,6 +42,7 @@ dependencies {
     api project(":ui:ui-text")
     implementation project(":ui:ui-util")
     implementation project(":ui:ui-vector")
+    implementation project(":ui:ui-saved-instance-state")
     api project(":ui:ui-animation-core")
 
     testImplementation(ANDROIDX_TEST_RULES)

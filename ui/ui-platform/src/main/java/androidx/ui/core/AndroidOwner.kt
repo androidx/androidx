@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Looper
+import android.os.Parcelable
 import android.util.Log
 import android.util.SparseArray
 import android.view.MotionEvent
@@ -48,6 +49,7 @@ import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
+import androidx.ui.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -418,6 +420,7 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        savedStateDelegate.stopWaitingForStateRestoration()
         trace("AndroidOwner:onMeasure") {
             val targetWidth = convertMeasureSpec(widthMeasureSpec)
             val targetHeight = convertMeasureSpec(heightMeasureSpec)
@@ -639,6 +642,38 @@ class AndroidComposeView constructor(context: Context) :
         super.onConfigurationChanged(newConfig)
         density = Density(context)
         configurationChangeObserver()
+    }
+
+    private val savedStateDelegate = SavedStateDelegate {
+        // When AndroidComposeView is composed into some ViewGroup we just add ourself as a child
+        // for this ViewGroup. And we don't have any id on AndroidComposeView as we can't make it
+        // unique, but we require this parent ViewGroup to have an unique id for the saved
+        // instance state mechanism to work (similarly to how it works without Compose).
+        // When we composed into Activity our parent is the ViewGroup with android.R.id.content.
+        (parent as? View)?.id ?: View.NO_ID
+    }
+
+    /**
+     * The current instance of [UiSavedStateRegistry]. If it's null you can wait for it to became
+     * available using [setOnSavedStateRegistryAvailable].
+     */
+    val savedStateRegistry: UiSavedStateRegistry? get() = savedStateDelegate.savedStateRegistry
+
+    /**
+     * Allows other components to be notified when the [UiSavedStateRegistry] became available.
+     */
+    fun setOnSavedStateRegistryAvailable(callback: (UiSavedStateRegistry) -> Unit) {
+        savedStateDelegate.setOnSaveRegistryAvailable(callback)
+    }
+
+    override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>) {
+        val superState = super.onSaveInstanceState()!!
+        savedStateDelegate.dispatchSaveInstanceState(container, superState)
+    }
+
+    override fun dispatchRestoreInstanceState(container: SparseArray<Parcelable>) {
+        val superState = savedStateDelegate.dispatchRestoreInstanceState(container)
+        onRestoreInstanceState(superState)
     }
 
     private inner class DrawReceiverImpl(

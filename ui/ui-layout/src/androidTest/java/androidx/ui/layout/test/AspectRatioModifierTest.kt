@@ -58,16 +58,12 @@ class AspectRatioModifierTest : LayoutTest() {
 
     @Test(expected = IllegalArgumentException::class)
     fun testAspectRatioModifier_zeroRatio() {
-        show {
-            Container(LayoutAspectRatio(0f)) { }
-        }
+        LayoutAspectRatio(0f)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testAspectRatioModifier_negativeRatio() {
-        show {
-            Container(LayoutAspectRatio(-2f)) { }
-        }
+        LayoutAspectRatio(-2f)
     }
 
     @Test

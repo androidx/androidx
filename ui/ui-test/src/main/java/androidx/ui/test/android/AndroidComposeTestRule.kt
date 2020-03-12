@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
+import android.util.SparseArray
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
@@ -127,6 +128,9 @@ class AndroidComposeTestRule<T : Activity>(
                 val composition = activityTestRule.activity.setContent(composable)
                 val contentViewGroup =
                     activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
+                // AndroidComposeView is postponing the composition till the saved state will be restored.
+                // We will emulate the restoration of the empty state to trigger the real composition.
+                contentViewGroup.getChildAt(0).restoreHierarchyState(SparseArray())
                 contentViewGroup.viewTreeObserver.addOnGlobalLayoutListener(listener)
                 disposeContentHook = {
                     composition.dispose()
