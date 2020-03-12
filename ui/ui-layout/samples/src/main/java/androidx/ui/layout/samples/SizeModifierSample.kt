@@ -22,17 +22,17 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Center
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Stack
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun SimpleSizeModifier() {
-    Center {
+    Stack {
         Box(LayoutSize(width = 100.dp, height = 100.dp), backgroundColor = Color.Red)
     }
 }
@@ -40,7 +40,7 @@ fun SimpleSizeModifier() {
 @Sampled
 @Composable
 fun SimpleWidthModifier() {
-    Center {
+    Stack {
         Box(LayoutWidth(100.dp) + LayoutAspectRatio(1f), backgroundColor = Color.Magenta)
     }
 }
@@ -48,7 +48,7 @@ fun SimpleWidthModifier() {
 @Sampled
 @Composable
 fun SimpleHeightModifier() {
-    Center {
+    Stack {
         Box(LayoutHeight(100.dp) + LayoutAspectRatio(1f), backgroundColor = Color.Blue)
     }
 }

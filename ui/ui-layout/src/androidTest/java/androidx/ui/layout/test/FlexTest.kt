@@ -32,7 +32,6 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -54,6 +53,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.unit.px
@@ -3386,4 +3386,36 @@ private fun BaselineTestLayout(
             mapOf(TestHorizontalLine to baseline.toIntPx(), TestVerticalLine to baseline.toIntPx())
         ) {}
     })
+}
+
+// Center composable function is deprected whereas FlexTest tests heavily depend on it.
+@Composable
+private fun Center(children: @Composable() () -> Unit) {
+    Layout(children) { measurables, constraints, _ ->
+        val measurable = measurables.firstOrNull()
+        // The child cannot be larger than our max constraints, but we ignore min constraints.
+        val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+
+        // The layout is as large as possible for bounded constraints,
+        // or wrap content otherwise.
+        val layoutWidth = if (constraints.maxWidth.isFinite()) {
+            constraints.maxWidth
+        } else {
+            placeable?.width ?: constraints.minWidth
+        }
+        val layoutHeight = if (constraints.maxHeight.isFinite()) {
+            constraints.maxHeight
+        } else {
+            placeable?.height ?: constraints.minHeight
+        }
+
+        layout(layoutWidth, layoutHeight) {
+            if (placeable != null) {
+                val position = Alignment.Center.align(
+                    IntPxSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
+                )
+                placeable.place(position.x, position.y)
+            }
+        }
+    }
 }

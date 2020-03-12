@@ -22,8 +22,8 @@ import androidx.ui.core.Text
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
+import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -130,7 +130,7 @@ class ToggleableTest {
     @Test
     fun toggleableTest_disabledSemantics() {
         composeTestRule.setContent {
-            Center {
+            Stack {
                 TestTag(tag = "myToggleable") {
                     TriStateToggleable(value = ToggleableState.On) {
                         Text("ToggleableText")
@@ -154,7 +154,7 @@ class ToggleableTest {
         val onCheckedChange: (Boolean) -> Unit = { checked = it }
 
         composeTestRule.setContent {
-            Center {
+            Stack {
                 TestTag(tag = "myToggleable") {
                     Toggleable(value = checked, onValueChange = onCheckedChange) {
                         Text("ToggleableText")

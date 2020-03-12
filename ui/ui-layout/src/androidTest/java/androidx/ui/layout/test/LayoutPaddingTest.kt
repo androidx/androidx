@@ -21,11 +21,11 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutDirectionModifier
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
@@ -289,8 +289,11 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Center {
-                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
+            Stack {
+                ConstrainedBox(
+                    constraints = DpConstraints.fixed(sizeDp, sizeDp),
+                    modifier = LayoutGravity.Center
+                ) {
                     val children = @Composable {
                         Container(onPositioned { coordinates ->
                             childSize = coordinates.size
@@ -333,8 +336,11 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Center {
-                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
+            Stack {
+                ConstrainedBox(
+                    constraints = DpConstraints.fixed(sizeDp, sizeDp),
+                    modifier = LayoutGravity.Center
+                ) {
                     val children = @Composable {
                         Container(onPositioned { coordinates ->
                             childSize = coordinates.size
@@ -384,8 +390,11 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Center {
-                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
+            Stack {
+                ConstrainedBox(
+                    constraints = DpConstraints.fixed(sizeDp, sizeDp),
+                    modifier = LayoutGravity.Center
+                ) {
                     paddingContainer {
                         Container(onPositioned { coordinates ->
                             childSize = coordinates.size

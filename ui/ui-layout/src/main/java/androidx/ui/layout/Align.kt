@@ -86,6 +86,15 @@ internal fun Align(
  * For a composable that supports other alignments than just center, see [Align].
  * @see Align
  */
+@Deprecated(
+    "Center is depecated. Use LayoutSize.Fill + LayoutAlign.Center modifier instead, or one of " +
+            "the Box or Stack composables with suitable modifiers applied.",
+    ReplaceWith(
+        "Box(LayoutSize.Fill, gravity = ContentGravity.Center, children = children)",
+        "androidx.ui.foundation.Box",
+        "androidx.ui.foundation.ContentGravity"
+    )
+)
 @Composable
 fun Center(children: @Composable() () -> Unit) {
     Align(alignment = Alignment.Center, children = children)

@@ -34,9 +34,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.captureToBitmap
@@ -162,7 +163,7 @@ private fun assertBitmapsAreEqual(xmlBitmap: Bitmap, programmaticBitmap: Bitmap,
  */
 @Composable
 private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset) {
-    Center {
+    Stack {
         // Ideally these icons would be 24 dp, but due to density changes across devices we test
         // against in CI, on some devices using DP here causes there to be anti-aliasing issues.
         // Using ipx directly ensures that we will always have a consistent layout / drawing
@@ -170,7 +171,7 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
         val layoutSize = with(DensityAmbient.current) {
             LayoutSize(72.ipx.toDp())
         }
-        Column {
+        Column(LayoutGravity.Center) {
             TestTag(ProgrammaticTestTag) {
                 Semantics(container = true) {
                     Box(
