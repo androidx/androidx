@@ -17,6 +17,7 @@
 package androidx.paging.multicast
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -71,6 +72,7 @@ internal class Multicaster<T>(
         )
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val flow = flow<T> {
         val channel = Channel<ChannelManager.Message.Dispatch.Value<T>>(Channel.UNLIMITED)
         val subFlow = channel.consumeAsFlow()

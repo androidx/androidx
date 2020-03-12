@@ -23,6 +23,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
@@ -39,7 +40,9 @@ import java.util.concurrent.CountDownLatch
 @SdkSuppress(minSdkVersion = 16)
 class CoroutineRoomCancellationTest {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = TestCoroutineDispatcher()
+    @OptIn(ExperimentalCoroutinesApi::class)
     val testScope = TestCoroutineScope(testDispatcher)
 
     private val database = TestDatabase()
@@ -77,6 +80,7 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isTrue()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testSuspend_cancellable_beforeQueryStarts() = runBlocking {
         database.backingFieldMap["QueryDispatcher"] = testDispatcher

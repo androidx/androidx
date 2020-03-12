@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -86,6 +87,7 @@ fun presentDataSample() {
     class MyFlowActivity : AppCompatActivity() {
         val pagingAdapter = UserPagingAdapter()
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val viewModel by viewModels<UserListViewModel>()

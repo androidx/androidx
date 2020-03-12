@@ -29,6 +29,7 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -56,6 +57,7 @@ class LivePagedListBuilderTest {
         val state: LoadState
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
         Dispatchers.setMain(mainDispatcher)
@@ -75,6 +77,7 @@ class LivePagedListBuilderTest {
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun teardown() {
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)

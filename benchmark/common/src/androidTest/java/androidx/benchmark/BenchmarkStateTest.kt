@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import android.Manifest
+import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
@@ -180,7 +181,8 @@ class BenchmarkStateTest {
         }
     }
 
-    @UseExperimental(BenchmarkState.Companion.ExperimentalExternalReport::class)
+    @Suppress("DEPRECATION")
+    @UseExperimental(ExperimentalExternalReport::class)
     @Test
     fun reportResult() {
         BenchmarkState.reportData(

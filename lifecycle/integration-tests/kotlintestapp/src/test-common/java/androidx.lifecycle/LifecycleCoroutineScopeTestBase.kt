@@ -19,6 +19,7 @@ package androidx.lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ import kotlinx.coroutines.withContext
 import org.junit.Test
 import java.util.concurrent.CancellationException
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class LifecycleCoroutineScopeTestBase {
     @Test
     fun initialization() {

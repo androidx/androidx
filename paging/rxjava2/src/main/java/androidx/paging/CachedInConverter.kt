@@ -46,7 +46,7 @@ import kotlinx.coroutines.rx2.asObservable
  *
  * @see cachedIn
  */
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class CachedInConverter<T : Any>(
     private val scope: CoroutineScope
 ) : FlowableConverter<PagingData<T>, Flowable<PagingData<T>>>,
@@ -73,7 +73,7 @@ class CachedInConverter<T : Any>(
  *
  * @see CachedInConverter
  */
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observable<PagingData<T>> {
     return toFlowable(BackpressureStrategy.LATEST)
         .asFlow()
@@ -94,7 +94,7 @@ fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observa
  *
  * @see CachedInConverter
  */
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <T : Any> Flowable<PagingData<T>>.cachedIn(scope: CoroutineScope): Flowable<PagingData<T>> {
     return asFlow()
         .cachedIn(scope)

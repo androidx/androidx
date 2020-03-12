@@ -125,39 +125,71 @@ src/sample/UseJavaExperimentalFromKt.kt:56: Error: This declaration is experimen
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseKtExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         DateProviderKt dateProvider = new DateProviderKt();
                                       ~~~~~~~~~~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:26: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:55: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:38: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        DateProviderKt dateProvider = new DateProviderKt();
+                                      ~~~~~~~~~~~~~~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:39: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.getDate();
+                            ~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:54: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalLocationKt' or '@UseExperimental(markerClass = sample.ExperimentalLocationKt.class)' [UnsafeExperimentalUsageError]
         LocationProviderKt locationProvider = new LocationProviderKt();
                                               ~~~~~~~~~~~~~~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:56: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:55: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalLocationKt' or '@UseExperimental(markerClass = sample.ExperimentalLocationKt.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate() + locationProvider.getLocation();
                                                          ~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:86: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:70: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        DateProviderKt dateProvider = new DateProviderKt();
+                                      ~~~~~~~~~~~~~~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:72: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                            ~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:79: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        DateProviderKt dateProvider = new DateProviderKt();
+                                      ~~~~~~~~~~~~~~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:80: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocationKt' or '@UseExperimental(markerClass = sample.ExperimentalLocationKt.class)' [UnsafeExperimentalUsageError]
+        LocationProviderKt locationProvider = new LocationProviderKt();
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:81: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                            ~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:81: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalLocationKt' or '@UseExperimental(markerClass = sample.ExperimentalLocationKt.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                                                         ~~~~~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:88: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         TimeProviderKt.getTimeStatically();
                        ~~~~~~~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:87: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:89: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         TimeProviderKt.Companion.getTimeStatically();
                                  ~~~~~~~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:94: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:96: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         new TimeProviderKt().getTime();
                              ~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:95: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:97: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         new TimeProviderKt().getTimeJava();
                              ~~~~~~~~~~~
-8 errors, 0 warnings
+16 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 

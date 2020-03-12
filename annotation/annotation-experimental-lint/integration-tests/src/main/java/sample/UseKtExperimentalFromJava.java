@@ -16,8 +16,6 @@
 
 package sample;
 
-import kotlin.UseExperimental;
-
 @SuppressWarnings({"unused", "WeakerAccess"})
 class UseKtExperimentalFromJava {
     /**
@@ -34,7 +32,8 @@ class UseKtExperimentalFromJava {
         return dateProvider.getDate();
     }
 
-    @UseExperimental(markerClass = ExperimentalDateTimeKt.class)
+    @SuppressWarnings("deprecation")
+    @kotlin.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
     int getDateUseExperimental() {
         DateProviderKt dateProvider = new DateProviderKt();
         return dateProvider.getDate();
@@ -64,7 +63,8 @@ class UseKtExperimentalFromJava {
         return dateProvider.getDate() + locationProvider.getLocation();
     }
 
-    @UseExperimental(markerClass = ExperimentalDateTimeKt.class)
+    @SuppressWarnings("deprecation")
+    @kotlin.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
     @ExperimentalLocationKt
     int getDateUseExperimentalLocationExperimental() {
         DateProviderKt dateProvider = new DateProviderKt();
@@ -72,7 +72,9 @@ class UseKtExperimentalFromJava {
         return dateProvider.getDate() + locationProvider.getLocation();
     }
 
-    @UseExperimental(markerClass = { ExperimentalDateTimeKt.class, ExperimentalLocationKt.class })
+    @SuppressWarnings("deprecation")
+    @kotlin.UseExperimental(markerClass = {ExperimentalDateTimeKt.class,
+            ExperimentalLocationKt.class})
     int getDateAndLocationUseExperimental() {
         DateProviderKt dateProvider = new DateProviderKt();
         LocationProviderKt locationProvider = new LocationProviderKt();

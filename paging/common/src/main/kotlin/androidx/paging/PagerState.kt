@@ -25,6 +25,7 @@ import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -58,11 +59,13 @@ internal class PagerState<Key : Any, Value : Any>(
         END to Idle
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
         return prependLoadIdCh.consumeAsFlow()
             .onStart { prependLoadIdCh.offer(prependLoadId) }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
         return appendLoadIdCh.consumeAsFlow()
             .onStart { appendLoadIdCh.offer(appendLoadId) }

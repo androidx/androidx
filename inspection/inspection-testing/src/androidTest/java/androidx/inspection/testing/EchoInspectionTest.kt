@@ -21,6 +21,7 @@ import androidx.inspection.testing.echo.TickleManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith
 class EchoInspectionTest {
 
     @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun pingPongTest() = runBlocking {
         val inspectorTester = InspectorTester(ECHO_INSPECTION_ID)
         assertThat(inspectorTester.channel.isEmpty).isTrue()
@@ -49,6 +51,7 @@ class EchoInspectionTest {
     }
 
     @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun testCancellation() = runBlocking {
         val inspectorTester = InspectorTester(ECHO_INSPECTION_ID)
         assertThat(inspectorTester.channel.isEmpty).isTrue()
