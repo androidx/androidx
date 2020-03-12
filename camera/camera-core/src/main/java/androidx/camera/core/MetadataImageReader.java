@@ -110,14 +110,28 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param height    Height of the ImageReader
      * @param format    Image format
      * @param maxImages Maximum Image number the ImageReader can hold.
+     * @param executor  Executor for executing {@link ImageReaderProxy.OnImageAvailableListener}
+     */
+    MetadataImageReader(int width, int height, int format, int maxImages,
+            @Nullable Executor executor) {
+        mImageReaderProxy = new AndroidImageReaderProxy(
+                ImageReader.newInstance(width, height, format, maxImages));
+
+        init(executor);
+    }
+
+    /**
+     * Create a {@link MetadataImageReader} with specific configurations.
+     *
+     * @param width     Width of the ImageReader
+     * @param height    Height of the ImageReader
+     * @param format    Image format
+     * @param maxImages Maximum Image number the ImageReader can hold.
      * @param handler   Handler for executing {@link ImageReaderProxy.OnImageAvailableListener}
      */
     MetadataImageReader(int width, int height, int format, int maxImages,
             @Nullable Handler handler) {
-        mImageReaderProxy = new AndroidImageReaderProxy(
-                ImageReader.newInstance(width, height, format, maxImages));
-
-        init(CameraXExecutors.newHandlerExecutor(handler));
+        this(width, height, format, maxImages, CameraXExecutors.newHandlerExecutor(handler));
     }
 
     /**
