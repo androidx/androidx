@@ -29,7 +29,6 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -45,7 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@ExperimentalCoroutinesApi
 @SmallTest
 @RunWith(JUnit4::class)
 class LivePagedListBuilderTest {
@@ -77,7 +75,6 @@ class LivePagedListBuilderTest {
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
-    @ExperimentalCoroutinesApi
     @After
     fun teardown() {
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)

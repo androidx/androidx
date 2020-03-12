@@ -27,8 +27,6 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
@@ -55,7 +53,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  * of [Pager] and its corresponding [PagerState] should be launched within a scope that is
  * cancelled when [PagingSource.invalidate] is called.
  */
-@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     internal val pagingSource: PagingSource<Key, Value>,

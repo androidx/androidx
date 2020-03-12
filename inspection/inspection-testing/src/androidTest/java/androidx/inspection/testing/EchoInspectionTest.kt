@@ -21,7 +21,6 @@ import androidx.inspection.testing.echo.TickleManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith
 // This test actually tests our InspectorTester infrastructure
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 class EchoInspectionTest {
 
     @Test

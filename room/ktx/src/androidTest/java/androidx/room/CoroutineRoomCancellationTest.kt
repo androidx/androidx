@@ -23,7 +23,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
@@ -38,7 +37,6 @@ import java.util.concurrent.CountDownLatch
 
 @SmallTest
 @SdkSuppress(minSdkVersion = 16)
-@ExperimentalCoroutinesApi
 class CoroutineRoomCancellationTest {
 
     private val testDispatcher = TestCoroutineDispatcher()

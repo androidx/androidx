@@ -18,7 +18,6 @@ package androidx.paging.multicast
 import androidx.paging.multicast.ChannelManager.Message.Dispatch.UpstreamFinished
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.ClosedSendChannelException
@@ -37,7 +36,6 @@ import kotlinx.coroutines.launch
  * Cancellation of the collection might be triggered by both this producer (e.g. upstream completes)
  * or the [ChannelManager] (e.g. all active collectors complete).
  */
-@ExperimentalCoroutinesApi
 internal class SharedFlowProducer<T>(
     private val scope: CoroutineScope,
     private val src: Flow<T>,

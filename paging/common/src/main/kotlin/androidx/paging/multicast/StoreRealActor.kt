@@ -17,7 +17,6 @@ package androidx.paging.multicast
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import java.util.concurrent.atomic.AtomicBoolean
@@ -26,8 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Simple actor implementation abstracting away Coroutine.actor since it is deprecated.
  * It also enforces a 0 capacity buffer.
  */
-@Suppress("EXPERIMENTAL_API_USAGE")
-@ExperimentalCoroutinesApi
 internal abstract class StoreRealActor<T>(
     scope: CoroutineScope
 ) {

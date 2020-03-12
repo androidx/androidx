@@ -33,7 +33,6 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -83,7 +82,6 @@ private data class LoadEvent(
 
 @SmallTest
 @RunWith(JUnit4::class)
-@UseExperimental(ExperimentalCoroutinesApi::class)
 class AsyncPagingDataDifferTest {
     private val testScope = TestCoroutineScope()
 

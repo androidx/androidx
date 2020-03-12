@@ -22,8 +22,6 @@ import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
@@ -46,8 +44,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.atomic.AtomicInteger
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class CachingTest {
     private val testScope = TestCoroutineScope()

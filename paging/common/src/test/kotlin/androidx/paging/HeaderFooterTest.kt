@@ -24,7 +24,6 @@ import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -32,7 +31,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class HeaderFooterTest {
     private val testScope = TestCoroutineScope()

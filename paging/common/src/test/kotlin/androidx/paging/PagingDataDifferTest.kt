@@ -18,8 +18,6 @@ package androidx.paging
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -37,7 +35,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 
 @RunWith(JUnit4::class)
-@UseExperimental(ExperimentalCoroutinesApi::class)
 class PagingDataDifferTest {
     private val testScope = TestCoroutineScope()
 
@@ -54,7 +51,6 @@ class PagingDataDifferTest {
     }
 
     @Test
-    @UseExperimental(FlowPreview::class)
     fun collectFrom_static() = testScope.runBlockingTest {
         pauseDispatcher {
             val differ = SimpleDiffer()
@@ -99,7 +95,6 @@ class PagingDataDifferTest {
     }
 
     @Test
-    @UseExperimental(FlowPreview::class)
     fun collectFrom_twice() = testScope.runBlockingTest {
         val differ = SimpleDiffer()
 
@@ -110,7 +105,6 @@ class PagingDataDifferTest {
     }
 
     @Test
-    @UseExperimental(FlowPreview::class)
     fun collectFrom_twiceConcurrently() = testScope.runBlockingTest {
         val differ = SimpleDiffer()
 

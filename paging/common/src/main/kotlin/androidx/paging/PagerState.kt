@@ -25,8 +25,6 @@ import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -36,7 +34,6 @@ import kotlin.math.absoluteValue
 /**
  * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
  */
-@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class PagerState<Key : Any, Value : Any>(
     private val pageSize: Int,
     private val maxSize: Int

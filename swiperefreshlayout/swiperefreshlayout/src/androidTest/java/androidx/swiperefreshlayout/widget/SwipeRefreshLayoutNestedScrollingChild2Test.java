@@ -49,7 +49,6 @@ import org.mockito.stubbing.Answer;
  * Small integration tests that verifies correctness of {@link SwipeRefreshLayout}'s
  * NestedScrollingChild2 implementation.
  */
-
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class SwipeRefreshLayoutNestedScrollingChild2Test {
