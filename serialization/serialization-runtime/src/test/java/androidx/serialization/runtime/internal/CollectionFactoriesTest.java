@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 
 /**
@@ -30,11 +31,17 @@ public final class CollectionFactoriesTest {
     @Test
     public void testList() {
         assertThat(CollectionFactories.getListFactory().create(0))
+                .isSameInstanceAs(Collections.emptyList());
+
+        assertThat(CollectionFactories.getListFactory().create(1))
                 .isInstanceOf(ArrayList.class);
     }
 
     @Test
     public void testSet() {
+        assertThat(CollectionFactories.getSetFactory().create(0))
+                .isSameInstanceAs(Collections.emptySet());
+
         assertThat(CollectionFactories.getSetFactory().create(1))
                 .isInstanceOf(LinkedHashSet.class);
     }
