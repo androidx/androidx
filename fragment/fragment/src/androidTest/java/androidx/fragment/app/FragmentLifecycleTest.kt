@@ -566,6 +566,57 @@ class FragmentLifecycleTest {
             .that(lifecycle).isNotSameInstanceAs(childFragment.lifecycle)
     }
 
+    @Test
+    @UiThreadTest
+    fun childFragmentManagerDestroyedWhenFragmentRemoved() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        val fragment = StrictFragment()
+        fm.beginTransaction()
+            .add(fragment, "tag")
+            .commitNow()
+
+        fm.beginTransaction()
+            .remove(fragment)
+            .commitNow()
+
+        fc = fc.restart(activityRule, viewModelStore, false)
+        fm = fc.supportFragmentManager
+
+        fm.beginTransaction()
+            .add(fragment, "tag")
+            .commitNow()
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    @UiThreadTest
+    fun childFragmentManagerDestroyedWhenRetainedFragmentRemoved() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        // Not using StrictFragment here, retained fragment wont go to ATTACHED
+        val fragment = Fragment()
+        fragment.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment, "tag")
+            .commitNow()
+
+        fm.beginTransaction()
+            .remove(fragment)
+            .commitNow()
+
+        fc = fc.restart(activityRule, viewModelStore, false)
+        fm = fc.supportFragmentManager
+
+        fm.beginTransaction()
+            .add(fragment, "tag")
+            .commitNow()
+    }
+
     /**
      * Test to ensure childFragment gets initState() called when parent is removed
      */

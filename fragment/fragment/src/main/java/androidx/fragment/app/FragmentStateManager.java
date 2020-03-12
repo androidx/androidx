@@ -679,6 +679,7 @@ class FragmentStateManager {
                 // even after the Fragment is removed.
                 mFragment.mTarget = mFragmentStore.findActiveFragment(mFragment.mTargetWho);
             }
+            mFragmentStore.makeInactive(this);
         } else {
             if (mFragment.mTargetWho != null) {
                 Fragment target = mFragmentStore.findActiveFragment(mFragment.mTargetWho);
