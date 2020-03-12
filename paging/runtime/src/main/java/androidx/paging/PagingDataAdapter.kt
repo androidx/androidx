@@ -127,6 +127,10 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.END] [LoadState] as a list item at the end of the presented list.
+     *
+     * @see LoadStateAdapter
+     * @see withLoadStateHeaderAndFooter
+     * @see withLoadStateFooter
      */
     fun withLoadStateHeader(
         header: LoadStateAdapter<*>
@@ -142,6 +146,10 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.START] [LoadState] as a list item at the start of the presented list.
+     *
+     * @see LoadStateAdapter
+     * @see withLoadStateHeaderAndFooter
+     * @see withLoadStateHeader
      */
     fun withLoadStateFooter(
         footer: LoadStateAdapter<*>
@@ -158,6 +166,10 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.START] and [LoadType.END] [LoadState]s as list items at the start and end
      * respectively.
+     *
+     * @see LoadStateAdapter
+     * @see withLoadStateHeader
+     * @see withLoadStateFooter
      */
     fun withLoadStateHeaderAndFooter(
         header: LoadStateAdapter<*>,

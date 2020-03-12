@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.paging.integration.testapp.custom
+@file:Suppress("unused")
+
+package androidx.paging.samples
 
 import android.view.LayoutInflater
 import android.view.View
@@ -22,29 +24,24 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.Sampled
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
-import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-class StateItemAdapter(
-    private val retry: () -> Unit
-) : LoadStateAdapter<StateItemAdapter.ViewHolder>() {
-    class ViewHolder(
+@Sampled
+fun loadStateAdapterSample() {
+    class LoadStateViewHolder(
         parent: ViewGroup,
         retry: () -> Unit
-    ) : RecyclerView.ViewHolder(inflate(parent)) {
-        private val progressBar: ProgressBar = itemView.findViewById(
-            R.id.progress_bar
-        )
-        private val errorMsg: TextView = itemView.findViewById(
-            R.id.error_msg
-        )
-        private val retry: Button = itemView.findViewById<Button>(
-            R.id.retry_button
-        ).also {
-            it.setOnClickListener { retry.invoke() }
-        }
+    ) : RecyclerView.ViewHolder(
+        LayoutInflater.from(parent.context)
+            .inflate(R.layout.load_state_item, parent, false)
+    ) {
+        private val progressBar: ProgressBar = itemView.findViewById(R.id.progress_bar)
+        private val errorMsg: TextView = itemView.findViewById(R.id.error_msg)
+        private val retry: Button = itemView.findViewById<Button>(R.id.retry_button)
+            .also { it.setOnClickListener { retry.invoke() } }
 
         fun bind(loadState: LoadState) {
             if (loadState is LoadState.Error) {
@@ -60,18 +57,20 @@ class StateItemAdapter(
         } else {
             View.GONE
         }
-
-        companion object {
-            fun inflate(parent: ViewGroup): View = LayoutInflater.from(
-                parent.context
-            )
-                .inflate(R.layout.load_state_item, parent, false)
-        }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
-        ViewHolder(parent, retry)
+    /**
+     * Adapter which displays a loading spinner when `state = LoadState.Loading`, and an error
+     * message and retry button when `state is LoadState.Error`.
+     */
+    class MyLoadStateAdapter(
+        private val retry: () -> Unit
+    ) : LoadStateAdapter<LoadStateViewHolder>() {
 
-    override fun onBindViewHolder(holder: ViewHolder, loadState: LoadState) =
-        holder.bind(loadState)
+        override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
+            LoadStateViewHolder(parent, retry)
+
+        override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) =
+            holder.bind(loadState)
+    }
 }
