@@ -33,7 +33,6 @@ dependencies {
     implementation project(":ui:ui-text")
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-material")
-    implementation project(":ui:ui-material-icons-extended")
     implementation project(":ui:integration-tests:demos:common")
 
     implementation "androidx.preference:preference-ktx:1.1.0"

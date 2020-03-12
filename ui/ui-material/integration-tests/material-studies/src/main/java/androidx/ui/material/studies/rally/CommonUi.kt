@@ -31,7 +31,6 @@ import androidx.ui.layout.Spacer
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.ArrowForwardIos
 import androidx.ui.unit.dp
 import java.text.DecimalFormat
 

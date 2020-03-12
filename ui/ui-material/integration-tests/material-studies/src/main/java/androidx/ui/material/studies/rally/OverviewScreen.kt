@@ -34,8 +34,8 @@ import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.Sort
 import androidx.ui.material.Card
+import androidx.ui.material.IconButton
 import androidx.ui.unit.dp
 import java.util.Locale
 
@@ -114,10 +114,11 @@ private fun AlertItem(message: String) {
             text = message
         )
         IconButton(
-            vectorImage = Icons.Filled.Sort,
             onClick = {},
             modifier = LayoutGravity.Top
-        )
+        ) {
+            Icon(Icons.Filled.Sort)
+        }
     }
 }
 
