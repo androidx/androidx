@@ -291,6 +291,11 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void testOnCurrentMediaItemChanged_withDuration() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // TODO(b/143999611): Remove this once the corresponding fixes are released.
+            return;
+        }
+
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
@@ -333,6 +338,11 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void testOnCurrentMediaItemChanged_withUpdatedMetadata() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // TODO(b/143999611): Remove this once the corresponding fixes are released.
+            return;
+        }
+
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
