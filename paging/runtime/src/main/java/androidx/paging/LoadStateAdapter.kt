@@ -28,6 +28,16 @@ import androidx.recyclerview.widget.RecyclerView
  *
  * By default, both [LoadState.Loading] and [LoadState.Error] are presented as adapter items,
  * other states are not. To configure this, override [displayLoadStateAsItem].
+ *
+ * To present this Adapter as a header and or footer alongside your [PagingDataAdapter], see
+ * [PagingDataAdapter.withLoadStateHeaderAndFooter], or use
+ * [MergeAdapter][androidx.recyclerview.widget.MergeAdapter] directly to concatenate Adapters.
+ *
+ * @see PagingDataAdapter.withLoadStateHeaderAndFooter
+ * @see PagingDataAdapter.withLoadStateHeader
+ * @see PagingDataAdapter.withLoadStateFooter
+ *
+ * @sample androidx.paging.samples.loadStateAdapterSample
  */
 abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
     /**
