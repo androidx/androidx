@@ -129,19 +129,22 @@ final class ImageSaver implements Runnable {
             exif.save();
 
             if (isSaveToMediaStore()) {
+                ContentValues values = mOutputFileOptions.getContentValues() != null
+                        ? new ContentValues(mOutputFileOptions.getContentValues())
+                        : new ContentValues();
+                setContentValuePending(values, PENDING);
                 outputUri = mOutputFileOptions.getContentResolver().insert(
                         mOutputFileOptions.getSaveCollection(),
-                        mOutputFileOptions.getContentValues());
+                        values);
                 if (outputUri == null) {
                     saveError = SaveError.FILE_IO_FAILED;
                     errorMessage = "Failed to insert URI.";
                 } else {
-                    setUriPending(outputUri, PENDING);
                     if (!copyTempFileToUri(file, outputUri)) {
                         saveError = SaveError.FILE_IO_FAILED;
                         errorMessage = "Failed to save to URI.";
                     }
-                    setUriPending(outputUri, NOT_PENDING);
+                    setUriNotPending(outputUri);
                 }
             } else if (isSaveToOutputStream()) {
                 copyTempFileToOutputStream(file, mOutputFileOptions.getOutputStream());
@@ -198,13 +201,20 @@ final class ImageSaver implements Runnable {
     }
 
     /**
-     * Sets IS_PENDING flag during the writing to {@link Uri}.
+     * Removes IS_PENDING flag during the writing to {@link Uri}.
      */
-    private void setUriPending(Uri outputUri, int isPending) {
+    private void setUriNotPending(@NonNull Uri outputUri) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.IS_PENDING, isPending);
+            setContentValuePending(values, NOT_PENDING);
             mOutputFileOptions.getContentResolver().update(outputUri, values, null, null);
+        }
+    }
+
+    /** Set IS_PENDING flag to {@link ContentValues}. */
+    private void setContentValuePending(@NonNull ContentValues values, int isPending) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.put(MediaStore.Images.Media.IS_PENDING, isPending);
         }
     }
 
