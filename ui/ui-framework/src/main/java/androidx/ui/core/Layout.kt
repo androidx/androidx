@@ -485,22 +485,6 @@ private class WithConstrainsState {
 }
 
 /**
- * [onPositioned] callback will be called with the final LayoutCoordinates of the parent
- * MeasureBox after measuring.
- * Note that it will be called after a composition when the coordinates are finalized.
- *
- * Usage example:
- * @sample androidx.ui.framework.samples.OnPositionedSample
- */
-@Composable
-@Suppress("NOTHING_TO_INLINE")
-inline fun OnPositioned(
-    noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit
-) {
-    DataNode(key = OnPositionedKey, value = onPositioned)
-}
-
-/**
  * [onPositioned] callback will be called with the final LayoutCoordinates of the children
  * MeasureBox(es) after measuring.
  * Note that it will be called after a composition when the coordinates are finalized.

@@ -115,7 +115,6 @@ package androidx.ui.core {
     method public static androidx.ui.core.semantics.SemanticsNode? findClosestParentNode(androidx.ui.core.semantics.SemanticsNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> selector);
     method public static androidx.ui.core.LayoutNode? findLastLayoutChild(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> block);
     method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnChildPositionedKey();
-    method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnPositionedKey();
     method public static androidx.ui.core.DataNodeKey<java.lang.Object> getParentDataKey();
     method public static boolean hasNoLayoutDescendants(androidx.ui.core.ComponentNode);
     method public static boolean isAttached(androidx.ui.core.ComponentNode);

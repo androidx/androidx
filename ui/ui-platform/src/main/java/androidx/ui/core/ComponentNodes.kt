@@ -1493,10 +1493,6 @@ class LayoutNode : ComponentNode(), Measurable {
         private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
             node.visitChildren { child ->
                 if (child !is LayoutNode) {
-                    if (child is DataNode<*> && child.key === OnPositionedKey) {
-                        val method = child.value as (LayoutCoordinates) -> Unit
-                        method(coordinates)
-                    }
                     walkOnPosition(child, coordinates)
                 } else {
                     if (!child.needsRelayout) {
@@ -1898,11 +1894,6 @@ internal fun ComponentNode.requireFirstLayoutNodeInTree(): LayoutNode {
  * DataNodeKey for ParentData
  */
 val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
-
-/**
- * DataNodeKey for OnPositioned callback
- */
-val OnPositionedKey = DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnPositioned")
 
 /**
  * DataNodeKey for OnChildPositioned callback
