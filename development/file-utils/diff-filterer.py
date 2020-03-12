@@ -199,6 +199,10 @@ class FilesState(object):
   def add(self, filePath, fileContent):
     self.fileStates[filePath] = fileContent
 
+  def addAllFrom(self, other):
+    for filePath in other.fileStates:
+        self.add(filePath, other.fileStates[filePath])
+
   def getContent(self, filePath):
     if filePath in self.fileStates:
       return self.fileStates[filePath]
@@ -359,7 +363,7 @@ class FilesState(object):
         maxIndex = len(children) * (i + 1) / maxNumChildren
         merge = FilesState()
         for child in children[minIndex:maxIndex]:
-          merge = merge.expandedWithEmptyEntriesFor(child).withConflictsFrom(child)
+          merge.addAllFrom(child)
         mergedChildren.append(merge)
         minIndex = maxIndex
       children = mergedChildren
