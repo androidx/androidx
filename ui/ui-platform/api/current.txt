@@ -304,6 +304,7 @@ package androidx.ui.core {
     method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public boolean requestFocus();
     property public abstract androidx.ui.unit.Density density;
     property public abstract long measureIteration;
     property public abstract androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
