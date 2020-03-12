@@ -39,9 +39,9 @@ dependencies {
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
     api(project(":activity:activity"))
-    api(project(":lifecycle:lifecycle-livedata-core"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    api("androidx.lifecycle:lifecycle-livedata-core:2.3.0-alpha01")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.3.0-alpha01")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.0-alpha01")
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
         exclude group: 'androidx.fragment', module: 'fragment'
