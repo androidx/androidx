@@ -41,6 +41,7 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusManagerImpl
@@ -249,6 +250,7 @@ private fun WrapWithAmbients(
         TextInputServiceAmbient provides owner.textInputService,
         FontLoaderAmbient provides owner.fontLoader,
         HapticFeedBackAmbient provides owner.hapticFeedBack,
+        ClipboardManagerAmbient provides owner.clipboardManager,
         AutofillTreeAmbient provides owner.autofillTree,
         ConfigurationAmbient provides configuration,
         OwnerAmbient provides owner,
@@ -287,6 +289,8 @@ val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
 
 val UriHandlerAmbient = staticAmbientOf<UriHandler>()
+
+val ClipboardManagerAmbient = staticAmbientOf<ClipboardManager>()
 
 /**
  * The ambient to provide haptic feedback to the user.
