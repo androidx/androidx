@@ -18,8 +18,10 @@ package androidx.window;
 
 import static androidx.window.DeviceState.POSTURE_MAX_KNOWN;
 import static androidx.window.DeviceState.POSTURE_UNKNOWN;
+import static androidx.window.WindowManager.getActivityFromContext;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.IBinder;
@@ -73,7 +75,7 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
             public void onWindowLayoutChanged(@NonNull Context context,
                     @NonNull ExtensionWindowLayoutInfo newLayout) {
                 extensionCallback.onWindowLayoutChanged(context,
-                        windowLayoutInfoFromExtension(newLayout));
+                        windowLayoutInfoFromExtension(context, newLayout));
             }
         });
     }
@@ -83,7 +85,7 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
     public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 mWindowExtension.getWindowLayoutInfo(context);
-        return windowLayoutInfoFromExtension(windowLayoutInfo);
+        return windowLayoutInfoFromExtension(context, windowLayoutInfo);
     }
 
     @Override
@@ -131,19 +133,49 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
      * with the value passed from extension.
      */
     @Nullable
-    private static DisplayFeature displayFeatureFromExtension(ExtensionDisplayFeature feature) {
-        if (feature.getBounds().width() == 0 && feature.getBounds().height() == 0) {
+    private static DisplayFeature displayFeatureFromExtension(ExtensionDisplayFeature feature,
+            Rect windowBounds) {
+        Rect bounds = feature.getBounds();
+        if (bounds.width() == 0 && bounds.height() == 0) {
             if (DEBUG) {
                 Log.d(TAG, "Passed a display feature with empty rect, skipping: " + feature);
             }
             return null;
         }
+
+        if (feature.getType() == ExtensionDisplayFeature.TYPE_FOLD) {
+            if (bounds.width() != 0 && bounds.height() != 0) {
+                // Bounds for fold types are expected to be zero-wide or zero-high.
+                // See DisplayFeature#getBounds().
+                if (DEBUG) {
+                    Log.d(TAG, "Passed a non-zero area display feature expected to be zero-area, "
+                            + "skipping: " + feature);
+                }
+                return null;
+            }
+        }
+
+        if (feature.getType() == ExtensionDisplayFeature.TYPE_HINGE
+                || feature.getType() == ExtensionDisplayFeature.TYPE_FOLD) {
+            if (!((bounds.left == 0 && bounds.right == windowBounds.width())
+                    || (bounds.top == 0 && bounds.bottom == windowBounds.height()))) {
+                // Bounds for fold and hinge types are expected to span the entire window space.
+                // See DisplayFeature#getBounds().
+                if (DEBUG) {
+                    Log.d(TAG, "Passed a display feature expected to span the entire window but "
+                            + "does not, skipping: " + feature);
+                }
+                return null;
+            }
+        }
+
         return new DisplayFeature(feature.getBounds(), feature.getType());
     }
 
     @NonNull
     private static List<DisplayFeature> displayFeatureListFromExtension(
-            ExtensionWindowLayoutInfo extensionWindowLayoutInfo) {
+            ExtensionWindowLayoutInfo extensionWindowLayoutInfo,
+            Rect windowBounds) {
         List<DisplayFeature> displayFeatures = new ArrayList<>();
         List<ExtensionDisplayFeature> extensionFeatures =
                 extensionWindowLayoutInfo.getDisplayFeatures();
@@ -152,7 +184,8 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
         }
 
         for (ExtensionDisplayFeature extensionFeature : extensionFeatures) {
-            final DisplayFeature displayFeature = displayFeatureFromExtension(extensionFeature);
+            final DisplayFeature displayFeature = displayFeatureFromExtension(extensionFeature,
+                    windowBounds);
             if (displayFeature != null) {
                 displayFeatures.add(displayFeature);
             }
@@ -162,12 +195,19 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
 
     @NonNull
     private static WindowLayoutInfo windowLayoutInfoFromExtension(
-            @Nullable ExtensionWindowLayoutInfo extensionInfo) {
+            @NonNull Context context, @Nullable ExtensionWindowLayoutInfo extensionInfo) {
         if (extensionInfo == null) {
             return new WindowLayoutInfo(new ArrayList<>());
         }
 
-        List<DisplayFeature> displayFeatures = displayFeatureListFromExtension(extensionInfo);
+        Activity activity = getActivityFromContext(context);
+        if (activity == null) {
+            throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
+                    + "Please use an Activity or a ContextWrapper around an Activity instead.");
+        }
+        Rect windowBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
+        List<DisplayFeature> displayFeatures = displayFeatureListFromExtension(extensionInfo,
+                windowBounds);
         return new WindowLayoutInfo(displayFeatures);
     }
 

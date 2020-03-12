@@ -90,7 +90,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
                 }
 
                 extensionCallback.onWindowLayoutChanged(context,
-                        windowLayoutInfoFromSidecar(newLayout));
+                        windowLayoutInfoFromSidecar(context, newLayout));
             }
         });
     }
@@ -102,7 +102,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         IBinder windowToken = getActivityWindowToken(activity);
 
         SidecarWindowLayoutInfo windowLayoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
-        return windowLayoutInfoFromSidecar(windowLayoutInfo);
+        return windowLayoutInfoFromSidecar(context, windowLayoutInfo);
     }
 
     @Override
@@ -244,26 +244,56 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
      * with the value passed from extension.
      */
     @Nullable
-    private static DisplayFeature displayFeatureFromExtension(SidecarDisplayFeature feature) {
-        if (feature.getRect().width() == 0 && feature.getRect().height() == 0) {
+    private static DisplayFeature displayFeatureFromExtension(SidecarDisplayFeature feature,
+            Rect windowBounds) {
+        Rect bounds = feature.getRect();
+        if (bounds.width() == 0 && bounds.height() == 0) {
             if (DEBUG) {
                 Log.d(TAG, "Passed a display feature with empty rect, skipping: " + feature);
             }
             return null;
         }
+
+        if (feature.getType() == SidecarDisplayFeature.TYPE_FOLD) {
+            if (bounds.width() != 0 && bounds.height() != 0) {
+                // Bounds for fold types are expected to be zero-wide or zero-high.
+                // See DisplayFeature#getBounds().
+                if (DEBUG) {
+                    Log.d(TAG, "Passed a non-zero area display feature expected to be zero-area, "
+                            + "skipping: " + feature);
+                }
+                return null;
+            }
+        }
+        if (feature.getType() == SidecarDisplayFeature.TYPE_HINGE
+                || feature.getType() == SidecarDisplayFeature.TYPE_FOLD) {
+            if (!((bounds.left == 0 && bounds.right == windowBounds.width())
+                    || (bounds.top == 0 && bounds.bottom == windowBounds.height()))) {
+                // Bounds for fold and hinge types are expected to span the entire window space.
+                // See DisplayFeature#getBounds().
+                if (DEBUG) {
+                    Log.d(TAG, "Passed a display feature expected to span the entire window but "
+                            + "does not, skipping: " + feature);
+                }
+                return null;
+            }
+        }
+
         return new DisplayFeature(feature.getRect(), feature.getType());
     }
 
     @NonNull
     private static List<DisplayFeature> displayFeatureListFromSidecar(
-            SidecarWindowLayoutInfo sidecarWindowLayoutInfo) {
+            SidecarWindowLayoutInfo sidecarWindowLayoutInfo,
+            Rect windowBounds) {
         List<DisplayFeature> displayFeatures = new ArrayList<>();
         if (sidecarWindowLayoutInfo.displayFeatures == null) {
             return displayFeatures;
         }
 
         for (SidecarDisplayFeature sidecarFeature : sidecarWindowLayoutInfo.displayFeatures) {
-            final DisplayFeature displayFeature = displayFeatureFromExtension(sidecarFeature);
+            final DisplayFeature displayFeature = displayFeatureFromExtension(sidecarFeature,
+                    windowBounds);
             if (displayFeature != null) {
                 displayFeatures.add(displayFeature);
             }
@@ -273,12 +303,19 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
 
     @NonNull
     private static WindowLayoutInfo windowLayoutInfoFromSidecar(
-            @Nullable SidecarWindowLayoutInfo extensionInfo) {
+            @NonNull Context context, @Nullable SidecarWindowLayoutInfo extensionInfo) {
         if (extensionInfo == null) {
             return new WindowLayoutInfo(new ArrayList<>());
         }
 
-        List<DisplayFeature> displayFeatures = displayFeatureListFromSidecar(extensionInfo);
+        Activity activity = getActivityFromContext(context);
+        if (activity == null) {
+            throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
+                    + "Please use an Activity or a ContextWrapper around an Activity instead.");
+        }
+        Rect windowBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
+        List<DisplayFeature> displayFeatures = displayFeatureListFromSidecar(extensionInfo,
+                windowBounds);
         return new WindowLayoutInfo(displayFeatures);
     }
 

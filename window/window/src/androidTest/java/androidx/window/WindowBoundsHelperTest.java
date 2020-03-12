@@ -146,7 +146,7 @@ public final class WindowBoundsHelperTest {
 
             Point realDisplaySize = WindowBoundsHelper.getRealSizeForDisplay(display);
 
-            Rect bounds = WindowBoundsHelper.computeCurrentWindowBounds(activity);
+            Rect bounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
             assertEquals("Window bounds width does not match real display width",
                     realDisplaySize.x, bounds.width());
             assertEquals("Window bounds height does not match real display height",

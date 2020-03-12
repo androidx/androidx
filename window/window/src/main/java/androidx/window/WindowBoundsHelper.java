@@ -47,10 +47,29 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Static helper class used to compute window bounds across Android versions.
+ * Helper class used to compute window bounds across Android versions. Obtain an instance with
+ * {@link #getInstance()}.
  */
 class WindowBoundsHelper {
     private static final String TAG = "WindowBoundsHelper";
+
+    private static WindowBoundsHelper sInstance = new WindowBoundsHelper();
+    @Nullable
+    private static WindowBoundsHelper sTestInstance;
+
+    static WindowBoundsHelper getInstance() {
+        if (sTestInstance != null) {
+            return sTestInstance;
+        }
+        return sInstance;
+    }
+
+    @VisibleForTesting
+    static void setForTesting(@Nullable WindowBoundsHelper helper) {
+        sTestInstance = helper;
+    }
+
+    WindowBoundsHelper() {}
 
     /**
      * Computes the size and position of the area the window would occupy with
@@ -88,7 +107,7 @@ class WindowBoundsHelper {
      * @see android.view.WindowMetrics#getBounds()
      */
     @NonNull
-    static Rect computeCurrentWindowBounds(Activity activity) {
+    Rect computeCurrentWindowBounds(Activity activity) {
         if (Build.VERSION.SDK_INT >= R) {
             android.view.WindowManager platformWindowManager =
                     activity.getSystemService(android.view.WindowManager.class);
@@ -352,6 +371,4 @@ class WindowBoundsHelper {
         }
         return displayCutout;
     }
-
-    private WindowBoundsHelper() {}
 }

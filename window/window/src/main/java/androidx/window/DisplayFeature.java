@@ -41,9 +41,7 @@ public final class DisplayFeature {
     private int mType;
 
     DisplayFeature(@NonNull Rect bounds, @Type int type) {
-        if (bounds.height() == 0 && bounds.width() == 0) {
-            throw new IllegalArgumentException("Bounding rectangle must not be empty: " + bounds);
-        }
+        assertValidBounds(bounds, type);
         mBounds = new Rect(bounds);
         mType = type;
     }
@@ -52,6 +50,12 @@ public final class DisplayFeature {
      * Gets bounding rectangle of the physical display feature in the coordinate space of the
      * window. The rectangle provides information about the location of the feature in the window
      * and its size.
+     *
+     * <p>The bounds for features of type {@link #TYPE_FOLD fold} are guaranteed to be zero-high
+     * (for horizontal folds) or zero-wide (for vertical folds) and span the entire window.
+     *
+     * <p>The bounds for features of type {@link #TYPE_HINGE hinge} are guaranteed to span the
+     * entire window but, unlike folds, can have a non-zero area.
      */
     @NonNull
     public Rect getBounds() {
@@ -83,7 +87,7 @@ public final class DisplayFeature {
     })
     @interface Type{}
 
-    private String typeToString(@Type int type) {
+    private static String typeToString(@Type int type) {
         switch (type) {
             case TYPE_FOLD:
                 return "FOLD";
@@ -156,6 +160,33 @@ public final class DisplayFeature {
         @NonNull
         public DisplayFeature build() {
             return new DisplayFeature(mBounds, mType);
+        }
+    }
+
+    /**
+     * Throws runtime exceptions if the bounds are invalid or incompatible with the supplied type.
+     */
+    private static void assertValidBounds(Rect bounds, @Type int type) {
+        if (bounds.height() == 0 && bounds.width() == 0) {
+            throw new IllegalArgumentException("Bounding rectangle must not be empty: " + bounds);
+        }
+
+        if (type == TYPE_FOLD) {
+            if (bounds.width() != 0 && bounds.height() != 0) {
+                throw new IllegalArgumentException("Bounding rectangle must be either zero-wide "
+                        + "or zero-high for features of type " + typeToString(type));
+            }
+
+            if ((bounds.width() != 0 && bounds.left != 0)
+                    || (bounds.height() != 0 && bounds.top != 0)) {
+                throw new IllegalArgumentException("Bounding rectangle must span the entire "
+                        + "window space for features of type " + typeToString(type));
+            }
+        } else if (type == TYPE_HINGE) {
+            if (bounds.left != 0 && bounds.top != 0) {
+                throw new IllegalArgumentException("Bounding rectangle must span the entire "
+                        + "window space for features of type " + typeToString(type));
+            }
         }
     }
 }
