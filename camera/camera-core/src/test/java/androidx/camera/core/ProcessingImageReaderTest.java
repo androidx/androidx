@@ -25,8 +25,6 @@ import static org.mockito.Mockito.verify;
 import android.graphics.ImageFormat;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
@@ -92,11 +90,9 @@ public final class ProcessingImageReaderTest {
     private final CaptureStage mCaptureStage3 = new FakeCaptureStage(CAPTURE_ID_3, null);
     private final FakeImageReaderProxy mImageReaderProxy = new FakeImageReaderProxy(8);
     private CaptureBundle mCaptureBundle;
-    private Handler mMainHandler;
 
     @Before
     public void setUp() {
-        mMainHandler = new Handler(Looper.getMainLooper());
         mCaptureBundle = CaptureBundles.createCaptureBundle(mCaptureStage0, mCaptureStage1);
     }
 
@@ -106,8 +102,11 @@ public final class ProcessingImageReaderTest {
         // Sets the callback from ProcessingImageReader to start processing
         CaptureProcessor captureProcessor = mock(CaptureProcessor.class);
         ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mImageReaderProxy, mMainHandler, AsyncTask.THREAD_POOL_EXECUTOR,
-                mCaptureBundle, captureProcessor);
+                mImageReaderProxy, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                captureProcessor);
+        processingImageReader.setOnImageAvailableListener(mock(
+                ImageReaderProxy.OnImageAvailableListener.class),
+                CameraXExecutors.mainThreadExecutor());
         Map<Integer, Long> resultMap = new HashMap<>();
         resultMap.put(CAPTURE_ID_0, TIMESTAMP_0);
         resultMap.put(CAPTURE_ID_1, TIMESTAMP_1);
@@ -154,17 +153,15 @@ public final class ProcessingImageReaderTest {
         ImageReaderProxy imageReaderProxy = new FakeImageReaderProxy(1);
 
         // Expects to throw exception when creating ProcessingImageReader.
-        new ProcessingImageReader(imageReaderProxy, mMainHandler,
-                AsyncTask.THREAD_POOL_EXECUTOR,
-                mCaptureBundle, NOOP_PROCESSOR);
+        new ProcessingImageReader(imageReaderProxy, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                NOOP_PROCESSOR);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void captureStageExceedMaxCaptureStage_setCaptureBundleThrowsException() {
         // Creates a ProcessingImageReader with maximum Image number.
         ProcessingImageReader processingImageReader = new ProcessingImageReader(100, 100,
-                ImageFormat.YUV_420_888, 2, CameraXExecutors.newHandlerExecutor(mMainHandler),
-                AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                ImageFormat.YUV_420_888, 2, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
                 mock(CaptureProcessor.class));
 
         // Expects to throw exception when invoke the setCaptureBundle method with a
