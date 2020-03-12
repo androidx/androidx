@@ -40,6 +40,8 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.max
 import androidx.ui.unit.round
 import androidx.ui.unit.toPxSize
 import org.jetbrains.annotations.TestOnly
@@ -154,8 +156,11 @@ private fun Popup(
 
     var composition: Composition? = null
 
+    // TODO(soboleva): Look at module arrangement so that Box can be
+    // used instead of this custom Layout
     // Get the parent's global position and size
-    OnPositioned { coordinates ->
+    Layout(children = {}, modifier = onPositioned { childCoordinates ->
+        val coordinates = childCoordinates.parentCoordinates!!
         // Get the global position of the parent
         val layoutPosition = coordinates.localToGlobal(PxPosition.Origin)
         val layoutSize = coordinates.size
@@ -165,17 +170,17 @@ private fun Popup(
 
         // Update the popup's position
         popupLayout.updatePosition()
-    }
+    }) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
 
     onCommit {
         composition = popupLayout.setContent {
-            OnChildPositioned({
+            SimpleStack(onPositioned {
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
 
                 // Update the popup's position
                 popupLayout.updatePosition()
-            }, children)
+            }, children = children)
         }
     }
 
@@ -183,6 +188,40 @@ private fun Popup(
         composition?.dispose()
         // Remove the window
         popupLayout.dismiss()
+    }
+}
+
+// TODO(soboleva): Look at module dependencies so that we can get code reuse between
+// Popup's SimpleStack and Stack.
+@Suppress("NOTHING_TO_INLINE")
+@Composable
+private inline fun SimpleStack(modifier: Modifier, noinline children: @Composable() () -> Unit) {
+    Layout(children = children, modifier = modifier) { measurables, constraints, _ ->
+        when (measurables.size) {
+            0 -> layout(0.ipx, 0.ipx) {}
+            1 -> {
+                val p = measurables[0].measure(constraints)
+                layout(p.width, p.height) {
+                    p.place(0.ipx, 0.ipx)
+                }
+            }
+            else -> {
+                val placeables = measurables.map { it.measure(constraints) }
+                var width = 0.ipx
+                var height = 0.ipx
+                for (i in 0..placeables.lastIndex) {
+                    val p = placeables[i]
+                    width = max(width, p.width)
+                    height = max(height, p.height)
+                }
+                layout(width, height) {
+                    for (i in 0..placeables.lastIndex) {
+                        val p = placeables[i]
+                        p.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
     }
 }
 
