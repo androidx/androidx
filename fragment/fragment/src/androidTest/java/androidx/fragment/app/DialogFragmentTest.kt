@@ -21,6 +21,7 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
+import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -108,6 +109,92 @@ class DialogFragmentTest {
                 .that(dialogFragment.onCancelCalled)
                 .isFalse()
         }
+    }
+
+    @Test
+    @UiThreadTest
+    fun testSavedInstanceState() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityTestRule.startupFragmentController(viewModelStore)
+        val fm1 = fc1.supportFragmentManager
+
+        val dialogFragment = TestDialogFragment()
+
+        activityTestRule.runOnUiThread {
+            fm1.beginTransaction()
+                .add(dialogFragment, "dialog")
+                .commitNow()
+        }
+
+        val childFragment = StrictViewFragment()
+
+        activityTestRule.run {
+            dialogFragment.childFragmentManager.beginTransaction()
+                .add(childFragment, "child")
+                .commitNow()
+        }
+
+        fc1.dispatchPause()
+        val savedState = fc1.saveAllState()
+        fc1.dispatchStop()
+        fc1.dispatchDestroy()
+
+        val fc2 = activityTestRule.startupFragmentController(viewModelStore, savedState)
+        val fm2 = fc2.supportFragmentManager
+
+        val restoredDialogFragment = fm2.findFragmentByTag("dialog") as DialogFragment
+        assertWithMessage("Dialog fragment was not restored")
+            .that(restoredDialogFragment).isNotNull()
+        val restoredChildFragment = restoredDialogFragment
+            .childFragmentManager.findFragmentByTag("child") as StrictFragment
+        assertWithMessage("Child fragment was not restored").that(restoredChildFragment).isNotNull()
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.shutdown(viewModelStore)
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    @UiThreadTest
+    fun testRetainedSavedInstanceState() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityTestRule.startupFragmentController(viewModelStore)
+        val fm1 = fc1.supportFragmentManager
+
+        val dialogFragment = TestDialogFragment()
+        dialogFragment.retainInstance = true
+
+        activityTestRule.runOnUiThread {
+            fm1.beginTransaction()
+                .add(dialogFragment, "dialog")
+                .commitNow()
+        }
+
+        val childFragment = StrictViewFragment()
+
+        activityTestRule.run {
+            dialogFragment.childFragmentManager.beginTransaction()
+                .add(childFragment, "child")
+                .commitNow()
+        }
+
+        fc1.dispatchPause()
+        val savedState = fc1.saveAllState()
+        fc1.dispatchStop()
+        fc1.dispatchDestroy()
+
+        val fc2 = activityTestRule.startupFragmentController(viewModelStore, savedState)
+        val fm2 = fc2.supportFragmentManager
+
+        val restoredDialogFragment = fm2.findFragmentByTag("dialog") as DialogFragment
+        assertWithMessage("Dialog fragment was not restored")
+            .that(restoredDialogFragment).isNotNull()
+        val restoredChildFragment = restoredDialogFragment
+            .childFragmentManager.findFragmentByTag("child") as StrictFragment
+        assertWithMessage("Child fragment was not restored").that(restoredChildFragment).isNotNull()
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.shutdown(viewModelStore)
     }
 
     class TestDialogFragment : DialogFragment() {
