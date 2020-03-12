@@ -32,17 +32,14 @@ import androidx.camera.view.preview.transform.PreviewTransform;
  */
 abstract class PreviewViewImplementation {
 
-    private static final PreviewView.ScaleType DEFAULT_SCALE_TYPE =
-            PreviewView.ScaleType.FILL_CENTER;
-
     @Nullable
     Size mResolution;
 
     @Nullable
     FrameLayout mParent;
 
-    @NonNull
-    private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
+    @Nullable
+    private PreviewTransform mPreviewTransform;
 
     abstract void initializePreview();
 
@@ -54,18 +51,12 @@ abstract class PreviewViewImplementation {
     abstract Preview.SurfaceProvider getSurfaceProvider();
 
     /**
-     * Initializes the parent view
-     *
-     * @param parent the containing parent {@link FrameLayout}.
+     * @param parent           the containing parent {@link PreviewView}.
+     * @param previewTransform Allows to apply preview correction and scale types.
      */
-    void init(@NonNull FrameLayout parent) {
+    void init(@NonNull FrameLayout parent, @NonNull PreviewTransform previewTransform) {
         mParent = parent;
-    }
-
-    /** Returns the {@link PreviewView.ScaleType} currently applied to the preview. */
-    @NonNull
-    PreviewView.ScaleType getScaleType() {
-        return mScaleType;
+        mPreviewTransform = previewTransform;
     }
 
     @Nullable
@@ -74,13 +65,14 @@ abstract class PreviewViewImplementation {
     }
 
     /**
-     * Invoked when the layout bounds of the preview's container {@link PreviewView} have
-     * changed.
-     *
-     * <p>Corrects and adjusts the preview using the latest display properties such as the display
-     * orientation and size.
+     * Invoked when the preview needs to be adjusted, either because the layout bounds of the
+     * preview's container {@link PreviewView} have changed, or the {@link PreviewView.ScaleType}
+     * has changed.
+     * <p>
+     * Corrects and adjusts the preview using the latest {@link PreviewView.ScaleType} and
+     * display properties such as the display orientation and size.
      */
-    void onLayoutChanged() {
+    void redrawPreview() {
         applyCurrentScaleType();
     }
 
@@ -89,20 +81,11 @@ abstract class PreviewViewImplementation {
         applyCurrentScaleType();
     }
 
-    /**
-     * Applies a {@link PreviewView.ScaleType} to the preview.
-     *
-     * @see PreviewView#setScaleType(PreviewView.ScaleType)
-     */
-    void setScaleType(@NonNull final PreviewView.ScaleType scaleType) {
-        mScaleType = scaleType;
-        applyCurrentScaleType();
-    }
-
     private void applyCurrentScaleType() {
         final View preview = getPreview();
-        if (mParent != null && preview != null && mResolution != null) {
-            PreviewTransform.applyScaleType(mParent, preview, mResolution, mScaleType);
+        if (mPreviewTransform != null && mParent != null && preview != null
+                && mResolution != null) {
+            mPreviewTransform.applyCurrentScaleType(mParent, preview, mResolution);
         }
     }
 }
