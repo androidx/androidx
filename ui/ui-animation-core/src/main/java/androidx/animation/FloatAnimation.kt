@@ -106,7 +106,12 @@ internal class SpringAnimation(
     /**
      * Stiffness of the spring. Defaults to [Spring.StiffnessVeryLow]
      */
-    stiffness: Float = Spring.StiffnessMedium
+    stiffness: Float = Spring.StiffnessMedium,
+    /**
+     * The value threshold such that the animation is no longer significant. An example would be
+     * 1px for translation animations. Defaults to 0.01f
+     */
+    private val displacementThreshold: Float = 0.01f
 ) : FloatAnimation {
 
     private val spring = SpringSimulation(1f).also {
@@ -140,8 +145,8 @@ internal class SpringAnimation(
         estimateAnimationDurationMillis(
             stiffness = spring.stiffness,
             dampingRatio = spring.dampingRatio,
-            initialDisplacement = (start - end) * 100f,
-            initialVelocity = startVelocity * 100f,
+            initialDisplacement = (start - end) / displacementThreshold,
+            initialVelocity = startVelocity / displacementThreshold,
             delta = 1f
         )
 }

@@ -99,7 +99,8 @@ class PhysicsAnimationTest {
 
         val criticalBuilder = PhysicsBuilder<Float>(
             dampingRatio = 1f,
-            stiffness = stiffness
+            stiffness = stiffness,
+            displacementThreshold = 1f
         )
         val criticalWrapper = criticalBuilder.build().toWrapper(
             startValue = startValue,
@@ -111,8 +112,8 @@ class PhysicsAnimationTest {
             estimateAnimationDurationMillis(
                 stiffness = stiffness.toDouble(),
                 dampingRatio = 1.0,
-                initialVelocity = startVelocity.toDouble() * 100.0,
-                initialDisplacement = startValue.toDouble() * 100.0,
+                initialVelocity = startVelocity.toDouble(),
+                initialDisplacement = startValue.toDouble(),
                 delta = delta
             ) /* = 811 ms*/,
             criticalWrapper.durationMillis
@@ -129,7 +130,8 @@ class PhysicsAnimationTest {
 
         val overBuilder = PhysicsBuilder<Float>(
             dampingRatio = 5f,
-            stiffness = stiffness
+            stiffness = stiffness,
+            displacementThreshold = 1f
         )
         val overWrapper = overBuilder.build().toWrapper(
             startValue = startValue,
@@ -141,8 +143,8 @@ class PhysicsAnimationTest {
             estimateAnimationDurationMillis(
                 stiffness = stiffness.toDouble(),
                 dampingRatio = 5.0,
-                initialVelocity = startVelocity.toDouble() * 100.0,
-                initialDisplacement = startValue.toDouble() * 100.0,
+                initialVelocity = startVelocity.toDouble(),
+                initialDisplacement = startValue.toDouble(),
                 delta = delta
             ) /* = 4830 ms*/,
             overWrapper.durationMillis
@@ -158,7 +160,8 @@ class PhysicsAnimationTest {
 
         val underBuilder = PhysicsBuilder<Float>(
             dampingRatio = .5f,
-            stiffness = stiffness
+            stiffness = stiffness,
+            displacementThreshold = 1f
         )
         val underWrapper = underBuilder.build().toWrapper(
             startValue = startValue,
@@ -170,8 +173,8 @@ class PhysicsAnimationTest {
             estimateAnimationDurationMillis(
                 stiffness = stiffness.toDouble(),
                 dampingRatio = 0.5,
-                initialVelocity = startVelocity.toDouble() * 100.0,
-                initialDisplacement = startValue.toDouble() * 100.0,
+                initialVelocity = startVelocity.toDouble(),
+                initialDisplacement = startValue.toDouble(),
                 delta = delta) /* = 1206 ms*/,
             underWrapper.durationMillis
         )
