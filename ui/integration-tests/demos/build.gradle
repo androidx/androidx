@@ -4,26 +4,39 @@ import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXUiPlugin")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    kotlinPlugin project(path: ":compose:compose-compiler")
+
     implementation(project(":ui:ui-android-view:integration-tests:ui-android-view-demos"))
     implementation(project(":ui:ui-animation:integration-tests:ui-animation-demos"))
+    implementation(project(":ui:ui-foundation:integration-tests:ui-foundation-demos"))
     implementation(project(":ui:ui-framework:integration-tests:ui-framework-demos"))
     implementation(project(":ui:ui-layout:integration-tests:ui-layout-demos"))
     implementation(project(":ui:ui-material:integration-tests:ui-material-demos"))
     implementation(project(":ui:ui-material:integration-tests:ui-material-studies"))
-    implementation(project(":ui:ui-foundation:integration-tests:ui-foundation-demos"))
     implementation(project(":ui:ui-text:integration-tests:ui-text-demos"))
+
+    implementation(KOTLIN_REFLECT)
     implementation(KOTLIN_STDLIB)
 
-    androidTestImplementation project(':ui:ui-test')
-    androidTestImplementation(JUNIT)
-    androidTestImplementation('androidx.test.ext:junit:1.1.0')
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE)
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-android-view")
+    implementation project(":ui:ui-core")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-framework")
+    implementation project(":ui:ui-layout")
+    implementation project(":ui:ui-text")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-material")
+    implementation project(":ui:ui-material-icons-extended")
+    implementation project(":ui:integration-tests:demos:common")
+
+    implementation "androidx.preference:preference-ktx:1.1.0"
 }
 
 android {
@@ -35,6 +48,12 @@ android {
     // :samples subproject
     packagingOptions {
         exclude 'META-INF/samples_debug.kotlin_module'
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        useIR = true
     }
 }
 

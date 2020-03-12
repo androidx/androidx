@@ -16,11 +16,9 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.LongPressGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.layout.LayoutAlign
@@ -31,23 +29,19 @@ import androidx.ui.unit.dp
 /**
  * Simple LongPressGestureDetector demo.
  */
-class LongPressGestureDetectorDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val color = state { Colors.random() }
+@Composable
+fun LongPressGestureDetectorDemo() {
+    val color = state { Colors.random() }
 
-            val onLongPress = { _: PxPosition ->
-                color.value = color.value.anotherRandomColor()
-            }
+    val onLongPress = { _: PxPosition ->
+        color.value = color.value.anotherRandomColor()
+    }
 
-            LongPressGestureDetector(onLongPress = onLongPress) {
-                Box(
-                    LayoutAlign.Center + LayoutSize(192.dp),
-                    backgroundColor = color.value,
-                    border = Border(2.dp, BorderColor)
-                )
-            }
-        }
+    LongPressGestureDetector(onLongPress = onLongPress) {
+        Box(
+            LayoutAlign.Center + LayoutSize(192.dp),
+            backgroundColor = color.value,
+            border = Border(2.dp, BorderColor)
+        )
     }
 }

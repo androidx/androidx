@@ -1,6 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
@@ -17,10 +14,8 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
 
-    implementation "androidx.activity:activity:1.0.0-alpha01"
-    api "androidx.annotation:annotation:1.1.0"
-
     implementation project(":compose:compose-runtime")
+    implementation project(":ui:integration-tests:demos:common")
     implementation project(":ui:ui-core")
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
@@ -29,19 +24,13 @@ dependencies {
     implementation project(':ui:ui-foundation')
 }
 
-androidx {
-    name = "Compose Animation Composables"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    // b/142788501: Set toolingProject to true so Dokka does not generate reference docs for this project
-    toolingProject = true
-    mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
-    inceptionYear = "2019"
-    description = "Animation Demos"
-}
-
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
     }
+}
+
+androidx {
+    // b/142788501: Set toolingProject to true so Dokka does not generate reference docs for this project
+    toolingProject = true
 }

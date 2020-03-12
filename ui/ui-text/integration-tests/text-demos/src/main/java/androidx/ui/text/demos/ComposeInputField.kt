@@ -26,7 +26,7 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.text.TextStyle
 
-val KEYBOARD_TYPES = listOf(
+private val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.Text, "Text"),
     Pair(KeyboardType.Ascii, "Ascii"),
     Pair(KeyboardType.Number, "Number"),
@@ -36,7 +36,7 @@ val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.NumberPassword, "NumberPassword")
 )
 
-val IME_ACTIONS = listOf(
+private val IME_ACTIONS = listOf(
     Pair(ImeAction.Unspecified, "Unspecified"),
     Pair(ImeAction.NoAction, "NoAction"),
     Pair(ImeAction.Go, "Go"),
@@ -70,7 +70,7 @@ fun InputFieldDemo() {
 }
 
 @Composable
-fun EditLine(
+private fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {

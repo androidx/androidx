@@ -34,10 +34,8 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
 
-    implementation "androidx.activity:activity:1.0.0-alpha01"
-    api "androidx.annotation:annotation:1.1.0"
-
     implementation project(":compose:compose-runtime")
+    implementation project(":ui:integration-tests:demos:common")
     implementation project(":ui:ui-core")
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-framework")
@@ -49,9 +47,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
             useIR = true
@@ -60,12 +55,5 @@ android {
 }
 
 androidx {
-    name = "Compose Material Studies"
-    publish = Publish.NONE
-    // b/142788501: Set toolingProject to true so Dokka does not generate reference docs for this project
     toolingProject = true
-    mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
-    inceptionYear = "2020"
-    description = "This is a project for Material Studies demos."
 }

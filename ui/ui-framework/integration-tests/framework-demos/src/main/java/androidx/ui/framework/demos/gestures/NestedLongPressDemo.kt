@@ -16,12 +16,9 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.LongPressGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -32,31 +29,27 @@ import androidx.ui.unit.dp
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.
  */
-class NestedLongPressDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            LongPressableContainer(
-                paddingLeft = 48.dp,
-                paddingRight = 48.dp,
-                paddingTop = 96.dp,
-                paddingBottom = 96.dp
-            ) {
-                LongPressableContainer(
-                    paddingLeft = 48.dp,
-                    paddingRight = 48.dp,
-                    paddingTop = 96.dp,
-                    paddingBottom = 96.dp
-                ) {
-                    LongPressableContainer {}
-                }
-            }
+@Composable
+fun NestedLongPressDemo() {
+    LongPressableContainer(
+        paddingLeft = 48.dp,
+        paddingRight = 48.dp,
+        paddingTop = 96.dp,
+        paddingBottom = 96.dp
+    ) {
+        LongPressableContainer(
+            paddingLeft = 48.dp,
+            paddingRight = 48.dp,
+            paddingTop = 96.dp,
+            paddingBottom = 96.dp
+        ) {
+            LongPressableContainer {}
         }
     }
 }
 
 @Composable
-fun LongPressableContainer(
+private fun LongPressableContainer(
     paddingLeft: Dp = 0.dp,
     paddingTop: Dp = 0.dp,
     paddingRight: Dp = 0.dp,

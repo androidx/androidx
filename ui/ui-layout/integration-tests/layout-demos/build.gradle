@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
@@ -29,13 +28,10 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
-    implementation(KOTLIN_COROUTINES_ANDROID)
     implementation(KOTLIN_STDLIB)
 
-    implementation "androidx.activity:activity:1.0.0-alpha01"
-    api "androidx.annotation:annotation:1.1.0"
-
     implementation project(":compose:compose-runtime")
+    implementation project(":ui:integration-tests:demos:common")
     implementation project(":ui:ui-core")
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
