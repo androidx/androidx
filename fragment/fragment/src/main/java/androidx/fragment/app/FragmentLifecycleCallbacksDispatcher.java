@@ -149,6 +149,7 @@ class FragmentLifecycleCallbacksDispatcher {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void dispatchOnFragmentActivityCreated(@NonNull Fragment f,
             @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         Fragment parent = mFragmentManager.getParent();
