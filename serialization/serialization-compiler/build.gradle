@@ -28,6 +28,9 @@ plugins {
     id("kotlin-kapt")
 }
 
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
     implementation(project(":serialization:serialization-annotation"))
     implementation(project(":serialization:serialization-schema"))
