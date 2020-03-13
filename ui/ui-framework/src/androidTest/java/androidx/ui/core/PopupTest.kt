@@ -87,12 +87,10 @@ class PopupTest {
                             Popup(alignment = alignment, offset = offset) {
                                 // This is called after the OnChildPosition method in Popup() which
                                 // updates the popup to its final position
-                                OnPositioned {
-                                    measureLatch.countDown()
-                                }
                                 SimpleContainer(
                                     width = popupWidthDp,
                                     height = popupHeightDp,
+                                    modifier = onPositioned { measureLatch.countDown() },
                                     children = emptyContent()
                                 )
                             }

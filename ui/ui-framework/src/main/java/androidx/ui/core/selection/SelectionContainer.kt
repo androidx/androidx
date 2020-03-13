@@ -191,11 +191,12 @@ private fun Wrap(modifier: Modifier = Modifier.None, children: @Composable() () 
  */
 @Composable
 internal fun SimpleContainer(
+    modifier: Modifier = Modifier.None,
     width: Dp? = null,
     height: Dp? = null,
     children: @Composable() () -> Unit
 ) {
-    Layout(children) { measurables, incomingConstraints, _ ->
+    Layout(children, modifier) { measurables, incomingConstraints, _ ->
         val containerConstraints = Constraints()
             .copy(
                 width?.toIntPx() ?: 0.ipx,
