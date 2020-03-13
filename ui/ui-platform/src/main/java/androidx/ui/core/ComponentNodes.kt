@@ -30,15 +30,12 @@ import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.round
 import kotlin.properties.ReadWriteProperty
@@ -125,13 +122,6 @@ interface Owner {
     fun requestFocus(): Boolean
 
     /**
-     * Called when some params of [RepaintBoundaryNode] are updated.
-     * This is not causing re-recording of the RepaintBoundary, but updates params
-     * like outline, clipping, elevation or alpha.
-     */
-    fun onRepaintBoundaryParamsChange(repaintBoundaryNode: RepaintBoundaryNode)
-
-    /**
      * Observing the model reads are temporary disabled during the [block] execution.
      * For example if we are currently within the measure stage and we want some code block to
      * be skipped from the observing we disable if before calling the block, execute block and
@@ -148,11 +138,6 @@ interface Owner {
      * Observe model reads during measure of [node], executed in [block].
      */
     fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit)
-
-    /**
-     * Observe model reads during draw of [node], executed in [block].
-     */
-    fun observeDrawModelReads(node: RepaintBoundaryNode, block: () -> Unit)
 
     /**
      * Causes the [node] to draw into [canvas].
@@ -228,12 +213,6 @@ sealed class ComponentNode {
      */
     protected open val containingLayoutNode: LayoutNode?
         get() = parent?.containingLayoutNode
-
-    /**
-     * If this is a [RepaintBoundaryNode], `this` is returned, otherwise the nearest ancestor
-     * `RepaintBoundaryNode` or `null` if there are no ancestor `RepaintBoundaryNode`s.
-     */
-    open val repaintBoundary: RepaintBoundaryNode? get() = parent?.repaintBoundary
 
     /**
      * Execute [block] on all children of this ComponentNode.
@@ -426,56 +405,6 @@ sealed class ComponentNode {
  * this means that the ComponentNode is currently a part of a component tree.
  */
 fun ComponentNode.isAttached() = owner != null
-
-class RepaintBoundaryNode(val name: String?) : ComponentNode() {
-
-    /**
-     * The shape used to calculate an outline of the RepaintBoundary.
-     */
-    var shape: Shape? = null
-        set(value) {
-            if (field != value) {
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    /**
-     * If true RepaintBoundary will be clipped by the outline of it's [shape]
-     */
-    var clipToShape: Boolean = false
-        set(value) {
-            if (field != value) {
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    /**
-     * The z-coordinate at which to place this physical object.
-     */
-    var elevation: Dp = 0.dp
-        set(value) {
-            if (field != value) {
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    /**
-     * The fraction of children's alpha value.
-     */
-    var opacity: Float = 1f
-        set(value) {
-            if (field != value) {
-                require(value in 0f..1f) { "Opacity should be within [0, 1] range" }
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    override val repaintBoundary: RepaintBoundaryNode? get() = this
-}
 
 // TODO(b/143778512): Why are the properties vars?  Shouldn't they be vals defined in the
 //  constructor such that they both must be provided?

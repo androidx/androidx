@@ -48,17 +48,17 @@ internal class RenderNodeLayer(
 
     override fun updateLayerProperties() {
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
-        val props = drawLayerModifier.properties
-        renderNode.scaleX = props.scaleX
-        renderNode.scaleY = props.scaleY
-        renderNode.alpha = props.alpha
-        renderNode.elevation = props.elevation
-        renderNode.rotationZ = props.rotationZ
-        renderNode.rotationX = props.rotationX
-        renderNode.rotationY = props.rotationY
-        renderNode.clipToOutline = props.clipToOutline && props.outlineShape != null
-        renderNode.clipToBounds = props.clipToBounds
-        val shapeChanged = outlineResolver.update(props.outlineShape, renderNode.alpha)
+        renderNode.scaleX = drawLayerModifier.scaleX
+        renderNode.scaleY = drawLayerModifier.scaleY
+        renderNode.alpha = drawLayerModifier.alpha
+        renderNode.elevation = drawLayerModifier.elevation
+        renderNode.rotationZ = drawLayerModifier.rotationZ
+        renderNode.rotationX = drawLayerModifier.rotationX
+        renderNode.rotationY = drawLayerModifier.rotationY
+        renderNode.clipToOutline =
+            drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null
+        renderNode.clipToBounds = drawLayerModifier.clipToBounds
+        val shapeChanged = outlineResolver.update(drawLayerModifier.outlineShape, renderNode.alpha)
         renderNode.setOutline(outlineResolver.outline)
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {

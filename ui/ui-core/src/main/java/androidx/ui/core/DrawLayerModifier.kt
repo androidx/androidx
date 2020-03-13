@@ -20,11 +20,12 @@ import androidx.annotation.FloatRange
 import androidx.ui.graphics.Shape
 
 /**
- * A set of properties that can be modified in a [DrawLayerModifier].
+ * A [Modifier.Element] that makes content draw into a layer, allowing easily changing
+ * properties of the drawn contents.
  *
- * @sample androidx.ui.core.samples.ChangeOpacity
+ * @sample androidx.ui.core.samples.AnimateFadeIn
  */
-interface DrawLayerProperties {
+interface DrawLayerModifier : Modifier.Element {
     /**
      * The horizontal scale of the drawn area. This would typically default to `1`.
      */
@@ -93,41 +94,34 @@ interface DrawLayerProperties {
     val clipToOutline: Boolean get() = true
 }
 
-/**
- * A [Modifier.Element] that makes content draw into a layer, allowing easily changing
- * [DrawLayerProperties] for the drawn contents.
- *
- * @sample androidx.ui.core.samples.AnimateFadeIn
- */
-interface DrawLayerModifier : Modifier.Element {
-    val properties: DrawLayerProperties
-}
-
 private data class SimpleDrawLayerModifier(
-    override val properties: DrawLayerProperties
+    override val scaleX: Float,
+    override val scaleY: Float,
+    override val alpha: Float,
+    override val elevation: Float,
+    override val rotationX: Float,
+    override val rotationY: Float,
+    override val rotationZ: Float,
+    override val outlineShape: Shape?,
+    override val clipToBounds: Boolean,
+    override val clipToOutline: Boolean
 ) : DrawLayerModifier
-
-/**
- * Create a [DrawLayerModifier] with a given [DrawLayerProperties].
- */
-fun drawLayer(drawLayerProperties: DrawLayerProperties): Modifier =
-    SimpleDrawLayerModifier(drawLayerProperties)
 
 /**
  * Create a [DrawLayerModifier] with fixed properties.
  *
  * @sample androidx.ui.core.samples.ChangeOpacity
  *
- * @param scaleX [DrawLayerProperties.scaleX]
- * @param scaleY [DrawLayerProperties.scaleY]
- * @param alpha [DrawLayerProperties.alpha]
- * @param elevation [DrawLayerProperties.elevation]
- * @param rotationX [DrawLayerProperties.rotationX]
- * @param rotationY [DrawLayerProperties.rotationY]
- * @param rotationZ [DrawLayerProperties.rotationZ]
- * @param outlineShape [DrawLayerProperties.outlineShape]
- * @param clipToBounds [DrawLayerProperties.clipToBounds]
- * @param clipToOutline [DrawLayerProperties.clipToOutline]
+ * @param scaleX [DrawLayerModifier.scaleX]
+ * @param scaleY [DrawLayerModifier.scaleY]
+ * @param alpha [DrawLayerModifier.alpha]
+ * @param elevation [DrawLayerModifier.elevation]
+ * @param rotationX [DrawLayerModifier.rotationX]
+ * @param rotationY [DrawLayerModifier.rotationY]
+ * @param rotationZ [DrawLayerModifier.rotationZ]
+ * @param outlineShape [DrawLayerModifier.outlineShape]
+ * @param clipToBounds [DrawLayerModifier.clipToBounds]
+ * @param clipToOutline [DrawLayerModifier.clipToOutline]
  */
 fun drawLayer(
     scaleX: Float = 1f,
@@ -141,29 +135,14 @@ fun drawLayer(
     clipToBounds: Boolean = true,
     clipToOutline: Boolean = true
 ): Modifier = SimpleDrawLayerModifier(
-    SimpleDrawLayerProperties(
-        scaleX = scaleX,
-        scaleY = scaleY,
-        alpha = alpha,
-        elevation = elevation,
-        rotationX = rotationX,
-        rotationY = rotationY,
-        rotationZ = rotationZ,
-        outlineShape = outlineShape,
-        clipToBounds = clipToBounds,
-        clipToOutline = clipToOutline
-    )
+    scaleX = scaleX,
+    scaleY = scaleY,
+    alpha = alpha,
+    elevation = elevation,
+    rotationX = rotationX,
+    rotationY = rotationY,
+    rotationZ = rotationZ,
+    outlineShape = outlineShape,
+    clipToBounds = clipToBounds,
+    clipToOutline = clipToOutline
 )
-
-private data class SimpleDrawLayerProperties(
-    override val scaleX: Float,
-    override val scaleY: Float,
-    override val alpha: Float,
-    override val elevation: Float,
-    override val rotationX: Float,
-    override val rotationY: Float,
-    override val rotationZ: Float,
-    override val outlineShape: Shape?,
-    override val clipToBounds: Boolean,
-    override val clipToOutline: Boolean
-) : DrawLayerProperties

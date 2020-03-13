@@ -22,11 +22,10 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DrawClipToBounds
-import androidx.ui.core.DrawLayerProperties
+import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.draw
 import androidx.ui.core.drawClip
-import androidx.ui.core.drawLayer
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.RRect
@@ -381,10 +380,10 @@ class ClipTest {
             drawLatch.countDown()
         }
 
-        val clip = drawLayer(object : DrawLayerProperties {
+        val clip = object : DrawLayerModifier {
             override val outlineShape: Shape?
                 get() = model.value
-        })
+        }
 
         rule.runOnUiThreadIR {
             activity.setContent {
