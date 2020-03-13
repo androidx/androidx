@@ -28,8 +28,6 @@ import androidx.paging.insertSeparators
 import androidx.paging.integration.testapp.room.Customer
 import androidx.paging.integration.testapp.room.SampleDatabase
 import androidx.room.Room
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
@@ -86,13 +84,13 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                         }
                     } else null
                 }
-                .addHeader(
+                .insertHeaderItem(
                     Customer().apply {
                         id = Int.MIN_VALUE
                         lastName = "HEADER"
                     }
                 )
-                .addFooter(
+                .insertFooterItem(
                     Customer().apply {
                         id = Int.MAX_VALUE
                         lastName = "FOOTER"

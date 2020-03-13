@@ -50,7 +50,7 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             loadStates = loadStates
-        ).addHeader(-1)
+        ).insertHeaderItem(-1)
 
         val expected = Start(
             pages = listOf(
@@ -82,7 +82,7 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addHeader("HEADER")
+        ).insertHeaderItem("HEADER")
 
         val expected = Refresh(
             pages = listOf(
@@ -115,7 +115,7 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addHeader("HEADER")
+        ).insertHeaderItem("HEADER")
 
         val expected = Refresh(
             pages = listOf(
@@ -147,7 +147,7 @@ class HeaderFooterTest {
             ),
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addFooter("FOOTER")
+        ).insertFooterItem("FOOTER")
 
         val expected = End(
             pages = listOf(
@@ -179,7 +179,7 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addFooter("FOOTER")
+        ).insertFooterItem("FOOTER")
 
         val expected = Refresh(
             pages = listOf(
@@ -212,7 +212,7 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addFooter("FOOTER")
+        ).insertFooterItem("FOOTER")
 
         val expected = Refresh(
             pages = listOf(

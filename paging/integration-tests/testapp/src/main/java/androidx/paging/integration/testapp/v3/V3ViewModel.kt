@@ -50,8 +50,8 @@ class V3ViewModel : ViewModel() {
                         )
                     } else null
                 }
-                .addHeader(Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
-                .addFooter(Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
+                .insertHeaderItem(Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
+                .insertFooterItem(Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
         }
         .cachedIn(viewModelScope)
 }
