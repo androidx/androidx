@@ -196,10 +196,10 @@ package androidx.ui.material {
   }
 
   public final class ProgressIndicatorKt {
-    method public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
-    method public static void CircularProgressIndicator(androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
-    method public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
-    method public static void LinearProgressIndicator(androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method public static void CircularProgressIndicator(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method public static void LinearProgressIndicator(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
   }
 
   public final class RadioButtonKt {

@@ -42,21 +42,26 @@ fun ProgressIndicatorDemo() {
         val modifier = LayoutWeight(1f) + LayoutGravity.Center + LayoutWidth.Fill
         Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
             // Determinate indicators
-            LinearProgressIndicator(progress = state.progress)
-            CircularProgressIndicator(progress = state.progress)
+            LinearProgressIndicator(progress = state.progress, modifier = LayoutGravity.Center)
+            CircularProgressIndicator(progress = state.progress, modifier = LayoutGravity.Center)
         }
         Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
             // Fancy colours!
-            LinearProgressIndicator(progress = (state.progress), color = state.generateColor())
+            LinearProgressIndicator(
+                progress = (state.progress),
+                color = state.generateColor(),
+                modifier = LayoutGravity.Center
+            )
             CircularProgressIndicator(
                 progress = (state.progress),
-                color = state.generateColor()
+                color = state.generateColor(),
+                modifier = LayoutGravity.Center
             )
         }
         Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
             // Indeterminate indicators
-            LinearProgressIndicator()
-            CircularProgressIndicator()
+            LinearProgressIndicator(modifier = LayoutGravity.Center)
+            CircularProgressIndicator(modifier = LayoutGravity.Center)
         }
     }
 }
