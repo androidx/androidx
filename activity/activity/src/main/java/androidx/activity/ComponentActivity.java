@@ -455,7 +455,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         if (!mActivityResultRegistry.dispatchResult(requestCode, Activity.RESULT_OK, new Intent()
                 .putExtra(EXTRA_PERMISSIONS, permissions)
                 .putExtra(EXTRA_PERMISSION_GRANT_RESULTS, grantResults))) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            if (Build.VERSION.SDK_INT >= 23) {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
         }
     }
 
