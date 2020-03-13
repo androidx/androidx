@@ -22,6 +22,12 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
 
@@ -29,9 +35,12 @@ dependencies {
     implementation(project(":lifecycle:lifecycle-viewmodel-ktx"))
     implementation(project(":fragment:fragment-ktx"))
     implementation(project(":paging:paging-common"))
+    implementation(project(":paging:paging-guava"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
     implementation(project(":recyclerview:recyclerview"))
 
+    implementation(GUAVA_ANDROID)
+    implementation(MULTIDEX)
     implementation(RETROFIT)
 }
