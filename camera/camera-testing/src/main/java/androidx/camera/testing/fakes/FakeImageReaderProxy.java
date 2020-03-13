@@ -17,7 +17,6 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.ImageFormat;
-import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -128,13 +127,6 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     @Override
     public Surface getSurface() {
         return mSurface;
-    }
-
-    @Override
-    public void setOnImageAvailableListener(
-            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler) {
-        setOnImageAvailableListener(mListener, CameraXExecutors.newHandlerExecutor(handler));
     }
 
     @Override

@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -30,7 +29,6 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageReaderProxy;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -121,14 +119,12 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Nullable
     Executor mExecutor;
 
-    /**
-     * The Executor to execute the image post processing task.
-     * Its value never changes, not need to be protected by mLock.
-     */
-    Executor mPostProcessExecutor;
+    /** The Executor to execute the image post processing task. */
+    @NonNull
+    final Executor mPostProcessExecutor;
 
     @NonNull
-    CaptureProcessor mCaptureProcessor;
+    final CaptureProcessor mCaptureProcessor;
 
     @GuardedBy("mLock")
     SettableImageProxyBundle mSettableImageProxyBundle = null;
@@ -144,30 +140,19 @@ class ProcessingImageReader implements ImageReaderProxy {
      * @param maxImages           Maximum Image number the ImageReader can hold. The capacity should
      *                            be greater than the captureBundle size in order to hold all the
      *                            Images needed with this processing.
-     * @param executor            Executor for executing
-     *                            {@link ImageReaderProxy.OnImageAvailableListener}
      * @param postProcessExecutor The Executor to execute the post-process of the image result.
      * @param captureBundle       The {@link CaptureBundle} includes the processing information
      * @param captureProcessor    The {@link CaptureProcessor} to be invoked when the Images are
      *                            ready
      */
     ProcessingImageReader(int width, int height, int format, int maxImages,
-            @NonNull Executor executor,
             @NonNull Executor postProcessExecutor,
             @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor) {
-        mInputImageReader = new MetadataImageReader(
-                width,
-                height,
-                format,
-                maxImages,
-                executor);
-        mOutputImageReader = new AndroidImageReaderProxy(
-                ImageReader.newInstance(width, height, format, maxImages));
-
-        init(executor, postProcessExecutor, captureBundle, captureProcessor);
+        this(new MetadataImageReader(width, height, format, maxImages), postProcessExecutor,
+                captureBundle, captureProcessor);
     }
 
-    ProcessingImageReader(ImageReaderProxy imageReader, @NonNull Handler handler,
+    ProcessingImageReader(@NonNull ImageReaderProxy imageReader,
             @NonNull Executor postProcessExecutor,
             @NonNull CaptureBundle captureBundle,
             @NonNull CaptureProcessor captureProcessor) {
@@ -181,18 +166,7 @@ class ProcessingImageReader implements ImageReaderProxy {
                         imageReader.getHeight(), imageReader.getImageFormat(),
                         imageReader.getMaxImages()));
 
-        init(CameraXExecutors.newHandlerExecutor(handler), postProcessExecutor, captureBundle,
-                captureProcessor);
-    }
-
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
-    private void init(@NonNull Executor executor, @NonNull Executor postProcessExecutor,
-            @NonNull CaptureBundle captureBundle,
-            @NonNull CaptureProcessor captureProcessor) {
-        mExecutor = executor;
         mPostProcessExecutor = postProcessExecutor;
-        mInputImageReader.setOnImageAvailableListener(mTransformedListener, executor);
-        mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, executor);
         mCaptureProcessor = captureProcessor;
         mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), getImageFormat());
         mCaptureProcessor.onResolutionUpdate(
@@ -265,13 +239,6 @@ class ProcessingImageReader implements ImageReaderProxy {
         synchronized (mLock) {
             return mInputImageReader.getSurface();
         }
-    }
-
-    @Override
-    public void setOnImageAvailableListener(
-            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler) {
-        setOnImageAvailableListener(listener, CameraXExecutors.newHandlerExecutor(handler));
     }
 
     @Override

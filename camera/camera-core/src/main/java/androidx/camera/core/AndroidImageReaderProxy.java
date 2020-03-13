@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import android.media.Image;
 import android.media.ImageReader;
-import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -26,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.concurrent.Executor;
 
@@ -129,16 +127,6 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
     @Override
     public synchronized Surface getSurface() {
         return mImageReader.getSurface();
-    }
-
-    @Override
-    public synchronized void setOnImageAvailableListener(
-            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler) {
-        // Unlike ImageReader.setOnImageAvailableListener(), if handler == null, the callback
-        // will not be triggered at all, instead of being triggered on main thread.
-        setOnImageAvailableListener(listener,
-                handler == null ? null : CameraXExecutors.newHandlerExecutor(handler));
     }
 
     @Override
