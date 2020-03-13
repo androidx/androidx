@@ -47,7 +47,7 @@ package androidx.autofill {
     ctor public InlinePresentationBuilder(CharSequence);
     ctor public InlinePresentationBuilder();
     method public android.app.slice.Slice build();
-    method public androidx.autofill.InlinePresentationBuilder setAction(android.app.PendingIntent);
+    method public androidx.autofill.InlinePresentationBuilder setAttribution(android.app.PendingIntent);
     method public androidx.autofill.InlinePresentationBuilder setEndIcon(android.graphics.drawable.Icon);
     method public androidx.autofill.InlinePresentationBuilder setStartIcon(android.graphics.drawable.Icon);
     method public androidx.autofill.InlinePresentationBuilder setSubtitle(CharSequence);
