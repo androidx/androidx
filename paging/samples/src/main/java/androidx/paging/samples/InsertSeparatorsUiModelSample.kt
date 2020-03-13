@@ -21,13 +21,15 @@ package androidx.paging.samples
 import androidx.annotation.Sampled
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class Item(
     @JvmField
     val label: String
 )
 
-private lateinit var pagingData: PagingData<Item>
+private lateinit var pagingDataStream: Flow<PagingData<Item>>
 
 @Sampled
 fun insertSeparatorsUiModelSample() {
@@ -44,17 +46,20 @@ fun insertSeparatorsUiModelSample() {
      * The operator would output a list of UiModels corresponding to:
      *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
      */
-    pagingData
-        .map { item ->
-            ItemUiModel(item) // convert items in stream to ItemUiModel
-        }
-        .insertSeparators<ItemUiModel, UiModel> { before: ItemUiModel?, after: ItemUiModel? ->
-            if (after != null && before?.item?.label?.first() != after.item.label.first()) {
-                // separator - after is first item that starts with its first letter
-                SeparatorUiModel(after.item.label.first().toUpperCase())
-            } else {
-                // no separator - either end of list, or first letters of before/after are the same
-                null
+    pagingDataStream.map { pagingData ->
+        // map outer stream, so we can perform transformations on each paging generation
+        pagingData
+            .map { item ->
+                ItemUiModel(item) // convert items in stream to ItemUiModel
             }
-        }
+            .insertSeparators<ItemUiModel, UiModel> { before: ItemUiModel?, after: ItemUiModel? ->
+                if (after != null && before?.item?.label?.first() != after.item.label.first()) {
+                    // separator - after is first item that starts with its first letter
+                    SeparatorUiModel(after.item.label.first().toUpperCase())
+                } else {
+                    // no separator - either end of list, or first letters of before/after are the same
+                    null
+                }
+            }
+    }
 }
