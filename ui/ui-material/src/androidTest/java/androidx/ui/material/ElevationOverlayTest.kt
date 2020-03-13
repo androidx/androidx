@@ -17,12 +17,12 @@
 package androidx.ui.material
 
 import android.os.Build
-import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.TestTag
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
@@ -95,15 +95,16 @@ class ElevationOverlayTest(private val elevation: Dp, private val expectedOverla
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 MaterialTheme(colorPalette) {
-                    Container {
+                    Box {
                         Surface(elevation = elevation) {
                             // Make the surface size small so we compare less pixels
                             TestTag(Tag) {
                                 Semantics(container = true) {
-                                    Container(
-                                        width = SurfaceSize.width.toDp(),
-                                        height = SurfaceSize.height.toDp(),
-                                        children = emptyContent()
+                                    Box(
+                                        LayoutSize(
+                                            SurfaceSize.width.toDp(),
+                                            SurfaceSize.height.toDp()
+                                        )
                                     )
                                 }
                             }

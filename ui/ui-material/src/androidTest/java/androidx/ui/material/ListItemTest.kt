@@ -17,15 +17,14 @@
 package androidx.ui.material
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.Text
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Image
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.layout.Container
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -195,7 +194,7 @@ class ListItemTest {
         val trailingPosition = Ref<PxPosition>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
-            Container(alignment = Alignment.TopStart) {
+            Box {
                 ListItem(
                     text = { Text("Primary text", saveLayout(textPosition, textSize)) },
                     trailing = {
@@ -231,7 +230,7 @@ class ListItemTest {
         val iconPosition = Ref<PxPosition>()
         val iconSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
-            Container(alignment = Alignment.TopStart) {
+            Box {
                 ListItem(
                     text = { Text("Primary text", saveLayout(textPosition, textSize)) },
                     icon = { Image(icon24x24, saveLayout(iconPosition, iconSize)) }
@@ -270,7 +269,7 @@ class ListItemTest {
         val trailingBaseline = Ref<Px>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
-            Container(alignment = Alignment.TopStart) {
+            Box {
                 ListItem(
                     text = {
                         Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
@@ -329,7 +328,7 @@ class ListItemTest {
         val iconPosition = Ref<PxPosition>()
         val iconSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
-            Container(alignment = Alignment.TopStart) {
+            Box {
                 ListItem(
                     text = {
                         Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
@@ -392,7 +391,7 @@ class ListItemTest {
         val trailingPosition = Ref<PxPosition>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
-            Container(alignment = Alignment.TopStart) {
+            Box {
                 ListItem(
                     text = {
                         Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
@@ -465,7 +464,7 @@ class ListItemTest {
         val trailingPosition = Ref<PxPosition>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
-            Container(alignment = Alignment.TopStart) {
+            Box {
                 ListItem(
                     text = {
                         Text("Primary text", saveLayout(textPosition, textSize, textBaseline))
@@ -544,7 +543,7 @@ class ListItemTest {
         val trailingSize = Ref<IntPxSize>()
         val trailingBaseline = Ref<Px>()
         composeTestRule.setMaterialContent {
-            Container(alignment = Alignment.TopStart) {
+            Box {
                 ListItem(
                     overlineText = {
                         Text(
