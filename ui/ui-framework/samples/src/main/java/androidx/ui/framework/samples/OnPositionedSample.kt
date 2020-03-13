@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.globalPosition
 import androidx.ui.core.positionInRoot
 import androidx.ui.foundation.Box
@@ -29,27 +28,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-
-@Sampled
-@Composable
-fun OnPositionedSample() {
-    Column {
-        Box(LayoutSize(20.dp), backgroundColor = Color.Green)
-        Box(LayoutSize(20.dp), backgroundColor = Color.Blue)
-        OnPositioned(onPositioned = { coordinates ->
-            // This will be the size of the Column.
-            coordinates.size
-            // The position of the Column relative to the application window.
-            coordinates.globalPosition
-            // The position of the Column relative to the Compose root.
-            coordinates.positionInRoot
-            // These will be the alignment lines provided to the layout (empty here for Column).
-            coordinates.providedAlignmentLines
-            // This will a LayoutCoordinates instance corresponding to the parent of Column.
-            coordinates.parentCoordinates
-        })
-    }
-}
 
 @Sampled
 @Composable
