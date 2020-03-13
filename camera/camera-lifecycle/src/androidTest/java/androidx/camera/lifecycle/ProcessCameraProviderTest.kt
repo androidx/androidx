@@ -17,6 +17,8 @@
 package androidx.camera.lifecycle
 
 import androidx.camera.core.CameraSelector
+import androidx.annotation.experimental.UseExperimental
+import androidx.camera.core.CameraXConfig
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.await
@@ -25,7 +27,10 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Test
 
 @SmallTest
@@ -33,6 +38,18 @@ class ProcessCameraProviderTest {
 
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
     private val lifecycleOwner = FakeLifecycleOwner()
+
+    @After
+    fun tearDown() {
+        runBlocking {
+            try {
+                val provider = ProcessCameraProvider.getInstance(context).await()
+                provider.shutdown().await()
+            } catch (e: IllegalStateException) {
+                // ProcessCameraProvider may not be configured. Ignore.
+            }
+        }
+    }
 
     @Test
     fun uninitializedGetInstance_throwsISE() {
@@ -43,25 +60,53 @@ class ProcessCameraProviderTest {
         }
     }
 
+    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
     @Test
-    fun initializedGetInstance_returnsProvider() {
-        ProcessCameraProvider.initializeInstance(context, FakeAppConfig.create())
-        runBlocking {
-            val provider = ProcessCameraProvider.getInstance(context).await()
-            assertThat(provider).isNotNull()
-            provider.shutdown().await()
+    fun multipleConfigureInstance_throwsISE() {
+        val config = FakeAppConfig.create()
+        ProcessCameraProvider.configureInstance(config)
+        assertThrows<IllegalStateException> {
+            ProcessCameraProvider.configureInstance(config)
         }
     }
 
+    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @Test
+    fun configuredGetInstance_returnsProvider() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+        runBlocking {
+            val provider = ProcessCameraProvider.getInstance(context).await()
+            assertThat(provider).isNotNull()
+        }
+    }
+
+    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @Test
+    fun configuredGetInstance_usesConfiguredExecutor() {
+        var executeCalled = false
+        val config =
+            CameraXConfig.Builder.fromConfig(FakeAppConfig.create()).setCameraExecutor { runnable ->
+                run {
+                    executeCalled = true
+                    Dispatchers.Default.asExecutor().execute(runnable)
+                }
+            }.build()
+        ProcessCameraProvider.configureInstance(config)
+        runBlocking {
+            ProcessCameraProvider.getInstance(context).await()
+            assertThat(executeCalled).isTrue()
+        }
+    }
+
+    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun canRetrieveCamera_withZeroUseCases() {
-        ProcessCameraProvider.initializeInstance(context, FakeAppConfig.create())
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking(MainScope().coroutineContext) {
             val provider = ProcessCameraProvider.getInstance(context).await()
             val camera =
                 provider.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA)
             assertThat(camera).isNotNull()
-            provider.shutdown().await()
         }
     }
 }

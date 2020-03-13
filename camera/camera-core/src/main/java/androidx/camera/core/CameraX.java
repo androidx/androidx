@@ -154,28 +154,27 @@ public final class CameraX {
     private static final String TAG = "CameraX";
     private static final long WAIT_INITIALIZED_TIMEOUT = 3L;
 
-    static final Object sInitializeLock = new Object();
+    static final Object INSTANCE_LOCK = new Object();
 
-    @GuardedBy("sInitializeLock")
-    @Nullable
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("INSTANCE_LOCK")
     static CameraX sInstance = null;
 
-    @GuardedBy("sInitializeLock")
-    private static boolean sTargetInitialized = false;
+    @GuardedBy("INSTANCE_LOCK")
+    private static CameraXConfig.Provider sConfigProvider = null;
 
-    @GuardedBy("sInitializeLock")
-    @NonNull
-    private static ListenableFuture<Void> sInitializeFuture = Futures.immediateFailedFuture(
-            new IllegalStateException("CameraX is not initialized."));
+    @GuardedBy("INSTANCE_LOCK")
+    private static ListenableFuture<Void> sInitializeFuture =
+            Futures.immediateFailedFuture(new IllegalStateException("CameraX is not initialized."));
 
-    @GuardedBy("sInitializeLock")
-    @NonNull
+    @GuardedBy("INSTANCE_LOCK")
     private static ListenableFuture<Void> sShutdownFuture = Futures.immediateFuture(null);
 
     final CameraRepository mCameraRepository = new CameraRepository();
     private final Object mInitializeLock = new Object();
     private final UseCaseMediatorRepository
             mUseCaseMediatorRepository = new UseCaseMediatorRepository();
+    private final CameraXConfig mCameraXConfig;
     private final Executor mCameraExecutor;
     private final Handler mSchedulerHandler;
     @Nullable
@@ -183,14 +182,18 @@ public final class CameraX {
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
-    private Application mContext;
+    private Application mApplication;
+
     @GuardedBy("mInitializeLock")
     private InternalInitState mInitState = InternalInitState.UNINITIALIZED;
     @GuardedBy("mInitializeLock")
     private ListenableFuture<Void> mShutdownInternalFuture = Futures.immediateFuture(null);
 
-    /** Prevents construction. */
-    CameraX(@Nullable Executor executor, @Nullable Handler schedulerHandler) {
+    CameraX(@NonNull CameraXConfig cameraXConfig) {
+        mCameraXConfig = Preconditions.checkNotNull(cameraXConfig);
+
+        Executor executor = cameraXConfig.getCameraExecutor(null);
+        Handler schedulerHandler = cameraXConfig.getSchedulerHandler(null);
         mCameraExecutor = executor == null ? new CameraExecutor() : executor;
         if (schedulerHandler == null) {
             mSchedulerThread = new HandlerThread(CameraXThreads.TAG + "scheduler",
@@ -373,7 +376,8 @@ public final class CameraX {
         // Do all binding related work
         for (UseCase useCase : useCases) {
             useCase.onAttach(camera);
-            useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
+            useCase.updateSuggestedResolution(
+                    Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
 
             // Update the UseCaseMediator
             useCaseMediatorToBind.addUseCase(useCase);
@@ -612,34 +616,53 @@ public final class CameraX {
      * fail with an {@link InitializationException} and associated cause that can be retrieved by
      * {@link Throwable#getCause()). The cause will be a {@link CameraUnavailableException} if it
      * fails to access any camera during initialization.
+     * @hide
      */
+    @RestrictTo(Scope.TESTS)
     @NonNull
     public static ListenableFuture<Void> initialize(@NonNull Context context,
             @NonNull CameraXConfig cameraXConfig) {
-        synchronized (sInitializeLock) {
-            return initializeLocked(context, cameraXConfig);
+        synchronized (INSTANCE_LOCK) {
+            Preconditions.checkNotNull(context);
+            configureInstanceLocked(() -> cameraXConfig);
+            initializeInstanceLocked(context);
+            return sInitializeFuture;
         }
     }
 
-    @GuardedBy("sInitializeLock")
-    @NonNull
-    private static ListenableFuture<Void> initializeLocked(@NonNull Context context,
-            @NonNull CameraXConfig cameraXConfig) {
+    /**
+     * Configures the CameraX singleton with the given {@link androidx.camera.core.CameraXConfig}.
+     *
+     * @param cameraXConfig configuration options for the singleton instance.
+     */
+    public static void configureInstance(@NonNull CameraXConfig cameraXConfig) {
+        synchronized (INSTANCE_LOCK) {
+            configureInstanceLocked(() -> cameraXConfig);
+        }
+    }
+
+    @GuardedBy("INSTANCE_LOCK")
+    private static void configureInstanceLocked(@NonNull CameraXConfig.Provider configProvider) {
+        Preconditions.checkNotNull(configProvider);
+        Preconditions.checkState(sConfigProvider == null, "CameraX has already been configured. "
+                + "To use a different configuration, shutdown() must be called.");
+
+        sConfigProvider = configProvider;
+    }
+
+    @GuardedBy("INSTANCE_LOCK")
+    private static void initializeInstanceLocked(@NonNull Context context) {
         Preconditions.checkNotNull(context);
-        Preconditions.checkNotNull(cameraXConfig);
-        Preconditions.checkState(!sTargetInitialized, "Must call CameraX.shutdown() first.");
-        sTargetInitialized = true;
-
-        CameraX cameraX = new CameraX(cameraXConfig.getCameraExecutor(null),
-                cameraXConfig.getSchedulerHandler(null));
+        Preconditions.checkState(sInstance == null, "CameraX already initialized.");
+        Preconditions.checkNotNull(sConfigProvider);
+        CameraX cameraX = new CameraX(sConfigProvider.getCameraXConfig());
         sInstance = cameraX;
-
         sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
-            synchronized (sInitializeLock) {
+            synchronized (INSTANCE_LOCK) {
                 // The sShutdownFuture should always be successful, otherwise it will not
                 // propagate to transformAsync() due to the behavior of FutureChain.
                 ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
-                        .transformAsync(input -> cameraX.initInternal(context, cameraXConfig),
+                        .transformAsync(input -> cameraX.initInternal(context),
                                 CameraXExecutors.directExecutor());
 
                 Futures.addCallback(future, new FutureCallback<Void>() {
@@ -653,11 +676,11 @@ public final class CameraX {
                     public void onFailure(Throwable t) {
                         Log.w(TAG, "CameraX initialize() failed", t);
                         // Call shutdown() automatically, if initialization fails.
-                        synchronized (sInitializeLock) {
+                        synchronized (INSTANCE_LOCK) {
                             // Make sure it is the same instance to prevent reinitialization
                             // during initialization.
                             if (sInstance == cameraX) {
-                                shutdown();
+                                shutdownLocked();
                             }
                         }
                         completer.setException(t);
@@ -666,8 +689,6 @@ public final class CameraX {
                 return "CameraX-initialize";
             }
         });
-
-        return sInitializeFuture;
     }
 
     /**
@@ -677,21 +698,22 @@ public final class CameraX {
      */
     @NonNull
     public static ListenableFuture<Void> shutdown() {
-        synchronized (sInitializeLock) {
+        synchronized (INSTANCE_LOCK) {
+            sConfigProvider = null;
             return shutdownLocked();
         }
     }
 
-    @GuardedBy("sInitializeLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("INSTANCE_LOCK")
     @NonNull
-    private static ListenableFuture<Void> shutdownLocked() {
-        if (!sTargetInitialized) {
+    static ListenableFuture<Void> shutdownLocked() {
+        if (sInstance == null) {
             // If it is already or will be shutdown, return the future directly.
             return sShutdownFuture;
         }
-        sTargetInitialized = false;
 
-        CameraX cameraX = Preconditions.checkNotNull(sInstance);
+        CameraX cameraX = sInstance;
         sInstance = null;
 
         // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
@@ -699,7 +721,7 @@ public final class CameraX {
         // shutdown the CameraX instance to ensure that resources are freed.
         sShutdownFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    synchronized (sInitializeLock) {
+                    synchronized (INSTANCE_LOCK) {
                         // Wait initialize complete
                         sInitializeFuture.addListener(() -> {
                             // Wait shutdownInternal complete
@@ -720,20 +742,17 @@ public final class CameraX {
     @NonNull
     public static Context getContext() {
         CameraX cameraX = checkInitialized();
-        return cameraX.mContext;
+        return cameraX.mApplication;
     }
 
     /**
      * Returns true if CameraX is initialized.
      *
-     * <p>Any previous call to {@link #initialize(Context, CameraXConfig)} would have initialized
-     * CameraX.
-     *
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.TESTS)
     public static boolean isInitialized() {
-        synchronized (sInitializeLock) {
+        synchronized (INSTANCE_LOCK) {
             return sInstance != null && sInstance.isInitializedInternal();
         }
     }
@@ -801,12 +820,13 @@ public final class CameraX {
      *
      * @hide
      */
-    @SuppressWarnings("FutureReturnValueIgnored")
+    @SuppressWarnings("FutureReturnValueIgnored") // shutdownLocked() should always succeed.
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static ListenableFuture<CameraX> getOrCreateInstance(@NonNull Context context) {
         Preconditions.checkNotNull(context, "Context must not be null.");
-        synchronized (sInitializeLock) {
+        synchronized (INSTANCE_LOCK) {
+            boolean isConfigured = sConfigProvider != null;
             ListenableFuture<CameraX> instanceFuture = getInstanceLocked();
             if (instanceFuture.isDone()) {
                 try {
@@ -823,44 +843,21 @@ public final class CameraX {
                 }
             }
 
-            // Attempt initialization through Application or Resources
             if (instanceFuture == null) {
                 Application app = (Application) context.getApplicationContext();
-                CameraXConfig.Provider configProvider = null;
-                if (app instanceof CameraXConfig.Provider) {
-                    // Use the application to initialize
-                    configProvider = (CameraXConfig.Provider) app;
-                } else {
-                    // Try to initialize through the Resources' default config provider
-                    try {
-                        Resources resources = app.getResources();
-                        String defaultProviderClassName =
-                                resources.getString(
-                                        R.string.androidx_camera_default_config_provider);
-                        Class<?> providerClass =
-                                Class.forName(defaultProviderClassName);
-                        configProvider = (CameraXConfig.Provider) providerClass
-                                .getDeclaredConstructor()
-                                .newInstance();
-                    } catch (Resources.NotFoundException
-                            | ClassNotFoundException
-                            | InstantiationException
-                            | InvocationTargetException
-                            | NoSuchMethodException
-                            | IllegalAccessException e) {
-                        Log.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
-                                + "resources", e);
+                if (!isConfigured) {
+                    // Attempt initialization through Application or Resources
+                    CameraXConfig.Provider configProvider = getConfigProvider(app);
+                    if (configProvider == null) {
+                        throw new IllegalStateException("CameraX is not configured properly. "
+                                + "The most likely cause is you did not include a default "
+                                + "implementation in your build such as 'camera-camera2'.");
                     }
+
+                    configureInstanceLocked(configProvider);
                 }
 
-                if (configProvider == null) {
-                    throw new IllegalStateException("CameraX is not initialized properly. Either "
-                            + "the CameraXConfig.Provider interface must be implemented by your "
-                            + "Application class or a CameraXConfig must be explicitly provided "
-                            + "for initialization.");
-                }
-
-                initializeLocked(app, configProvider.getCameraXConfig());
+                initializeInstanceLocked(app);
                 instanceFuture = getInstanceLocked();
             }
 
@@ -868,22 +865,54 @@ public final class CameraX {
         }
     }
 
+    @Nullable
+    private static CameraXConfig.Provider getConfigProvider(@NonNull Application app) {
+        CameraXConfig.Provider configProvider = null;
+        if (app instanceof CameraXConfig.Provider) {
+            // Application is a CameraXConfig.Provider, use this directly
+            configProvider = (CameraXConfig.Provider) app;
+        } else {
+            // Try to retrieve the CameraXConfig.Provider through the application's resources
+            try {
+                Resources resources = app.getResources();
+                String defaultProviderClassName =
+                        resources.getString(
+                                R.string.androidx_camera_default_config_provider);
+                Class<?> providerClass =
+                        Class.forName(defaultProviderClassName);
+                configProvider = (CameraXConfig.Provider) providerClass
+                        .getDeclaredConstructor()
+                        .newInstance();
+            } catch (Resources.NotFoundException
+                    | ClassNotFoundException
+                    | InstantiationException
+                    | InvocationTargetException
+                    | NoSuchMethodException
+                    | IllegalAccessException e) {
+                Log.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
+                        + "resources", e);
+            }
+        }
+
+        return configProvider;
+    }
+
     @NonNull
     private static ListenableFuture<CameraX> getInstance() {
-        synchronized (sInitializeLock) {
+        synchronized (INSTANCE_LOCK) {
             return getInstanceLocked();
         }
     }
 
-    @GuardedBy("sInitializeLock")
+    @GuardedBy("INSTANCE_LOCK")
     @NonNull
     private static ListenableFuture<CameraX> getInstanceLocked() {
-        if (!sTargetInitialized) {
+        CameraX cameraX = sInstance;
+        if (cameraX == null) {
             return Futures.immediateFailedFuture(new IllegalStateException("Must "
                     + "call CameraX.initialize() first"));
         }
 
-        CameraX cameraX = sInstance;
         return Futures.transform(sInitializeFuture, nullVoid -> cameraX,
                 CameraXExecutors.directExecutor());
     }
@@ -965,8 +994,7 @@ public final class CameraX {
         return mDefaultConfigFactory;
     }
 
-    private ListenableFuture<Void> initInternal(@NonNull Context context,
-            @NonNull CameraXConfig cameraXConfig) {
+    private ListenableFuture<Void> initInternal(@NonNull Context context) {
         synchronized (mInitializeLock) {
             Preconditions.checkState(mInitState == InternalInitState.UNINITIALIZED,
                     "CameraX.initInternal() should only be called once per instance");
@@ -978,9 +1006,9 @@ public final class CameraX {
                         cameraExecutor.execute(() -> {
                             InitializationException initException = null;
                             try {
-                                mContext = (Application) context.getApplicationContext();
+                                mApplication = (Application) context.getApplicationContext();
                                 CameraFactory.Provider cameraFactoryProvider =
-                                        cameraXConfig.getCameraFactoryProvider(null);
+                                        mCameraXConfig.getCameraFactoryProvider(null);
                                 if (cameraFactoryProvider == null) {
                                     throw new InitializationException(new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
@@ -995,7 +1023,7 @@ public final class CameraX {
                                         cameraThreadConfig);
 
                                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                                        cameraXConfig.getDeviceSurfaceManagerProvider(null);
+                                        mCameraXConfig.getDeviceSurfaceManagerProvider(null);
                                 if (surfaceManagerProvider == null) {
                                     throw new InitializationException(new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
@@ -1004,7 +1032,7 @@ public final class CameraX {
                                 mSurfaceManager = surfaceManagerProvider.newInstance(context);
 
                                 UseCaseConfigFactory.Provider configFactoryProvider =
-                                        cameraXConfig.getUseCaseConfigFactoryProvider(null);
+                                        mCameraXConfig.getUseCaseConfigFactoryProvider(null);
                                 if (configFactoryProvider == null) {
                                     throw new InitializationException(new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "

@@ -22,13 +22,11 @@ import android.os.Handler;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
@@ -38,7 +36,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
@@ -47,6 +44,7 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * A singleton which can be used to bind the lifecycle of cameras to any {@link LifecycleOwner}
@@ -86,20 +84,49 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *     public CameraXConfig getCameraXConfig() {
      *         return CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
      *                    .setCameraExecutor(myExecutor)
+     *                    .setSchedulerHandler(mySchedulerHandler)
      *                    .build();
      *     }
      *
      *     . . .
      * }
      * </pre>
-     * If no {@link CameraXConfig.Provider} is implemented, a default configuration will be used.
+     * <p>If it isn't possible to subclass the {@link Application} class, such as in library
+     * code, then the singleton can be configured via {@link #configureInstance(CameraXConfig)}
+     * before the first invocation of {@code getInstance(context)}, as in the following example.
+     * <p/>
+     * <pre>{@code
+     * class MyCustomizedCameraProvider {
+     *
+     *     private static boolean configured = false;
+     *
+     *     static ListenableFuture<ProcessCameraProvider> getInstance(Context context) {
+     *         synchronized(MyCustomizedCameraProvider.class) {
+     *             if (!configured) {
+     *                 configured = true;
+     *                 ProcessCameraProvider.configureInstance(
+     *                     CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
+     *                           .setCameraExecutor(myExecutor)
+     *                           .setSchedulerHandler(mySchedulerHandler)
+     *                           .build());
+     *             }
+     *         }
+     *         return ProcessCameraProvider.getInstance(context);
+     *     }
+     * }
+     * }</pre>
+     * <p>If no {@link CameraXConfig.Provider} is implemented by {@link Application}, or if the
+     * singleton has not been configured via {@link #configureInstance(CameraXConfig)} a default
+     * configuration will be used.
      *
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
      * this future is a no-op. This future may fail with an {@link InitializationException} and
      * associated cause that can be retrieved by {@link Throwable#getCause()). The cause will be
-     * a {@link CameraUnavailableException} if it fails to access any camera during initialization.
+     * a {@link androidx.camera.core.CameraUnavailableException} if it fails to access any camera
+     * during initialization.
      * @throws IllegalStateException if CameraX fails to initialize via a default provider or a
      *                               CameraXConfig.Provider.
+     * @see #configureInstance(CameraXConfig)
      */
     @NonNull
     public static ListenableFuture<ProcessCameraProvider> getInstance(
@@ -110,40 +137,32 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     }
 
     /**
-     * Initializes the {@link ProcessCameraProvider} with the given context and config.
+     * Perform one-time configuration of the {@link ProcessCameraProvider} singleton with the
+     * given {@link CameraXConfig}.
      *
-     * <p>The context enables CameraX to obtain access to necessary services, including the camera
-     * service. For example, the context can be provided by the {@link Application}.
-     *
-     * <p>This method, along with {@link #shutdown()} allows the process
-     * camera provider to be used in test suites which may need to initialize CameraX in
-     * different ways in between tests.
+     * <p>This method allows configuration of the camera provider via {@link CameraXConfig}. All
+     * initialization tasks, such as communicating with the camera service, will be executed
+     * on the {@link java.util.concurrent.Executor} set by
+     * {@link CameraXConfig.Builder#setCameraExecutor(Executor)}, or by an internally defined
+     * executor if none is provided.
      *
      * <p>Once this method is called, the instance can be retrieved with
      * {@link #getInstance(Context)} without the need for implementing
-     * {@link CameraXConfig.Provider}
-     * in the test suite's {@link Application}.
+     * {@link CameraXConfig.Provider} in {@link Application}.
      *
-     * @param context       for retrieving access to the camera service.
+     * <p>Configuration can only occur once. Once the ProcessCameraProvider has been configured with
+     * {@code configureInstance()} or {@link #getInstance(Context)}, this method will throw
+     * an {@link IllegalStateException}.
+     *
      * @param cameraXConfig configuration options for the singleton process camera provider
      *                      instance.
-     * @hide
+     * @throws IllegalStateException if the camera provider has already been configured by a
+     *                               previous call to {@code configureInstance()} or
+     *                               {@link #getInstance(Context)}.
      */
-    @RestrictTo(Scope.TESTS)
-    public static void initializeInstance(@NonNull Context context,
-            @NonNull CameraXConfig cameraXConfig) {
-        ListenableFuture<Void> future = CameraX.initialize(context, cameraXConfig);
-        Futures.addCallback(future, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                // Throw the unexpected error.
-                throw new RuntimeException(t);
-            }
-        }, CameraXExecutors.directExecutor());
+    @ExperimentalCameraProviderConfiguration
+    public static void configureInstance(@NonNull CameraXConfig cameraXConfig) {
+        CameraX.configureInstance(cameraXConfig);
     }
 
     /**
@@ -153,8 +172,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * <p>Once shutdown, a new instance can be retrieved with
      * {@link ProcessCameraProvider#getInstance(Context)}.
      *
-     * <p>This method, along with {@link #initializeInstance(Context, CameraXConfig)} allows the
-     * process
+     * <p>This method, along with {@link #configureInstance(CameraXConfig)} allows the process
      * camera provider to be used in test suites which may need to initialize CameraX in
      * different ways in between tests.
      *
@@ -244,7 +262,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * <p> If one {@link UseCase} is in multiple {@link UseCaseGroup}s, it will be linked to
      * the {@link UseCaseGroup} in the latest
-     * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
+     * {@code #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
      *
      * @hide
      */
