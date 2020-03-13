@@ -20,15 +20,16 @@ import androidx.compose.Composable
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
@@ -68,7 +69,7 @@ fun FloatingActionButton(
     Surface(modifier = modifier, shape = shape, color = color, elevation = elevation) {
         Ripple(bounded = true) {
             Clickable(onClick = onClick) {
-                Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
+                Box(LayoutSize.Min(minSize), gravity = ContentGravity.Center) {
                     CurrentTextStyleProvider(MaterialTheme.typography().button, children)
                 }
             }
@@ -143,7 +144,8 @@ fun FloatingActionButton(
         onClick = onClick,
         color = color,
         elevation = elevation,
-        minSize = ExtendedFabHeight) {
+        minSize = ExtendedFabHeight
+    ) {
         if (icon == null) {
             Text(
                 text = text,

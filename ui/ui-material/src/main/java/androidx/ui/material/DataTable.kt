@@ -25,8 +25,10 @@ import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
@@ -34,9 +36,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
@@ -364,7 +366,14 @@ fun DataTable(
             if (header != null) {
                 tableRow {
                     if (showCheckboxes) {
-                        Container(height = headerRowHeight, padding = cellSpacing) {
+                        Box(
+                            LayoutHeight(headerRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
                             val parentState = when (selectableRows.count { it.selected }) {
                                 selectableRows.size -> ToggleableState.On
                                 0 -> ToggleableState.Off
@@ -381,7 +390,14 @@ fun DataTable(
                         }
                     }
                     for (j in 0 until columns) {
-                        Container(height = headerRowHeight, padding = cellSpacing) {
+                        Box(
+                            LayoutHeight(headerRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
                             var fontWeight = FontWeight.W500
                             var onSort = {}
                             var enabled = false
@@ -425,12 +441,26 @@ fun DataTable(
             visibleRows.forEach { row ->
                 tableRow {
                     if (showCheckboxes) {
-                        Container(height = dataRowHeight, padding = cellSpacing) {
+                        Box(
+                            LayoutHeight(dataRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
                             Checkbox(row.selected, row.onSelectedChange)
                         }
                     }
                     for (j in 0 until columns) {
-                        Container(height = dataRowHeight, padding = cellSpacing) {
+                        Box(
+                            LayoutHeight(dataRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
                             row.children(index = j)
                         }
                     }
@@ -485,7 +515,14 @@ fun DataTable(
     } else {
         Column {
             table()
-            Container(height = dataRowHeight, padding = cellSpacing) {
+            Box(
+                LayoutHeight(dataRowHeight),
+                paddingStart = cellSpacing.left,
+                paddingTop = cellSpacing.top,
+                paddingEnd = cellSpacing.right,
+                paddingBottom = cellSpacing.bottom,
+                gravity = ContentGravity.Center
+            ) {
                 Row(LayoutSize.Fill, arrangement = Arrangement.End) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
                     val startRow = pagination.rowsPerPage * pagination.page
@@ -505,7 +542,7 @@ fun DataTable(
                     Spacer(LayoutWidth(32.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_left icon.
-                    Container(modifier = modifier) {
+                    Box(modifier = modifier) {
                         Ripple(bounded = false) {
                             Clickable(onClick = {
                                 val newPage = pagination.page - 1
@@ -520,7 +557,7 @@ fun DataTable(
                     Spacer(LayoutWidth(24.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_right icon.
-                    Container(modifier = modifier) {
+                    Box(modifier = modifier) {
                         Ripple(bounded = false) {
                             Clickable(onClick = {
                                 val newPage = pagination.page + 1

@@ -23,12 +23,12 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.LayoutSize
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
@@ -89,7 +89,13 @@ fun Button(
         ) {
             Ripple(bounded = true, enabled = enabled) {
                 Clickable(onClick = onClick, enabled = enabled) {
-                    Container(constraints = ButtonConstraints, padding = innerPadding) {
+                    Box(
+                        ButtonConstraints,
+                        paddingStart = innerPadding.left,
+                        paddingTop = innerPadding.top,
+                        paddingEnd = innerPadding.right,
+                        paddingBottom = innerPadding.bottom
+                    ) {
                         CurrentTextStyleProvider(
                             value = MaterialTheme.typography().button,
                             children = children
@@ -215,10 +221,7 @@ inline fun TextButton(
 )
 
 // Specification for Material Button:
-private val ButtonConstraints = DpConstraints(
-    minWidth = 64.dp,
-    minHeight = 36.dp
-)
+private val ButtonConstraints = LayoutSize.Min(64.dp, 36.dp)
 
 /**
  * Contains the default values used by [Button]

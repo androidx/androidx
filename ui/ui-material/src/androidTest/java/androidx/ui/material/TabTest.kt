@@ -18,15 +18,14 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.LargeTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Text
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs
@@ -63,7 +62,7 @@ class TabTest {
     fun textTab_height() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Container {
+                Box {
                     Surface {
                         Tab(text = { Text("Text") }, selected = true, onSelected = {})
                     }
@@ -76,7 +75,7 @@ class TabTest {
     fun iconTab_height() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Container {
+                Box {
                     Surface {
                         Tab(icon = { Icon(icon) }, selected = true, onSelected = {})
                     }
@@ -89,7 +88,7 @@ class TabTest {
     fun textAndIconTab_height() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Container {
+                Box {
                     Surface {
                         Tab(
                             text = { Text("Text and Icon") },
@@ -110,37 +109,34 @@ class TabTest {
         var indicatorCoords: LayoutCoordinates? = null
 
         composeTestRule.setMaterialContent {
-                // TODO: Go back to delegate syntax when b/141741358 is fixed
-                val (state, setState) = state { 0 }
-                val titles = listOf("TAB 1", "TAB 2")
+            // TODO: Go back to delegate syntax when b/141741358 is fixed
+            val (state, setState) = state { 0 }
+            val titles = listOf("TAB 1", "TAB 2")
 
-                val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-                    TabRow.IndicatorContainer(tabPositions, state) {
-                        ColoredRect(
-                            Color.Red,
-                            onPositioned { indicatorCoords = it },
-                            height = indicatorHeight
-                        )
-                    }
-                }
-
-                Container(
-                    onChildPositioned { tabRowCoords = it },
-                    alignment = Alignment.TopCenter
-                ) {
-                    TabRow(
-                        items = titles,
-                        selectedIndex = state,
-                        indicatorContainer = indicatorContainer
-                    ) { index, text ->
-                        Tab(
-                            text = { Text(text) },
-                            selected = state == index,
-                            onSelected = { setState(index) }
-                        )
-                    }
+            val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
+                TabRow.IndicatorContainer(tabPositions, state) {
+                    ColoredRect(
+                        Color.Red,
+                        onPositioned { indicatorCoords = it },
+                        height = indicatorHeight
+                    )
                 }
             }
+
+            Box(onChildPositioned { tabRowCoords = it }) {
+                TabRow(
+                    items = titles,
+                    selectedIndex = state,
+                    indicatorContainer = indicatorContainer
+                ) { index, text ->
+                    Tab(
+                        text = { Text(text) },
+                        selected = state == index,
+                        onSelected = { setState(index) }
+                    )
+                }
+            }
+        }
 
         val (tabRowWidth, tabRowHeight) = composeTestRule.runOnIdleComposeWithDensity {
             val tabRowWidth = tabRowCoords!!.size.width
@@ -198,7 +194,7 @@ class TabTest {
                 }
             }
 
-            Container(onChildPositioned { tabRowCoords = it }, alignment = Alignment.TopCenter) {
+            Box(onChildPositioned { tabRowCoords = it }) {
                 TabRow(
                     items = titles,
                     scrollable = true,

@@ -33,7 +33,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
@@ -129,7 +128,7 @@ class RadioGroupScope internal constructor() {
         children: @Composable() () -> Unit
     ) {
         Semantics(container = true, mergeAllDescendants = true) {
-            Container {
+            Box {
                 Ripple(bounded = true) {
                     MutuallyExclusiveSetItem(
                         selected = selected,
