@@ -39,7 +39,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
-import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
@@ -460,16 +459,14 @@ public class DialogFragment extends Fragment
     @Override
     @NonNull
     public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
+        LayoutInflater layoutInflater = super.onGetLayoutInflater(savedInstanceState);
         if (!mShowsDialog || mCreatingDialog) {
-            return super.onGetLayoutInflater(savedInstanceState);
+            return layoutInflater;
         }
 
         prepareDialog(savedInstanceState);
 
-        LayoutInflater layoutInflater = LayoutInflater.from(mDialog.getContext());
-        LayoutInflaterCompat.setFactory2(layoutInflater,
-                    mChildFragmentManager.getLayoutInflaterFactory());
-        return layoutInflater;
+        return layoutInflater.cloneInContext(requireDialog().getContext());
     }
 
     /** @hide */
