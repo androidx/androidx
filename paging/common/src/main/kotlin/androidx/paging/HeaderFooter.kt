@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 @VisibleForTesting
-internal fun <T : Any> PageEvent<T>.addHeader(item: T): PageEvent<T> {
+internal fun <T : Any> PageEvent<T>.insertHeaderItem(item: T): PageEvent<T> {
     if (this !is Insert) return this
     if (loadType == END) return this
     if (loadStates[START] != Done) return this
@@ -54,7 +54,7 @@ internal fun <T : Any> PageEvent<T>.addHeader(item: T): PageEvent<T> {
 }
 
 @VisibleForTesting
-internal fun <T : Any> PageEvent<T>.addFooter(item: T): PageEvent<T> {
+internal fun <T : Any> PageEvent<T>.insertFooterItem(item: T): PageEvent<T> {
     if (this !is Insert) return this
     if (loadType == START) return this
     if (loadStates[END] != Done) return this
@@ -89,10 +89,10 @@ private inline fun <T> List<T>.modifyItem(index: Int, block: (T) -> T) = let {
     toMutableList().apply { set(index, block(get(index))) }
 }
 
-internal fun <T : Any> Flow<PageEvent<T>>.addHeader(item: T): Flow<PageEvent<T>> {
-    return map { it.addHeader(item) }
+internal fun <T : Any> Flow<PageEvent<T>>.insertHeaderItem(item: T): Flow<PageEvent<T>> {
+    return map { it.insertHeaderItem(item) }
 }
 
-internal fun <T : Any> Flow<PageEvent<T>>.addFooter(item: T): Flow<PageEvent<T>> {
-    return map { it.addFooter(item) }
+internal fun <T : Any> Flow<PageEvent<T>>.insertFooterItem(item: T): Flow<PageEvent<T>> {
+    return map { it.insertFooterItem(item) }
 }
