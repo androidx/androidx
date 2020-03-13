@@ -21,7 +21,7 @@ import androidx.compose.onPreCommit
 import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Text
-import androidx.ui.layout.Container
+import androidx.ui.foundation.Box
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -158,7 +158,7 @@ class AndroidComposeTestCaseRunnerTest {
     @Test
     fun measurePositive() {
         composeTestRule.forGivenContent {
-            Container {
+            Box {
                 Text("Hello")
             }
         }.performTestWithEventsControl {
