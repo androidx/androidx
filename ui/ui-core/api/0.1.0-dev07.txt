@@ -177,6 +177,7 @@ package androidx.ui.core {
   }
 
   public interface LayoutCoordinates {
+    method public androidx.ui.unit.PxBounds childBoundingBox(androidx.ui.core.LayoutCoordinates child);
     method public androidx.ui.unit.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.unit.PxPosition childLocal);
     method public operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
@@ -193,8 +194,8 @@ package androidx.ui.core {
   }
 
   public final class LayoutCoordinatesKt {
-    method public static inline androidx.ui.unit.PxBounds getBoundsInRoot(androidx.ui.core.LayoutCoordinates);
-    method public static inline androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.core.LayoutCoordinates);
+    method public static androidx.ui.unit.PxBounds getBoundsInRoot(androidx.ui.core.LayoutCoordinates);
+    method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getGlobalPosition(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }

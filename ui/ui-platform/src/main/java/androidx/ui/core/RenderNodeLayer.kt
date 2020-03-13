@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import android.annotation.TargetApi
+import android.graphics.Matrix
 import android.graphics.RenderNode
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
@@ -39,6 +40,7 @@ internal class RenderNodeLayer(
     private var isDirty = false
     private val outlineResolver = OutlineResolver(ownerView.density)
     private var isDestoyed = false
+    private var cacheMatrix: Matrix? = null
 
     private val renderNode = RenderNode(null).apply {
         setHasOverlappingRendering(true)
@@ -130,5 +132,11 @@ internal class RenderNodeLayer(
     override fun destroy() {
         isDestoyed = true
         ownerView.dirtyLayers -= this
+    }
+
+    override fun getMatrix(): Matrix {
+        val matrix = cacheMatrix ?: Matrix().also { cacheMatrix = it }
+        renderNode.getMatrix(matrix)
+        return matrix
     }
 }

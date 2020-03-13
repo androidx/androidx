@@ -20,7 +20,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.toPxSize
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
@@ -68,6 +67,11 @@ interface LayoutCoordinates {
     fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition
 
     /**
+     * Returns the child bounding box, discarding clipped rectangles, in local coordinates.
+     */
+    fun childBoundingBox(child: LayoutCoordinates): PxBounds
+
+    /**
      * Returns the position of an [alignment line][AlignmentLine],
      * or `null` if the line is not provided.
      */
@@ -87,16 +91,32 @@ inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToRoot(PxPo
 /**
  * The boundaries of this layout inside the root composable.
  */
-inline val LayoutCoordinates.boundsInRoot: PxBounds
-    get() = PxBounds(
-        positionInRoot,
-        size.toPxSize()
-    )
+val LayoutCoordinates.boundsInRoot: PxBounds
+    get() {
+        return findRoot(this).childBoundingBox(this)
+    }
 /**
  * The global boundaries of this layout inside.
  */
-inline val LayoutCoordinates.globalBounds: PxBounds
-    get() = PxBounds(
-        globalPosition,
-        size.toPxSize()
-    )
+val LayoutCoordinates.globalBounds: PxBounds
+    get() {
+        val root = findRoot(this)
+        val rootPosition = root.localToGlobal(PxPosition.Origin)
+        val bounds = root.childBoundingBox(this)
+        return PxBounds(
+            left = bounds.left + rootPosition.x,
+            top = bounds.top + rootPosition.y,
+            right = bounds.right + rootPosition.x,
+            bottom = bounds.bottom + rootPosition.y
+        )
+    }
+
+private fun findRoot(layoutCoordinates: LayoutCoordinates): LayoutCoordinates {
+    var root = layoutCoordinates
+    var parent = root.parentCoordinates
+    while (parent != null) {
+        root = parent
+        parent = root.parentCoordinates
+    }
+    return root
+}

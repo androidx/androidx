@@ -280,6 +280,7 @@ package androidx.ui.core {
   public interface OwnedLayer {
     method public void destroy();
     method public void drawLayer(androidx.ui.graphics.Canvas canvas);
+    method public android.graphics.Matrix getMatrix();
     method public void invalidate();
     method public void move(androidx.ui.unit.IntPxPosition position);
     method public void resize(androidx.ui.unit.IntPxSize size);
