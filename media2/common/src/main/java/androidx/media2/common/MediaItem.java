@@ -153,6 +153,9 @@ public class MediaItem extends CustomVersionedParcelable {
     public void setMetadata(@Nullable MediaMetadata metadata) {
         List<Pair<OnMetadataChangedListener, Executor>> listeners = new ArrayList<>();
         synchronized (mLock) {
+            if (mMetadata == metadata) {
+                return;
+            }
             if (mMetadata != null && metadata != null
                     && !TextUtils.equals(getMediaId(), metadata.getMediaId())) {
                 Log.w(TAG, "MediaItem's media ID shouldn't be changed");
