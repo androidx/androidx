@@ -251,18 +251,17 @@ class TouchSlopDragGestureDetectorTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
-                TouchSlopDragGestureDetector(
-                    dragObserver,
-                    startDragImmediately = startDragImmediately
-                ) {
-                    Layout(
-                        measureBlock = { _, _, _ ->
-                            layout(100.ipx, 100.ipx) {
-                                setupLatch.countDown()
-                            }
-                        }, children = {}
-                    )
-                }
+                Layout(
+                    modifier = DragGestureDetector(
+                        dragObserver,
+                        startDragImmediately = startDragImmediately
+                    ),
+                    measureBlock = { _, _, _ ->
+                        layout(100.ipx, 100.ipx) {
+                            setupLatch.countDown()
+                        }
+                    }, children = {}
+                )
             }
 
             view = activity.findViewById<ViewGroup>(android.R.id.content)

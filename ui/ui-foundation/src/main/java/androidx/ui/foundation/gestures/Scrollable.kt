@@ -25,8 +25,9 @@ import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.unit.PxPosition
@@ -165,7 +166,7 @@ fun Scrollable(
     enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
-    TouchSlopDragGestureDetector(
+    val drag = DragGestureDetector(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {
@@ -196,9 +197,12 @@ fun Scrollable(
         canDrag = { direction ->
             enabled && dragDirection.isDraggableInDirection(direction, -scrollableState.value)
         },
-        startDragImmediately = scrollableState.isAnimating,
-        children = children
+        startDragImmediately = scrollableState.isAnimating
     )
+    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+    //  is implemented with modifiers.
+    @Suppress("DEPRECATION")
+    PassThroughLayout(drag, children)
 }
 
 private class DeltaAnimatedFloat(

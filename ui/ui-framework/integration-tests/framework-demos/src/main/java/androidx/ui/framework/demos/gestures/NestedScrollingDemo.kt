@@ -23,11 +23,11 @@ import androidx.ui.core.DrawModifier
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DoubleTapGestureDetector
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.DrawBackground
@@ -103,22 +103,20 @@ private fun Draggable(children: @Composable() () -> Unit) {
         }
     }
 
-    TouchSlopDragGestureDetector(dragObserver, canDrag) {
-        Layout(
-            children = children,
-            modifier = ClipModifier,
-            measureBlock = { measurables, constraints, _ ->
-                val placeable =
-                    measurables.first()
-                        .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
+    Layout(
+        children = children,
+        modifier = DragGestureDetector(dragObserver, canDrag) + ClipModifier,
+        measureBlock = { measurables, constraints, _ ->
+            val placeable =
+                measurables.first()
+                    .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
 
-                maxOffset.value = constraints.maxHeight.value.px - placeable.height
+            maxOffset.value = constraints.maxHeight.value.px - placeable.height
 
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeable.place(0.ipx, offset.value.round())
-                }
-            })
-    }
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                placeable.place(0.ipx, offset.value.round())
+            }
+        })
 }
 
 val ClipModifier = object : DrawModifier {
@@ -165,20 +163,19 @@ private fun Pressable(
         showPressed.value = false
     }
 
-    PressIndicatorGestureDetector(onPress, onRelease, onRelease) {
-        PressReleasedGestureDetector(onTap, false) {
-            DoubleTapGestureDetector(onDoubleTap) {
-                LongPressGestureDetector(onLongPress) {
-                    val pressOverlay =
-                        if (showPressed.value) DrawBackground(pressedColor) else Modifier.None
-                    Box(
-                        LayoutWidth.Fill + LayoutHeight(height) +
-                                DrawBackground(color = color.value) + pressOverlay
-                    )
-                }
-            }
-        }
-    }
+    val gestureDetectors = PressIndicatorGestureDetector(
+        onPress,
+        onRelease,
+        onRelease
+    ) + TapGestureDetector(onTap) +
+            DoubleTapGestureDetector(onDoubleTap) +
+            LongPressGestureDetector(onLongPress)
+
+    val layout = LayoutWidth.Fill + LayoutHeight(height)
+
+    val pressOverlay =
+        if (showPressed.value) DrawBackground(pressedColor) else Modifier.None
+    Box(gestureDetectors + layout + DrawBackground(color = color.value) + pressOverlay)
 }
 
 /**

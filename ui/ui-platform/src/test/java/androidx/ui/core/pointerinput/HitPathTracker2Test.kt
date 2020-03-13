@@ -69,12 +69,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.addHitPath(pointerId, listOf(pif1, pif2, pif3))
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(pif1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(pif1).apply {
                 pointerIds.add(pointerId)
-                children.add(Node2(pif2).apply {
+                children.add(Node(pif2).apply {
                     pointerIds.add(pointerId)
-                    children.add(Node2(pif3).apply {
+                    children.add(Node(pif3).apply {
                         pointerIds.add(pointerId)
                     })
                 })
@@ -97,21 +97,21 @@ class HitPathTracker2Test {
         hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3))
         hitPathTracker.addHitPath(pointerId2, listOf(pif4, pif5, pif6))
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(pif1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(pif1).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(pif2).apply {
+                children.add(Node(pif2).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(pif3).apply {
+                    children.add(Node(pif3).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
             })
-            children.add(Node2(pif4).apply {
+            children.add(Node(pif4).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(pif5).apply {
+                children.add(Node(pif5).apply {
                     pointerIds.add(pointerId2)
-                    children.add(Node2(pif6).apply {
+                    children.add(Node(pif6).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
@@ -131,14 +131,14 @@ class HitPathTracker2Test {
 
         hitPathTracker.addHitPath(pointerId2, listOf(pif1, pif2, pif3))
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(pif1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(pif1).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
-                children.add(Node2(pif2).apply {
+                children.add(Node(pif2).apply {
                     pointerIds.add(pointerId1)
                     pointerIds.add(pointerId2)
-                    children.add(Node2(pif3).apply {
+                    children.add(Node(pif3).apply {
                         pointerIds.add(pointerId1)
                         pointerIds.add(pointerId2)
                     })
@@ -161,19 +161,19 @@ class HitPathTracker2Test {
 
         hitPathTracker.addHitPath(pointerId2, listOf(pif1, pif4, pif5))
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(pif1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(pif1).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
-                children.add(Node2(pif2).apply {
+                children.add(Node(pif2).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(pif3).apply {
+                    children.add(Node(pif3).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
-                children.add(Node2(pif4).apply {
+                children.add(Node(pif4).apply {
                     pointerIds.add(pointerId2)
-                    children.add(Node2(pif5).apply {
+                    children.add(Node(pif5).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
@@ -906,7 +906,7 @@ class HitPathTracker2Test {
         }
 
         assertThat(throwable).isNull()
-        assertThat(areEqual(hitPathTracker.root, NodeParent2()))
+        assertThat(areEqual(hitPathTracker.root, NodeParent()))
     }
 
     @Test
@@ -944,32 +944,32 @@ class HitPathTracker2Test {
 
         // Assert.
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(pif1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(pif1).apply {
                 pointerIds.add(pointerId1)
             })
-            children.add(Node2(pif3).apply {
+            children.add(Node(pif3).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(pif2).apply {
+                children.add(Node(pif2).apply {
                     pointerIds.add(pointerId2)
                 })
             })
-            children.add(Node2(pif6).apply {
+            children.add(Node(pif6).apply {
                 pointerIds.add(pointerId3)
-                children.add(Node2(pif5).apply {
+                children.add(Node(pif5).apply {
                     pointerIds.add(pointerId3)
-                    children.add(Node2(pif4).apply {
+                    children.add(Node(pif4).apply {
                         pointerIds.add(pointerId3)
                     })
                 })
             })
-            children.add(Node2(pif9).apply {
+            children.add(Node(pif9).apply {
                 pointerIds.add(pointerId4)
                 pointerIds.add(pointerId5)
-                children.add(Node2(pif7).apply {
+                children.add(Node(pif7).apply {
                     pointerIds.add(pointerId4)
                 })
-                children.add(Node2(pif8).apply {
+                children.add(Node(pif8).apply {
                     pointerIds.add(pointerId5)
                 })
             })
@@ -989,7 +989,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        assertThat(areEqual(hitPathTracker.root, NodeParent2())).isTrue()
+        assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
         inOrder(leaf.cancelHandler, middle.cancelHandler, root.cancelHandler) {
             verify(leaf.cancelHandler).invoke()
             verify(middle.cancelHandler).invoke()
@@ -1009,8 +1009,8 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId)
             })
         }
@@ -1035,10 +1035,10 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId)
                 })
             })
@@ -1079,21 +1079,21 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle1).apply {
+                children.add(Node(middle1).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf1).apply {
+                    children.add(Node(leaf1).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
             })
-            children.add(Node2(root2).apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle2).apply {
+                children.add(Node(middle2).apply {
                     pointerIds.add(pointerId2)
-                    children.add(Node2(leaf2).apply {
+                    children.add(Node(leaf2).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
@@ -1139,24 +1139,24 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
             })
-            children.add(Node2(root2).apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle2).apply {
+                children.add(Node(middle2).apply {
                     pointerIds.add(pointerId2)
-                    children.add(Node2(leaf2).apply {
+                    children.add(Node(leaf2).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
             })
-            children.add(Node2(root3).apply {
+            children.add(Node(root3).apply {
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle3).apply {
+                children.add(Node(middle3).apply {
                     pointerIds.add(pointerId3)
-                    children.add(Node2(leaf3).apply {
+                    children.add(Node(leaf3).apply {
                         pointerIds.add(pointerId3)
                     })
                 })
@@ -1201,27 +1201,27 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle1).apply {
+                children.add(Node(middle1).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf1).apply {
+                    children.add(Node(leaf1).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
             })
-            children.add(Node2(root2).apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle2).apply {
+                children.add(Node(middle2).apply {
                     pointerIds.add(pointerId2)
                 })
             })
-            children.add(Node2(root3).apply {
+            children.add(Node(root3).apply {
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle3).apply {
+                children.add(Node(middle3).apply {
                     pointerIds.add(pointerId3)
-                    children.add(Node2(leaf3).apply {
+                    children.add(Node(leaf3).apply {
                         pointerIds.add(pointerId3)
                     })
                 })
@@ -1263,12 +1263,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root2).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle2).apply {
+                children.add(Node(middle2).apply {
                     pointerIds.add(pointerId2)
-                    children.add(Node2(leaf2).apply {
+                    children.add(Node(leaf2).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
@@ -1320,18 +1320,18 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
             })
-            children.add(Node2(root2).apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
             })
-            children.add(Node2(root3).apply {
+            children.add(Node(root3).apply {
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle3).apply {
+                children.add(Node(middle3).apply {
                     pointerIds.add(pointerId3)
-                    children.add(Node2(leaf3).apply {
+                    children.add(Node(leaf3).apply {
                         pointerIds.add(pointerId3)
                     })
                 })
@@ -1381,25 +1381,25 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle1).apply {
+                children.add(Node(middle1).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf1).apply {
+                    children.add(Node(leaf1).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
             })
-            children.add(Node2(root2).apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle2).apply {
+                children.add(Node(middle2).apply {
                     pointerIds.add(pointerId2)
                 })
             })
-            children.add(Node2(root3).apply {
+            children.add(Node(root3).apply {
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle3).apply {
+                children.add(Node(middle3).apply {
                     pointerIds.add(pointerId3)
                 })
             })
@@ -1434,7 +1434,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2()
+        val expectedRoot = NodeParent()
 
         assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
         inOrder(leaf1.cancelHandler, middle1.cancelHandler, root1.cancelHandler) {
@@ -1484,14 +1484,14 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
             })
-            children.add(Node2(root2).apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
             })
-            children.add(Node2(root3).apply {
+            children.add(Node(root3).apply {
                 pointerIds.add(pointerId3)
             })
         }
@@ -1542,22 +1542,22 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle1).apply {
+                children.add(Node(middle1).apply {
                     pointerIds.add(pointerId1)
                 })
             })
-            children.add(Node2(root2).apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle2).apply {
+                children.add(Node(middle2).apply {
                     pointerIds.add(pointerId2)
                 })
             })
-            children.add(Node2(root3).apply {
+            children.add(Node(root3).apply {
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle3).apply {
+                children.add(Node(middle3).apply {
                     pointerIds.add(pointerId3)
                 })
             })
@@ -1600,13 +1600,13 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root2).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root2).apply {
                 pointerIds.add(pointerId2)
             })
-            children.add(Node2(root3).apply {
+            children.add(Node(root3).apply {
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle3).apply {
+                children.add(Node(middle3).apply {
                     pointerIds.add(pointerId3)
                 })
             })
@@ -1649,7 +1649,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2()
+        val expectedRoot = NodeParent()
 
         assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
         inOrder(leaf1.cancelHandler, middle1.cancelHandler, root.cancelHandler) {
@@ -1699,20 +1699,20 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle1).apply {
+                children.add(Node(middle1).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf1).apply {
+                    children.add(Node(leaf1).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
-                children.add(Node2(middle2).apply {
+                children.add(Node(middle2).apply {
                     pointerIds.add(pointerId2)
-                    children.add(Node2(leaf2).apply {
+                    children.add(Node(leaf2).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
@@ -1757,14 +1757,14 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle3).apply {
+                children.add(Node(middle3).apply {
                     pointerIds.add(pointerId3)
-                    children.add(Node2(leaf3).apply {
+                    children.add(Node(leaf3).apply {
                         pointerIds.add(pointerId3)
                     })
                 })
@@ -1813,8 +1813,8 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
                 pointerIds.add(pointerId3)
@@ -1864,19 +1864,19 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId1)
                     pointerIds.add(pointerId2)
                     pointerIds.add(pointerId3)
-                    children.add(Node2(leaf1).apply {
+                    children.add(Node(leaf1).apply {
                         pointerIds.add(pointerId1)
                     })
-                    children.add(Node2(leaf3).apply {
+                    children.add(Node(leaf3).apply {
                         pointerIds.add(pointerId3)
                     })
                 })
@@ -1915,16 +1915,16 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId1)
                     pointerIds.add(pointerId2)
                     pointerIds.add(pointerId3)
-                    children.add(Node2(leaf2).apply {
+                    children.add(Node(leaf2).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
@@ -1964,12 +1964,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
                 pointerIds.add(pointerId2)
                 pointerIds.add(pointerId3)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId1)
                     pointerIds.add(pointerId2)
                     pointerIds.add(pointerId3)
@@ -1999,7 +1999,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId)
 
-        val expectedRoot = NodeParent2()
+        val expectedRoot = NodeParent()
 
         assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
     }
@@ -2020,12 +2020,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId2)
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf).apply {
+                    children.add(Node(leaf).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
@@ -2062,12 +2062,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId2)
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root1).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root1).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle1).apply {
+                children.add(Node(middle1).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf1).apply {
+                    children.add(Node(leaf1).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
@@ -2094,12 +2094,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId1)
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId2)
-                    children.add(Node2(leaf).apply {
+                    children.add(Node(leaf).apply {
                         pointerIds.add(pointerId2)
                     })
                 })
@@ -2126,10 +2126,10 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId1)
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId2)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId2)
                 })
             })
@@ -2155,12 +2155,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId2)
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf).apply {
+                    children.add(Node(leaf).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
@@ -2187,8 +2187,8 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId1)
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId2)
             })
         }
@@ -2213,12 +2213,12 @@ class HitPathTracker2Test {
 
         hitPathTracker.removeHitPath(pointerId2)
 
-        val expectedRoot = NodeParent2().apply {
-            children.add(Node2(root).apply {
+        val expectedRoot = NodeParent().apply {
+            children.add(Node(root).apply {
                 pointerIds.add(pointerId1)
-                children.add(Node2(middle).apply {
+                children.add(Node(middle).apply {
                     pointerIds.add(pointerId1)
-                    children.add(Node2(leaf).apply {
+                    children.add(Node(leaf).apply {
                         pointerIds.add(pointerId1)
                     })
                 })
@@ -2333,7 +2333,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.processCancel()
 
-        assertThat(areEqual(hitPathTracker.root, NodeParent2())).isTrue()
+        assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
     }
 
     // Pin -> Pin -> Pin
@@ -2349,7 +2349,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.processCancel()
 
-        assertThat(areEqual(hitPathTracker.root, NodeParent2())).isTrue()
+        assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
     }
 
     // PIN -> PIN
@@ -2365,7 +2365,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.processCancel()
 
-        assertThat(areEqual(hitPathTracker.root, NodeParent2())).isTrue()
+        assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
     }
 
     // PIN -> PIN
@@ -2380,7 +2380,7 @@ class HitPathTracker2Test {
 
         hitPathTracker.processCancel()
 
-        assertThat(areEqual(hitPathTracker.root, NodeParent2())).isTrue()
+        assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
     }
 
     @Test
@@ -2603,7 +2603,7 @@ class HitPathTracker2Test {
         verifyNoMoreInteractions(parentHandler, childHandler1, childHandler2)
     }
 
-    private fun areEqual(actualNode: NodeParent2, expectedNode: NodeParent2): Boolean {
+    private fun areEqual(actualNode: NodeParent, expectedNode: NodeParent): Boolean {
         var check = true
 
         if (actualNode.children.size != expectedNode.children.size) {
@@ -2618,7 +2618,7 @@ class HitPathTracker2Test {
         return check
     }
 
-    private fun areEqual(actualNode: Node2, expectedNode: Node2): Boolean {
+    private fun areEqual(actualNode: Node, expectedNode: Node): Boolean {
         if (actualNode.pointerInputFilter !== expectedNode.pointerInputFilter) {
             return false
         }
@@ -2655,17 +2655,24 @@ fun PointerInputFilterMock(
     isAttached: Boolean = true
 ): PointerInputFilter =
     spy(
-        PointerInputFilterStub(pointerInputHandler, cancelHandler).apply {
-            this.initHandler = initHandler
-            this.customEventHandler = customEventHandler
+        PointerInputFilterStub(
+            pointerInputHandler,
+            cancelHandler,
+            initHandler,
+            customEventHandler
+        ).apply {
             layoutCoordinates = LayoutCoordinatesStub(isAttached)
         }
     )
 
 open class PointerInputFilterStub(
     override val pointerInputHandler: PointerInputHandler,
-    override val cancelHandler: () -> Unit
+    override val cancelHandler: () -> Unit,
+    override val initHandler: (CustomEventDispatcher) -> Unit = { _ -> },
+    override val customEventHandler: (CustomEvent, PointerEventPass) -> Unit = { _, _ -> }
 ) : PointerInputFilter()
+
+internal data class TestCustomEvent(val value: String) : CustomEvent
 
 class LayoutCoordinatesStub(
     override val isAttached: Boolean = true

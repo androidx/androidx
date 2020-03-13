@@ -19,7 +19,7 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Text
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.text.TextLayoutResult
@@ -37,17 +37,17 @@ fun TextOnClick() {
     VerticalScroller {
         Column {
             Text("Clicked Offset: ${clickedOffset.value}")
-            PressGestureDetector(
-                onPress = { pos ->
+            val press = PressIndicatorGestureDetector(
+                onStart = { pos ->
                     layoutResult.value?.let { layout ->
                         clickedOffset.value = layout.getOffsetForPosition(pos)
                     }
                 }
-            ) {
-                Text("ClickeMe",
-                    style = TextStyle(fontSize = fontSize8),
-                    onTextLayout = { layoutResult.value = it })
-            }
+            )
+            Text("ClickeMe",
+                modifier = press,
+                style = TextStyle(fontSize = fontSize8),
+                onTextLayout = { layoutResult.value = it })
         }
     }
 }

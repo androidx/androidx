@@ -23,7 +23,8 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
@@ -59,20 +60,21 @@ private val definition = transitionDefinition {
 @Composable
 fun GestureBasedAnimationDemo() {
     val toState = state { ComponentState.Released }
-    PressGestureDetector(
-        onPress = { toState.value = ComponentState.Pressed },
-        onRelease = { toState.value = ComponentState.Released },
-        onCancel = { toState.value = ComponentState.Released }) {
-        Transition(definition = definition, toState = toState.value) { state ->
-            ScaledColorRect(scale = state[scale], color = state[color])
-        }
+    val pressIndicator =
+        PressIndicatorGestureDetector(
+            onStart = { toState.value = ComponentState.Pressed },
+            onStop = { toState.value = ComponentState.Released },
+            onCancel = { toState.value = ComponentState.Released })
+
+    Transition(definition = definition, toState = toState.value) { state ->
+        ScaledColorRect(pressIndicator, scale = state[scale], color = state[color])
     }
 }
 
 @Composable
-private fun ScaledColorRect(scale: Float, color: Color) {
+private fun ScaledColorRect(modifier: Modifier = Modifier.None, scale: Float, color: Color) {
     val paint = remember { Paint() }
-    Canvas(LayoutSize.Fill) {
+    Canvas(modifier + LayoutSize.Fill) {
         val centerX = size.width.value / 2
         val centerY = size.height.value / 2
         paint.color = color

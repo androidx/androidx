@@ -19,10 +19,10 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.PointerInput
 import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.LongPressTimeout
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAlign
@@ -54,18 +54,16 @@ private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit
     Stack(LayoutSize.Fill + LayoutAlign.BottomEnd) {
         TestTag(tag) {
             Semantics(container = true) {
-                LongPressGestureDetector(onLongPress = onLongPress) {
-                    PointerInput(
-                        pointerInputHandler = recorder::onPointerInput,
-                        cancelHandler = {}
-                    ) {
-                        with(DensityAmbient.current) {
-                            Box(
-                                LayoutSize(width.toDp(), height.toDp()),
-                                backgroundColor = Color.Yellow
-                            )
-                        }
-                    }
+                with(DensityAmbient.current) {
+                    Box(
+                        LongPressGestureDetector(onLongPress) +
+                                PointerInputModifier(recorder) +
+                                LayoutSize(
+                                    width.toDp(),
+                                    height.toDp()
+                                ),
+                        backgroundColor = Color.Yellow
+                    )
                 }
             }
         }

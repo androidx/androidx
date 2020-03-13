@@ -23,7 +23,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.Text
-import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -42,16 +42,16 @@ fun RepeatedRotationDemo() {
         val state = state { RotationStates.Original }
         Column(arrangement = Arrangement.SpaceEvenly) {
             val textStyle = TextStyle(fontSize = 18.sp)
-            PressReleasedGestureDetector(onRelease = {
-                state.value = RotationStates.Rotated
-            }) {
-                Text(text = "Rotate 10 times", style = textStyle)
-            }
-            PressReleasedGestureDetector(onRelease = {
-                state.value = RotationStates.Original
-            }) {
-                Text(text = "Reset", style = textStyle)
-            }
+            Text(
+                modifier = TapGestureDetector(onTap = { state.value = RotationStates.Rotated }),
+                text = "Rotate 10 times",
+                style = textStyle
+            )
+            Text(
+                modifier = TapGestureDetector(onTap = { state.value = RotationStates.Original }),
+                text = "Reset",
+                style = textStyle
+            )
             Transition(
                 definition = definition,
                 toState = state.value

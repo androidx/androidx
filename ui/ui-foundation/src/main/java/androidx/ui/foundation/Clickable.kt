@@ -16,14 +16,15 @@
 
 package androidx.ui.foundation
 
-import androidx.ui.semantics.Semantics
-import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.compose.Composable
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 
 /**
- * Combines [PressReleasedGestureDetector] and [Semantics] for the clickable
+ * Combines [TapGestureDetector] and [Semantics] for the clickable
  * components like Button.
  *
  * @sample androidx.ui.foundation.samples.ClickableSample
@@ -31,16 +32,12 @@ import androidx.ui.semantics.onClick
  * @param onClick will be called when user clicked on the button
  * @param enabled Controls the enabled state. When `false`, this component will not be
  * clickable
- * @param consumeDownOnStart true means [PressReleasedGestureDetector] should consume
- * down events. Provide false if you have some visual feedback like Ripples,
- * as it will consume this events instead
  */
 @Composable
 fun Clickable(
     onClick: () -> Unit,
     enabled: Boolean = true,
     onClickLabel: String? = null,
-    consumeDownOnStart: Boolean = false,
     children: @Composable() () -> Unit
 ) {
     Semantics(
@@ -52,11 +49,9 @@ fun Clickable(
             }
         }
     ) {
-        PressReleasedGestureDetector(
-            onRelease = onClick,
-            consumeDownOnStart = consumeDownOnStart,
-            enabled = enabled,
-            children = children
-        )
+        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+        //  is implemented with modifiers.
+        @Suppress("DEPRECATION")
+        PassThroughLayout(TapGestureDetector(onClick, enabled = enabled), children)
     }
 }

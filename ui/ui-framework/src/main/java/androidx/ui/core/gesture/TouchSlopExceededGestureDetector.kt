@@ -20,17 +20,18 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Direction
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.positionChange
-import androidx.ui.core.PointerId
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 
-// TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**
  * This gesture filter detects when at least one pointer has moved far enough to exceed touch slop.
  *
@@ -45,32 +46,27 @@ import androidx.ui.unit.Px
 @Composable
 fun TouchSlopExceededGestureDetector(
     onTouchSlopExceeded: () -> Unit,
-    canDrag: ((Direction) -> Boolean)? = null,
-    children: @Composable() () -> Unit
-) {
+    canDrag: ((Direction) -> Boolean)? = null
+): Modifier {
     val touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
     val recognizer = remember { TouchSlopExceededGestureRecognizer(touchSlop) }
-
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    return PointerInputModifier(recognizer)
 }
 
 // TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the
 //  device is not a whole number?
-internal class TouchSlopExceededGestureRecognizer(private val touchSlop: Px) {
+internal class TouchSlopExceededGestureRecognizer(
+    private val touchSlop: Px
+) : PointerInputFilter() {
     private val pointerTrackers: MutableMap<PointerId, PointerTrackingData> = mutableMapOf()
     private var passedSlop = false
 
     var canDrag: ((Direction) -> Boolean)? = null
     var onTouchSlopExceeded: () -> Unit = {}
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
             if (pass == PointerEventPass.PostUp) {
                 changes.forEach {
@@ -181,7 +177,7 @@ internal class TouchSlopExceededGestureRecognizer(private val touchSlop: Px) {
             changes
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         pointerTrackers.clear()
         passedSlop = false
     }

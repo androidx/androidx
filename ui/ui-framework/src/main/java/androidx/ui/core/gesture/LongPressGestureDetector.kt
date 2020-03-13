@@ -21,16 +21,18 @@ import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.PointerId
 import androidx.ui.core.gesture.util.anyPointersInBounds
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -49,25 +51,17 @@ import kotlin.coroutines.CoroutineContext
  */
 @Composable
 fun LongPressGestureDetector(
-    onLongPress: (PxPosition) -> Unit,
-    children: @Composable() () -> Unit
-) {
+    onLongPress: (PxPosition) -> Unit
+): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     val recognizer = remember { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
-
-    PointerInput(
-        initHandler = recognizer.initHandler,
-        pointerInputHandler = recognizer.pointerInputHandler,
-        customEventHandler = recognizer.customEventHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    return PointerInputModifier(recognizer)
 }
 
 internal class LongPressGestureRecognizer(
     private val coroutineContext: CoroutineContext
-) {
+) : PointerInputFilter() {
     lateinit var onLongPress: (PxPosition) -> Unit
 
     var longPressTimeout = LongPressTimeout
@@ -81,11 +75,11 @@ internal class LongPressGestureRecognizer(
     private var job: Job? = null
     private lateinit var customEventDispatcher: CustomEventDispatcher
 
-    val initHandler = { customEventDispatcher: CustomEventDispatcher ->
+    override val initHandler = { customEventDispatcher: CustomEventDispatcher ->
         this.customEventDispatcher = customEventDispatcher
     }
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var changesToReturn = changes
@@ -140,7 +134,7 @@ internal class LongPressGestureRecognizer(
             changesToReturn
         }
 
-    val customEventHandler: (CustomEvent, PointerEventPass) -> Unit =
+    override val customEventHandler: (CustomEvent, PointerEventPass) -> Unit =
         { customEvent, pointerInputPass ->
             if (
                 state == State.Primed &&
@@ -153,7 +147,7 @@ internal class LongPressGestureRecognizer(
             }
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         resetToIdle()
     }
 

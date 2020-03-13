@@ -27,9 +27,10 @@ import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -99,30 +100,34 @@ fun AnimatableSeekBarDemo() {
 }
 
 @Composable
-private fun MovingTargetExample(clock: ManualAnimationClock) {
+fun MovingTargetExample(clock: ManualAnimationClock) {
     val animValue = animatedFloat(0f)
-    RawDragGestureDetector(dragObserver = object : DragObserver {
+
+    val dragObserver = object : DragObserver {
         override fun onDrag(dragDistance: PxPosition): PxPosition {
             animValue.snapTo(animValue.targetValue + dragDistance.x.value)
             return dragDistance
         }
-    }) {
-        PressGestureDetector(
-            onPress = { position ->
-                animValue.animateTo(position.x.value,
-                    TweenBuilder<Float>().apply {
-                        duration = 400
-                    })
-            }) {
-            DrawSeekBar(animValue.value, clock)
-        }
     }
+
+    val onPress: (PxPosition) -> Unit = { position ->
+        animValue.animateTo(position.x.value,
+            TweenBuilder<Float>().apply {
+                duration = 400
+            })
+    }
+
+    DrawSeekBar(
+        RawDragGestureDetector(dragObserver) + PressIndicatorGestureDetector(onStart = onPress),
+        animValue.value,
+        clock
+    )
 }
 
 @Composable
-private fun DrawSeekBar(x: Float, clock: ManualAnimationClock) {
+fun DrawSeekBar(modifier: Modifier = Modifier.None, x: Float, clock: ManualAnimationClock) {
     val paint = remember { Paint() }
-    Canvas(LayoutWidth.Fill + LayoutHeight(60.dp)) {
+    Canvas(modifier + LayoutWidth.Fill + LayoutHeight(60.dp)) {
         val centerY = size.height.value / 2
         val xConstraint = x.coerceIn(0f, size.width.value)
         clock.clockTimeMillis = (400 * (x / size.width.value)).toLong().coerceIn(0, 399)

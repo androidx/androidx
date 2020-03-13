@@ -20,13 +20,13 @@ import androidx.ui.layout.Row
 import androidx.ui.unit.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.unit.dp
-import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.unit.px
 import androidx.ui.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.layout.Arrangement
@@ -143,16 +143,12 @@ enum class NavigationAction : ActionType { Back, Forward, Up, Down, Left, Right 
 fun PressGestureDetectorWithActions(
     onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { },
     onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
-    onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
-    children: @Composable() () -> Unit
-) {
-    PressGestureDetector(
-        onPress = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
-        onRelease = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
-        onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) },
-        children = children
+    onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { }
+) = PressIndicatorGestureDetector(
+        onStart = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
+        onStop = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
+        onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) }
     )
-}
 
 /**
  * This is our lowest level API for Semantics.
