@@ -27,7 +27,6 @@ import androidx.ui.core.ParentData
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.ipx
 
@@ -38,8 +37,8 @@ fun HeaderFooterLayout(
     content: @Composable() () -> Unit
 ) {
     Layout({
-        Container(LayoutTag("header"), children = header)
-        Container(LayoutTag("footer"), children = footer)
+        Box(LayoutTag("header"), children = header)
+        Box(LayoutTag("footer"), children = footer)
         ParentData(
             object : LayoutTagParentData {
                 override val tag: Any get() = "content"

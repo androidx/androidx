@@ -18,12 +18,13 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 
 class SimpleRadioButton4TestCase : BaseSimpleRadioButtonTestCase() {
@@ -31,8 +32,9 @@ class SimpleRadioButton4TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
     override fun emitContent() {
         val innerSize = getInnerSize()
-        Container(
-            width = 48.dp, height = 48.dp, modifier = DrawBackground(Color.Cyan, CircleShape) +
+        Box(
+            LayoutSize(48.dp) +
+                    DrawBackground(Color.Cyan, CircleShape) +
                     LayoutPadding(innerSize.value) +
                     DrawBorder(
                         border = Border(color = Color.Cyan, size = 1.dp),

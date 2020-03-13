@@ -19,6 +19,7 @@ package androidx.ui.framework.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.asModifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.BlendMode
@@ -27,8 +28,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -63,16 +64,14 @@ fun PainterModifierSample() {
         }
     }
 
-    Container(
-        modifier =
-        DrawBackground(Color.Gray) +
+    Box(
+        LayoutSize(300.dp) +
+                DrawBackground(Color.Gray) +
                 LayoutPadding(30.dp) +
                 DrawBackground(Color.Yellow) +
                 CustomPainter().asModifier(
                     alpha = 0.5f,
                     colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn)
-                ),
-        width = 300.dp,
-        height = 300.dp
-    ) { /* intentionally empty */ }
+                )
+    )
 }
