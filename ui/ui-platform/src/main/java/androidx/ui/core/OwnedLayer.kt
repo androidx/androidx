@@ -27,7 +27,7 @@ import androidx.ui.unit.IntPxSize
  */
 interface OwnedLayer {
     /**
-     * Reads the [DrawLayerProperties] and dirties the layer so that it will be redrawn.
+     * Reads the [DrawLayerModifier] and dirties the layer so that it will be redrawn.
      */
     fun updateLayerProperties()
 
