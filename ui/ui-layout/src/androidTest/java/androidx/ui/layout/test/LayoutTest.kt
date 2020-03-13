@@ -23,25 +23,35 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
+import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.enforce
+import androidx.ui.core.hasFixedHeight
+import androidx.ui.core.hasFixedWidth
+import androidx.ui.core.offset
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.EdgeInsets
 import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
+import androidx.ui.unit.max
 import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
@@ -341,6 +351,67 @@ open class LayoutTest {
                 }
             }
             return positions
+        }
+    }
+
+    @Composable
+    internal fun Container(
+        modifier: Modifier = Modifier.None,
+        padding: EdgeInsets = EdgeInsets(0.dp),
+        alignment: Alignment = Alignment.Center,
+        expanded: Boolean = false,
+        constraints: DpConstraints = DpConstraints(),
+        width: Dp? = null,
+        height: Dp? = null,
+        children: @Composable() () -> Unit
+    ) {
+        Layout(children, modifier) { measurables, incomingConstraints, _ ->
+            val containerConstraints = Constraints(constraints)
+                .copy(
+                    width?.toIntPx() ?: constraints.minWidth.toIntPx(),
+                    width?.toIntPx() ?: constraints.maxWidth.toIntPx(),
+                    height?.toIntPx() ?: constraints.minHeight.toIntPx(),
+                    height?.toIntPx() ?: constraints.maxHeight.toIntPx()
+                ).enforce(incomingConstraints)
+            val totalHorizontal = padding.left.toIntPx() + padding.right.toIntPx()
+            val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
+            val childConstraints = containerConstraints
+                .copy(minWidth = 0.ipx, minHeight = 0.ipx)
+                .offset(-totalHorizontal, -totalVertical)
+            var placeable: Placeable? = null
+            val containerWidth = if ((containerConstraints.hasFixedWidth || expanded) &&
+                containerConstraints.maxWidth.isFinite()
+            ) {
+                containerConstraints.maxWidth
+            } else {
+                placeable = measurables.firstOrNull()?.measure(childConstraints)
+                max((placeable?.width ?: 0.ipx) + totalHorizontal, containerConstraints.minWidth)
+            }
+            val containerHeight = if ((containerConstraints.hasFixedHeight || expanded) &&
+                containerConstraints.maxHeight.isFinite()
+            ) {
+                containerConstraints.maxHeight
+            } else {
+                if (placeable == null) {
+                    placeable = measurables.firstOrNull()?.measure(childConstraints)
+                }
+                max((placeable?.height ?: 0.ipx) + totalVertical, containerConstraints.minHeight)
+            }
+            layout(containerWidth, containerHeight) {
+                val p = placeable ?: measurables.firstOrNull()?.measure(childConstraints)
+                p?.let {
+                    val position = alignment.align(
+                        IntPxSize(
+                            containerWidth - it.width - totalHorizontal,
+                            containerHeight - it.height - totalVertical
+                        )
+                    )
+                    it.place(
+                        padding.left.toIntPx() + position.x,
+                        padding.top.toIntPx() + position.y
+                    )
+                }
+            }
         }
     }
 }

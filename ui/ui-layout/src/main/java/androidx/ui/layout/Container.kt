@@ -52,7 +52,16 @@ import androidx.ui.unit.max
  * its child (same behavior as if expanded was [false]). Also, note that the measurement
  * information passed for the [Container] (constraints, width and height) will not be satisfied
  * if the incoming [Constraints] do not allow it.
+ *
+ * *DEPRECATED:* Container supports only one child and has params that conflict with Modifiers.
+ * Use [androidx.ui.foundation.Box] instead which support multiply children, backgroundColor,
+ * and set all desired size restrictions via [LayoutSize], [LayoutWidth], [LayoutHeight] and
+ * other modifiers.
  */
+@Deprecated(
+    "Use Box instead. Container supports only one child and has params that conflict with " +
+            "Modifiers, Box solves these problem and have more convenience params."
+)
 @Composable
 fun Container(
     modifier: Modifier = Modifier.None,

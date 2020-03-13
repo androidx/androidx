@@ -25,7 +25,6 @@ import androidx.ui.core.Ref
 import androidx.ui.core.enforce
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutDirectionModifier

@@ -30,12 +30,13 @@ import androidx.ui.unit.ipx
  *
  * @sample androidx.ui.layout.samples.SameWidthBoxes
  *
- * The sample builds a layout containing three [Container] having the same width as the widest one.
+ * The sample builds a layout containing three [androidx.ui.foundation.Box] having the same width
+ * as the widest one.
  *
  * Here [MinIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose minimum intrinsic width will correspond to the preferred width of the largest
- * [Container]. Then [MinIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured minimum intrinsic width.
+ * [androidx.ui.foundation.Box]. Then [MinIntrinsicWidth] will measure the [Column] with tight
+ * width, the same as the premeasured minimum intrinsic width.
  */
 @Composable
 fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
@@ -122,9 +123,9 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
  *
  * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
  * whose maximum intrinsic width will correspond to the preferred width of the largest
- * [Container]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
- * as the premeasured maximum intrinsic width, which due to [LayoutWidth.Fill] will force
- * the [Container]s to use the same width.
+ * [androidx.ui.foundation.Box]. Then [MaxIntrinsicWidth] will measure the [Column] with tight
+ * width, the same as the premeasured maximum intrinsic width, which due to [LayoutWidth.Fill]
+ * will force the [androidx.ui.foundation.Box]s to use the same width.
  * The sample is a layout containing three composables having the same width as the widest one.
  */
 @Composable
