@@ -19,12 +19,14 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
@@ -37,7 +39,7 @@ import androidx.ui.unit.dp
 @Composable
 fun ElevationDemo() {
     Column {
-        Container(LayoutPadding(20.dp) + LayoutWidth.Fill) {
+        Box(LayoutPadding(20.dp) + LayoutWidth.Fill, gravity = ContentGravity.Center) {
             val text = getMessage(MaterialTheme.colors().isLight)
             Text(text)
         }
@@ -61,7 +63,7 @@ private fun ElevatedCard(elevation: Dp) {
     ) {
         Ripple(bounded = true) {
             Clickable({}) {
-                Container(LayoutWidth.Fill, height = 150.dp) {
+                Box(LayoutWidth.Fill + LayoutHeight(150.dp), gravity = ContentGravity.Center) {
                     Text("$elevation", style = MaterialTheme.typography().h4)
                 }
             }

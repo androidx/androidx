@@ -25,9 +25,11 @@ import androidx.ui.animation.animate
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.drawOpacity
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -39,7 +41,7 @@ enum class VisibilityState {
 @Sampled
 @Composable
 fun VisibilityTransition(visibility: VisibilityState) {
-    Container(expanded = true) {
+    Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
         val opacity = animate(if (visibility == VisibilityState.Invisible) 0f else 1f)
         Text("Visibility Transition", modifier = drawOpacity(opacity))
     }
@@ -48,7 +50,7 @@ fun VisibilityTransition(visibility: VisibilityState) {
 @Sampled
 @Composable
 fun ColorTransition(enabled: Boolean) {
-    Container(expanded = true) {
+    Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
         val textColor = animate(if (enabled) Color.Black else Color.Gray)
         Text("Visibility Transition", style = currentTextStyle().copy(color = textColor))
     }

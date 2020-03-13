@@ -25,17 +25,17 @@ import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 
 @Composable
 fun StateAnimationWithInterruptionsDemo() {
-    Container(expanded = true) {
+    Box(LayoutSize.Fill) {
         ColorRect()
     }
 }

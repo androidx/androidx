@@ -28,18 +28,18 @@ import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 @Composable
 fun StateBasedRippleDemo() {
-    Container(expanded = true) {
+    Box(LayoutSize.Fill) {
         RippleRect()
     }
 }

@@ -22,9 +22,11 @@ import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Center
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -58,7 +60,7 @@ private class DeepHierarchyOnPositionedTestCase :
         val size = state { 200.dp }
         this.state = size
         Center {
-            Container(width = size.value, height = size.value) {
+            Box(LayoutSize(size.value), gravity = ContentGravity.Center) {
                 StaticChildren(100)
             }
         }
@@ -72,7 +74,7 @@ private class DeepHierarchyOnPositionedTestCase :
             } else {
                 Modifier.None
             }
-            Container(modifier, width = 100.dp, height = 100.dp) {
+            Box(LayoutSize(100.dp) + modifier, gravity = ContentGravity.Center) {
                 StaticChildren(count - 1)
             }
         }

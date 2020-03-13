@@ -23,14 +23,16 @@ import androidx.ui.unit.dp
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.unit.px
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 
 /** A [SemanticProperty] is used to store semantic information about a component.
@@ -148,7 +150,8 @@ fun PressGestureDetectorWithActions(
         onPress = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
         onRelease = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
         onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) },
-        children = children)
+        children = children
+    )
 }
 
 /**
@@ -174,10 +177,9 @@ fun Semantics(
             }
         }
         Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
-            Container(
-                height = 300.dp,
-                width = 500.dp,
-                modifier = LayoutGravity.Center,
+            Box(
+                LayoutGravity.Center + LayoutSize(500.dp, 300.dp),
+                gravity = ContentGravity.Center,
                 children = children
             )
         }
@@ -210,7 +212,8 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
 private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf()) {
     Text(
         text = "Accessibility Actions By Phrase",
-        style = MaterialTheme.typography().h6)
+        style = MaterialTheme.typography().h6
+    )
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         actions.forEach {
             Button(onClick = { it.invoke(ActionCaller.Accessibility) }) {
