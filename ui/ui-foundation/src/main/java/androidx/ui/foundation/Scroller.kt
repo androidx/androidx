@@ -21,7 +21,6 @@ import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
-import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
 import androidx.ui.core.DrawClipToBounds
@@ -33,7 +32,6 @@ import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Scrollable
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.layout.Constraints
-import androidx.ui.layout.Container
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPx
@@ -262,8 +260,7 @@ private fun ScrollerLayout(
     Layout(
         modifier = modifier + DrawClipToBounds,
         children = {
-            Container(
-                alignment = Alignment.TopStart,
+            Box(
                 modifier = drawLayer(),
                 children = child
             )
