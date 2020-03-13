@@ -136,7 +136,7 @@ public class DialogFragment extends Fragment
         @SuppressLint("SyntheticAccessor")
         @Override
         public void onChanged(LifecycleOwner lifecycleOwner) {
-            if (lifecycleOwner != null) {
+            if (lifecycleOwner != null && mShowsDialog) {
                 View view = requireView();
                 if (view.getParent() != null) {
                     throw new IllegalStateException(
