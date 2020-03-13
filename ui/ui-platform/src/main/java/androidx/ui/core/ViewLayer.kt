@@ -142,6 +142,7 @@ internal class ViewLayer(
             isInvalidated = true
             super.invalidate()
             ownerView.dirtyLayers += this
+            ownerView.invalidate()
         }
     }
 

@@ -17,7 +17,6 @@
 package androidx.ui.test
 
 import androidx.ui.core.LayoutNode
-import androidx.ui.core.RepaintBoundaryNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.geometry.Offset
@@ -25,8 +24,10 @@ import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.height
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
+import androidx.ui.unit.width
 
 /**
  * Asserts that the current component has hidden property set to true.
@@ -242,22 +243,7 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
         return false
     }
 
-    // check if we have clipping via RepaintBoundaryNode
-    val repaintBoundaryNode = node.componentNode.findClosestParentNode {
-        it is RepaintBoundaryNode && it.clipToShape
-    }
-    if (repaintBoundaryNode == null) {
-        // if we don't have a repaint boundary then the component is visible as we already checked
-        // the layout nodes and screen bounds
-        return true
-    }
-
-    // check boundary (e.g. essential for scrollable layouts)
-    val layoutNode = repaintBoundaryNode.parentLayoutNode
-        ?: throw AssertionError(
-            "Semantic Node has no parent layout to check for visibility layout"
-        )
-    return layoutNode.contains(globalRect)
+    return (globalRect.width > 0.px && globalRect.height > 0.px)
 }
 
 /**

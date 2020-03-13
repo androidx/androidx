@@ -32,7 +32,6 @@ package androidx.ui.core {
     method public boolean getShowLayoutBounds();
     method public androidx.ui.input.TextInputService getTextInputService();
     method public void measureAndLayout();
-    method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayerModelReads(androidx.ui.core.OwnedLayer layer, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -41,7 +40,6 @@ package androidx.ui.core {
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onInvalidate(androidx.ui.core.LayoutNode layoutNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void onRepaintBoundaryParamsChange(androidx.ui.core.RepaintBoundaryNode repaintBoundaryNode);
     method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -78,9 +76,6 @@ package androidx.ui.core {
     method public void removeAndroidView(android.view.View view);
   }
 
-  public final class AndroidOwnerKt {
-  }
-
   public abstract sealed class ComponentNode {
     method public void attach(androidx.ui.core.Owner owner);
     method public void detach();
@@ -92,7 +87,6 @@ package androidx.ui.core {
     method public final Object? getOwnerData();
     method public final androidx.ui.core.ComponentNode? getParent();
     method public androidx.ui.core.LayoutNode? getParentLayoutNode();
-    method public androidx.ui.core.RepaintBoundaryNode? getRepaintBoundary();
     method public final void insertAt(int index, androidx.ui.core.ComponentNode instance);
     method public final void move(int from, int to, int count);
     method public final void removeAt(int index, int count);
@@ -107,7 +101,6 @@ package androidx.ui.core {
     property public final Object? ownerData;
     property public final androidx.ui.core.ComponentNode? parent;
     property public androidx.ui.core.LayoutNode? parentLayoutNode;
-    property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
   }
 
   public final class ComponentNodesKt {
@@ -297,7 +290,6 @@ package androidx.ui.core {
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
     method public void measureAndLayout();
-    method public void observeDrawModelReads(androidx.ui.core.RepaintBoundaryNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void onAttach(androidx.ui.core.ComponentNode node);
@@ -305,7 +297,6 @@ package androidx.ui.core {
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onInvalidate(androidx.ui.core.LayoutNode layoutNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void onRepaintBoundaryParamsChange(androidx.ui.core.RepaintBoundaryNode repaintBoundaryNode);
     method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -337,24 +328,6 @@ package androidx.ui.core {
     method public T? getValue();
     method public void setValue(T? p);
     property public final T? value;
-  }
-
-  public final class RepaintBoundaryNode extends androidx.ui.core.ComponentNode {
-    ctor public RepaintBoundaryNode(String? name);
-    method public boolean getClipToShape();
-    method public androidx.ui.unit.Dp getElevation();
-    method public String? getName();
-    method public float getOpacity();
-    method public androidx.ui.graphics.Shape? getShape();
-    method public void setClipToShape(boolean value);
-    method public void setElevation(androidx.ui.unit.Dp value);
-    method public void setOpacity(float value);
-    method public void setShape(androidx.ui.graphics.Shape? value);
-    property public final boolean clipToShape;
-    property public final androidx.ui.unit.Dp elevation;
-    property public final float opacity;
-    property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
-    property public final androidx.ui.graphics.Shape? shape;
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
