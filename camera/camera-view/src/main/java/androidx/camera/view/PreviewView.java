@@ -29,6 +29,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.view.preview.transform.PreviewTransform;
 
 import java.util.concurrent.Executor;
 
@@ -46,13 +47,14 @@ public class PreviewView extends FrameLayout {
 
     private ImplementationMode mImplementationMode;
 
-    private ScaleType mScaleType = ScaleType.FILL_CENTER;
+    @NonNull
+    private PreviewTransform mPreviewTransform = new PreviewTransform();
 
     private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
                 int oldTop, int oldRight, int oldBottom) {
-            mImplementation.onLayoutChanged();
+            mImplementation.redrawPreview();
         }
     };
 
@@ -115,7 +117,7 @@ public class PreviewView extends FrameLayout {
                 throw new IllegalStateException(
                         "Unsupported implementation mode " + mImplementationMode);
         }
-        mImplementation.init(this);
+        mImplementation.init(this, mPreviewTransform);
     }
 
     /**
@@ -126,7 +128,8 @@ public class PreviewView extends FrameLayout {
      * @param scaleType A {@link ScaleType} to apply to the preview.
      */
     public void setScaleType(@NonNull final ScaleType scaleType) {
-        mImplementation.setScaleType(scaleType);
+        mPreviewTransform.setScaleType(scaleType);
+        mImplementation.redrawPreview();
     }
 
     /**
@@ -138,7 +141,7 @@ public class PreviewView extends FrameLayout {
      */
     @NonNull
     public ScaleType getScaleType() {
-        return mImplementation.getScaleType();
+        return mPreviewTransform.getScaleType();
     }
 
     /**
@@ -186,7 +189,8 @@ public class PreviewView extends FrameLayout {
     @NonNull
     public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
         return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
-                mImplementation.getResolution(), mScaleType, getWidth(), getHeight());
+                mImplementation.getResolution(), mPreviewTransform.getScaleType(), getWidth(),
+                getHeight());
     }
 
     /**
