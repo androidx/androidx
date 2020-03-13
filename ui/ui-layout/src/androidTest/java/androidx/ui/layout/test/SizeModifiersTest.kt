@@ -36,6 +36,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -93,7 +94,7 @@ class SizeModifiersTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
@@ -161,7 +162,7 @@ class SizeModifiersTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
@@ -221,7 +222,7 @@ class SizeModifiersTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(PxPosition.Origin, position[0].value)
@@ -270,7 +271,7 @@ class SizeModifiersTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), constrainedBoxSize.value)
         assertEquals(IntPxSize(size, size), childSize.value)
@@ -315,7 +316,7 @@ class SizeModifiersTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[1].value)

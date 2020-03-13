@@ -29,6 +29,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -61,7 +62,7 @@ class SpacerTest : LayoutTest() {
                 )
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
@@ -95,7 +96,7 @@ class SpacerTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
@@ -117,7 +118,7 @@ class SpacerTest : LayoutTest() {
                 })
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(0.ipx)
@@ -148,7 +149,7 @@ class SpacerTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(0.ipx)
@@ -170,7 +171,7 @@ class SpacerTest : LayoutTest() {
                 })
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
@@ -201,7 +202,7 @@ class SpacerTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())

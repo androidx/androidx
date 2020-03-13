@@ -36,6 +36,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -91,7 +92,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(tableWidth, size * rows),
@@ -159,7 +160,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(tableWidth, size * rows),
@@ -216,7 +217,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -284,7 +285,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val availableSpace = (tableWidth - size * columns).coerceAtLeast(IntPx.Zero)
 
@@ -348,7 +349,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -408,7 +409,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -468,7 +469,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -535,7 +536,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(tableWidth * fractions.sum(), size * rows),
@@ -607,7 +608,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val expectedWidths = Array(columns) { j ->
             min(minWidth, if (j % 2 == 0) tableWidth / columns else tableWidth / (columns * 2))
@@ -683,7 +684,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val expectedWidths = Array(columns) { j ->
             max(maxWidth, if (j % 2 == 0) tableWidth / columns else tableWidth / (columns * 2))
@@ -751,7 +752,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(halfSize * columns, size * rows),
@@ -815,7 +816,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -874,7 +875,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -933,7 +934,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -1004,7 +1005,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(size * columns, size * rows),
@@ -1071,7 +1072,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(tableWidth, size * rows),
@@ -1147,7 +1148,7 @@ class TableTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize(tableWidth, size * rows),

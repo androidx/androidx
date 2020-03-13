@@ -70,7 +70,7 @@ class ContainerTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), containerSize.value)
     }
@@ -99,7 +99,7 @@ class ContainerTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val totalPadding = paddingDp.toIntPx() * 2
         assertEquals(
@@ -156,7 +156,7 @@ class ContainerTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(childWidth, childHeight), childSize[0])
         assertEquals(IntPxSize(childWidth, childHeight), childSize[1])
@@ -196,7 +196,7 @@ class ContainerTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(alignSize.value, containerSize.value)
         assertEquals(IntPxSize(size, size), childSize.value)
@@ -243,7 +243,7 @@ class ContainerTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
             IntPxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()),

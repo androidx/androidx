@@ -108,7 +108,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -150,7 +150,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -205,7 +205,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -250,7 +250,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -300,7 +300,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -352,7 +352,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -585,7 +585,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -643,7 +643,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -726,7 +726,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -787,7 +787,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -845,7 +845,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -926,7 +926,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -966,7 +966,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -994,7 +994,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1031,7 +1031,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1059,7 +1059,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1087,7 +1087,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1118,7 +1118,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1158,7 +1158,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1189,7 +1189,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1220,7 +1220,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1251,7 +1251,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1297,7 +1297,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1413,7 +1413,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1441,7 +1441,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1478,7 +1478,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1506,7 +1506,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1534,7 +1534,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1565,7 +1565,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1605,7 +1605,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1636,7 +1636,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1667,7 +1667,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1698,7 +1698,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1740,7 +1740,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -1870,7 +1870,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -1913,7 +1913,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -1956,7 +1956,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2000,7 +2000,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2044,7 +2044,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2091,7 +2091,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2135,7 +2135,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2184,7 +2184,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2227,7 +2227,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2270,7 +2270,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2314,7 +2314,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2369,7 +2369,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2413,7 +2413,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -2463,7 +2463,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
 
@@ -3099,7 +3099,7 @@ class FlexTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertNotNull(containerHeight.value)
         assertEquals(columnHeight * 2 / 3, containerHeight.value)
@@ -3135,7 +3135,7 @@ class FlexTest : LayoutTest() {
             }
         }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertNotNull(containerSize)
         assertEquals(PxPosition(size.toPx(), size.toPx()), containerPosition.value)
