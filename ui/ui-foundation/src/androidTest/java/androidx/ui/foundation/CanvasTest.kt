@@ -28,7 +28,6 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
@@ -135,7 +134,7 @@ class CanvasTest {
         Stack {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
-                    Container {
+                    Box {
                         DensityAmbient.current.children()
                     }
                 }
