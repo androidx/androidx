@@ -18,6 +18,7 @@
 
 package androidx.ui.core
 
+import android.graphics.RectF
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Rect
@@ -29,7 +30,9 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toPxPosition
@@ -60,6 +63,9 @@ internal sealed class LayoutNodeWrapper(
             check(isAttached) { ExpectAttachedLayoutCoordinates }
             return layoutNode.layoutNodeWrapper.wrappedBy
         }
+
+    // TODO(mount): This is not thread safe.
+    private var rectCache: RectF? = null
 
     /**
      * Whether a pointer that is relative to the device screen is in the bounds of this
@@ -195,6 +201,48 @@ internal sealed class LayoutNodeWrapper(
      * are recreated.
      */
     abstract fun detach()
+
+    /**
+     * Modifies bounds to be in the parent LayoutNodeWrapper's coordinates, including clipping,
+     * scaling, etc.
+     */
+    protected open fun rectInParent(bounds: RectF) {
+        val x = position.x.value
+        bounds.left += x
+        bounds.right += x
+
+        val y = position.y.value
+        bounds.top += y
+        bounds.bottom += y
+    }
+
+    override fun childBoundingBox(child: LayoutCoordinates): PxBounds {
+        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        check(child.isAttached) { "Child $child is not attached!" }
+        val bounds = rectCache ?: RectF().also { rectCache = it }
+        bounds.set(
+            0f,
+            0f,
+            child.size.width.value.toFloat(),
+            child.size.height.value.toFloat()
+        )
+        var wrapper = child as LayoutNodeWrapper
+        while (wrapper !== this) {
+            wrapper.rectInParent(bounds)
+
+            val parent = wrapper.wrappedBy
+            check(parent != null) {
+                "childToLocal: child parameter is not a child of the LayoutCoordinates"
+            }
+            wrapper = parent
+        }
+        return PxBounds(
+            left = bounds.left.px,
+            top = bounds.top.px,
+            right = bounds.right.px,
+            bottom = bounds.bottom.px
+        )
+    }
 
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
@@ -609,6 +657,9 @@ internal class LayerWrapper(
             }
         }
 
+    // TODO(mount): This cache isn't thread safe at all.
+    private var positionCache: FloatArray? = null
+
     override fun place(position: IntPxPosition) {
         super.place(position)
         layer.move(position)
@@ -635,5 +686,31 @@ internal class LayerWrapper(
             wrapper = wrapper.wrappedBy
         }
         return (wrapper as? LayerWrapper)?.layer
+    }
+
+    override fun toParentPosition(position: PxPosition): PxPosition {
+        val matrix = layer.getMatrix()
+        val x = position.x.value
+        val y = position.y.value
+        val cache = positionCache
+        val point = if (cache != null) {
+            cache[0] = x
+            cache[1] = y
+            cache
+        } else {
+            floatArrayOf(x, y).also { positionCache = it }
+        }
+        matrix.mapPoints(point)
+        return super.toParentPosition(PxPosition(point[0].px, point[1].px))
+    }
+
+    override fun rectInParent(bounds: RectF) {
+        val props = drawLayerModifier.properties
+        if (props.clipToBounds || (props.clipToOutline && props.outlineShape != null)) {
+            bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
+        }
+        val matrix = layer.getMatrix()
+        matrix.mapRect(bounds)
+        return super.rectInParent(bounds)
     }
 }

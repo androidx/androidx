@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import android.graphics.Matrix
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -59,4 +60,10 @@ interface OwnedLayer {
      * Indicates that the layer is no longer needed.
      */
     fun destroy()
+
+    /**
+     * Returns a matrix that this layer will use to transform the contents.
+     * The caller must not modify the returned Matrix.
+     */
+    fun getMatrix(): Matrix
 }
