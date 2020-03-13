@@ -43,7 +43,6 @@ dependencies {
     implementation project(":ui:ui-animation")
     implementation project(":ui:ui-text")
     implementation project(':ui:ui-material')
-    implementation project(':ui:ui-material-icons-extended')
 }
 
 android {
