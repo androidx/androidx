@@ -397,13 +397,13 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorAssetKt {
-    method public static androidx.ui.core.Modifier drawVector(androidx.ui.graphics.vector.VectorAsset vectorImage, androidx.ui.graphics.Color tintColor = Color.Transparent, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit fit = ScaleFit.Fit);
+    method @Deprecated public static androidx.ui.core.Modifier drawVector(androidx.ui.graphics.vector.VectorAsset vectorImage, androidx.ui.graphics.Color tintColor = Color.Transparent, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit fit = ScaleFit.Fit);
   }
 
   public final class VectorComposeKt {
     method public static void Group(androidx.ui.graphics.vector.VectorScope, String name = "", float rotation = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.VectorScope,kotlin.Unit> children);
     method public static void Path(androidx.ui.graphics.vector.VectorScope, java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
-    method public static androidx.ui.core.Modifier drawVector(androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth = -1.0f, float viewportHeight = -1.0f, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method @Deprecated public static androidx.ui.core.Modifier drawVector(androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth = -1.0f, float viewportHeight = -1.0f, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
     method public static androidx.ui.core.Modifier drawVector(androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight, float viewportWidth = defaultWidth.value, float viewportHeight = defaultHeight.value, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
   }
 
@@ -426,6 +426,18 @@ package androidx.ui.graphics.vector {
   }
 
   public abstract sealed class VectorNode {
+  }
+
+  public final class VectorPainter extends androidx.ui.graphics.painter.Painter {
+    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    property public androidx.ui.unit.PxSize intrinsicSize;
+  }
+
+  public final class VectorPainterKt {
+    method public static androidx.ui.graphics.vector.VectorPainter VectorPainter(androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth = Float.NaN, float viewportHeight = Float.NaN, String name = "VectorRootGroup", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method public static androidx.ui.graphics.vector.VectorPainter VectorPainter(androidx.ui.graphics.vector.VectorAsset asset);
+    field public static final String RootGroupName = "VectorRootGroup";
   }
 
   public final class VectorPath extends androidx.ui.graphics.vector.VectorNode {

@@ -18,10 +18,12 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.core.asModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.drawVector
+import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.icons.Icons
@@ -44,9 +46,8 @@ fun Icon(
 ) {
     Box(
         modifier = LayoutHeight(size) + LayoutWidth(size) + modifier +
-                drawVector(
-                    vectorImage = vectorImage,
-                    tintColor = tintColor
+                VectorPainter(vectorImage).asModifier(
+                    colorFilter = ColorFilter.tint(tintColor)
                 )
     )
 }

@@ -19,6 +19,7 @@ package androidx.ui.integration.test.framework
 import androidx.compose.Composable
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
+import androidx.ui.core.asModifier
 import androidx.ui.unit.dp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
@@ -27,7 +28,7 @@ import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorAssetBuilder
-import androidx.ui.graphics.vector.drawVector
+import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.LayoutSize
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
@@ -46,7 +47,7 @@ sealed class VectorAssetTestCase : ComposeTestCase {
         Box {
             TestTag(testTag) {
                 Semantics(container = true) {
-                    val background = drawVector(vectorImage = getVectorAsset())
+                    val background = VectorPainter(getVectorAsset()).asModifier()
                     Box(LayoutSize(24.dp) + background)
                 }
             }

@@ -32,7 +32,7 @@ fun FloatingActionButtonSimple(icon: ImageAsset) {
 @Composable
 fun FloatingActionButtonCustomContent(icon: ImageAsset) {
     FloatingActionButton(onClick = { /*do something*/ }) {
-        Image(image = icon)
+        Image(asset = icon)
     }
 }
 

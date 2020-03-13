@@ -23,6 +23,7 @@ import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.selection.SimpleContainer
 import androidx.ui.test.createComposeRule
@@ -47,6 +48,7 @@ import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
+@FlakyTest(bugId = 150214184)
 class PopupTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
