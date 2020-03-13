@@ -20,9 +20,11 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -54,18 +56,20 @@ class LayoutCoordinatesHelperTest {
                 parentCoordinates = coordinates
                 latch.countDown()
             }) {
-                Container(width = 10.dp, height = 10.dp, modifier = LayoutGravity.Start +
+                Box(LayoutSize(10.dp) + LayoutGravity.Start +
                         onPositioned { coordinates ->
                             childCoordinates = coordinates
                             latch.countDown()
                         }
-                ) {}
+                )
             }
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(PxPosition.Origin,
-            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin))
+        assertEquals(
+            PxPosition.Origin,
+            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
+        )
     }
 
     @Test
@@ -75,28 +79,27 @@ class LayoutCoordinatesHelperTest {
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
             with(DensityAmbient.current) {
-                Container(LayoutWidth(40.ipx.toDp())) {
+                Box(LayoutWidth(40.ipx.toDp()), gravity = ContentGravity.Center) {
                     Column(LayoutWidth(20.ipx.toDp()) +
-                    onPositioned { coordinates ->
-                        parentCoordinates = coordinates
-                        latch.countDown()
-                    }) {
-                        Container(
-                            width = 10.ipx.toDp(),
-                            height = 10.ipx.toDp(),
-                            modifier = LayoutGravity.Center +
-                                    onPositioned { coordinates ->
-                                        childCoordinates = coordinates
-                                        latch.countDown()
-                                    }
-                        ) {}
+                            onPositioned { coordinates ->
+                                parentCoordinates = coordinates
+                                latch.countDown()
+                            }) {
+                        Box(LayoutSize(10.ipx.toDp()) + LayoutGravity.Center +
+                                onPositioned { coordinates ->
+                                    childCoordinates = coordinates
+                                    latch.countDown()
+                                }
+                        )
                     }
                 }
             }
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(PxPosition(5.px, 0.px),
-            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin))
+        assertEquals(
+            PxPosition(5.px, 0.px),
+            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
+        )
     }
 }
