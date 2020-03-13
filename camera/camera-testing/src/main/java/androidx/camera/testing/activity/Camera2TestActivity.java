@@ -233,7 +233,6 @@ public class Camera2TestActivity extends Activity {
     void createCameraPreviewSession() {
         try {
             SurfaceTexture texture = mTextureView.getSurfaceTexture();
-            assert texture != null;
 
             // We configure the size of default buffer to be the size of camera preview we want.
             texture.setDefaultBufferSize(mTextureView.getWidth(), mTextureView.getHeight());

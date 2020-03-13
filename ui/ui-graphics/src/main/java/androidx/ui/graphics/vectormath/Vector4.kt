@@ -284,7 +284,7 @@ data class Vector4(
     }
 
     fun assignFromStorage(storage: List<Float>) {
-        assert(storage.size >= 4)
+        check(storage.size >= 4)
         x = storage[0]
         y = storage[1]
         z = storage[2]

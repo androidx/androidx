@@ -621,7 +621,6 @@ abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
             int ix = runsByEndTime.indexOfKey(mStoredEndTimeMs);
             if (ix >= 0) {
                 if (mPrevRunAtEndTimeMs == null) {
-                    assert (this == runsByEndTime.valueAt(ix));
                     if (mNextRunAtEndTimeMs == null) {
                         runsByEndTime.removeAt(ix);
                     } else {

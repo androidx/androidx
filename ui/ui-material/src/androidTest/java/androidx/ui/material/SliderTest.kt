@@ -25,6 +25,7 @@ import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,10 +42,10 @@ class SliderTest {
     fun sliderPosition_defaultConstructor() {
         framed {
             val position = SliderPosition(animatedClock = ManualAnimationClock(0))
-            assert(position.startValue == 0f)
-            assert(position.endValue == 1f)
-            assert(position.value == 0f)
-            assert(position.tickFractions.isEmpty())
+            assertTrue(position.startValue == 0f)
+            assertTrue(position.endValue == 1f)
+            assertTrue(position.value == 0f)
+            assertTrue(position.tickFractions.isEmpty())
         }
     }
 
@@ -52,13 +53,13 @@ class SliderTest {
     fun sliderPosition_valueCoercion() {
         framed {
             val position = SliderPosition(animatedClock = ManualAnimationClock(0))
-            assert(position.value == 0f)
-            assert(position.endValue == 1f)
+            assertTrue(position.value == 0f)
+            assertTrue(position.endValue == 1f)
             position.value = 2f
-            assert(position.value == 1f)
-            assert(position.startValue == 0f)
+            assertTrue(position.value == 1f)
+            assertTrue(position.startValue == 0f)
             position.value = -10f
-            assert(position.value == 0f)
+            assertTrue(position.value == 0f)
         }
     }
 
@@ -69,8 +70,8 @@ class SliderTest {
             valueRange = 10f..0f,
             animatedClock = ManualAnimationClock(0)
         )
-        assert(pos.startValue == 10f)
-        assert(pos.endValue == 0f)
+        assertTrue(pos.startValue == 10f)
+        assertTrue(pos.endValue == 0f)
     }
 
     @Test(expected = IllegalArgumentException::class)

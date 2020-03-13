@@ -26,7 +26,7 @@ class FontFamilyTest {
     private val dummyResourceId1 = 1
     private val dummyResourceId2 = 2
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalStateException::class)
     fun `cannot be instantiated with empty font list`() {
         fontFamily(listOf())
     }
@@ -73,7 +73,7 @@ class FontFamilyTest {
         assertThat(fontFamily).isNotEqualTo(otherFontFamily)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalStateException::class)
     fun `cannot add two fonts that have the same FontWeight and FontStyle`() {
         fontFamily(
             font(
