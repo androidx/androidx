@@ -29,7 +29,7 @@ import androidx.ui.unit.IntPxSize
  * Organizes pointers and the [PointerInputFilter]s that they hit into a hierarchy such that
  * [PointerInputChange]s can be dispatched to the [PointerInputFilter]s in a hierarchical fashion.
  */
-internal class HitPathTracker2 {
+internal class HitPathTracker {
 
     @VisibleForTesting
     internal val root: NodeParent = NodeParent()
@@ -143,7 +143,7 @@ internal class HitPathTracker2 {
 
     private class CustomEventDispatcherImpl(
         val dispatchingNode: Node,
-        val hitPathTracker: HitPathTracker2
+        val hitPathTracker: HitPathTracker
     ) : CustomEventDispatcher {
         override fun dispatchCustomEvent(event: CustomEvent) {
             hitPathTracker.dispatchCustomEvent(event, dispatchingNode)
@@ -173,7 +173,7 @@ internal class HitPathTracker2 {
 }
 
 /**
- * Represents a parent node in the [HitPathTracker2]'s tree.  This primarily exists because the tree
+ * Represents a parent node in the [HitPathTracker]'s tree.  This primarily exists because the tree
  * necessarily has a root that is very similar to all other nodes, except that it does not track any
  * pointer or [PointerInputFilter] information.
  */
