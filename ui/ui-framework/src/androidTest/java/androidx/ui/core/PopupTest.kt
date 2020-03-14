@@ -73,7 +73,7 @@ class PopupTest {
 
             composeTestRule.setContent {
                 // Get the compose view position on screen
-                val composeView = AndroidComposeViewAmbient.current
+                val composeView = OwnerAmbient.current as View
                 val positionArray = IntArray(2)
                 composeView.getLocationOnScreen(positionArray)
                 composeViewAbsolutePosition = IntPxPosition(
@@ -107,7 +107,7 @@ class PopupTest {
     private fun popupMatches(viewMatcher: Matcher<in View>) {
         // Make sure that current measurement/drawing is finished
         composeTestRule.runOnIdleCompose { }
-        Espresso.onView(instanceOf(AndroidComposeView::class.java))
+        Espresso.onView(instanceOf(Owner::class.java))
             .inRoot(PopupLayoutMatcher())
             .check(matches(viewMatcher))
     }
@@ -521,7 +521,7 @@ class PopupTest {
     private fun matchesAndroidComposeView(): BoundedMatcher<View, View> {
         return object : BoundedMatcher<View, View>(View::class.java) {
             override fun matchesSafely(item: View?): Boolean {
-                return (item is AndroidComposeView)
+                return (item is Owner)
             }
 
             override fun describeTo(description: Description?) {
@@ -546,6 +546,7 @@ class PopupTest {
         return object : BoundedMatcher<View, View>(View::class.java) {
             // (-1, -1) no position found
             var positionFound = IntPxPosition(IntPx(-1), IntPx(-1))
+
             override fun matchesSafely(item: View?): Boolean {
                 val position = IntArray(2)
                 item?.getLocationOnScreen(position)
@@ -555,8 +556,9 @@ class PopupTest {
             }
 
             override fun describeTo(description: Description?) {
-                description?.appendText("with expected position: $expectedPosition" +
-                        " but position found: $positionFound")
+                description?.appendText(
+                    "with expected position: $expectedPosition but position found: $positionFound"
+                )
             }
         }
     }

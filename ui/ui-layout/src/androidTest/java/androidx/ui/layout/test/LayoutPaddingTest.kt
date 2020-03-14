@@ -255,7 +255,7 @@ class LayoutPaddingTest : LayoutTest() {
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         val rootWidth = root.width.ipx
@@ -308,7 +308,7 @@ class LayoutPaddingTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         val innerSize = (size - paddingPx * 2)
@@ -355,7 +355,7 @@ class LayoutPaddingTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         val paddingLeft = left.toIntPx()
@@ -407,7 +407,7 @@ class LayoutPaddingTest : LayoutTest() {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(0.ipx, 0.ipx), childSize)

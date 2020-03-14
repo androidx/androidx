@@ -122,10 +122,8 @@ package androidx.ui.core {
   }
 
   public final class WrapperKt {
-    method public static void ComposeView(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @Deprecated public static void disposeComposition(android.view.ViewGroup);
     method @Deprecated public static void disposeComposition(android.app.Activity);
-    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.Autofill> getAutofillAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
@@ -137,6 +135,7 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.ui.text.font.Font.ResourceLoader> getFontLoaderAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.hapticfeedback.HapticFeedback> getHapticFeedBackAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.Owner> getOwnerAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
     method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);

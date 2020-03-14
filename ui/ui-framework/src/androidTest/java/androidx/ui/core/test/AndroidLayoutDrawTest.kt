@@ -36,7 +36,6 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
@@ -47,6 +46,7 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
+import androidx.ui.core.Owner
 import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.PassThroughLayout
@@ -111,12 +111,14 @@ class AndroidLayoutDrawTest {
     val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
+    private lateinit var outerLatch: CountDownLatch
 
     @Before
     fun setup() {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         drawLatch = CountDownLatch(1)
+        outerLatch = CountDownLatch(1)
     }
 
     // Tests that simple drawing works with layered squares
@@ -1611,11 +1613,11 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 AtLeastSize(100.ipx, PaddingModifier(10.ipx) + drawLayer() +
-                draw { _, parentSize ->
-                    assertEquals(100.px, parentSize.width)
-                    assertEquals(100.px, parentSize.height)
-                    latch.countDown()
-                }) {
+                        draw { _, parentSize ->
+                            assertEquals(100.px, parentSize.width)
+                            assertEquals(100.px, parentSize.height)
+                            latch.countDown()
+                        }) {
                 }
             }
         }
@@ -1931,10 +1933,12 @@ class AndroidLayoutDrawTest {
                     canvas.drawRect(size.toRect(), Paint().apply { color = green })
                 }) {
                     FixedSize(model.offset, modifier = AlignTopLeft + drawLayer() +
-                    draw { canvas, parentSize ->
-                        drawLatch.countDown()
-                        canvas.drawRect(parentSize.toRect(), Paint().apply { color = blue })
-                    }) {
+                            draw { canvas, parentSize ->
+                                drawLatch.countDown()
+                                canvas.drawRect(
+                                    parentSize.toRect(),
+                                    Paint().apply { color = blue })
+                            }) {
                     }
                 }
             }
@@ -1984,8 +1988,8 @@ class AndroidLayoutDrawTest {
             }
             val content = activity.findViewById<ViewGroup>(android.R.id.content)
             val frameLayout = content.getChildAt(0) as ViewGroup
-            val androidComposeView = frameLayout.getChildAt(0) as AndroidComposeView
-            androidComposeView.showLayoutBounds = true
+            val owner = frameLayout.getChildAt(0) as Owner
+            owner.showLayoutBounds = true
         }
         activityTestRule.waitAndScreenShot().apply {
             assertRect(Color.White, size = 8)
@@ -2113,8 +2117,10 @@ class AndroidLayoutDrawTest {
                     FixedSize(
                         size = 10.ipx,
                         modifier = PaddingModifier(10.ipx) +
-                                drawLayer(clipToOutline = false, outlineShape = triangleShape,
-                                    clipToBounds = false) +
+                                drawLayer(
+                                    clipToOutline = false, outlineShape = triangleShape,
+                                    clipToBounds = false
+                                ) +
                                 draw { canvas, _ ->
                                     val paint = Paint().apply {
                                         color = Color.Blue
@@ -2172,7 +2178,6 @@ class AndroidLayoutDrawTest {
     @FlakyTest
     @Test
     fun doubleDraw() {
-        var outerLatch = CountDownLatch(1)
         val model = OffsetModel(0.ipx)
         activityTestRule.runOnUiThread {
             activity.setContent {
@@ -2818,20 +2823,22 @@ fun ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
     runOnUiThread(runnable)
 }
 
-fun ActivityTestRule<*>.findAndroidComposeView(): AndroidComposeView {
+fun ActivityTestRule<*>.findAndroidComposeView(): ViewGroup {
     val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
     return findAndroidComposeView(contentViewGroup)!!
 }
 
-fun findAndroidComposeView(parent: ViewGroup): AndroidComposeView? {
+fun findAndroidComposeView(parent: ViewGroup): ViewGroup? {
     for (index in 0 until parent.childCount) {
         val child = parent.getChildAt(index)
-        if (child is AndroidComposeView) {
-            return child
-        } else if (child is ViewGroup) {
-            val composeView = findAndroidComposeView(child)
-            if (composeView != null) {
-                return composeView
+        if (child is ViewGroup) {
+            if (child is Owner)
+                return child
+            else {
+                val composeView = findAndroidComposeView(child)
+                if (composeView != null) {
+                    return composeView
+                }
             }
         }
     }
