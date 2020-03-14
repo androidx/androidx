@@ -60,6 +60,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -2165,6 +2166,39 @@ class AndroidLayoutDrawTest {
         }
 
         validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
+    }
+
+    @Test
+    fun doubleDraw() {
+        var outerLatch = CountDownLatch(1)
+        val model = OffsetModel(0.ipx)
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                FixedSize(30.ipx, draw { _, _ -> outerLatch.countDown() } + drawLayer()) {
+                    FixedSize(10.ipx, draw { canvas, _ ->
+                        val paint = Paint().apply {
+                            color = Color.Blue
+                        }
+                        canvas.drawLine(
+                            Offset(model.offset.value.toFloat(), 0f),
+                            Offset(0f, model.offset.value.toFloat()),
+                            paint
+                        )
+                        drawLatch.countDown()
+                    })
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(outerLatch.await(1, TimeUnit.SECONDS))
+
+        drawLatch = CountDownLatch(1)
+        outerLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            model.offset = 10.ipx
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertFalse(outerLatch.await(200, TimeUnit.MILLISECONDS))
     }
 
     @Test

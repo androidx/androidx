@@ -69,6 +69,7 @@ class AndroidComposeView constructor(context: Context) :
     val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection = context.getLayoutDirection()
+        it.modifier = drawLayer(clipToBounds = false)
     }
 
     // LayoutNodes that need measure and layout
@@ -149,10 +150,6 @@ class AndroidComposeView constructor(context: Context) :
 
     internal val onCommitAffectingLayer: (OwnedLayer) -> Unit = { layer ->
         layer.invalidate()
-    }
-
-    private val onCommitAffectingRootDraw: (Unit) -> Unit = { _ ->
-        invalidate()
     }
 
     private val onCommitAffectingLayerParams: (OwnedLayer) -> Unit = { layer ->
@@ -531,12 +528,11 @@ class AndroidComposeView constructor(context: Context) :
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         measureAndLayout()
         val uiCanvas = Canvas(canvas)
-        val parentSize = PxSize(root.width, root.height)
-        uiCanvas.enableZ()
-        modelObserver.observeReads(Unit, onCommitAffectingRootDraw) {
-            root.visitChildren { callDraw(uiCanvas, it, parentSize) }
-        }
-        uiCanvas.disableZ()
+        // we don't have to observe here because the root has a layer modifier
+        // that will observe all children. The AndroidComposeView has only the
+        // root, so it doesn't have to invalidate itself based on model changes.
+        root.draw(uiCanvas, density)
+
         if (dirtyLayers.isNotEmpty()) {
             for (i in 0 until dirtyLayers.size) {
                 val layer = dirtyLayers[i]
