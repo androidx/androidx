@@ -16,9 +16,13 @@
 
 package androidx.paging.samples.java;
 
-import androidx.annotation.NonNull;
+import android.annotation.SuppressLint;
+
 import androidx.annotation.Nullable;
 import androidx.paging.PagingData;
+
+import io.reactivex.Flowable;
+import kotlin.NotImplementedError;
 
 /**
  * NOTE - MANUALLY COPIED SAMPLE
@@ -28,11 +32,16 @@ import androidx.paging.PagingData;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 class InsertSeparatorsJavaUiModelSample {
-    @NonNull
-    public PagingData<Item> itemPagingData = PagingData.empty();
+    public Flowable<PagingData<Item>> pagingDataStream = create();
 
-    @SuppressWarnings("unused")
+    private Flowable<PagingData<Item>> create() {
+        throw new NotImplementedError();
+    }
+
+    @SuppressLint("CheckResult")
+    @SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
     public void insertSeparatorsSample() {
+
         /*
          * Create letter separators in an alphabetically sorted list of Items, with UiModel objects.
          *
@@ -42,24 +51,28 @@ class InsertSeparatorsJavaUiModelSample {
          * The operator would output a list of UiModels corresponding to:
          *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
          */
-        // first convert items in stream to UiModel.Item
-        PagingData<UiModel.ItemModel> itemModelPagingData =
-                itemPagingData.map(UiModel.ItemModel::new);
+        pagingDataStream.map((itemPagingData) -> {
+            // map outer stream, so we can perform transformations on each paging generation
 
-        // Now insert UiModel.Separators, which makes the PagingData of generic type UiModel
-        PagingData<UiModel> pagingDataWithSeparators = PagingData.insertSeparators(
-                itemModelPagingData,
-                (@Nullable UiModel.ItemModel before, @Nullable UiModel.ItemModel after) -> {
-                    if (after != null
-                            && (before == null
-                            || before.item.label.charAt(0) != after.item.label.charAt(0))) {
-                        // separator - after is first item that starts with its first letter
-                        return new UiModel.SeparatorModel(
-                                Character.toUpperCase(after.item.label.charAt(0)));
-                    } else {
-                        // no separator - either end of list, or first letters of items are the same
-                        return null;
-                    }
-                });
+            // first convert items in stream to UiModel.Item
+            PagingData<UiModel.ItemModel> itemModelPagingData =
+                    itemPagingData.map(UiModel.ItemModel::new);
+
+            // Now insert UiModel.Separators, which makes the PagingData of generic type UiModel
+            return PagingData.insertSeparators(
+                    itemModelPagingData,
+                    (@Nullable UiModel.ItemModel before, @Nullable UiModel.ItemModel after) -> {
+                        if (after != null && (before == null
+                                || before.item.label.charAt(0) != after.item.label.charAt(0))) {
+                            // separator - after is first item that starts with its first letter
+                            return new UiModel.SeparatorModel(
+                                    Character.toUpperCase(after.item.label.charAt(0)));
+                        } else {
+                            // no separator - either end of list, or first
+                            // letters of items are the same
+                            return null;
+                        }
+                    });
+        });
     }
 }
