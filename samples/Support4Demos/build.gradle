@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":legacy-support-core-utils"))
     implementation(project(":fragment:fragment-ktx"))
     implementation(project(":media:media"))
+    implementation(project(":viewpager:viewpager"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_ANDROID)
 }
