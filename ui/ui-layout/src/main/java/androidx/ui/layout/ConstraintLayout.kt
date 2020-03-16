@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.layout.constraintlayout
+package androidx.ui.layout
 
 import android.annotation.SuppressLint
 import androidx.compose.Composable

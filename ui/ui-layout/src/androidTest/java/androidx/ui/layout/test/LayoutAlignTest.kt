@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class AlignTest : LayoutTest() {
+class LayoutAlignTest : LayoutTest() {
     @Test
     fun testAlign() = with(density) {
         val sizeDp = 50.dp
