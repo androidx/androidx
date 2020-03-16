@@ -135,8 +135,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
     private static final SimpleArrayMap<String, Integer> sLocalNightModes = new SimpleArrayMap<>();
-
-    private static final boolean DEBUG = false;
     private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
 
     private static final int[] sWindowBackgroundStyleable = {android.R.attr.windowBackground};
@@ -2361,6 +2359,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     @SuppressWarnings("deprecation")
     private boolean applyDayNight(final boolean allowRecreation) {
         if (mIsDestroyed) {
+            if (DEBUG) {
+                Log.d(TAG, "applyDayNight. Skipping because host is destroyed");
+            }
             // If we're destroyed, ignore the call
             return false;
         }
@@ -2387,6 +2388,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void setLocalNightMode(@NightMode int mode) {
+        if (DEBUG) {
+            Log.d(TAG, String.format("setLocalNightMode. New: %d, Current: %d",
+                    mode, mLocalNightMode));
+        }
         if (mLocalNightMode != mode) {
             mLocalNightMode = mode;
             applyDayNight();
@@ -2484,10 +2489,18 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 createOverrideConfigurationForDayNight(mContext, mode, null);
 
         final boolean activityHandlingUiMode = isActivityManifestHandlingUiMode();
-
         final int currentNightMode = mContext.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
         final int newNightMode = overrideConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        if (DEBUG) {
+            Log.d(TAG, String.format(
+                    "updateForNightMode [allowRecreation:%s, currentNightMode:%d, "
+                            + "newNightMode:%d, activityHandlingUiMode:%s, baseContextAttached:%s, "
+                            + "created:%s, canReturnDifferentContext:%s, host:%s]",
+                    allowRecreation, currentNightMode, newNightMode, activityHandlingUiMode,
+                    mBaseContextAttached, mCreated, sCanReturnDifferentContext, mHost));
+        }
 
         if (currentNightMode != newNightMode
                 && allowRecreation
@@ -2500,7 +2513,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // attachBaseContext() + createConfigurationContext() code path.
             // Else, we need to use updateConfiguration() before we're 'created' (below)
             if (DEBUG) {
-                Log.d(TAG, "updateForNightMode. Recreating Activity");
+                Log.d(TAG, "updateForNightMode. Recreating Activity: " + mHost);
             }
             ActivityCompat.recreate((Activity) mHost);
             handled = true;
@@ -2509,14 +2522,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (!handled && currentNightMode != newNightMode) {
             // Else we need to use the updateConfiguration path
             if (DEBUG) {
-                Log.d(TAG, "updateForNightMode. Updating resources config");
+                Log.d(TAG, "updateForNightMode. Updating resources config on host: " + mHost);
             }
             updateResourcesConfigurationForNightMode(newNightMode, activityHandlingUiMode, null);
             handled = true;
         }
 
         if (DEBUG && !handled) {
-            Log.d(TAG, "updateForNightMode. Skipping. Night mode: " + mode);
+            Log.d(TAG, "updateForNightMode. Skipping. Night mode: " + mode + " for host:" + mHost);
         }
 
         // Notify the activity of the night mode. We only notify if we handled the change,
