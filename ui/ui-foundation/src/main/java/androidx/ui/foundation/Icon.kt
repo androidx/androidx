@@ -18,65 +18,79 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.asModifier
-import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
+import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
-// TODO: b/149030271 remove when we have a VectorPainter, so developers can use just the Painter
-// overload
 /**
- * Icon component that draws [icon] using [tint], defaulting to [contentColor].
+ * Icon component that draws [asset] using [tint], defaulting to [contentColor].
  *
- * @param icon Vector icon to draw inside this icon component
+ * @param asset [VectorAsset] to draw inside this Icon
  * @param modifier optional [Modifier] for this Icon
- * @param tint tint to be applied to [icon]
+ * @param tint tint to be applied to [asset]
  */
 @Composable
 fun Icon(
-    icon: VectorAsset,
+    asset: VectorAsset,
     modifier: Modifier = Modifier.None,
     tint: Color = contentColor()
 ) {
-    // TODO: consider allowing developers to override the intrinsic size, and specify their own
-    // size that this icon will be forced to take up.
-    // TODO: b/149735981 semantics for content description
-    Box(
-        modifier = modifier + LayoutWidth(icon.defaultWidth) + LayoutHeight(icon.defaultHeight) +
-                VectorPainter(icon).asModifier(colorFilter = ColorFilter.tint(tint))
-    ) {
-    }
+    Icon(
+        painter = VectorPainter(asset),
+        modifier = modifier,
+        tint = tint
+    )
 }
 
 /**
- * Icon component that draws [icon] using [tint], defaulting to [contentColor].
+ * Icon component that draws [asset] using [tint], defaulting to [contentColor].
  *
- * @param icon Painter to draw inside this icon component
+ * @param asset [ImageAsset] to draw inside this Icon
  * @param modifier optional [Modifier] for this Icon
- * @param tint tint to be applied to [icon]
+ * @param tint tint to be applied to [asset]
  */
 @Composable
 fun Icon(
-    icon: Painter,
+    asset: ImageAsset,
     modifier: Modifier = Modifier.None,
     tint: Color = contentColor()
 ) {
+    val painter = remember(asset) { ImagePainter(asset) }
+    Icon(
+        painter = painter,
+        modifier = modifier,
+        tint = tint
+    )
+}
+
+/**
+ * Icon component that draws a [painter] using [tint], defaulting to [contentColor].
+ *
+ * @param painter Painter to draw inside this Icon
+ * @param modifier optional [Modifier] for this Icon
+ * @param tint tint to be applied to [painter]
+ */
+@Composable
+fun Icon(
+    painter: Painter,
+    modifier: Modifier = Modifier.None,
+    tint: Color = contentColor()
+) {
+    val iconModifier = painter.asModifier(colorFilter = ColorFilter.tint(tint))
+
     // TODO: consider allowing developers to override the intrinsic size, and specify their own
     // size that this icon will be forced to take up.
-    val iconModifier = icon.asModifier(
-        colorFilter = ColorFilter(color = tint, blendMode = BlendMode.srcIn)
-    )
-
-    val layoutModifier = if (icon.intrinsicSize == PxSize.UnspecifiedSize) {
+    val layoutModifier = if (painter.intrinsicSize == PxSize.UnspecifiedSize) {
         DefaultIconSizeModifier
     } else {
         Modifier.None

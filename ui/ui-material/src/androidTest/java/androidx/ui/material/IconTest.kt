@@ -66,6 +66,39 @@ class IconTest {
     }
 
     @Test
+    fun image_noIntrinsicSize_dimensions() {
+        val width = 24.dp
+        val height = 24.dp
+        composeTestRule
+            .setMaterialContentAndCollectSizes {
+                val dummyImage = with(DensityAmbient.current) {
+                    ImageAsset(width.toIntPx().value, height.toIntPx().value)
+                }
+
+                Icon(dummyImage)
+            }
+            .assertWidthEqualsTo(width)
+            .assertHeightEqualsTo(height)
+    }
+
+    @Test
+    fun image_withIntrinsicSize_dimensions() {
+        val width = 35.dp
+        val height = 83.dp
+
+        composeTestRule
+            .setMaterialContentAndCollectSizes {
+                val dummyImage = with(DensityAmbient.current) {
+                    ImageAsset(width.toIntPx().value, height.toIntPx().value)
+                }
+
+                Icon(dummyImage)
+            }
+            .assertWidthEqualsTo(width)
+            .assertHeightEqualsTo(height)
+    }
+
+    @Test
     fun painter_noIntrinsicSize_dimensions() {
         val width = 24.dp
         val height = 24.dp
@@ -86,10 +119,7 @@ class IconTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 val dummyImage = with(DensityAmbient.current) {
-                    ImageAsset(
-                        width = width.toIntPx().value,
-                        height = height.toIntPx().value
-                    )
+                    ImageAsset(width.toIntPx().value, height.toIntPx().value)
                 }
 
                 val imagePainter = ImagePainter(dummyImage)
