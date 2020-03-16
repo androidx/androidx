@@ -76,6 +76,20 @@ class DialogFragmentTest {
             .isNotNull()
     }
 
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentSetContentViewCalledBeforeStart() {
+        val fragment = TestLayoutDialogFragment()
+
+        activityTestRule.runOnUiThread {
+            fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+        }
+
+        assertWithMessage("Dialog should have called setContentView by onStart")
+            .that(fragment.parentSetInStart)
+            .isTrue()
+    }
+
     @Test
     fun testCancelDialog() {
         val dialogFragment = TestDialogFragment()
@@ -229,5 +243,12 @@ class DialogFragmentTest {
         }
     }
 
-    class TestLayoutDialogFragment : DialogFragment(R.layout.fragment_a)
+    class TestLayoutDialogFragment : DialogFragment(R.layout.fragment_a) {
+        var parentSetInStart = false
+
+        override fun onStart() {
+            parentSetInStart = requireView().parent != null
+            super.onStart()
+        }
+    }
 }
