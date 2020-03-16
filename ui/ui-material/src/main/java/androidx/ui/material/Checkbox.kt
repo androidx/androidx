@@ -56,20 +56,23 @@ import androidx.ui.unit.dp
  * @param checked whether Checkbox is checked or unchecked
  * @param onCheckedChange callback to be invoked when checkbox is being clicked,
  * therefore the change of checked state in requested.
- * If `null`, Checkbox will appears in the [checked] state and remains disabled
+ * @param enabled enabled whether or not this [Checkbox] will handle input events and appear
+ * enabled for semantics purposes
  * @param modifier Modifier to be applied to the layout of the checkbox
  * @param color custom color for checkbox
  */
 @Composable
 fun Checkbox(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().secondary
 ) {
     TriStateCheckbox(
-        value = ToggleableState(checked),
-        onClick = onCheckedChange?.let { { it(!checked) } },
+        state = ToggleableState(checked),
+        onClick = { onCheckedChange(!checked) },
+        enabled = enabled,
         color = color,
         modifier = modifier
     )
@@ -86,29 +89,32 @@ fun Checkbox(
  *
  * @see [Checkbox] if you want a simple component that represents Boolean state
  *
- * @param value whether TriStateCheckbox is checked, unchecked or in indeterminate state
+ * @param state whether TriStateCheckbox is checked, unchecked or in indeterminate state
  * @param onClick callback to be invoked when checkbox is being clicked,
  * therefore the change of ToggleableState state is requested.
- * If `null`, TriStateCheckbox appears in the [value] state and remains disabled
+ * @param enabled enabled whether or not this [TriStateCheckbox] will handle input events and
+ * appear enabled for semantics purposes
  * @param modifier Modifier to be applied to the layout of the checkbox
  * @param color custom color for checkbox
  */
 @Composable
 fun TriStateCheckbox(
-    value: ToggleableState,
-    onClick: (() -> Unit)?,
+    state: ToggleableState,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().secondary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Box(modifier, gravity = ContentGravity.Center) {
             TriStateToggleable(
-                value = value,
-                onToggle = onClick,
-                modifier = ripple(bounded = false)
+                state = state,
+                onClick = onClick,
+                enabled = enabled,
+                modifier = ripple(bounded = false, enabled = enabled)
             ) {
                 DrawCheckbox(
-                    value = value,
+                    value = state,
                     activeColor = color,
                     modifier = LayoutPadding(CheckboxDefaultPadding)
                 )

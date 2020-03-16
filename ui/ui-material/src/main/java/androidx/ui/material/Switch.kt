@@ -46,13 +46,14 @@ import androidx.ui.unit.px
  * @param checked whether or not this components is checked
  * @param onCheckedChange callback to be invoked when Switch is being clicked,
  * therefore the change of checked state is requested.
- * if `null`, Switch appears in [checked] state and remains disabled
- * @param color active color for Switch,
+ * @param enabled whether or not components is enabled and can be clicked to request state change
+ * @param color active color for Switch
  */
 @Composable
 fun Switch(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     color: Color = MaterialTheme.colors().secondaryVariant
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
@@ -60,7 +61,8 @@ fun Switch(
             Toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
-                modifier = ripple(bounded = false)
+                enabled = enabled,
+                modifier = ripple(bounded = false, enabled = enabled)
             ) {
                 SwitchImpl(checked, onCheckedChange, color, LayoutPadding(DefaultSwitchPadding))
             }
