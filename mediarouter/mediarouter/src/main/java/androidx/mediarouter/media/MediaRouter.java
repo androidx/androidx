@@ -29,6 +29,8 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.media.MediaRouter2;
+import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,13 +48,13 @@ import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.VolumeProviderCompat;
 import androidx.mediarouter.app.MediaRouteDiscoveryFragment;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
-import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
-        .DynamicRouteDescriptor;
+import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata;
 import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 
@@ -70,6 +72,7 @@ import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -2109,6 +2112,9 @@ public final class MediaRouter {
             implements SystemMediaRouteProvider.SyncCallback,
             RegisteredMediaRouteProviderWatcher.Callback {
         final Context mApplicationContext;
+        final MediaRouter2 mMediaRouter2Fwk;
+        final MediaRouter2.RouteCallback mMr2RouteCallbackFwk;
+        final Executor mMr2CbExecutor;
         final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
         private final Map<Pair<String, String>, String> mUniqueIdMap = new HashMap<>();
@@ -2156,7 +2162,17 @@ public final class MediaRouter {
             mLowRam = ActivityManagerCompat.isLowRamDevice(
                     (ActivityManager)applicationContext.getSystemService(
                             Context.ACTIVITY_SERVICE));
-
+            if (BuildCompat.isAtLeastR()) {
+                mMediaRouter2Fwk = MediaRouter2.getInstance(mApplicationContext);
+                mMr2RouteCallbackFwk = new MediaRouter2.RouteCallback() {};
+                mMr2CbExecutor = command -> {
+                    // Do nothing, since the callback from MediaRouter2 won't be used.
+                };
+            } else {
+                mMediaRouter2Fwk = null;
+                mMr2RouteCallbackFwk = null;
+                mMr2CbExecutor = null;
+            }
             // Add the system media route provider for interoperating with
             // the framework media router.  This one is special and receives
             // synchronization messages from the media router.
@@ -2422,6 +2438,17 @@ public final class MediaRouter {
             final int providerCount = mProviders.size();
             for (int i = 0; i < providerCount; i++) {
                 mProviders.get(i).mProviderInstance.setDiscoveryRequest(mDiscoveryRequest);
+            }
+
+            if (BuildCompat.isAtLeastR()) {
+                if (mDiscoveryRequest != null) {
+                    RouteDiscoveryPreference preference = new RouteDiscoveryPreference.Builder(
+                            selector.getControlCategories(), activeScan).build();
+                    mMediaRouter2Fwk.registerRouteCallback(
+                            mMr2CbExecutor, mMr2RouteCallbackFwk, preference);
+                } else {
+                    mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
+                }
             }
         }
 
