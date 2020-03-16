@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -37,16 +38,16 @@ import androidx.compose.StructurallyEqual
 import androidx.compose.Untracked
 import androidx.compose.ambientOf
 import androidx.compose.compositionReference
-import androidx.compose.currentComposer
 import androidx.compose.invalidate
-import androidx.compose.remember
 import androidx.compose.onPreCommit
+import androidx.compose.remember
 import androidx.compose.staticAmbientOf
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.node.UiComposer
+import androidx.ui.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import kotlinx.coroutines.Dispatchers
@@ -236,6 +237,27 @@ internal class UiComposition(
     },
     parent
 ) {
+    var enabled: Boolean = true
+        set(value) {
+            if (value != field) {
+                field = value
+                if (value && disabledComposition != null) {
+                    compose(disabledComposition!!)
+                    disabledComposition = null
+                }
+            }
+        }
+
+    private var disabledComposition: (@Composable() () -> Unit)? = null
+
+    override fun compose(content: @Composable() () -> Unit) {
+        if (!enabled) {
+            disabledComposition = content
+        } else {
+            super.compose(content)
+        }
+    }
+
     init {
         when (root) {
             is ViewGroup -> storeComposition(root, this)
@@ -245,6 +267,7 @@ internal class UiComposition(
 
     override fun dispose() {
         super.dispose()
+        disabledComposition = null
         when (root) {
             is ViewGroup -> removeRoot(root)
             is ComponentNode -> ROOT_COMPONENTNODES.remove(root)
@@ -304,8 +327,13 @@ fun ComposeView(children: @Composable() () -> Unit) {
                 }
             }
         }
-        val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-        val context = rootRef.value?.context ?: (currentComposer as UiComposer).context
+        val view = rootRef.value ?: error("Failed to create root platform view")
+        val rootLayoutNode = view.root
+        val context = view.context
+
+        // to not postpone the composition in this mode let's just pretend there is no state
+        // restoring is going to happen and restore the empty state instead.
+        view.restoreHierarchyState(SparseArray())
 
         // If this value is inlined where it is used, an error that includes 'Precise Reference:
         // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
@@ -388,6 +416,8 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
 /**
  * Composes the given composable into the given view.
  *
+ * Note that this [ViewGroup] should have an unique id for the saved instance state mechanism to
+ * be able to save and restore the values used within the composition. See [View.setId].
  * @param content Composable that will be the content of the view.
  */
 fun ViewGroup.setContent(
@@ -399,13 +429,25 @@ fun ViewGroup.setContent(
     return doSetContent(composeView, context, content)
 }
 
+private fun createComposeViewComposition(composeView: AndroidComposeView): Composition {
+    val composition = UiComposition(composeView.root, composeView.context, null)
+    // we will postpone (disable) the composition until [AndroidComposeView] restores the state
+    if (composeView.savedStateRegistry == null) {
+        composition.enabled = false
+        composeView.setOnSavedStateRegistryAvailable {
+            composition.enabled = true
+        }
+    }
+    return composition
+}
+
 private fun doSetContent(
     composeView: AndroidComposeView,
     context: Context,
     content: @Composable() () -> Unit
 ): Composition {
     val composition = findComposition(composeView.root)
-        ?: UiComposition(composeView.root, context, null)
+        ?: createComposeViewComposition(composeView)
     composition.compose {
         WrapWithAmbients(composeView, context, Dispatchers.Main) {
             WrapWithSelectionContainer(content)
@@ -447,6 +489,7 @@ private fun WrapWithAmbients(
     }
 
     val rootAnimationClock = remember { rootAnimationClockFactory() }
+    val savedStateRegistry = requireNotNull(composeView.savedStateRegistry)
 
     Providers(
         ContextAmbient provides context,
@@ -461,6 +504,7 @@ private fun WrapWithAmbients(
         AndroidComposeViewAmbient provides composeView,
         LayoutDirectionAmbient provides layoutDirection,
         AnimationClockAmbient provides rootAnimationClock,
+        UiSavedStateRegistryAmbient provides savedStateRegistry,
         children = content
     )
 }
