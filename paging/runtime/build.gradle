@@ -35,29 +35,28 @@ dependencies {
 
     api(project(":lifecycle:lifecycle-runtime-ktx"))
     api(project(":lifecycle:lifecycle-livedata-ktx"))
-    //api("androidx.recyclerview:recyclerview:1.1.0")
     api(project(":recyclerview:recyclerview"))
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
     implementation(project(":core:core-ktx"))
 
-    androidTestImplementation project(':paging:paging-testutils')
-    androidTestImplementation project(':internal-testutils-common')
-    androidTestImplementation project(':internal-testutils-ktx')
+    androidTestImplementation(project(":paging:paging-testutils"))
+    androidTestImplementation(project(":internal-testutils-common"))
+    androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation(KOTLIN_TEST)
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
-        exclude group: 'net.bytebuddy'
-    }
+    androidTestImplementation(MOCKITO_KOTLIN, {
+        exclude group: "org.mockito" // to keep control on the mockito version
+        exclude group: "net.bytebuddy"
+    })
 }
 
 androidx {
@@ -66,7 +65,7 @@ androidx {
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2017"
     description = "Android Paging-Runtime"
-    url = AndroidXExtension.ARCHITECTURE_URL
+    url = ARCHITECTURE_URL
 }
 
 // Allow usage of Kotlin's @OptIn.
