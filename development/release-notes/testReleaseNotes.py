@@ -168,6 +168,55 @@ class TestGitClient(unittest.TestCase):
 		)
 		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
 
+	def test_parseAPICommitWithDefaultDelimitersAndNonstandardQuoteCharacters(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:Added a new API!
+				_Body:Also fixed some other bugs
+
+				Here is an explanation of my commit
+
+				"This is a quote about why it's great!"
+
+				Bug: 123456
+				Bug: b/1234567
+				Fixes: 123123
+				Test: ./gradlew buildOnServer
+
+				Relnote: “Added an awesome new API!
+				It will make your life easier.”
+
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/b.java
+				projectdir/androidTest/c.java
+				projectdir/api/some_api_file.txt
+				projectdir/api/current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("mySha", commitWithApiChange.sha)
+		self.assertEqual("anemail@google.com", commitWithApiChange.authorEmail)
+		self.assertEqual("myChangeId", commitWithApiChange.changeId)
+		self.assertEqual("Added a new API!", commitWithApiChange.summary)
+		self.assertEqual(CommitType.API_CHANGE, commitWithApiChange.changeType)
+		self.assertEqual([123456, 1234567, 123123], commitWithApiChange.bugs)
+		self.assertEqual([
+				"projectdir/a.java",
+				"projectdir/b.java",
+				"projectdir/androidTest/c.java",
+				"projectdir/api/some_api_file.txt",
+				"projectdir/api/current.txt"
+			],
+			commitWithApiChange.files
+		)
+		self.assertEqual("Added an awesome new API!\n" + \
+			"				It will make your life easier."
+			, commitWithApiChange.releaseNote)
+
 	def test_parseAPICommitWithDefaultDelimitersAndUncapitalizedRelnoteTag(self):
 		commitWithApiChangeString = """
 				_CommitStart
