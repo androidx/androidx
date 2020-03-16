@@ -144,10 +144,10 @@ fun drawVector(
         }
 
     val ref = compositionReference()
-    composeVector(vector, ref, children)
+    val composition = composeVector(vector, ref, children)
     onPreCommit(vector) {
         onDispose {
-            disposeVector(vector, ref)
+            composition.dispose()
         }
     }
 

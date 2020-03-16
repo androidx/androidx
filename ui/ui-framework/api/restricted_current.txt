@@ -1,14 +1,6 @@
 // Signature format: 3.0
 package androidx.compose {
 
-  public final class Compose {
-    method @Deprecated @MainThread public androidx.compose.Composition composeInto(android.view.ViewGroup container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    method @Deprecated @MainThread public androidx.compose.Composition composeInto(androidx.ui.core.ComponentNode container, android.content.Context context, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    method @Deprecated @MainThread public void disposeComposition(android.view.ViewGroup container, androidx.compose.CompositionReference? parent = null);
-    method @Deprecated @MainThread public void disposeComposition(androidx.ui.core.ComponentNode container, android.content.Context context, androidx.compose.CompositionReference? parent = null);
-    field public static final androidx.compose.Compose! INSTANCE;
-  }
-
   public final class ComposerCompatKt {
     method @Deprecated public static androidx.ui.node.UiComposer getComposer();
   }
@@ -89,7 +81,6 @@ package androidx.ui.core {
   public final class PopupKt {
     method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Left, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @Deprecated public static void disposeActivityComposition(android.app.Activity activity);
     method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
   }
 
@@ -126,8 +117,6 @@ package androidx.ui.core {
   }
 
   public final class WrapperKt {
-    method @Deprecated public static void disposeComposition(android.view.ViewGroup);
-    method @Deprecated public static void disposeComposition(android.app.Activity);
     method public static androidx.compose.ProvidableAmbient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.Autofill> getAutofillAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();

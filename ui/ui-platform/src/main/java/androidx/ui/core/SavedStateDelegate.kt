@@ -78,9 +78,10 @@ internal class SavedStateDelegate(val parentIdProvider: () -> Int) {
         if (savedStateRegistry == null) {
             savedStateRegistry = UiSavedStateRegistry(null) { canBeSavedToBundle(it) }
         }
-        if (onRegistryAvailable != null) {
-            onRegistryAvailable?.invoke(savedStateRegistry!!)
+        val callback = onRegistryAvailable
+        if (callback != null) {
             onRegistryAvailable = null
+            callback(savedStateRegistry!!)
         }
     }
 

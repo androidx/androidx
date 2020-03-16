@@ -16,17 +16,14 @@
 
 package androidx.ui.core
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.compose.Composition
 import androidx.compose.Immutable
 import androidx.compose.Providers
@@ -442,24 +439,6 @@ internal fun calculateDropdownPopupPosition(
     popupGlobalPosition += popupPositionProperties.offset
 
     return popupGlobalPosition
-}
-
-// TODO(b/140396932): Remove once Activity.disposeComposition() is working properly
-/**
- * Disposes the root view of the Activity.
- */
-@Deprecated(
-    "disposing should be done with the Composition object returned by setContent",
-    replaceWith = ReplaceWith("Composition#dispose()")
-)
-fun disposeActivityComposition(activity: Activity) {
-    val composeView = activity.window.decorView
-        .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? Owner
-        ?: error("No root view found")
-
-    @Suppress("DEPRECATION")
-    Compose.disposeComposition(composeView.root, activity, null)
 }
 
 /**
