@@ -70,7 +70,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class FlexTest : LayoutTest() {
+class RowColumnTest : LayoutTest() {
     // region Size and position tests for Row and Column
     @Test
     fun testRow() = with(density) {
