@@ -31,11 +31,11 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.layout.Align
-import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.test.positionInParent
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -233,7 +233,7 @@ class OnPositionedTest : LayoutTest() {
 
         var positionedLatch = CountDownLatch(1)
         show {
-            Center {
+            Stack {
                 Container(
                     onPositioned {
                         realLeft = it.positionInParent.x

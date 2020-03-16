@@ -25,8 +25,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Center
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -59,7 +59,7 @@ private class DeepHierarchyOnPositionedTestCase :
     override fun emitContent() {
         val size = state { 200.dp }
         this.state = size
-        Center {
+        Stack {
             Box(LayoutSize(size.value), gravity = ContentGravity.Center) {
                 StaticChildren(100)
             }
