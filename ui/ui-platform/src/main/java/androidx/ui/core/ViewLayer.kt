@@ -154,8 +154,10 @@ internal class ViewLayer(
     }
 
     override fun updateDisplayList() {
-        updateDisplayList(this)
-        isInvalidated = false
+        if (isInvalidated) {
+            updateDisplayList(this)
+            isInvalidated = false
+        }
     }
 
     companion object {
