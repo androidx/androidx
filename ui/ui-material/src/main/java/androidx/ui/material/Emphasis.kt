@@ -24,6 +24,7 @@ import androidx.compose.staticAmbientOf
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.luminance
 
 /**
  * Emphasis allows certain parts of a component to be accentuated, or shown with lower contrast
@@ -107,15 +108,24 @@ val EmphasisAmbient: Ambient<EmphasisLevels> = staticAmbientOf { DefaultEmphasis
 
 private object DefaultEmphasisLevels : EmphasisLevels {
 
+    /**
+     * This default implementation uses separate alpha levels depending on the luminance of the
+     * incoming color, and whether the theme is light or dark. This is to ensure correct contrast
+     * and accessibility on all surfaces.
+     *
+     * See [HighContrastAlphaLevels] and [ReducedContrastAlphaLevels] for what the levels are
+     * used for, and under what circumstances.
+     */
     private class AlphaEmphasis(
-        private val colorPalette: ColorPalette,
-        @FloatRange(from = 0.0, to = 1.0) private val onPrimaryAlpha: Float,
-        @FloatRange(from = 0.0, to = 1.0) private val onSurfaceAlpha: Float
+        private val lightTheme: Boolean,
+        @FloatRange(from = 0.0, to = 1.0) private val highContrastAlpha: Float,
+        @FloatRange(from = 0.0, to = 1.0) private val reducedContrastAlpha: Float
     ) : Emphasis {
         override fun emphasize(color: Color): Color {
-            val alpha = when (color) {
-                colorPalette.onPrimary -> onPrimaryAlpha
-                else -> onSurfaceAlpha
+            val alpha = if (lightTheme) {
+                if (color.luminance() > 0.5) highContrastAlpha else reducedContrastAlpha
+            } else {
+                if (color.luminance() < 0.5) highContrastAlpha else reducedContrastAlpha
             }
             return color.copy(alpha = alpha)
         }
@@ -124,35 +134,53 @@ private object DefaultEmphasisLevels : EmphasisLevels {
     @Composable
     override val high: Emphasis
         get() = AlphaEmphasis(
-            colorPalette = MaterialTheme.colors(),
-            onPrimaryAlpha = OnPrimaryAlphaLevels.high,
-            onSurfaceAlpha = OnSurfaceAlphaLevels.high
+            lightTheme = MaterialTheme.colors().isLight,
+            highContrastAlpha = HighContrastAlphaLevels.high,
+            reducedContrastAlpha = ReducedContrastAlphaLevels.high
         )
 
     @Composable
     override val medium: Emphasis
         get() = AlphaEmphasis(
-            colorPalette = MaterialTheme.colors(),
-            onPrimaryAlpha = OnPrimaryAlphaLevels.medium,
-            onSurfaceAlpha = OnSurfaceAlphaLevels.medium
+            lightTheme = MaterialTheme.colors().isLight,
+            highContrastAlpha = HighContrastAlphaLevels.medium,
+            reducedContrastAlpha = ReducedContrastAlphaLevels.medium
         )
 
     @Composable
     override val disabled: Emphasis
         get() = AlphaEmphasis(
-            colorPalette = MaterialTheme.colors(),
-            onPrimaryAlpha = OnPrimaryAlphaLevels.disabled,
-            onSurfaceAlpha = OnSurfaceAlphaLevels.disabled
+            lightTheme = MaterialTheme.colors().isLight,
+            highContrastAlpha = HighContrastAlphaLevels.disabled,
+            reducedContrastAlpha = ReducedContrastAlphaLevels.disabled
         )
 }
 
-private object OnPrimaryAlphaLevels {
+/**
+ * Alpha levels for high luminance content in light theme, or low luminance content in dark theme.
+ *
+ * This content will typically be placed on colored surfaces, so it is important that the
+ * contrast here is higher to meet accessibility standards, and increase legibility.
+ *
+ * These levels are typically used for text / iconography in primary colored tabs /
+ * bottom navigation / etc.
+ */
+private object HighContrastAlphaLevels {
     const val high: Float = 1.00f
     const val medium: Float = 0.74f
     const val disabled: Float = 0.38f
 }
 
-private object OnSurfaceAlphaLevels {
+/**
+ * Alpha levels for low luminance content in light theme, or high luminance content in dark theme.
+ *
+ * This content will typically be placed on grayscale surfaces, so the contrast here can be lower
+ * without sacrificing accessibility and legibility.
+ *
+ * These levels are typically used for body text on the main surface (white in light theme, grey
+ * in dark theme) and text / iconography in surface colored tabs / bottom navigation / etc.
+ */
+private object ReducedContrastAlphaLevels {
     const val high: Float = 0.87f
     const val medium: Float = 0.60f
     const val disabled: Float = 0.38f

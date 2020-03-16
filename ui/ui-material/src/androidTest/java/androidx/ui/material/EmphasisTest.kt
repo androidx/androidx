@@ -31,13 +31,13 @@ import org.junit.runners.Parameterized
 @MediumTest
 @RunWith(Parameterized::class)
 class EmphasisTest(private val colors: ColorPalette, private val debugParameterName: String) {
-    private val SurfaceHighEmphasisAlpha = 0.87f
-    private val SurfaceMediumEmphasisAlpha = 0.60f
-    private val SurfaceDisabledEmphasisAlpha = 0.38f
+    private val ReducedContrastHighEmphasisAlpha = 0.87f
+    private val ReducedContrastMediumEmphasisAlpha = 0.60f
+    private val ReducedContrastDisabledEmphasisAlpha = 0.38f
 
-    private val PrimaryHighEmphasisAlpha = 1.00f
-    private val PrimaryMediumEmphasisAlpha = 0.74f
-    private val PrimaryDisabledEmphasisAlpha = 0.38f
+    private val HighContrastHighEmphasisAlpha = 1.00f
+    private val HighContrastMediumEmphasisAlpha = 0.74f
+    private val HighContrastDisabledEmphasisAlpha = 0.38f
 
     companion object {
         @JvmStatic
@@ -72,7 +72,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                 Surface {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
                         val onSurface = MaterialTheme.colors().onSurface
-                        val modifiedOnSurface = onSurface.copy(alpha = SurfaceHighEmphasisAlpha)
+                        val modifiedOnSurface = onSurface.copy(
+                            alpha = ReducedContrastHighEmphasisAlpha
+                        )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnSurface)
                         assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
@@ -89,7 +91,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                 Surface {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
                         val onSurface = MaterialTheme.colors().onSurface
-                        val modifiedOnSurface = onSurface.copy(alpha = SurfaceMediumEmphasisAlpha)
+                        val modifiedOnSurface = onSurface.copy(
+                            alpha = ReducedContrastMediumEmphasisAlpha
+                        )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnSurface)
                         assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
@@ -100,13 +104,15 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
     }
 
     @Test
-    fun lowEmphasis_contentColorSet_surface() {
+    fun disabledEmphasis_contentColorSet_surface() {
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
                         val onSurface = MaterialTheme.colors().onSurface
-                        val modifiedOnSurface = onSurface.copy(alpha = SurfaceDisabledEmphasisAlpha)
+                        val modifiedOnSurface = onSurface.copy(
+                            alpha = ReducedContrastDisabledEmphasisAlpha
+                        )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnSurface)
                         assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
@@ -137,7 +143,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                 Surface(color = colors.primary) {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
                         val onPrimary = MaterialTheme.colors().onPrimary
-                        val modifiedOnPrimary = onPrimary.copy(alpha = PrimaryHighEmphasisAlpha)
+                        val modifiedOnPrimary = onPrimary.copy(
+                            alpha = HighContrastHighEmphasisAlpha
+                        )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnPrimary)
                         assertThat(currentTextStyle().color).isEqualTo(modifiedOnPrimary)
@@ -154,7 +162,9 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                 Surface(color = colors.primary) {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
                         val onPrimary = MaterialTheme.colors().onPrimary
-                        val modifiedOnPrimary = onPrimary.copy(alpha = PrimaryMediumEmphasisAlpha)
+                        val modifiedOnPrimary = onPrimary.copy(
+                            alpha = HighContrastMediumEmphasisAlpha
+                        )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnPrimary)
                         assertThat(currentTextStyle().color).isEqualTo(modifiedOnPrimary)
@@ -165,13 +175,15 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
     }
 
     @Test
-    fun lowEmphasis_contentColorSet_primary() {
+    fun disabledEmphasis_contentColorSet_primary() {
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface(color = colors.primary) {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
                         val onPrimary = MaterialTheme.colors().onPrimary
-                        val modifiedOnPrimary = onPrimary.copy(alpha = PrimaryDisabledEmphasisAlpha)
+                        val modifiedOnPrimary = onPrimary.copy(
+                            alpha = HighContrastDisabledEmphasisAlpha
+                        )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnPrimary)
                         assertThat(currentTextStyle().color).isEqualTo(modifiedOnPrimary)
@@ -194,15 +206,21 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
     }
 
     @Test
-    fun highEmphasis_contentColorSet_colorNotFromTheme() {
+    fun highEmphasis_contentColorSet_highLuminanceColorNotFromTheme() {
         composeTestRule.setContent {
             MaterialTheme(colors) {
-                Surface(contentColor = Color.Yellow) {
+                val contentColor = Color(0.9f, 0.9f, 0.9f)
+                Surface(contentColor = contentColor) {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
-                        val modifiedYellow = Color.Yellow.copy(alpha = SurfaceHighEmphasisAlpha)
+                        val expectedAlpha = if (colors.isLight) {
+                            HighContrastHighEmphasisAlpha
+                        } else {
+                            ReducedContrastHighEmphasisAlpha
+                        }
+                        val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
-                        assertThat(contentColor()).isEqualTo(modifiedYellow)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedYellow)
+                        assertThat(contentColor()).isEqualTo(modifiedColor)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
@@ -210,15 +228,21 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
     }
 
     @Test
-    fun mediumEmphasis_contentColorSet_colorNotFromTheme() {
+    fun mediumEmphasis_contentColorSet_highLuminanceColorNotFromTheme() {
         composeTestRule.setContent {
             MaterialTheme(colors) {
-                Surface(contentColor = Color.Yellow) {
+                val contentColor = Color(0.9f, 0.9f, 0.9f)
+                Surface(contentColor = contentColor) {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
-                        val modifiedYellow = Color.Yellow.copy(alpha = SurfaceMediumEmphasisAlpha)
+                        val expectedAlpha = if (colors.isLight) {
+                            HighContrastMediumEmphasisAlpha
+                        } else {
+                            ReducedContrastMediumEmphasisAlpha
+                        }
+                        val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
-                        assertThat(contentColor()).isEqualTo(modifiedYellow)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedYellow)
+                        assertThat(contentColor()).isEqualTo(modifiedColor)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
@@ -226,15 +250,87 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
     }
 
     @Test
-    fun lowEmphasis_contentColorSet_colorNotFromTheme() {
+    fun disabledEmphasis_contentColorSet_highLuminanceColorNotFromTheme() {
         composeTestRule.setContent {
             MaterialTheme(colors) {
-                Surface(contentColor = Color.Yellow) {
+                val contentColor = Color(0.9f, 0.9f, 0.9f)
+                Surface(contentColor = contentColor) {
                     ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
-                        val modifiedYellow = Color.Yellow.copy(alpha = SurfaceDisabledEmphasisAlpha)
+                        val expectedAlpha = if (colors.isLight) {
+                            HighContrastDisabledEmphasisAlpha
+                        } else {
+                            ReducedContrastDisabledEmphasisAlpha
+                        }
+                        val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
-                        assertThat(contentColor()).isEqualTo(modifiedYellow)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedYellow)
+                        assertThat(contentColor()).isEqualTo(modifiedColor)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun highEmphasis_contentColorSet_lowLuminanceColorNotFromTheme() {
+        composeTestRule.setContent {
+            MaterialTheme(colors) {
+                val contentColor = Color(0.1f, 0.1f, 0.1f)
+                Surface(contentColor = contentColor) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
+                        val expectedAlpha = if (colors.isLight) {
+                            ReducedContrastHighEmphasisAlpha
+                        } else {
+                            HighContrastHighEmphasisAlpha
+                        }
+                        val modifiedColor = contentColor.copy(alpha = expectedAlpha)
+
+                        assertThat(contentColor()).isEqualTo(modifiedColor)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun mediumEmphasis_contentColorSet_lowLuminanceColorNotFromTheme() {
+        composeTestRule.setContent {
+            MaterialTheme(colors) {
+                val contentColor = Color(0.1f, 0.1f, 0.1f)
+                Surface(contentColor = contentColor) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
+                        val expectedAlpha = if (colors.isLight) {
+                            ReducedContrastMediumEmphasisAlpha
+                        } else {
+                            HighContrastMediumEmphasisAlpha
+                        }
+                        val modifiedColor = contentColor.copy(alpha = expectedAlpha)
+
+                        assertThat(contentColor()).isEqualTo(modifiedColor)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun disabledEmphasis_contentColorSet_lowLuminanceColorNotFromTheme() {
+        composeTestRule.setContent {
+            MaterialTheme(colors) {
+                val contentColor = Color(0.1f, 0.1f, 0.1f)
+                Surface(contentColor = contentColor) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
+                        val expectedAlpha = if (colors.isLight) {
+                            ReducedContrastDisabledEmphasisAlpha
+                        } else {
+                            HighContrastDisabledEmphasisAlpha
+                        }
+                        val modifiedColor = contentColor.copy(alpha = expectedAlpha)
+
+                        assertThat(contentColor()).isEqualTo(modifiedColor)
+                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
