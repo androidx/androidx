@@ -25,7 +25,7 @@ import androidx.ui.unit.Uptime
 // after more things are set (and after things like API review) to avoid thrashing.
 /**
  * The normalized data structure for pointer input event information that is taken in processed by
- * Compose (via the [PointerInputEventProcessor2]).
+ * Compose (via the [PointerInputEventProcessor]).
  *
  * All pointer locations are relative to the device screen.
  */

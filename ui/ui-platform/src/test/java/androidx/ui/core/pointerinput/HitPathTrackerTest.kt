@@ -51,13 +51,13 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class HitPathTracker2Test {
+class HitPathTrackerTest {
 
-    private lateinit var hitPathTracker: HitPathTracker2
+    private lateinit var hitPathTracker: HitPathTracker
 
     @Before
     fun setup() {
-        hitPathTracker = HitPathTracker2()
+        hitPathTracker = HitPathTracker()
     }
 
     @Test

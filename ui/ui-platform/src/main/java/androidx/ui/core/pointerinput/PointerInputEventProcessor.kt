@@ -29,9 +29,9 @@ import androidx.ui.unit.Uptime
 /**
  * The core element that receives [PointerInputEvent]s and process them in Compose UI.
  */
-internal class PointerInputEventProcessor2(val root: LayoutNode) {
+internal class PointerInputEventProcessor(val root: LayoutNode) {
 
-    private val hitPathTracker = HitPathTracker2()
+    private val hitPathTracker = HitPathTracker()
     private val pointerInputChangeEventProducer = PointerInputChangeEventProducer()
 
     /**
@@ -77,7 +77,7 @@ internal class PointerInputEventProcessor2(val root: LayoutNode) {
      * Responds appropriately to Android ACTION_CANCEL events.
      *
      * Specifically, [PointerInputFilter.cancelHandler] is invoked on tracked [PointerInputFilter]s and
-     * and this [PointerInputEventProcessor2] is reset such that it is no longer tracking any
+     * and this [PointerInputEventProcessor] is reset such that it is no longer tracking any
      * [PointerInputFilter]s and expects the next [PointerInputEvent] it processes to represent only
      * new pointers.
      */
