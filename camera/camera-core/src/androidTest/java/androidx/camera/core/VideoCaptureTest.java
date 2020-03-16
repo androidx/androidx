@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2;
+package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -26,16 +27,11 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.UseCase;
-import androidx.camera.core.UseCase.StateChangeCallback;
-import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
@@ -50,7 +46,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.util.concurrent.ExecutionException;
@@ -67,8 +62,7 @@ import java.util.concurrent.ExecutionException;
 @Suppress
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public final class VideoCaptureTest {
-
+public class VideoCaptureTest {
     @Rule
     public GrantPermissionRule mRuntimeCameraPermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
@@ -77,11 +71,10 @@ public final class VideoCaptureTest {
             Manifest.permission.RECORD_AUDIO);
 
     private final Context mContext = InstrumentationRegistry.getTargetContext();
-    private final StateChangeCallback mMockStateChangeCallback =
-            Mockito.mock(StateChangeCallback.class);
+    private final CameraInternal mMockCameraInternal = mock(CameraInternal.class);
     private final ArgumentCaptor<UseCase> mUseCaseCaptor = ArgumentCaptor.forClass(UseCase.class);
-    private final OnVideoSavedCallback mMockVideoSavedCallback =
-            Mockito.mock(OnVideoSavedCallback.class);
+    private final VideoCapture.OnVideoSavedCallback mMockVideoSavedCallback =
+            mock(VideoCapture.OnVideoSavedCallback.class);
     private VideoCaptureConfig mDefaultConfig;
     private FakeLifecycleOwner mLifecycleOwner;
     private CameraSelector mCameraSelector;
@@ -91,12 +84,16 @@ public final class VideoCaptureTest {
             androidx.test.platform.app.InstrumentationRegistry.getInstrumentation();
 
     @Before
-    public void setUp() {
+    public void setup() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
         mDefaultConfig = VideoCapture.DEFAULT_CONFIG.getConfig(null);
+
+        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
+                FakeAppConfig.create()).build();
+
         Context context = ApplicationProvider.getApplicationContext();
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(context, cameraXConfig);
+        CameraX.initialize(context, cameraXConfig).get();
+
         mLifecycleOwner = new FakeLifecycleOwner();
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_BACK).build();
@@ -104,9 +101,6 @@ public final class VideoCaptureTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (CameraX.isInitialized()) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        }
         CameraX.shutdown().get();
     }
 
@@ -117,7 +111,7 @@ public final class VideoCaptureTest {
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
             mLifecycleOwner.startAndResume();
         });
-        useCase.addStateChangeCallback(mMockStateChangeCallback);
+        useCase.onBind(mMockCameraInternal);
 
         useCase.startRecording(
                 new File(
@@ -126,7 +120,7 @@ public final class VideoCaptureTest {
                 CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedCallback);
 
-        verify(mMockStateChangeCallback, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
+        verify(mMockCameraInternal, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 
@@ -137,7 +131,7 @@ public final class VideoCaptureTest {
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
             mLifecycleOwner.startAndResume();
         });
-        useCase.addStateChangeCallback(mMockStateChangeCallback);
+        useCase.onBind(mMockCameraInternal);
 
         useCase.startRecording(
                 new File(
@@ -157,7 +151,7 @@ public final class VideoCaptureTest {
             // TODO(b/112324530): The try-catch should be removed after the bug fix
         }
 
-        verify(mMockStateChangeCallback, times(1)).onUseCaseInactive(mUseCaseCaptor.capture());
+        verify(mMockCameraInternal, times(1)).onUseCaseInactive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 }
