@@ -260,6 +260,9 @@ public class ImageSaverTest {
         Bitmap bitmap = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
         assertThat(bitmap.getWidth()).isEqualTo(CROP_WIDTH);
         assertThat(bitmap.getHeight()).isEqualTo(CROP_HEIGHT);
+
+        // Clean up.
+        mContentResolver.delete(saveLocationUri, null, null);
     }
 
     @Test
