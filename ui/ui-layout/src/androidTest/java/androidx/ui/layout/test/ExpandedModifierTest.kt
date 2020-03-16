@@ -101,7 +101,7 @@ class ExpandedModifierTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        Assert.assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         return size.value!!
     }
 

@@ -39,6 +39,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -86,7 +87,7 @@ class StackTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), alignedChildSize.value)
@@ -137,7 +138,7 @@ class StackTest : LayoutTest() {
                     }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(doubleSize, doubleSize), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
@@ -225,7 +226,7 @@ class StackTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
@@ -343,7 +344,7 @@ class StackTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(tripleSize, tripleSize), stackSize.value)
         assertEquals(PxPosition((size * 2).toPx(), 0.px), childPosition[0].value)
@@ -397,7 +398,7 @@ class StackTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
