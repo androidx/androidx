@@ -24,7 +24,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +39,6 @@ private const val OPEN_DATABASE_COMMAND_SIGNATURE: String = "openDatabase" +
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 class TrackDatabasesTest {
     @get:Rule
     val testEnvironment = SqliteInspectorTestEnvironment()

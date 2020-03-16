@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlin.experimental.ExperimentalTypeInference
 
-@UseExperimental(ExperimentalTypeInference::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTypeInference::class)
 internal fun <T> cancelableChannelFlow(
     controller: Job,
     @BuilderInference block: suspend ProducerScope<T>.() -> Unit

@@ -34,7 +34,6 @@ import org.mockito.Mockito;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-
 public class ThumbsBarTest {
     private Context mContext;
     private ThumbsBar mBar;

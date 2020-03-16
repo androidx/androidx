@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 import org.junit.Test
 import java.util.concurrent.CancellationException
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class LifecycleCoroutineScopeTestBase {
     @Test
     fun initialization() {

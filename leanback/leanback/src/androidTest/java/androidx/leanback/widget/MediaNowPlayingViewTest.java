@@ -30,7 +30,6 @@ import org.junit.runner.RunWith;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-
 public class MediaNowPlayingViewTest {
     private Context mContext;
 

@@ -81,9 +81,9 @@ private data class LoadEvent(
     val loadState: LoadState
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
-@UseExperimental(ExperimentalCoroutinesApi::class)
 class AsyncPagingDataDifferTest {
     private val testScope = TestCoroutineScope()
 

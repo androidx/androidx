@@ -40,7 +40,6 @@ private class MyPagingAdapter : BasePagingAdapter<UiModel>()
 private class MyViewModel : BaseViewModel<UiModel>()
 private lateinit var pagingSourceFactory: () -> PagingSource<String, String>
 
-@ExperimentalCoroutinesApi
 @Sampled
 @SuppressLint("SyntheticAccessor")
 fun cachedInSample() {
@@ -52,6 +51,7 @@ fun cachedInSample() {
             .cachedIn(viewModelScope)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     class MyActivity : AppCompatActivity() {
         val pagingAdapter = MyPagingAdapter()
 

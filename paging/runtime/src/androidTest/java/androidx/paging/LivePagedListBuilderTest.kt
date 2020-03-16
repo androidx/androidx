@@ -45,7 +45,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@ExperimentalCoroutinesApi
 @SmallTest
 @RunWith(JUnit4::class)
 class LivePagedListBuilderTest {
@@ -58,6 +57,7 @@ class LivePagedListBuilderTest {
         val state: LoadState
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
         Dispatchers.setMain(mainDispatcher)
@@ -77,7 +77,7 @@ class LivePagedListBuilderTest {
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun teardown() {
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)

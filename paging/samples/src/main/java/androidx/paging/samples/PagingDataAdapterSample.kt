@@ -82,12 +82,12 @@ fun pagingDataAdapterSample() {
 internal class UserPagingAdapter : BasePagingAdapter<User>()
 internal class UserListViewModel : BaseViewModel<User>()
 
-@ExperimentalCoroutinesApi
 @Sampled
 fun presentDataSample() {
     class MyFlowActivity : AppCompatActivity() {
         val pagingAdapter = UserPagingAdapter()
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val viewModel by viewModels<UserListViewModel>()
@@ -104,7 +104,6 @@ fun presentDataSample() {
     }
 }
 
-@ExperimentalCoroutinesApi
 @Sampled
 fun submitDataLiveDataSample() {
     class MyLiveDataActivity : AppCompatActivity() {
@@ -127,7 +126,6 @@ fun <T> Flowable<T>.autoDispose(
     throw NotImplementedError()
 }
 
-@ExperimentalCoroutinesApi
 @Sampled
 fun submitDataRxSample() {
     class MyRxJava2Activity : AppCompatActivity() {

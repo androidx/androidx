@@ -21,7 +21,6 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.processors.ReplayProcessor
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Before
 import org.junit.Rule
@@ -32,7 +31,6 @@ class LiveDataReactiveStreamsTest {
 
     private lateinit var lifecycleOwner: LifecycleOwner
 
-    @ExperimentalCoroutinesApi
     @Before fun init() {
         lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = TestCoroutineDispatcher())
     }

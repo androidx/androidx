@@ -16,6 +16,7 @@
 
 package sample
 
+@Suppress("DEPRECATION")
 @Experimental
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
