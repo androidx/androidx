@@ -194,12 +194,39 @@ class TextFieldDelegateTest {
 
         whenever(processor.onEditCommands(captor.capture())).thenReturn(InputState())
 
-        TextFieldDelegate.onBlur(textInputService, dummyInputSessionToken, processor, onValueChange)
+        TextFieldDelegate.onBlur(
+            textInputService,
+            dummyInputSessionToken,
+            processor,
+            true,
+            onValueChange)
 
         assertEquals(1, captor.allValues.size)
         assertEquals(1, captor.firstValue.size)
         assertTrue(captor.firstValue[0] is FinishComposingTextEditOp)
         verify(textInputService).stopInput(eq(dummyInputSessionToken))
+        verify(textInputService, never()).hideSoftwareKeyboard(any())
+    }
+
+    @Test
+    fun on_blur_with_hiding() {
+        val captor = argumentCaptor<List<EditOperation>>()
+        val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
+
+        whenever(processor.onEditCommands(captor.capture())).thenReturn(InputState())
+
+        TextFieldDelegate.onBlur(
+            textInputService,
+            dummyInputSessionToken,
+            processor,
+            false, // There is no next focused client. Hide the keyboard.
+            onValueChange)
+
+        assertEquals(1, captor.allValues.size)
+        assertEquals(1, captor.firstValue.size)
+        assertTrue(captor.firstValue[0] is FinishComposingTextEditOp)
+        verify(textInputService).stopInput(eq(dummyInputSessionToken))
+        verify(textInputService).hideSoftwareKeyboard(eq(dummyInputSessionToken))
     }
 
     @Test

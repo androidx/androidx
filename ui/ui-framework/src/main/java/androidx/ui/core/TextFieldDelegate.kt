@@ -325,10 +325,14 @@ internal class TextFieldDelegate {
             textInputService: TextInputService?,
             token: InputSessionToken,
             editProcessor: EditProcessor,
+            hasNextClient: Boolean,
             onValueChange: (InputState) -> Unit
         ) {
             onEditCommand(listOf(FinishComposingTextEditOp()), editProcessor, onValueChange)
             textInputService?.stopInput(token)
+            if (!hasNextClient) {
+                textInputService?.hideSoftwareKeyboard(token)
+            }
         }
 
         /**

@@ -30,8 +30,13 @@ open class FocusManager internal constructor() {
         /** Called when this component gained the focus */
         fun onFocus()
 
-        /** Called when this component is about to lose the focus */
-        fun onBlur()
+        /**
+         *  Called when this component is about to lose the focus
+         *
+         *  @param hasNextClient True if this node loses focus due to focusing in to another node
+         *  . False if this node loses focus due to calling [FocusManager#blur].
+         */
+        fun onBlur(hasNextClient: Boolean)
     }
 
     /**
@@ -84,18 +89,20 @@ open class FocusManager internal constructor() {
         }
 
         if (currentFocus != null) {
-            focusOut(currentFocus)
+            currentFocus.onBlur(true)
         }
 
         focusedClient = client
-        focusIn(client)
-    }
-
-    private fun focusIn(client: FocusNode) {
         client.onFocus()
     }
 
-    private fun focusOut(client: FocusNode) {
-        client.onBlur()
+    /**
+     * Release the focus if given focus node is focused
+     */
+    internal fun blur(client: FocusNode) {
+        if (focusedClient == client) {
+            focusedClient = null
+            client.onBlur(false)
+        }
     }
 }
