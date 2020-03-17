@@ -18,9 +18,9 @@ package androidx.camera.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -48,21 +48,13 @@ public class PreviewView extends FrameLayout {
 
     private ScaleType mScaleType = ScaleType.FILL_CENTER;
 
-    private final DisplayManager.DisplayListener mDisplayListener =
-            new DisplayManager.DisplayListener() {
-                @Override
-                public void onDisplayAdded(int displayId) {
-                }
-
-                @Override
-                public void onDisplayRemoved(int displayId) {
-                }
-
-                @Override
-                public void onDisplayChanged(int displayId) {
-                    mImplementation.onDisplayChanged();
-                }
-            };
+    private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+                int oldTop, int oldRight, int oldBottom) {
+            mImplementation.onLayoutChanged();
+        }
+    };
 
     public PreviewView(@NonNull Context context) {
         this(context, null);
@@ -101,21 +93,13 @@ public class PreviewView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        final DisplayManager displayManager =
-                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
-        if (displayManager != null) {
-            displayManager.registerDisplayListener(mDisplayListener, getHandler());
-        }
+        addOnLayoutChangeListener(mOnLayoutChangeListener);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        final DisplayManager displayManager =
-                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
-        if (displayManager != null) {
-            displayManager.unregisterDisplayListener(mDisplayListener);
-        }
+        removeOnLayoutChangeListener(mOnLayoutChangeListener);
     }
 
     private void setUp() {
