@@ -28,14 +28,11 @@ import java.util.Locale
 /**
  * Utility class to save and restore the locale of the system.
  *
- *
  * Inspired by [com.android.dialer.util.LocaleTestUtils](https://android.googlesource.com/platform/packages/apps/Dialer/+/94b10b530c0fc297e2974e57e094c500d3ee6003/tests/src/com/android/dialer/util/LocaleTestUtils.java)
- *
  *
  * This can be used for tests that assume to be run in a certain locale, e.g., because they check
  * against strings in a particular language or require an assumption on how the system will behave
  * in a specific locale.
- *
  *
  * In your test, you can change the locale with the following code:
  * <pre>
@@ -51,7 +48,7 @@ import java.util.Locale
  *
  *     &#64;Override
  *     public void tearDown() throws Exception {
- *         mLocaleTestUtils.restoreLocale();
+ *         mLocaleTestUtils.resetLocale();
  *         mLocaleTestUtils = null;
  *         super.tearDown();
  *     }
@@ -59,8 +56,7 @@ import java.util.Locale
  *     ...
  * }
  * </pre>
- * Note that one should not call [.setLocale] more than once without calling [.restoreLocale] first.
- *
+ * Note that one should not call [setLocale] more than once without calling [resetLocale] first.
  *
  * This class is not thread-safe. Usually its methods should be invoked only from the test thread.
  *
@@ -109,7 +105,7 @@ class LocaleTestUtils(private val mContext: Context) {
 
     /**
      * Restores the original locale, if it was changed, and unlocks the ability to change the locale
-     * for this object, if it was locked by [.isLocaleChangedAndLock]. If the locale wasn't changed,
+     * for this object, if it was locked by [isLocaleChangedAndLock]. If the locale wasn't changed,
      * it leaves the locales untouched, but will still unlock this object if it was locked.
      */
     fun resetLocale() {
@@ -145,7 +141,7 @@ class LocaleTestUtils(private val mContext: Context) {
 
     /**
      * Returns if the locale has been changed, and disables all future locale changes until
-     * [.resetLocale] has been called. Calling [.setLocale] after calling this method will throw an
+     * [resetLocale] has been called. Calling [setLocale] after calling this method will throw an
      * exception.
      *
      * Use this check-and-lock if the behavior of a component depends on whether or not the locale
@@ -163,7 +159,7 @@ class LocaleTestUtils(private val mContext: Context) {
      * Finds the best matching Locale on the system for the given language
      */
     private fun findLocale(lang: String): Locale {
-        // Build list of prefixes ("ar_SA_xx_dont_care" -> ["ar", "ar_SA", "ar_SA_xx", etc..])
+        // Build list of prefixes ("ar_SA_xx_foo_bar" -> ["ar", "ar_SA", "ar_SA_xx", etc..])
         val prefixes = lang.split("_").fold(mutableListOf<String>()) { prefixes, elem ->
             prefixes.also { it.add(if (it.isEmpty()) elem else "${it.last()}_$elem") }
         }
@@ -186,7 +182,7 @@ class LocaleTestUtils(private val mContext: Context) {
         }
 
         // Find best match: the locale that has the longest common prefix with the given language
-        return matches.lastOrNull { !it.isEmpty() }?.first() ?: Locale.getDefault()
+        return matches.lastOrNull { it.isNotEmpty() }?.first() ?: Locale.getDefault()
     }
 
     /**
