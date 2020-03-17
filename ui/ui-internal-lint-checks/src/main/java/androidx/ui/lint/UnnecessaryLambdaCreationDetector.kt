@@ -27,11 +27,14 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtCallableDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.referenceExpression
 import org.jetbrains.uast.ULambdaExpression
+import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.kotlin.KotlinUBlockExpression
 import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
 import org.jetbrains.uast.kotlin.KotlinUImplicitReturnExpression
+import org.jetbrains.uast.resolveToUElement
 
 /**
  * Lint [Detector] to ensure that we are not creating extra lambdas just to emit already captured
@@ -126,8 +129,25 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // understand this better, so we just check to see if the name looks like it is a node.
             if (parentExpression.isComponentNodeInvocation) return
 
-            val lambdaName = expression.methodIdentifier!!.name
-            if (node.valueParameters.any { it.name == lambdaName }) return
+            val receiver = expression.receiver as UReferenceExpression
+
+            val isComposable = (receiver.resolveToUElement()!!
+                .sourcePsi as KtCallableDeclaration).isComposable
+
+            // Find the index of the corresponding parameter in the source declaration, that
+            // matches this lambda expression's invocation
+            val parameterIndex = parentExpression.valueArguments.indexOf(node)
+
+            // If we cannot resolve the parent expression as a KtCallableDeclaration, it might be a
+            // Java method / exist in bytecode or some other format, so just ignore it as we won't
+            // be able to see @Composable there anyway.
+            val parentDeclaration = parentExpression.resolveToUElement()!!
+                .sourcePsi as? KtCallableDeclaration ?: return
+
+            val expectedComposable =
+                parentDeclaration.valueParameters[parameterIndex]!!.isComposable
+
+            if (isComposable != expectedComposable) return
 
             context.report(
                 ISSUE,
@@ -163,3 +183,14 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
         )
     }
 }
+
+/**
+ * @return whether this [KtCallableDeclaration] is annotated with @Composable
+ */
+private val KtCallableDeclaration.isComposable: Boolean
+    // Unfortunately as Composability isn't carried through UAST, and there are many types of
+    // declarations (types such as foo: @Composable() () -> Unit, properties such as val
+    // foo = @Composable {}) the best way to cover this is just check if we contain this annotation
+    // in text. Definitely not ideal, but it should cover most cases and ignores false positives, so
+    // it's the best solution for now.
+    get() = text.contains("@Composable")
