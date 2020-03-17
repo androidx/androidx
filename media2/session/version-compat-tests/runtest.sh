@@ -141,10 +141,10 @@ esac
 echo
 case ${ERROR_CODE} in
   0)
-    echo -e "\e[1;32mTEST SUCCESSFUL\e[0m: All of tests passed."
+    echo -e "\033[1;32mTEST SUCCESSFUL\033[0m: All of tests passed."
     ;;
   1)
-    echo -e "\e[1;31mTEST FAILED\e[0m: Some of tests failed."
+    echo -e "\033[1;31mTEST FAILED\033[0m: Some of tests failed."
     ;;
 esac
 exit $ERROR_CODE
