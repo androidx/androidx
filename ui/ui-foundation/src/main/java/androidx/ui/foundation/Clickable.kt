@@ -17,6 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.semantics.Semantics
@@ -30,12 +31,16 @@ import androidx.ui.semantics.onClick
  * @sample androidx.ui.foundation.samples.ClickableSample
  *
  * @param onClick will be called when user clicked on the button
+ * @param modifier allows to provide a modifier to be added before the gesture detector, for
+ * example Ripple should be added at this point. this will be easier once we migrate this
+ * function to a Modifier
  * @param enabled Controls the enabled state. When `false`, this component will not be
  * clickable
  */
 @Composable
 fun Clickable(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier.None,
     enabled: Boolean = true,
     onClickLabel: String? = null,
     children: @Composable() () -> Unit
@@ -52,6 +57,6 @@ fun Clickable(
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
         @Suppress("DEPRECATION")
-        PassThroughLayout(TapGestureDetector(onClick, enabled = enabled), children)
+        PassThroughLayout(modifier + TapGestureDetector(onClick, enabled = enabled), children)
     }
 }

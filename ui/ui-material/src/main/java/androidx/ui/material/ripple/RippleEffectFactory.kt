@@ -19,11 +19,11 @@ package androidx.ui.material.ripple
 import androidx.animation.AnimationClockObservable
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.core.LayoutCoordinates
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 
 /**
- * An encapsulation of an [RippleEffect] constructor used by [Ripple] and [RippleTheme].
+ * An encapsulation of an [RippleEffect] constructor used by [ripple] and [RippleTheme].
  *
  * Will be used as a theme parameter in [RippleTheme.factory]
  */
@@ -34,7 +34,7 @@ interface RippleEffectFactory {
      *
      * Subclasses should override this method to return a new instance of an [RippleEffect].
      *
-     * @param coordinates The layout coordinates of the target layout.
+     * @param size The size of the target layout.
      * @param startPosition The position the animation will start from.
      * @param density The [Density] object to convert the dimensions.
      * @param radius Effects grow up to this size.
@@ -44,7 +44,7 @@ interface RippleEffectFactory {
      * @param onAnimationFinished Call when the effect animation has been finished.
      */
     fun create(
-        coordinates: LayoutCoordinates,
+        size: IntPxSize,
         startPosition: PxPosition,
         density: Density,
         radius: Dp?,

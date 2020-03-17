@@ -52,7 +52,7 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.dp
@@ -251,14 +251,13 @@ private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pre
             val offset = (widthDp - thumbSize) * fraction
             Track(LayoutGravity.CenterStart + LayoutSize.Fill, color, position)
             Box(LayoutGravity.CenterStart + LayoutPadding(start = offset)) {
-                Ripple(bounded = false) {
-                    Surface(
-                        shape = CircleShape,
-                        color = color,
-                        elevation = if (pressed) 6.dp else 1.dp
-                    ) {
-                        Spacer(LayoutSize(thumbSize, thumbSize))
-                    }
+                Surface(
+                    shape = CircleShape,
+                    color = color,
+                    elevation = if (pressed) 6.dp else 1.dp,
+                    modifier = ripple(bounded = false)
+                ) {
+                    Spacer(LayoutSize(thumbSize, thumbSize))
                 }
             }
         }

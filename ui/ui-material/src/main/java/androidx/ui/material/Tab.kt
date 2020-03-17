@@ -55,7 +55,7 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.material.TabRow.TabPosition
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -508,10 +508,8 @@ fun Tab(
     onSelected: () -> Unit,
     children: @Composable() () -> Unit
 ) {
-    Ripple(bounded = true) {
-        MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-            Box(LayoutWidth.Fill, gravity = ContentGravity.Center, children = children)
-        }
+    MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
+        Box(LayoutWidth.Fill, gravity = ContentGravity.Center, children = children)
     }
 }
 

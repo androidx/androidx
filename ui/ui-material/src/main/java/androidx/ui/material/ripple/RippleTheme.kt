@@ -23,7 +23,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialTheme
 
 /**
- * Defines the appearance and the behavior for [Ripple]s.
+ * Defines the appearance and the behavior for [ripple]s.
  *
  * You can define new theme and apply it via [RippleThemeAmbient].
  */
@@ -33,12 +33,12 @@ data class RippleTheme(
      */
     val factory: RippleEffectFactory,
     /**
-     * The effect that will be used to calculate the [Ripple] color when it is not explicitly
-     * set in a [Ripple].
+     * The effect that will be used to calculate the [ripple] color when it is not explicitly
+     * set in a [ripple].
      */
     val defaultColor: @Composable() () -> Color,
     /**
-     * The effect that will be used to calculate the opacity applied to the [Ripple] color.
+     * The effect that will be used to calculate the opacity applied to the [ripple] color.
      * For example, it can be different in dark and light modes.
      */
     val opacity: @Composable() () -> Float

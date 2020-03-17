@@ -33,7 +33,7 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -67,11 +67,9 @@ fun FloatingActionButton(
     children: @Composable() () -> Unit
 ) {
     Surface(modifier = modifier, shape = shape, color = color, elevation = elevation) {
-        Ripple(bounded = true) {
-            Clickable(onClick = onClick) {
-                Box(LayoutSize.Min(minSize), gravity = ContentGravity.Center) {
-                    CurrentTextStyleProvider(MaterialTheme.typography().button, children)
-                }
+        Clickable(onClick = onClick, modifier = ripple()) {
+            Box(LayoutSize.Min(minSize), gravity = ContentGravity.Center) {
+                CurrentTextStyleProvider(MaterialTheme.typography().button, children)
             }
         }
     }

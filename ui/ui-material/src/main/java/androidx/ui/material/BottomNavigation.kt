@@ -44,7 +44,7 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -142,18 +142,16 @@ fun RowScope.BottomNavigationItem(
         val style = MaterialTheme.typography().caption.copy(textAlign = TextAlign.Center)
         CurrentTextStyleProvider(style, children = text)
     }
-    Ripple(bounded = false) {
-        MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-            Box(modifier + LayoutWeight(1f), gravity = ContentGravity.Center) {
-                BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
-                    val animationProgress = if (alwaysShowLabels) 1f else progress
+    MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
+        Box(modifier + LayoutWeight(1f), gravity = ContentGravity.Center) {
+            BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
+                val animationProgress = if (alwaysShowLabels) 1f else progress
 
-                    BottomNavigationItemBaselineLayout(
-                        icon = icon,
-                        text = styledText,
-                        iconPositionAnimationProgress = animationProgress
-                    )
-                }
+                BottomNavigationItemBaselineLayout(
+                    icon = icon,
+                    text = styledText,
+                    iconPositionAnimationProgress = animationProgress
+                )
             }
         }
     }

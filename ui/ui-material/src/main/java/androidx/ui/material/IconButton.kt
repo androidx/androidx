@@ -23,7 +23,7 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.layout.LayoutSize
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.dp
 
 /**
@@ -51,14 +51,12 @@ fun IconButton(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Ripple(bounded = false, radius = RippleRadius) {
-        Clickable(onClick) {
-            Box(
-                modifier = modifier + IconButtonSizeModifier,
-                gravity = ContentGravity.Center,
-                children = children
-            )
-        }
+    Clickable(onClick = onClick, modifier = ripple(bounded = false, radius = RippleRadius)) {
+        Box(
+            modifier = modifier + IconButtonSizeModifier,
+            gravity = ContentGravity.Center,
+            children = children
+        )
     }
 }
 
@@ -81,14 +79,16 @@ fun IconToggleButton(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Ripple(bounded = false, radius = RippleRadius) {
-        Toggleable(value = checked, onValueChange = onCheckedChange) {
-            Box(
-                modifier = modifier + IconButtonSizeModifier,
-                gravity = ContentGravity.Center,
-                children = children
-            )
-        }
+    Toggleable(
+        value = checked,
+        onValueChange = onCheckedChange,
+        modifier = ripple(bounded = false, radius = RippleRadius)
+    ) {
+        Box(
+            modifier = modifier + IconButtonSizeModifier,
+            gravity = ContentGravity.Center,
+            children = children
+        )
     }
 }
 
