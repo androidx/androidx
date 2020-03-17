@@ -88,6 +88,7 @@ includeProject(":ui:ui-unit", "ui-unit")
 includeProject(":ui:ui-unit:samples", "ui-unit/samples")
 includeProject(":ui:ui-util", "ui-util")
 includeProject(":ui:ui-vector", "ui-vector")
+includeProject(":ui:ui-saved-instance-state", "ui-saved-instance-state")
 
 /////////////////////////////
 //
