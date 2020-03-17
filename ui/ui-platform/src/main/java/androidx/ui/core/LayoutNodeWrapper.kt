@@ -291,7 +291,14 @@ internal class InnerPlaceable(
     }
 
     override val parentData: Any?
-        get() = layoutNode.parentDataNode?.value
+        @Suppress("DEPRECATION")
+        get() = if (layoutNode.handlesParentData) {
+            layoutNode.parentDataNode?.value
+        } else {
+            layoutNode.parentDataNode?.value
+                ?: layoutNode.layoutChildren
+                    .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
+        }
 
     override fun minIntrinsicWidth(height: IntPx): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(

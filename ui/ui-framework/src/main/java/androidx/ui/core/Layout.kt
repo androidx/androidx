@@ -160,6 +160,29 @@ import androidx.ui.unit.min
     }
 }
 
+@Composable
+@Deprecated("This composable supports our transition from single child composables to modifiers. " +
+        "It should not be used in app code directly.")
+fun PassThroughLayout(
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    val measureBlocks = remember {
+        val measureBlock: MeasureBlock = { measurables, constraints, _ ->
+            val placeables = measurables.map { it.measure(constraints) }
+            val width = placeables.maxBy { it.width }?.width ?: constraints.minWidth
+            val height = placeables.maxBy { it.height }?.height ?: constraints.minHeight
+            layout(width, height) {
+                placeables.forEach { it.place(IntPx.Zero, IntPx.Zero) }
+            }
+        }
+        MeasuringIntrinsicsMeasureBlocks(measureBlock)
+    }
+    LayoutNode(modifier = modifier, measureBlocks = measureBlocks, handlesParentData = false) {
+        children()
+    }
+}
+
 /**
  * Used to return a fixed sized item for intrinsics measurements in [Layout]
  */
