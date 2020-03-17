@@ -28,7 +28,7 @@ dependencies {
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-material:integration-tests:samples")
+    implementation project(":ui:ui-material:samples")
     implementation project(":ui:ui-text")
     implementation project(':ui:ui-android-view')
     implementation project(':ui:ui-material')
