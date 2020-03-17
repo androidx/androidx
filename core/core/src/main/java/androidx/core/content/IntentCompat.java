@@ -36,7 +36,7 @@ public final class IntentCompat {
      * reminder that will be shown to the user.
      * {@link android.content.Intent#EXTRA_TEXT} The reminder text that will be
      * shown to the user. The intent should at least specify a title or a text.
-     * {@link #EXTRA_TIME} The time when the reminder will
+     * {@link #EXTRA_EPOCH_TIME} The time when the reminder will
      * be shown to the user. The time is specified in milliseconds since the
      * Epoch (optional).
      * </p>
@@ -44,7 +44,7 @@ public final class IntentCompat {
      *
      * @see android.content.Intent#EXTRA_TITLE
      * @see android.content.Intent#EXTRA_TEXT
-     * @see #EXTRA_TIME
+     * @see #EXTRA_EPOCH_TIME
      */
     @SuppressLint("ActionValue")
     public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
@@ -73,7 +73,7 @@ public final class IntentCompat {
      * </p>
      */
     @SuppressLint("ActionValue")
-    public static final String EXTRA_TIME = "android.intent.extra.TIME";
+    public static final String EXTRA_EPOCH_TIME = "android.intent.extra.EPOCH_TIME";
 
     /**
      * Indicates an activity optimized for Leanback mode, and that should
