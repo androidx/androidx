@@ -20,8 +20,9 @@ import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Text
+import androidx.ui.core.onChildPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
@@ -115,25 +116,28 @@ class TabTest {
 
                 val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                     TabRow.IndicatorContainer(tabPositions, state) {
-                        OnChildPositioned({ indicatorCoords = it }) {
-                            ColoredRect(Color.Red, height = indicatorHeight)
-                        }
+                        ColoredRect(
+                            Color.Red,
+                            onPositioned { indicatorCoords = it },
+                            height = indicatorHeight
+                        )
                     }
                 }
 
-                Container(alignment = Alignment.TopCenter) {
-                    OnChildPositioned({ tabRowCoords = it }) {
-                        TabRow(
-                            items = titles,
-                            selectedIndex = state,
-                            indicatorContainer = indicatorContainer
-                        ) { index, text ->
-                            Tab(
-                                text = { Text(text) },
-                                selected = state == index,
-                                onSelected = { setState(index) }
-                            )
-                        }
+                Container(
+                    onChildPositioned { tabRowCoords = it },
+                    alignment = Alignment.TopCenter
+                ) {
+                    TabRow(
+                        items = titles,
+                        selectedIndex = state,
+                        indicatorContainer = indicatorContainer
+                    ) { index, text ->
+                        Tab(
+                            text = { Text(text) },
+                            selected = state == index,
+                            onSelected = { setState(index) }
+                        )
                     }
                 }
             }
@@ -186,26 +190,26 @@ class TabTest {
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
-                    OnChildPositioned({ indicatorCoords = it }) {
-                        ColoredRect(Color.Red, height = indicatorHeight)
-                    }
+                    ColoredRect(
+                        Color.Red,
+                        onPositioned { indicatorCoords = it },
+                        height = indicatorHeight
+                    )
                 }
             }
 
-            Container(alignment = Alignment.TopCenter) {
-                OnChildPositioned({ tabRowCoords = it }) {
-                    TabRow(
-                        items = titles,
-                        scrollable = true,
-                        selectedIndex = state,
-                        indicatorContainer = indicatorContainer
-                    ) { index, text ->
-                        Tab(
-                            text = { Text(text) },
-                            selected = state == index,
-                            onSelected = { setState(index) }
-                        )
-                    }
+            Container(onChildPositioned { tabRowCoords = it }, alignment = Alignment.TopCenter) {
+                TabRow(
+                    items = titles,
+                    scrollable = true,
+                    selectedIndex = state,
+                    indicatorContainer = indicatorContainer
+                ) { index, text ->
+                    Tab(
+                        text = { Text(text) },
+                        selected = state == index,
+                        onSelected = { setState(index) }
+                    )
                 }
             }
         }
