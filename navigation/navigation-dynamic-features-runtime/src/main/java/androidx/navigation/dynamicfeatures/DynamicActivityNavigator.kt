@@ -19,6 +19,7 @@ package androidx.navigation.dynamicfeatures
 import android.content.Context
 import android.os.Bundle
 import android.util.AttributeSet
+import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavDestination
@@ -34,6 +35,12 @@ class DynamicActivityNavigator(
     context: Context,
     private val installManager: DynamicInstallManager
 ) : ActivityNavigator(context) {
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val packageName: String = context.packageName
 
     override fun navigate(
         destination: ActivityNavigator.Destination,

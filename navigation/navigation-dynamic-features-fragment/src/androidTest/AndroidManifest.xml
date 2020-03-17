@@ -19,6 +19,7 @@
 
     <application>
         <activity android:name="androidx.navigation.dynamicfeatures.fragment.NavigationActivity" />
+        <activity android:name="androidx.navigation.dynamicfeatures.fragment.TestActivity" />
     </application>
 
 </manifest>
