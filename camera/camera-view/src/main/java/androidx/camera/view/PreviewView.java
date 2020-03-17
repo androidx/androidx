@@ -21,7 +21,6 @@ import android.content.res.TypedArray;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Size;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -42,8 +41,8 @@ import java.util.concurrent.Executor;
  */
 public class PreviewView extends FrameLayout {
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    Implementation mImplementation;
+    @SuppressWarnings("WeakerAccess")
+    PreviewViewImplementation mImplementation;
 
     private ImplementationMode mImplementationMode;
 
@@ -136,6 +135,29 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
+     * Applies a {@link ScaleType} to the preview.
+     *
+     * <p>Note that the {@link ScaleType#FILL_CENTER} is applied to the preview by default.
+     *
+     * @param scaleType A {@link ScaleType} to apply to the preview.
+     */
+    public void setScaleType(@NonNull final ScaleType scaleType) {
+        mImplementation.setScaleType(scaleType);
+    }
+
+    /**
+     * Returns the {@link ScaleType} currently applied to the preview.
+     *
+     * <p>By default, {@link ScaleType#FILL_CENTER} is applied to the preview.</p>
+     *
+     * @return The {@link ScaleType} currently applied to the preview.
+     */
+    @NonNull
+    public ScaleType getScaleType() {
+        return mImplementation.getScaleType();
+    }
+
+    /**
      * Specifies the {@link ImplementationMode} to use for the preview.
      *
      * @param implementationMode <code>SURFACE_VIEW</code> if a {@link android.view.SurfaceView}
@@ -181,39 +203,6 @@ public class PreviewView extends FrameLayout {
     public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
         return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
                 mImplementation.getResolution(), mScaleType, getWidth(), getHeight());
-    }
-
-    /**
-     * Implements this interface to create PreviewView implementation.
-     */
-    interface Implementation {
-
-        /**
-         * Initializes the parent view with sub views.
-         *
-         * @param parent the containing parent {@link FrameLayout}.
-         */
-        void init(@NonNull FrameLayout parent);
-
-        /**
-         * Gets the {@link Preview.SurfaceProvider} to be used with {@link Preview}.
-         */
-        @NonNull
-        Preview.SurfaceProvider getSurfaceProvider();
-
-        /**
-         * Notifies that the display properties have changed.
-         *
-         * <p>Implementation might need to adjust transform by latest display properties such as
-         * display orientation in order to show the preview correctly.
-         */
-        void onDisplayChanged();
-
-        /**
-         * Returns current surface resolution.
-         */
-        @Nullable
-        Size getResolution();
     }
 
     /**
