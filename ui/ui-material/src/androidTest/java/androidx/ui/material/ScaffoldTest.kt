@@ -17,9 +17,9 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
@@ -69,16 +69,8 @@ class ScaffoldTest {
         lateinit var child2: PxPosition
         composeTestRule.setMaterialContent {
             Scaffold {
-                OnChildPositioned({ positioned ->
-                    child1 = positioned.positionInParent
-                }) {
-                    Text("One")
-                }
-                OnChildPositioned({ positioned ->
-                    child2 = positioned.positionInParent
-                }) {
-                    Text("Two")
-                }
+                Text("One", onPositioned { child1 = it.positionInParent })
+                Text("Two", onPositioned { child2 = it.positionInParent })
             }
         }
         assertThat(child1.y).isEqualTo(child2.y)
@@ -93,19 +85,20 @@ class ScaffoldTest {
         composeTestRule.setMaterialContent {
             Scaffold(
                 topAppBar = {
-                    OnChildPositioned({ positioned ->
-                        appbarPosition = positioned.localToGlobal(PxPosition.Origin)
-                        appbarSize = positioned.size
-                    }) {
-                        ColoredRect(Color.Red, height = 50.dp)
-                    }
+                        ColoredRect(
+                            Color.Red,
+                            onPositioned { positioned ->
+                                appbarPosition = positioned.localToGlobal(PxPosition.Origin)
+                                appbarSize = positioned.size
+                            },
+                            height = 50.dp
+                        )
                 }
             ) {
-                OnChildPositioned({ positioned ->
-                    contentPosition = positioned.localToGlobal(PxPosition.Origin)
-                }) {
-                    ColoredRect(Color.Blue, height = 50.dp)
-                }
+                ColoredRect(
+                    Color.Blue,
+                    onPositioned { contentPosition = it.localToGlobal(PxPosition.Origin) },
+                    height = 50.dp)
             }
         }
         assertThat(appbarPosition.y + appbarSize.height).isEqualTo(contentPosition.y)
@@ -120,20 +113,24 @@ class ScaffoldTest {
         composeTestRule.setMaterialContent {
             Scaffold(
                 bottomAppBar = {
-                    OnChildPositioned({ positioned ->
-                        appbarPosition = positioned.positionInParent
-                        appbarSize = positioned.size
-                    }) {
-                        ColoredRect(Color.Red, height = 50.dp)
-                    }
+                    ColoredRect(
+                        Color.Red,
+                        onPositioned { positioned ->
+                            appbarPosition = positioned.positionInParent
+                            appbarSize = positioned.size
+                        },
+                        height = 50.dp
+                    )
                 }
             ) {
-                OnChildPositioned({ positioned ->
-                    contentPosition = positioned.positionInParent
-                    contentSize = positioned.size
-                }) {
-                    ColoredRect(Color.Blue, height = 50.dp)
-                }
+                ColoredRect(
+                    Color.Blue,
+                    onPositioned { positioned ->
+                        contentPosition = positioned.positionInParent
+                        contentSize = positioned.size
+                    },
+                    height = 50.dp
+                )
             }
         }
         val appBarBottom = appbarPosition.y + appbarSize.height
@@ -152,11 +149,13 @@ class ScaffoldTest {
                     Scaffold(
                         scaffoldState = scaffoldState,
                         drawerContent = {
-                            OnChildPositioned({ positioned ->
-                                drawerChildPosition = positioned.positionInParent
-                            }) {
-                                ColoredRect(Color.Blue, height = 50.dp)
-                            }
+                            ColoredRect(
+                                Color.Blue,
+                                onPositioned { positioned ->
+                                    drawerChildPosition = positioned.positionInParent
+                                },
+                                height = 50.dp
+                            )
                         }
                     ) {
                         ColoredRect(Color.Blue, height = 50.dp)
@@ -199,11 +198,13 @@ class ScaffoldTest {
                     Scaffold(
                         scaffoldState = scaffoldState,
                         drawerContent = {
-                            OnChildPositioned({ positioned ->
-                                drawerChildPosition = positioned.positionInParent
-                            }) {
-                                ColoredRect(Color.Blue, height = 50.dp)
-                            }
+                            ColoredRect(
+                                Color.Blue,
+                                onPositioned { positioned ->
+                                    drawerChildPosition = positioned.positionInParent
+                                },
+                                height = 50.dp
+                            )
                         }
                     ) {
                         ColoredRect(Color.Blue, height = 50.dp)
@@ -258,20 +259,24 @@ class ScaffoldTest {
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
-                    OnChildPositioned({ positioned ->
-                        fabSize = positioned.size
-                        fabPosition = positioned.localToGlobal(positioned.positionInParent)
-                    }) {
-                        FloatingActionButton("text", onClick = {})
-                    }
+                    FloatingActionButton(
+                        "text",
+                        modifier = onPositioned { positioned ->
+                            fabSize = positioned.size
+                            fabPosition = positioned.localToGlobal(positioned.positionInParent)
+                        },
+                        onClick = {})
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
                 bottomAppBar = {
-                    OnChildPositioned({ positioned ->
-                        bottomBarPosition = positioned.localToGlobal(positioned.positionInParent)
-                    }) {
-                        ColoredRect(Color.Red, height = 100.dp)
-                    }
+                    ColoredRect(
+                        Color.Red,
+                        onPositioned { positioned ->
+                            bottomBarPosition =
+                                positioned.localToGlobal(positioned.positionInParent)
+                        },
+                        height = 100.dp
+                    )
                 }
             ) {
                 Text("body")
@@ -289,20 +294,25 @@ class ScaffoldTest {
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
-                    OnChildPositioned({ positioned ->
-                        fabSize = positioned.size
-                        fabPosition = positioned.localToGlobal(positioned.positionInParent)
-                    }) {
-                        FloatingActionButton("text", onClick = {})
-                    }
+                    FloatingActionButton(
+                        "text",
+                        modifier = onPositioned { positioned ->
+                            fabSize = positioned.size
+                            fabPosition = positioned.localToGlobal(positioned.positionInParent)
+                        },
+                        onClick = {}
+                    )
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.EndDocked,
                 bottomAppBar = {
-                    OnChildPositioned({ positioned ->
-                        bottomBarPosition = positioned.localToGlobal(positioned.positionInParent)
-                    }) {
-                        ColoredRect(Color.Red, height = 100.dp)
-                    }
+                    ColoredRect(
+                        Color.Red,
+                        onPositioned { positioned ->
+                            bottomBarPosition =
+                                positioned.localToGlobal(positioned.positionInParent)
+                        },
+                        height = 100.dp
+                    )
                 }
             ) {
                 Text("body")
