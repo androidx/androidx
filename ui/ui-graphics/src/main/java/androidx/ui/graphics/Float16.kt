@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.util
+package androidx.ui.graphics
 
 import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 
 /**
  * The `Float16` class is a wrapper and a utility class to manipulate half-precision 16-bit
@@ -86,8 +85,7 @@ import androidx.annotation.Nullable
  *
  * This table shows that numbers higher than 1024 lose all fractional precision.
  */
-// TODO(mount): Make this an inline class
-class Float16(val halfValue: Short) : Comparable<Float16> {
+internal inline class Float16(val halfValue: Short) : Comparable<Float16> {
 
     /**
      * Constructs a newly allocated `Float16` object that represents the
@@ -95,7 +93,11 @@ class Float16(val halfValue: Short) : Comparable<Float16> {
      *
      * @param value The value to be represented by the `Float16`
      */
-    constructor(value: Float) : this(floatToHalf(value))
+    constructor(value: Float) : this(
+        floatToHalf(
+            value
+        )
+    )
 
     /**
      * Constructs a newly allocated `Float16` object that
@@ -228,34 +230,6 @@ class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 
     /**
-     * Compares this object against the specified object. The result is `true`
-     * if and only if the argument is not `null` and is a `Float16` object
-     * that represents the same half-precision value as the this object. Two
-     * half-precision values are considered to be the same if and only if the method
-     * [toBits] returns an identical `int` value for both.
-     *
-     * @param other The object to compare
-     * @return True if the objects are the same, false otherwise
-     *
-     * @see toBits
-     */
-    override fun equals(@Nullable other: Any?): Boolean {
-        return other is Float16 && other.toBits() == toBits()
-    }
-
-    /**
-     * Returns a hash code for this `Float16` object. The result is the
-     * integer bit representation, exactly as produced by the method
-     * [toBits], of the primitive half-precision float
-     * value represented by this `Float16` object.
-     *
-     * @return A hash code value for this object
-     */
-    override fun hashCode(): Int {
-        return toBits()
-    }
-
-    /**
      * Returns a string representation of the specified half-precision
      * float value. See [toString] for more information.
      *
@@ -288,7 +262,9 @@ class Float16(val halfValue: Short) : Comparable<Float16> {
         } else if (other.isNaN()) {
             return -1
         }
-        return toCompareValue(halfValue).compareTo(toCompareValue(other.halfValue))
+        return toCompareValue(halfValue).compareTo(
+            toCompareValue(other.halfValue)
+        )
     }
 
     /**
@@ -316,8 +292,10 @@ class Float16(val halfValue: Short) : Comparable<Float16> {
      * Returns a [Float16] with the magnitude of this and the sign of [sign]
      */
     fun withSign(sign: Float16): Float16 =
-            Float16((sign.halfValue.toInt() and FP16_SIGN_MASK or
-                    (halfValue.toInt() and FP16_COMBINED)).toShort())
+        Float16(
+            (sign.halfValue.toInt() and FP16_SIGN_MASK or
+                    (halfValue.toInt() and FP16_COMBINED)).toShort()
+        )
 
     /**
      * Returns the absolute value of the half-precision float.
@@ -732,7 +710,7 @@ class Float16(val halfValue: Short) : Comparable<Float16> {
  * @param y The second half-precision value
  * @return The smaller of the two specified half-precision values
  */
-fun min(x: Float16, y: Float16): Float16 {
+internal fun min(x: Float16, y: Float16): Float16 {
     if (x.isNaN() || y.isNaN()) {
         return Float16.NaN
     }
@@ -752,7 +730,7 @@ fun min(x: Float16, y: Float16): Float16 {
  *
  * @return The larger of the two specified half-precision values
  */
-fun max(x: Float16, y: Float16): Float16 {
+internal fun max(x: Float16, y: Float16): Float16 {
     if (x.isNaN() || y.isNaN()) {
         return Float16.NaN
     }
