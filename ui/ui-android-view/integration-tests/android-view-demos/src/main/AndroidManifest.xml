@@ -19,22 +19,9 @@
         package="androidx.ui.androidview.demos">
 
     <application>
-        <activity android:name=".ViewInCompose"
-            android:configChanges="orientation|screenSize"
-            android:label="AndroidView/Views in Compose">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".WebComponentActivity"
             android:configChanges="orientation|screenSize"
-            android:label="AndroidView/WebComponent Activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
+            android:label="WebComponent Activity">
         </activity>
     </application>
 </manifest>
