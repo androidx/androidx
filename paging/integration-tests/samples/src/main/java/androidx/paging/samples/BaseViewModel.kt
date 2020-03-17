@@ -18,8 +18,10 @@ package androidx.paging.samples
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LivePagingData
 import androidx.paging.PagingConfig
 import androidx.paging.PagingDataFlow
+import androidx.paging.PagingDataFlowable
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 
@@ -31,4 +33,14 @@ open class BaseViewModel<T : Any> : ViewModel() {
 
     val pagingFlow = PagingDataFlow(PagingConfig(pageSize = 40), pagingSourceFactory)
         .cachedIn(viewModelScope)
+
+    val pagingFlowable = PagingDataFlowable(
+        config = PagingConfig(pageSize = 40),
+        pagingSourceFactory = pagingSourceFactory
+    )
+
+    val pagingLiveData = LivePagingData(
+        config = PagingConfig(pageSize = 40),
+        pagingSourceFactory = pagingSourceFactory
+    )
 }

@@ -80,7 +80,8 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      * This method is typically used when observing a RxJava or LiveData stream. For [Flow], see
      * [presentData]
      *
-     * @sample androidx.paging.samples.submitDataSample
+     * @sample androidx.paging.samples.submitDataLiveDataSample
+     * @sample androidx.paging.samples.submitDataRxSample
      * @see [presentData]
      */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {

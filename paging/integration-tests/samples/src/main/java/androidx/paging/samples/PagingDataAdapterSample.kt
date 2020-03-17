@@ -25,9 +25,12 @@ import androidx.activity.viewModels
 import androidx.annotation.Sampled
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.Flowable
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -82,7 +85,7 @@ internal class UserListViewModel : BaseViewModel<User>()
 @ExperimentalCoroutinesApi
 @Sampled
 fun presentDataSample() {
-    class MyActivity : AppCompatActivity() {
+    class MyFlowActivity : AppCompatActivity() {
         val pagingAdapter = UserPagingAdapter()
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,10 +94,10 @@ fun presentDataSample() {
 
             lifecycleScope.launch {
                 viewModel.pagingFlow
-                    .collectLatest {
-                        // present data suspends, so you typically want collectLatest {}
-                        // when using it to present data
-                        pagingAdapter.presentData(it)
+                    .collectLatest { pagingData ->
+                        // presentData suspends until loading this generation of data stops
+                        // so be sure to use collectLatest {} when presenting a Flow<PagingData>
+                        pagingAdapter.presentData(pagingData)
                     }
             }
         }
@@ -103,20 +106,43 @@ fun presentDataSample() {
 
 @ExperimentalCoroutinesApi
 @Sampled
-fun submitDataSample() {
-    class MyActivity : AppCompatActivity() {
+fun submitDataLiveDataSample() {
+    class MyLiveDataActivity : AppCompatActivity() {
         val pagingAdapter = UserPagingAdapter()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val viewModel by viewModels<UserListViewModel>()
 
-            lifecycleScope.launch {
-                viewModel.pagingFlow
-                    .collectLatest {
-                        pagingAdapter.submitData(lifecycle, it)
-                    }
+            viewModel.pagingLiveData.observe(this) { pagingData ->
+                pagingAdapter.submitData(lifecycle, pagingData)
             }
+        }
+    }
+}
+
+fun <T> Flowable<T>.autoDispose(
+    @Suppress("UNUSED_PARAMETER") scope: AppCompatActivity
+): Flowable<T> {
+    throw NotImplementedError()
+}
+
+@ExperimentalCoroutinesApi
+@Sampled
+fun submitDataRxSample() {
+    class MyRxJava2Activity : AppCompatActivity() {
+        val pagingAdapter = UserPagingAdapter()
+        val disposable = CompositeDisposable()
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            val viewModel by viewModels<UserListViewModel>()
+
+            viewModel.pagingFlowable
+                .autoDispose(this) // Using AutoDispose to handle subscription lifecycle
+                .subscribe { pagingData ->
+                    pagingAdapter.submitData(lifecycle, pagingData)
+                }
         }
     }
 }
