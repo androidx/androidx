@@ -21,56 +21,16 @@ import androidx.navigation.Navigator
 /**
  * Extras for dynamic navigators.
  *
- * You can set a [DynamicInstallMonitor] here to be notified of install state changes.
+ * You can set a [DynamicInstallMonitor] here to be notified of install state changes as well as any
+ * [Navigator.Extras].
  */
-class DynamicExtras internal constructor(
+class DynamicExtras @JvmOverloads constructor(
     /**
      * @return The [DynamicInstallMonitor] used.
      */
-    val installMonitor: DynamicInstallMonitor?,
+    val installMonitor: DynamicInstallMonitor? = null,
     /**
      * @return [Navigator.Extras] associated with these [DynamicExtras].
      */
-    val destinationExtras: Navigator.Extras?
-) : Navigator.Extras {
-
-    /**
-     * Builder that enables creation of [DynamicExtras].
-     */
-    class Builder {
-
-        private var monitor: DynamicInstallMonitor? = null
-        private var destinationExtras: Navigator.Extras? = null
-
-        /**
-         * Set the [DynamicInstallMonitor].
-         *
-         * @param monitor The [DynamicInstallMonitor] to set.
-         * @return This [Builder].
-         */
-        fun setInstallMonitor(monitor: DynamicInstallMonitor): Builder {
-            this.monitor = monitor
-            return this
-        }
-
-        /**
-         * Set the [Navigator.Extras].
-         *
-         * @param destinationExtras The [Navigator.Extras] to set.
-         * @return This [Builder].
-         */
-        fun setDestinationExtras(destinationExtras: Navigator.Extras): Builder {
-            this.destinationExtras = destinationExtras
-            return this
-        }
-
-        /**
-         * Build [DynamicExtras].
-         *
-         * @return A new instance of [DynamicExtras] with all attributes set in the builder.
-         */
-        fun build(): DynamicExtras {
-            return DynamicExtras(monitor, destinationExtras)
-        }
-    }
-}
+    val destinationExtras: Navigator.Extras? = null
+) : Navigator.Extras
