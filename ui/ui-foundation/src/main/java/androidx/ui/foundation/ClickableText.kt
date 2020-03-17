@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.core
+package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
@@ -30,11 +31,11 @@ import androidx.ui.text.style.TextOverflow
  * This is a shorthand of [Text] with [PressIndicatorGestureDetector] to be able to handle click
  * event easily.
  *
- * @sample androidx.ui.framework.samples.ClickableText
+ * @sample androidx.ui.foundation.samples.ClickableText
  *
  * For other gestures, e.g. long press, dragging, follow sample code.
  *
- * @sample androidx.ui.framework.samples.LongClickableText
+ * @sample androidx.ui.foundation.samples.LongClickableText
  *
  * @see Text
  * @see androidx.ui.core.gesture.PressIndicatorGestureDetector
@@ -58,9 +59,9 @@ fun ClickableText(
     text: AnnotatedString,
     modifier: Modifier = Modifier.None,
     style: TextStyle = TextStyle.Default,
-    softWrap: Boolean = DefaultSoftWrap,
-    overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int = DefaultMaxLines,
+    softWrap: Boolean = true,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onClick: (Int) -> Unit
 ) {

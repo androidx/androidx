@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.foundation
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.TestTag
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
@@ -43,7 +44,8 @@ class ClickableTextTest {
             TestTag(tag = "clickableText") {
                 ClickableText(
                     text = AnnotatedString("android"),
-                    onClick = onClick)
+                    onClick = onClick
+                )
             }
         }
 

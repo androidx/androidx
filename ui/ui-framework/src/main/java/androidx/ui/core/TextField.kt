@@ -338,14 +338,12 @@ internal fun BaseTextField(
 
     Wrapper(generation.value) {
         // Ambients
-        val style = CurrentTextStyleAmbient.current
         val textInputService = TextInputServiceAmbient.current
         val density = DensityAmbient.current
         val resourceLoader = FontLoaderAmbient.current
         val layoutDirection = LayoutDirectionAmbient.current
 
         // State
-        val mergedStyle = style.merge(textStyle)
         val (visualText, offsetMap) = remember(value, visualTransformation) {
             val transformed = TextFieldDelegate.applyVisualFilter(value, visualTransformation)
             value.composition?.let {
@@ -356,7 +354,7 @@ internal fun BaseTextField(
             TextFieldState(
                 TextDelegate(
                     text = visualText,
-                    style = mergedStyle,
+                    style = textStyle,
                     density = density,
                     resourceLoader = resourceLoader,
                     layoutDirection = layoutDirection
@@ -366,7 +364,9 @@ internal fun BaseTextField(
         state.textDelegate = updateTextDelegate(
             current = state.textDelegate,
             text = visualText,
-            style = mergedStyle,
+            // TODO(143536715): TextField should use currentTextStyle() here, so we need a higher
+            // level TextField
+            style = textStyle,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = layoutDirection
