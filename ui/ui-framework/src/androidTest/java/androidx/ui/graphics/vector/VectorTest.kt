@@ -129,24 +129,24 @@ class VectorTest {
         alignment: Alignment = Alignment.Center
     ) {
         val sizePx = size.toPx()
-        AtLeastSize(size = minimumSize) {
-            DrawVector(
-                defaultWidth = sizePx,
-                defaultHeight = sizePx,
-                tintColor = Color.Cyan,
-                alignment = alignment) { _, _ ->
-                Path(
-                    pathData = PathData {
-                        lineTo(sizePx.value, 0.0f)
-                        lineTo(sizePx.value, sizePx.value)
-                        lineTo(0.0f, sizePx.value)
-                        close()
-                    },
-                    fill = SolidColor(Color.Black)
-                )
+        val background = drawVector(
+            defaultWidth = sizePx,
+            defaultHeight = sizePx,
+            tintColor = Color.Cyan,
+            alignment = alignment) { _, _ ->
+            Path(
+                pathData = PathData {
+                    lineTo(sizePx.value, 0.0f)
+                    lineTo(sizePx.value, sizePx.value)
+                    lineTo(0.0f, sizePx.value)
+                    close()
+                },
+                fill = SolidColor(Color.Black)
+            )
 
-                drawLatch.countDown()
-            }
+            drawLatch.countDown()
+        }
+        AtLeastSize(size = minimumSize, modifier = background) {
         }
     }
 

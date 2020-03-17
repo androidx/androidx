@@ -18,9 +18,10 @@ package androidx.ui.material.icons.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
-import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.VectorAsset
+import androidx.ui.graphics.vector.drawVector
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.rounded.Menu
 
@@ -39,4 +40,6 @@ fun DrawIcon() {
 }
 
 @Composable
-private fun SomeComposable(icon: VectorAsset) { DrawVector(icon) }
+private fun SomeComposable(icon: VectorAsset) {
+    Box(modifier = drawVector(icon))
+}

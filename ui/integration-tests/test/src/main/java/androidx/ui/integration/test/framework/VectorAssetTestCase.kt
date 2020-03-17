@@ -23,10 +23,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
-import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorAssetBuilder
+import androidx.ui.graphics.vector.drawVector
 import androidx.ui.layout.Container
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
@@ -45,8 +45,8 @@ sealed class VectorAssetTestCase : ComposeTestCase {
         Container {
             TestTag(testTag) {
                 Semantics(container = true) {
-                    Container(width = 24.dp, height = 24.dp) {
-                        DrawVector(vectorImage = getVectorAsset())
+                    val background = drawVector(vectorImage = getVectorAsset())
+                    Container(width = 24.dp, height = 24.dp, modifier = background) {
                     }
                 }
             }

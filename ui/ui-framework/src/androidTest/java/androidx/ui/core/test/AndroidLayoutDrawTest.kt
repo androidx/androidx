@@ -37,7 +37,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
-import androidx.ui.core.Draw
 import androidx.ui.core.DrawLayerProperties
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
@@ -275,8 +274,7 @@ class AndroidLayoutDrawTest {
 
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                Padding(size = (model.size * 3)) {
-                    FillColor(model, isInner = false)
+                Padding(size = (model.size * 3), modifier = fillColor(model, isInner = false)) {
                 }
             }
         }
@@ -309,11 +307,9 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 Layout(children = {
-                    Padding(size = (model.size * 3)) {
-                        FillColor(model, isInner = false)
+                    Padding(size = (model.size * 3), modifier = fillColor(model, isInner = false)) {
                     }
-                    Padding(size = model.size) {
-                        FillColor(model, isInner = true)
+                    Padding(size = model.size, modifier = fillColor(model, isInner = true)) {
                     }
                 }, measureBlock = { measurables, constraints, _ ->
                     val placeables = measurables.map { it.measure(constraints) }
@@ -336,40 +332,47 @@ class AndroidLayoutDrawTest {
 
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                DeprecatedDraw { canvas, parentSize ->
-                    // Fill the space with the outerColor
-                    val paint = Paint()
-                    paint.color = model.outerColor
-                    canvas.drawRect(parentSize.toRect(), paint)
-                    canvas.nativeCanvas.save()
-                    val offset = parentSize.width.value / 3
-                    // clip drawing to the inner rectangle
-                    canvas.clipRect(Rect(offset, offset, offset * 2, offset * 2))
-                }
-                Padding(size = (model.size * 3)) {
-                    DeprecatedDraw { canvas, parentSize ->
-                        // Fill top half with innerColor -- should be clipped
-                        drawLatch.countDown()
+                val contentDrawing = object : DrawModifier {
+                    override fun draw(
+                        density: Density,
+                        drawContent: () -> Unit,
+                        canvas: Canvas,
+                        size: PxSize
+                    ) {
+                        // Fill the space with the outerColor
                         val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(size.toRect(), paint)
+                        canvas.nativeCanvas.save()
+                        val offset = size.width.value / 3
+                        // clip drawing to the inner rectangle
+                        canvas.clipRect(Rect(offset, offset, offset * 2, offset * 2))
+                        drawContent()
+
+                        // Fill bottom half with innerColor -- should be clipped
                         paint.color = model.innerColor
                         val paintRect = Rect(
-                            0f, 0f, parentSize.width.value,
-                            parentSize.height.value / 2f
+                            0f, size.height.value / 2f,
+                            size.width.value, size.height.value
                         )
                         canvas.drawRect(paintRect, paint)
+                        // restore the canvas
+                        canvas.nativeCanvas.restore()
                     }
                 }
-                DeprecatedDraw { canvas, parentSize ->
-                    // Fill bottom half with innerColor -- should be clipped
+
+                val paddingContent = draw { canvas, parentSize ->
+                    // Fill top half with innerColor -- should be clipped
+                    drawLatch.countDown()
                     val paint = Paint()
                     paint.color = model.innerColor
                     val paintRect = Rect(
-                        0f, parentSize.height.value / 2f,
-                        parentSize.width.value, parentSize.height.value
+                        0f, 0f, parentSize.width.value,
+                        parentSize.height.value / 2f
                     )
                     canvas.drawRect(paintRect, paint)
-                    // restore the canvas
-                    canvas.nativeCanvas.restore()
+                }
+                Padding(size = (model.size * 3), modifier = contentDrawing + paddingContent) {
                 }
             }
         }
@@ -615,12 +618,10 @@ class AndroidLayoutDrawTest {
         val innerColor = Color(0xFFFFFFFF)
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(outerColor)
+                AtLeastSize(size = 30.ipx, modifier = fillColor(outerColor)) {
                     if (drawChild.value) {
                         Padding(size = 20.ipx) {
-                            AtLeastSize(size = 20.ipx) {
-                                FillColor(innerColor)
+                            AtLeastSize(size = 20.ipx, modifier = fillColor(innerColor)) {
                             }
                         }
                     }
@@ -647,14 +648,14 @@ class AndroidLayoutDrawTest {
         drawLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(Color.Green)
                 Layout(
+                    modifier = fillColor(Color.Green),
                     children = {
                         AtLeastSize(size = 10.ipx) {
-                            AtLeastSize(size = 10.ipx) {
-                                RepaintBoundary {
-                                    FillColor(Color.Cyan)
-                                }
+                            AtLeastSize(
+                                size = 10.ipx,
+                                modifier = drawLayer() + fillColor(Color.Cyan)
+                            ) {
                             }
                         }
                     }
@@ -1589,12 +1590,12 @@ class AndroidLayoutDrawTest {
         val latch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                AtLeastSize(100.ipx, PaddingModifier(10.ipx)) {
-                    DeprecatedDraw { _, parentSize ->
-                        assertEquals(100.px, parentSize.width)
-                        assertEquals(100.px, parentSize.height)
-                        latch.countDown()
-                    }
+                val drawnContent = draw { _, parentSize ->
+                    assertEquals(100.px, parentSize.width)
+                    assertEquals(100.px, parentSize.height)
+                    latch.countDown()
+                }
+                AtLeastSize(100.ipx, PaddingModifier(10.ipx) + drawnContent) {
                 }
             }
         }
@@ -1606,14 +1607,12 @@ class AndroidLayoutDrawTest {
         val latch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                AtLeastSize(100.ipx, PaddingModifier(10.ipx)) {
-                    RepaintBoundary {
-                        DeprecatedDraw { _, parentSize ->
-                            assertEquals(100.px, parentSize.width)
-                            assertEquals(100.px, parentSize.height)
-                            latch.countDown()
-                        }
-                    }
+                AtLeastSize(100.ipx, PaddingModifier(10.ipx) + drawLayer() +
+                draw { _, parentSize ->
+                    assertEquals(100.px, parentSize.width)
+                    assertEquals(100.px, parentSize.height)
+                    latch.countDown()
+                }) {
                 }
             }
         }
@@ -1930,13 +1929,11 @@ class AndroidLayoutDrawTest {
                 FixedSize(30.ipx, modifier = draw { canvas, size ->
                     canvas.drawRect(size.toRect(), Paint().apply { color = green })
                 }) {
-                    FixedSize(model.offset, modifier = AlignTopLeft) {
-                        RepaintBoundary {
-                            DeprecatedDraw { canvas, parentSize ->
-                                drawLatch.countDown()
-                                canvas.drawRect(parentSize.toRect(), Paint().apply { color = blue })
-                            }
-                        }
+                    FixedSize(model.offset, modifier = AlignTopLeft + drawLayer() +
+                    draw { canvas, parentSize ->
+                        drawLatch.countDown()
+                        canvas.drawRect(parentSize.toRect(), Paint().apply { color = blue })
+                    }) {
                     }
                 }
             }
@@ -2128,14 +2125,15 @@ class AndroidLayoutDrawTest {
     private fun composeSquaresWithNestedRepaintBoundaries(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(model, isInner = false, doCountDown = false)
-                Padding(size = model.size) {
-                    RepaintBoundary {
-                        RepaintBoundary {
-                            AtLeastSize(size = model.size) {
-                                FillColor(model, isInner = true)
-                            }
-                        }
+                Padding(
+                    size = model.size,
+                    modifier = fillColor(model, isInner = false, doCountDown = false) +
+                            drawLayer()
+                ) {
+                    AtLeastSize(
+                        size = model.size,
+                        modifier = drawLayer() + fillColor(model, isInner = true)
+                    ) {
                     }
                 }
             }
@@ -2145,12 +2143,15 @@ class AndroidLayoutDrawTest {
     private fun composeMovingSquaresWithRepaintBoundary(model: SquareModel, offset: OffsetModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(model, isInner = false, doCountDown = false)
-                Position(size = model.size * 3, offset = offset) {
-                    RepaintBoundary {
-                        AtLeastSize(size = model.size) {
-                            FillColor(model, isInner = true)
-                        }
+                Position(
+                    size = model.size * 3,
+                    offset = offset,
+                    modifier = fillColor(model, isInner = false, doCountDown = false)
+                ) {
+                    AtLeastSize(
+                        size = model.size,
+                        modifier = drawLayer() + fillColor(model, isInner = true)
+                    ) {
                     }
                 }
             }
@@ -2160,10 +2161,12 @@ class AndroidLayoutDrawTest {
     private fun composeMovingSquares(model: SquareModel, offset: OffsetModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(model, isInner = false, doCountDown = false)
-                Position(size = model.size * 3, offset = offset) {
-                    AtLeastSize(size = model.size) {
-                        FillColor(model, isInner = true)
+                Position(
+                    size = model.size * 3,
+                    offset = offset,
+                    modifier = fillColor(model, isInner = false, doCountDown = false)
+                ) {
+                    AtLeastSize(size = model.size, modifier = fillColor(model, isInner = true)) {
                     }
                 }
             }
@@ -2227,8 +2230,8 @@ class AndroidLayoutDrawTest {
     }
 
     @Composable
-    private fun FillColor(color: Color, doCountDown: Boolean = true) {
-        DeprecatedDraw { canvas, parentSize ->
+    private fun fillColor(color: Color, doCountDown: Boolean = true): Modifier =
+        draw { canvas, parentSize ->
             canvas.drawRect(parentSize.toRect(), Paint().apply {
                 this.color = color
             })
@@ -2236,17 +2239,18 @@ class AndroidLayoutDrawTest {
                 drawLatch.countDown()
             }
         }
-    }
 
     @Composable
-    private fun FillColor(squareModel: SquareModel, isInner: Boolean, doCountDown: Boolean = true) {
-        DeprecatedDraw { canvas, parentSize ->
-            canvas.drawRect(parentSize.toRect(), Paint().apply {
-                this.color = if (isInner) squareModel.innerColor else squareModel.outerColor
-            })
-            if (doCountDown) {
-                drawLatch.countDown()
-            }
+    private fun fillColor(
+        squareModel: SquareModel,
+        isInner: Boolean,
+        doCountDown: Boolean = true
+    ): Modifier = draw { canvas, parentSize ->
+        canvas.drawRect(parentSize.toRect(), Paint().apply {
+            this.color = if (isInner) squareModel.innerColor else squareModel.outerColor
+        })
+        if (doCountDown) {
+            drawLatch.countDown()
         }
     }
 
@@ -2773,13 +2777,6 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
     override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
         canvas.drawRect(size.toRect(), paint)
     }
-}
-
-// TODO (mount): all tests that use this either should be removed or be rewritten to modifiers
-@Composable
-fun DeprecatedDraw(onPaint: Density.(canvas: Canvas, parentSize: PxSize) -> Unit) {
-    @Suppress("DEPRECATION") // remove when b/147606015 is fixed
-    Draw(onPaint)
 }
 
 fun scale(scale: Float) = LayoutScale(scale) + drawLayer(scaleX = scale, scaleY = scale)

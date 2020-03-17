@@ -40,7 +40,7 @@ import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.vector.DrawVector
+import androidx.ui.graphics.vector.drawVector
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -225,8 +225,8 @@ class WithConstraintsTest {
                     // current frame and opens a new one. our model reads during measure()
                     // wasn't possible to survide Frames swicth previously so the model read
                     // within the child Layout wasn't recorded
-                    DrawVector(100.px, 100.px) { _, _ -> }
-                    Layout({}) { _, _, _ ->
+                    val background = drawVector(100.px, 100.px) { _, _ -> }
+                    Layout(modifier = background, children = {}) { _, _, _ ->
                         // read the model
                         model.value
                         latch.countDown()

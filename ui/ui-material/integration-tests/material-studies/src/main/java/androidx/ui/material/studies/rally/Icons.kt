@@ -21,8 +21,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.VectorAsset
+import androidx.ui.graphics.vector.drawVector
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.ripple.Ripple
@@ -57,10 +57,11 @@ fun Icon(
     modifier: Modifier = Modifier.None,
     size: Dp = 24.dp
 ) {
-    Box(modifier = LayoutHeight(size) + LayoutWidth(size) + modifier) {
-        DrawVector(
-            vectorImage = vectorImage,
-            tintColor = tintColor
-        )
-    }
+    Box(
+        modifier = LayoutHeight(size) + LayoutWidth(size) + modifier +
+                drawVector(
+                    vectorImage = vectorImage,
+                    tintColor = tintColor
+                )
+    )
 }

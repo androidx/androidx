@@ -50,9 +50,7 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
             vectorAsset.resource.resource?.let {
                 val width = it.defaultWidth
                 vectorSize = width.toIntPx().value
-                AtLeastSize(size = width.toIntPx(), modifier = WhiteBackground) {
-                    DrawVector(it)
-
+                AtLeastSize(size = width.toIntPx(), modifier = WhiteBackground + drawVector(it)) {
                     latch.countDown()
                 }
             }
