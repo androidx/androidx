@@ -362,17 +362,13 @@ public abstract class FragmentManager {
                 @Override
                 public void onStart(@NonNull Fragment fragment,
                         @NonNull CancellationSignal signal) {
-                    if (!USE_STATE_MANAGER) {
-                        addCancellationSignal(fragment, signal);
-                    }
+                    addCancellationSignal(fragment, signal);
                 }
 
                 @Override
                 public void onComplete(@NonNull Fragment f, @NonNull CancellationSignal signal) {
-                    if (!USE_STATE_MANAGER) {
-                        if (!signal.isCanceled()) {
-                            removeCancellationSignal(f, signal);
-                        }
+                    if (!signal.isCanceled()) {
+                        removeCancellationSignal(f, signal);
                     }
                 }
             };
@@ -1965,25 +1961,34 @@ public abstract class FragmentManager {
         }
         executeOps(records, isRecordPop, startIndex, endIndex);
 
-        int postponeIndex = endIndex;
-        if (allowReordering) {
-            ArraySet<Fragment> addedFragments = new ArraySet<>();
-            addAddedFragments(addedFragments);
-            postponeIndex = postponePostponableTransactions(records, isRecordPop,
-                    startIndex, endIndex, addedFragments);
-            makeRemovedFragmentsInvisible(addedFragments);
-        }
+        if (USE_STATE_MANAGER) {
+            if (allowReordering) {
+                moveToState(mCurState, true);
+            }
+            Set<SpecialEffectsController> changedControllers = collectChangedControllers(
+                    records, startIndex, endIndex);
+            for (SpecialEffectsController controller : changedControllers) {
+                controller.executePendingOperations();
+            }
+        } else {
+            int postponeIndex = endIndex;
+            if (allowReordering) {
+                ArraySet<Fragment> addedFragments = new ArraySet<>();
+                addAddedFragments(addedFragments);
+                postponeIndex = postponePostponableTransactions(records, isRecordPop,
+                        startIndex, endIndex, addedFragments);
+                makeRemovedFragmentsInvisible(addedFragments);
+            }
 
-        if (postponeIndex != startIndex && allowReordering) {
-            // need to run something now
-            if (!USE_STATE_MANAGER) {
+            if (postponeIndex != startIndex && allowReordering) {
+                // need to run something now
                 if (mCurState >= Fragment.CREATED) {
                     FragmentTransition.startTransitions(mHost.getContext(), mContainer,
                             records, isRecordPop, startIndex,
                             postponeIndex, true, mFragmentTransitionCallback);
                 }
+                moveToState(mCurState, true);
             }
-            moveToState(mCurState, true);
         }
 
         for (int recordNum = startIndex; recordNum < endIndex; recordNum++) {
@@ -1997,6 +2002,25 @@ public abstract class FragmentManager {
         if (addToBackStack) {
             reportBackStackChanged();
         }
+    }
+
+    private Set<SpecialEffectsController> collectChangedControllers(
+            @NonNull ArrayList<BackStackRecord> records, int startIndex, int endIndex) {
+        Set<SpecialEffectsController> controllers = new HashSet<>();
+        for (int index = startIndex; index < endIndex; index++) {
+            BackStackRecord record = records.get(index);
+            for (FragmentTransaction.Op op : record.mOps) {
+                Fragment fragment = op.mFragment;
+                if (fragment != null) {
+                    ViewGroup container = fragment.mContainer;
+                    if (container != null) {
+                        controllers.add(SpecialEffectsController.getOrCreateController(
+                                container, this));
+                    }
+                }
+            }
+        }
+        return controllers;
     }
 
     /**
