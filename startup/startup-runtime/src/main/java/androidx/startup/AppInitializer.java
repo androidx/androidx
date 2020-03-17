@@ -18,9 +18,10 @@ package androidx.startup;
 
 import static android.content.pm.PackageManager.GET_META_DATA;
 
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -157,11 +158,11 @@ public final class AppInitializer {
     void discoverAndInitialize() {
         try {
             Trace.beginSection(SECTION_NAME);
-            ApplicationInfo applicationInfo =
-                    mContext.getPackageManager()
-                            .getApplicationInfo(mContext.getPackageName(), GET_META_DATA);
-
-            Bundle metadata = applicationInfo.metaData;
+            ComponentName provider = new ComponentName(mContext.getPackageName(),
+                    InitializationProvider.class.getName());
+            ProviderInfo providerInfo = mContext.getPackageManager()
+                    .getProviderInfo(provider, GET_META_DATA);
+            Bundle metadata = providerInfo.metaData;
             String startup = mContext.getString(R.string.androidx_startup);
             if (metadata != null) {
                 Set<Class<?>> initializing = new HashSet<>();
