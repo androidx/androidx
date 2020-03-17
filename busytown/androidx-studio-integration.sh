@@ -21,4 +21,4 @@ export GRADLE_PLUGIN_REPO="$(pwd)/out/repo"
 export JAVA_HOME="$PWD/prebuilts/jdk/jdk8/linux-x86/"
 
 tools/gradlew -p frameworks/support --no-daemon bOS
-DIST_SUBDIR="/ui" tools/gradlew -p frameworks/support/ui --no-daemon bOS --exclude-task lintDebug
+DIST_SUBDIR="/ui" tools/gradlew -p frameworks/support/ui --no-daemon bOS
