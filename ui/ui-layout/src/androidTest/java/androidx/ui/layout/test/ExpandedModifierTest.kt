@@ -24,7 +24,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize

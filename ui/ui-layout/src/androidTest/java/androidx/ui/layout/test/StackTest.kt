@@ -22,7 +22,6 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutAspectRatio

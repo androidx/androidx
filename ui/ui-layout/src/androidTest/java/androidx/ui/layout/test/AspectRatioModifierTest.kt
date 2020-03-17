@@ -21,7 +21,6 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Ref
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
