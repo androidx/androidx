@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
@@ -135,7 +136,11 @@ open class AsyncPagingDataDiffer<T : Any>(
     private val job = AtomicReference<Job?>(null)
 
     suspend fun presentData(pagingData: PagingData<T>) {
-        differBase.collectFrom(pagingData, callback)
+        try {
+            job.get()?.cancelAndJoin()
+        } finally {
+            differBase.collectFrom(pagingData, callback)
+        }
     }
 
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {

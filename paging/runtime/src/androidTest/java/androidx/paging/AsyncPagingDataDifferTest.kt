@@ -92,23 +92,23 @@ class AsyncPagingDataDifferTest {
         testScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
     )
 
+    private val listUpdateCapture = ListUpdateCapture()
+    private val differ = AsyncPagingDataDiffer(
+        diffCallback = object : DiffUtil.ItemCallback<Int>() {
+            override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                return oldItem == newItem
+            }
+        },
+        updateCallback = listUpdateCapture,
+        workerDispatcher = Dispatchers.Main
+    )
+
     @Test
     fun performDiff_fastPathLoadStates() = testScope.runBlockingTest {
-        val listUpdateCapture = ListUpdateCapture()
-        val differ = AsyncPagingDataDiffer(
-            diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-
-                override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-            },
-            updateCallback = listUpdateCapture,
-            workerDispatcher = Dispatchers.Main
-        )
-
         val loadEvents = mutableListOf<LoadEvent>()
         differ.addLoadStateListener { loadType, loadState ->
             loadEvents.add(LoadEvent(loadType, loadState))
@@ -169,21 +169,6 @@ class AsyncPagingDataDifferTest {
         // TODO: Consider making PagedData public, which would simplify this test by allowing it
         //  to directly construct a flow of PagedData.
         pauseDispatcher {
-            val listUpdateCapture = ListUpdateCapture()
-            val differ = AsyncPagingDataDiffer(
-                diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
-
-                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
-                },
-                updateCallback = listUpdateCapture,
-                workerDispatcher = Dispatchers.Main
-            )
-
             var currentPagedSource: TestPagingSource? = null
             val pagedDataFlow = PagingDataFlow(
                 config = PagingConfig(
@@ -229,48 +214,54 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
-    fun submitData_cancelsLast() = testScope.runBlockingTest {
-        // TODO: Consider making PagedData public, which would simplify this test by allowing it
-        //  to directly construct a flow of PagedData.
+    fun presentData_cancelsLastSubmit() = testScope.runBlockingTest {
         pauseDispatcher {
-            val listUpdateCapture = ListUpdateCapture()
-            val differ = AsyncPagingDataDiffer(
-                diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
-
-                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
-                },
-                updateCallback = listUpdateCapture,
-                workerDispatcher = Dispatchers.Main
-            )
-
             val pagedDataFlow = PagingDataFlow(
-                config = PagingConfig(
-                    pageSize = 1,
-                    prefetchDistance = 1,
-                    enablePlaceholders = true,
-                    initialLoadSize = 2
-                ),
+                config = PagingConfig(2),
                 initialKey = 50
-            ) {
-                TestPagingSource()
+            ) { TestPagingSource() }
+            val pagedDataFlow2 = PagingDataFlow(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+
+            val lifecycle = TestLifecycleOwner()
+            var jobSubmitted = false
+            val job = launch {
+                pagedDataFlow.collectLatest {
+                    differ.submitData(lifecycle.lifecycle, it)
+                    jobSubmitted = true
+                }
             }
 
-            val pagedDataFlow2 = PagingDataFlow(
-                config = PagingConfig(
-                    pageSize = 1,
-                    prefetchDistance = 1,
-                    enablePlaceholders = true,
-                    initialLoadSize = 2
-                ),
-                initialKey = 50
-            ) {
-                TestPagingSource()
+            advanceUntilIdle()
+
+            val job2 = launch {
+                pagedDataFlow2.collectLatest {
+                    differ.presentData(it)
+                }
             }
+
+            advanceUntilIdle()
+
+            assertTrue(jobSubmitted)
+
+            job.cancel()
+            job2.cancel()
+        }
+    }
+
+    @Test
+    fun submitData_cancelsLast() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagedDataFlow = PagingDataFlow(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+            val pagedDataFlow2 = PagingDataFlow(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
 
             val lifecycle = TestLifecycleOwner()
             var jobSubmitted = false
