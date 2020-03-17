@@ -163,17 +163,25 @@ public class WearableRecyclerViewTest {
     public void testCircularScrollingGesture() throws Throwable {
         onView(withId(R.id.wrv)).perform(swipeDownFromTopRight());
         assertNotScrolledY(R.id.wrv);
-
+        final WearableRecyclerView wrv =
+                (WearableRecyclerView) mActivityRule.getActivity().findViewById(
+                        R.id.wrv);
+        assertFalse(wrv.isCircularScrollingGestureEnabled());
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
+                WearableRecyclerView wrv = (WearableRecyclerView)
+                        mActivityRule.getActivity().findViewById(R.id.wrv);
                 wrv.setCircularScrollingGestureEnabled(true);
             }
         });
+        assertTrue(wrv.isCircularScrollingGestureEnabled());
 
-        onView(withId(R.id.wrv)).perform(swipeDownFromTopRight());
+        // Explicitly set the swipe to SLOW here to avoid problems with test failures on phone AVDs
+        // with "Gesture navigation" enabled. This is not a particularly satisfactory fix to this
+        // problem and ideally we should look to move these tests to use a watch AVD which should
+        // not be susceptible to phone gesture issues. b/151202035 raised to track.
+        onView(withId(R.id.wrv)).perform(swipeDownFromTopRightSlowly());
         assertScrolledY(R.id.wrv);
     }
 
@@ -209,10 +217,16 @@ public class WearableRecyclerViewTest {
         });
     }
 
+    private static ViewAction swipeDownFromTopRightSlowly() {
+        return new GeneralSwipeAction(
+                Swipe.SLOW, GeneralLocation.TOP_RIGHT,
+                GeneralLocation.BOTTOM_RIGHT, Press.FINGER);
+    }
+
     private static ViewAction swipeDownFromTopRight() {
         return new GeneralSwipeAction(
-                Swipe.FAST, GeneralLocation.TOP_RIGHT, GeneralLocation.BOTTOM_RIGHT,
-                Press.FINGER);
+                Swipe.FAST, GeneralLocation.TOP_RIGHT,
+                GeneralLocation.BOTTOM_RIGHT, Press.FINGER);
     }
 
     private void assertScrolledY(@IdRes int layoutId) {
