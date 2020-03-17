@@ -837,7 +837,21 @@ class DiffRunner(object):
           # find any children that failed and queue a re-test of those children
           updatedChild = box.withoutDuplicatesFrom(box.withConflictsFrom(self.resetTo_state))
           if updatedChild.size() > 0:
-            split = updatedChild.splitOnce()
+            if numConsecutiveFailures >= 4:
+              # Suppose we are trying to identify n single-file changes that cause failures
+              # Suppose we have tried c changes of size s, each one of which failed
+              # We conclude that n >= c
+              # A mostly unbiased estimate of c as a function of n is that c = n / 2
+              # Similarly, a mostly unbiased estimate of n is that n = c * 2
+              # We want to choose a new number of changes to test, c2, such that running c2 tests results in efficiently identifying the relevant n changes
+              # Let's set c2 = 2 * n = 2 * 2 * c
+              splitFactor = 4
+            else:
+              # After we reach a sufficiently small change size such that some changes start passing,
+              # Then we assume that we've probably narrowed down to each individual failing change,
+              # And we can increase block sizes more slowly
+              splitFactor = 2
+            split = updatedChild.splitOnce(splitFactor)
             #print("Split box " + str(updatedChild.summarize()) + " into " + str(len(split)) + " children")
             pendingBoxes += split
         # clear invalidation status
