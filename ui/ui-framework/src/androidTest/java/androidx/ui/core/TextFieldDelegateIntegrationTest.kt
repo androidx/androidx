@@ -62,7 +62,7 @@ class TextFieldDelegateIntegrationTest {
     fun draw_selection_test() {
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -103,7 +103,7 @@ class TextFieldDelegateIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -138,7 +138,7 @@ class TextFieldDelegateIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -169,7 +169,7 @@ class TextFieldDelegateIntegrationTest {
     fun layout_height_constraint_max_height() {
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -190,7 +190,7 @@ class TextFieldDelegateIntegrationTest {
     fun layout_height_constraint_min_height() {
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,

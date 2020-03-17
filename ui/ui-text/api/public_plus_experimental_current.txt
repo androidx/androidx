@@ -625,8 +625,8 @@ package androidx.ui.text {
   }
 
   public static final class TextStyle.Companion {
-    method public androidx.ui.text.TextStyle getEmpty();
-    property public final androidx.ui.text.TextStyle Empty;
+    method public androidx.ui.text.TextStyle getDefault();
+    property public final androidx.ui.text.TextStyle Default;
   }
 
   public final class TextStyleKt {

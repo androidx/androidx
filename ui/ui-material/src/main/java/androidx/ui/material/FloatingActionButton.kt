@@ -147,7 +147,7 @@ fun FloatingActionButton(
         if (icon == null) {
             Text(
                 text = text,
-                style = textStyle,
+                style = textStyle ?: TextStyle.Default,
                 modifier = LayoutPadding(
                     start = ExtendedFabTextPadding,
                     end = ExtendedFabTextPadding
@@ -157,7 +157,7 @@ fun FloatingActionButton(
             Row(LayoutPadding(start = ExtendedFabIconPadding, end = ExtendedFabTextPadding)) {
                 Image(image = icon)
                 Spacer(LayoutWidth(ExtendedFabIconPadding))
-                Text(text = text, style = textStyle)
+                Text(text = text, style = textStyle ?: TextStyle.Default)
             }
         }
     }

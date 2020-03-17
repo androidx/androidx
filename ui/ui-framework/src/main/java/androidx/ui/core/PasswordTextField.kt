@@ -63,7 +63,7 @@ import androidx.ui.text.TextStyle
 fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit = {},
-    textStyle: TextStyle? = null,
+    textStyle: TextStyle = TextStyle.Default,
     mask: Char = '\u2022',
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocus: () -> Unit = {},
