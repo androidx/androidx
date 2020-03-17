@@ -118,6 +118,13 @@ interface Owner {
     fun calculatePosition(): IntPxPosition
 
     /**
+     * Ask the system to provide focus to this owner.
+     *
+     * @return true if the system granted focus to this owner. False otherwise.
+     */
+    fun requestFocus(): Boolean
+
+    /**
      * Called when some params of [RepaintBoundaryNode] are updated.
      * This is not causing re-recording of the RepaintBoundary, but updates params
      * like outline, clipping, elevation or alpha.
