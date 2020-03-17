@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
 import androidx.paging.ActiveFlowTracker.FlowType.PAGED_DATA_FLOW
 import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
@@ -74,6 +75,7 @@ private class MulticastedPagingData<T : Any>(
  *
  * @param scope The coroutine scope where this page cache will be kept alive.
  */
+@CheckResult
 fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope
 ) = cachedIn(scope, null)
