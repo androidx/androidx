@@ -325,9 +325,15 @@ final class SupportedSurfaceCombination {
              */targetSize.getWidth());
         }
 
-        // Get the minimum size according to min(DEFAULT_SIZE, TARGET_RESOLUTION).
         Size minSize = DEFAULT_SIZE;
-        if (!targetSize.equals(ZERO_SIZE) && getArea(targetSize) < getArea(DEFAULT_SIZE)) {
+        int defaultSizeArea = getArea(DEFAULT_SIZE);
+        int maxSizeArea = getArea(maxSize);
+        // When maxSize is smaller than 640x480, set minSize as 0x0. It means the min size bound
+        // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
+        // TARGET_RESOLUTION).
+        if (maxSizeArea < defaultSizeArea) {
+            minSize = new Size(0, 0);
+        } else if (!targetSize.equals(ZERO_SIZE) && getArea(targetSize) < defaultSizeArea) {
             minSize = targetSize;
         }
 
@@ -431,13 +437,17 @@ final class SupportedSurfaceCombination {
     }
 
     static boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
-        boolean isMatch;
+        boolean isMatch = false;
         if (aspectRatio == null) {
             isMatch = false;
         } else if (aspectRatio.equals(
                 new Rational(resolution.getWidth(), resolution.getHeight()))) {
             isMatch = true;
-        } else {
+        } else if (getArea(resolution) >= getArea(DEFAULT_SIZE)) {
+            // Only do mod 16 calculation if the size is equal to or larger than 640x480. It is
+            // because the aspect ratio will be affected critically by mod 16 calculation if the
+            // size is small. It may result in unexpected outcome such like 256x144 will be
+            // considered as 18.5:9.
             isMatch = isPossibleMod16FromAspectRatio(resolution, aspectRatio);
         }
         return isMatch;
@@ -446,6 +456,7 @@ final class SupportedSurfaceCombination {
     private static boolean isPossibleMod16FromAspectRatio(Size resolution, Rational aspectRatio) {
         int width = resolution.getWidth();
         int height = resolution.getHeight();
+
         Rational invAspectRatio = new Rational(/* numerator= */aspectRatio.getDenominator(),
                 /* denominator= */aspectRatio.getNumerator());
         if (width % 16 == 0 && height % 16 == 0) {
@@ -460,7 +471,7 @@ final class SupportedSurfaceCombination {
         return false;
     }
 
-    private int getArea(Size size) {
+    private static int getArea(Size size) {
         return size.getWidth() * size.getHeight();
     }
 

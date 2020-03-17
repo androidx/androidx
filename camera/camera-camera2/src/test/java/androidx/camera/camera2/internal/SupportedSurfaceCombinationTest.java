@@ -1513,6 +1513,230 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(resultList).isEqualTo(expectedList);
     }
 
+    @Test
+    public void getSupportedOutputSizes_whenMaxSizeSmallerThanDefaultMiniSize() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(640, 480),
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
+                new Size(320, 240)).build();
+
+        // There is default minimum size 640x480 setting. Originally, sizes smaller than 640x480
+        // will be removed. Due to maximal size bound is smaller than the default minimum size
+        // bound and it is also smaller than 640x480, the default minimum size bound will be
+        // ignored. Then, sizes equal to or smaller than 320x240 will be kept in the result list.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizes_whenMaxSizeSmallerThanSmallTargetResolution() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(640, 480),
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
+                new Size(320, 180)).setTargetResolution(new Size(320, 240)).setTargetRotation(
+                Surface.ROTATION_90).build();
+
+        // The default minimum size 640x480 will be overwritten by the target resolution 320x240.
+        // Originally, sizes smaller than 320x240 will be removed. Due to maximal size bound is
+        // smaller than the minimum size bound and it is also smaller than 640x480, the minimum
+        // size bound will be ignored. Then, sizes equal to or smaller than 320x180 will be kept
+        // in the result list.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizes_whenBothMaxAndTargetResolutionsSmallerThan640x480() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(640, 480),
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
+                new Size(320, 240)).setTargetResolution(new Size(320, 180)).setTargetRotation(
+                Surface.ROTATION_90).build();
+
+        // The default minimum size 640x480 will be overwritten by the target resolution 320x180.
+        // Originally, sizes smaller than 320x180 will be removed. Due to maximal size bound is
+        // smaller than the minimum size bound and it is also smaller than 640x480, the minimum
+        // size bound will be ignored. Then, all sizes equal to or smaller than 320x320 will be
+        // kept in the result list.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                new Size(320, 180),
+                new Size(256, 144),
+                new Size(320, 240)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizes_whenMaxSizeSmallerThanBigTargetResolution() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
+                new Size(1920, 1080)).setTargetResolution(new Size(3840, 2160)).setTargetRotation(
+                Surface.ROTATION_90).build();
+
+        // Because the target size 3840x2160 is larger than 640x480, it won't overwrite the
+        // default minimum size 640x480. Sizes smaller than 640x480 will be removed. The target
+        // resolution will also call setTargetAspectRatioCustom to set matching aspect ratio.
+        // Therefore, sizes of aspect ratio 16/9 will be in front of the returned sizes list and
+        // the list is sorted in descending order. Other items will be put in the following that
+        // are sorted by aspect ratio delta and then area size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(960, 544),
+                new Size(800, 450),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(1280, 960),
+                new Size(640, 480)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizes_whenNoSizeBetweenMaxSizeAndTargetResolution() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(640, 480),
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
+                new Size(320, 200)).setTargetResolution(new Size(320, 190)).setTargetRotation(
+                Surface.ROTATION_90).build();
+
+        // The default minimum size 640x480 will be overwritten by the target resolution 320x190.
+        // Originally, sizes smaller than 320x190 will be removed. Due to there is no available
+        // size between the maximal size and the minimum size bound and the maximal size is
+        // smaller than 640x480, the default minimum size bound will be ignored. Then, sizes
+        // equal to or smaller than 320x200 will be kept in the result list.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizes_whenTargetResolutionSmallerThanAnySize() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(640, 480),
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
+                new Size(192, 144)).setTargetRotation(Surface.ROTATION_90).build();
+
+        // The default minimum size 640x480 will be overwritten by the target resolution 192x144.
+        // Because 192x144 is smaller than any size in the supported list, no one will be
+        // filtered out by it. The result list will only keep one big enough size of aspect ratio
+        // 4:3 and 16:9.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                new Size(320, 240),
+                new Size(256, 144)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getSupportedOutputSizes_whenMaxResolutionSmallerThanAnySize() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(640, 480),
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(256, 144)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
+                new Size(192, 144)).build();
+
+        // All sizes will be filtered out by the max resolution 192x144 setting and an
+        // IllegalArgumentException will be thrown.
+        supportedSurfaceCombination.getSupportedOutputSizes(useCase.getUseCaseConfig());
+    }
+
+    @Test
+    public void getSupportedOutputSizes_whenMod16IsIgnoredForSmallSizes() {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+                new Size(640, 480),
+                new Size(320, 240),
+                new Size(320, 180),
+                new Size(296, 144),
+                new Size(256, 144)
+        });
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
+                new Size(185, 90)).setTargetRotation(Surface.ROTATION_90).build();
+
+        // The default minimum size 640x480 will be overwritten by the target resolution 185x90
+        // (18.5:9). If mod 16 calculation is not ignored for the sizes smaller than 640x480, the
+        // size 256x144 will be considered to match 18.5:9 and then become the first item in the
+        // result list. After ignoring mod 16 calculation for small sizes, 256x144 will still be
+        // kept as a 16:9 resolution as the result.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                new Size(296, 144),
+                new Size(256, 144),
+                new Size(320, 240)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
     private void setupCamera(int hardwareLevel) {
         setupCamera(hardwareLevel, mSupportedSizes, null);
     }
