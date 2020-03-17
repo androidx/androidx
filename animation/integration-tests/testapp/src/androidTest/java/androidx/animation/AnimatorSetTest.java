@@ -208,6 +208,31 @@ public class AnimatorSetTest {
 
     @UiThreadTest
     @Test
+    public void testPause() {
+        final ValueAnimator anim = ValueAnimator.ofFloat(0f, 1000f);
+        anim.setDuration(1000L);
+        anim.setInterpolator(new LinearInterpolator());
+        final AnimatorSet set = new AnimatorSet();
+        set.playTogether(anim);
+
+        set.start();
+        sTestAnimationHandler.advanceTimeBy(300);
+        assertEquals(300L, set.getCurrentPlayTime());
+        assertEquals(300f, (float) anim.getAnimatedValue(), EPSILON);
+
+        set.pause();
+        sTestAnimationHandler.advanceTimeBy(300);
+        assertEquals(300L, set.getCurrentPlayTime());
+        assertEquals(300f, (float) anim.getAnimatedValue(), EPSILON);
+
+        set.resume();
+        sTestAnimationHandler.advanceTimeBy(300);
+        assertEquals(600L, set.getCurrentPlayTime());
+        assertEquals(600f, (float) anim.getAnimatedValue(), EPSILON);
+    }
+
+    @UiThreadTest
+    @Test
     public void testPauseAndResume() {
         final AnimatorSet set = new AnimatorSet();
         set.playTogether(mAnim1, mAnim2);
@@ -248,6 +273,38 @@ public class AnimatorSetTest {
 
         sTestAnimationHandler.advanceTimeBy(set.getTotalDuration());
         assertFalse(set.isStarted());
+    }
+
+    @UiThreadTest
+    @Test
+    public void testPauseRewindResume() {
+        final AnimatorSet set = new AnimatorSet();
+        final ValueAnimator a1 = ValueAnimator.ofFloat(0f, 1000f);
+        a1.setDuration(1000);
+        final ValueAnimator a2 = ValueAnimator.ofInt(0, 1000);
+        a2.setDuration(1000);
+        set.playSequentially(a1, a2);
+        set.setInterpolator(new LinearInterpolator());
+
+        assertEquals(2000L, set.getTotalDuration());
+        set.start();
+        sTestAnimationHandler.advanceTimeBy(1500L);
+        assertEquals(1000f, (float) a1.getAnimatedValue(), EPSILON);
+        assertEquals(500, (int) a2.getAnimatedValue());
+
+        set.pause();
+        set.setCurrentPlayTime(500L);
+        assertEquals(500f, (float) a1.getAnimatedValue(), EPSILON);
+        assertEquals(0, (int) a2.getAnimatedValue());
+
+        set.resume();
+        sTestAnimationHandler.advanceTimeBy(250L);
+        assertEquals(750f, (float) a1.getAnimatedValue(), EPSILON);
+        assertEquals(0, (int) a2.getAnimatedValue());
+
+        sTestAnimationHandler.advanceTimeBy(750L);
+        assertEquals(1000f, (float) a1.getAnimatedValue(), EPSILON);
+        assertEquals(500, (int) a2.getAnimatedValue());
     }
 
     @UiThreadTest

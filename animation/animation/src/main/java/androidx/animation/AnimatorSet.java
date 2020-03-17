@@ -579,7 +579,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         boolean previouslyPaused = mPaused;
         super.pause();
         if (!previouslyPaused && mPaused) {
-            mPauseTime = -1;
+            mPauseTime = mLastFrameTime;
         }
     }
 
@@ -863,6 +863,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
                         + " should not be set when AnimatorSet is not started.");
             }
             if (!mSeekState.isActive()) {
+                // TODO: Some fields are still not properly cleared here (mPlayingSets, etc)
                 findLatestEventIdForTime(0);
                 // Set all the values to start values.
                 initChildren();
@@ -948,7 +949,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
             removeAnimationCallback();
             return false;
         } else if (mPauseTime > 0) {
-                // Offset by the duration that the animation was paused
+            // Offset by the duration that the animation was paused
             mFirstFrame += (frameTime - mPauseTime);
             mPauseTime = -1;
         }
@@ -962,6 +963,15 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
                 mFirstFrame = frameTime - (long) ((mSeekState.getPlayTime() + mStartDelay)
                         * durationScale);
             }
+
+            // Switching from seeking to playing normally. Clean up states.
+            skipToEndValue(!mReversing);
+            mPlayingSet.clear();
+            for (int i = mNodes.size() - 1; i >= 0; i--) {
+                mNodes.get(i).mEnded = false;
+            }
+            mLastEventId = -1;
+
             mSeekState.reset();
         }
 
