@@ -274,7 +274,7 @@ class FragmentStateManager {
                             restoreViewState();
                             break;
                         case Fragment.ACTIVITY_CREATED:
-                            if (mFragment.mContainer != null) {
+                            if (mFragment.mView != null && mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
@@ -316,7 +316,7 @@ class FragmentStateManager {
                                 Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                             }
                             // TODO call saveViewState()
-                            if (mFragment.mContainer != null) {
+                            if (mFragment.mView != null && mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
@@ -479,6 +479,9 @@ class FragmentStateManager {
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
             if (container != null) {
                 container.addView(mFragment.mView);
+                if (FragmentManager.USE_STATE_MANAGER) {
+                    mFragment.mView.setVisibility(View.INVISIBLE);
+                }
             }
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
