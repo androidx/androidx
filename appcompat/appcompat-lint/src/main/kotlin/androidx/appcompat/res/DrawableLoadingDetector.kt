@@ -23,34 +23,37 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 
-// Flags usage of Resources.getColorStateList and suggests converting it to either
-// ContextCompat.getColorStateList or AppCompatResources.getColorStateList based
-// on the API level
+// Flags usage of Context.getDrawable and Resources.getDrawable and suggests converting them
+// to either ContextCompat.getDrawable or ResourcesCompat.getDrawable
 @Suppress("UnstableApiUsage")
-class ColorStateListLoadingDetector : BaseMethodDeprecationDetector(
+class DrawableLoadingDetector : BaseMethodDeprecationDetector(
     NOT_USING_COMPAT_LOADING,
-    // Suggest using ContextCompat.getColorStateList at API > 23
+    // Suggest using ContextCompat.getDrawable
     DeprecationCondition(
-        MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
-        "Use `ContextCompat.getColorStateList()`",
-        ApiAbove(23)
+        MethodLocation("android.content.Context", "getDrawable", TYPE_INT),
+        "Use `ContextCompat.getDrawable()`"
     ),
-    // Suggest using AppCompatResources.getColorStateList at API <= 23
+    // Suggest using ResourcesCompat.getDrawable for one-parameter Resources.getDrawable calls
     DeprecationCondition(
-        MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
-        "Use `AppCompatResources.getColorStateList()`",
-        ApiAtOrBelow(23)
+        MethodLocation("android.content.res.Resources", "getDrawable", TYPE_INT),
+        "Use `ResourcesCompat.getDrawable()`"
+    ),
+    // Suggest using ResourcesCompat.getDrawable for two-parameter Resources.getDrawable calls
+    DeprecationCondition(
+        MethodLocation("android.content.res.Resources", "getDrawable", TYPE_INT,
+            "android.content.res.Resources.Theme"),
+        "Use `ResourcesCompat.getDrawable()`"
     )
 ) {
     companion object {
         internal val NOT_USING_COMPAT_LOADING: Issue = Issue.create(
-            "UseCompatLoadingForColorStateLists",
-            "Should not call `Resources.getColorStateList` directly",
-            "Use Compat loading of color state lists",
+            "UseCompatLoadingForDrawables",
+            "Should not call `Context.getDrawable` or `Resources.getDrawable` directly",
+            "Use Compat loading of drawables",
             Category.CORRECTNESS,
             1,
             Severity.WARNING,
-            Implementation(ColorStateListLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            Implementation(DrawableLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
         )
     }
 }

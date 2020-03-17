@@ -18,6 +18,7 @@ package androidx.appcompat
 
 import androidx.appcompat.res.ColorStateListAlphaDetector
 import androidx.appcompat.res.ColorStateListLoadingDetector
+import androidx.appcompat.res.DrawableLoadingDetector
 import androidx.appcompat.res.ImageViewTintDetector
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
@@ -27,6 +28,7 @@ class AppCompatIssueRegistry : IssueRegistry() {
     override val issues get() = listOf(
         ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA,
         ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING,
+        DrawableLoadingDetector.NOT_USING_COMPAT_LOADING,
         ImageViewTintDetector.USING_ANDROID_TINT
     )
 }
