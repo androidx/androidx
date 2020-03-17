@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import android.media.ImageReader;
-import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -95,15 +94,6 @@ public interface ImageReaderProxy {
      */
     @NonNull
     Surface getSurface();
-
-    /**
-     * Sets the on-image-available listener.
-     *
-     * <p>@see {@link ImageReader#setOnImageAvailableListener}.
-     */
-    void setOnImageAvailableListener(
-            @NonNull ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler);
 
     /**
      * Sets the on-image-available listener.

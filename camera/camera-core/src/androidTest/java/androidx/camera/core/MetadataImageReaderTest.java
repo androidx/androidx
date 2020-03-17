@@ -20,10 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,8 +54,8 @@ public final class MetadataImageReaderTest {
     private final Semaphore mSemaphore = new Semaphore(0);
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
+    private Executor mBackgroundExecutor;
 
-    private Handler mMainHandler;
     private MetadataImageReader mMetadataImageReader;
 
     @Before
@@ -63,7 +64,7 @@ public final class MetadataImageReaderTest {
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
 
-        mMainHandler = new Handler(Looper.getMainLooper());
+        mBackgroundExecutor = CameraXExecutors.newHandlerExecutor(mBackgroundHandler);
 
         createMetadataImageReaderWithCapacity(8);
         mCameraCaptureResult0.setTimestamp(TIMESTAMP_0);
@@ -103,7 +104,7 @@ public final class MetadataImageReaderTest {
                         mSemaphore.release();
                     }
                 };
-        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundHandler);
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Triggers ImageAvailable with one Image.
         triggerImageAvailable(TIMESTAMP_0);
 
@@ -124,7 +125,7 @@ public final class MetadataImageReaderTest {
                         mSemaphore.release();
                     }
                 };
-        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundHandler);
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Triggers ImageAvailable with another Image with different timestamp.
         triggerImageAvailable(TIMESTAMP_1);
         mSemaphore.acquire();
@@ -138,10 +139,6 @@ public final class MetadataImageReaderTest {
 
     @Test
     public void canBindImageInfoToImageWithSameTimestamp() throws InterruptedException {
-        // Triggers ImageAvailable with two different Image.
-        triggerImageAvailable(TIMESTAMP_0);
-        triggerImageAvailable(TIMESTAMP_1);
-
         ImageReaderProxy.OnImageAvailableListener outputListener =
                 new ImageReaderProxy.OnImageAvailableListener() {
                     @Override
@@ -153,7 +150,12 @@ public final class MetadataImageReaderTest {
                         mSemaphore.release();
                     }
                 };
-        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundHandler);
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
+
+        // Triggers ImageAvailable with two different Image.
+        triggerImageAvailable(TIMESTAMP_0);
+        triggerImageAvailable(TIMESTAMP_1);
+
         // Triggers CaptureCompleted with one CaptureResult.
         mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult0);
         mSemaphore.acquire();
@@ -169,7 +171,7 @@ public final class MetadataImageReaderTest {
                         mSemaphore.release();
                     }
                 };
-        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundHandler);
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Triggers CaptureCompleted with another CaptureResult.
         mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
         mSemaphore.acquire();
@@ -192,7 +194,7 @@ public final class MetadataImageReaderTest {
                         mSemaphore.release();
                     }
                 };
-        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundHandler);
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Triggers ImageAvailable with an Image which contains a timestamp doesn't match any of
         // the CameraResult.
         triggerImageAvailable(TIMESTAMP_NONEXISTANT);
@@ -223,7 +225,7 @@ public final class MetadataImageReaderTest {
                         mSemaphore.release();
                     }
                 };
-        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundHandler);
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Feeds the first Image.
         triggerImageAvailable(TIMESTAMP_0);
         mSemaphore.acquire();
@@ -241,7 +243,7 @@ public final class MetadataImageReaderTest {
                         mSemaphore.release();
                     }
                 };
-        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundHandler);
+        mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Feeds the second Image.
         assertThat(mImageReader.triggerImageAvailable(null, TIMESTAMP_1, 50,
                 TimeUnit.MILLISECONDS)).isFalse();
@@ -265,7 +267,7 @@ public final class MetadataImageReaderTest {
                         imageReceived.set(true);
                     }
                 },
-                mBackgroundHandler);
+                mBackgroundExecutor);
 
         // Trigger ImageInfo and ImageProxy to be pushed into the MetadataImageReader, which should
         // discard older data without matches so it does not get blocked.
@@ -281,7 +283,7 @@ public final class MetadataImageReaderTest {
 
     private void createMetadataImageReaderWithCapacity(int maxImages) {
         mImageReader = new FakeImageReaderProxy(maxImages);
-        mMetadataImageReader = new MetadataImageReader(mImageReader, mMainHandler);
+        mMetadataImageReader = new MetadataImageReader(mImageReader);
     }
 
     private void triggerImageAvailable(long timestamp) throws InterruptedException {

@@ -25,8 +25,6 @@ import static org.mockito.Mockito.verify;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.media.ImageWriter;
-import android.os.Handler;
-import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -50,9 +48,8 @@ import java.util.concurrent.Executors;
 @RunWith(AndroidJUnit4.class)
 public final class ImageReaderProxysTest {
 
-    private HandlerThread mConsumerThread;
+    private ExecutorService mConsumerExecutor;
     private ExecutorService mProducerExecutor;
-    private Handler mConsumerHandler;
     private ImageReaderProxy mReader;
 
     private static final int NUM_TOTAL_FRAMES = 5;
@@ -77,9 +74,7 @@ public final class ImageReaderProxysTest {
     @Before
     public void setUp() {
         mProducerExecutor = Executors.newSingleThreadExecutor();
-        mConsumerThread = new HandlerThread("Background");
-        mConsumerThread.start();
-        mConsumerHandler = new Handler(mConsumerThread.getLooper());
+        mConsumerExecutor = Executors.newSingleThreadExecutor();
     }
 
     @After
@@ -88,8 +83,8 @@ public final class ImageReaderProxysTest {
             mProducerExecutor.shutdown();
         }
 
-        if (mConsumerThread != null) {
-            mConsumerThread.quitSafely();
+        if (mConsumerExecutor != null) {
+            mConsumerExecutor.shutdown();
         }
 
         if (mReader != null) {
@@ -103,7 +98,7 @@ public final class ImageReaderProxysTest {
         mReader = ImageReaderProxys.createIsolatedReader(
                 640, 480, ImageFormat.YUV_420_888, IMAGE_QUEUE_DEPTH);
         ImageReaderProxy.OnImageAvailableListener mockListener = createMockListener();
-        mReader.setOnImageAvailableListener(mockListener, mConsumerHandler);
+        mReader.setOnImageAvailableListener(mockListener, mConsumerExecutor);
 
         produceFrames(mReader);
 

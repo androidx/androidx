@@ -333,7 +333,6 @@ public final class ImageCapture extends UseCase {
                             resolution.getWidth(),
                             resolution.getHeight(),
                             getImageFormat(), mMaxCaptureStages,
-                            CameraXExecutors.mainThreadExecutor(),
                             /* postProcessExecutor */mExecutor,
                             getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
                             mCaptureProcessor);
@@ -341,8 +340,7 @@ public final class ImageCapture extends UseCase {
             mImageReader = processingImageReader;
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
-                    resolution.getHeight(), getImageFormat(), MAX_IMAGES,
-                    CameraXExecutors.mainThreadExecutor());
+                    resolution.getHeight(), getImageFormat(), MAX_IMAGES);
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = metadataImageReader;
         }
