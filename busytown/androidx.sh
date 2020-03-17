@@ -4,7 +4,7 @@ set -e
 cd "$(dirname $0)"
 
 # Run Gradle
-impl/build.sh --no-daemon buildOnServer -PverifyUpToDate --profile "$@"
+impl/build.sh --no-daemon buildOnServer --profile "$@"
 impl/build.sh --no-daemon listTaskOutputs "$@"
 
 # Merge some output files
