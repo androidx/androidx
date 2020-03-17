@@ -111,3 +111,11 @@ if (!startParameter.projectProperties.containsKey('android.injected.invoked.from
 includeProject(":dumb-tests", "../dumb-tests")
 
 includeProject(":fakeannotations", "../fakeannotations")
+
+/////////////////////////////
+//
+// Remote build cache set up
+//
+/////////////////////////////
+
+apply from: new File('buildSrc/remoteBuildCache.gradle')
