@@ -20,8 +20,7 @@ package androidx.paging.samples
 
 import androidx.annotation.Sampled
 import androidx.paging.PagingSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import java.io.IOException
 
 private class MyBackendService {
@@ -47,20 +46,20 @@ fun pagingSourceSample() {
         val searchTerm: String
     ) : PagingSource<String, Item>() {
         override suspend fun load(params: LoadParams<String>): LoadResult<String, Item> {
+            // Retrofit calls that return the body type throw either IOException for network
+            // failures, or HttpException for any non-2xx HTTP status codes. This code reports all
+            // errors to the UI, but you can inspect/wrap the exceptions to provide more context.
             return try {
-                withContext(Dispatchers.IO) {
-                    // suspending network load
-                    val response = myBackend.searchUsers(searchTerm, params.key)
-                    LoadResult.Page(
-                        data = response.items,
-                        prevKey = response.prev,
-                        nextKey = response.next
-                    )
-                }
+                // suspending network load, executes automatically on worker thread
+                val response = myBackend.searchUsers(searchTerm, params.key)
+                LoadResult.Page(
+                    data = response.items,
+                    prevKey = response.prev,
+                    nextKey = response.next
+                )
             } catch (e: IOException) {
-                // Retrofit suspend throws an IOException when an
-                // error occurs, like a 404. We check for expected
-                // errors, and return them.
+                LoadResult.Error(e)
+            } catch (e: HttpException) {
                 LoadResult.Error(e)
             }
         }
