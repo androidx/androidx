@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.Trace
 import java.io.File
 import java.text.NumberFormat
 import java.util.concurrent.TimeUnit
@@ -176,7 +177,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     }
 
     private fun beginWarmup() {
-        beginTraceSection("Warmup")
+        Trace.beginSection("Warmup")
         // Run GC to avoid memory pressure from previous run from affecting this one.
         // Note, we don't use System.gc() because it doesn't always have consistent behavior
         Runtime.getRuntime().gc()
@@ -217,12 +218,12 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         thermalThrottleSleepSeconds = 0
         state = RUNNING
         metrics.captureInit()
-        beginTraceSection("Benchmark")
+        Trace.beginSection("Benchmark")
         metrics.captureStart()
     }
 
     private fun endBenchmark() {
-        endTraceSection() // paired with start in beginBenchmark()
+        Trace.endSection() // paired with start in beginBenchmark()
         when (Arguments.profilingMode) {
             ProfilingMode.Sampled, ProfilingMode.Method -> {
                 Debug.stopMethodTracing()
@@ -364,7 +365,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
                 throwIfPaused() // check each loop during warmup
                 if (warmupManager.onNextIteration(lastDuration)) {
-                    endTraceSection() // paired with start in beginWarmup()
+                    Trace.endSection() // paired with start in beginWarmup()
                     beginBenchmark()
                 }
                 return true

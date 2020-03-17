@@ -15,6 +15,6 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.tracing">
+    package="androidx.tracing.ktx">
 
 </manifest>
