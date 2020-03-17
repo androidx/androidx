@@ -30,7 +30,7 @@ dependencies {
     api("androidx.appcompat:appcompat:1.1.0")
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.fragment:fragment:1.1.0")
+    api("androidx.fragment:fragment:1.2.3")
     api("androidx.recyclerview:recyclerview:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(TRUTH)
 }
 
 android {
