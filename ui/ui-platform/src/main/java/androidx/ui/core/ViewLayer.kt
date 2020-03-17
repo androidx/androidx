@@ -59,9 +59,10 @@ internal class ViewLayer(
         resetClipBounds()
         val wasClippingManually = manualClipPath != null
         this.clipToOutline = props.clipToOutline
-        outlineResolver.update(props.outlineShape, this.alpha)
+        val shapeChanged = outlineResolver.update(props.outlineShape, this.alpha)
         updateOutlineResolver()
-        if (wasClippingManually || manualClipPath != null) {
+        val isClippingManually = manualClipPath != null
+        if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate() // have to redraw the content
         }
     }

@@ -22,9 +22,11 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DrawClipToBounds
+import androidx.ui.core.DrawLayerProperties
 import androidx.ui.core.Modifier
 import androidx.ui.core.draw
 import androidx.ui.core.drawClip
+import androidx.ui.core.drawLayer
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.RRect
@@ -379,11 +381,16 @@ class ClipTest {
             drawLatch.countDown()
         }
 
+        val clip = drawLayer(object : DrawLayerProperties {
+            override val outlineShape: Shape?
+                get() = model.value
+        })
+
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
-                    modifier = background(Color.Green) + drawClip(model.value) + draw(drawCallback)
+                    modifier = background(Color.Green) + clip + draw(drawCallback)
                 ) {
                 }
             }

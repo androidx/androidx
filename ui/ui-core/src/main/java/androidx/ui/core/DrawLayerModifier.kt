@@ -103,7 +103,7 @@ interface DrawLayerModifier : Modifier.Element {
     val properties: DrawLayerProperties
 }
 
-private class SimpleDrawLayerModifier(
+private data class SimpleDrawLayerModifier(
     override val properties: DrawLayerProperties
 ) : DrawLayerModifier
 
