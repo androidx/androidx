@@ -31,6 +31,28 @@
     </issue>
 
     <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `com.example.android.leanback.PlaybackOverlayFragment`, was not found in the project or the libraries"
+        errorLine1="        android:name=&quot;com.example.android.leanback.PlaybackOverlayFragment&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/playback_controls.xml"
+            line="23"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `com.example.android.leanback.PlaybackOverlaySupportFragment`, was not found in the project or the libraries"
+        errorLine1="        android:name=&quot;com.example.android.leanback.PlaybackOverlaySupportFragment&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/playback_controls_support.xml"
+            line="25"
+            column="23"/>
+    </issue>
+
+    <issue
         id="DefaultLocale"
         message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
         errorLine1="        b.append(String.format(&quot;%.2f&quot;, ((float) seconds + seconds2)));"
@@ -1216,6 +1238,94 @@
             file="src/main/res/values/strings.xml"
             line="99"
             column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_SearchDetails` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.SearchDetails&quot; parent=&quot;Theme.AppCompat.Leanback.Details.NoSharedElementTransition&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="23"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Details` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Details&quot; parent=&quot;Theme.AppCompat.Leanback.Details&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="25"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Details_CustomTitle` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Details.CustomTitle&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="27"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Rows` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Rows&quot; parent=&quot;Theme.AppCompat.Leanback&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="32"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep&quot; parent=&quot;Theme.AppCompat.Leanback.GuidedStep&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="36"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep_First` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep.First&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="39"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep_Half` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep.Half&quot; parent=&quot;Theme.AppCompat.Leanback.GuidedStep.Half&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="42"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Preferences` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Preferences&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/themes_appcompat.xml"
+            line="44"
+            column="12"/>
     </issue>
 
     <issue
