@@ -24,7 +24,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Layout
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
 import androidx.ui.core.enforce
@@ -33,6 +33,7 @@ import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
+import androidx.ui.core.onPositioned
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
@@ -78,10 +79,9 @@ fun SelectionContainer(
     manager.selection = selection
 
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
-        Wrap {
-            // Get the layout coordinates of the selection container. This is for hit test of
-            // cross-composable selection.
-            OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
+        // Get the layout coordinates of the selection container. This is for hit test of
+        // cross-composable selection.
+        Wrap(onPositioned { manager.containerLayoutCoordinates = it }) {
             PressReleasedGestureDetector(onRelease = { manager.onRelease() }) {
                 LongPressDragGestureDetector(manager.longPressDragObserver, children = children)
             }
@@ -164,8 +164,8 @@ private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
  * the children.
  */
 @Composable
-private fun Wrap(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints, _ ->
+private fun Wrap(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
         }

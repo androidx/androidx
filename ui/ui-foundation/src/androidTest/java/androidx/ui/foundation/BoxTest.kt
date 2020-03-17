@@ -21,8 +21,8 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.TestTag
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -64,9 +64,7 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(LayoutSize(size), padding = padding) {
-                    OnChildPositioned({ childSize = it.size }) {
-                        Box(LayoutSize.Fill)
-                    }
+                    Box(LayoutSize.Fill + onPositioned { childSize = it.size })
                 }
             }
         }
@@ -95,12 +93,10 @@ class BoxTest {
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {
-                    OnChildPositioned({
+                    Box(LayoutSize.Fill + onPositioned {
                         childSize = it.size
                         childPosition = it.localToGlobal(PxPosition.Origin)
-                    }) {
-                        Box(LayoutSize.Fill)
-                    }
+                    })
                 }
             }
         }
@@ -133,12 +129,10 @@ class BoxTest {
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {
-                    OnChildPositioned({
+                    Box(LayoutSize.Fill + onPositioned {
                         childSize = it.size
                         childPosition = it.localToGlobal(PxPosition.Origin)
-                    }) {
-                        Box(LayoutSize.Fill)
-                    }
+                    })
                 }
             }
         }
@@ -170,9 +164,7 @@ class BoxTest {
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {
-                    OnChildPositioned({ childSize = it.size }) {
-                        Box(LayoutSize.Fill)
-                    }
+                    Box(LayoutSize.Fill + onPositioned { childSize = it.size })
                 }
             }
         }
@@ -322,9 +314,7 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(LayoutSize(size), border = Border(borderSize, Color.Red)) {
-                    OnChildPositioned({ childSize = it.size }) {
-                        Box(LayoutSize.Fill)
-                    }
+                    Box(LayoutSize.Fill + onPositioned { childSize = it.size })
                 }
             }
         }

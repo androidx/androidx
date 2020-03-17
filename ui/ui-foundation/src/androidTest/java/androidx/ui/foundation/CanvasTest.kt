@@ -22,8 +22,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.TestTag
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -76,10 +76,9 @@ class CanvasTest {
         var canvasSize: IntPxSize? = null
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
-                OnChildPositioned({ position -> canvasSize = position.size }) {
-                    Canvas(modifier = LayoutSize(100.dp)) {
-                        drawRect(size.toRect(), Paint().apply { color = Color.Red })
-                    }
+                Canvas(modifier = LayoutSize(100.dp) +
+                        onPositioned { position -> canvasSize = position.size }) {
+                    drawRect(size.toRect(), Paint().apply { color = Color.Red })
                 }
             }
         }
@@ -103,14 +102,13 @@ class CanvasTest {
         var canvasSize: IntPxSize? = null
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
-                OnChildPositioned({ position -> canvasSize = position.size }) {
-                    Canvas(modifier = LayoutSize(100.dp)) {
-                        drawRect(size.toRect(), Paint().apply { color = Color.Red })
-                        drawCircle(
-                            size.center().toOffset(),
-                            10f,
-                            Paint().apply { color = Color.Blue })
-                    }
+                Canvas(modifier = LayoutSize(100.dp) +
+                        onPositioned { position -> canvasSize = position.size }) {
+                    drawRect(size.toRect(), Paint().apply { color = Color.Red })
+                    drawCircle(
+                        size.center().toOffset(),
+                        10f,
+                        Paint().apply { color = Color.Blue })
                 }
             }
         }

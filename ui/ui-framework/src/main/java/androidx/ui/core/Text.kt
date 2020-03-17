@@ -19,6 +19,7 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
+import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.compose.remember
@@ -165,36 +166,32 @@ fun Text(
                 state.textDelegate.paint(canvas, layoutResult)
             }
         }
-        val children = @Composable {
-            // Get the layout coordinates of the text composable. This is for hit test of
-            // cross-composable selection.
-            OnPositioned(
-                onPositioned = {
-                    val oldLayoutCoordinates = state.layoutCoordinates
-                    state.layoutCoordinates = it
+        // Get the layout coordinates of the text composable. This is for hit test of
+        // cross-composable selection.
+        val onPositioned = onPositioned {
+            val oldLayoutCoordinates = state.layoutCoordinates
+            state.layoutCoordinates = it
 
-                    if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
-                        it.isAttached
-                    ) {
-                        selectionRegistrar?.onPositionChange()
-                    }
+            if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
+                it.isAttached
+            ) {
+                selectionRegistrar?.onPositionChange()
+            }
 
-                    if (oldLayoutCoordinates != null && oldLayoutCoordinates.isAttached &&
-                        it.isAttached
-                    ) {
-                        if (
-                            oldLayoutCoordinates.localToGlobal(PxPosition.Origin) !=
-                            it.localToGlobal(PxPosition.Origin)
-                        ) {
-                            selectionRegistrar?.onPositionChange()
-                        }
-                    }
+            if (oldLayoutCoordinates != null && oldLayoutCoordinates.isAttached &&
+                it.isAttached
+            ) {
+                if (
+                    oldLayoutCoordinates.localToGlobal(PxPosition.Origin) !=
+                    it.localToGlobal(PxPosition.Origin)
+                ) {
+                    selectionRegistrar?.onPositionChange()
                 }
-            )
+            }
         }
         Layout(
-            children = children,
-            modifier = modifier + textDrawModifier,
+            children = emptyContent(),
+            modifier = modifier + textDrawModifier + onPositioned,
             minIntrinsicWidthMeasureBlock = { _, _, _ ->
                 state.textDelegate.layoutIntrinsics()
                 state.textDelegate.minIntrinsicWidth

@@ -19,9 +19,9 @@ import androidx.test.filters.LargeTest
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.globalPosition
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.material.icons.Icons
@@ -59,10 +59,11 @@ class BottomNavigationTest {
         lateinit var parentCoords: LayoutCoordinates
         val height = 56.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
-                OnPositioned { coords ->
+            .setMaterialContentAndCollectSizes(modifier =
+                onPositioned { coords ->
                     parentCoords = coords
                 }
+            ) {
                 BottomNavigationSample()
             }
             .assertWidthEqualsTo { parentCoords.size.width }
@@ -73,10 +74,9 @@ class BottomNavigationTest {
     fun bottomNavigationItem_sizeAndPositions() {
         lateinit var parentCoords: LayoutCoordinates
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
-        composeTestRule.setMaterialContent {
-            OnPositioned { coords ->
-                parentCoords = coords
-            }
+        composeTestRule.setMaterialContent(modifier = onPositioned { coords ->
+            parentCoords = coords
+        }) {
             Box {
                 BottomNavigation {
                     repeat(4) { index ->

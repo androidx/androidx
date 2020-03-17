@@ -20,11 +20,11 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
+import androidx.ui.core.onChildPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
@@ -291,16 +291,9 @@ class ButtonTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Stack {
+            Stack(onChildPositioned { parentCoordinates = it }) {
                 button {
-                    OnPositioned {
-                        parentCoordinates = it
-                    }
-                    OnChildPositioned(onPositioned = {
-                        childCoordinates = it
-                    }) {
-                        Text("Test button")
-                    }
+                    Text("Test button", onPositioned { childCoordinates = it })
                 }
             }
         }

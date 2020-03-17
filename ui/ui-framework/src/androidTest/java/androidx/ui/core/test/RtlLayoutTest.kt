@@ -22,8 +22,9 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
@@ -137,14 +138,11 @@ class RtlLayoutTest {
         }
         Layout(
             children = @Composable {
-                FixedSize(size) {
-                    SaveLayoutInfo(position[0], countDownLatch)
+                FixedSize(size, modifier = saveLayoutInfo(position[0], countDownLatch)) {
                 }
-                FixedSize(size) {
-                    SaveLayoutInfo(position[1], countDownLatch)
+                FixedSize(size, modifier = saveLayoutInfo(position[1], countDownLatch)) {
                 }
-                FixedSize(size) {
-                    SaveLayoutInfo(position[2], countDownLatch)
+                FixedSize(size, modifier = saveLayoutInfo(position[2], countDownLatch)) {
                 }
             },
             modifier = modifier
@@ -169,10 +167,11 @@ class RtlLayoutTest {
     }
 
     @Composable
-    private fun SaveLayoutInfo(position: Ref<PxPosition>, countDownLatch: CountDownLatch) {
-        OnPositioned {
-            position.value = it.localToGlobal(PxPosition(0.ipx, 0.ipx))
-            countDownLatch.countDown()
-        }
+    private fun saveLayoutInfo(
+        position: Ref<PxPosition>,
+        countDownLatch: CountDownLatch
+    ): Modifier = onPositioned {
+        position.value = it.localToGlobal(PxPosition(0.ipx, 0.ipx))
+        countDownLatch.countDown()
     }
 }

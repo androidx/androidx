@@ -20,8 +20,10 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
+import androidx.ui.layout.LayoutSize
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
@@ -44,17 +46,12 @@ open class ToolingTest {
         activityTestRule.onUiThread { handler = Handler(Looper.getMainLooper()) }
     }
 
-    @Composable
-    internal fun Positioned() {
-        OnPositioned(onPositioned = { positionedLatch.countDown() })
-    }
-
     internal fun show(composable: @Composable() () -> Unit) {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {
-                Positioned()
-                composable()
+                Box(onPositioned { positionedLatch.countDown() } + LayoutSize.Fill,
+                    children = composable)
             }
         }
 

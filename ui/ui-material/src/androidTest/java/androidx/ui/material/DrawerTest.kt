@@ -21,8 +21,8 @@ import androidx.compose.Model
 import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.TestTag
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Clickable
 import androidx.ui.layout.Container
 import androidx.ui.semantics.Semantics
@@ -64,10 +64,9 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Container(expanded = true) {
-                    OnPositioned { coords ->
-                        position = coords.localToGlobal(PxPosition.Origin)
-                    }
+                Container(onPositioned { coords ->
+                    position = coords.localToGlobal(PxPosition.Origin)
+                }, expanded = true) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -81,10 +80,9 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Container(expanded = true) {
-                    OnPositioned { coords ->
-                        position = coords.localToGlobal(PxPosition.Origin)
-                    }
+                Container(onPositioned { coords ->
+                    position = coords.localToGlobal(PxPosition.Origin)
+                }, expanded = true) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -99,10 +97,9 @@ class DrawerTest {
         var size: IntPxSize? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Container(expanded = true) {
-                    OnPositioned { coords ->
-                        size = coords.size
-                    }
+                Container(onPositioned { coords ->
+                    size = coords.size
+                }, expanded = true) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -119,10 +116,9 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Container(expanded = true) {
-                    OnPositioned { coords ->
-                        position = coords.localToGlobal(PxPosition.Origin)
-                    }
+                Container(onPositioned { coords ->
+                    position = coords.localToGlobal(PxPosition.Origin)
+                }, expanded = true) {
                 }
             }, bodyContent = emptyContent())
         }
@@ -141,10 +137,9 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Container(expanded = true) {
-                    OnPositioned { coords ->
-                        position = coords.localToGlobal(PxPosition.Origin)
-                    }
+                Container(onPositioned { coords ->
+                    position = coords.localToGlobal(PxPosition.Origin)
+                }, expanded = true) {
                 }
             }, bodyContent = emptyContent())
         }

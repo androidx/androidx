@@ -19,8 +19,7 @@ package androidx.ui.test
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
@@ -51,17 +50,16 @@ class LayoutCoordinatesHelperTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
-            Column {
-                OnPositioned { coordinates ->
-                    parentCoordinates = coordinates
-                    latch.countDown()
-                }
-                OnChildPositioned(onPositioned = { coordinates ->
-                    childCoordinates = coordinates
-                    latch.countDown()
-                }) {
-                    Container(width = 10.dp, height = 10.dp, modifier = LayoutGravity.Start) {}
-                }
+            Column(onPositioned { coordinates ->
+                parentCoordinates = coordinates
+                latch.countDown()
+            }) {
+                Container(width = 10.dp, height = 10.dp, modifier = LayoutGravity.Start +
+                        onPositioned { coordinates ->
+                            childCoordinates = coordinates
+                            latch.countDown()
+                        }
+                ) {}
             }
         }
 
@@ -78,21 +76,20 @@ class LayoutCoordinatesHelperTest {
         composeTestRule.setContent {
             with(DensityAmbient.current) {
                 Container(LayoutWidth(40.ipx.toDp())) {
-                    Column(LayoutWidth(20.ipx.toDp())) {
-                        OnPositioned { coordinates ->
-                            parentCoordinates = coordinates
-                            latch.countDown()
-                        }
-                        OnChildPositioned(onPositioned = { coordinates ->
-                            childCoordinates = coordinates
-                            latch.countDown()
-                        }) {
-                            Container(
-                                width = 10.ipx.toDp(),
-                                height = 10.ipx.toDp(),
-                                modifier = LayoutGravity.Center
-                            ) {}
-                        }
+                    Column(LayoutWidth(20.ipx.toDp()) +
+                    onPositioned { coordinates ->
+                        parentCoordinates = coordinates
+                        latch.countDown()
+                    }) {
+                        Container(
+                            width = 10.ipx.toDp(),
+                            height = 10.ipx.toDp(),
+                            modifier = LayoutGravity.Center +
+                                    onPositioned { coordinates ->
+                                        childCoordinates = coordinates
+                                        latch.countDown()
+                                    }
+                        ) {}
                     }
                 }
             }
