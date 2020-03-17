@@ -596,6 +596,43 @@ class SeparatorsTest {
         )
     }
 
+    @Test
+    fun types() = runBlockingTest {
+        open class Base
+        data class PrimaryType(val string: String) : Base()
+        data class SeparatorType(val string: String) : Base()
+
+        assertInsertData(
+            listOf(
+                Refresh(
+                    pages = listOf(
+                        listOf(
+                            PrimaryType("a1"),
+                            SeparatorType("B"),
+                            PrimaryType("b1")
+                        )
+                    ).toTransformablePages(),
+                    placeholdersStart = 0,
+                    placeholdersEnd = 1,
+                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                )
+            ),
+            flowOf(
+                Refresh(
+                    pages = listOf(listOf(PrimaryType("a1"), PrimaryType("b1")))
+                        .toTransformablePages(),
+                    placeholdersStart = 0,
+                    placeholdersEnd = 1,
+                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                )
+            ).insertSeparators<PrimaryType, Base> { before, after ->
+                return@insertSeparators (if (before != null && after != null) {
+                    SeparatorType("B")
+                } else null)
+            }.toList()
+        )
+    }
+
     companion object {
         /**
          * Creates an upper-case letter at the beginning of each section of strings that start

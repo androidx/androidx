@@ -18,6 +18,7 @@
 
 package androidx.paging.samples
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.Sampled
@@ -34,13 +35,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-internal class UiModel(@Suppress("UNUSED_PARAMETER") string: String)
-internal class MyPagingAdapter : BasePagingAdapter<UiModel>()
-internal class MyViewModel : BaseViewModel<UiModel>()
-lateinit var pagingSourceFactory: () -> PagingSource<String, String>
+private class UiModel(@Suppress("UNUSED_PARAMETER") string: String)
+private class MyPagingAdapter : BasePagingAdapter<UiModel>()
+private class MyViewModel : BaseViewModel<UiModel>()
+private lateinit var pagingSourceFactory: () -> PagingSource<String, String>
 
 @ExperimentalCoroutinesApi
 @Sampled
+@SuppressLint("SyntheticAccessor")
 fun cachedInSample() {
     class MyViewModel : ViewModel() {
         val flow = PagingDataFlow(PagingConfig(pageSize = 40), pagingSourceFactory)

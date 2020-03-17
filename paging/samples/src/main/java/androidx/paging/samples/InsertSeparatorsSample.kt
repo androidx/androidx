@@ -20,8 +20,9 @@ package androidx.paging.samples
 
 import androidx.annotation.Sampled
 import androidx.paging.PagingData
+import androidx.paging.insertSeparators
 
-lateinit var pagingData: PagingData<String>
+private lateinit var pagingData: PagingData<String>
 
 @Sampled
 fun insertSeparatorsSample() {
