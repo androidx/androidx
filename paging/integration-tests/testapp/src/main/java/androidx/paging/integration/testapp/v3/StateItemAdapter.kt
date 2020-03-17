@@ -27,51 +27,44 @@ import androidx.paging.LoadStateAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-class StateItemAdapter(
-    private val retry: () -> Unit
-) : LoadStateAdapter<StateItemAdapter.ViewHolder>() {
-    class ViewHolder(
-        parent: ViewGroup,
-        retry: () -> Unit
-    ) : RecyclerView.ViewHolder(inflate(parent)) {
-        private val progressBar: ProgressBar = itemView.findViewById(
-            R.id.progress_bar
-        )
-        private val errorMsg: TextView = itemView.findViewById(
-            R.id.error_msg
-        )
-        private val retry: Button = itemView.findViewById<Button>(
-            R.id.retry_button
-        ).also {
-            it.setOnClickListener { retry.invoke() }
-        }
+class LoadStateViewHolder(
+    parent: ViewGroup,
+    retry: () -> Unit
+) : RecyclerView.ViewHolder(inflate(parent)) {
+    private val progressBar: ProgressBar = itemView.findViewById(R.id.progress_bar)
+    private val errorMsg: TextView = itemView.findViewById(R.id.error_msg)
+    private val retry: Button = itemView.findViewById<Button>(R.id.retry_button)
+        .also { it.setOnClickListener { retry.invoke() } }
 
-        fun bind(loadState: LoadState) {
-            if (loadState is LoadState.Error) {
-                errorMsg.text = loadState.error.localizedMessage
-            }
-            progressBar.visibility = toVisibility(loadState == LoadState.Loading)
-            retry.visibility = toVisibility(loadState != LoadState.Loading)
-            errorMsg.visibility = toVisibility(loadState != LoadState.Loading)
+    fun bind(loadState: LoadState) {
+        if (loadState is LoadState.Error) {
+            errorMsg.text = loadState.error.localizedMessage
         }
-
-        private fun toVisibility(constraint: Boolean): Int = if (constraint) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-
-        companion object {
-            fun inflate(parent: ViewGroup): View = LayoutInflater.from(
-                parent.context
-            )
-                .inflate(R.layout.load_state_item, parent, false)
-        }
+        progressBar.visibility = toVisibility(loadState == LoadState.Loading)
+        retry.visibility = toVisibility(loadState != LoadState.Loading)
+        errorMsg.visibility = toVisibility(loadState != LoadState.Loading)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
-        ViewHolder(parent, retry)
+    private fun toVisibility(constraint: Boolean): Int = if (constraint) {
+        View.VISIBLE
+    } else {
+        View.GONE
+    }
 
-    override fun onBindViewHolder(holder: ViewHolder, loadState: LoadState) =
+    companion object {
+        fun inflate(parent: ViewGroup): View =
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.load_state_item, parent, false)
+    }
+}
+
+class StateItemAdapter(
+    private val retry: () -> Unit
+) : LoadStateAdapter<LoadStateViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
+        LoadStateViewHolder(parent, retry)
+
+    override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) =
         holder.bind(loadState)
 }

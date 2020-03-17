@@ -29,6 +29,7 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType
 import androidx.paging.PagedList
 import androidx.paging.integration.testapp.R
+import androidx.paging.integration.testapp.v3.StateItemAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 /**
