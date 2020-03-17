@@ -103,7 +103,7 @@ internal class RenderNodeLayer(
         isDirty = false
     }
 
-    fun updateDisplayList() {
+    override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList()) {
             isDirty = false
             val renderNodeCanvas = renderNode.beginRecording()

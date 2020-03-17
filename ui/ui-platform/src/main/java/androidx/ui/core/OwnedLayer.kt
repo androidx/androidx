@@ -46,6 +46,11 @@ interface OwnedLayer {
     fun drawLayer(canvas: Canvas)
 
     /**
+     * Updates the drawing on the current canvas.
+     */
+    fun updateDisplayList()
+
+    /**
      * Asks to the layer to redraw itself without forcing all of its parents to redraw.
      */
     fun invalidate()
