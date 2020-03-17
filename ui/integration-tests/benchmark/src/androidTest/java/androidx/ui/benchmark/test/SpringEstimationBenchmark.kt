@@ -41,7 +41,7 @@ class SpringEstimationBenchmark {
                 mass = 491.0,
                 springConstant = 4500.0,
                 dampingCoefficient = dampingCoeff,
-                initialPosition = -3000.0,
+                initialDisplacement = -3000.0,
                 initialVelocity = 800.0,
                 delta = 1.0
             )
@@ -56,7 +56,7 @@ class SpringEstimationBenchmark {
                 mass = 81.0,
                 springConstant = 130321.0,
                 dampingCoefficient = 6501.0,
-                initialPosition = -200000.0,
+                initialDisplacement = -200000.0,
                 initialVelocity = 4200.0,
                 delta = 1.0
             )
@@ -71,7 +71,7 @@ class SpringEstimationBenchmark {
                 mass = 1.0,
                 springConstant = 1.0,
                 dampingCoefficient = 1.0,
-                initialPosition = -200000.0,
+                initialDisplacement = -200000.0,
                 initialVelocity = 100.0,
                 delta = 1.0
             )

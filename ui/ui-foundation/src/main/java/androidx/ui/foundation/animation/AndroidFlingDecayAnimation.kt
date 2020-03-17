@@ -17,7 +17,6 @@
 package androidx.ui.foundation.animation
 
 import androidx.animation.DecayAnimation
-import kotlin.math.roundToInt
 import kotlin.math.sign
 
 /**
@@ -43,13 +42,9 @@ class AndroidFlingDecayAnimation(
     override fun getValue(playTime: Long, start: Float, startVelocity: Float): Float =
         start + flingCalculator.flingInfo(startVelocity).position(playTime)
 
+    override fun getDurationMillis(start: Float, startVelocity: Float): Long =
+        flingCalculator.flingDuration(startVelocity)
+
     override fun getVelocity(playTime: Long, start: Float, startVelocity: Float): Float =
         flingCalculator.flingInfo(startVelocity).velocity(playTime)
-
-    override fun isFinished(playTime: Long, start: Float, startVelocity: Float): Boolean {
-        val flingInfo = flingCalculator.flingInfo(startVelocity)
-        if (playTime > flingInfo.duration) return true
-
-        return flingInfo.distance.roundToInt() == flingInfo.position(playTime).roundToInt()
-    }
 }

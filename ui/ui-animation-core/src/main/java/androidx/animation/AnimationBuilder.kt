@@ -232,15 +232,6 @@ private class FloatAnimWrapper<V : AnimationVector>(val anim: FloatAnimation) : 
     private lateinit var valueVector: V
     private lateinit var velocityVector: V
 
-    override fun isFinished(playTime: Long, start: V, end: V, startVelocity: V): Boolean {
-        for (i in 0 until start.size) {
-            if (!anim.isFinished(playTime, start[i], end[i], startVelocity[i])) {
-                return false
-            }
-        }
-        return true
-    }
-
     override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
         if (!::valueVector.isInitialized) {
             valueVector = start.newInstance()
@@ -253,12 +244,23 @@ private class FloatAnimWrapper<V : AnimationVector>(val anim: FloatAnimation) : 
 
     override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
         if (!::velocityVector.isInitialized) {
-            velocityVector = start.newInstance()
+            velocityVector = startVelocity.newInstance()
         }
         for (i in 0 until velocityVector.size) {
             velocityVector[i] = anim.getVelocity(playTime, start[i], end[i], startVelocity[i])
         }
         return velocityVector
+    }
+
+    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
+        var maxDuration = 0L
+        (0 until start.size).forEach {
+            maxDuration = maxOf(
+                maxDuration,
+                anim.getDurationMillis(start[it], end[it], startVelocity[it])
+            )
+        }
+        return maxDuration
     }
 }
 

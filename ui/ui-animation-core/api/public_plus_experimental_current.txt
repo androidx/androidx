@@ -157,10 +157,10 @@ package androidx.animation {
 
   public interface DecayAnimation {
     method public float getAbsVelocityThreshold();
+    method public long getDurationMillis(float start, float startVelocity);
     method public float getTarget(float start, float startVelocity);
     method public float getValue(long playTime, float start, float startVelocity);
     method public float getVelocity(long playTime, float start, float startVelocity);
-    method public boolean isFinished(long playTime, float start, float startVelocity);
     property public abstract float absVelocityThreshold;
   }
 
@@ -194,10 +194,10 @@ package androidx.animation {
     ctor public ExponentialDecay(@FloatRange(from=null, fromInclusive=null) float frictionMultiplier, @FloatRange(from=null, fromInclusive=null) float absVelocityThreshold);
     ctor public ExponentialDecay();
     method public float getAbsVelocityThreshold();
+    method public long getDurationMillis(float start, float startVelocity);
     method public float getTarget(float start, float startVelocity);
     method public float getValue(long playTime, float start, float startVelocity);
     method public float getVelocity(long playTime, float start, float startVelocity);
-    method public boolean isFinished(long playTime, float start, float startVelocity);
     property public float absVelocityThreshold;
   }
 

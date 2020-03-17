@@ -84,7 +84,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
             mass = testCase.mass,
             springConstant = testCase.springConstant,
             dampingCoefficient = testCase.dampingCoefficient,
-            initialPosition = testCase.initialPosition,
+            initialDisplacement = testCase.initialDisplacement,
             initialVelocity = testCase.initialVelocity,
             delta = 1.0
         )
@@ -92,7 +92,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         val alternateEndTime = estimateAnimationDurationMillis(
             stiffness = testCase.stiffness,
             dampingRatio = testCase.dampingRatio,
-            initialPosition = testCase.initialPosition,
+            initialDisplacement = testCase.initialDisplacement,
             initialVelocity = testCase.initialVelocity,
             delta = 1.0
         )
@@ -110,17 +110,17 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
             return TestCaseResult(false, testCase, "End time +infinity")
 
         val simTwoFramesAfter = springSimulation.updateValues(
-            lastDisplacement = testCase.initialPosition.toFloat(),
+            lastDisplacement = testCase.initialDisplacement.toFloat(),
             lastVelocity = testCase.initialVelocity.toFloat(),
             timeElapsed = endTime + TwoFrames60fpsMillis
         )
         val simTwoFramesBefore = springSimulation.updateValues(
-            lastDisplacement = testCase.initialPosition.toFloat(),
+            lastDisplacement = testCase.initialDisplacement.toFloat(),
             lastVelocity = testCase.initialVelocity.toFloat(),
             timeElapsed = max(endTime - TwoFrames60fpsMillis, 0L)
         )
         val simAtTime = springSimulation.updateValues(
-            lastDisplacement = testCase.initialPosition.toFloat(),
+            lastDisplacement = testCase.initialDisplacement.toFloat(),
             lastVelocity = testCase.initialVelocity.toFloat(),
             timeElapsed = endTime
         )
@@ -164,7 +164,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
                             springConstant = k,
                             dampingCoefficient = c.toDouble(),
                             initialVelocity = v0.toDouble(),
-                            initialPosition = p0.toDouble()
+                            initialDisplacement = p0.toDouble()
                         )
                         synchronized(testCases) {
                             testCases.add(
@@ -189,7 +189,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
                         springConstant = k,
                         dampingCoefficient = c,
                         initialVelocity = v0.toDouble(),
-                        initialPosition = p0.toDouble()
+                        initialDisplacement = p0.toDouble()
                     )
 
                     synchronized(testCases) {
@@ -208,7 +208,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         val springConstant: Double,
         val dampingCoefficient: Double,
         val initialVelocity: Double,
-        val initialPosition: Double
+        val initialDisplacement: Double
     ) {
         val dampingRatio: Double
             get() {

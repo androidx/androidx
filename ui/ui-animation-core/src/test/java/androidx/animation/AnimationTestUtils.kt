@@ -24,9 +24,6 @@ internal fun Animation<AnimationVector1D>.at(time: Int): Float =
         AnimationVector1D(0f)
     ).value
 
-internal fun Animation<AnimationVector1D>.isFinished(time: Int): Boolean =
-    isFinished(time.toLong(), AnimationVector1D(0f), AnimationVector1D(1f), AnimationVector1D(0f))
-
 // Convenient method to build a Float animation.
 internal fun AnimationBuilder<Float>.build() = this.build(FloatToVectorConverter)
 

@@ -17,6 +17,7 @@
 package androidx.animation
 
 import com.google.common.truth.Truth.assertThat
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -86,6 +87,108 @@ class PhysicsAnimationTest {
 
         assertThat(resultValue).isEqualTo(expectedValue)
         assertThat(resultVelocity).isEqualTo(expectedVelocity)
+    }
+
+    @Test
+    fun testCriticallydampedDuration() {
+        val startValue = 100f
+        val endValue = 0f
+        val startVelocity = 3000f
+        val stiffness = 100f
+        val delta = 1.0
+
+        val criticalBuilder = PhysicsBuilder<Float>(
+            dampingRatio = 1f,
+            stiffness = stiffness
+        )
+        val criticalWrapper = criticalBuilder.build().toWrapper(
+            startValue = startValue,
+            endValue = endValue,
+            startVelocity = startVelocity
+        )
+
+        assertEquals(
+            estimateAnimationDurationMillis(
+                stiffness = stiffness.toDouble(),
+                dampingRatio = 1.0,
+                initialVelocity = startVelocity.toDouble() * 100.0,
+                initialDisplacement = startValue.toDouble() * 100.0,
+                delta = delta
+            ) /* = 811 ms*/,
+            criticalWrapper.durationMillis
+        )
+    }
+
+    @Test
+    fun testOverdampedDuration() {
+        val startValue = 100f
+        val endValue = 0f
+        val startVelocity = 3000f
+        val stiffness = 100f
+        val delta = 1.0
+
+        val overBuilder = PhysicsBuilder<Float>(
+            dampingRatio = 5f,
+            stiffness = stiffness
+        )
+        val overWrapper = overBuilder.build().toWrapper(
+            startValue = startValue,
+            endValue = endValue,
+            startVelocity = startVelocity
+        )
+
+        assertEquals(
+            estimateAnimationDurationMillis(
+                stiffness = stiffness.toDouble(),
+                dampingRatio = 5.0,
+                initialVelocity = startVelocity.toDouble() * 100.0,
+                initialDisplacement = startValue.toDouble() * 100.0,
+                delta = delta
+            ) /* = 4830 ms*/,
+            overWrapper.durationMillis
+        )
+    }
+    @Test
+    fun testUnderdampedDuration() {
+        val startValue = 100f
+        val endValue = 0f
+        val startVelocity = 3000f
+        val stiffness = 100f
+        val delta = 1.0
+
+        val underBuilder = PhysicsBuilder<Float>(
+            dampingRatio = .5f,
+            stiffness = stiffness
+        )
+        val underWrapper = underBuilder.build().toWrapper(
+            startValue = startValue,
+            endValue = endValue,
+            startVelocity = startVelocity
+        )
+
+        assertEquals(
+            estimateAnimationDurationMillis(
+                stiffness = stiffness.toDouble(),
+                dampingRatio = 0.5,
+                initialVelocity = startVelocity.toDouble() * 100.0,
+                initialDisplacement = startValue.toDouble() * 100.0,
+                delta = delta) /* = 1206 ms*/,
+            underWrapper.durationMillis
+        )
+    }
+
+    private fun Animation<AnimationVector1D>.toWrapper(
+        startValue: Float,
+        startVelocity: Float,
+        endValue: Float
+    ): AnimationWrapper<Float, AnimationVector1D> {
+        return TargetBasedAnimationWrapper(
+            startValue = startValue,
+            startVelocity = AnimationVector(startVelocity),
+            endValue = endValue,
+            animation = this,
+            typeConverter = FloatToVectorConverter
+        )
     }
 
     private fun PhysicsBuilder<out Number>.toSpring(endValue: Number) =

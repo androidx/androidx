@@ -173,11 +173,11 @@ package androidx.ui.foundation.animation {
   public final class AndroidFlingDecayAnimation implements androidx.animation.DecayAnimation {
     ctor public AndroidFlingDecayAnimation(androidx.ui.foundation.animation.AndroidFlingCalculator flingCalculator);
     method public float getAbsVelocityThreshold();
+    method public long getDurationMillis(float start, float startVelocity);
     method public androidx.ui.foundation.animation.AndroidFlingCalculator getFlingCalculator();
     method public float getTarget(float start, float startVelocity);
     method public float getValue(long playTime, float start, float startVelocity);
     method public float getVelocity(long playTime, float start, float startVelocity);
-    method public boolean isFinished(long playTime, float start, float startVelocity);
     property public float absVelocityThreshold;
     property public final androidx.ui.foundation.animation.AndroidFlingCalculator flingCalculator;
   }
