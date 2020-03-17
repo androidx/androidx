@@ -26,9 +26,6 @@ mkdir -p "$DIST_DIR"
 # cd to checkout root
 cd "$SCRIPT_DIR/../../../.."
 
-# b/146217083 : Kill some java processes that might be interfering with our build
-echoAndDo "ps -ef | grep java | grep studio-master-dev | grep -i gradle | grep -i databinding | awk -F ' ' '{print \$2}' | xargs --no-run-if-empty kill"
-
 # display the contents of the out/ directory, to allow us to be sure that it was empty before this build started
 echoAndDo "ls -la out"
 
