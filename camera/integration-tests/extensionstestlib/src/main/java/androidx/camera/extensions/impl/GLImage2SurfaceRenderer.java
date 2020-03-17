@@ -162,7 +162,7 @@ final class GLImage2SurfaceRenderer {
         mEGLPbufferSurface = EGL14.eglCreatePbufferSurface(mEGLDisplay, mEGLConfigs[0],
                 pbufferAttribs, 0);
 
-        if (Objects.equals(mEGLPbufferSurface, EGL_NO_CONTEXT)) {
+        if (Objects.equals(mEGLPbufferSurface, EGL_NO_SURFACE)) {
             throw new RuntimeException("No EGL surface");
         }
 
@@ -211,7 +211,7 @@ final class GLImage2SurfaceRenderer {
                 surfaceAttribs,
                 0);
 
-        if (Objects.equals(mWindowSurface, EGL_NO_CONTEXT)) {
+        if (Objects.equals(mWindowSurface, EGL_NO_SURFACE)) {
             throw new RuntimeException("Unable to create window surface");
         }
 
