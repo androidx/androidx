@@ -43,7 +43,7 @@ dependencies {
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-animation")
     implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-foundation:samples")
+    implementation project(":ui:ui-foundation:integration-tests:samples")
     implementation project(":ui:ui-text")
     implementation project(':ui:ui-android-view')
 }

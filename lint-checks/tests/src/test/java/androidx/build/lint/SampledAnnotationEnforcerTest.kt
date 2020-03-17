@@ -31,14 +31,15 @@ import org.junit.Test
  * This tests the following module setup:
  *
  * Module 'foo', which lives in foo
- * Module 'samples', which lives in samples, and depends on 'foo'
+ * Module 'integration-tests:samples', which lives in integration-tests,
+ * and depends on 'foo'
  *
  * Unfortunately since we cannot test submodules, we cannot verify the case for
- * foo:samples in this test.
+ * foo:integration-tests:samples in this test.
  */
 class SampledAnnotationEnforcerTest {
     private val fooModuleName = "foo"
-    private val sampleModuleName = "samples"
+    private val sampleModuleName = "integration-tests"
 
     private val barFilePath = "foo/src/foo/Bar.kt"
 
@@ -71,22 +72,22 @@ class SampledAnnotationEnforcerTest {
         fooFile: TestFile? = null,
         sampleFile: TestFile? = null
     ): TestLintResult {
-        val projectDescriptions = mutableListOf<ProjectDescription>()
         val fooProject = ProjectDescription().apply {
             name = fooModuleName
             fooFile?.let { files = arrayOf(fooFile) }
         }
-        projectDescriptions += fooProject
-
-        sampleFile?.let {
-            projectDescriptions += ProjectDescription().apply {
-                name = sampleModuleName
+        val sampleProject = ProjectDescription().apply {
+            name = sampleModuleName
+            sampleFile?.let {
+                // Hack to make it seem that we are in a samples sub-module of integration-tests,
+                // since we cannot actually set this up in tests.
+                sampleFile.within("samples/src")
                 files = arrayOf(sampleFile)
-                dependsOn(fooProject)
             }
+            dependsOn(fooProject)
         }
         return lint()
-            .projects(*projectDescriptions.toTypedArray())
+            .projects(fooProject, sampleProject)
             .allowMissingSdk(true)
             .issues(
                 SampledAnnotationEnforcer.MISSING_SAMPLED_ANNOTATION,
@@ -113,7 +114,7 @@ class SampledAnnotationEnforcerTest {
         """)
 
         val expected =
-    "src/foo/Bar.kt:6: Error: Couldn't find a valid samples directory in this project" +
+    "$barFilePath:6: Error: Couldn't find a valid samples directory in this project" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -167,7 +168,7 @@ class SampledAnnotationEnforcerTest {
         val sampleFile = unannotatedSampleFile
 
         val expected =
-"$barFilePath:6: Error: sampleBar is not annotated with @Sampled, but is linked to from" +
+"foo/src/foo/Bar.kt:6: Error: sampleBar is not annotated with @Sampled, but is linked to from" +
 """ the KDoc of bar [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,11 +233,11 @@ class SampledAnnotationEnforcerTest {
             /**
              * @sample foo.samples.sampleBar
              */
-            class Bar
+            class Bar {}
         """)
 
         val expected =
-"src/foo/Bar.kt:5: Error: Couldn't find a valid samples directory in this project" +
+"$barFilePath:5: Error: Couldn't find a valid samples directory in this project" +
 """ [EnforceSampledAnnotation]
              * @sample foo.samples.sampleBar
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -255,7 +256,7 @@ class SampledAnnotationEnforcerTest {
             /**
              * @sample foo.samples.sampleBar
              */
-            class Bar
+            class Bar {}
         """)
 
         val sampleFile = emptySampleFile
@@ -280,7 +281,7 @@ class SampledAnnotationEnforcerTest {
             /**
              * @sample foo.samples.sampleBar
              */
-            class Bar
+            class Bar {}
         """)
 
         val sampleFile = unannotatedSampleFile
@@ -305,7 +306,7 @@ class SampledAnnotationEnforcerTest {
             /**
              * @sample foo.samples.sampleBar
              */
-            class Bar
+            class Bar {}
         """)
 
         val sampleFile = multipleMatchingSampleFile
@@ -330,7 +331,7 @@ class SampledAnnotationEnforcerTest {
             /**
              * @sample foo.samples.sampleBar
              */
-            class Bar
+            class Bar {}
         """)
 
         val sampleFile = correctlyAnnotatedSampleFile
@@ -353,7 +354,7 @@ class SampledAnnotationEnforcerTest {
         """)
 
         val expected =
-"src/foo/Bar.kt:6: Error: Couldn't find a valid samples directory in this project" +
+"$barFilePath:6: Error: Couldn't find a valid samples directory in this project" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
