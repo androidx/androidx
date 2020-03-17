@@ -234,7 +234,7 @@ package androidx.work {
 
   public interface RunnableScheduler {
     method public void cancel(Runnable);
-    method public void scheduleWithDelay(long, Runnable);
+    method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
   }
 
   public abstract class WorkContinuation {

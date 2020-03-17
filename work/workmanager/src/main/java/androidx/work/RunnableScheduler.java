@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
 /**
@@ -31,7 +32,7 @@ public interface RunnableScheduler {
      * @param delayInMillis The delay in milliseconds relative to the current time.
      * @param runnable      The {@link Runnable} to be scheduled
      */
-    void scheduleWithDelay(long delayInMillis, @NonNull Runnable runnable);
+    void scheduleWithDelay(@IntRange(from = 0) long delayInMillis, @NonNull Runnable runnable);
 
     /**
      * Cancels the {@link Runnable} which was previously scheduled using
