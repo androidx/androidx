@@ -1628,6 +1628,40 @@ class ParagraphIntegrationTest {
         }
     }
 
+    @Test
+    fun lineCount_withMaxLineSmallerThanTextLines() {
+        with(defaultDensity) {
+            val text = "a\na\na"
+            val fontSize = 100.sp
+            val lineCount = text.lines().size
+            val maxLines = lineCount - 1
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                maxLines = maxLines
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(maxLines)
+        }
+    }
+
+    @Test
+    fun lineCount_withMaxLineGreaterThanTextLines() {
+        with(defaultDensity) {
+            val text = "a\na\na"
+            val fontSize = 100.sp
+            val lineCount = text.lines().size
+            val maxLines = lineCount + 1
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                maxLines = maxLines
+            )
+
+            assertThat(paragraph.lineCount).isEqualTo(lineCount)
+        }
+    }
+
     @Test(expected = java.lang.IllegalArgumentException::class)
     fun maxLines_withMaxLineEqualsZero_throwsException() {
         simpleParagraph(

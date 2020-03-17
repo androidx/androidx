@@ -120,14 +120,7 @@ internal class AndroidParagraph constructor(
     }
 
     override val height: Float
-        get() = layout.let {
-            val lineCount = it.lineCount
-            if (maxLines < lineCount) {
-                it.getLineBottom(maxLines - 1)
-            } else {
-                it.height.toFloat()
-            }
-        }
+        get() = layout.height.toFloat()
 
     override val maxIntrinsicWidth: Float
         get() = paragraphIntrinsics.maxIntrinsicWidth
