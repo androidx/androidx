@@ -48,7 +48,7 @@ class CheckboxesInRowsTestCase(
                     repeat(amountOfCheckboxes) {
                         Row {
                             Text(text = "Check Me!")
-                            CheckboxWithState(LayoutFlexible(1f) + LayoutAlign.CenterEnd)
+                            CheckboxWithState(LayoutWeight(1f) + LayoutAlign.CenterEnd)
                         }
                     }
                 }

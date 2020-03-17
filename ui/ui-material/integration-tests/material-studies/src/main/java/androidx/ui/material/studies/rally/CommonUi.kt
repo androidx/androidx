@@ -79,7 +79,7 @@ private fun BaseRow(
             Text(text = title, style = typography.body1)
             Text(text = subtitle, style = typography.subtitle1)
         }
-        Spacer(LayoutFlexible(1f))
+        Spacer(LayoutWeight(1f))
         Row(
             modifier = LayoutGravity.Center + LayoutWidth(113.dp),
             arrangement = Arrangement.SpaceBetween

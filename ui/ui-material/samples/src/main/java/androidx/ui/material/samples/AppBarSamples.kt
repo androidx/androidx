@@ -61,7 +61,7 @@ fun SimpleBottomAppBar() {
             Icon(Icons.Filled.Menu)
         }
         // The actions should be at the end of the BottomAppBar
-        Spacer(LayoutFlexible(1f))
+        Spacer(LayoutWeight(1f))
         IconButton(onClick = { /* doSomething() */ }) {
             Icon(Icons.Filled.Favorite)
         }

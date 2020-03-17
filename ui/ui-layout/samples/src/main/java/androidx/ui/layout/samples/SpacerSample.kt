@@ -33,7 +33,7 @@ fun SpacerExample() {
         Box(LayoutSize(100.dp), backgroundColor = Color.Red)
         Spacer(modifier = LayoutWidth(20.dp))
         Box(LayoutSize(100.dp), backgroundColor = Color.Magenta)
-        Spacer(modifier = LayoutFlexible(1f))
+        Spacer(modifier = LayoutWeight(1f))
         Box(LayoutSize(100.dp), backgroundColor = Color.Black)
     }
 }

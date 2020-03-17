@@ -100,7 +100,7 @@ fun BottomNavigation(
     }
 }
 
-// TODO: b/150138067 remove RowScope receiver here when we can access LayoutFlexible from a
+// TODO: b/150138067 remove RowScope receiver here when we can access LayoutWeight from a
 // global scope
 /**
  * A BottomNavigationItem represents a singular primary destination in your application.
@@ -144,7 +144,7 @@ fun RowScope.BottomNavigationItem(
     }
     Ripple(bounded = false) {
         MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-            Box(modifier + LayoutFlexible(1f), gravity = ContentGravity.Center) {
+            Box(modifier + LayoutWeight(1f), gravity = ContentGravity.Center) {
                 BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
                     val animationProgress = if (alwaysShowLabels) 1f else progress
 

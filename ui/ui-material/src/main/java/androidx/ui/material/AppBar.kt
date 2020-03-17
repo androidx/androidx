@@ -97,7 +97,7 @@ fun TopAppBar(
         }
 
         // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
-        Box(LayoutHeight.Fill + LayoutFlexible(1f), gravity = ContentGravity.BottomStart) {
+        Box(LayoutHeight.Fill + LayoutWeight(1f), gravity = ContentGravity.BottomStart) {
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {

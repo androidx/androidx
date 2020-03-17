@@ -84,13 +84,13 @@ fun MatchParentDividerForText() {
             Row {
                 Text(
                     text = "This is a really short text",
-                    modifier = LayoutFlexible(1f) + LayoutHeight.Fill
+                    modifier = LayoutWeight(1f) + LayoutHeight.Fill
                 )
                 Box(LayoutWidth(1.dp) + LayoutHeight.Fill, backgroundColor = Color.Black)
                 Text(
                     text = "This is a much much much much much much much much much much" +
                             " much much much much much much longer text",
-                    modifier = LayoutFlexible(1f) + LayoutHeight.Fill
+                    modifier = LayoutWeight(1f) + LayoutHeight.Fill
                 )
             }
         }
@@ -142,7 +142,7 @@ fun MatchParentDividerForAspectRatio() {
     Stack {
         MaxIntrinsicHeight {
             Row {
-                val modifier = LayoutHeight.Fill + LayoutFlexible(1f)
+                val modifier = LayoutHeight.Fill + LayoutWeight(1f)
                 Box(modifier + LayoutAspectRatio(2f), backgroundColor = Color.Gray)
                 Box(LayoutWidth(1.dp) + LayoutHeight.Fill, backgroundColor = Color.Black)
                 Box(modifier + LayoutAspectRatio(1f), backgroundColor = Color.Blue)

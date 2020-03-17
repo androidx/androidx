@@ -37,14 +37,14 @@ class DrawModifiersActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContent {
             Row {
-                Column(LayoutFlexible(1f) + LayoutPadding(10.dp)) {
+                Column(LayoutWeight(1f) + LayoutPadding(10.dp)) {
                     BorderSample()
                     Spacer(LayoutHeight(30.dp))
                     BorderSampleWithBrush()
                     Spacer(LayoutHeight(30.dp))
                     BorderSampleWithDataClass()
                 }
-                Column(LayoutFlexible(1f) + LayoutPadding(10.dp)) {
+                Column(LayoutWeight(1f) + LayoutPadding(10.dp)) {
                     DrawBackgroundColor()
                     Spacer(LayoutHeight(30.dp))
                     DrawBackgroundShapedBrush()

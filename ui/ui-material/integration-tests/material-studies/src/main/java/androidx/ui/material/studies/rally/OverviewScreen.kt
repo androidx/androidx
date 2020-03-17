@@ -110,7 +110,7 @@ private fun AlertItem(message: String) {
     ) {
         Text(
             style = MaterialTheme.typography().h3,
-            modifier = LayoutFlexible(1f),
+            modifier = LayoutWeight(1f),
             text = message
         )
         IconButton(

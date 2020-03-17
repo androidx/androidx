@@ -135,7 +135,7 @@ fun Scaffold(
         Surface(color = MaterialTheme.colors().background) {
             Column(LayoutSize.Fill) {
                 if (topAppBar != null) ScaffoldSlot(children = topAppBar)
-                Stack(modifier = LayoutFlexible(1f, tight = true)) {
+                Stack(modifier = LayoutWeight(1f, fill = true)) {
                     ScaffoldContent(LayoutSize.Fill, scaffoldState, bodyContent)
                     ScaffoldBottom(
                         modifier = LayoutGravity.BottomCenter,

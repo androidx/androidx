@@ -27,7 +27,7 @@ class AppBarActivity : MaterialDemoActivity() {
     override fun materialContent() {
         Column {
             SimpleTopAppBar()
-            Spacer(LayoutFlexible(1f))
+            Spacer(LayoutWeight(1f))
             SimpleBottomAppBar()
         }
     }

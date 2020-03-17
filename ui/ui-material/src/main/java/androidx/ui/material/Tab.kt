@@ -159,7 +159,7 @@ fun <T> TabRow(
                 }
                 ScrollableTabRow(width, selectedIndex, tabs, indicatorContainer, divider)
             } else {
-                // TODO: b/150138067 remove modifier here and use the global LayoutFlexible
+                // TODO: b/150138067 remove modifier here and use the global LayoutWeight
                 // modifier when it exists
                 val tabs = @Composable { modifier: Modifier ->
                     items.forEachIndexed { index, item ->
@@ -193,7 +193,7 @@ private fun FixedTabRow(
 
     Stack(LayoutWidth.Fill) {
         Row(LayoutGravity.Center) {
-            tabs(LayoutFlexible(1f))
+            tabs(LayoutWeight(1f))
         }
         Box(LayoutGravity.BottomCenter + LayoutWidth.Fill, children = divider)
         Box(LayoutGravity.Stretch) {
