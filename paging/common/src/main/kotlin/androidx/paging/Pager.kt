@@ -88,10 +88,10 @@ internal class Pager<Key : Any, Value : Any>(
             retryChannel.consumeAsFlow()
                 .collect {
                     // Handle refresh failure. Re-attempt doInitialLoad if the last attempt failed,
-                    val refreshFailure =
-                        stateLock.withLock { state.failedHintsByLoadType[REFRESH] }
+                    val refreshFailure = stateLock.withLock {
+                        state.failedHintsByLoadType.remove(REFRESH)
+                    }
                     refreshFailure?.let {
-                        stateLock.withLock { state.failedHintsByLoadType.remove(REFRESH) }
                         doInitialLoad(state)
 
                         val newRefreshFailure = stateLock.withLock {
