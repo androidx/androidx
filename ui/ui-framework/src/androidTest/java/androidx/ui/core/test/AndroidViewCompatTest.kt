@@ -41,8 +41,8 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.unit.Density
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.TestTag
+import androidx.ui.core.drawLayer
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.semantics.Semantics
@@ -136,7 +136,7 @@ class AndroidViewCompatTest {
         composeTestRule.setContent {
             TestTag("content") {
                 Semantics {
-                    RepaintBoundary {
+                    Container(modifier = drawLayer(clipToBounds = false)) {
                         ColoredSquareView(color = colorModel.color, ref = squareRef)
                     }
                 }

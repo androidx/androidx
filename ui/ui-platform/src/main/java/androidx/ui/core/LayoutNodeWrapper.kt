@@ -596,7 +596,10 @@ internal class LayerWrapper(
             return _layer ?: layoutNode.requireOwner().createLayer(
                 drawLayerModifier,
                 wrapped::draw
-            ).also { _layer = it }
+            ).also {
+                _layer = it
+                findContainingLayer()?.invalidate()
+            }
         }
 
     override fun place(position: IntPxPosition) {
@@ -617,5 +620,13 @@ internal class LayerWrapper(
     override fun detach() {
         super.detach()
         _layer?.destroy()
+    }
+
+    fun findContainingLayer(): OwnedLayer? {
+        var wrapper = wrappedBy
+        while (wrapper != null && wrapper !is LayerWrapper) {
+            wrapper = wrapper.wrappedBy
+        }
+        return (wrapper as? LayerWrapper)?.layer
     }
 }

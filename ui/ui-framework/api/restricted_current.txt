@@ -115,10 +115,6 @@ package androidx.ui.core {
     method public boolean isFocusable();
   }
 
-  public final class RepaintBoundaryKt {
-    method public static void RepaintBoundary(String? name = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class TestTagKt {
     method public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }

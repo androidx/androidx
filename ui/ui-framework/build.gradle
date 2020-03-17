@@ -65,6 +65,7 @@ dependencies {
     androidTestImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
+    androidTestImplementation project(":ui:ui-layout")
 }
 
 androidx {

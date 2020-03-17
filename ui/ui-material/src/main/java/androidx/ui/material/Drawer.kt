@@ -21,11 +21,12 @@ import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.Layout
-import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.gestures.DragDirection
@@ -303,7 +304,7 @@ private fun WithOffset(
     child: @Composable() () -> Unit
 ) {
     Layout(children = {
-        RepaintBoundary(children = child)
+        Box(modifier = DrawClipToBounds, children = child)
     }) { measurables, constraints, _ ->
         if (measurables.size > 1) {
             throw IllegalStateException("Only one child is allowed")

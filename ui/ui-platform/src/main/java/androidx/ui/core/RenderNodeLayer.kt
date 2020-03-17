@@ -54,7 +54,7 @@ internal class RenderNodeLayer(
         renderNode.rotationZ = props.rotationZ
         renderNode.rotationX = props.rotationX
         renderNode.rotationY = props.rotationY
-        renderNode.clipToOutline = props.clipToOutline
+        renderNode.clipToOutline = props.clipToOutline && props.outlineShape != null
         renderNode.clipToBounds = props.clipToBounds
         outlineResolver.update(props.outlineShape, renderNode.alpha)
         renderNode.setOutline(outlineResolver.outline)

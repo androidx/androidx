@@ -227,23 +227,24 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
-        val repaintBoundary = drawNode.repaintBoundary
+        invalidate(drawNode)
+    }
+
+    override fun onInvalidate(layoutNode: LayoutNode) {
+        invalidate(layoutNode)
+    }
+
+    private fun invalidate(node: ComponentNode) {
+        val repaintBoundary = node.repaintBoundary
 
         // This is going to be slow temporarily until we remove DrawNode
-        val layerWrapper = findContainingLayer(drawNode)
+        val layerWrapper = findContainingLayer(node)
         if (layerWrapper != null &&
             layerWrapper.layoutNode.repaintBoundary === repaintBoundary) {
             layerWrapper.layer.invalidate()
             return
         }
-        invalidateRepaintBoundary(drawNode)
-    }
-
-    override fun onInvalidate(layoutNode: LayoutNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-        // ownerScope.launch {
-        invalidateRepaintBoundary(layoutNode)
-        // }
+        invalidateRepaintBoundary(node)
     }
 
     override fun onSizeChange(layoutNode: LayoutNode) {
