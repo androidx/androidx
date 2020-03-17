@@ -31,7 +31,6 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.annotation.RestrictTo
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -39,6 +38,7 @@ import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
+import androidx.ui.core.Owner.Companion.enableExtraAssertions
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
@@ -58,17 +58,21 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.util.trace
-import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
 
+/***
+ * This function creates an instance of Owner.
+ */
+fun createOwner(context: Context): Owner = AndroidComposeView(context)
+
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-class AndroidComposeView constructor(context: Context) :
+internal class AndroidComposeView constructor(context: Context) :
     ViewGroup(context), AndroidOwner, SemanticsTreeProvider {
 
     override var density = Density(context)
         private set
 
-    val root = LayoutNode().also {
+    override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection = context.getLayoutDirection()
         it.modifier = drawLayer(clipToBounds = false)
@@ -83,7 +87,7 @@ class AndroidComposeView constructor(context: Context) :
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
     // TODO: Replace with SemanticsTree.
     //  This is a temporary hack until we have a semantics tree implemented.
-    val autofillTree = AutofillTree()
+    override val autofillTree = AutofillTree()
 
     // OwnedLayers that are dirty and should be redrawn.
     internal val dirtyLayers = mutableListOf<OwnedLayer>()
@@ -106,12 +110,12 @@ class AndroidComposeView constructor(context: Context) :
     // Used for updating the ConfigurationAmbient when configuration changes - consume the
     // configuration ambient instead of changing this observer if you are writing a component that
     // adapts to configuration changes.
-    var configurationChangeObserver: () -> Unit = {}
+    override var configurationChangeObserver: () -> Unit = {}
 
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
 
     // Used as an ambient for performing autofill.
-    val autofill: Autofill? get() = _autofill
+    override val autofill: Autofill? get() = _autofill
 
     override var measureIteration: Long = 1L
         get() {
@@ -163,10 +167,6 @@ class AndroidComposeView constructor(context: Context) :
     private val onPositionedDispatcher = OnPositionedDispatcher()
 
     override var showLayoutBounds = false
-        /** @hide */
-        @TestOnly
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        set
 
     private val consistencyChecker: LayoutTreeConsistencyChecker? =
         if (enableExtraAssertions) {
@@ -287,7 +287,8 @@ class AndroidComposeView constructor(context: Context) :
 
     private fun requestRelayout(layoutNode: LayoutNode) {
         if (layoutNode.needsRelayout || (layoutNode.needsRemeasure && layoutNode !== root) ||
-                layoutNode.isLayingOut) {
+            layoutNode.isLayingOut
+        ) {
             // don't need to do anything else since the parent is already scheduled
             // for a relayout (measure pass includes relayout), or is laying out right now
             consistencyChecker?.assertConsistent()
@@ -310,7 +311,8 @@ class AndroidComposeView constructor(context: Context) :
             var layout = layoutNode
             while (layout != layoutNode.alignmentLinesQueryOwner &&
                 // and relayout or remeasure(includes relayout) is not scheduled already
-                !(layout.needsRelayout || layout.needsRemeasure)) {
+                !(layout.needsRelayout || layout.needsRemeasure)
+            ) {
                 layout.markRelayoutRequested()
                 layout.dirtyAlignmentLines = true
                 if (layout.parentLayoutNode == null) break
@@ -613,14 +615,14 @@ class AndroidComposeView constructor(context: Context) :
 
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
 
-    val textInputService = TextInputService(textInputServiceAndroid)
+    override val textInputService = TextInputService(textInputServiceAndroid)
 
-    val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
+    override val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
 
     /**
      * Provide haptic feedback to the user. Use the Android version of haptic feedback.
      */
-    val hapticFeedBack: HapticFeedback =
+    override val hapticFeedBack: HapticFeedback =
         AndroidHapticFeedback(this)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
@@ -653,12 +655,13 @@ class AndroidComposeView constructor(context: Context) :
      * The current instance of [UiSavedStateRegistry]. If it's null you can wait for it to became
      * available using [setOnSavedStateRegistryAvailable].
      */
-    val savedStateRegistry: UiSavedStateRegistry? get() = savedStateDelegate.savedStateRegistry
+    override val savedStateRegistry: UiSavedStateRegistry?
+        get() = savedStateDelegate.savedStateRegistry
 
     /**
      * Allows other components to be notified when the [UiSavedStateRegistry] became available.
      */
-    fun setOnSavedStateRegistryAvailable(callback: (UiSavedStateRegistry) -> Unit) {
+    override fun setOnSavedStateRegistryAvailable(callback: (UiSavedStateRegistry) -> Unit) {
         savedStateDelegate.setOnSaveRegistryAvailable(callback)
     }
 
@@ -718,12 +721,6 @@ class AndroidComposeView constructor(context: Context) :
                 return false
             }
         }
-
-        /**
-         * Enables additional (and expensive to do in production) assertions. Useful to be set
-         * to true during the tests covering our core logic.
-         */
-        var enableExtraAssertions: Boolean = false
 
         private val RootMeasureBlocks = object : LayoutNode.MeasureBlocks {
             override fun measure(

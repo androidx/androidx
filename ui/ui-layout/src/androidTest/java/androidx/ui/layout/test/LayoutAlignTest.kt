@@ -82,7 +82,7 @@ class LayoutAlignTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
@@ -105,11 +105,13 @@ class LayoutAlignTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Container(saveLayoutInfo(
-                size = alignSize,
-                position = alignPosition,
-                positionedLatch = positionedLatch
-            )) {
+            Container(
+                saveLayoutInfo(
+                    size = alignSize,
+                    position = alignPosition,
+                    positionedLatch = positionedLatch
+                )
+            ) {
 
                 Container(
                     LayoutSize.Fill + LayoutAlign.BottomEnd + LayoutSize(sizeDp, sizeDp) +
@@ -124,7 +126,7 @@ class LayoutAlignTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
@@ -147,25 +149,27 @@ class LayoutAlignTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Container(saveLayoutInfo(
+            Container(
+                saveLayoutInfo(
                     size = alignSize,
                     position = alignPosition,
                     positionedLatch = positionedLatch
                 )
             ) {
-                Container(LayoutSize.Fill + LayoutAlign.End + LayoutWidth(sizeDp) +
-                    saveLayoutInfo(
-                        size = childSize,
-                        position = childPosition,
-                        positionedLatch = positionedLatch
-                    )
+                Container(
+                    LayoutSize.Fill + LayoutAlign.End + LayoutWidth(sizeDp) +
+                            saveLayoutInfo(
+                                size = childSize,
+                                position = childPosition,
+                                positionedLatch = positionedLatch
+                            )
                 ) {
                 }
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
@@ -184,41 +188,44 @@ class LayoutAlignTest : LayoutTest() {
         val childPosition = Array(3) { Ref<PxPosition>() }
         show {
             Stack(LayoutDirectionModifier.Rtl) {
-                    Stack(LayoutSize.Fill + LayoutAlign.TopStart) {
-                        Stack(LayoutSize(sizeDp, sizeDp) +
-                            saveLayoutInfo(
-                                size = childSize[0],
-                                position = childPosition[0],
-                                positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
-                    Stack(LayoutSize.Fill + LayoutAlign.CenterVertically) {
-                        Stack(LayoutSize(sizeDp, sizeDp) +
-                            saveLayoutInfo(
-                                size = childSize[1],
-                                position = childPosition[1],
-                                positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
-                    Stack(LayoutSize.Fill + LayoutAlign.BottomEnd) {
-                        Stack(LayoutSize(sizeDp, sizeDp) +
-                            saveLayoutInfo(
-                                size = childSize[2],
-                                position = childPosition[2],
-                                positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
+                Stack(LayoutSize.Fill + LayoutAlign.TopStart) {
+                    Stack(
+                        LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
+                                    size = childSize[0],
+                                    position = childPosition[0],
+                                    positionedLatch = positionedLatch
+                                )
+                    ) {
                     }
                 }
+                Stack(LayoutSize.Fill + LayoutAlign.CenterVertically) {
+                    Stack(
+                        LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
+                                    size = childSize[1],
+                                    position = childPosition[1],
+                                    positionedLatch = positionedLatch
+                                )
+                    ) {
+                    }
+                }
+                Stack(LayoutSize.Fill + LayoutAlign.BottomEnd) {
+                    Stack(
+                        LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
+                                    size = childSize[2],
+                                    position = childPosition[2],
+                                    positionedLatch = positionedLatch
+                                )
+                    ) {
+                    }
+                }
+            }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(
@@ -265,14 +272,16 @@ class LayoutAlignTest : LayoutTest() {
         show {
             Layout(
                 children = {
-                    Align(alignment = Alignment.BottomEnd,
+                    Align(
+                        alignment = Alignment.BottomEnd,
                         modifier = saveLayoutInfo(
                             size = alignSize,
                             position = alignPosition,
                             positionedLatch = positionedLatch
                         )
                     ) {
-                        Container(width = sizeDp, height = sizeDp,
+                        Container(
+                            width = sizeDp, height = sizeDp,
                             modifier = saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
@@ -292,7 +301,7 @@ class LayoutAlignTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(size, size), alignSize.value)
@@ -316,18 +325,20 @@ class LayoutAlignTest : LayoutTest() {
         show {
             Layout(
                 children = {
-                    Container(saveLayoutInfo(
+                    Container(
+                        saveLayoutInfo(
                             size = alignSize,
                             position = alignPosition,
                             positionedLatch = positionedLatch
                         )
                     ) {
-                        Container(LayoutAlign.BottomEnd + LayoutSize(sizeDp, sizeDp) +
-                            saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
+                        Container(
+                            LayoutAlign.BottomEnd + LayoutSize(sizeDp, sizeDp) +
+                                    saveLayoutInfo(
+                                        size = childSize,
+                                        position = childPosition,
+                                        positionedLatch = positionedLatch
+                                    )
                         ) {
                         }
                     }
@@ -342,7 +353,7 @@ class LayoutAlignTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(size, size), alignSize.value)
@@ -370,12 +381,13 @@ class LayoutAlignTest : LayoutTest() {
                         positionedLatch.countDown()
                     },
                     children = {
-                        Container(LayoutAlign.Center + LayoutSize(sizeDp, sizeDp) +
-                            saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
+                        Container(
+                            LayoutAlign.Center + LayoutSize(sizeDp, sizeDp) +
+                                    saveLayoutInfo(
+                                        size = childSize,
+                                        position = childPosition,
+                                        positionedLatch = positionedLatch
+                                    )
                         ) {
                         }
                     },
@@ -547,14 +559,16 @@ class LayoutAlignTest : LayoutTest() {
             Layout(
                 children = {
                     Container(width = parentSize, height = parentSize) {
-                        Align(alignment = Alignment.BottomEnd,
+                        Align(
+                            alignment = Alignment.BottomEnd,
                             modifier = saveLayoutInfo(
                                 size = alignSize,
                                 position = alignPosition,
                                 positionedLatch = positionedLatch
                             )
                         ) {
-                            Container(width = childSizeDp, height = childSizeDp,
+                            Container(
+                                width = childSizeDp, height = childSizeDp,
                                 modifier = saveLayoutInfo(
                                     size = childSize,
                                     position = childPosition,
@@ -574,7 +588,7 @@ class LayoutAlignTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(childSizeIpx, childSizeIpx), childSize.value)
@@ -607,20 +621,22 @@ class LayoutAlignTest : LayoutTest() {
         show {
             Layout(
                 children = {
-                    Container(LayoutSize(parentSize, parentSize) +
-                        saveLayoutInfo(
-                            size = alignSize,
-                            position = alignPosition,
-                            positionedLatch = positionedLatch
-                        )
+                    Container(
+                        LayoutSize(parentSize, parentSize) +
+                                saveLayoutInfo(
+                                    size = alignSize,
+                                    position = alignPosition,
+                                    positionedLatch = positionedLatch
+                                )
                     ) {
-                        Container(LayoutSize.Fill + LayoutAlign.BottomEnd +
-                                LayoutSize(childSizeDp, childSizeDp) +
-                            saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
+                        Container(
+                            LayoutSize.Fill + LayoutAlign.BottomEnd +
+                                    LayoutSize(childSizeDp, childSizeDp) +
+                                    saveLayoutInfo(
+                                        size = childSize,
+                                        position = childPosition,
+                                        positionedLatch = positionedLatch
+                                    )
                         ) {
                         }
                     }
@@ -634,7 +650,7 @@ class LayoutAlignTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(childSizeIpx, childSizeIpx), childSize.value)

@@ -15,9 +15,13 @@
  */
 package androidx.ui.core
 
+import androidx.annotation.RestrictTo
+import androidx.ui.autofill.Autofill
+import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
+import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsConfiguration
@@ -30,6 +34,9 @@ import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
+import androidx.ui.input.TextInputService
+import androidx.ui.savedinstancestate.UiSavedStateRegistry
+import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
@@ -38,6 +45,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.round
+import org.jetbrains.annotations.TestOnly
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -53,14 +61,63 @@ private const val DebugChanges = false
  */
 interface Owner {
 
+    /**
+     * The root layout node in the component tree.
+     */
+    val root: LayoutNode
+
+    /**
+     * Used for updating the ConfigurationAmbient when configuration changes - consume the
+     * configuration ambient instead of changing this observer if you are writing a component
+     * that adapts to configuration changes.
+     */
+    var configurationChangeObserver: () -> Unit
+
+    /**
+     * Provide haptic feedback to the user. Use the Android version of haptic feedback.
+     */
+    val hapticFeedBack: HapticFeedback
+
+    /**
+     *  A data structure used to store autofill information. It is used by components that want to
+     *  provide autofill semantics.
+     *  TODO(ralu): Replace with SemanticsTree. This is a temporary hack until we have a semantics
+     *  tree implemented.
+     */
+    val autofillTree: AutofillTree
+
+    /**
+     * The [Autofill] class can be used to perform autofill operations. It is used as an ambient.
+     */
+    val autofill: Autofill?
+
+    /**
+     * The current instance of [UiSavedStateRegistry]. If it's null you can wait for it to became
+     * available using [setOnSavedStateRegistryAvailable].
+     */
+    val savedStateRegistry: UiSavedStateRegistry?
+
+    /**
+     * Allows other components to be notified when the [UiSavedStateRegistry] became available.
+     */
+    fun setOnSavedStateRegistryAvailable(callback: (UiSavedStateRegistry) -> Unit)
+
     val density: Density
 
     val semanticsOwner: SemanticsOwner
 
+    val textInputService: TextInputService
+
+    val fontLoader: Font.ResourceLoader
+
     /**
      * `true` when layout should draw debug bounds.
      */
-    val showLayoutBounds: Boolean
+    var showLayoutBounds: Boolean
+        /** @hide */
+        @TestOnly
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        set
 
     /**
      * Called from a [DrawNode], this registers with the underlying view system that a
@@ -158,6 +215,14 @@ interface Owner {
     ): OwnedLayer
 
     val measureIteration: Long
+
+    companion object {
+        /**
+         * Enables additional (and expensive to do in production) assertions. Useful to be set
+         * to true during the tests covering our core logic.
+         */
+        var enableExtraAssertions: Boolean = false
+    }
 }
 
 /**
@@ -1152,8 +1217,9 @@ class LayoutNode : ComponentNode(), Measurable {
             owner?.onInvalidate(this)
         }
 
-    @Deprecated("Temporary API to support our transition from single child composables to " +
-            "modifiers.")
+    @Deprecated(
+        "Temporary API to support our transition from single child composables to modifiers."
+    )
     // TODO(popam): remove this
     var handlesParentData: Boolean = true
 

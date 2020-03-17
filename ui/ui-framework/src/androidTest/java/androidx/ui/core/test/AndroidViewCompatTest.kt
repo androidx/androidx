@@ -33,13 +33,13 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.unit.Density
 import androidx.ui.core.Modifier
+import androidx.ui.core.Owner
 import androidx.ui.core.Ref
 import androidx.ui.core.TestTag
 import androidx.ui.core.drawLayer
@@ -100,7 +100,7 @@ class AndroidViewCompatTest {
         assertNotNull(squareView)
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
-            .check(matches(isDescendantOfA(instanceOf(AndroidComposeView::class.java))))
+            .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
 
         composeTestRule.runOnUiThread {
@@ -111,7 +111,7 @@ class AndroidViewCompatTest {
         findByTag("content").assertIsDisplayed()
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
-            .check(matches(isDescendantOfA(instanceOf(AndroidComposeView::class.java))))
+            .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
 
         composeTestRule.runOnUiThread {
@@ -122,7 +122,7 @@ class AndroidViewCompatTest {
         findByTag("content").assertIsDisplayed()
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
-            .check(matches(isDescendantOfA(instanceOf(AndroidComposeView::class.java))))
+            .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
     }
 
@@ -146,7 +146,7 @@ class AndroidViewCompatTest {
         assertNotNull(squareView)
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
-            .check(matches(isDescendantOfA(instanceOf(AndroidComposeView::class.java))))
+            .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
         val expectedPixelColor = { position: IntPxPosition ->
             if (position.x.value < squareSize && position.y.value < squareSize) {
@@ -167,7 +167,7 @@ class AndroidViewCompatTest {
         }
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
-            .check(matches(isDescendantOfA(instanceOf(AndroidComposeView::class.java))))
+            .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
         findByTag("content")
             .assertIsDisplayed()
@@ -181,7 +181,7 @@ class AndroidViewCompatTest {
         }
         Espresso
             .onView(instanceOf(ColoredSquareView::class.java))
-            .check(matches(isDescendantOfA(instanceOf(AndroidComposeView::class.java))))
+            .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
         findByTag("content")
             .assertIsDisplayed()
@@ -344,6 +344,7 @@ class AndroidViewCompatTest {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             setMeasuredDimension(size, size)
         }
+
         override fun draw(canvas: Canvas?) {
             super.draw(canvas)
             canvas!!.drawRect(
@@ -392,5 +393,8 @@ class AndroidViewCompatTest {
     }
 }
 
-@Model private data class ColorModel(var color: Color)
-@Model private data class ConstraintsModel(var constraints: Constraints)
+@Model
+private data class ColorModel(var color: Color)
+
+@Model
+private data class ConstraintsModel(var constraints: Constraints)
