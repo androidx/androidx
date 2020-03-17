@@ -17,8 +17,8 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement

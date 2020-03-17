@@ -20,16 +20,16 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
-import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
+import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
@@ -422,7 +422,7 @@ fun DataTable(
                                 }
                             }
 
-                            CurrentTextStyleProvider(TextStyle(fontWeight = fontWeight)) {
+                            ProvideTextStyle(TextStyle(fontWeight = fontWeight)) {
                                 Clickable(
                                     onClick = onSort,
                                     enabled = enabled,

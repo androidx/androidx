@@ -22,9 +22,9 @@ import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.Transition
-import androidx.ui.core.Text
 import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Arrangement

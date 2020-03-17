@@ -17,12 +17,12 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Immutable
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
@@ -103,7 +103,7 @@ fun TopAppBar(
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {
-                    CurrentTextStyleProvider(value = MaterialTheme.typography().h6) {
+                    ProvideTextStyle(value = MaterialTheme.typography().h6) {
                         Row {
                             ProvideEmphasis(emphasisLevels.high, title)
                         }

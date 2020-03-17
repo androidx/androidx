@@ -18,8 +18,8 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.ClickableText
-import androidx.ui.core.Text
+import androidx.ui.foundation.ClickableText
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString

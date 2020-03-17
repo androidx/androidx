@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Alignment
-import androidx.ui.core.Text
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
@@ -29,6 +28,7 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column

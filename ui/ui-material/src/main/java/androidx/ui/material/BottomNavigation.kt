@@ -23,7 +23,6 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
@@ -35,6 +34,7 @@ import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideContentColor
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
@@ -140,7 +140,7 @@ fun RowScope.BottomNavigationItem(
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography().caption.copy(textAlign = TextAlign.Center)
-        CurrentTextStyleProvider(style, children = text)
+        ProvideTextStyle(style, children = text)
     }
     MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
         Box(modifier + LayoutWeight(1f), gravity = ContentGravity.Center) {

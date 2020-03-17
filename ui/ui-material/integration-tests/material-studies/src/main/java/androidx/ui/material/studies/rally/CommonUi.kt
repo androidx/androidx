@@ -18,8 +18,8 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column

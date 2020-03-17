@@ -18,7 +18,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Providers
-import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.foundation.ProvideTextStyle
 
 /**
  * This component defines the styling principles from the Material design specification. It must be
@@ -47,7 +47,7 @@ fun MaterialTheme(
 ) {
     ProvideColorPalette(colors) {
         Providers(TypographyAmbient provides typography) {
-            CurrentTextStyleProvider(value = typography.body1, children = children)
+            ProvideTextStyle(value = typography.body1, children = children)
         }
     }
 }

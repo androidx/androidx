@@ -21,9 +21,9 @@ import androidx.compose.Model
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint

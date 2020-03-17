@@ -20,9 +20,9 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.ui.animation.animatedFloat
-import androidx.ui.core.drawLayer
 import androidx.ui.core.DrawLayerModifier
-import androidx.ui.core.Text
+import androidx.ui.core.drawLayer
+import androidx.ui.foundation.Text
 
 @Sampled
 @Composable

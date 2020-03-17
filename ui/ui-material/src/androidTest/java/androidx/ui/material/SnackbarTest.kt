@@ -20,9 +20,9 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Text
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Text
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.ui.test.createComposeRule

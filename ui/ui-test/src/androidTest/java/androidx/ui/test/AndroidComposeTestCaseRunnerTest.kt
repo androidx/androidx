@@ -20,8 +20,8 @@ import androidx.compose.Model
 import androidx.compose.onPreCommit
 import androidx.compose.state
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Text
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

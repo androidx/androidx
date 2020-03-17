@@ -18,8 +18,8 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Text
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
 import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.icons.Icons

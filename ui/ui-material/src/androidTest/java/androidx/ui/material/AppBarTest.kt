@@ -21,13 +21,13 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
-import androidx.ui.core.currentTextStyle
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.test.assertIsDisplayed

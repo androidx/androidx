@@ -26,10 +26,12 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.selection.SimpleContainer
+import androidx.ui.layout.LayoutSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.toPxPosition
@@ -52,7 +54,6 @@ import java.util.concurrent.TimeUnit
 class PopupTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
-    private val popupText = "popupText"
     private val testTag = "testedPopup"
 
     private val parentGlobalPosition = IntPxPosition(IntPx(50), IntPx(50))
@@ -129,7 +130,7 @@ class PopupTest {
             SimpleContainer {
                 PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        Text(popupText)
+                        SimpleContainer(LayoutSize(50.dp), children = emptyContent())
                     }
                 }
             }

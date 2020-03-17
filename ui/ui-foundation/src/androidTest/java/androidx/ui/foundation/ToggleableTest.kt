@@ -18,7 +18,6 @@ package androidx.ui.foundation
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable

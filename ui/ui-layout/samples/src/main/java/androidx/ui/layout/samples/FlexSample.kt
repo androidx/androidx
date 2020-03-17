@@ -19,8 +19,8 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.FirstBaseline
-import androidx.ui.core.Text
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity

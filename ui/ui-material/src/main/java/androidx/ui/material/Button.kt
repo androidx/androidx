@@ -19,12 +19,12 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.EdgeInsets
@@ -99,7 +99,7 @@ fun Button(
                     paddingEnd = innerPadding.right,
                     paddingBottom = innerPadding.bottom
                 ) {
-                    CurrentTextStyleProvider(
+                    ProvideTextStyle(
                         value = MaterialTheme.typography().button,
                         children = children
                     )
