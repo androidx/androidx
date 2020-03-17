@@ -187,8 +187,9 @@ public final class Preview extends UseCase {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
             // TODO: To allow user to use an Executor for the processing.
 
-            if (mProcessingPreviewHandler == null) {
-                mProcessingPreviewThread = new HandlerThread("ProcessingSurfaceTexture");
+            if (mProcessingPreviewThread == null) {
+                mProcessingPreviewThread = new HandlerThread(
+                        CameraXThreads.TAG + "preview_processing");
                 mProcessingPreviewThread.start();
                 mProcessingPreviewHandler = new Handler(mProcessingPreviewThread.getLooper());
             }
@@ -421,6 +422,12 @@ public final class Preview extends UseCase {
         notifyInactive();
         if (mSessionDeferrableSurface != null) {
             mSessionDeferrableSurface.close();
+            mSessionDeferrableSurface.getTerminationFuture().addListener(() -> {
+                if (mProcessingPreviewThread != null) {
+                    mProcessingPreviewThread.quitSafely();
+                    mProcessingPreviewThread = null;
+                }
+            }, CameraXExecutors.directExecutor());
         }
         if (mSurfaceProviderCompleter != null) {
             mSurfaceProviderCompleter.setCancelled();
