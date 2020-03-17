@@ -212,8 +212,8 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
     }
 
     /**
-     * Convert the display feature from extension. Can return {@code null} if there is an issue with
-     * the value passed from extension.
+     * Converts the display feature from extension. Can return {@code null} if there is an issue
+     * with the value passed from extension.
      */
     @Nullable
     private static DisplayFeature displayFeatureFromExtension(SidecarDisplayFeature feature) {

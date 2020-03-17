@@ -33,7 +33,7 @@ public class ExtensionProvider {
     private ExtensionProvider() {}
 
     /**
-     * Instantiate the Extension for the use by the WindowManager library.
+     * Instantiates the Extension for the use by the WindowManager library.
      *
      * <p>The library will instantiate the vendor implementation using this interface.
      * @return A compatible version of the {@link ExtensionInterface} for the provided library
@@ -45,7 +45,7 @@ public class ExtensionProvider {
     }
 
     /**
-     * Get the version of the vendor library on this device. If the returned version is not
+     * Gets the version of the vendor library on this device. If the returned version is not
      * supported by the WindowManager library, then some functions may not be available or
      * replaced with stub implementations.
      *

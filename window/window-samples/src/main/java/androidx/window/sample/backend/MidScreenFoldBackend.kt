@@ -66,7 +66,7 @@ class MidScreenFoldBackend : WindowBackend {
     }
 
     /**
-     * Unwrap the hierarchy of [ContextWrapper]-s until [Activity] is reached.
+     * Unwraps the hierarchy of [ContextWrapper]-s until [Activity] is reached.
      * @return Base [Activity] context or `null` if not available.
      */
     private fun getActivityFromContext(c: Context?): Activity? {

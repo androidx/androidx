@@ -55,7 +55,7 @@ public class ExtensionDeviceState {
     }
 
     /**
-     * Get the current posture of the foldable device.
+     * Gets the current posture of the foldable device.
      */
     @Posture
     public int getPosture() {

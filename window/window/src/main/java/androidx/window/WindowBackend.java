@@ -31,38 +31,38 @@ import java.util.concurrent.Executor;
  */
 public interface WindowBackend {
     /**
-     * Get current window layout information for the provided {@link Context}. Must be called
+     * Gets current window layout information for the provided {@link Context}. Must be called
      * only after the it is attached to the window and the layout pass has happened.
      */
     @NonNull
     WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context);
 
     /**
-     * Get the current device state.
+     * Gets the current device state.
      */
     @NonNull
     DeviceState getDeviceState();
 
     /**
-     * Register a callback for layout changes of the window of the current visual {@link Context}.
+     * Registers a callback for layout changes of the window of the current visual {@link Context}.
      * Must be called only after the it is attached to the window.
      */
     void registerLayoutChangeCallback(@NonNull Context context, @NonNull Executor executor,
             @NonNull Consumer<WindowLayoutInfo> callback);
 
     /**
-     * Unregister a callback for window layout changes of the {@link Context} window.
+     * Unregisters a callback for window layout changes of the {@link Context} window.
      */
     void unregisterLayoutChangeCallback(@NonNull Consumer<WindowLayoutInfo> callback);
 
     /**
-     * Register a callback for device state changes.
+     * Registers a callback for device state changes.
      */
     void registerDeviceStateChangeCallback(@NonNull Executor executor,
             @NonNull Consumer<DeviceState> callback);
 
     /**
-     * Unregister a callback for device state changes.
+     * Unregisters a callback for device state changes.
      */
     void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback);
 }

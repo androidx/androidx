@@ -49,9 +49,9 @@ public final class DisplayFeature {
     }
 
     /**
-     * Get bounding rectangle of the physical display feature in the coordinate space of the window.
-     * The rectangle provides information about the location of the feature in the window and its
-     * size.
+     * Gets bounding rectangle of the physical display feature in the coordinate space of the
+     * window. The rectangle provides information about the location of the feature in the window
+     * and its size.
      */
     @NonNull
     public Rect getBounds() {
@@ -59,7 +59,7 @@ public final class DisplayFeature {
     }
 
     /**
-     * Get type of the physical display feature.
+     * Gets type of the physical display feature.
      */
     @Type
     public int getType() {
@@ -115,7 +115,7 @@ public final class DisplayFeature {
         }
 
         /**
-         * Set the bounds for the {@link DisplayFeature} instance.
+         * Sets the bounds for the {@link DisplayFeature} instance.
          */
         @NonNull
         public Builder setBounds(@NonNull Rect bounds) {
@@ -124,7 +124,7 @@ public final class DisplayFeature {
         }
 
         /**
-         * Set the type for the {@link DisplayFeature} instance.
+         * Sets the type for the {@link DisplayFeature} instance.
          */
         @NonNull
         public Builder setType(@Type int type) {

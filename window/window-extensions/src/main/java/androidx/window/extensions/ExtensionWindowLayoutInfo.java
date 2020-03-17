@@ -42,7 +42,7 @@ public class ExtensionWindowLayoutInfo {
     }
 
     /**
-     * Get the list of display features present within the window.
+     * Gets the list of display features present within the window.
      */
     @Nullable
     public List<ExtensionDisplayFeature> getDisplayFeatures() {

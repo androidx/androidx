@@ -41,7 +41,7 @@ public final class WindowLayoutInfo {
     }
 
     /**
-     * Get the list of physical display features within the window.
+     * Gets the list of physical display features within the window.
      */
     @NonNull
     public List<DisplayFeature> getDisplayFeatures() {
@@ -77,7 +77,7 @@ public final class WindowLayoutInfo {
         }
 
         /**
-         * Set the display features for the {@link WindowLayoutInfo} instance.
+         * Sets the display features for the {@link WindowLayoutInfo} instance.
          */
         @NonNull
         public Builder setDisplayFeatures(@NonNull List<DisplayFeature> displayFeatures) {

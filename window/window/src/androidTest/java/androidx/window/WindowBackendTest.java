@@ -40,7 +40,7 @@ import java.util.concurrent.Executor;
 public final class WindowBackendTest extends WindowTestBase {
 
     /**
-     * Verify that {@link WindowManager} instance would use the assigned
+     * Verifies that {@link WindowManager} instance would use the assigned
      * {@link WindowBackend}.
      */
     @Test

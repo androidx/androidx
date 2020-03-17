@@ -28,42 +28,42 @@ import androidx.annotation.NonNull;
 interface ExtensionInterfaceCompat {
 
     /**
-     * Verify if the extension interface conforms to the declared version.
+     * Verifies if the extension interface conforms to the declared version.
      */
     boolean validateExtensionInterface();
 
     /**
-     * Set the callback that is used by the extension to inform about hardware state changes.
+     * Sets the callback that is used by the extension to inform about hardware state changes.
      */
     void setExtensionCallback(@NonNull ExtensionCallbackInterface extensionCallback);
 
     /**
-     * Get current information about the display features present within the application window.
+     * Gets current information about the display features present within the application window.
      */
     @NonNull
     WindowLayoutInfo getWindowLayoutInfo(@NonNull IBinder windowToken);
 
     /**
-     * Notify extension that a listener for display feature layout changes was registered for the
+     * Notifies extension that a listener for display feature layout changes was registered for the
      * given window token.
      */
     void onWindowLayoutChangeListenerAdded(@NonNull IBinder windowToken);
 
     /**
-     * Notify extension that a listener for display feature layout changes was removed for the
+     * Notifies extension that a listener for display feature layout changes was removed for the
      * given window token.
      */
     void onWindowLayoutChangeListenerRemoved(@NonNull IBinder windowToken);
 
     /**
-     * Get current device state.
+     * Gets current device state.
      * @see #onDeviceStateListenersChanged(boolean)
      */
     @NonNull
     DeviceState getDeviceState();
 
     /**
-     * Notify the extension that a device state change listener was updated.
+     * Notifies the extension that a device state change listener was updated.
      * @param isEmpty flag indicating if the list of device state change listeners is empty.
      */
     void onDeviceStateListenersChanged(boolean isEmpty);

@@ -64,13 +64,13 @@ public class ExtensionDisplayFeature {
         mType = type;
     }
 
-    /** Get the bounding rect of the display feature in window coordinate space. */
+    /** Gets the bounding rect of the display feature in window coordinate space. */
     @NonNull
     public Rect getBounds() {
         return mBounds;
     }
 
-    /** Get the type of the display feature. */
+    /** Gets the type of the display feature. */
     @Type
     public int getType() {
         return mType;

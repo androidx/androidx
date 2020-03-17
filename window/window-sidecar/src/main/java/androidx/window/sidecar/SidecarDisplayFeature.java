@@ -60,23 +60,23 @@ public final class SidecarDisplayFeature {
     })
     @interface Type{}
 
-    /** Get the bounding rect of the display feature in window coordinate space. */
+    /** Gets the bounding rect of the display feature in window coordinate space. */
     @NonNull
     public Rect getRect() {
         return mRect;
     }
 
-    /** Set the bounding rect of the display feature in window coordinate space. */
+    /** Sets the bounding rect of the display feature in window coordinate space. */
     public void setRect(@NonNull Rect rect) {
         mRect.set(rect);
     }
 
-    /** Get the type of the display feature. */
+    /** Gets the type of the display feature. */
     public @Type int getType() {
         return mType;
     }
 
-    /** Set the type of the display feature. */
+    /** Sets the type of the display feature. */
     public void setType(@Type int type) {
         mType = type;
     }

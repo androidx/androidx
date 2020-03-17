@@ -64,7 +64,7 @@ public class TestActivity extends Activity implements View.OnLayoutChangeListene
     }
 
     /**
-     * Reset layout counter when waiting for a layout to happen before calling
+     * Resets layout counter when waiting for a layout to happen before calling
      * {@link #waitForLayout()}.
      */
     public void resetLayoutCounter() {
@@ -72,7 +72,7 @@ public class TestActivity extends Activity implements View.OnLayoutChangeListene
     }
 
     /**
-     * Block and wait for the next layout to happen. {@link #resetLayoutCounter()} must be called
+     * Blocks and waits for the next layout to happen. {@link #resetLayoutCounter()} must be called
      * before calling this method.
      * @return {@code true} if the layout happened before the timeout count reached zero and
      *         {@code false} if the waiting time elapsed before the layout happened.
@@ -86,7 +86,7 @@ public class TestActivity extends Activity implements View.OnLayoutChangeListene
     }
 
     /**
-     * Reset layout counter when waiting for a layout to happen before calling
+     * Resets layout counter when waiting for a layout to happen before calling
      * {@link #waitForOnResume()}.
      */
     public static void resetResumeCounter() {

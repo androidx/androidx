@@ -83,7 +83,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     }
 
     /**
-     * Get the shared instance of the class.
+     * Gets the shared instance of the class.
      */
     @NonNull
     public static ExtensionWindowBackend getInstance(@NonNull Context context) {
@@ -98,7 +98,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
         return sInstance;
     }
 
-    /** Try to initialize Extension, returns early if it's not available. */
+    /** Tries to initialize Extension, returns early if it's not available. */
     @SuppressLint("SyntheticAccessor")
     @GuardedBy("sLock")
     private void initExtension(Context context) {
@@ -201,7 +201,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     }
 
     /**
-     * Check if there are no more registered callbacks left for the token and inform extension if
+     * Checks if there are no more registered callbacks left for the token and inform extension if
      * needed.
      */
     @GuardedBy("sLock")
@@ -363,7 +363,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     }
 
     /**
-     * Load an instance of {@link ExtensionInterface} implemented by OEM if available on this
+     * Loads an instance of {@link ExtensionInterface} implemented by OEM if available on this
      * device. This also verifies if the loaded implementation conforms to the declared API version.
      */
     @Nullable
@@ -400,7 +400,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     }
 
     /**
-     * Check if the Extension version provided on this device is supported by the current version
+     * Checks if the Extension version provided on this device is supported by the current version
      * of the library.
      */
     @VisibleForTesting
