@@ -2109,7 +2109,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
-        val drawLatch = CountDownLatch(3)
+        val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
             PxPosition.Origin, PxPosition.Origin, PxPosition.Origin
         )
@@ -2437,7 +2437,7 @@ class FlexTest : LayoutTest() {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
-        val drawLatch = CountDownLatch(3)
+        val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
             PxPosition.Origin, PxPosition.Origin, PxPosition.Origin
         )
