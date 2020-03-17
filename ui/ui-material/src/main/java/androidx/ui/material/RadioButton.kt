@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.Stable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
@@ -105,6 +106,7 @@ fun RadioGroup(
     }
 }
 
+@Stable
 class RadioGroupScope internal constructor() {
 
     /**
