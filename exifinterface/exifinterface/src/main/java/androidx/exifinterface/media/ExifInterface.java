@@ -2922,6 +2922,11 @@ public class ExifInterface {
      * See JEITA CP-3451C Section 4.5.2 and 4.5.4 specifications for more details.
      */
     public static final int STREAM_TYPE_EXIF_DATA_ONLY = 1;
+    /**
+     * Constant used to indicate invalid date time.
+     * @see #getGpsDateTime().
+     */
+    public static final long INVALID_DATE_TIME = Long.MIN_VALUE;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -5083,7 +5088,8 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME} value as number of milliseconds since
      * Jan. 1, 1970, midnight local time.
-     * Returns -1 if date time information is unavailable or invalid.
+     * @return {@link ExifInterface#INVALID_DATE_TIME} if date time information is unavailable or
+     * invalid.
      *
      * @hide
      */
@@ -5096,7 +5102,8 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME_DIGITIZED} value as number of
      * milliseconds since Jan. 1, 1970, midnight local time.
-     * Returns -1 if digitized date time information is unavailable or invalid.
+     * @return {@link ExifInterface#INVALID_DATE_TIME} if digitized date time information is
+     * unavailable or invalid.
      *
      * @hide
      */
@@ -5109,7 +5116,8 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME_ORIGINAL} value as number of
      * milliseconds since Jan. 1, 1970, midnight local time.
-     * Returns -1 if original date time information is unavailable or invalid.
+     * @return {@link ExifInterface#INVALID_DATE_TIME} if original date time information is
+     * unavailable or invalid.
      *
      * @hide
      */
@@ -5121,14 +5129,14 @@ public class ExifInterface {
 
     private static long parseDateTime(@Nullable String dateTimeString, @Nullable String subSecs) {
         if (dateTimeString == null
-                || !sNonZeroTimePattern.matcher(dateTimeString).matches()) return -1;
+                || !sNonZeroTimePattern.matcher(dateTimeString).matches()) return INVALID_DATE_TIME;
 
         ParsePosition pos = new ParsePosition(0);
         try {
             // The exif field is in local time. Parsing it as if it is UTC will yield time
             // since 1/1/1970 local time
             Date datetime = sFormatter.parse(dateTimeString, pos);
-            if (datetime == null) return -1;
+            if (datetime == null) return INVALID_DATE_TIME;
             long msecs = datetime.getTime();
 
             if (subSecs != null) {
@@ -5144,13 +5152,13 @@ public class ExifInterface {
             }
             return msecs;
         } catch (IllegalArgumentException e) {
-            return -1;
+            return INVALID_DATE_TIME;
         }
     }
 
     /**
      * Returns number of milliseconds since Jan. 1, 1970, midnight UTC.
-     * Returns -1 if the date time information is not available.
+     * @return {@link Long#MIN_VALUE} if the date time information is not available.
      */
     public long getGpsDateTime() {
         String date = getAttribute(TAG_GPS_DATESTAMP);
@@ -5158,7 +5166,7 @@ public class ExifInterface {
         if (date == null || time == null
                 || (!sNonZeroTimePattern.matcher(date).matches()
                 && !sNonZeroTimePattern.matcher(time).matches())) {
-            return -1;
+            return INVALID_DATE_TIME;
         }
 
         String dateTimeString = date + ' ' + time;
@@ -5166,10 +5174,10 @@ public class ExifInterface {
         ParsePosition pos = new ParsePosition(0);
         try {
             Date datetime = sFormatter.parse(dateTimeString, pos);
-            if (datetime == null) return -1;
+            if (datetime == null) return INVALID_DATE_TIME;
             return datetime.getTime();
         } catch (IllegalArgumentException e) {
-            return -1;
+            return INVALID_DATE_TIME;
         }
     }
 
