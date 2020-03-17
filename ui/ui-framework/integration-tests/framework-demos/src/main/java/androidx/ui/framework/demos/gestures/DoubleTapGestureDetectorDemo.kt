@@ -16,11 +16,9 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.DoubleTapGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.layout.LayoutAlign
@@ -31,23 +29,19 @@ import androidx.ui.unit.dp
 /**
  * Simple DoubleTapGestureDetector demo.
  */
-class DoubleTapGestureDetectorDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val color = state { Colors.random() }
+@Composable
+fun DoubleTapGestureDetectorDemo() {
+    val color = state { Colors.random() }
 
-            val onDoubleTap: (PxPosition) -> Unit = {
-                color.value = color.value.anotherRandomColor()
-            }
+    val onDoubleTap: (PxPosition) -> Unit = {
+        color.value = color.value.anotherRandomColor()
+    }
 
-            DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {
-                Box(
-                    LayoutAlign.Center + LayoutSize(192.dp),
-                    backgroundColor = color.value,
-                    border = Border(2.dp, BorderColor)
-                )
-            }
-        }
+    DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {
+        Box(
+            LayoutAlign.Center + LayoutSize(192.dp),
+            backgroundColor = color.value,
+            border = Border(2.dp, BorderColor)
+        )
     }
 }

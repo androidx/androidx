@@ -22,11 +22,7 @@
         <activity android:name=".rally.RallyActivity"
                   android:theme="@android:style/Theme.NoTitleBar"
                   android:configChanges="orientation|screenSize"
-                  android:label="Material Studies/Rally">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
+                  android:label="Rally">
         </activity>
     </application>
 </manifest>

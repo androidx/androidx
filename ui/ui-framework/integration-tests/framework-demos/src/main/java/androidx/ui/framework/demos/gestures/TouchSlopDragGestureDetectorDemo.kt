@@ -16,13 +16,11 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -31,74 +29,70 @@ import androidx.ui.unit.px
 /**
  * Simple demo that shows off TouchSlopDragGestureDetector.
  */
-class TouchSlopDragGestureDetectorDemo : Activity() {
+@Composable
+fun TouchSlopDragGestureDetectorDemo() {
 
-    val VerticalColor = Color(0xfff44336)
-    val HorizontalColor = Color(0xff2196f3)
+    val verticalColor = Color(0xfff44336)
+    val horizontalColor = Color(0xff2196f3)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val xOffset = state { 0.px }
-            val yOffset = state { 0.px }
-            val canStartVertically = state { true }
+    val xOffset = state { 0.px }
+    val yOffset = state { 0.px }
+    val canStartVertically = state { true }
 
-            val dragObserver =
-                if (canStartVertically.value) {
-                    object : DragObserver {
-                        override fun onDrag(dragDistance: PxPosition): PxPosition {
-                            yOffset.value += dragDistance.y
-                            return dragDistance
-                        }
-
-                        override fun onStop(velocity: PxPosition) {
-                            canStartVertically.value = !canStartVertically.value
-                            super.onStop(velocity)
-                        }
-                    }
-                } else {
-                    object : DragObserver {
-                        override fun onDrag(dragDistance: PxPosition): PxPosition {
-                            xOffset.value += dragDistance.x
-                            return dragDistance
-                        }
-
-                        override fun onStop(velocity: PxPosition) {
-                            canStartVertically.value = !canStartVertically.value
-                            super.onStop(velocity)
-                        }
-                    }
+    val dragObserver =
+        if (canStartVertically.value) {
+            object : DragObserver {
+                override fun onDrag(dragDistance: PxPosition): PxPosition {
+                    yOffset.value += dragDistance.y
+                    return dragDistance
                 }
 
-            val canDrag =
-                if (canStartVertically.value) {
-                    { direction: Direction ->
-                        when (direction) {
-                            Direction.DOWN -> true
-                            Direction.UP -> true
-                            else -> false
-                        }
-                    }
-                } else {
-                    { direction: Direction ->
-                        when (direction) {
-                            Direction.LEFT -> true
-                            Direction.RIGHT -> true
-                            else -> false
-                        }
-                    }
+                override fun onStop(velocity: PxPosition) {
+                    canStartVertically.value = !canStartVertically.value
+                    super.onStop(velocity)
+                }
+            }
+        } else {
+            object : DragObserver {
+                override fun onDrag(dragDistance: PxPosition): PxPosition {
+                    xOffset.value += dragDistance.x
+                    return dragDistance
                 }
 
-            val color =
-                if (canStartVertically.value) {
-                    VerticalColor
-                } else {
-                    HorizontalColor
+                override fun onStop(velocity: PxPosition) {
+                    canStartVertically.value = !canStartVertically.value
+                    super.onStop(velocity)
                 }
-
-            TouchSlopDragGestureDetector(dragObserver, canDrag) {
-                DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color)
             }
         }
+
+    val canDrag =
+        if (canStartVertically.value) {
+            { direction: Direction ->
+                when (direction) {
+                    Direction.DOWN -> true
+                    Direction.UP -> true
+                    else -> false
+                }
+            }
+        } else {
+            { direction: Direction ->
+                when (direction) {
+                    Direction.LEFT -> true
+                    Direction.RIGHT -> true
+                    else -> false
+                }
+            }
+        }
+
+    val color =
+        if (canStartVertically.value) {
+            verticalColor
+        } else {
+            horizontalColor
+        }
+
+    TouchSlopDragGestureDetector(dragObserver, canDrag) {
+        DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color)
     }
 }

@@ -50,10 +50,10 @@ import androidx.ui.unit.em
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
 
-val displayText = "Text Demo"
-val displayTextChinese = "文本演示"
-val displayTextArabic = "عرض النص"
-val displayTextHindi = "पाठ डेमो"
+const val displayText = "Text Demo"
+const val displayTextChinese = "文本演示"
+const val displayTextArabic = "عرض النص"
+const val displayTextHindi = "पाठ डेमो"
 val fontSize4 = 16.sp
 val fontSize6 = 20.sp
 val fontSize8 = 25.sp

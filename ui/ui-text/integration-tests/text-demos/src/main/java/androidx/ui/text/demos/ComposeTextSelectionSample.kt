@@ -92,7 +92,7 @@ fun TextSelectionSample() {
 }
 
 @Composable
-fun Basics() {
+private fun Basics() {
     Text(
         text = "Jetpack Compose Basics",
         style = commonStyle.merge(header)
@@ -110,7 +110,7 @@ fun Basics() {
 }
 
 @Composable
-fun AddTextElement() {
+private fun AddTextElement() {
     Text(
         text = "Add a text element",
         style = commonStyle.merge(header2)
@@ -161,7 +161,7 @@ fun AddTextElement() {
 }
 
 @Composable
-fun MultiParagraph() {
+private fun MultiParagraph() {
     Text(
         text = "Define a composable function (Multi Paragraph)",
         style = commonStyle.merge(header2)
@@ -195,7 +195,7 @@ fun MultiParagraph() {
 }
 
 @Composable
-fun MultiLanguage(title: String, content: String) {
+private fun MultiLanguage(title: String, content: String) {
     Text(
         text = title,
         style = commonStyle.merge(header)

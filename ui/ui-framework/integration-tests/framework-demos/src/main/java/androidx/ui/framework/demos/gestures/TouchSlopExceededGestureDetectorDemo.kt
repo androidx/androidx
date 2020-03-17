@@ -16,12 +16,10 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
 import androidx.ui.core.gesture.TouchSlopExceededGestureDetector
-import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
@@ -29,57 +27,53 @@ import androidx.ui.unit.px
 /**
  * Simple demo that shows off TouchSlopExceededGestureDetector.
  */
-class TouchSlopExceededGestureDetectorDemo : Activity() {
+@Composable
+fun TouchSlopExceededGestureDetectorDemo() {
 
-    val VerticalColor = Color(0xfff44336)
-    val HorizontalColor = Color(0xff2196f3)
+    val verticalColor = Color(0xfff44336)
+    val horizontalColor = Color(0xff2196f3)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val xOffset = state { 0.px }
-            val yOffset = state { 0.px }
-            val orientationVertical = state { true }
+    val xOffset = state { 0.px }
+    val yOffset = state { 0.px }
+    val orientationVertical = state { true }
 
-            // This would be more efficient if onTouchSlopExceeded were memoized because it's
-            // value doesn't need to change for each new composition.  Like this, every time
-            // we recompose, a new lambda is created.  Here we aren't memoizing to demonstrate
-            // that TouchSlopExceededGestureDetector behaves correctly when it is recomposed
-            // because onTouchSlopExceeded changes.
-            val onTouchSlopExceeded =
-                {
-                    orientationVertical.value = !orientationVertical.value
+    // This would be more efficient if onTouchSlopExceeded were memoized because it's
+    // value doesn't need to change for each new composition.  Like this, every time
+    // we recompose, a new lambda is created.  Here we aren't memoizing to demonstrate
+    // that TouchSlopExceededGestureDetector behaves correctly when it is recomposed
+    // because onTouchSlopExceeded changes.
+    val onTouchSlopExceeded =
+        {
+            orientationVertical.value = !orientationVertical.value
+        }
+
+    val canDrag =
+        if (orientationVertical.value) {
+            { direction: Direction ->
+                when (direction) {
+                    Direction.UP -> true
+                    Direction.DOWN -> true
+                    else -> false
                 }
-
-            val canDrag =
-                if (orientationVertical.value) {
-                    { direction: Direction ->
-                        when (direction) {
-                            Direction.UP -> true
-                            Direction.DOWN -> true
-                            else -> false
-                        }
-                    }
-                } else {
-                    { direction: Direction ->
-                        when (direction) {
-                            Direction.LEFT -> true
-                            Direction.RIGHT -> true
-                            else -> false
-                        }
-                    }
+            }
+        } else {
+            { direction: Direction ->
+                when (direction) {
+                    Direction.LEFT -> true
+                    Direction.RIGHT -> true
+                    else -> false
                 }
-
-            val color =
-                if (orientationVertical.value) {
-                    VerticalColor
-                } else {
-                    HorizontalColor
-                }
-
-            TouchSlopExceededGestureDetector(onTouchSlopExceeded, canDrag) {
-                DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color)
             }
         }
+
+    val color =
+        if (orientationVertical.value) {
+            verticalColor
+        } else {
+            horizontalColor
+        }
+
+    TouchSlopExceededGestureDetector(onTouchSlopExceeded, canDrag) {
+        DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color)
     }
 }

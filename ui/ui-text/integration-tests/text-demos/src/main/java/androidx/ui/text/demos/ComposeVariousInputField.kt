@@ -241,7 +241,7 @@ fun VariousInputFieldDemo() {
 }
 
 @Composable
-fun VariousEditLine(
+private fun VariousEditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onValueChange: (String, String) -> String = { _, new -> new },
@@ -259,7 +259,7 @@ fun VariousEditLine(
 }
 
 @Composable
-fun HintEditText(hintText: @Composable() () -> Unit) {
+private fun HintEditText(hintText: @Composable() () -> Unit) {
     val state = state { "" }
 
     val inputField = @Composable {

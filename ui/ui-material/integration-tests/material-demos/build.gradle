@@ -14,24 +14,18 @@ plugins {
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
-
-    implementation(KOTLIN_COROUTINES_ANDROID)
-    implementation(KOTLIN_REFLECT)
     implementation(KOTLIN_STDLIB)
 
-    implementation "androidx.activity:activity:1.0.0-alpha01"
-    api "androidx.annotation:annotation:1.1.0"
-    implementation "androidx.preference:preference:1.1.0-rc01"
-
     implementation project(":compose:compose-runtime")
+    implementation project(":ui:integration-tests:demos:common")
     implementation project(":ui:ui-core")
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-material:samples")
     implementation project(":ui:ui-text")
-    implementation project(':ui:ui-android-view')
-    implementation project(':ui:ui-material')
+    implementation project(":ui:ui-android-view")
+    implementation project(":ui:ui-material")
 }
 
 android {
