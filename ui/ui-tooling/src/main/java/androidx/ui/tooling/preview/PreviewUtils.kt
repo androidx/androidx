@@ -85,7 +85,7 @@ private fun Method.invokeComposableMethod(
         return invoke(instance, *args, composer)
     }
 
-    assert(isDefaultMethod())
+    check(isDefaultMethod())
     // When calling into methods with default parameters, the last three parameters are used or
     // reserved by the compiler. The synthetic method generated looks like:
     // aMethodWithDefault$default(...method parameters..., Composer, Mask, Unused)

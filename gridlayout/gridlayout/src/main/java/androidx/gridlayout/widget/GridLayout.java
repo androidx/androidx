@@ -1316,8 +1316,6 @@ public class GridLayout extends ViewGroup {
                             break;
                         }
                         case PENDING: {
-                            // le singe est dans l'arbre
-                            assert false;
                             break;
                         }
                         case COMPLETE: {
@@ -1330,7 +1328,6 @@ public class GridLayout extends ViewGroup {
                     for (int loc = 0, N = arcsByVertex.length; loc < N; loc++) {
                         walk(loc);
                     }
-                    assert cursor == -1;
                     return result;
                 }
             }.sort();
@@ -1732,7 +1729,6 @@ public class GridLayout extends ViewGroup {
                     return getMeasure(0, size);
                 }
                 default: {
-                    assert false;
                     return 0;
                 }
             }

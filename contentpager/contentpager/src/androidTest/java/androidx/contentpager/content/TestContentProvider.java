@@ -351,8 +351,6 @@ public final class TestContentProvider extends ContentProvider {
      * necessary for paging.
      */
     public static Uri forcePagingSpec(Uri uri, int offset, int limit) {
-        assert (uri.getPath().equals(TestContentProvider.PAGED_PATH)
-                || uri.getPath().equals(TestContentProvider.PAGED_WINDOWED_PATH));
         return uri.buildUpon()
                 .appendQueryParameter(ContentResolver.QUERY_ARG_OFFSET, String.valueOf(offset))
                 .appendQueryParameter(ContentResolver.QUERY_ARG_LIMIT, String.valueOf(limit))

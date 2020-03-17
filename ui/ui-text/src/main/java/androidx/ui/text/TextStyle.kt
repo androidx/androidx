@@ -121,7 +121,7 @@ data class TextStyle(
     init {
         if (lineHeight != TextUnit.Inherit) {
             // Since we are checking if it's negative, no need to convert Sp into Px at this point.
-            assert(lineHeight.value >= 0f) {
+            check(lineHeight.value >= 0f) {
                 "lineHeight can't be negative (${lineHeight.value})"
             }
         }

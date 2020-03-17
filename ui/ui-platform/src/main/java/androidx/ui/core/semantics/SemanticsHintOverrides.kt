@@ -50,10 +50,13 @@ data class SemanticsHintOverrides(
     val onLongPressHint: String?
 ) {
 
+    // TODO: b/150777826 - fix and re-enable assertion
+    /*
     init {
-        assert(onTapHint != "")
-        assert(onLongPressHint != "")
+        check(onTapHint != "")
+        check(onLongPressHint != "")
     }
+    */
 
     /** Whether there are any non-null hint values. */
     val isNotEmpty
