@@ -29,6 +29,7 @@ import static androidx.media2.test.common.MediaSessionConstants.TEST_CONTROLLER_
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -38,6 +39,7 @@ import android.media.AudioManager;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
@@ -285,6 +287,92 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         // Null ITEM becomes null MediaItem.
         mRemoteSession2.getMockPlayer().notifyCurrentMediaItemChanged(INDEX_FOR_NULL_ITEM);
         assertTrue(latchForControllerCallback.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnCurrentMediaItemChanged_withDuration() throws Exception {
+        final int testListSize = 5;
+        final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
+        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
+
+        final int testCurrentItemIndex = 3;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final long testDuration = 10123;
+
+        MediaController controller = createController(mRemoteSession2.getToken(),
+                true, null /* connectionHints */, new MediaController.ControllerCallback() {
+                    @Override
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                            MediaItem currentMediaItem) {
+                        if (getDuration(currentMediaItem) == testDuration) {
+                            // When current media item's duration is set, also test no other
+                            // media item has duration.
+                            int listSize = controller.getPlaylist().size();
+                            for (int i = 0; i < listSize; i++) {
+                                if (i != testCurrentItemIndex) {
+                                    assertNotEquals(testDuration,
+                                            getDuration(controller.getPlaylist().get(i)));
+                                }
+                            }
+                            latch.countDown();
+                        }
+                    }
+                });
+
+        mRemoteSession2.getMockPlayer().setCurrentMediaItem(testCurrentItemIndex);
+        mRemoteSession2.getMockPlayer().notifyCurrentMediaItemChanged(testCurrentItemIndex);
+
+        mRemoteSession2.getMockPlayer().setDuration(testDuration);
+        // This make session to trust duration from the player.
+        mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_PLAYING);
+        mRemoteSession2.getMockPlayer().notifyPlayerStateChanged(
+                SessionPlayer.PLAYER_STATE_PLAYING);
+
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnCurrentMediaItemChanged_withUpdatedMetadata() throws Exception {
+        final int testListSize = 5;
+        final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
+        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
+
+        final int testCurrentItemIndex = 3;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final long testDuration = 10123;
+        final String testDisplayTitle = "testDisplayTitle";
+        final MediaMetadata testMetadata =
+                new MediaMetadata.Builder(list.get(testCurrentItemIndex).getMetadata())
+                        .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, testDisplayTitle)
+                        .build();
+
+        MediaController controller = createController(mRemoteSession2.getToken(),
+                true, null /* connectionHints */, new MediaController.ControllerCallback() {
+                    @Override
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                            MediaItem currentMediaItem) {
+                        assertNotNull(currentMediaItem.getMetadata());
+                        if (TextUtils.equals(testDisplayTitle,
+                                currentMediaItem.getMetadata().getText(
+                                        MediaMetadata.METADATA_KEY_DISPLAY_TITLE))) {
+                            if (getDuration(currentMediaItem) == testDuration) {
+                                latch.countDown();
+                            }
+                        }
+                    }
+                });
+
+        mRemoteSession2.getMockPlayer().setCurrentMediaItem(testCurrentItemIndex);
+        mRemoteSession2.getMockPlayer().notifyCurrentMediaItemChanged(testCurrentItemIndex);
+
+        mRemoteSession2.getMockPlayer().setDuration(testDuration);
+        // This make session to trust duration from the player.
+        mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_PLAYING);
+        mRemoteSession2.getMockPlayer().notifyPlayerStateChanged(
+                SessionPlayer.PLAYER_STATE_PLAYING);
+        mRemoteSession2.getMockPlayer().setCurrentMediaItemMetadata(testMetadata);
+
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -1034,6 +1122,13 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
         assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         setRunnableForOnCustomCommand(mController, null);
+    }
+
+    private static long getDuration(MediaItem item) {
+        if (item == null || item.getMetadata() == null) {
+            return SessionPlayer.UNKNOWN_TIME;
+        }
+        return item.getMetadata().getLong(MediaMetadata.METADATA_KEY_DURATION);
     }
 
     RemoteMediaSession createRemoteMediaSession(String id) {

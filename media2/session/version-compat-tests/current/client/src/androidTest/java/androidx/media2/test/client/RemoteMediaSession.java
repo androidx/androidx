@@ -396,6 +396,15 @@ public class RemoteMediaSession {
             }
         }
 
+        public void setCurrentMediaItemMetadata(MediaMetadata metadata) {
+            try {
+                mBinder.setCurrentMediaItemMetadata(
+                        mSessionId, MediaParcelUtils.toParcelable(metadata));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call setCurrentMediaItemMetadata()");
+            }
+        }
+
         /**
          * Service app will automatically create a playlist of size {@param size},
          * and sets the list to the player.

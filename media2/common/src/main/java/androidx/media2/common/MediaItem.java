@@ -155,7 +155,7 @@ public class MediaItem extends CustomVersionedParcelable {
         synchronized (mLock) {
             if (mMetadata != null && metadata != null
                     && !TextUtils.equals(getMediaId(), metadata.getMediaId())) {
-                Log.d(TAG, "MediaItem's media ID shouldn't be changed");
+                Log.w(TAG, "MediaItem's media ID shouldn't be changed");
                 return;
             }
             mMetadata = metadata;
@@ -330,7 +330,7 @@ public class MediaItem extends CustomVersionedParcelable {
         /**
          * Called when a media item's metadata is changed.
          */
-        void onMetadataChanged(MediaItem item);
+        void onMetadataChanged(@NonNull MediaItem item);
     }
 
     /**
