@@ -81,7 +81,7 @@ package androidx.fragment.app {
     method public final boolean isResumed();
     method public final boolean isStateSaved();
     method public final boolean isVisible();
-    method @CallSuper @MainThread public void onActivityCreated(android.os.Bundle?);
+    method @Deprecated @CallSuper @MainThread public void onActivityCreated(android.os.Bundle?);
     method public void onActivityResult(int, int, android.content.Intent?);
     method @CallSuper @MainThread public void onAttach(android.content.Context);
     method @Deprecated @CallSuper @MainThread public void onAttach(android.app.Activity);
@@ -317,7 +317,7 @@ package androidx.fragment.app {
 
   public abstract static class FragmentManager.FragmentLifecycleCallbacks {
     ctor public FragmentManager.FragmentLifecycleCallbacks();
-    method public void onFragmentActivityCreated(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment, android.os.Bundle?);
+    method @Deprecated public void onFragmentActivityCreated(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment, android.os.Bundle?);
     method public void onFragmentAttached(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment, android.content.Context);
     method public void onFragmentCreated(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment, android.os.Bundle?);
     method public void onFragmentDestroyed(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment);

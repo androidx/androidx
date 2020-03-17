@@ -244,7 +244,14 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          * @param savedInstanceState Saved instance bundle from a previous instance
+         *
+         * @deprecated To get a callback specifically when a Fragment activity's
+         * {@link android.app.Activity#onCreate(Bundle)} is called, register a
+         * {@link androidx.lifecycle.LifecycleObserver} on the Activity's {@link Lifecycle} in
+         * {@link #onFragmentAttached(FragmentManager, Fragment, Context)}, removing it when it
+         * receives the {@link Lifecycle.State#CREATED} callback.
          */
+        @Deprecated
         public void onFragmentActivityCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
                 @Nullable Bundle savedInstanceState) {}
 
