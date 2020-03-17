@@ -24,8 +24,6 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.painter.ColorPainter
-import androidx.ui.unit.dp
 
 @Sampled
 @Composable
@@ -33,17 +31,6 @@ fun ImageSample() {
     val imageAsset = createTestImage()
     // Lays out and draws an image sized to the dimensions of the ImageAsset
     Image(image = imageAsset)
-}
-
-@Sampled
-@Composable
-fun ImageSamplePainterMinSize() {
-    // Lays out 20 dp x 20 dp composable and draws the area with the given color
-    Image(
-        painter = ColorPainter(Color.Red),
-        minWidth = 20.dp,
-        minHeight = 20.dp
-    )
 }
 
 /**

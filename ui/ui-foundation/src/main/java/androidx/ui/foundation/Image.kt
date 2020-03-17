@@ -21,8 +21,6 @@ import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.asModifier
 import androidx.ui.graphics.BlendMode
@@ -32,13 +30,12 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.ScaleFit
+import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
 import androidx.ui.unit.toRect
 
 /**
@@ -49,7 +46,6 @@ import androidx.ui.unit.toRect
  * constraint.
  *
  * @sample androidx.ui.foundation.samples.ImageSample
- * @sample androidx.ui.foundation.samples.ImageSamplePainterMinSize
  *
  * @param image The [ImageAsset] to draw.
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
@@ -61,8 +57,6 @@ import androidx.ui.unit.toRect
  * @param alpha Optional opacity to be applied to the [ImageAsset] when it is rendered onscreen
  * @param colorFilter Optional ColorFilter to apply for the [ImageAsset] when it is rendered
  * onscreen
- * @param layoutDirection Optional parameter indicating the content should be mirrored for right to
- * left languages.
  */
 @Composable
 fun Image(
@@ -71,8 +65,7 @@ fun Image(
     alignment: Alignment = Alignment.Center,
     scaleFit: ScaleFit = ScaleFit.Fit,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
-    layoutDirection: LayoutDirection = LayoutDirectionAmbient.current
+    colorFilter: ColorFilter? = null
 ) {
     val imagePainter = remember(image) { ImagePainter(image) }
     // Min width/height are intentionally not provided in this call as they are consumed
@@ -83,8 +76,7 @@ fun Image(
         alignment = alignment,
         scaleFit = scaleFit,
         alpha = alpha,
-        colorFilter = colorFilter,
-        layoutDirection = layoutDirection
+        colorFilter = colorFilter
     )
 }
 
@@ -93,13 +85,14 @@ fun Image(
  * the composable according to the [Painter]'s intrinsic size. However, an optional [Modifier]
  * parameter can be provided to adjust sizing or draw additional content (ex. background)
  *
+ * **NOTE** a Painter might not have an intrinsic size, so if no LayoutModifier is provided
+ * as part of the Modifier chain this might size the [Image] composable to a width and height
+ * of zero and will not draw any content. This can happen for Painter implementations that
+ * always attempt to fill the bounds like [ColorPainter]
+ *
  * @param painter to draw
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
  * background)
- * @param minWidth Minimum width used to size this Image composable. Useful for situations where
- * the given Painter has no intrinsic size (ex. ColorPainter)
- * @param minHeight Minimum height used to size this Image composable. Useful for situations where
- * the given Painter has no intrinsic size (ex. ColorPainter)
  * @param alignment Optional alignment parameter used to place the [Painter] in the given
  * bounds defined by the width and height.
  * @param scaleFit Optional scale parameter used to determine the aspect ratio scaling to be used
@@ -107,41 +100,24 @@ fun Image(
  * @param alpha Optional opacity to be applied to the [Painter] when it is rendered onscreen
  * the default renders the [Painter] completely opaque
  * @param colorFilter Optional colorFilter to apply for the [Painter] when it is rendered onscreen
- * @param layoutDirection Optional parameter indicating the content should be mirrored for right to
- * left languages. The default value is extracted from [LayoutDirectionAmbient]
  */
 @Composable
 fun Image(
     painter: Painter,
     modifier: Modifier = Modifier.None,
-    minWidth: Dp = Dp.Unspecified,
-    minHeight: Dp = Dp.Unspecified,
     alignment: Alignment = Alignment.Center,
     scaleFit: ScaleFit = ScaleFit.Fit,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
-    layoutDirection: LayoutDirection = LayoutDirectionAmbient.current
+    colorFilter: ColorFilter? = null
 ) {
     val painterModifier = painter.asModifier(
         alignment = alignment,
         scaleFit = scaleFit,
         alpha = alpha,
-        colorFilter = colorFilter,
-        rtl = layoutDirection == LayoutDirection.Rtl
+        colorFilter = colorFilter
     )
-    // Enforce a minimum size if specified. This is used if the underlying painter does not
-    // have a minimum size, or it is smaller than the given minimum size
-    val hasSpecifiedMinWidth = minWidth != Dp.Unspecified
-    val hasSpecifiedMinHeight = minHeight != Dp.Unspecified
-    val hasSpecifiedMinSize = hasSpecifiedMinWidth && hasSpecifiedMinHeight
-    val minSizeModifier = when {
-        hasSpecifiedMinSize -> LayoutSize.Min(minWidth, minHeight)
-        hasSpecifiedMinWidth -> LayoutSize.Min(minWidth, 0.dp)
-        hasSpecifiedMinHeight -> LayoutSize.Min(0.dp, minHeight)
-        else -> Modifier.None
-    }
 
-    Box(modifier + minSizeModifier + ClipModifier + painterModifier)
+    Box(modifier + ClipModifier + painterModifier)
 }
 
 /**

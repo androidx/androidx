@@ -196,13 +196,14 @@ class ImageTest {
         rule.setContent {
             val density = DensityAmbient.current.density
             val size = (containerSize * 2 / density).dp
+            val minWidth = (imageWidth / density).dp
+            val minHeight = (imageHeight / density).dp
             Box(modifier = LayoutSize(size) + DrawBackground(Color.White) + LayoutAlign.Center) {
                 TestTag(contentTag) {
                     // The resultant Image composable should be sized to the minimum values here
                     // as [ColorPainter] has no intrinsic width or height
                     Image(painter = ColorPainter(Color.Red),
-                        minWidth = (imageWidth / density).dp,
-                        minHeight = (imageHeight / density).dp,
+                        modifier = LayoutSize.Min(minWidth, minHeight),
                         alignment = Alignment.Center
                     )
                 }
