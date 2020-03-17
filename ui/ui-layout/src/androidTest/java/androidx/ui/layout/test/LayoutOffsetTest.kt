@@ -17,9 +17,9 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.TestTag
 import androidx.ui.core.globalPosition
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.layout.LayoutOffset
@@ -49,11 +49,12 @@ class LayoutOffsetTest : LayoutTest() {
         var positionY = 0.ipx
         composeTestRule.setContent {
             TestTag("stack") {
-                Stack(LayoutAlign.TopStart + LayoutOffset(offsetX, offsetY)) {
-                    OnPositioned { coordinates ->
-                        positionX = coordinates.globalPosition.x.round()
-                        positionY = coordinates.globalPosition.y.round()
-                    }
+                Stack(LayoutAlign.TopStart + LayoutOffset(offsetX, offsetY) +
+                        onPositioned { coordinates ->
+                            positionX = coordinates.globalPosition.x.round()
+                            positionY = coordinates.globalPosition.y.round()
+                        }
+                ) {
                 }
             }
         }
@@ -79,12 +80,12 @@ class LayoutOffsetTest : LayoutTest() {
                             LayoutAlign.TopEnd +
                             LayoutWidth(containerWidth) +
                             LayoutAlign.TopStart +
-                            LayoutOffset(offsetX, offsetY)
+                            LayoutOffset(offsetX, offsetY) +
+                            onPositioned { coordinates ->
+                                positionX = coordinates.globalPosition.x.round()
+                                positionY = coordinates.globalPosition.y.round()
+                            }
                 ) {
-                    OnPositioned { coordinates ->
-                        positionX = coordinates.globalPosition.x.round()
-                        positionY = coordinates.globalPosition.y.round()
-                    }
                 }
             }
         }

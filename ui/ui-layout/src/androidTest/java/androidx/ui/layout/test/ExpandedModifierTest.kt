@@ -86,9 +86,8 @@ class ExpandedModifierTest : LayoutTest() {
         show {
             Layout(@Composable {
                 Align(alignment = Alignment.TopStart) {
-                    Container(modifier = modifier) {
+                    Container(modifier + saveLayoutInfo(size, position, positionedLatch)) {
                         Container(width = Width, height = Height) { }
-                        SaveLayoutInfo(size, position, positionedLatch)
                     }
                 }
             }) { measurables, incomingConstraints, _ ->

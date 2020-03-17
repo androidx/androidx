@@ -58,9 +58,13 @@ class AlignmentLineTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Stack {
-                AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
-                    SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
+                AlignmentLineOffset(
+                    testLine,
+                    saveLayoutInfo(parentSize, Ref(), layoutLatch),
+                    before = beforeDp,
+                    after = afterDp
+                ) {
+                    Layout({ }, saveLayoutInfo(childSize, childPosition, layoutLatch)) { _, _, _ ->
                         layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -97,9 +101,14 @@ class AlignmentLineTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Stack {
-                AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
-                    SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
+                AlignmentLineOffset(testLine,
+                    saveLayoutInfo(parentSize, Ref(), layoutLatch),
+                    before = beforeDp,
+                    after = afterDp
+                ) {
+                    Layout(
+                        modifier = saveLayoutInfo(childSize, childPosition, layoutLatch),
+                        children = { }) { _, _, _ ->
                         layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -133,9 +142,16 @@ class AlignmentLineTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Stack {
-                AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
-                    SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
+                AlignmentLineOffset(
+                    testLine,
+                    saveLayoutInfo(parentSize, Ref(), layoutLatch),
+                    before = beforeDp,
+                    after = afterDp
+                ) {
+                    Layout(
+                        modifier = saveLayoutInfo(childSize, childPosition, layoutLatch),
+                        children = {}
+                    ) { _, _, _ ->
                         layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -165,9 +181,13 @@ class AlignmentLineTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Stack {
-                AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
-                    SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _, _ ->
+                AlignmentLineOffset(
+                    testLine,
+                    saveLayoutInfo(parentSize, Ref(), layoutLatch),
+                    before = beforeDp,
+                    after = afterDp
+                ) {
+                    Layout({ }, saveLayoutInfo(childSize, childPosition, layoutLatch)) { _, _, _ ->
                         layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
@@ -199,11 +219,13 @@ class AlignmentLineTest : LayoutTest() {
         show {
             Stack {
                 ConstrainedBox(DpConstraints(maxWidth = maxWidth)) {
-                    AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
-                        SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                        Layout({
-                            SaveLayoutInfo(childSize, childPosition, layoutLatch)
-                        }) { _, _, _ ->
+                    AlignmentLineOffset(testLine, before = beforeDp, after = afterDp,
+                        modifier = saveLayoutInfo(parentSize, Ref(), layoutLatch)
+                    ) {
+                        Layout(
+                            children = { },
+                            modifier = saveLayoutInfo(childSize, childPosition, layoutLatch)
+                        ) { _, _, _ ->
                             layout(
                                 childDp.toIntPx(),
                                 0.ipx,
@@ -241,11 +263,13 @@ class AlignmentLineTest : LayoutTest() {
         show {
             Stack {
                 ConstrainedBox(DpConstraints(maxHeight = maxHeight)) {
-                    AlignmentLineOffset(testLine, before = beforeDp, after = afterDp) {
-                        SaveLayoutInfo(parentSize, Ref(), layoutLatch)
-                        Layout({
-                            SaveLayoutInfo(childSize, childPosition, layoutLatch)
-                        }) { _, _, _ ->
+                    AlignmentLineOffset(testLine, before = beforeDp, after = afterDp,
+                        modifier = saveLayoutInfo(parentSize, Ref(), layoutLatch)
+                    ) {
+                        Layout(
+                            children = { },
+                            modifier = saveLayoutInfo(childSize, childPosition, layoutLatch)
+                        ) { _, _, _ ->
                             layout(
                                 0.ipx,
                                 childDp.toIntPx(),
@@ -359,9 +383,8 @@ class AlignmentLineTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Layout({
-                CenterAlignmentLine(testLine) {
-                    SaveLayoutInfo(centerSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(Ref(), childPosition, layoutLatch) }) { _, _, _ ->
+                CenterAlignmentLine(testLine, saveLayoutInfo(centerSize, Ref(), layoutLatch)) {
+                    Layout({ }, saveLayoutInfo(Ref(), childPosition, layoutLatch)) { _, _, _ ->
                         layout(
                             childWidth.toIntPx(),
                             childHeight.toIntPx(),
@@ -403,9 +426,8 @@ class AlignmentLineTest : LayoutTest() {
         val childPosition = Ref<PxPosition>()
         show {
             Layout({
-                CenterAlignmentLine(testLine) {
-                    SaveLayoutInfo(centerSize, Ref(), layoutLatch)
-                    Layout({ SaveLayoutInfo(Ref(), childPosition, layoutLatch) }) { _, _, _ ->
+                CenterAlignmentLine(testLine, saveLayoutInfo(centerSize, Ref(), layoutLatch)) {
+                    Layout({ }, saveLayoutInfo(Ref(), childPosition, layoutLatch)) { _, _, _ ->
                         layout(
                             childWidth.toIntPx(),
                             childHeight.toIntPx(),

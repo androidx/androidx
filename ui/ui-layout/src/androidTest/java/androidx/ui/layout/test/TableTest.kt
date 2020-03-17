@@ -19,8 +19,8 @@ package androidx.ui.layout.test
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
+import androidx.ui.core.onChildPositioned
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -64,22 +64,24 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
-                    }) {
-                        Table(columns = columns) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                    }
+                ) {
+                    Table(columns = columns) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(
+                                        height = sizeDp, expanded = true,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -129,24 +131,25 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
+                    }
+                ) {
+                    Table(columns = columns, columnWidth = { j ->
+                        TableColumnWidth.Flex(flex = flexes[j])
                     }) {
-                        Table(columns = columns, columnWidth = { j ->
-                            TableColumnWidth.Flex(flex = flexes[j])
-                        }) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(height = sizeDp, expanded = true,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -190,22 +193,21 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Table(columns = columns, columnWidth = { TableColumnWidth.Wrap }) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(columns = columns, columnWidth = { TableColumnWidth.Wrap }) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(width = sizeDp, height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -254,24 +256,25 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
+                    }
+                ) {
+                    Table(columns = columns, columnWidth = { j ->
+                        TableColumnWidth.Wrap.flexible(flex = flexes[j])
                     }) {
-                        Table(columns = columns, columnWidth = { j ->
-                            TableColumnWidth.Wrap.flexible(flex = flexes[j])
-                        }) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(width = sizeDp, height = sizeDp) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(width = sizeDp, height = sizeDp,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -319,25 +322,24 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Table(
-                        columns = columns,
-                        columnWidth = { TableColumnWidth.MinIntrinsic }
-                    ) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.MinIntrinsic }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(width = sizeDp, height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -380,25 +382,24 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Table(
-                        columns = columns,
-                        columnWidth = { TableColumnWidth.MaxIntrinsic }
-                    ) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.MaxIntrinsic }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(width = sizeDp, height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -441,25 +442,24 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Table(
-                        columns = columns,
-                        columnWidth = { TableColumnWidth.Fixed(width = sizeDp) }
-                    ) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(height = sizeDp, expanded = true) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.Fixed(width = sizeDp) }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(height = sizeDp, expanded = true,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -507,24 +507,25 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
+                    }
+                ) {
+                    Table(columns = columns, columnWidth = { j ->
+                        TableColumnWidth.Fraction(fraction = fractions[j])
                     }) {
-                        Table(columns = columns, columnWidth = { j ->
-                            TableColumnWidth.Fraction(fraction = fractions[j])
-                        }) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(height = sizeDp, expanded = true,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -573,29 +574,30 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
-                    }) {
-                        Table(columns = columns, columnWidth = { j ->
-                            TableColumnWidth.Min(
-                                a = TableColumnWidth.Fixed(width = minWidthDp),
-                                b = TableColumnWidth.Fraction(
-                                    fraction = if (j % 2 == 0) 1f / columns else 1f / (columns * 2)
-                                )
+                    }
+                ) {
+                    Table(columns = columns, columnWidth = { j ->
+                        TableColumnWidth.Min(
+                            a = TableColumnWidth.Fixed(width = minWidthDp),
+                            b = TableColumnWidth.Fraction(
+                                fraction = if (j % 2 == 0) 1f / columns else 1f / (columns * 2)
                             )
-                        }) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                        )
+                    }) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(height = sizeDp, expanded = true,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -648,29 +650,30 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
-                    }) {
-                        Table(columns = columns, columnWidth = { j ->
-                            TableColumnWidth.Max(
-                                a = TableColumnWidth.Fixed(width = maxWidthDp),
-                                b = TableColumnWidth.Fraction(
-                                    fraction = if (j % 2 == 0) 1f / columns else 1f / (columns * 2)
-                                )
+                    }
+                ) {
+                    Table(columns = columns, columnWidth = { j ->
+                        TableColumnWidth.Max(
+                            a = TableColumnWidth.Fixed(width = maxWidthDp),
+                            b = TableColumnWidth.Fraction(
+                                fraction = if (j % 2 == 0) 1f / columns else 1f / (columns * 2)
                             )
-                        }) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                        )
+                    }) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(height = sizeDp, expanded = true,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -720,27 +723,26 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(columns = columns, columnWidth = {
+                    TableColumnWidth.Min(
+                        a = TableColumnWidth.Wrap,
+                        b = TableColumnWidth.Fixed(width = sizeDp)
+                    )
                 }) {
-                    Table(columns = columns, columnWidth = {
-                        TableColumnWidth.Min(
-                            a = TableColumnWidth.Wrap,
-                            b = TableColumnWidth.Fixed(width = sizeDp)
-                        )
-                    }) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = halfSizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(width = halfSizeDp, height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -785,27 +787,26 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(columns = columns, columnWidth = {
+                    TableColumnWidth.Max(
+                        a = TableColumnWidth.Wrap,
+                        b = TableColumnWidth.Fixed(width = sizeDp)
+                    )
                 }) {
-                    Table(columns = columns, columnWidth = {
-                        TableColumnWidth.Max(
-                            a = TableColumnWidth.Wrap,
-                            b = TableColumnWidth.Fixed(width = sizeDp)
-                        )
-                    }) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = halfSizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(width = halfSizeDp, height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -848,24 +849,23 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(columns = columns, columnWidth = {
+                    TableColumnWidth.Min(TableColumnWidth.Wrap, TableColumnWidth.Wrap)
                 }) {
-                    Table(columns = columns, columnWidth = {
-                        TableColumnWidth.Min(TableColumnWidth.Wrap, TableColumnWidth.Wrap)
-                    }) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(width = sizeDp, height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -908,24 +908,23 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(columns = columns, columnWidth = {
+                    TableColumnWidth.Max(TableColumnWidth.Wrap, TableColumnWidth.Wrap)
                 }) {
-                    Table(columns = columns, columnWidth = {
-                        TableColumnWidth.Max(TableColumnWidth.Wrap, TableColumnWidth.Wrap)
-                    }) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(width = sizeDp, height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -980,25 +979,23 @@ class TableTest : LayoutTest() {
         }
 
         show {
-            Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    tableSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Table(columns = columns, columnWidth = { customSpec }) {
-                        for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(
-                                        width = if (i == 0) sizeDp else halfSizeDp,
-                                        height = sizeDp
-                                    ) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+            Align(Alignment.TopStart, modifier = onChildPositioned { coordinates ->
+                tableSize.value = coordinates.size
+                positionedLatch.countDown()
+            }) {
+                Table(columns = columns, columnWidth = { customSpec }) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            for (j in 0 until columns) {
+                                Container(
+                                    width = if (i == 0) sizeDp else halfSizeDp,
+                                    height = sizeDp,
+                                    modifier = saveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                ) {
                                 }
                             }
                         }
@@ -1046,25 +1043,25 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
-                    }) {
-                        Table(columns = columns) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(
-                                            height = if (j % 2 == 0) sizeDp else halfSizeDp,
-                                            expanded = true
-                                        ) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                    }
+                ) {
+                    Table(columns = columns) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(
+                                        height = if (j % 2 == 0) sizeDp else halfSizeDp,
+                                        expanded = true,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -1113,34 +1110,34 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
+                    }
+                ) {
+                    Table(columns = columns, columnWidth = { j ->
+                        when (j) {
+                            0 -> TableColumnWidth.Wrap
+                            1 -> TableColumnWidth.Flex(flex = 1f)
+                            2 -> TableColumnWidth.Flex(flex = 3f)
+                            3 -> TableColumnWidth.Fixed(width = sizeDp)
+                            else -> TableColumnWidth.Fraction(fraction = 0.5f)
+                        }
                     }) {
-                        Table(columns = columns, columnWidth = { j ->
-                            when (j) {
-                                0 -> TableColumnWidth.Wrap
-                                1 -> TableColumnWidth.Flex(flex = 1f)
-                                2 -> TableColumnWidth.Flex(flex = 3f)
-                                3 -> TableColumnWidth.Fixed(width = sizeDp)
-                                else -> TableColumnWidth.Fraction(fraction = 0.5f)
-                            }
-                        }) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(
-                                            width = if (j == 0) halfSizeDp else null,
-                                            height = sizeDp,
-                                            expanded = j != 0
-                                        ) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(
+                                        width = if (j == 0) halfSizeDp else null,
+                                        height = sizeDp,
+                                        expanded = j != 0,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }
@@ -1227,33 +1224,35 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
+                    modifier = onChildPositioned { coordinates ->
                         tableSize.value = coordinates.size
                         tableLatch.countDown()
-                    }) {
-                        Table(columns = columns) {
-                            for (i in 0 until decorations) {
-                                tableDecoration(overlay = true) {
-                                    Container {
-                                        SaveLayoutInfo(
-                                            size = decorationSize[i],
-                                            position = decorationPosition[i],
-                                            positionedLatch = decorationsLatch
-                                        )
-                                    }
+                    }
+                ) {
+                    Table(columns = columns) {
+                        for (i in 0 until decorations) {
+                            tableDecoration(overlay = true) {
+                                Container(
+                                    saveLayoutInfo(
+                                        size = decorationSize[i],
+                                        position = decorationPosition[i],
+                                        positionedLatch = decorationsLatch
+                                    )
+                                ) {
                                 }
                             }
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = itemsLatch
-                                            )
-                                        }
+                        }
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(height = sizeDp, expanded = true,
+                                        modifier = saveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = itemsLatch
+                                        )
+                                    ) {
                                     }
                                 }
                             }

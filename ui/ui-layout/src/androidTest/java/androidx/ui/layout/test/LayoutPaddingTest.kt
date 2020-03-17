@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -225,32 +225,32 @@ class LayoutPaddingTest : LayoutTest() {
             Row(LayoutWidth(sizeDp * 3) + LayoutDirectionModifier.Rtl) {
                 Stack(
                     LayoutPadding(start = padding1Dp, end = padding2Dp) +
-                            LayoutSize(sizeDp, sizeDp)
+                            LayoutSize(sizeDp, sizeDp) +
+                            onPositioned { coordinates ->
+                                childSize[0] = coordinates.size
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                drawLatch.countDown()
+                            }
                 ) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childSize[0] = coordinates.size
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
                 }
 
-                Stack(LayoutPadding(end = padding3Dp) + LayoutSize(sizeDp, sizeDp)) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childSize[1] = coordinates.size
-                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
+                Stack(LayoutPadding(end = padding3Dp) + LayoutSize(sizeDp, sizeDp) +
+                        onPositioned { coordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
                 }
 
                 Stack(
                     LayoutPadding(start = padding1Dp) +
-                            LayoutSize(sizeDp, sizeDp)
+                            LayoutSize(sizeDp, sizeDp) +
+                            onPositioned { coordinates ->
+                                childSize[2] = coordinates.size
+                                childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                drawLatch.countDown()
+                            }
                 ) {
-                    OnPositioned(onPositioned = { coordinates ->
-                        childSize[2] = coordinates.size
-                        childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                        drawLatch.countDown()
-                    })
                 }
             }
         }
@@ -291,13 +291,12 @@ class LayoutPaddingTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     val children = @Composable {
-                        Container {
-                            OnPositioned(onPositioned = { coordinates ->
-                                childSize = coordinates.size
-                                childPosition =
-                                    coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            })
+                        Container(onPositioned { coordinates ->
+                            childSize = coordinates.size
+                            childPosition =
+                                coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
                         }
                     }
                     paddingContainer(children)
@@ -336,13 +335,12 @@ class LayoutPaddingTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     val children = @Composable {
-                        Container {
-                            OnPositioned(onPositioned = { coordinates ->
-                                childSize = coordinates.size
-                                childPosition =
-                                    coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            })
+                        Container(onPositioned { coordinates ->
+                            childSize = coordinates.size
+                            childPosition =
+                                coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
                         }
                     }
                     paddingContainer(children)
@@ -388,12 +386,11 @@ class LayoutPaddingTest : LayoutTest() {
             Center {
                 ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
                     paddingContainer {
-                        Container {
-                            OnPositioned(onPositioned = { coordinates ->
-                                childSize = coordinates.size
-                                childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            })
+                        Container(onPositioned { coordinates ->
+                            childSize = coordinates.size
+                            childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
                         }
                     }
                 }

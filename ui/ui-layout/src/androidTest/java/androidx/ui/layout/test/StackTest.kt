@@ -19,8 +19,8 @@ package androidx.ui.layout.test
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -61,26 +61,27 @@ class StackTest : LayoutTest() {
         val positionedChildPosition = Ref<PxPosition>()
         show {
             Align(alignment = Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    stackSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Stack {
-                        Container(LayoutGravity.BottomEnd, width = sizeDp, height = sizeDp) {
-                            SaveLayoutInfo(
-                                size = alignedChildSize,
-                                position = alignedChildPosition,
-                                positionedLatch = positionedLatch
-                            )
-                        }
+                Stack {
+                    Container(
+                        LayoutGravity.BottomEnd + saveLayoutInfo(
+                            size = alignedChildSize,
+                            position = alignedChildPosition,
+                            positionedLatch = positionedLatch
+                        ) + onPositioned { coordinates ->
+                            stackSize.value = coordinates.size
+                            positionedLatch.countDown()
+                        }, width = sizeDp, height = sizeDp
+                    ) {
+                    }
 
-                        Container(LayoutGravity.Stretch + LayoutPadding(10.dp)) {
-                            SaveLayoutInfo(
-                                size = positionedChildSize,
-                                position = positionedChildPosition,
-                                positionedLatch = positionedLatch
-                            )
-                        }
+                    Container(
+                        LayoutGravity.Stretch + LayoutPadding(10.dp) +
+                                saveLayoutInfo(
+                                    size = positionedChildSize,
+                                    position = positionedChildPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                    ) {
                     }
                 }
             }
@@ -107,33 +108,33 @@ class StackTest : LayoutTest() {
         val childPosition = arrayOf(Ref<PxPosition>(), Ref<PxPosition>())
         show {
             Align(alignment = Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    stackSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Stack {
+                    Stack(onPositioned { coordinates ->
+                        stackSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }) {
                         Container(
-                            modifier = LayoutGravity.BottomEnd, width = sizeDp, height = sizeDp
+                            modifier = LayoutGravity.BottomEnd +
+                                    saveLayoutInfo(
+                                        size = childSize[0],
+                                        position = childPosition[0],
+                                        positionedLatch = positionedLatch
+                                    ),
+                            width = sizeDp,
+                            height = sizeDp
                         ) {
-                            SaveLayoutInfo(
-                                size = childSize[0],
-                                position = childPosition[0],
-                                positionedLatch = positionedLatch
-                            )
                         }
                         Container(
-                            modifier = LayoutGravity.BottomEnd,
+                            modifier = LayoutGravity.BottomEnd +
+                                    saveLayoutInfo(
+                                        size = childSize[1],
+                                        position = childPosition[1],
+                                        positionedLatch = positionedLatch
+                                    ),
                             width = doubleSizeDp,
                             height = doubleSizeDp
                         ) {
-                            SaveLayoutInfo(
-                                size = childSize[1],
-                                position = childPosition[1],
-                                positionedLatch = positionedLatch
-                            )
                         }
                     }
-                }
             }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
@@ -159,73 +160,67 @@ class StackTest : LayoutTest() {
         val childPosition = Array(5) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
+                Stack(onPositioned { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Stack {
-                        Container(LayoutGravity.Center, width = sizeDp, height = sizeDp) {
-                            SaveLayoutInfo(
-                                size = childSize[0],
-                                position = childPosition[0],
-                                positionedLatch = positionedLatch
-                            )
-                        }
-                        Container(
-                            LayoutGravity.Stretch + LayoutPadding(
-                                start = insetDp,
-                                top = insetDp
-                            ),
-                            width = halfSizeDp,
-                            height = halfSizeDp
-                        ) {
-                            SaveLayoutInfo(
-                                size = childSize[1],
-                                position = childPosition[1],
-                                positionedLatch = positionedLatch
-                            )
-                        }
-                        Container(
-                            LayoutGravity.Stretch + LayoutPadding(
-                                end = insetDp,
-                                bottom = insetDp
-                            ),
-                            width = halfSizeDp,
-                            height = halfSizeDp
-                        ) {
-                            SaveLayoutInfo(
-                                size = childSize[2],
-                                position = childPosition[2],
-                                positionedLatch = positionedLatch
-                            )
-                        }
-                        Container(
-                            LayoutGravity.Stretch + LayoutPadding(
-                                start = insetDp,
-                                end = insetDp
-                            ),
-                            width = halfSizeDp,
-                            height = halfSizeDp) {
-                            SaveLayoutInfo(
-                                size = childSize[3],
-                                position = childPosition[3],
-                                positionedLatch = positionedLatch
-                            )
-                        }
-                        Container(
-                            LayoutGravity.Stretch + LayoutPadding(
-                                top = insetDp,
-                                bottom = insetDp
-                            ),
-                            width = halfSizeDp,
-                            height = halfSizeDp
-                        ) {
-                            SaveLayoutInfo(
-                                size = childSize[4],
-                                position = childPosition[4],
-                                positionedLatch = positionedLatch
-                            )
-                        }
+                    Container(LayoutGravity.Center + saveLayoutInfo(
+                        size = childSize[0],
+                        position = childPosition[0],
+                        positionedLatch = positionedLatch
+                    ), width = sizeDp, height = sizeDp
+                    ) {
+                    }
+                    Container(
+                        LayoutGravity.Stretch + LayoutPadding(
+                            start = insetDp,
+                            top = insetDp
+                        ) + saveLayoutInfo(
+                            size = childSize[1],
+                            position = childPosition[1],
+                            positionedLatch = positionedLatch
+                        ),
+                        width = halfSizeDp,
+                        height = halfSizeDp
+                    ) {
+                    }
+                    Container(
+                        LayoutGravity.Stretch + LayoutPadding(
+                            end = insetDp,
+                            bottom = insetDp
+                        ) + saveLayoutInfo(
+                            size = childSize[2],
+                            position = childPosition[2],
+                            positionedLatch = positionedLatch
+                        ),
+                        width = halfSizeDp,
+                        height = halfSizeDp
+                    ) {
+                    }
+                    Container(
+                        LayoutGravity.Stretch + LayoutPadding(
+                            start = insetDp,
+                            end = insetDp
+                        ) + saveLayoutInfo(
+                            size = childSize[3],
+                            position = childPosition[3],
+                            positionedLatch = positionedLatch
+                        ),
+                        width = halfSizeDp,
+                        height = halfSizeDp) {
+                    }
+                    Container(
+                        LayoutGravity.Stretch + LayoutPadding(
+                            top = insetDp,
+                            bottom = insetDp
+                        ) + saveLayoutInfo(
+                            size = childSize[4],
+                            position = childPosition[4],
+                            positionedLatch = positionedLatch
+                        ),
+                        width = halfSizeDp,
+                        height = halfSizeDp
+                    ) {
                     }
                 }
             }
@@ -258,74 +253,92 @@ class StackTest : LayoutTest() {
         val childPosition = Array(9) { Ref<PxPosition>() }
         show {
             Stack(LayoutAlign.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    stackSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    Stack(LayoutDirectionModifier.Rtl + LayoutSize(tripleSizeDp, tripleSizeDp)) {
-                            Stack(LayoutGravity.TopStart + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                Stack(LayoutDirectionModifier.Rtl + LayoutSize(tripleSizeDp, tripleSizeDp) +
+                        onPositioned { coordinates ->
+                            stackSize.value = coordinates.size
+                            positionedLatch.countDown()
+                        }
+                ) {
+                    Stack(
+                        LayoutGravity.TopStart + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[0],
                                     position = childPosition[0],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.TopCenter + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.TopCenter + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[1],
                                     position = childPosition[1],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.TopEnd + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.TopEnd + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[2],
                                     position = childPosition[2],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.CenterStart + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.CenterStart + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[3],
                                     position = childPosition[3],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.Center + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.Center + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[4],
                                     position = childPosition[4],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.CenterEnd + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.CenterEnd + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[5],
                                     position = childPosition[5],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.BottomStart + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.BottomStart + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[6],
                                     position = childPosition[6],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.BottomCenter + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.BottomCenter + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[7],
                                     position = childPosition[7],
                                     positionedLatch = positionedLatch
                                 )
-                            }
-                            Stack(LayoutGravity.BottomEnd + LayoutSize(sizeDp, sizeDp)) {
-                                SaveLayoutInfo(
+                    ) {
+                    }
+                    Stack(
+                        LayoutGravity.BottomEnd + LayoutSize(sizeDp, sizeDp) +
+                                saveLayoutInfo(
                                     size = childSize[8],
                                     position = childPosition[8],
                                     positionedLatch = positionedLatch
                                 )
-                            }
+                    ) {
                     }
                 }
             }
@@ -357,30 +370,28 @@ class StackTest : LayoutTest() {
         val childPosition = Array(2) { Ref<PxPosition>() }
         show {
             Align(alignment = Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
+                Container(LayoutSize(sizeDp, sizeDp) + onPositioned { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Container(LayoutSize(sizeDp, sizeDp)) {
-                        Stack {
-                            Container(LayoutSize.Fill) {
-                                SaveLayoutInfo(
-                                    size = childSize[0],
-                                    position = childPosition[0],
-                                    positionedLatch = positionedLatch
-                                )
-                            }
-                            Container(
-                                LayoutGravity.BottomEnd,
-                                width = halfSizeDp,
-                                height = halfSizeDp
-                            ) {
-                                SaveLayoutInfo(
-                                    size = childSize[1],
-                                    position = childPosition[1],
-                                    positionedLatch = positionedLatch
-                                )
-                            }
+                    Stack {
+                        Container(LayoutSize.Fill +
+                            saveLayoutInfo(
+                                size = childSize[0],
+                                position = childPosition[0],
+                                positionedLatch = positionedLatch
+                            )
+                        ) {
+                        }
+                        Container(
+                            LayoutGravity.BottomEnd + saveLayoutInfo(
+                                size = childSize[1],
+                                position = childPosition[1],
+                                positionedLatch = positionedLatch
+                            ),
+                            width = halfSizeDp,
+                            height = halfSizeDp
+                        ) {
                         }
                     }
                 }
