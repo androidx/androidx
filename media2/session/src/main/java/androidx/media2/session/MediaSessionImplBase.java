@@ -341,7 +341,8 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
     }
 
-    private int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
         int stream;
         if (attrs == null) {
             stream = AudioManager.STREAM_MUSIC;
@@ -1528,6 +1529,14 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             }
             if (!ObjectsCompat.equals(newInfo, oldInfo)) {
                 session.notifyPlaybackInfoChangedNotLocked(newInfo);
+                if (!(player instanceof RemoteSessionPlayer)) {
+                    int oldStreamType = getLegacyStreamType(
+                            oldInfo == null ? null : oldInfo.getAudioAttributes());
+                    int newStreamType = getLegacyStreamType(newInfo.getAudioAttributes());
+                    if (oldStreamType != newStreamType) {
+                        session.getSessionCompat().setPlaybackToLocal(newStreamType);
+                    }
+                }
             }
         }
 
