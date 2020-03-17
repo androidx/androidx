@@ -37,7 +37,7 @@ buildscript {
     dependencies {
         classpath("org.apache.maven:maven-model:3.5.4")
         classpath("org.apache.maven:maven-model-builder:3.5.4")
-        classpath("com.squareup.okhttp3:okhttp:3.11.0")
+        classpath("com.squareup.okhttp3:okhttp:3.14.7")
         classpath("javax.inject:javax.inject:1")
     }
 }
