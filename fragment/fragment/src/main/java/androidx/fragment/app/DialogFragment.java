@@ -40,6 +40,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.core.view.LayoutInflaterCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -130,12 +132,29 @@ public class DialogFragment extends Fragment
     private boolean mShowsDialog = true;
     private int mBackStackId = -1;
     private boolean mCreatingDialog;
+    private Observer<LifecycleOwner> mObserver = new Observer<LifecycleOwner>() {
+        @SuppressLint("SyntheticAccessor")
+        @Override
+        public void onChanged(LifecycleOwner lifecycleOwner) {
+            if (lifecycleOwner != null) {
+                View view = requireView();
+                if (view.getParent() != null) {
+                    throw new IllegalStateException(
+                            "DialogFragment can not be attached to a container view");
+                }
+                if (mDialog != null) {
+                    mDialog.setContentView(view);
+                }
+            }
+        }
+    };
 
     @Nullable
     private Dialog mDialog;
     private boolean mViewDestroyed;
     private boolean mDismissed;
     private boolean mShownByMe;
+    private boolean mDialogCreated = false;
 
 
     /**
@@ -392,6 +411,7 @@ public class DialogFragment extends Fragment
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        getViewLifecycleOwnerLiveData().observe(this, mObserver);
         if (!mShownByMe) {
             // If not explicitly shown through our API, take this as an
             // indication that the dialog is no longer dismissed.
@@ -409,6 +429,7 @@ public class DialogFragment extends Fragment
             // art now dismissed.  Have fun.
             mDismissed = true;
         }
+        getViewLifecycleOwnerLiveData().removeObserver(mObserver);
     }
 
     @MainThread
@@ -443,13 +464,7 @@ public class DialogFragment extends Fragment
             return super.onGetLayoutInflater(savedInstanceState);
         }
 
-        try {
-            mCreatingDialog = true;
-            mDialog = onCreateDialog(savedInstanceState);
-            setupDialog(mDialog, mStyle);
-        } finally {
-            mCreatingDialog = false;
-        }
+        prepareDialog(savedInstanceState);
 
         LayoutInflater layoutInflater = LayoutInflater.from(mDialog.getContext());
         LayoutInflaterCompat.setFactory2(layoutInflater,
@@ -517,38 +532,35 @@ public class DialogFragment extends Fragment
         }
     }
 
-    @MainThread
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+    private void prepareDialog(@Nullable Bundle savedInstanceState) {
         if (!mShowsDialog) {
             return;
         }
 
-        View view = getView();
-        if (mDialog != null) {
-            if (view != null) {
-                if (view.getParent() != null) {
-                    throw new IllegalStateException(
-                            "DialogFragment can not be attached to a container view");
+        if (!mDialogCreated) {
+            try {
+                mCreatingDialog = true;
+                mDialog = onCreateDialog(savedInstanceState);
+                setupDialog(mDialog, mStyle);
+                final Activity activity = getActivity();
+                if (activity != null) {
+                    mDialog.setOwnerActivity(activity);
                 }
-                mDialog.setContentView(view);
-            }
-            final Activity activity = getActivity();
-            if (activity != null) {
-                mDialog.setOwnerActivity(activity);
-            }
-            mDialog.setCancelable(mCancelable);
-            mDialog.setOnCancelListener(mOnCancelListener);
-            mDialog.setOnDismissListener(mOnDismissListener);
-            if (savedInstanceState != null) {
-                Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
-                if (dialogState != null) {
-                    mDialog.onRestoreInstanceState(dialogState);
+                mDialog.setCancelable(mCancelable);
+                mDialog.setOnCancelListener(mOnCancelListener);
+                mDialog.setOnDismissListener(mOnDismissListener);
+                if (savedInstanceState != null) {
+                    Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
+                    if (dialogState != null) {
+                        mDialog.onRestoreInstanceState(dialogState);
+                    }
                 }
+            } finally {
+                mCreatingDialog = false;
             }
         }
+
+        mDialogCreated = true;
     }
 
     @MainThread
@@ -619,6 +631,7 @@ public class DialogFragment extends Fragment
                 onDismiss(mDialog);
             }
             mDialog = null;
+            mDialogCreated = false;
         }
     }
 }
