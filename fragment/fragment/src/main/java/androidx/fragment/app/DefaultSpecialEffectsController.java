@@ -87,16 +87,21 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // TODO Pipe this information in from the actual transactions being done
         boolean isPop = !operations.isEmpty()
                 && operations.get(operations.size() - 1).getType() == Operation.Type.REMOVE;
+        List<AnimationInfo> animations = new ArrayList<>();
         List<TransitionInfo> transitions = new ArrayList<>();
 
         for (final Operation operation : operations) {
             // Create the animation CancellationSignal
             CancellationSignal animCancellationSignal = new CancellationSignal();
             addCancellationSignal(operation, animCancellationSignal);
+            // Add the animation special effect
+            animations.add(new AnimationInfo(operation, animCancellationSignal));
 
             // Create the transition CancellationSignal
             CancellationSignal transitionCancellationSignal = new CancellationSignal();
             addCancellationSignal(operation, transitionCancellationSignal);
+            // Add the transition special effect
+            transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop));
 
             // Ensure that when the Operation is cancelled, we cancel all special effects
             operation.getCancellationSignal().setOnCancelListener(
@@ -106,16 +111,15 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                             cancelAllSpecialEffects(operation);
                         }
                     });
-
-            // Start animation special effects
-            startAnimation(operation, animCancellationSignal);
-
-            // Fill in transitions
-            transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop));
         }
 
         // Start transition special effects
         startTransitions(transitions);
+
+        // Start animation special effects
+        for (AnimationInfo animationInfo : animations) {
+            startAnimation(animationInfo.getOperation(), animationInfo.getSignal());
+        }
     }
 
     private void startAnimation(final @NonNull Operation operation,
@@ -253,6 +257,28 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             }
             // Now actually start the transition
             transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+        }
+    }
+
+    private static class AnimationInfo {
+        @NonNull
+        private final Operation mOperation;
+        @NonNull
+        private final CancellationSignal mSignal;
+
+        AnimationInfo(@NonNull Operation operation, @NonNull CancellationSignal signal) {
+            mOperation = operation;
+            mSignal = signal;
+        }
+
+        @NonNull
+        Operation getOperation() {
+            return mOperation;
+        }
+
+        @NonNull
+        CancellationSignal getSignal() {
+            return mSignal;
         }
     }
 
