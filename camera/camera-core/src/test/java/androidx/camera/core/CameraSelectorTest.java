@@ -79,13 +79,11 @@ public class CameraSelectorTest {
                         CameraSelector.LENS_FACING_BACK));
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, REAR_ID, () -> mRearCamera);
         mCameras.add(mRearCamera);
-        cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_BACK, REAR_ID);
         mFrontCamera = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(FRONT_ROTATION_DEGREE,
                         CameraSelector.LENS_FACING_FRONT));
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, FRONT_ID, () -> mFrontCamera);
         mCameras.add(mFrontCamera);
-        cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT, FRONT_ID);
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactoryProvider((ignored1, ignored2) -> cameraFactory)

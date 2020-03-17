@@ -40,11 +40,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.content.Context;
 import android.graphics.Rect;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Handler;
@@ -53,7 +50,6 @@ import android.os.HandlerThread;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
@@ -65,7 +61,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.core.os.HandlerCompat;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -100,13 +95,9 @@ public final class Camera2CameraControlTest {
     private boolean mHasFlashUnit;
 
     @Before
-    public void setUp() throws InterruptedException, CameraAccessException,
-            CameraInfoUnavailableException {
+    public void setUp() throws InterruptedException {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraManager cameraManager = (CameraManager) context.getSystemService(
-                Context.CAMERA_SERVICE);
         mCameraCharacteristics = CameraUtil.getCameraCharacteristics(
                 CameraSelector.LENS_FACING_BACK);
         Boolean hasFlashUnit =

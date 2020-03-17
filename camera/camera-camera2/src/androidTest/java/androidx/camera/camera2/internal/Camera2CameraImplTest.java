@@ -132,16 +132,6 @@ public final class Camera2CameraImplTest {
     String mCameraId;
     SemaphoreReleasingCamera2Callbacks.SessionStateCallback mSessionStateCallback;
 
-    private static String getCameraIdForLensFacingUnchecked(
-            @CameraSelector.LensFacing int lensFacing) {
-        try {
-            return sCameraFactory.cameraIdForLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing " + lensFacing, e);
-        }
-    }
-
     @BeforeClass
     public static void classSetup() {
         sCameraHandlerThread = new HandlerThread("cameraThread");
@@ -162,8 +152,7 @@ public final class Camera2CameraImplTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
-
-        mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
+        mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
         mSemaphore = new Semaphore(0);
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         mCamera2CameraImpl = new Camera2CameraImpl(
@@ -788,7 +777,7 @@ public final class Camera2CameraImplTest {
             Integer lensFacing =
                     cameraSelector.getLensFacing() == null ? CameraSelector.LENS_FACING_BACK :
                             cameraSelector.getLensFacing();
-            mCameraId = getCameraIdForLensFacingUnchecked(lensFacing);
+            mCameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing);
             onAttach(new FakeCamera(mCameraId, null,
                     new FakeCameraInfoInternal(mCameraId, 0, lensFacing)));
             updateSuggestedResolution(new Size(640, 480));

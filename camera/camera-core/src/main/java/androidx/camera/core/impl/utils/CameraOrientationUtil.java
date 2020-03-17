@@ -97,4 +97,38 @@ public final class CameraOrientationUtil {
 
         return rotationDegrees;
     }
+
+    /**
+     * Converts rotation degrees to their equivalent in values enumerated in {@link Surface}.
+     *
+     * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
+     * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+     *
+     * @param degrees The rotation value in degrees.
+     * @return One of the enumerated rotation values from {@link Surface}.
+     * @throws IllegalArgumentException If the provided rotation degrees doesn't fall into any
+     *                                  one of those defined in {@link Surface}.
+     */
+    @RotationValue
+    public static int degreesToSurfaceRotation(int degrees) {
+        int surfaceRotation = Surface.ROTATION_0;
+        switch (degrees) {
+            case 0:
+                surfaceRotation = Surface.ROTATION_0;
+                break;
+            case 90:
+                surfaceRotation = Surface.ROTATION_90;
+                break;
+            case 180:
+                surfaceRotation = Surface.ROTATION_180;
+                break;
+            case 270:
+                surfaceRotation = Surface.ROTATION_270;
+                break;
+            default:
+                throw new IllegalStateException("Invalid sensor rotation: " + degrees);
+        }
+
+        return surfaceRotation;
+    }
 }

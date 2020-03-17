@@ -522,15 +522,11 @@ public final class Camera2DeviceSurfaceManagerTest {
         addCamera(
                 LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null,
                 CameraCharacteristics.LENS_FACING_FRONT);
-        mCameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT,
-                LEGACY_CAMERA_ID);
 
         addCamera(
                 LIMITED_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 null,
                 CameraCharacteristics.LENS_FACING_BACK);
-        mCameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_BACK,
-                LIMITED_CAMERA_ID);
 
         addCamera(
                 FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null,
