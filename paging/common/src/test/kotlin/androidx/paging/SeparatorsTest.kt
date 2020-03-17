@@ -118,7 +118,7 @@ class SeparatorsTest {
                     placeholdersEnd = 1,
                     loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
                 )
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -176,7 +176,7 @@ class SeparatorsTest {
                     placeholdersStart = 1,
                     loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
                 )
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -234,7 +234,7 @@ class SeparatorsTest {
                     placeholdersEnd = 1,
                     loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
                 )
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -288,7 +288,7 @@ class SeparatorsTest {
                     1,
                     4
                 )
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -340,7 +340,7 @@ class SeparatorsTest {
             ),
             flowOf(
                 refresh(pages = listOf("a1"))
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
     @Test
@@ -351,7 +351,7 @@ class SeparatorsTest {
             ),
             flowOf(
                 refresh(pages = listOf("a1"), start = Done)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -363,7 +363,7 @@ class SeparatorsTest {
             ),
             flowOf(
                 refresh(pages = listOf("a1"), end = Done)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -375,7 +375,7 @@ class SeparatorsTest {
             ),
             flowOf(
                 refresh(pages = listOf("a1"), start = Done, end = Done)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -388,7 +388,7 @@ class SeparatorsTest {
             ),
             flowOf(
                 refresh(pages = listOf())
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -410,7 +410,7 @@ class SeparatorsTest {
                 end(pages = listOf("a1")),
                 end(pages = listOf()),
                 end(pages = listOf(), end = Done)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -432,7 +432,7 @@ class SeparatorsTest {
                 start(pages = listOf("a1")),
                 start(pages = listOf()),
                 start(pages = listOf(), start = Done)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -452,7 +452,7 @@ class SeparatorsTest {
                 drop(loadType = START, count = 0),
                 end(pages = listOf("a1")),
                 start(pages = listOf(), start = Done)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -472,7 +472,7 @@ class SeparatorsTest {
                 drop(loadType = END, count = 0),
                 start(pages = listOf("a1")),
                 end(pages = listOf(), end = Done)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -487,7 +487,7 @@ class SeparatorsTest {
             flowOf(
                 refresh(pages = listOf()),
                 start(pages = listOf("a1"))
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -502,7 +502,7 @@ class SeparatorsTest {
             flowOf(
                 refresh(pages = listOf()),
                 end(pages = listOf("a1"))
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -547,7 +547,7 @@ class SeparatorsTest {
             flowOf(
                 refresh(pages = listOf("a1", "b1"), start = Done),
                 drop(loadType = START, count = 1)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -592,7 +592,7 @@ class SeparatorsTest {
             flowOf(
                 refresh(pages = listOf("a1", "b1"), end = Done),
                 drop(loadType = END, count = 1)
-            ).insertSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
@@ -625,8 +625,8 @@ class SeparatorsTest {
                     placeholdersEnd = 1,
                     loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
                 )
-            ).insertSeparators<PrimaryType, Base> { before, after ->
-                return@insertSeparators (if (before != null && after != null) {
+            ).insertEventSeparators<PrimaryType, Base> { before, after ->
+                return@insertEventSeparators (if (before != null && after != null) {
                     SeparatorType("B")
                 } else null)
             }.toList()

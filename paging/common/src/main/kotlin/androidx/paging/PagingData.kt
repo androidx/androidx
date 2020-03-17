@@ -228,7 +228,7 @@ fun <T : R, R : Any> PagingData<T>.insertSeparators(
     //     class ItemModel: UiModel
     //     class SeparatorModel: UiModel
     return PagingData(
-        flow = flow.insertSeparators(generator),
+        flow = flow.insertEventSeparators(generator),
         receiver = receiver
     )
 }
