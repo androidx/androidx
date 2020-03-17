@@ -643,6 +643,38 @@ class WithConstraintsTest {
         assertEquals(LayoutDirection.Rtl, resultLayoutDirection)
     }
 
+    @Test
+    fun withConstraintsChildIsMeasuredEvenWithDefaultConstraints() {
+        val compositionLatch = CountDownLatch(1)
+        val childMeasureLatch = CountDownLatch(1)
+        val zeroConstraints = Constraints.fixed(0.ipx, 0.ipx)
+        rule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(measureBlock = { measurables, _, _ ->
+                    layout(0.ipx, 0.ipx) {
+                        // there was a bug when the child of WithConstraints wasn't marking
+                        // needsRemeasure and it was only measured because the constraints
+                        // have been changed. to verify needRemeasure is true we measure the
+                        // children with the default zero constraints so it will be equals to the
+                        // initial constraints
+                        measurables.first().measure(zeroConstraints).place(0.ipx, 0.ipx)
+                    }
+                }, children = {
+                    WithConstraints { _, _ ->
+                        compositionLatch.countDown()
+                        Layout(children = {}) { _, _, _ ->
+                            childMeasureLatch.countDown()
+                            layout(0.ipx, 0.ipx) {}
+                        }
+                    }
+                })
+            }
+        }
+
+        assertTrue(compositionLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(childMeasureLatch.await(1, TimeUnit.SECONDS))
+    }
+
     private fun takeScreenShot(size: Int): Bitmap {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = rule.waitAndScreenShot()
