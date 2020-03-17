@@ -112,8 +112,8 @@ private fun estimateCriticallyDamped(
     val t1 = ln(abs(delta / c1)) / r
     val t2 = t2Iterate(ln(abs(delta / c2)), r) / r
     var tCurr = when {
-        t1.isNaN() -> t2
-        t2.isNaN() -> t1
+        t1.isNotFinite() -> t2
+        t2.isNotFinite() -> t1
         else -> max(t1, t2)
     }
 
@@ -182,8 +182,8 @@ private fun estimateOverDamped(
     val t2 = ln(abs(delta / c2)) / r2
 
     var tCurr = when {
-        t1.isNaN() -> t2
-        t2.isNaN() -> t1
+        t1.isNotFinite() -> t2
+        t2.isNotFinite() -> t1
         else -> max(t1, t2)
     }
 
@@ -284,3 +284,5 @@ private inline fun iterateNewtonsMethod(
 ): Double {
     return x - fn(x) / fnPrime(x)
 }
+
+private fun Double.isNotFinite() = !this.isFinite()

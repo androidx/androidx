@@ -37,9 +37,11 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
             return mutableListOf<Array<out Any>>().apply {
                 (1..100 step 2).map { it * it }.forEach { m ->
                     (1..1000 step 20).map { it * it }.forEach { k ->
-                        add(arrayOf(m, k))
+                        add(arrayOf(m.toDouble(), k.toDouble()))
                     }
                 }
+                // Additional edge cases to test for
+                add(arrayOf(10_000.0, 1.0))
             }
         }
     }
@@ -153,7 +155,6 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         val testCases = mutableListOf<TestCase>()
 
         // Generate general test cases that broadly cover the over and under damped test cases
-
         for (c in 1..10_000 step 500) {
             for (v0 in -200_000..200_000 step 100_000) {
                 for (p0 in -10_000..10_000 step 100) {
