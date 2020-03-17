@@ -32,15 +32,16 @@ import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
+import androidx.compose.NeverEqual
 import androidx.compose.Observe
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
 import androidx.compose.Untracked
 import androidx.compose.ambientOf
 import androidx.compose.compositionReference
-import androidx.compose.invalidate
 import androidx.compose.onPreCommit
 import androidx.compose.remember
+import androidx.compose.state
 import androidx.compose.staticAmbientOf
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -287,7 +288,7 @@ fun subcomposeInto(
 ): Composition {
     val composition = findComposition(container)
         ?: UiComposition(container, context, parent)
-        composition.compose(composable)
+    composition.compose(composable)
     return composition
 }
 
@@ -339,12 +340,12 @@ fun ComposeView(children: @Composable() () -> Unit) {
         // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
         val coroutineContext = Dispatchers.Main
         cc = subcomposeInto(
-                container = rootLayoutNode,
-                context = context,
-                parent = reference
-            ) @Untracked {
-                WrapWithAmbients(rootRef.value!!, context, coroutineContext, children)
-            }
+            container = rootLayoutNode,
+            context = context,
+            parent = reference
+        ) @Untracked {
+            WrapWithAmbients(rootRef.value!!, context, coroutineContext, children)
+        }
     }
 }
 
@@ -467,14 +468,18 @@ private fun WrapWithAmbients(
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidComposeView case
     val focusManager = remember { FocusManager() }
-    val configuration = context.applicationContext.resources.configuration
+    var configuration by state(NeverEqual) {
+        context.applicationContext.resources.configuration
+    }
 
     // onConfigurationChange is the correct hook to update configuration, however it is
     // possible that the configuration object itself may come from a wrapped
     // context / themed activity, and may not actually reflect the system. So instead we
     // use this hook to grab the applicationContext's configuration, which accurately
     // reflects the state of the application / system.
-    composeView.configurationChangeObserver = invalidate
+    composeView.configurationChangeObserver = {
+        configuration = context.applicationContext.resources.configuration
+    }
 
     // We don't use the attached View's layout direction here since that layout direction may not
     // be resolved since the composables may be composed without attaching to the RootViewImpl.
@@ -500,7 +505,7 @@ private fun WrapWithAmbients(
         FontLoaderAmbient provides composeView.fontLoader,
         HapticFeedBackAmbient provides composeView.hapticFeedBack,
         AutofillTreeAmbient provides composeView.autofillTree,
-        ConfigurationAmbient provides context.applicationContext.resources.configuration,
+        ConfigurationAmbient provides configuration,
         AndroidComposeViewAmbient provides composeView,
         LayoutDirectionAmbient provides layoutDirection,
         AnimationClockAmbient provides rootAnimationClock,
@@ -515,7 +520,7 @@ val DensityAmbient = ambientOf<Density>(StructurallyEqual)
 
 val CoroutineContextAmbient = ambientOf<CoroutineContext>()
 
-val ConfigurationAmbient = ambientOf<Configuration>(StructurallyEqual)
+val ConfigurationAmbient = ambientOf<Configuration>(NeverEqual)
 
 // TODO(b/139866476): The AndroidComposeView should not be exposed via ambient
 val AndroidComposeViewAmbient = staticAmbientOf<AndroidComposeView>()
