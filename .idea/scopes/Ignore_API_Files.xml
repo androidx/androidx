@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Ignore API Files" pattern="!file[*]:api//*.txt" />
+</component>
