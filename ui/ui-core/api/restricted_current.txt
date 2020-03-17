@@ -256,6 +256,21 @@ package androidx.ui.core {
     field public static final androidx.ui.core.Modifier.None! INSTANCE;
   }
 
+  public interface OnChildPositionedModifier extends androidx.ui.core.Modifier.Element {
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> getOnChildPositioned();
+    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned;
+  }
+
+  public interface OnPositionedModifier extends androidx.ui.core.Modifier.Element {
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> getOnPositioned();
+    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned;
+  }
+
+  public final class OnPositionedModifierKt {
+    method public static androidx.ui.core.Modifier onChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned);
+    method public static androidx.ui.core.Modifier onPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
+  }
+
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
     method public default Object? modifyParentData(androidx.ui.unit.Density, Object? parentData);
   }
