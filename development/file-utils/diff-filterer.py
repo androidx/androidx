@@ -352,7 +352,7 @@ class FilesState(object):
       children = children[0].groupByDirs(False)
     if len(children) > maxNumChildren:
       # If there are lots of child directories, we still want to test a smaller number of larger groups before testing smaller groups
-      # So we arbitarily recombine child directories to make a smaller number of children
+      # So we arbitrarily recombine child directories to make a smaller number of children
       minIndex = 0
       mergedChildren = []
       for i in range(maxNumChildren):
@@ -643,13 +643,12 @@ class Job(object):
     try:
       succeeded = self.run()
     finally:
-      print("Child " + str(self.pipe.identifier) + " completed")
-      print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+      print("^" * 100)
       self.pipe.writerQueue.put((self.pipe.identifier, succeeded))
 
   def run(self):
-    print("##############################################################################################################################################################################################")
-    print("Checking candidateState id " + str(self.pipe.identifier) + " in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
+    print("#" * 100)
+    print("Checking " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
     # set file state
     if not self.assumeNoSideEffects:
       fileIo.removePath(self.workPath)
@@ -666,10 +665,10 @@ class Job(object):
 
     # report results
     if returnCode == 0:
-      print("shell command for job " + str(self.pipe.identifier) + " succeeded in " + str(duration) + " at " + str(now))
+      print("Passed: " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
       return True
     else:
-      print("shell command for job " + str(self.pipe.identifier) + " failed in " + str(duration) + " at " + str(now))
+      print("Failed: " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
       return False
 
 
@@ -734,7 +733,7 @@ class DiffRunner(object):
       return (False, duration)
 
   def onSuccess(self, testState):
-    print("Runner received success of testState: " + str(testState.summarize()))
+    #print("Runner received success of testState: " + str(testState.summarize()))
     if debug:
       if not filesStateFromTree(self.bestState_path).checkSameKeys(self.full_resetTo_state.withoutEmptyEntries()):
         print("Contents of " + self.bestState_path + " don't match self.full_resetTo_state at beginning of onSuccess")
@@ -807,7 +806,7 @@ class DiffRunner(object):
         if didAcceptState:
           numConsecutiveFailures = 0
           acceptedState = box #.getAllFiles()
-          print("Runner received successful response from job " + str(identifier) + " : " + str(acceptedState.summarize()) + " at " + str(datetime.datetime.now()))
+          #print("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
           maxRunningSize = max([state.size() for state in boxesById.values()])
           maxRelevantSize = maxRunningSize / self.maxNumJobsAtOnce
           if acceptedState.size() < maxRelevantSize:
@@ -832,7 +831,7 @@ class DiffRunner(object):
                 if i != identifier:
                   invalidatedIds.add(i)
         else:
-          print("Received termination response from job " + str(identifier) + " at " + str(datetime.datetime.now()))
+          #print("Failed : " + box.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
           # count failures
           numConsecutiveFailures += 1
           # find any children that failed and queue a re-test of those children
@@ -872,7 +871,7 @@ class DiffRunner(object):
           while jobId in activeJobs:
             jobId += 1
           # start job
-          print("Starting process " + str(jobId) + " testing " + str(box.summarize()) + " at " + str(datetime.datetime.now()))
+          #print("Starting process " + str(jobId) + " testing " + str(box.summarize()) + " at " + str(datetime.datetime.now()))
           workingDir = self.getWorkPath(jobId)
           activeJobs[jobId] = runJobInOtherProcess(self.testScript_path, workingDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
           boxesById[jobId] = box
