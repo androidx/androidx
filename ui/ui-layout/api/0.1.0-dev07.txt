@@ -64,14 +64,21 @@ package androidx.ui.layout {
   public final class AspectRatioKt {
   }
 
-  public final class ColumnScope extends androidx.ui.layout.RowColumnScope {
+  public final class ColumnKt {
+    method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement.Vertical arrangement = Arrangement.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
+  }
+
+  @androidx.ui.layout.LayoutScopeMarker public final class ColumnScope {
+    method public androidx.ui.core.ParentDataModifier LayoutWeight(@FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
     method public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, androidx.ui.core.VerticalAlignmentLine alignmentLine);
+    method public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
     method public androidx.ui.core.ParentDataModifier getCenter(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.ParentDataModifier getEnd(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.ParentDataModifier getStart(androidx.ui.layout.LayoutGravity);
     property public final androidx.ui.core.ParentDataModifier Center;
     property public final androidx.ui.core.ParentDataModifier End;
     property public final androidx.ui.core.ParentDataModifier Start;
+    field public static final androidx.ui.layout.ColumnScope! INSTANCE;
   }
 
   public final class ContainerKt {
@@ -139,11 +146,6 @@ package androidx.ui.layout {
     method public androidx.ui.unit.Dp getLeft();
     method public androidx.ui.unit.Dp getRight();
     method public androidx.ui.unit.Dp getTop();
-  }
-
-  public final class FlexKt {
-    method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement.Vertical arrangement = Arrangement.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
-    method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement.Horizontal arrangement = Arrangement.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
   }
 
   public enum FlowCrossAxisAlignment {
@@ -480,19 +482,24 @@ package androidx.ui.layout {
     method public static androidx.ui.layout.LayoutPadding LayoutPadding(androidx.ui.unit.Dp all);
   }
 
-  @androidx.ui.layout.LayoutScopeMarker public abstract sealed class RowColumnScope {
-    method public final androidx.ui.core.ParentDataModifier LayoutWeight(@FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
-    method public final androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
+  public final class RowColumnImplKt {
   }
 
-  public final class RowScope extends androidx.ui.layout.RowColumnScope {
+  public final class RowKt {
+    method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement.Horizontal arrangement = Arrangement.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+  }
+
+  @androidx.ui.layout.LayoutScopeMarker public final class RowScope {
+    method public androidx.ui.core.ParentDataModifier LayoutWeight(@FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
     method public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, androidx.ui.core.HorizontalAlignmentLine alignmentLine);
+    method public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
     method public androidx.ui.core.ParentDataModifier getBottom(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.ParentDataModifier getCenter(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.ParentDataModifier getTop(androidx.ui.layout.LayoutGravity);
     property public final androidx.ui.core.ParentDataModifier Bottom;
     property public final androidx.ui.core.ParentDataModifier Center;
     property public final androidx.ui.core.ParentDataModifier Top;
+    field public static final androidx.ui.layout.RowScope! INSTANCE;
   }
 
   public enum SizeMode {
