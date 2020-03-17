@@ -744,7 +744,7 @@ public class WebViewCompat {
      */
     // WebViewRenderProcessClient is a callback class, so it should be last. See
     // https://issuetracker.google.com/issues/139770271.
-    @SuppressLint("LambdaLast")
+    @SuppressLint({"LambdaLast", "NewApi"})
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -784,6 +784,7 @@ public class WebViewCompat {
      * @param webViewRenderProcessClient the {@link WebViewRenderProcessClient} to set for
      *                                   callbacks.
      */
+    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -814,6 +815,7 @@ public class WebViewCompat {
      * {@link #setWebViewRenderProcessClient(WebView,WebViewRenderProcessClient)} or {@code null}
      * otherwise.
      */
+    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcessClient getWebViewRenderProcessClient(

@@ -76,7 +76,7 @@ class ComponentInitializerConstructorTest {
             /* ktlint-disable max-line-length */
             .expect(
                 """
-                src/com/example/TestComponentInitializer.kt:5: Error: Missing ComponentInitializer no-arg constructor [EnsureComponentInitializerNoArgConstructor]
+                src/com/example/TestComponentInitializer.kt:5: Error: Missing ComponentInitializer no-arg constructor [EnsureComponentInitializerNoArgConstr]
                 class TestComponentInitializer(val int: Int): ComponentInitializer<Unit> {
                 ^
                 1 errors, 0 warnings
