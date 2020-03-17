@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.material.ripple
 
 import androidx.animation.AnimationClockObservable

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.layout
 
 import androidx.annotation.FloatRange
@@ -37,7 +39,6 @@ import androidx.ui.unit.isFinite
  *
  * @param ratio the desired width/height ratio
  */
-@Suppress("DEPRECATION")
 fun Modifier.aspectRatio(
     @FloatRange(from = 0.0, fromInclusive = false)
     ratio: Float
