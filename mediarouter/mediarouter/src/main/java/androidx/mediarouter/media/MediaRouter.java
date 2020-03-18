@@ -16,10 +16,12 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -684,6 +686,37 @@ public final class MediaRouter {
             }
         }
         return -1;
+    }
+
+    /**
+     * Registers a callback to receive events about media routing changes from the system.
+     * This method will be no-op on API 29 and earlier devices.
+     * <p>
+     * Note: In order to receive the events while the app is in background, do <em>not</em>
+     * unregister this callback on {@link Activity#onStop()}.
+     *
+     * @param callback The callback to add.
+     * @see TransferCallback
+     * @see #removeTransferCallback(TransferCallback)
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void addTransferCallback(@NonNull TransferCallback callback) {
+        // TODO: Implement this
+    }
+
+    /**
+     * Removes the specified callback. It will no longer receive events about media routing
+     * changes from the system. This method will be no-op on API 29 and earlier devices.
+     *
+     * @param callback The callback to remove.
+     * @see TransferCallback
+     * @see #addTransferCallback(TransferCallback)
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void removeTransferCallback(@NonNull TransferCallback callback) {
+        // TODO: Implement this
     }
 
     /**
@@ -2080,6 +2113,38 @@ public final class MediaRouter {
          * Contents depend on the {@link MediaControlIntent media control action}.
          */
         public void onError(String error, Bundle data) {
+        }
+    }
+
+    /**
+     * Interface for receiving events about media routing changes from the system.
+     * From Android R, a user can change the media routing via system UI when the app is in
+     * background.
+     * <p>
+     * Note: In order to receive the events while the app is in background, do <em>not</em>
+     * unregister this callback on {@link Activity#onStop()}.
+     *
+     * @see #addTransferCallback(TransferCallback)
+     * @see #removeTransferCallback(TransferCallback)
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public abstract static class TransferCallback {
+        /**
+         * Called when the media routing is changed to another route.
+         *
+         * @param route The route which the media is now playing on.
+         */
+        public void onTransferred(@NonNull RouteInfo route) {
+        }
+
+        /**
+         * Called when the media routing is stopped. It can be due to the user's request,
+         * or due to the disconnection of the routing device.
+         *
+         * @param route The route which the media was previously playing on.
+         */
+        public void onStopped(@NonNull RouteInfo route) {
         }
     }
 
