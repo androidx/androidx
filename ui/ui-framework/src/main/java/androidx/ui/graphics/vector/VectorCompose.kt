@@ -27,6 +27,7 @@ import androidx.ui.core.draw
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
@@ -48,7 +49,7 @@ private val DefaultAlignment = Alignment.Center
 /**
  * Modifier to draw a vector graphic with the provided width, height and viewport dimensions
  * @param[defaultWidth] Intrinsic width of the Vector in [Dp]
- * @param[defaultHeight] Intrinsic height of hte Vector in [Dp]
+ * @param[defaultHeight] Intrinsic height of the Vector in [Dp]
  * @param[viewportWidth] Width of the viewport space. The viewport is the virtual canvas where
  * paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultWidth] converted to [Px]
@@ -60,6 +61,16 @@ private val DefaultAlignment = Alignment.Center
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
  * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
  */
+@Deprecated("Favor usage of VectorPainter instead",
+    ReplaceWith("VectorPainter(" +
+            "defaultWidth, " +
+            "defaultHeight, " +
+            "viewportWidth, " +
+            "viewportHeight, " +
+            "colorFilter, " +
+            "name"
+    )
+)
 @Composable
 fun drawVector(
     defaultWidth: Dp,
@@ -124,11 +135,11 @@ fun drawVector(
     val vector =
         remember(name, viewportWidth, viewportHeight) {
             VectorComponent(
-                name,
-                viewportWidth,
-                viewportHeight,
-                defaultWidth,
-                defaultHeight
+                name = name,
+                viewportWidth = viewportWidth,
+                viewportHeight = viewportHeight,
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight
             )
         }
 
@@ -165,7 +176,7 @@ fun drawVector(
 
         canvas.withSave {
             canvas.translate(translateX, translateY)
-            vector.draw(canvas, tintColor, tintBlendMode)
+            vector.draw(canvas, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
         }
     }
 }

@@ -27,11 +27,13 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
+import androidx.ui.core.asModifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.graphics.vector.drawVector
+import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutSize
@@ -173,7 +175,8 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
                 Semantics(container = true) {
                     Box(
                         modifier = layoutSize +
-                                drawVector(vectorImage = programmaticVector, tintColor = Color.Red)
+                                VectorPainter(programmaticVector)
+                                    .asModifier(colorFilter = ColorFilter.tint(Color.Red))
                     )
                 }
             }
@@ -181,7 +184,8 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
                 Semantics(container = true) {
                     Box(
                         modifier = layoutSize +
-                                drawVector(vectorImage = xmlVector, tintColor = Color.Red)
+                                VectorPainter(xmlVector)
+                                    .asModifier(colorFilter = ColorFilter.tint(Color.Red))
                     )
                 }
             }

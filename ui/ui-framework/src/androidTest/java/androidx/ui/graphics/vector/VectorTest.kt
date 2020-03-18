@@ -23,15 +23,19 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.asModifier
 import androidx.ui.core.setContent
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.runOnUiThreadIR
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.toArgb
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toPx
 import org.junit.Assert
@@ -129,11 +133,10 @@ class VectorTest {
         alignment: Alignment = Alignment.Center
     ) {
         val sizePx = size.toPx()
-        val background = drawVector(
-            defaultWidth = sizePx,
-            defaultHeight = sizePx,
-            tintColor = Color.Cyan,
-            alignment = alignment) { _, _ ->
+        val sizeDp = (size.value / DensityAmbient.current.density).dp
+        val background = VectorPainter(
+            defaultWidth = sizeDp,
+            defaultHeight = sizeDp) { _, _ ->
             Path(
                 pathData = PathData {
                     lineTo(sizePx.value, 0.0f)
@@ -145,7 +148,7 @@ class VectorTest {
             )
 
             drawLatch.countDown()
-        }
+        }.asModifier(colorFilter = ColorFilter.tint(Color.Cyan), alignment = alignment)
         AtLeastSize(size = minimumSize, modifier = background) {
         }
     }

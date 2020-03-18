@@ -172,6 +172,11 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.ColorFilter copy(androidx.ui.graphics.Color color, androidx.ui.graphics.BlendMode blendMode);
     method public androidx.ui.graphics.BlendMode getBlendMode();
     method public androidx.ui.graphics.Color getColor();
+    field public static final androidx.ui.graphics.ColorFilter.Companion! Companion;
+  }
+
+  public static final class ColorFilter.Companion {
+    method public androidx.ui.graphics.ColorFilter tint(androidx.ui.graphics.Color color);
   }
 
   public final class ColorKt {

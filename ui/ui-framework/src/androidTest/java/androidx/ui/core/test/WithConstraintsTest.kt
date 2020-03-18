@@ -33,19 +33,20 @@ import androidx.ui.core.MeasureBlock
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
+import androidx.ui.core.asModifier
 import androidx.ui.core.draw
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.vector.drawVector
+import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -220,11 +221,15 @@ class WithConstraintsTest {
             activity.setContent {
                 WithConstraints { _, _ ->
                     // this block is called as a subcomposition from LayoutNode.measure()
-                    // DrawVector introduces additional subcomposition which is closing the
+                    // VectorPainter introduces additional subcomposition which is closing the
                     // current frame and opens a new one. our model reads during measure()
                     // wasn't possible to survide Frames swicth previously so the model read
                     // within the child Layout wasn't recorded
-                    val background = drawVector(100.px, 100.px) { _, _ -> }
+                    val background = VectorPainter(
+                        name = "testPainter",
+                        defaultWidth = 10.dp,
+                        defaultHeight = 10.dp) { _, _ -> /* intentionally empty */
+                    }.asModifier()
                     Layout(modifier = background, children = {}) { _, _, _ ->
                         // read the model
                         model.value
