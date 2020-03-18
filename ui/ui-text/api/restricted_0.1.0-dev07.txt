@@ -194,7 +194,8 @@ package androidx.ui.text {
     method public String component1();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> component2();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> component3();
-    method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
+    method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<java.lang.String>> annotations);
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<java.lang.String>> getAnnotationString(String scope, int start, int end);
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> getSpanStyles();
     method public String getText();
@@ -206,14 +207,16 @@ package androidx.ui.text {
     ctor public AnnotatedString.Builder();
     ctor public AnnotatedString.Builder(String text);
     ctor public AnnotatedString.Builder(androidx.ui.text.AnnotatedString text);
+    method public void addAnnotationString(String scope, String annotation, int start, int end);
     method public void addStyle(androidx.ui.text.SpanStyle style, int start, int end);
     method public void addStyle(androidx.ui.text.ParagraphStyle style, int start, int end);
     method public void append(String text);
     method public void append(char p);
     method public void append(androidx.ui.text.AnnotatedString text);
     method public int getLength();
-    method public void popStyle();
-    method public void popStyle(int index);
+    method public void pop();
+    method public void pop(int index);
+    method public int pushAnnotationString(String scope, String annotation);
     method public int pushStyle(androidx.ui.text.SpanStyle style);
     method public int pushStyle(androidx.ui.text.ParagraphStyle style);
     method public androidx.ui.text.AnnotatedString toAnnotatedString();
@@ -221,13 +224,16 @@ package androidx.ui.text {
   }
 
   public static final class AnnotatedString.Item<T> {
+    ctor public AnnotatedString.Item(T! item, int start, int end, String scope);
     ctor public AnnotatedString.Item(T! item, int start, int end);
     method public T! component1();
     method public int component2();
     method public int component3();
-    method public androidx.ui.text.AnnotatedString.Item<T> copy(T! item, int start, int end);
+    method public String component4();
+    method public androidx.ui.text.AnnotatedString.Item<T> copy(T! item, int start, int end, String scope);
     method public int getEnd();
     method public T! getItem();
+    method public String getScope();
     method public int getStart();
   }
 

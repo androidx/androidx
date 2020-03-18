@@ -19,6 +19,8 @@ package androidx.ui.text
 import androidx.ui.text.AnnotatedString.Builder
 import androidx.ui.text.AnnotatedString.Item
 import java.util.SortedSet
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * The class changes the character level style of the specified range.
@@ -36,11 +38,17 @@ typealias ParagraphStyleItem = Item<ParagraphStyle>
  * The basic data structure of text with multiple styles. To construct an [AnnotatedString] you
  * can use [Builder].
  */
-data class AnnotatedString(
+data class AnnotatedString internal constructor(
     val text: String,
     val spanStyles: List<SpanStyleItem> = listOf(),
-    val paragraphStyles: List<ParagraphStyleItem> = listOf()
+    val paragraphStyles: List<ParagraphStyleItem> = listOf(),
+    private val annotations: List<Item<String>> = listOf()
 ) {
+    constructor(
+        text: String,
+        spanStyles: List<SpanStyleItem> = listOf(),
+        paragraphStyles: List<ParagraphStyleItem> = listOf()
+    ) : this(text, spanStyles, paragraphStyles, listOf())
 
     init {
         var lastStyleEnd = -1
@@ -61,14 +69,44 @@ data class AnnotatedString(
         }
     }
 
+    private fun contains(baseStart: Int, baseEnd: Int, targetStart: Int, targetEnd: Int) =
+        (baseStart <= targetStart && targetEnd <= baseEnd) &&
+                (baseEnd != targetEnd || (targetStart == targetEnd) == (baseStart == baseEnd))
+
+    private fun intersect(lStart: Int, lEnd: Int, rStart: Int, rEnd: Int) =
+        max(lStart, rStart) < min(lEnd, rEnd) ||
+                contains(lStart, lEnd, rStart, rEnd) || contains(rStart, rEnd, lStart, lEnd)
+
+    /**
+     * Query the string annotations attached on this AnnotatedString.
+     * Annotations are metadata attached on the AnnotatedString, for example, a URL is a string
+     * metadata attached on the a certain range. Annotations are also store with [Item] like the
+     * styles.
+     *
+     * @param scope the scope of the annotations that is being queried. It's used to distinguish
+     * the annotations for different purposes.
+     * @param start the start of the query range, inclusive.
+     * @param end the end of the query range, exclusive.
+     * @return a list of annotations stored in Item  Notice that All annotations that intersect
+     * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
+     * list will be returned.
+     */
+    fun getAnnotationString(scope: String, start: Int, end: Int): List<Item<String>> =
+        annotations.filter {
+            scope == it.scope && intersect(start, end, it.start, it.end)
+        }
+
     /**
      * The information attached on the text such as a [SpanStyle].
      *
      * @param item The object attached to [AnnotatedString]s.
      * @param start The start of the range where [item] takes effect. It's inclusive
      * @param end The end of the range where [item] takes effect. It's exclusive
+     * @param scope The scope of this item, its used to distinguish the different items,
+     * especially when [Item] is used to store custom data.
      */
-    data class Item<T>(val item: T, val start: Int, val end: Int) {
+    data class Item<T>(val item: T, val start: Int, val end: Int, val scope: String) {
+        constructor(item: T, start: Int, end: Int) : this(item, start, end, "")
         init {
             require(start <= end) { "Reversed range is not supported" }
         }
@@ -87,7 +125,8 @@ data class AnnotatedString(
         private data class MutableItem<T>(
             val item: T,
             val start: Int,
-            var end: Int = Int.MIN_VALUE
+            var end: Int = Int.MIN_VALUE,
+            val scope: String = ""
         ) {
             /**
              * Create an immutable [Item] object.
@@ -97,13 +136,14 @@ data class AnnotatedString(
             fun toItem(defaultEnd: Int = Int.MIN_VALUE): Item<T> {
                 val end = if (end == Int.MIN_VALUE) defaultEnd else end
                 check(end != Int.MIN_VALUE) { "Item.end should be set first" }
-                return Item(item = item, start = start, end = end)
+                return Item(item = item, start = start, end = end, scope = scope)
             }
         }
 
         private val text: StringBuilder = StringBuilder(capacity)
         private val spanStyles: MutableList<MutableItem<SpanStyle>> = mutableListOf()
         private val paragraphStyles: MutableList<MutableItem<ParagraphStyle>> = mutableListOf()
+        private val annotations: MutableList<MutableItem<String>> = mutableListOf()
         private val styleStack: MutableList<MutableItem<out Any>> = mutableListOf()
 
         /**
@@ -160,6 +200,10 @@ data class AnnotatedString(
             text.paragraphStyles.forEach {
                 addStyle(it.item, start + it.start, start + it.end)
             }
+
+            text.annotations.forEach {
+                addAnnotationString(it.scope, it.item, start + it.start, start + it.end)
+            }
         }
 
         /**
@@ -186,7 +230,20 @@ data class AnnotatedString(
         }
 
         /**
-         * Applies the given [SpanStyle] to any appended text until a corresponding [popStyle] is
+         * Set an Annotation for the given [range].
+         *
+         * @param scope the scope used to distinguish annotations
+         * @param annotation the string annotation that is attached
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         * @see getAnnotationString
+         */
+        fun addAnnotationString(scope: String, annotation: String, start: Int, end: Int) {
+            annotations.add(MutableItem(annotation, start, end, scope))
+        }
+
+        /**
+         * Applies the given [SpanStyle] to any appended text until a corresponding [pop] is
          * called.
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushSample
@@ -202,7 +259,7 @@ data class AnnotatedString(
         }
 
         /**
-         * Applies the given [ParagraphStyle] to any appended text until a corresponding [popStyle]
+         * Applies the given [ParagraphStyle] to any appended text until a corresponding [pop]
          * is called.
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
@@ -218,11 +275,30 @@ data class AnnotatedString(
         }
 
         /**
-         * Ends the style that was added via a push operation before.
+         * Attach the given [annotation] to any appended text until a corresponding [pop]
+         * is called.
+         *
+         * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushAnnotationStringSample
+         *
+         * @param scope the scope used to distinguish this annotation
+         * @param annotation the string annotation attached on this AnnotatedString
+         * @see getAnnotationString
+         */
+        fun pushAnnotationString(scope: String, annotation: String): Int {
+            MutableItem(item = annotation, start = text.length, scope = scope).also {
+                styleStack.add(it)
+                annotations.add(it)
+            }
+            return styleStack.size - 1
+        }
+
+        /**
+         * Ends the style or annotation that was added via a push operation before.
          *
          * @see pushStyle
+         * @see pushAnnotationString
          */
-        fun popStyle() {
+        fun pop() {
             check(styleStack.isNotEmpty()) { "Nothing to pop." }
             // pop the last element
             val item = styleStack.removeAt(styleStack.size - 1)
@@ -230,17 +306,20 @@ data class AnnotatedString(
         }
 
         /**
-         * Ends the styles up to and `including` the [pushStyle] that returned the given index.
+         * Ends the styles or annotation up to and `including` the [pushStyle] or
+         * [pushAnnotationString] that returned the given index.
          *
-         * @param index the result of the a previous [pushStyle] in order to pop to
+         * @param index the result of the a previous [pushStyle] or [pushAnnotationString] in order
+         * to pop to
          *
-         * @see popStyle
+         * @see pop
          * @see pushStyle
+         * @see pushAnnotationString
          */
-        fun popStyle(index: Int) {
+        fun pop(index: Int) {
             check(index < styleStack.size) { "$index should be less than ${styleStack.size}" }
             while ((styleStack.size - 1) >= index) {
-                popStyle()
+                pop()
             }
         }
 
@@ -251,7 +330,8 @@ data class AnnotatedString(
             return AnnotatedString(
                 text = text.toString(),
                 spanStyles = spanStyles.map { it.toItem(text.length) }.toList(),
-                paragraphStyles = paragraphStyles.map { it.toItem(text.length) }.toList()
+                paragraphStyles = paragraphStyles.map { it.toItem(text.length) }.toList(),
+                annotations = annotations.map { it.toItem(text.length) }.toList()
             )
         }
     }
@@ -530,7 +610,7 @@ val AnnotatedString.length: Int get() = text.length
  * @return result of the [block]
  *
  * @see AnnotatedString.Builder.pushStyle
- * @see AnnotatedString.Builder.popStyle
+ * @see AnnotatedString.Builder.pop
  */
 inline fun <R : Any> Builder.withStyle(
     style: SpanStyle,
@@ -540,7 +620,7 @@ inline fun <R : Any> Builder.withStyle(
     return try {
         block(this)
     } finally {
-        popStyle(index)
+        pop(index)
     }
 }
 
@@ -555,7 +635,7 @@ inline fun <R : Any> Builder.withStyle(
  * @return result of the [block]
  *
  * @see AnnotatedString.Builder.pushStyle
- * @see AnnotatedString.Builder.popStyle
+ * @see AnnotatedString.Builder.pop
  */
 inline fun <R : Any> Builder.withStyle(
     style: ParagraphStyle,
@@ -565,7 +645,7 @@ inline fun <R : Any> Builder.withStyle(
     return try {
         block(this)
     } finally {
-        popStyle(index)
+        pop(index)
     }
 }
 

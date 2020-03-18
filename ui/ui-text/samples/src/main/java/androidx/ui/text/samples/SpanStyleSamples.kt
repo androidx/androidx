@@ -33,10 +33,10 @@ fun SpanStyleSample() {
         text = AnnotatedString {
             pushStyle(style = SpanStyle(color = Color.Red))
             append("Hello")
-            popStyle()
+            pop()
             pushStyle(SpanStyle(color = Color.Blue))
             append(" World")
-            popStyle()
+            pop()
         }
     )
 }

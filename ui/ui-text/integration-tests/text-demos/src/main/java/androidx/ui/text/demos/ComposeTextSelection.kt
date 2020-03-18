@@ -77,17 +77,17 @@ fun TextDemoSelection() {
                     )
                 )
                 append(displayTextHindi)
-                popStyle()
+                pop()
 
                 append(text = "$arabicSentence")
 
                 pushStyle(SpanStyle(localeList = LocaleList("zh-CN")))
                 append("\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。")
-                popStyle()
+                pop()
 
                 pushStyle(SpanStyle(localeList = LocaleList("ja-JP")))
                 append("\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。")
-                popStyle()
+                pop()
             }
         )
     }

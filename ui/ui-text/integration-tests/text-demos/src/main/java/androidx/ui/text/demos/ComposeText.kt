@@ -128,7 +128,7 @@ fun SecondTagLine(tag: String) {
                 )
             )
             append(tag)
-            popStyle()
+            pop()
         }
     )
 }
@@ -147,7 +147,7 @@ fun TextDemoBasic() {
             )
         )
         append("$displayText   ")
-        popStyle()
+        pop()
 
         pushStyle(
             SpanStyle(
@@ -158,7 +158,7 @@ fun TextDemoBasic() {
             )
         )
         append("$displayText   ")
-        popStyle()
+        pop()
 
         pushStyle(
             SpanStyle(
@@ -169,7 +169,7 @@ fun TextDemoBasic() {
             )
         )
         append(displayText)
-        popStyle()
+        pop()
     })
 }
 
@@ -192,7 +192,7 @@ fun TextDemoLanguage() {
             )
         )
         append("$displayTextChinese   ")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(
@@ -203,7 +203,7 @@ fun TextDemoLanguage() {
             )
         )
         append("$displayTextArabic   ")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(
@@ -214,7 +214,7 @@ fun TextDemoLanguage() {
             )
         )
         append(displayTextHindi)
-        popStyle()
+        pop()
     })
 }
 
@@ -229,7 +229,7 @@ fun TextDemoFontFamily() {
             )
         )
         append("$displayText sans-serif\n")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(
@@ -238,7 +238,7 @@ fun TextDemoFontFamily() {
             )
         )
         append("$displayText serif\n")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(
@@ -247,7 +247,7 @@ fun TextDemoFontFamily() {
             )
         )
         append("$displayText monospace")
-        popStyle()
+        pop()
     })
 }
 
@@ -274,7 +274,7 @@ fun TextDemoLetterSpacing() {
     Text(text = AnnotatedString {
         pushStyle(style = SpanStyle(fontSize = fontSize8))
         append("$displayText   ")
-        popStyle()
+        pop()
         pushStyle(
             style = SpanStyle(
                 fontSize = fontSize8,
@@ -282,7 +282,7 @@ fun TextDemoLetterSpacing() {
             )
         )
         append(displayText)
-        popStyle()
+        pop()
     })
 }
 
@@ -317,7 +317,7 @@ fun TextDemoBackground() {
             )
         )
         append("$displayText   ")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(
@@ -326,7 +326,7 @@ fun TextDemoBackground() {
             )
         )
         append("$displayText   ")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(
@@ -335,7 +335,7 @@ fun TextDemoBackground() {
             )
         )
         append(displayText)
-        popStyle()
+        pop()
     })
 }
 
@@ -348,19 +348,19 @@ fun TextDemoLocale() {
             style = SpanStyle(fontSize = fontSize8, localeList = LocaleList("ja-JP"))
         )
         append("$text   ")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(fontSize = fontSize8, localeList = LocaleList("zh-CN"))
         )
         append("$text   ")
-        popStyle()
+        pop()
 
         pushStyle(
             style = SpanStyle(fontSize = fontSize8, localeList = LocaleList("zh-TW"))
         )
         append(text)
-        popStyle()
+        pop()
     })
 }
 
@@ -468,7 +468,7 @@ fun TextDemoShadowEffect() {
             append("text with ")
             pushStyle(style = SpanStyle(shadow = shadow))
             append("shadow!")
-            popStyle()
+            pop()
         }
     )
 }
@@ -482,7 +482,7 @@ fun TextDemoFontSizeScale() {
                 val scale = i * 0.1f
                 pushStyle(style = SpanStyle(fontSize = scale.em))
                 append("fontSizeScale=$scale\n")
-                popStyle()
+                pop()
             }
         }
     )
