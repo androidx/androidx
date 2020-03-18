@@ -32,7 +32,9 @@ import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import androidx.paging.TestPagingSource.Companion.items
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -50,6 +52,7 @@ import kotlin.test.fail
 @RunWith(JUnit4::class)
 class PagerTest {
     private val testScope = TestCoroutineScope()
+    private val retryCh = ConflatedBroadcastChannel<Unit>()
     private val pagingSourceFactory = { TestPagingSource() }
     private val config = PagingConfig(
         pageSize = 1,
@@ -539,7 +542,7 @@ class PagerTest {
             }
         }
 
-        val pager = Pager(50, pagingSource, config)
+        val pager = Pager(50, pagingSource, config, retryCh.asFlow())
         val job = launch {
             pager.pageEventFlow
                 // Return immediately to avoid blocking cancellation. This is analogous to
@@ -560,7 +563,7 @@ class PagerTest {
     fun retry() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config)
+            val pager = Pager(50, pageSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -578,7 +581,7 @@ class PagerTest {
             pageSource.errorNextLoad = true
             pager.addHint(ViewportHint(0, 1))
             advanceUntilIdle()
-            pager.retry()
+            retryCh.offer(Unit)
             advanceUntilIdle()
 
             assertEvents(expected, pageEvents)
@@ -590,7 +593,7 @@ class PagerTest {
     fun retryNothing() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config)
+            val pager = Pager(50, pageSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -605,7 +608,7 @@ class PagerTest {
             advanceUntilIdle()
             pager.addHint(ViewportHint(0, 1))
             advanceUntilIdle()
-            pager.retry()
+            retryCh.offer(Unit)
             advanceUntilIdle()
 
             assertEvents(expected, pageEvents)
@@ -617,7 +620,7 @@ class PagerTest {
     fun retryTwice() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config)
+            val pager = Pager(50, pageSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -635,9 +638,9 @@ class PagerTest {
             pageSource.errorNextLoad = true
             pager.addHint(ViewportHint(0, 1))
             advanceUntilIdle()
-            pager.retry()
+            retryCh.offer(Unit)
             advanceUntilIdle()
-            pager.retry()
+            retryCh.offer(Unit)
             advanceUntilIdle()
 
             assertEvents(expected, pageEvents)
@@ -649,7 +652,7 @@ class PagerTest {
     fun retryBothDirections() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config)
+            val pager = Pager(50, pageSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -677,7 +680,7 @@ class PagerTest {
             pageSource.errorNextLoad = true
             pager.addHint(ViewportHint(0, 0))
             advanceUntilIdle()
-            pager.retry()
+            retryCh.offer(Unit)
             advanceUntilIdle()
 
             assertEvents(expected, pageEvents)
@@ -689,7 +692,7 @@ class PagerTest {
     fun retryRefresh() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config)
+            val pager = Pager(50, pageSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -703,7 +706,7 @@ class PagerTest {
 
             pageSource.errorNextLoad = true
             advanceUntilIdle()
-            pager.retry()
+            retryCh.offer(Unit)
             advanceUntilIdle()
 
             assertEvents(expected, pageEvents)
@@ -715,7 +718,7 @@ class PagerTest {
     fun retryRefreshWithBufferedHint() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config)
+            val pager = Pager(50, pageSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -733,7 +736,7 @@ class PagerTest {
             advanceUntilIdle()
             pager.addHint(ViewportHint(0, 0))
             advanceUntilIdle()
-            pager.retry()
+            retryCh.offer(Unit)
             advanceUntilIdle()
 
             assertEvents(expected, pageEvents)
@@ -848,7 +851,7 @@ class PagerTest {
     @Test
     fun refreshKeyInfo_nullHint() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
-        val pager = Pager(50, pagingSource, config)
+        val pager = Pager(50, pagingSource, config, retryCh.asFlow())
         assertNull(pager.refreshKeyInfo())
     }
 
@@ -856,7 +859,7 @@ class PagerTest {
     fun refreshKeyInfo_pagesEmpty() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config)
+            val pager = Pager(50, pagingSource, config, retryCh.asFlow())
             pager.addHint(ViewportHint(0, 0))
             assertNull(pager.refreshKeyInfo())
         }
@@ -866,7 +869,7 @@ class PagerTest {
     fun refreshKeyInfo_loadedIndex() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config)
+            val pager = Pager(50, pagingSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -911,7 +914,7 @@ class PagerTest {
     fun refreshKeyInfo_placeholdersStart() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config)
+            val pager = Pager(50, pagingSource, config, retryCh.asFlow())
 
             val pageEvents = ArrayList<PageEvent<Int>>()
             val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
@@ -961,5 +964,34 @@ class PagerTest {
 
             job.cancel()
         }
+    }
+
+    @Test
+    fun retry_ignoresNewSignalsWhileProcessing() = testScope.runBlockingTest {
+        val pagingSource = pagingSourceFactory()
+        val pager = Pager(50, pagingSource, config, retryCh.asFlow())
+
+        val pageEvents = ArrayList<PageEvent<Int>>()
+        val job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
+
+        pagingSource.errorNextLoad = true
+        advanceUntilIdle()
+
+        pagingSource.errorNextLoad = true
+        retryCh.offer(Unit)
+        retryCh.offer(Unit) // Should be ignored by pager as it's still processing previous retry.
+        advanceUntilIdle()
+
+        assertEvents(
+            listOf(
+                LoadStateUpdate(REFRESH, Loading),
+                LoadStateUpdate(REFRESH, Error(LOAD_ERROR)),
+                LoadStateUpdate(REFRESH, Loading),
+                LoadStateUpdate(REFRESH, Error(LOAD_ERROR))
+            ),
+            pageEvents
+        )
+
+        job.cancel()
     }
 }
