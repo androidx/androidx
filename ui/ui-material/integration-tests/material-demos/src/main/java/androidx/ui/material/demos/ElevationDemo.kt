@@ -31,8 +31,8 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.Card
+import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -61,11 +61,9 @@ private fun ElevatedCard(elevation: Dp) {
         border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
-        Ripple(bounded = true) {
-            Clickable({}) {
-                Box(LayoutWidth.Fill + LayoutHeight(150.dp), gravity = ContentGravity.Center) {
-                    Text("$elevation", style = MaterialTheme.typography().h4)
-                }
+        Clickable(onClick = {}, modifier = ripple()) {
+            Box(LayoutWidth.Fill + LayoutHeight(150.dp), gravity = ContentGravity.Center) {
+                Text("$elevation", style = MaterialTheme.typography().h4)
             }
         }
     }

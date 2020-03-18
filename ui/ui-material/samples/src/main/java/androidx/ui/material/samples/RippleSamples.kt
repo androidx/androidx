@@ -20,14 +20,12 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.foundation.Clickable
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 
 @Sampled
 @Composable
 fun RippleSample() {
-    Ripple(bounded = true) {
-        Clickable(onClick = { /** do something */ }) {
-            Text(text = "Clickable text")
-        }
+    Clickable(onClick = { /** do something */ }, modifier = ripple()) {
+        Text(text = "Clickable text")
     }
 }

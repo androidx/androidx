@@ -38,7 +38,7 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
@@ -129,12 +129,11 @@ class RadioGroupScope internal constructor() {
     ) {
         Semantics(container = true, mergeAllDescendants = true) {
             Box {
-                Ripple(bounded = true) {
-                    MutuallyExclusiveSetItem(
-                        selected = selected,
-                        onClick = { if (!selected) onSelect() }, children = children
-                    )
-                }
+                MutuallyExclusiveSetItem(
+                    selected = selected,
+                    onClick = { if (!selected) onSelect() }, children = children,
+                    modifier = ripple()
+                )
             }
         }
     }
@@ -196,27 +195,24 @@ fun RadioButton(
 ) {
     val radioPaint = remember { Paint() }
     Stack {
-        Ripple(bounded = false) {
-            MutuallyExclusiveSetItem(
-                selected = selected, onClick = { if (!selected) onSelect?.invoke() }
-            ) {
-                Box(LayoutPadding(RadioButtonPadding)) {
-                    val unselectedColor =
-                        MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
-                    val definition = remember(color, unselectedColor) {
-                        generateTransitionDefinition(color, unselectedColor)
-                    }
-                    Transition(definition = definition, toState = selected) { state ->
-                        Canvas(modifier = LayoutSize(RadioButtonSize)) {
-                            drawRadio(
-                                state[ColorProp],
-                                state[OuterRadiusProp],
-                                state[InnerRadiusProp],
-                                state[GapProp],
-                                radioPaint
-                            )
-                        }
-                    }
+        MutuallyExclusiveSetItem(
+            selected = selected, onClick = { if (!selected) onSelect?.invoke() },
+            modifier = ripple(bounded = false)
+        ) {
+            val unselectedColor =
+                MaterialTheme.colors().onSurface.copy(alpha = UnselectedOpacity)
+            val definition = remember(color, unselectedColor) {
+                generateTransitionDefinition(color, unselectedColor)
+            }
+            Transition(definition = definition, toState = selected) { state ->
+                Canvas(modifier = LayoutPadding(RadioButtonPadding) + LayoutSize(RadioButtonSize)) {
+                    drawRadio(
+                        state[ColorProp],
+                        state[OuterRadiusProp],
+                        state[InnerRadiusProp],
+                        state[GapProp],
+                        radioPaint
+                    )
                 }
             }
         }

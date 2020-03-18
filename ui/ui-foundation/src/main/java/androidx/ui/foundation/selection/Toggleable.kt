@@ -17,6 +17,7 @@
 package androidx.ui.foundation.selection
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Strings
@@ -41,16 +42,21 @@ import androidx.ui.semantics.onClick
  * @param onValueChange callback to be invoked when toggleable is being clicked,
  * therefore the change of the state in requested.
  * If null, Toggleable will appear in the [value] state and remains disabled
+ * @param modifier allows to provide a modifier to be added before the gesture detector, for
+ * example Ripple should be added at this point. this will be easier once we migrate this
+ * function to a Modifier
  */
 @Composable
 fun Toggleable(
     value: Boolean,
     onValueChange: ((Boolean) -> Unit)? = null,
+    modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
     TriStateToggleable(
         value = ToggleableState(value),
         onToggle = onValueChange?.let { { it(!value) } },
+        modifier = modifier,
         children = children
     )
 }
@@ -71,11 +77,15 @@ fun Toggleable(
  * @param value current value for the component
  * @param onToggle will be called when user toggles the toggleable. The children will not be
  *  toggleable when it is null.
+ * @param modifier allows to provide a modifier to be added before the gesture detector, for
+ * example Ripple should be added at this point. this will be easier once we migrate this
+ * function to a Modifier
  */
 @Composable
 fun TriStateToggleable(
     value: ToggleableState = ToggleableState.On,
     onToggle: (() -> Unit)? = null,
+    modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
         // TODO(pavlis): Handle multiple states for Semantics
@@ -96,7 +106,7 @@ fun TriStateToggleable(
             // TODO(b/150706555): This layout is temporary and should be removed once Semantics
             //  is implemented with modifiers.
             @Suppress("DEPRECATION")
-            PassThroughLayout(TapGestureDetector(onToggle), children)
+            PassThroughLayout(modifier + TapGestureDetector(onToggle), children)
         }
 }
 

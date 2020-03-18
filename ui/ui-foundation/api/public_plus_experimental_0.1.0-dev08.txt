@@ -35,7 +35,7 @@ package androidx.ui.foundation {
   }
 
   public final class ClickableKt {
-    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, String? onClickLabel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, String? onClickLabel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ColoredRectKt {
@@ -275,13 +275,13 @@ package androidx.ui.foundation.gestures {
 package androidx.ui.foundation.selection {
 
   public final class MutuallyExclusiveSetItemKt {
-    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ToggleableKt {
-    method public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onValueChange = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onValueChange = null, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean value);
-    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum ToggleableState {
