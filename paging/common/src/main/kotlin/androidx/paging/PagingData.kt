@@ -146,18 +146,20 @@ class PagingData<T : Any> internal constructor(
          *  * The operator would output:
          *  *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
          *  */
-         * pagingData = PagingData.insertSeparators(pagingData,
-         *         (@Nullable String before, @Nullable String after) -> {
-         *             if (after != null && (before == null
-         *                     || before.charAt(0) != after.charAt(0))) {
-         *                 // separator - after is first item that starts with its first letter
-         *                 return Character.toString(Character.toUpperCase(after.charAt(0)));
-         *             } else {
-         *                 // no separator - either end of list, or first letters of before/after
-         *                 // are the same
-         *                 return null;
-         *              }
-         *          });
+         * pagingDataStream.map((pagingData) ->
+         *         // map outer stream, so we can perform transformations on each paging generation
+         *         PagingData.insertSeparators(pagingData,
+         *                 (@Nullable String before, @Nullable String after) -> {
+         *                     if (after != null && (before == null
+         *                             || before.charAt(0) != after.charAt(0))) {
+         *                         // separator - after is first item that starts with its first letter
+         *                         return Character.toString(Character.toUpperCase(after.charAt(0)));
+         *                     } else {
+         *                         // no separator - either end of list, or first
+         *                         // letters of items are the same
+         *                         return null;
+         *                     }
+         *                 }));
          *
          * /*
          *  * Create letter separators in an alphabetically sorted list of Items, with UiModel objects.
@@ -168,26 +170,29 @@ class PagingData<T : Any> internal constructor(
          *  * The operator would output a list of UiModels corresponding to:
          *  *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
          *  */
-         * // first convert items in stream to UiModel.Item
-         * PagingData<UiModel.ItemModel> itemModelPagingData =
-         *         itemPagingData.map(UiModel.ItemModel::new);
+         * pagingDataStream.map((itemPagingData) -> {
+         *     // map outer stream, so we can perform transformations on each paging generation
          *
-         * // Now insert UiModel.Separators, which makes the PagingData of generic type UiModel
-         * PagingData<UiModel> pagingDataWithSeparators = PagingData.insertSeparators(
-         *         itemModelPagingData,
-         *         (@Nullable UiModel.ItemModel before, @Nullable UiModel.ItemModel after) -> {
-         *             if (after != null
-         *                     && (before == null
-         *                     || before.item.label.charAt(0) != after.item.label.charAt(0))) {
-         *                 // separator - after is first item that starts with its first letter
-         *                 return new UiModel.SeparatorModel(
-         *                         Character.toUpperCase(after.item.label.charAt(0)));
-         *             } else {
-         *                 // no separator - either end of list, or first letters of items are the same
-         *                 return null;
-         *             }
-         *         });
+         *     // first convert items in stream to UiModel.Item
+         *     PagingData<UiModel.ItemModel> itemModelPagingData =
+         *             itemPagingData.map(UiModel.ItemModel::new);
          *
+         *     // Now insert UiModel.Separators, which makes the PagingData of generic type UiModel
+         *     return PagingData.insertSeparators(
+         *             itemModelPagingData,
+         *             (@Nullable UiModel.ItemModel before, @Nullable UiModel.ItemModel after) -> {
+         *                 if (after != null && (before == null
+         *                         || before.item.label.charAt(0) != after.item.label.charAt(0))) {
+         *                     // separator - after is first item that starts with its first letter
+         *                     return new UiModel.SeparatorModel(
+         *                             Character.toUpperCase(after.item.label.charAt(0)));
+         *                 } else {
+         *                     // no separator - either end of list, or first
+         *                     // letters of items are the same
+         *                     return null;
+         *                 }
+         *             });
+         * });
          *
          * public class UiModel {
          *     static class ItemModel extends UiModel {

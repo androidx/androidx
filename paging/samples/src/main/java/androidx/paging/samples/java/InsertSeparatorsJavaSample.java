@@ -16,9 +16,13 @@
 
 package androidx.paging.samples.java;
 
-import androidx.annotation.NonNull;
+import android.annotation.SuppressLint;
+
 import androidx.annotation.Nullable;
 import androidx.paging.PagingData;
+
+import io.reactivex.Flowable;
+import kotlin.NotImplementedError;
 
 /**
  * NOTE - MANUALLY COPIED SAMPLE
@@ -28,10 +32,15 @@ import androidx.paging.PagingData;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 class InsertSeparatorsJavaSample {
-    @NonNull
-    public PagingData<String> pagingData = PagingData.empty();
 
-    @SuppressWarnings("unused")
+    public Flowable<PagingData<String>> pagingDataStream = create();
+
+    private Flowable<PagingData<String>> create() {
+        throw new NotImplementedError();
+    }
+
+    @SuppressLint("CheckResult")
+    @SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
     public void insertSeparatorsSample() {
         /*
          * Create letter separators in an alphabetically sorted list.
@@ -42,17 +51,19 @@ class InsertSeparatorsJavaSample {
          * The operator would output:
          *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
          */
-        pagingData = PagingData.insertSeparators(pagingData,
-                (@Nullable String before, @Nullable String after) -> {
-                    if (after != null && (before == null
-                            || before.charAt(0) != after.charAt(0))) {
-                        // separator - after is first item that starts with its first letter
-                        return Character.toString(Character.toUpperCase(after.charAt(0)));
-                    } else {
-                        // no separator - either end of list, or first letters of before/after
-                        // are the same
-                        return null;
-                    }
-                });
+        pagingDataStream.map((pagingData) ->
+                // map outer stream, so we can perform transformations on each paging generation
+                PagingData.insertSeparators(pagingData,
+                        (@Nullable String before, @Nullable String after) -> {
+                            if (after != null && (before == null
+                                    || before.charAt(0) != after.charAt(0))) {
+                                // separator - after is first item that starts with its first letter
+                                return Character.toString(Character.toUpperCase(after.charAt(0)));
+                            } else {
+                                // no separator - either end of list, or first
+                                // letters of items are the same
+                                return null;
+                            }
+                        }));
     }
 }
