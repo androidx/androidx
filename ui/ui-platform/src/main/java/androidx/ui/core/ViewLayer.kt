@@ -160,6 +160,11 @@ internal class ViewLayer(
         }
     }
 
+    override fun forceLayout() {
+        // Don't do anything. These Views are treated as RenderNodes, so a forced layout
+        // should not do anything. If we keep this, we get more redrawing than is necessary.
+    }
+
     companion object {
         val OutlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: android.graphics.Outline) {
