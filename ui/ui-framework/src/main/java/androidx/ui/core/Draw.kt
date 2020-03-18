@@ -18,7 +18,6 @@ package androidx.ui.core
 import androidx.compose.Composable
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.tooling.InspectionMode
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 
@@ -51,14 +50,7 @@ import androidx.ui.unit.PxSize
 inline fun Draw(
     noinline onPaint: Density.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
-    // Hide the internals of DrawNode
-    if (InspectionMode.current) {
-        RepaintBoundaryNode(name = null) {
-            DrawNode(onPaint = onPaint)
-        }
-    } else {
-        DrawNode(onPaint = onPaint)
-    }
+    DrawNode(onPaint = onPaint)
 }
 
 /**
@@ -84,16 +76,7 @@ inline fun Draw(
     crossinline children: @Composable() () -> Unit,
     noinline onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
-    // Hide the internals of DrawNode
-    if (InspectionMode.current) {
-        RepaintBoundaryNode(name = null) {
-            DrawNode(onPaintWithChildren = onPaint) {
-                children()
-            }
-        }
-    } else {
-        DrawNode(onPaintWithChildren = onPaint) {
-            children()
-        }
+    DrawNode(onPaintWithChildren = onPaint) {
+        children()
     }
 }

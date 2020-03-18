@@ -51,19 +51,18 @@ internal class ViewLayer(
     }
 
     override fun updateLayerProperties() {
-        val props = drawLayerModifier.properties
-        this.scaleX = props.scaleX
-        this.scaleY = props.scaleY
-        this.alpha = props.alpha
-        this.elevation = props.elevation
-        this.rotation = props.rotationZ
-        this.rotationX = props.rotationX
-        this.rotationY = props.rotationY
-        this.clipToBounds = props.clipToBounds
+        this.scaleX = drawLayerModifier.scaleX
+        this.scaleY = drawLayerModifier.scaleY
+        this.alpha = drawLayerModifier.alpha
+        this.elevation = drawLayerModifier.elevation
+        this.rotation = drawLayerModifier.rotationZ
+        this.rotationX = drawLayerModifier.rotationX
+        this.rotationY = drawLayerModifier.rotationY
+        this.clipToBounds = drawLayerModifier.clipToBounds
         resetClipBounds()
         val wasClippingManually = manualClipPath != null
-        this.clipToOutline = props.clipToOutline
-        val shapeChanged = outlineResolver.update(props.outlineShape, this.alpha)
+        this.clipToOutline = drawLayerModifier.clipToOutline
+        val shapeChanged = outlineResolver.update(drawLayerModifier.outlineShape, this.alpha)
         updateOutlineResolver()
         val isClippingManually = manualClipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
@@ -142,6 +141,7 @@ internal class ViewLayer(
             isInvalidated = true
             super.invalidate()
             ownerView.dirtyLayers += this
+            ownerView.invalidate()
         }
     }
 

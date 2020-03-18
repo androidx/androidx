@@ -115,16 +115,6 @@ package androidx.ui.core {
   }
 
   public interface DrawLayerModifier extends androidx.ui.core.Modifier.Element {
-    method public androidx.ui.core.DrawLayerProperties getProperties();
-    property public abstract androidx.ui.core.DrawLayerProperties properties;
-  }
-
-  public final class DrawLayerModifierKt {
-    method public static androidx.ui.core.Modifier drawLayer(androidx.ui.core.DrawLayerProperties drawLayerProperties);
-    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
-  }
-
-  public interface DrawLayerProperties {
     method @FloatRange(from=0.0, to=1.0) public default float getAlpha();
     method public default boolean getClipToBounds();
     method public default boolean getClipToOutline();
@@ -145,6 +135,10 @@ package androidx.ui.core {
     property @FloatRange(from=0.0, to=360.0) public default float rotationZ;
     property public default float scaleX;
     property public default float scaleY;
+  }
+
+  public final class DrawLayerModifierKt {
+    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
   }
 
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {

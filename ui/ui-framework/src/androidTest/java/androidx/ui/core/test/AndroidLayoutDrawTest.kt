@@ -38,7 +38,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
-import androidx.ui.core.DrawLayerProperties
+import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
@@ -2060,7 +2060,7 @@ class AndroidLayoutDrawTest {
     @Test
     fun layerModifier_scaleChange() {
         val scale = mutableStateOf(1f)
-        val layerProperties = object : DrawLayerProperties {
+        val layerModifier = object : DrawLayerModifier {
             override val scaleX: Float get() = scale.value
             override val scaleY: Float get() = scale.value
         }
@@ -2072,7 +2072,7 @@ class AndroidLayoutDrawTest {
                 ) {
                     FixedSize(
                         size = 10.ipx,
-                        modifier = PaddingModifier(10.ipx) + drawLayer(layerProperties) +
+                        modifier = PaddingModifier(10.ipx) + layerModifier +
                                 background(Color.Red) + latch(drawLatch)
                     ) {}
                 }

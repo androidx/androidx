@@ -19,10 +19,9 @@ package androidx.ui.core.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.onCommit
-import androidx.compose.remember
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.drawLayer
-import androidx.ui.core.DrawLayerProperties
+import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Text
 
 @Sampled
@@ -35,12 +34,9 @@ fun ChangeOpacity() {
 @Composable
 fun AnimateFadeIn() {
     val alpha = animatedFloat(initVal = 0f)
-    val layerProperties = remember {
-        object : DrawLayerProperties {
-            override val alpha: Float get() = alpha.value
-        }
+    val layerModifier = object : DrawLayerModifier {
+        override val alpha: Float get() = alpha.value
     }
-    val layerModifier = drawLayer(layerProperties)
     Text("Hello World", layerModifier)
     onCommit {
         alpha.animateTo(1f)
