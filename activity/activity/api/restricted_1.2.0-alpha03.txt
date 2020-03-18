@@ -1,0 +1,126 @@
+// Signature format: 3.0
+package androidx.activity {
+
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+    ctor public ComponentActivity();
+    ctor @ContentView public ComponentActivity(@LayoutRes int);
+    method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method @Deprecated public Object? getLastCustomNonConfigurationInstance();
+    method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
+    method public final Object? onRetainNonConfigurationInstance();
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> prepareCall(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> prepareCall(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+  }
+
+  public abstract class OnBackPressedCallback {
+    ctor public OnBackPressedCallback(boolean);
+    method @MainThread public abstract void handleOnBackPressed();
+    method @MainThread public final boolean isEnabled();
+    method @MainThread public final void remove();
+    method @MainThread public final void setEnabled(boolean);
+  }
+
+  public final class OnBackPressedDispatcher {
+    ctor public OnBackPressedDispatcher();
+    ctor public OnBackPressedDispatcher(Runnable?);
+    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback);
+    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    method @MainThread public boolean hasEnabledCallbacks();
+    method @MainThread public void onBackPressed();
+  }
+
+  public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
+    method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+  }
+
+}
+
+package androidx.activity.result {
+
+  public final class ActivityResult implements android.os.Parcelable {
+    ctor public ActivityResult(int, android.content.Intent?);
+    method public int describeContents();
+    method public android.content.Intent? getData();
+    method public int getResultCode();
+    method public static String resultCodeToString(int);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult!> CREATOR;
+  }
+
+  public interface ActivityResultCallback<O> {
+    method public void onActivityResult(O!);
+  }
+
+  public interface ActivityResultCaller {
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> prepareCall(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> prepareCall(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+  }
+
+  public interface ActivityResultLauncher<I> {
+    method public void dispose();
+    method public void launch(I!);
+  }
+
+  public abstract class ActivityResultRegistry {
+    ctor public ActivityResultRegistry();
+    method @MainThread public boolean dispatchResult(int, int, android.content.Intent?);
+    method @MainThread public abstract <I, O> void invoke(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!);
+    method public void onRestoreInstanceState(android.os.Bundle?);
+    method public void onSaveInstanceState(android.os.Bundle);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerActivityResultCallback(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerActivityResultCallback(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method @MainThread public void unregisterActivityResultCallback(String);
+  }
+
+}
+
+package androidx.activity.result.contract {
+
+  public abstract class ActivityResultContract<I, O> {
+    ctor public ActivityResultContract();
+    method public abstract android.content.Intent createIntent(I!);
+    method public abstract O! parseResult(int, android.content.Intent?);
+  }
+
+  public class ActivityResultContracts {
+  }
+
+  public static class ActivityResultContracts.Dial extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
+    ctor public ActivityResultContracts.Dial();
+    method public android.content.Intent createIntent(String);
+    method public Boolean parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.RequestPermission extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
+    ctor public ActivityResultContracts.RequestPermission();
+    method public android.content.Intent createIntent(String);
+    method public Boolean parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.RequestPermissions extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.Map<java.lang.String,java.lang.Boolean>> {
+    ctor public ActivityResultContracts.RequestPermissions();
+    method public android.content.Intent createIntent(String![]);
+    method public java.util.Map<java.lang.String!,java.lang.Boolean!> parseResult(int, android.content.Intent?);
+    field public static final String ACTION_REQUEST_PERMISSIONS = "androidx.activity.result.contract.action.REQUEST_PERMISSIONS";
+    field public static final String EXTRA_PERMISSIONS = "androidx.activity.result.contract.extra.PERMISSIONS";
+    field public static final String EXTRA_PERMISSION_GRANT_RESULTS = "androidx.activity.result.contract.extra.PERMISSION_GRANT_RESULTS";
+  }
+
+  public static class ActivityResultContracts.StartActivityForResult extends androidx.activity.result.contract.ActivityResultContract<android.content.Intent,androidx.activity.result.ActivityResult> {
+    ctor public ActivityResultContracts.StartActivityForResult();
+    method public android.content.Intent createIntent(android.content.Intent);
+    method public androidx.activity.result.ActivityResult parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.graphics.Bitmap> {
+    ctor public ActivityResultContracts.TakePicture();
+    method public android.content.Intent createIntent(Void?);
+    method public android.graphics.Bitmap? parseResult(int, android.content.Intent?);
+  }
+
+}
+
