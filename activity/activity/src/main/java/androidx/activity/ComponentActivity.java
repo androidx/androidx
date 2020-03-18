@@ -28,6 +28,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -121,15 +123,32 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 final int requestCode,
                 @NonNull ActivityResultContract<I, O> contract,
                 I input) {
-            Intent intent = contract.createIntent(input);
+
+            // Immediate result path
+            final ActivityResultContract.SynchronousResult<O> synchronousResult =
+                    contract.getSynchronousResult(ComponentActivity.this, input);
+            if (synchronousResult != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dispatchResult(requestCode, synchronousResult.getValue());
+                    }
+                });
+                return;
+            }
+
+            // Start activity path
+            Intent intent = contract.createIntent(ComponentActivity.this, input);
             if (ACTION_REQUEST_PERMISSIONS.equals(intent.getAction())) {
+
+                // requestPermissions path
                 String[] permissions = intent.getStringArrayExtra(EXTRA_PERMISSIONS);
 
                 if (SDK_INT < Build.VERSION_CODES.M || permissions == null) {
                     return;
                 }
 
-                List<String> nonGrantedPermissions = new ArrayList<>();
+                List<String> nonGrantedPermissions = new ArrayList<String>();
                 for (String permission : permissions) {
                     if (checkPermission(permission,
                             android.os.Process.myPid(), android.os.Process.myUid())
@@ -143,6 +162,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                             new String[nonGrantedPermissions.size()]), requestCode);
                 }
             } else {
+
+                // startActivityForResult path
                 ComponentActivity.this.startActivityForResult(intent, requestCode);
             }
         }
