@@ -18,7 +18,6 @@ dependencies {
     api("androidx.fragment:fragment:1.1.0")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
-    implementation(project(":lifecycle:lifecycle-runtime"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
