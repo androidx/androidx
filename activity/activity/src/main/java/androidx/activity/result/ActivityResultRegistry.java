@@ -17,8 +17,6 @@
 
 package androidx.activity.result;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -29,7 +27,6 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -276,6 +273,28 @@ public abstract class ActivityResultRegistry {
         return true;
     }
 
+    /**
+     * Dispatch a result object to the callback on record.
+     *
+     * @param requestCode request code to identify the callback
+     * @param result the result to propagate
+     *
+     * @return true if there is a callback registered for the given request code, false otherwise.
+     */
+    @MainThread
+    public <O> boolean dispatchResult(int requestCode, @SuppressLint("UnknownNullness") O result) {
+        String key = mRcToKey.get(requestCode);
+        if (key == null) {
+            return false;
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        ActivityResultCallback<O> callback =
+                (ActivityResultCallback) mKeyToCallback.get(key).mCallback;
+        callback.onActivityResult(result);
+        return true;
+    }
+
     private <O> void doDispatch(String key, int resultCode, @Nullable Intent data,
             CallbackAndContract<O> callbackAndContract) {
         ActivityResultCallback<O> callback = callbackAndContract.mCallback;
@@ -285,12 +304,6 @@ public abstract class ActivityResultRegistry {
         } else {
             mPendingResults.putParcelable(key, new ActivityResult(resultCode, data));
         }
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    public void clearCallbacks() {
-        mKeyToCallback.clear();
     }
 
     private int registerKey(String key) {

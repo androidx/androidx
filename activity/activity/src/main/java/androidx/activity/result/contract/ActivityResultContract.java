@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-
 package androidx.activity.result.contract;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import androidx.activity.result.ActivityResultCaller;
@@ -39,10 +39,48 @@ import androidx.annotation.Nullable;
 public abstract class ActivityResultContract<I, O> {
 
     /** Create an intent that can be used for {@link Activity#startActivityForResult} */
-    public abstract @NonNull Intent createIntent(@SuppressLint("UnknownNullness") I input);
+    public abstract @NonNull Intent createIntent(@NonNull Context context,
+            @SuppressLint("UnknownNullness") I input);
 
     /** Convert result obtained from {@link Activity#onActivityResult} to O */
-    public abstract @SuppressLint("UnknownNullness") O parseResult(
-            int resultCode,
-            @Nullable Intent intent);
+    @SuppressLint("UnknownNullness")
+    public abstract O parseResult(int resultCode, @Nullable Intent intent);
+
+    /**
+     * An optional method you can implement that can be used to potentially provide a result in
+     * lieu of starting an activity.
+     *
+     * @return the result wrapped in a {@link SynchronousResult} or {@code null} if the call
+     * should proceed to start an activity.
+     */
+    public @Nullable SynchronousResult<O> getSynchronousResult(
+            @NonNull Context context,
+            @SuppressLint("UnknownNullness") I input) {
+        return null;
+    }
+
+    /**
+     * The wrapper for a result provided in {@link #getSynchronousResult}
+     *
+     * @param <T> type of the result
+     */
+    public static class SynchronousResult<T> {
+        private final @SuppressLint("UnknownNullness") T mValue;
+
+        /**
+         * Create a new result wrapper
+         *
+         * @param value the result value
+         */
+        public SynchronousResult(@SuppressLint("UnknownNullness") T value) {
+            this.mValue = value;
+        }
+
+        /**
+         * @return the result value
+         */
+        public @SuppressLint("UnknownNullness") T getValue() {
+            return mValue;
+        }
+    }
 }

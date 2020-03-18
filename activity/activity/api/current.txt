@@ -69,6 +69,7 @@ package androidx.activity.result {
   public abstract class ActivityResultRegistry {
     ctor public ActivityResultRegistry();
     method @MainThread public boolean dispatchResult(int, int, android.content.Intent?);
+    method @MainThread public <O> boolean dispatchResult(int, O!);
     method @MainThread public abstract <I, O> void invoke(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!);
     method public void onRestoreInstanceState(android.os.Bundle?);
     method public void onSaveInstanceState(android.os.Bundle);
@@ -83,8 +84,14 @@ package androidx.activity.result.contract {
 
   public abstract class ActivityResultContract<I, O> {
     ctor public ActivityResultContract();
-    method public abstract android.content.Intent createIntent(I!);
+    method public abstract android.content.Intent createIntent(android.content.Context, I!);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O!>? getSynchronousResult(android.content.Context, I!);
     method public abstract O! parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContract.SynchronousResult<T> {
+    ctor public ActivityResultContract.SynchronousResult(T!);
+    method public T! getValue();
   }
 
   public class ActivityResultContracts {
@@ -92,19 +99,21 @@ package androidx.activity.result.contract {
 
   public static class ActivityResultContracts.Dial extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
     ctor public ActivityResultContracts.Dial();
-    method public android.content.Intent createIntent(String);
+    method public android.content.Intent createIntent(android.content.Context, String);
     method public Boolean parseResult(int, android.content.Intent?);
   }
 
   public static class ActivityResultContracts.RequestPermission extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
     ctor public ActivityResultContracts.RequestPermission();
-    method public android.content.Intent createIntent(String);
+    method public android.content.Intent createIntent(android.content.Context, String);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean!>? getSynchronousResult(android.content.Context, String?);
     method public Boolean parseResult(int, android.content.Intent?);
   }
 
   public static class ActivityResultContracts.RequestPermissions extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.Map<java.lang.String,java.lang.Boolean>> {
     ctor public ActivityResultContracts.RequestPermissions();
-    method public android.content.Intent createIntent(String![]);
+    method public android.content.Intent createIntent(android.content.Context, String![]);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.Map<java.lang.String!,java.lang.Boolean!>!>? getSynchronousResult(android.content.Context, String![]?);
     method public java.util.Map<java.lang.String!,java.lang.Boolean!> parseResult(int, android.content.Intent?);
     field public static final String ACTION_REQUEST_PERMISSIONS = "androidx.activity.result.contract.action.REQUEST_PERMISSIONS";
     field public static final String EXTRA_PERMISSIONS = "androidx.activity.result.contract.extra.PERMISSIONS";
@@ -113,13 +122,13 @@ package androidx.activity.result.contract {
 
   public static class ActivityResultContracts.StartActivityForResult extends androidx.activity.result.contract.ActivityResultContract<android.content.Intent,androidx.activity.result.ActivityResult> {
     ctor public ActivityResultContracts.StartActivityForResult();
-    method public android.content.Intent createIntent(android.content.Intent);
+    method public android.content.Intent createIntent(android.content.Context, android.content.Intent);
     method public androidx.activity.result.ActivityResult parseResult(int, android.content.Intent?);
   }
 
   public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.graphics.Bitmap> {
     ctor public ActivityResultContracts.TakePicture();
-    method public android.content.Intent createIntent(Void?);
+    method public android.content.Intent createIntent(android.content.Context, Void?);
     method public android.graphics.Bitmap? parseResult(int, android.content.Intent?);
   }
 
