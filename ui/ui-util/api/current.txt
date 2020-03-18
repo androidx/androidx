@@ -1,6 +1,10 @@
 // Signature format: 3.0
 package androidx.ui.util {
 
+  public final class FastForEachKt {
+    method public static inline <T> void fastForEach(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action);
+  }
+
   public final class InlineClassHelperKt {
     method public static inline long packFloats(float val1, float val2);
     method public static inline long packInts(int val1, int val2);
