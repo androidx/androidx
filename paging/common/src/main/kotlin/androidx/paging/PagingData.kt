@@ -76,9 +76,11 @@ class PagingData<T : Any> internal constructor(
      * Note: This operation is not idempotent, calling it multiple times will continually add
      * more headers to the start of the list, which can be useful if multiple header items are
      * required.
+     *
+     * @see [insertFooterItem]
      */
     @CheckResult
-    fun addHeader(item: T) = PagingData(flow.addHeader(item), receiver)
+    fun insertHeaderItem(item: T) = PagingData(flow.insertHeaderItem(item), receiver)
 
     /**
      * Returns a [PagingData] containing each original element, with the passed footer [item] added
@@ -90,11 +92,13 @@ class PagingData<T : Any> internal constructor(
      * loaded* pages exceeding [PagedList.Config.maxSize].
      *
      * Note: This operation is not idempotent, calling it multiple times will continually add
-     * more footer to the end of the list, which can be useful if multiple footer items are
+     * more footers to the end of the list, which can be useful if multiple footer items are
      * required.
+     *
+     * @see [insertHeaderItem]
      */
     @CheckResult
-    fun addFooter(item: T) = PagingData(flow.addFooter(item), receiver)
+    fun insertFooterItem(item: T) = PagingData(flow.insertFooterItem(item), receiver)
 
     companion object {
         private val EMPTY = PagingData<Any>(
