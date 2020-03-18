@@ -39,6 +39,7 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -192,6 +193,7 @@ class ImageTest {
         }
     }
 
+    @Ignore("Flaky. b/151701537 for info")
     @Test
     fun testVectorScaledCentered() {
         val boxWidth = 240
