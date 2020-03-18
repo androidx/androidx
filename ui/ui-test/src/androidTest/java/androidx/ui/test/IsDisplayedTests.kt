@@ -22,6 +22,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.TestTag
 import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
@@ -29,7 +30,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
@@ -202,10 +202,10 @@ class IsDisplayedTests {
                     wasScrollToCalled = true
                 })
             }) {
-                Container {
+                Box {
                     TestTag(tag) {
                         Semantics(container = true) {
-                            Container { }
+                            Box()
                         }
                     }
                 }

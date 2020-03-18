@@ -29,12 +29,12 @@ import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.ui.animation.Transition
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
@@ -191,8 +191,7 @@ class AnimationSynchronizationTest {
         onIdle()
 
         // Did one recomposition, but no animation frames
-        // TODO(b/149754986): Canvas draws twice in our use case. Fix expected values when fixed
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f))
+        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f))
 
         // Animation doesn't actually start until the next frame.
         // Advance by 0ms to force dispatching of a frame time.
@@ -206,7 +205,7 @@ class AnimationSynchronizationTest {
         onIdle()
 
         // Did start animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 0f))
+        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f))
 
         // Advance first half of the animation (.5 sec)
         composeTestRule.runOnIdleCompose {
@@ -218,7 +217,7 @@ class AnimationSynchronizationTest {
         onIdle()
 
         // Did one animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 0f, 25f))
+        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 25f))
 
         // Advance second half of the animation (.5 sec)
         composeTestRule.runOnIdleCompose {
@@ -230,7 +229,7 @@ class AnimationSynchronizationTest {
         onIdle()
 
         // Did last animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 0f, 25f, 50f))
+        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 25f, 50f))
     }
 
     /**
@@ -261,7 +260,7 @@ class AnimationSynchronizationTest {
         val paint = remember { Paint().also { it.color = Color.Cyan } }
 
         hasRecomposed = true
-        Container(modifier = DrawBackground(color = Color.Yellow) + LayoutSize.Fill) {
+        Box(modifier = DrawBackground(color = Color.Yellow) + LayoutSize.Fill) {
             hasRecomposed = true
             Transition(
                 definition = animationDefinition,
