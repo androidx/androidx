@@ -37,49 +37,15 @@ class DiffUtilTest {
     private val before = mutableListOf<Item>()
     private val after = mutableListOf<Item>()
     private val log = StringBuilder()
-    private val callback: DiffUtil.Callback =
-        object : DiffUtil.Callback() {
-            override fun getOldListSize() = before.size
+    private val callback = ItemListCallback(
+        oldList = before,
+        newList = after,
+        assertCalls = true
+    )
 
-            override fun getNewListSize() = after.size
-
-            override fun areItemsTheSame(
-                oldItemIndex: Int,
-                newItemIndex: Int
-            ): Boolean {
-                return before[oldItemIndex].id == after[newItemIndex].id
-            }
-
-            override fun areContentsTheSame(
-                oldItemIndex: Int,
-                newItemIndex: Int
-            ): Boolean {
-                assertThat(
-                    before[oldItemIndex].id,
-                    equalTo(after[newItemIndex].id)
-                )
-                return before[oldItemIndex].data == after[newItemIndex].data
-            }
-
-            override fun getChangePayload(
-                oldItemIndex: Int,
-                newItemIndex: Int
-            ): Any? {
-                assertThat(
-                    before[oldItemIndex].id,
-                    equalTo(after[newItemIndex].id)
-                )
-                assertThat(
-                    before[oldItemIndex].data,
-                    not(
-                        equalTo(
-                            after[newItemIndex].data
-                        )
-                    )
-                )
-                return after[newItemIndex].payload
-            }
-        }
+    init {
+        Item.idCounter = 0
+    }
 
     @Rule
     @JvmField
@@ -89,7 +55,13 @@ class DiffUtilTest {
                 e: Throwable,
                 description: Description
             ) {
-                System.err.println(log.toString())
+                System.err.println(
+                    """
+                    LOG:
+                    $log
+                    END_LOG
+                """.trimIndent()
+                )
             }
         }
 
@@ -107,9 +79,8 @@ class DiffUtilTest {
     }
 
     // @Test
-    // @LargeTest
     // Used for development
-    @Suppress("unused")
+    // @Suppress("unused")
     fun testRandom() {
         for (x in 0..99) {
             for (i in 0..99) {
@@ -235,6 +206,75 @@ class DiffUtilTest {
     }
 
     @Test
+    fun testGen15() {
+        initWithSize(1)
+        update(0)
+        update(0)
+        update(0)
+        check()
+    }
+
+    @Test
+    fun testGen16() {
+        initWithSize(1)
+        update(0)
+        move(0, 0)
+        move(0, 0)
+        add(0)
+        check()
+    }
+
+    @Test
+    fun testGen17() {
+        initWithSize(2)
+        move(1, 0)
+        add(2)
+        update(1)
+        add(0)
+        check()
+    }
+
+    @Test
+    fun testGen18() {
+        initWithSize(2)
+        updateWithPayload(0)
+        check()
+    }
+
+    @Test
+    fun testGen19() {
+        initWithSize(3)
+        move(1, 1)
+        delete(2)
+        move(0, 1)
+        add(0)
+        update(1)
+        add(1)
+        updateWithPayload(2)
+        add(1)
+        delete(1)
+        updateWithPayload(3)
+        add(2)
+        move(2, 1)
+        add(2)
+        delete(2)
+        delete(1)
+        check()
+    }
+
+    @Test
+    fun testOneItem() {
+        initWithSize(1)
+        check()
+    }
+
+    @Test
+    fun testEmpty() {
+        initWithSize(0)
+        check()
+    }
+
+    @Test
     fun testAdd1() {
         initWithSize(1)
         add(1)
@@ -297,35 +337,45 @@ class DiffUtilTest {
     fun convertOldPositionToNew_tooSmall() {
         initWithSize(2)
         update(2)
-        DiffUtil.calculateDiff(callback).convertOldPositionToNew(-1)
+        calculate().convertOldPositionToNew(-1)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun convertOldPositionToNew_tooLarge() {
         initWithSize(2)
         update(2)
-        DiffUtil.calculateDiff(callback).convertOldPositionToNew(2)
+        calculate().convertOldPositionToNew(2)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun convertNewPositionToOld_tooSmall() {
         initWithSize(2)
         update(2)
-        DiffUtil.calculateDiff(callback).convertNewPositionToOld(-1)
+        calculate().convertNewPositionToOld(-1)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun convertNewPositionToOld_tooLarge() {
         initWithSize(2)
         update(2)
-        DiffUtil.calculateDiff(callback).convertNewPositionToOld(2)
+        calculate().convertNewPositionToOld(2)
+    }
+
+    private fun calculate() = DiffUtil.calculateDiff(callback, true)
+
+    @Test
+    fun duplicate() {
+        before.addAll(listOf(Item(false), Item(false)))
+        after.addAll(listOf(before[0], before[1], Item(true), before[1]))
+        check()
     }
 
     private fun testRandom(initialSize: Int, operationCount: Int) {
         log.setLength(0)
+        Item.idCounter = 0
         initWithSize(initialSize)
         for (i in 0 until operationCount) {
-            val op = sRand.nextInt(5)
+            val op = sRand.nextInt(6)
             when (op) {
                 0 -> add(sRand.nextInt(after.size + 1))
                 1 -> if (after.isNotEmpty()) {
@@ -346,29 +396,41 @@ class DiffUtilTest {
                     if (after.size > 0) {
                         updateWithPayload(sRand.nextInt(after.size))
                     }
+                5 -> // duplicate
+                    if (after.size > 0) {
+                        duplicate(
+                            sRand.nextInt(after.size),
+                            sRand.nextInt(after.size)
+                        )
+                    }
             }
         }
         check()
     }
 
     private fun check() {
-        val result =
-            DiffUtil.calculateDiff(callback)
+        val result = calculate()
         log("before", before)
         log("after", after)
-        log("snakes", result.snakes)
         // test diff dispatch
-        val applied =
-            applyUpdates(before, result)
+        val applied = applyUpdates(before, result)
+
         assertEquals(applied, after)
         // test position conversion
+        val missingBeforePosition = mutableSetOf<Int>()
+        val afterCopy = after.toMutableList()
         before.indices.forEach { oldPos ->
             val newPos = result.convertOldPositionToNew(oldPos)
             if (newPos != DiffUtil.DiffResult.NO_POSITION) {
                 assertEquals(before[oldPos].id, after[newPos].id)
+                // remove from the copy so that we can do not exists checks for unfound elements
+                afterCopy.remove(after[newPos])
             } else {
-                assertFalse(after.contains(before[oldPos]))
+                missingBeforePosition.add(oldPos)
             }
+        }
+        missingBeforePosition.forEach {
+            assertFalse(afterCopy.contains(before[it]))
         }
 
         try {
@@ -376,13 +438,20 @@ class DiffUtilTest {
             Assert.fail("out of bounds should occur")
         } catch (e: IndexOutOfBoundsException) { // expected
         }
+
+        val missingAfterPositions = mutableSetOf<Int>()
+        val beforeCopy = before.toMutableList()
         after.indices.forEach { newPos ->
             val oldPos = result.convertNewPositionToOld(newPos)
             if (oldPos != DiffUtil.DiffResult.NO_POSITION) {
                 assertEquals(after[newPos].id, before[oldPos].id)
+                beforeCopy.remove(before[oldPos])
             } else {
-                assertFalse(before.contains(after[newPos]))
+                missingAfterPositions.add(newPos)
             }
+        }
+        missingAfterPositions.forEach {
+            assertFalse(beforeCopy.contains(after[it]))
         }
 
         try {
@@ -415,6 +484,9 @@ class DiffUtilTest {
     ) {
         log("applied", applied)
         val report = log.toString()
+        val duplicateDiffs = computeExpectedNewItemsForExisting(after)
+
+        // in theory we can get duplicateDiff[it.id] time "Add" event for existing items
         assertThat(
             report,
             applied.size,
@@ -428,6 +500,9 @@ class DiffUtilTest {
                     item.newItem,
                     `is`(true)
                 )
+            } else if (duplicateDiffs.getOrDefault(after[index].id, 0) > 0 && item.newItem) {
+                // a duplicated item might come as a new item, be OK with it
+                duplicateDiffs[after[index].id] = duplicateDiffs[after[index].id]!! - 1
             } else if (after[index].changed) {
                 assertThat(
                     report,
@@ -459,6 +534,24 @@ class DiffUtilTest {
                 )
             }
         }
+    }
+
+    /**
+     * When an item is duplicated more than once in the new list, some of those will
+     * show up as new items, we should be OK with that but still verify
+     *
+     * @return mapping for <itemId -> max # of duplicates show up as new in the new list>
+     */
+    private fun computeExpectedNewItemsForExisting(after: List<Item>): MutableMap<Long, Int> {
+        // we might create list w/ duplicates.
+        val duplicateDiffs = mutableMapOf<Long, Int>() // id to count
+        after.filterNot { it.newItem }.forEach {
+            duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrDefault(it.id, 1)
+        }
+        before.forEach {
+            duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrDefault(it.id, 0)
+        }
+        return duplicateDiffs
     }
 
     private fun applyUpdates(
@@ -495,8 +588,7 @@ class DiffUtilTest {
             ) {
                 repeat(count) { offset ->
                     val positionInList = position + offset
-                    val existing =
-                        target[positionInList]
+                    val existing = target[positionInList]
                     // make sure we don't update same item twice in callbacks
                     assertThat(
                         existing.changed,
@@ -511,7 +603,8 @@ class DiffUtilTest {
                         `is`(nullValue())
                     )
                     val replica = existing.copy(
-                        changed = true
+                        changed = true,
+                        payload = payload as? String
                     )
                     target.removeAt(positionInList)
                     target.add(positionInList, replica)
@@ -542,8 +635,7 @@ class DiffUtilTest {
             payload = null,
             data = UUID.randomUUID().toString()
         )
-        after.removeAt(index)
-        after.add(index, replica)
+        after[index] = replica
         log.append("update(").append(index).append(");\n")
     }
 
@@ -557,15 +649,20 @@ class DiffUtilTest {
             data = UUID.randomUUID().toString(),
             payload = UUID.randomUUID().toString()
         )
-        after.removeAt(index)
-        after.add(index, replica)
-        log.append("update(").append(index).append(");\n")
+        after[index] = replica
+        log.append("updateWithPayload(").append(index).append(");\n")
     }
 
     private fun move(from: Int, to: Int) {
         val removed = after.removeAt(from)
         after.add(to, removed)
         log.append("move(").append(from).append(",").append(to).append(");\n")
+    }
+
+    private fun duplicate(pos: Int, to: Int) {
+        val item = after[pos]
+        after.add(pos, item) // re-use the item so that changes happen on it
+        log.append("duplicate(").append(pos).append(",").append(to).append(");\n")
     }
 
     internal data class Item(
@@ -575,11 +672,62 @@ class DiffUtilTest {
         var payload: String? = null,
         var data: String = UUID.randomUUID().toString()
     ) {
-
         constructor(newItem: Boolean) : this(id = idCounter++, newItem = newItem)
 
         companion object {
             var idCounter: Long = 0
+        }
+    }
+
+    private class ItemListCallback(
+        private val oldList: List<Item>,
+        private val newList: List<Item>,
+        private val assertCalls: Boolean = true
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(
+            oldItemIndex: Int,
+            newItemIndex: Int
+        ): Boolean {
+            return oldList[oldItemIndex].id == newList[newItemIndex].id
+        }
+
+        override fun areContentsTheSame(
+            oldItemIndex: Int,
+            newItemIndex: Int
+        ): Boolean {
+            if (assertCalls) {
+                assertThat(
+                    oldList[oldItemIndex].id,
+                    equalTo(newList[newItemIndex].id)
+                )
+            }
+            return oldList[oldItemIndex].data == newList[newItemIndex].data
+        }
+
+        override fun getChangePayload(
+            oldItemIndex: Int,
+            newItemIndex: Int
+        ): Any? {
+            if (assertCalls) {
+                assertThat(
+                    oldList[oldItemIndex].id,
+                    equalTo(newList[newItemIndex].id)
+                )
+                assertThat(
+                    oldList[oldItemIndex].data,
+                    not(
+                        equalTo(
+                            newList[newItemIndex].data
+                        )
+                    )
+                )
+            }
+
+            return newList[newItemIndex].payload
         }
     }
 
