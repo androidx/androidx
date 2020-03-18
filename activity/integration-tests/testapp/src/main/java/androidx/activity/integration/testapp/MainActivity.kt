@@ -34,7 +34,7 @@ import androidx.activity.invoke
 import androidx.activity.prepareCall
 import androidx.activity.result.contract.ActivityResultContracts.Dial
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
-import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
 
 class MainActivity : ComponentActivity() {
 
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         toast("Location granted: $isGranted")
     }
 
-    val takePicture = prepareCall(TakePicture()) { bitmap ->
+    val takePicture = prepareCall(TakePicturePreview()) { bitmap ->
         toast("Got picture: $bitmap")
     }
 

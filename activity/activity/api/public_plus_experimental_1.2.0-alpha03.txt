@@ -96,10 +96,68 @@ package androidx.activity.result.contract {
   public class ActivityResultContracts {
   }
 
+  public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+    ctor public ActivityResultContracts.CreateDocument();
+    method public android.content.Intent createIntent(android.content.Context, String);
+    method public android.net.Uri? parseResult(int, android.content.Intent?);
+  }
+
   public static class ActivityResultContracts.Dial extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
     ctor public ActivityResultContracts.Dial();
     method public android.content.Intent createIntent(android.content.Context, String);
     method public Boolean parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.Email extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.contract.ActivityResultContracts.Email.Request,java.lang.Boolean> {
+    ctor public ActivityResultContracts.Email();
+    method public android.content.Intent createIntent(android.content.Context, androidx.activity.result.contract.ActivityResultContracts.Email.Request);
+    method public Boolean parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.Email.Request {
+    ctor public ActivityResultContracts.Email.Request();
+    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request attachments(android.net.Uri!...);
+    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request bcc(java.lang.String!...);
+    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request cc(java.lang.String!...);
+    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request subject(String?);
+    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request text(String?);
+    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request to(java.lang.String!...);
+  }
+
+  public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
+    ctor public ActivityResultContracts.OpenDocument();
+    method public android.content.Intent createIntent(android.content.Context, String![]);
+    method public android.net.Uri? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.OpenDocumentTree extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.net.Uri> {
+    ctor public ActivityResultContracts.OpenDocumentTree();
+    method public android.content.Intent createIntent(android.content.Context, android.net.Uri?);
+    method public android.net.Uri? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.OpenDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.OpenDocuments();
+    method public android.content.Intent createIntent(android.content.Context, String![]);
+    method public java.util.List<android.net.Uri!>? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.PickContact extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.net.Uri> {
+    ctor public ActivityResultContracts.PickContact();
+    method public android.content.Intent createIntent(android.content.Context, Void?);
+    method public android.net.Uri? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.PickFile extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+    ctor public ActivityResultContracts.PickFile();
+    method public android.content.Intent createIntent(android.content.Context, String);
+    method public android.net.Uri? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.PickFiles extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.PickFiles();
+    method public android.content.Intent createIntent(android.content.Context, String);
+    method public java.util.List<android.net.Uri!> parseResult(int, android.content.Intent?);
   }
 
   public static class ActivityResultContracts.RequestPermission extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
@@ -125,9 +183,21 @@ package androidx.activity.result.contract {
     method public androidx.activity.result.ActivityResult parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.graphics.Bitmap> {
+  public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
     ctor public ActivityResultContracts.TakePicture();
+    method public android.content.Intent createIntent(android.content.Context, android.net.Uri);
+    method public android.graphics.Bitmap? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.TakePicturePreview extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.graphics.Bitmap> {
+    ctor public ActivityResultContracts.TakePicturePreview();
     method public android.content.Intent createIntent(android.content.Context, Void?);
+    method public android.graphics.Bitmap? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.TakeVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
+    ctor public ActivityResultContracts.TakeVideo();
+    method public android.content.Intent createIntent(android.content.Context, android.net.Uri);
     method public android.graphics.Bitmap? parseResult(int, android.content.Intent?);
   }
 
