@@ -244,6 +244,16 @@ public final class VideoCaptureConfig
         return retrieveOption(OPTION_AUDIO_MIN_BUFFER_SIZE);
     }
 
+    /**
+     * Retrieves the format of the image that is fed as input.
+     *
+     * <p>This should always be PRIVATE for VideoCapture.
+     */
+    @Override
+    public int getInputFormat() {
+        return ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+    }
+
     // Start of the default implementation of Config
     // *********************************************************************************************
 

@@ -54,9 +54,11 @@ import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.Configs;
 import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -77,6 +79,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -341,7 +344,8 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         try {
             // Will throw IllegalArgumentException
-            mSurfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, null, useCases);
+            mSurfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, Collections.emptyList(),
+                    Configs.useCaseConfigListFromUseCaseList(useCases));
         } catch (IllegalArgumentException e) {
             exceptionHappened = true;
         }
@@ -365,13 +369,16 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
-        Map<UseCase, Size> suggestedResolutionMap =
-                mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mRecordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture, mMaximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview, mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+                mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+                mMaximumVideoSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
     }
 
     @Test

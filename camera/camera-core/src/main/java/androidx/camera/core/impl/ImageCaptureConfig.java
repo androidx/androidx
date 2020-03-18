@@ -31,7 +31,6 @@ import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.IoConfig;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -169,6 +168,16 @@ public final class ImageCaptureConfig
     @NonNull
     public Integer getBufferFormat() {
         return retrieveOption(OPTION_BUFFER_FORMAT);
+    }
+
+    /**
+     * Retrieves the format of the image that is fed as input.
+     *
+     * <p>This should be YUV_420_888, when processing is run on the image. Otherwise it is JPEG.
+     */
+    @Override
+    public int getInputFormat() {
+        return retrieveOption(OPTION_INPUT_FORMAT);
     }
 
     /**
@@ -447,8 +456,7 @@ public final class ImageCaptureConfig
      * Returns the executor that will be used for IO tasks.
      *
      * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
-     * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
-     * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+     * {@link ImageCapture#takePicture(ImageCapture.OutputFileOptions, Executor,
      * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
      * specifically for IO will be used instead.
      *
@@ -466,8 +474,7 @@ public final class ImageCaptureConfig
      * Returns the executor that will be used for IO tasks.
      *
      * <p> This executor will be used for any IO tasks specifically for ImageCapture, such as
-     * {@link ImageCapture#takePicture(File, Executor, ImageCapture.OnImageSavedCallback)}
-     * and {@link ImageCapture#takePicture(File, ImageCapture.Metadata, Executor,
+     * {@link ImageCapture#takePicture(ImageCapture.OutputFileOptions, Executor,
      * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
      * specifically for IO will be used instead.
      *

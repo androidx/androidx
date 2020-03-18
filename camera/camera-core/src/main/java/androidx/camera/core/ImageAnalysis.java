@@ -162,7 +162,6 @@ public final class ImageAnalysis extends UseCase {
 
         // Get the combined configuration with defaults
         ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
-        setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageAnalysisFormat());
 
         if (combinedConfig.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER) {
             mImageAnalysisAbstractAnalyzer = new ImageAnalysisBlockingAnalyzer();
@@ -420,7 +419,6 @@ public final class ImageAnalysis extends UseCase {
     @Override
     public void clear() {
         clearPipeline();
-        super.clear();
     }
 
     /**

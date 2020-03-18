@@ -174,8 +174,6 @@ public class ImageCaptureTest {
     private void bind(UseCase useCase) {
         // Sets bound camera to use case.
         useCase.onBind(mFakeCamera);
-        useCase.addStateChangeCallback(mFakeCamera);
-        useCase.attachCameraControl();
         useCase.updateSuggestedResolution(new Size(640, 480));
     }
 }

@@ -129,7 +129,7 @@ public final class UseCaseGroup {
 
         for (UseCase useCase : useCasesToClear) {
             Log.d(TAG, "Clearing use case: " + useCase.getName());
-            useCase.clear();
+            useCase.onUnbind();
         }
     }
 

@@ -20,10 +20,6 @@ import static androidx.camera.camera2.internal.SupportedSurfaceCombination.hasMa
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -57,8 +53,10 @@ import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.Configs;
 import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -85,6 +83,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -185,7 +184,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -200,7 +199,7 @@ public final class SupportedSurfaceCombinationTest {
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
-        assertTrue(isSupported);
+        assertThat(isSupported).isTrue();
     }
 
     @Test
@@ -215,7 +214,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertFalse(isSupported);
+            assertThat(isSupported).isFalse();
         }
     }
 
@@ -231,7 +230,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertFalse(isSupported);
+            assertThat(isSupported).isFalse();
         }
     }
 
@@ -247,7 +246,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertFalse(isSupported);
+            assertThat(isSupported).isFalse();
         }
     }
 
@@ -263,7 +262,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -278,7 +277,7 @@ public final class SupportedSurfaceCombinationTest {
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
-        assertTrue(isSupported);
+        assertThat(isSupported).isTrue();
     }
 
     @Test
@@ -293,7 +292,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertFalse(isSupported);
+            assertThat(isSupported).isFalse();
         }
     }
 
@@ -309,7 +308,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertFalse(isSupported);
+            assertThat(isSupported).isFalse();
         }
     }
 
@@ -325,7 +324,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -340,7 +339,7 @@ public final class SupportedSurfaceCombinationTest {
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
-        assertTrue(isSupported);
+        assertThat(isSupported).isTrue();
     }
 
     @Test
@@ -355,7 +354,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertFalse(isSupported);
+            assertThat(isSupported).isFalse();
         }
     }
 
@@ -372,7 +371,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -389,7 +388,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -406,7 +405,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -423,7 +422,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -439,7 +438,7 @@ public final class SupportedSurfaceCombinationTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
-            assertTrue(isSupported);
+            assertThat(isSupported).isTrue();
         }
     }
 
@@ -454,7 +453,7 @@ public final class SupportedSurfaceCombinationTest {
 
         boolean isSupported =
                 isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
-        assertTrue(isSupported);
+        assertThat(isSupported).isTrue();
     }
 
     @Test
@@ -487,22 +486,23 @@ public final class SupportedSurfaceCombinationTest {
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
-        Size previewSize = suggestedResolutionMap.get(preview);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
+        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
         Rational resultAspectRatio = new Rational(previewSize.getHeight(), previewSize.getWidth());
 
         if (Build.VERSION.SDK_INT == 21) {
             // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
             // in the mSupportedSizes, are not equal to make sure this test case is valid.
-            assertFalse(targetAspectRatio.equals(maxJpegAspectRatio));
-            assertTrue(previewAspectRatio.equals(maxJpegAspectRatio));
-            assertTrue(correctedAspectRatio.equals(maxJpegAspectRatio));
-            assertTrue(resultAspectRatio.equals(maxJpegAspectRatio));
+            assertThat(targetAspectRatio).isNotEqualTo(maxJpegAspectRatio);
+            assertThat(previewAspectRatio).isEqualTo(maxJpegAspectRatio);
+            assertThat(correctedAspectRatio).isEqualTo(maxJpegAspectRatio);
+            assertThat(resultAspectRatio).isEqualTo(maxJpegAspectRatio);
         } else {
             // Checks no correction is needed.
             assertThat(correctedAspectRatio).isNull();
-            assertTrue(resultAspectRatio.equals(targetAspectRatio));
+            assertThat(resultAspectRatio).isEqualTo(targetAspectRatio);
         }
     }
 
@@ -527,12 +527,13 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageCapture);
         useCases.add(imageAnalysis);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
-        Size previewSize = suggestedResolutionMap.get(preview);
-        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture);
-        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis);
+        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
+        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture.getUseCaseConfig());
+        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis.getUseCaseConfig());
 
         Rational previewAspectRatio = new Rational(previewSize.getWidth(), previewSize.getHeight());
         Rational imageCaptureAspectRatio = new Rational(imageCaptureSize.getWidth(),
@@ -541,12 +542,12 @@ public final class SupportedSurfaceCombinationTest {
                 imageAnalysisSize.getHeight());
 
         // Checks the default aspect ratio.
-        assertTrue(previewAspectRatio.equals(ASPECT_RATIO_4_3));
-        assertTrue(imageCaptureAspectRatio.equals(ASPECT_RATIO_4_3));
-        assertTrue(imageAnalysisAspectRatio.equals(ASPECT_RATIO_4_3));
+        assertThat(previewAspectRatio).isEqualTo(ASPECT_RATIO_4_3);
+        assertThat(imageCaptureAspectRatio).isEqualTo(ASPECT_RATIO_4_3);
+        assertThat(imageAnalysisAspectRatio).isEqualTo(ASPECT_RATIO_4_3);
 
         // Checks the default resolution.
-        assertTrue(imageAnalysisSize.equals(mAnalysisSize));
+        assertThat(imageAnalysisSize).isEqualTo(mAnalysisSize);
     }
 
     @Test
@@ -570,22 +571,23 @@ public final class SupportedSurfaceCombinationTest {
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
         // Checks the preconditions.
         final Size preconditionSize = new Size(256, 144);
         final Rational targetRatio = new Rational(displayHeight, displayWidth);
         ArrayList<Size> sizeList = new ArrayList<>(Arrays.asList(mSupportedSizes));
-        assertTrue(sizeList.contains(preconditionSize));
+        assertThat(sizeList).contains(preconditionSize);
         for (Size s : mSupportedSizes) {
             Rational supportedRational = new Rational(s.getWidth(), s.getHeight());
-            assertFalse(supportedRational.equals(targetRatio));
+            assertThat(supportedRational).isNotEqualTo(targetRatio);
         }
 
         // Checks the mechanism has filtered out the sizes which are smaller than default size 480p.
-        Size previewSize = suggestedResolutionMap.get(preview);
-        assertTrue(!previewSize.equals(preconditionSize));
+        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
+        assertThat(previewSize).isNotEqualTo(preconditionSize);
     }
 
     @Test
@@ -602,11 +604,12 @@ public final class SupportedSurfaceCombinationTest {
             ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(
                     targetResolution).setTargetRotation(Surface.ROTATION_90).build();
 
-            Map<UseCase, Size> suggestedResolutionMap =
-                    supportedSurfaceCombination.getSuggestedResolutions(null,
-                            Arrays.asList(imageCapture));
+            Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                    supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                            Collections.singletonList(imageCapture.getUseCaseConfig()));
 
-            assertEquals(targetResolution, suggestedResolutionMap.get(imageCapture));
+            assertThat(targetResolution).isEqualTo(
+                    suggestedResolutionMap.get(imageCapture.getUseCaseConfig()));
         }
     }
 
@@ -624,11 +627,12 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(
                 targetResolution).setTargetRotation(Surface.ROTATION_90).build();
 
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null,
-                        Arrays.asList(imageCapture));
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Arrays.asList(imageCapture.getUseCaseConfig()));
 
-        assertEquals(new Size(1280, 720), suggestedResolutionMap.get(imageCapture));
+        assertThat(new Size(1280, 720)).isEqualTo(
+                suggestedResolutionMap.get(imageCapture.getUseCaseConfig()));
     }
 
 
@@ -652,10 +656,11 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
-        assertTrue(suggestedResolutionMap.size() != 3);
+        assertThat(suggestedResolutionMap).isNotEqualTo(3);
     }
 
     @Test
@@ -678,13 +683,16 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mRecordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture, mMaximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview, mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+                mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+                mMaximumVideoSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
     }
 
     @Test
@@ -713,12 +721,15 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(preview);
         useCases.add(imageAnalysis);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mPreviewSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview, mPreviewSize);
-        assertThat(suggestedResolutionMap).containsEntry(imageAnalysis, mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+                mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageAnalysis.getUseCaseConfig(),
+                mPreviewSize);
     }
 
     @Test
@@ -741,16 +752,17 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(preview);
         useCases.add(imageAnalysis);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
-        Size previewSize = suggestedResolutionMap.get(preview);
-        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture);
-        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis);
+        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
+        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture.getUseCaseConfig());
+        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis.getUseCaseConfig());
 
-        assertTrue(hasMatchingAspectRatio(previewSize, ASPECT_RATIO_16_9));
-        assertTrue(hasMatchingAspectRatio(imageCaptureSize, ASPECT_RATIO_16_9));
-        assertTrue(hasMatchingAspectRatio(imageAnalysisSize, ASPECT_RATIO_16_9));
+        assertThat(hasMatchingAspectRatio(previewSize, ASPECT_RATIO_16_9)).isTrue();
+        assertThat(hasMatchingAspectRatio(imageCaptureSize, ASPECT_RATIO_16_9)).isTrue();
+        assertThat(hasMatchingAspectRatio(imageAnalysisSize, ASPECT_RATIO_16_9)).isTrue();
     }
 
     @Test
@@ -766,7 +778,7 @@ public final class SupportedSurfaceCombinationTest {
         } catch (IllegalArgumentException e) {
             previewExceptionHappened = true;
         }
-        assertTrue(previewExceptionHappened);
+        assertThat(previewExceptionHappened).isTrue();
 
         boolean imageCaptureExceptionHappened = false;
         ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder()
@@ -777,7 +789,7 @@ public final class SupportedSurfaceCombinationTest {
         } catch (IllegalArgumentException e) {
             imageCaptureExceptionHappened = true;
         }
-        assertTrue(imageCaptureExceptionHappened);
+        assertThat(imageCaptureExceptionHappened).isTrue();
 
         boolean imageAnalysisExceptionHappened = false;
         ImageAnalysis.Builder imageAnalysisConfigBuilder = new ImageAnalysis.Builder()
@@ -788,7 +800,7 @@ public final class SupportedSurfaceCombinationTest {
         } catch (IllegalArgumentException e) {
             imageAnalysisExceptionHappened = true;
         }
-        assertTrue(imageAnalysisExceptionHappened);
+        assertThat(imageAnalysisExceptionHappened).isTrue();
     }
 
     @Test
@@ -818,13 +830,16 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
 
         // Checks all suggested resolutions will become 640x480.
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mAnalysisSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture, mAnalysisSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview, mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+                mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+                mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mAnalysisSize);
     }
 
     @Test
@@ -837,7 +852,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.YUV_420_888, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.ANALYSIS);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -850,7 +865,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.YUV_420_888, mPreviewSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -863,7 +878,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.YUV_420_888, mRecordSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -876,7 +891,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.YUV_420_888, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -890,7 +905,7 @@ public final class SupportedSurfaceCombinationTest {
                         new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.NOT_SUPPORT);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -903,7 +918,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.JPEG, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ANALYSIS);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -916,7 +931,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.JPEG, mPreviewSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.PREVIEW);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -929,7 +944,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.JPEG, mRecordSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -942,7 +957,7 @@ public final class SupportedSurfaceCombinationTest {
                         ImageFormat.JPEG, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -956,7 +971,7 @@ public final class SupportedSurfaceCombinationTest {
                         new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.NOT_SUPPORT);
-        assertEquals(expectedSurfaceConfig, surfaceConfig);
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig);
     }
 
     @Test
@@ -966,10 +981,10 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
         Size maximumYUVSize =
                 supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.YUV_420_888);
-        assertEquals(mMaximumSize, maximumYUVSize);
+        assertThat(maximumYUVSize).isEqualTo(mMaximumSize);
         Size maximumJPEGSize =
                 supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
-        assertEquals(mMaximumSize, maximumJPEGSize);
+        assertThat(maximumJPEGSize).isEqualTo(mMaximumSize);
     }
 
     @Test
@@ -991,10 +1006,13 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageCapture);
 
-        Map<UseCase, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
-        assertThat(suggestedResolutionMap).containsEntry(preview, mMod16Size);
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mMod16Size);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
+
+        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mMod16Size);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+                mMod16Size);
     }
 
     @Test
@@ -1014,7 +1032,7 @@ public final class SupportedSurfaceCombinationTest {
 
         // The testing sizes array will be equal to mSupportedSizes after sorting.
         Arrays.sort(sizes, new SupportedSurfaceCombination.CompareSizesByArea(true));
-        assertEquals(Arrays.asList(mSupportedSizes), Arrays.asList(sizes));
+        assertThat(Arrays.asList(sizes)).isEqualTo(Arrays.asList(mSupportedSizes));
     }
 
     @Test
@@ -1028,7 +1046,8 @@ public final class SupportedSurfaceCombinationTest {
         // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
         // removed. No any aspect ratio related setting. The returned sizes list will be sorted in
         // descending order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 new Size(4032, 3024),
                 new Size(3840, 2160),
@@ -1040,7 +1059,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(800, 450),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1056,7 +1075,8 @@ public final class SupportedSurfaceCombinationTest {
         // removed. Sizes of aspect ratio 4/3 will be in front of the returned sizes list and the
         // list is sorted in descending order. Other items will be put in the following that are
         // sorted by aspect ratio delta and then area size.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Matched AspectRatio items, sorted by area size.
                 new Size(4032, 3024),
@@ -1071,7 +1091,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(960, 544),
                 new Size(800, 450)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1088,7 +1108,8 @@ public final class SupportedSurfaceCombinationTest {
         // removed. Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
         // list is sorted in descending order. Other items will be put in the following that are
         // sorted by aspect ratio delta and then area size.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Matched AspectRatio items, sorted by area size.
                 new Size(3840, 2160),
@@ -1103,7 +1124,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(1280, 960),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1122,7 +1143,8 @@ public final class SupportedSurfaceCombinationTest {
         // Therefore, sizes of aspect ratio 16/9 will be in front of the returned sizes list and
         // the list is sorted in descending order. Other items will be put in the following that
         // are sorted by aspect ratio delta and then area size.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Matched AspectRatio items, sorted by area size.
                 new Size(1920, 1080),
@@ -1135,7 +1157,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(1280, 960),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1154,7 +1176,8 @@ public final class SupportedSurfaceCombinationTest {
         // Therefore, sizes of aspect ratio 4/3 will be in front of the returned sizes list and
         // the list is sorted in descending order. Other items will be put in the following that
         // are sorted by aspect ratio delta and then area size.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Matched AspectRatio items, sorted by area size.
                 new Size(1280, 960),
@@ -1166,7 +1189,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(960, 544),
                 new Size(800, 450)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1184,7 +1207,8 @@ public final class SupportedSurfaceCombinationTest {
         // Therefore, sizes of aspect ratio 4/3 will be in front of the returned sizes list and
         // the list is sorted in descending order. Other items will be put in the following that
         // are sorted by aspect ratio delta and then area size.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Matched AspectRatio items, sorted by area size.
                 new Size(320, 240),
@@ -1192,7 +1216,7 @@ public final class SupportedSurfaceCombinationTest {
                 // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
                 new Size(800, 450)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1209,7 +1233,8 @@ public final class SupportedSurfaceCombinationTest {
         // target resolution will also call setTargetAspectRatioCustom to set matching aspect
         // ratio. Size 1800x1440 is near to 4/3, therefore, sizes of aspect ratio 4/3 will be in
         // front of the returned sizes list and the list is sorted in descending order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Sizes of 4/3 are near to aspect ratio of 1800/1440
                 new Size(1920, 1440),
@@ -1223,7 +1248,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(960, 544),
                 new Size(800, 450)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1241,7 +1266,8 @@ public final class SupportedSurfaceCombinationTest {
         // target resolution will also call setTargetAspectRatioCustom to overwrite original target
         // aspect ratio. Size 1800x1440 is near to 4/3, therefore, sizes of aspect ratio 4/3 will
         // be in front of the returned sizes list and the list is sorted in descending order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Sizes of 4/3 are near to aspect ratio of 1800/1440
                 new Size(1920, 1440),
@@ -1255,7 +1281,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(960, 544),
                 new Size(800, 450)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1274,7 +1300,8 @@ public final class SupportedSurfaceCombinationTest {
         // target aspect ratio. Size 1800x1440 is near to 4/3, therefore, sizes of aspect ratio
         // 4/3 will be in front of the returned sizes list and the list is sorted in descending
         // order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Sizes of 4/3 are near to aspect ratio of 1800/1440
                 new Size(1920, 1440),
@@ -1288,7 +1315,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(960, 544),
                 new Size(800, 450)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1305,7 +1332,8 @@ public final class SupportedSurfaceCombinationTest {
         // target resolution will also call setTargetAspectRatioCustom to set matching aspect
         // ratio. Size 1280x600 is near to 16/9, therefore, sizes of aspect ratio 16/9 will be in
         // front of the returned sizes list and the list is sorted in descending order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Sizes of 16/9 are near to aspect ratio of 1280/600
                 new Size(1280, 720),
@@ -1316,7 +1344,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(1280, 960),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1335,7 +1363,8 @@ public final class SupportedSurfaceCombinationTest {
         // target aspect ratio. Size 1280x600 is near to 16/9, therefore, sizes of aspect ratio
         // 16/9 will be in front of the returned sizes list and the list is sorted in descending
         // order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Sizes of 16/9 are near to aspect ratio of 1280/600
                 new Size(1280, 720),
@@ -1346,7 +1375,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(1280, 960),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1365,7 +1394,8 @@ public final class SupportedSurfaceCombinationTest {
         // target aspect ratio. Size 1280x600 is near to 16/9, therefore, sizes of aspect ratio
         // 16/9 will be in front of the returned sizes list and the list is sorted in descending
         // order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Sizes of 16/9 are near to aspect ratio of 1280/600
                 new Size(1280, 720),
@@ -1376,7 +1406,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(1280, 960),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1391,14 +1421,15 @@ public final class SupportedSurfaceCombinationTest {
         // There is default minimum size 640x480 setting. Sizes smaller than 640x480 or
         // larger than 1280x720 will be removed. The returned sizes list will be sorted in
         // descending order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 new Size(1280, 720),
                 new Size(960, 544),
                 new Size(800, 450),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1414,14 +1445,15 @@ public final class SupportedSurfaceCombinationTest {
         // removed. If there is no target resolution setting, it will be overwritten by default
         // resolution as 1280x720. Unnecessary big enough sizes will also be removed. The
         // returned sizes list will be sorted in descending order.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 new Size(1280, 720),
                 new Size(960, 544),
                 new Size(800, 450),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1440,7 +1472,8 @@ public final class SupportedSurfaceCombinationTest {
         // aspect ratio 16/9 will be in front of the returned sizes list and the list is sorted
         // in descending order.  Other items will be put in the following that are sorted by
         // aspect ratio delta and then area size.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 // Matched AspectRatio items, sorted by area size.
                 new Size(1920, 1080),
@@ -1453,7 +1486,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(1280, 960),
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     @Test
@@ -1473,11 +1506,12 @@ public final class SupportedSurfaceCombinationTest {
         // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
         // removed. There is target resolution 1920x1080 (16:9). Even 640x480 does not match 16:9
         // requirement, it will still be returned to use.
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(useCase);
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
         List<Size> expectedList = Arrays.asList(new Size[]{
                 new Size(640, 480)
         });
-        assertEquals(expectedList, resultList);
+        assertThat(resultList).isEqualTo(expectedList);
     }
 
     private void setupCamera(int hardwareLevel) {

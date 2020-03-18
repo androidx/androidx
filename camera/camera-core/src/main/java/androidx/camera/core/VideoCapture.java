@@ -407,8 +407,6 @@ public class VideoCapture extends UseCase {
         if (mCameraSurface != null) {
             releaseCameraSurface(true);
         }
-
-        super.clear();
     }
 
     private void releaseCameraSurface(final boolean releaseVideoEncoder) {

@@ -30,7 +30,7 @@ import androidx.camera.core.internal.UseCaseEventConfig;
  * @param <T> The use case being configured.
  */
 public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Config,
-        UseCaseEventConfig {
+        UseCaseEventConfig , ImageInputConfig {
     // Option Declarations:
     // *********************************************************************************************
 

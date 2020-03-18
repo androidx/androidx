@@ -30,6 +30,4 @@ public final class ImageFormatConstants {
 
     private ImageFormatConstants() {
     }
-
-    ;
 }
