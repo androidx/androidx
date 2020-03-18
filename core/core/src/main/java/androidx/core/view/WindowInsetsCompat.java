@@ -21,10 +21,10 @@ import static android.os.Build.VERSION.SDK_INT;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.Log;
 import android.view.WindowInsets;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -32,10 +32,10 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.Insets;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Objects;
 
 /**
  * Describes a set of insets for window content.
@@ -229,12 +229,12 @@ public class WindowInsetsCompat {
      *
      * @return A modified copy of this WindowInsets
      */
-    @Nullable
+    @NonNull
     public WindowInsetsCompat consumeSystemWindowInsets() {
         if (SDK_INT >= 20) {
             return new WindowInsetsCompat(((WindowInsets) mInsets).consumeSystemWindowInsets());
         } else {
-            return null;
+            return this;
         }
     }
 
@@ -254,13 +254,13 @@ public class WindowInsetsCompat {
      * {@link WindowInsetsCompat.Builder#setSystemWindowInsets(Insets)} instead.
      */
     @Deprecated
-    @Nullable
+    @NonNull
     public WindowInsetsCompat replaceSystemWindowInsets(int left, int top, int right, int bottom) {
         if (SDK_INT >= 20) {
             return new WindowInsetsCompat(((WindowInsets) mInsets)
                     .replaceSystemWindowInsets(left, top, right, bottom));
         } else {
-            return null;
+            return this;
         }
     }
 
@@ -278,13 +278,13 @@ public class WindowInsetsCompat {
      * {@link WindowInsetsCompat.Builder#setSystemWindowInsets(Insets)} instead.
      */
     @Deprecated
-    @Nullable
+    @NonNull
     public WindowInsetsCompat replaceSystemWindowInsets(@NonNull Rect systemWindowInsets) {
         if (SDK_INT >= 20) {
             return replaceSystemWindowInsets(systemWindowInsets.left, systemWindowInsets.top,
                     systemWindowInsets.right, systemWindowInsets.bottom);
         } else {
-            return null;
+            return this;
         }
     }
 
@@ -401,12 +401,12 @@ public class WindowInsetsCompat {
      *
      * @return A modified copy of this WindowInsetsCompat
      */
-    @Nullable
+    @NonNull
     public WindowInsetsCompat consumeStableInsets() {
         if (SDK_INT >= 21) {
             return new WindowInsetsCompat(((WindowInsets) mInsets).consumeStableInsets());
         } else {
-            return null;
+            return this;
         }
     }
 
@@ -434,7 +434,7 @@ public class WindowInsetsCompat {
      *
      * @return A modified copy of this WindowInsets
      */
-    @Nullable
+    @NonNull
     public WindowInsetsCompat consumeDisplayCutout() {
         if (SDK_INT >= 28) {
             return new WindowInsetsCompat(((WindowInsets) mInsets).consumeDisplayCutout());
@@ -459,7 +459,7 @@ public class WindowInsetsCompat {
     @NonNull
     public Insets getSystemWindowInsets() {
         if (mSystemWindowInsets == null) {
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (SDK_INT >= 29) {
                 mSystemWindowInsets = Insets.toCompatInsets(
                         ((WindowInsets) mInsets).getSystemWindowInsets());
             } else {
@@ -490,7 +490,7 @@ public class WindowInsetsCompat {
     @NonNull
     public Insets getStableInsets() {
         if (mStableInsets == null) {
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (SDK_INT >= 29) {
                 mStableInsets = Insets.toCompatInsets(((WindowInsets) mInsets).getStableInsets());
             } else {
                 // Else we'll create a copy from the getters
@@ -513,7 +513,7 @@ public class WindowInsetsCompat {
     @NonNull
     public Insets getMandatorySystemGestureInsets() {
         if (mMandatorySystemGestureInsets == null) {
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (SDK_INT >= 29) {
                 mMandatorySystemGestureInsets = Insets.toCompatInsets(
                         ((WindowInsets) mInsets).getMandatorySystemGestureInsets());
             } else {
@@ -538,7 +538,7 @@ public class WindowInsetsCompat {
     @NonNull
     public Insets getTappableElementInsets() {
         if (mTappableElementInsets == null) {
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (SDK_INT >= 29) {
                 mTappableElementInsets = Insets.toCompatInsets(
                         ((WindowInsets) mInsets).getTappableElementInsets());
             } else {
@@ -565,7 +565,7 @@ public class WindowInsetsCompat {
     @NonNull
     public Insets getSystemGestureInsets() {
         if (mSystemGestureInsets == null) {
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (SDK_INT >= 29) {
                 mSystemGestureInsets = Insets.toCompatInsets(
                         ((WindowInsets) mInsets).getSystemGestureInsets());
             } else {
@@ -574,6 +574,60 @@ public class WindowInsetsCompat {
             }
         }
         return mSystemGestureInsets;
+    }
+
+    /**
+     * Returns a copy of this instance inset in the given directions.
+     *
+     * This is intended for dispatching insets to areas of the window that are smaller than the
+     * current area.
+     *
+     * <p>Example:
+     * <pre>
+     * childView.dispatchApplyWindowInsets(insets.inset(childMargins));
+     * </pre>
+     *
+     * @param insets the amount of insets to remove from all sides.
+     *
+     * @see #inset(int, int, int, int)
+     */
+    @NonNull
+    public WindowInsetsCompat inset(@NonNull Insets insets) {
+        return inset(insets.left, insets.top, insets.right, insets.bottom);
+    }
+
+    /**
+     * Returns a copy of this instance inset in the given directions.
+     *
+     * This is intended for dispatching insets to areas of the window that are smaller than the
+     * current area.
+     *
+     * <p>Example:
+     * <pre>
+     * childView.dispatchApplyWindowInsets(insets.inset(
+     *         childMarginLeft, childMarginTop, childMarginBottom, childMarginRight));
+     * </pre>
+     *
+     * @param left the amount of insets to remove from the left. Must be non-negative.
+     * @param top the amount of insets to remove from the top. Must be non-negative.
+     * @param right the amount of insets to remove from the right. Must be non-negative.
+     * @param bottom the amount of insets to remove from the bottom. Must be non-negative.
+     *
+     * @return the inset insets
+     */
+    @NonNull
+    public WindowInsetsCompat inset(@IntRange(from = 0) int left, @IntRange(from = 0) int top,
+            @IntRange(from = 0) int right, @IntRange(from = 0) int bottom) {
+        if (SDK_INT >= 29) {
+            // On API 29+, we can use the public inset() API
+            return toWindowInsetsCompat(((WindowInsets) mInsets).inset(left, top, right, bottom));
+        }
+
+        // Else, we need to handle this manually
+        Builder b = new Builder(this);
+        b.setSystemWindowInsets(insetInsets(getSystemWindowInsets(), left, top, right, bottom));
+        b.setStableInsets(insetInsets(getStableInsets(), left, top, right, bottom));
+        return b.build();
     }
 
     @Override
@@ -613,7 +667,20 @@ public class WindowInsetsCompat {
     @NonNull
     @RequiresApi(20)
     public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets) {
-        return new WindowInsetsCompat(Objects.requireNonNull(insets));
+        Preconditions.checkNotNull(insets);
+        // WindowInsets are only immutable on API 28+, so we make a copy on older platforms
+        return new WindowInsetsCompat(SDK_INT >= 28 ? insets : new WindowInsets(insets));
+    }
+
+    private static Insets insetInsets(Insets insets, int left, int top, int right, int bottom) {
+        int newLeft = Math.max(0, insets.left - left);
+        int newTop = Math.max(0, insets.top - top);
+        int newRight = Math.max(0, insets.right - right);
+        int newBottom = Math.max(0, insets.bottom - bottom);
+        if (newLeft == left && newTop == top && newRight == right && newBottom == bottom) {
+            return insets;
+        }
+        return Insets.of(newLeft, newTop, newRight, newBottom);
     }
 
     /**

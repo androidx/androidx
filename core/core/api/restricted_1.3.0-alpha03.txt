@@ -2434,6 +2434,7 @@ package androidx.core.view {
     method @Deprecated public static boolean canScrollVertically(android.view.View!, int);
     method public static void cancelDragAndDrop(android.view.View);
     method @Deprecated public static int combineMeasuredStates(int, int);
+    method public static androidx.core.view.WindowInsetsCompat computeSystemWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat, android.graphics.Rect);
     method public static androidx.core.view.WindowInsetsCompat! dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat!);
     method public static void dispatchFinishTemporaryDetach(android.view.View);
     method public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
@@ -2748,9 +2749,9 @@ package androidx.core.view {
 
   public class WindowInsetsCompat {
     ctor public WindowInsetsCompat(androidx.core.view.WindowInsetsCompat?);
-    method public androidx.core.view.WindowInsetsCompat? consumeDisplayCutout();
-    method public androidx.core.view.WindowInsetsCompat? consumeStableInsets();
-    method public androidx.core.view.WindowInsetsCompat? consumeSystemWindowInsets();
+    method public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
+    method public androidx.core.view.WindowInsetsCompat consumeStableInsets();
+    method public androidx.core.view.WindowInsetsCompat consumeSystemWindowInsets();
     method public androidx.core.view.DisplayCutoutCompat? getDisplayCutout();
     method public androidx.core.graphics.Insets getMandatorySystemGestureInsets();
     method public int getStableInsetBottom();
@@ -2768,10 +2769,12 @@ package androidx.core.view {
     method public boolean hasInsets();
     method public boolean hasStableInsets();
     method public boolean hasSystemWindowInsets();
+    method public androidx.core.view.WindowInsetsCompat inset(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat inset(@IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int);
     method public boolean isConsumed();
     method public boolean isRound();
-    method @Deprecated public androidx.core.view.WindowInsetsCompat? replaceSystemWindowInsets(int, int, int, int);
-    method @Deprecated public androidx.core.view.WindowInsetsCompat? replaceSystemWindowInsets(android.graphics.Rect);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat replaceSystemWindowInsets(int, int, int, int);
+    method @Deprecated public androidx.core.view.WindowInsetsCompat replaceSystemWindowInsets(android.graphics.Rect);
     method @RequiresApi(20) public android.view.WindowInsets? toWindowInsets();
     method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets);
   }
