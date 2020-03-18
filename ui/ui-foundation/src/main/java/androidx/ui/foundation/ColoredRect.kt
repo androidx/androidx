@@ -17,11 +17,11 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.emptyContent
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.unit.Dp
 
 /**
@@ -46,13 +46,9 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    Container(
-        modifier = modifier + DrawBackground(brush),
-        width = width,
-        height = height,
-        expanded = true,
-        children = emptyContent()
-    )
+    val widthModifier = if (width != null) LayoutWidth(width) else LayoutWidth.Fill
+    val heightModifier = if (height != null) LayoutHeight(height) else LayoutHeight.Fill
+    Box(modifier + widthModifier + heightModifier + DrawBackground(brush))
 }
 
 /**
@@ -71,11 +67,7 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    Container(
-        modifier = modifier + DrawBackground(color),
-        width = width,
-        height = height,
-        expanded = true,
-        children = emptyContent()
-    )
+    val widthModifier = if (width != null) LayoutWidth(width) else LayoutWidth.Fill
+    val heightModifier = if (height != null) LayoutHeight(height) else LayoutHeight.Fill
+    Box(modifier + widthModifier + heightModifier + DrawBackground(color))
 }

@@ -28,7 +28,6 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
@@ -183,7 +182,7 @@ class BorderTest(val shape: Shape) {
         Stack {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
-                    Container {
+                    Box {
                         DensityAmbient.current.children()
                     }
                 }
