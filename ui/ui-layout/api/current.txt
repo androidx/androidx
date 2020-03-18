@@ -1,10 +1,6 @@
 // Signature format: 3.0
 package androidx.ui.layout {
 
-  public final class AlignKt {
-    method @Deprecated public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class AlignmentLineKt {
     method public static void AlignmentLineOffset(androidx.ui.core.AlignmentLine alignmentLine, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp before = 0.dp, androidx.ui.unit.Dp after = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void CenterAlignmentLine(androidx.ui.core.AlignmentLine alignmentLine, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -61,9 +57,6 @@ package androidx.ui.layout {
   public static interface Arrangement.Vertical extends androidx.ui.layout.Arrangement {
   }
 
-  public final class AspectRatioKt {
-  }
-
   public final class ColumnKt {
     method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.Arrangement.Vertical arrangement = Arrangement.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
   }
@@ -79,6 +72,159 @@ package androidx.ui.layout {
     property public final androidx.ui.core.ParentDataModifier End;
     property public final androidx.ui.core.ParentDataModifier Start;
     field public static final androidx.ui.layout.ColumnScope! INSTANCE;
+  }
+
+  public final class ConstraintLayoutKt {
+    method public static void ConstraintLayout(androidx.ui.layout.ConstraintSet constraintSet, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class ConstraintSet {
+    ctor public ConstraintSet(internal kotlin.jvm.functions.Function1<? super androidx.ui.layout.ConstraintSetBuilderScope,kotlin.Unit> description);
+    method public androidx.ui.layout.ConstraintSet copy(kotlin.jvm.functions.Function1<? super androidx.ui.layout.ConstraintSetBuilderScope,kotlin.Unit> description);
+  }
+
+  public final class ConstraintSetBuilderScope {
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor createBottomBarrier(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromBottom(androidx.ui.unit.Dp offset);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromBottom(float percent);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromLeft(androidx.ui.unit.Dp offset);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromLeft(float percent);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromRight(androidx.ui.unit.Dp offset);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromRight(float percent);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromTop(androidx.ui.unit.Dp offset);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromTop(float percent);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalChain createHorizontalChain(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference![] elements, androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle chainStyle = ChainStyle.Spread);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor createLeftBarrier(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor createRightBarrier(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor createTopBarrier(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalChain createVerticalChain(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference![] elements, androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle chainStyle = ChainStyle.Spread);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference getParent();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference tag(Object tag);
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference parent;
+  }
+
+  public static final class ConstraintSetBuilderScope.ChainStyle {
+    field public static final androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle.Companion! Companion;
+  }
+
+  public static final class ConstraintSetBuilderScope.ChainStyle.Companion {
+    method public androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle Packed(float bias);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle getPacked();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle getSpread();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle getSpreadInside();
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle Packed;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle Spread;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle SpreadInside;
+  }
+
+  public static final class ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor {
+    method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor other);
+    method public androidx.constraintlayout.solver.state.State getState();
+    method public Object getTag();
+  }
+
+  public static final class ConstraintSetBuilderScope.ConstrainedLayoutReference {
+    method public void center();
+    method public void centerHorizontally();
+    method public void centerVertically();
+    method public infix void constrainHorizontallyTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
+    method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
+    method public infix void constrainVerticallyTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor getBaseline();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getBottom();
+    method public float getHorizontalBias();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getLeft();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getRight();
+    method public androidx.constraintlayout.solver.state.State getState();
+    method public Object getTag();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getTop();
+    method public float getVerticalBias();
+    method public void setBaseline(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor p);
+    method public void setBottom(androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor p);
+    method public void setHorizontalBias(float value);
+    method public void setRight(androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor p);
+    method public void setVerticalBias(float value);
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor baseline;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor bottom;
+    property public final float horizontalBias;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor left;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor right;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor top;
+    property public final float verticalBias;
+  }
+
+  public abstract static sealed class ConstraintSetBuilderScope.HorizontalAnchor {
+  }
+
+  public static final class ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor {
+    method public int getIndex$lintWithKotlin();
+    method public androidx.ui.unit.Dp getMargin();
+    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public Object getTag$lintWithKotlin();
+    method public void setMargin(androidx.ui.unit.Dp value);
+    property public final androidx.ui.unit.Dp margin;
+  }
+
+  public static final class ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor {
+    method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor other);
+    method public int getIndex$lintWithKotlin();
+    method public androidx.ui.unit.Dp getMargin();
+    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public Object getTag$lintWithKotlin();
+    method public void setMargin(androidx.ui.unit.Dp value);
+    property public final androidx.ui.unit.Dp margin;
+    property public Object tag;
+  }
+
+  public static final class ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor {
+    method public int getIndex$lintWithKotlin();
+    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public Object getTag$lintWithKotlin();
+  }
+
+  public static final class ConstraintSetBuilderScope.HorizontalChain {
+    method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getLeft();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getRight();
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor left;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor right;
+  }
+
+  public abstract static sealed class ConstraintSetBuilderScope.VerticalAnchor {
+  }
+
+  public static final class ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor {
+    method public int getIndex$lintWithKotlin();
+    method public androidx.ui.unit.Dp getMargin();
+    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public Object getTag$lintWithKotlin();
+    method public void setMargin(androidx.ui.unit.Dp value);
+    property public final androidx.ui.unit.Dp margin;
+  }
+
+  public static final class ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor {
+    method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor other);
+    method public int getIndex$lintWithKotlin();
+    method public androidx.ui.unit.Dp getMargin();
+    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public Object getTag$lintWithKotlin();
+    method public void setMargin(androidx.ui.unit.Dp value);
+    property public final androidx.ui.unit.Dp margin;
+    property public Object tag;
+  }
+
+  public static final class ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor {
+    method public int getIndex$lintWithKotlin();
+    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public Object getTag$lintWithKotlin();
+  }
+
+  public static final class ConstraintSetBuilderScope.VerticalChain {
+    method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getBottom();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getTop();
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor bottom;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor top;
   }
 
   public final class ContainerKt {
@@ -200,6 +346,10 @@ package androidx.ui.layout {
     field public static final androidx.ui.layout.LayoutAlign! INSTANCE;
   }
 
+  public final class LayoutAlignKt {
+    method @Deprecated public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class LayoutAspectRatio implements androidx.ui.core.LayoutModifier {
     ctor public LayoutAspectRatio(@FloatRange(from=null, fromInclusive=null) float aspectRatio);
     method public float component1();
@@ -210,6 +360,9 @@ package androidx.ui.layout {
     method public androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
+  }
+
+  public final class LayoutAspectRatioKt {
   }
 
   public final class LayoutDirectionModifier {
@@ -316,6 +469,10 @@ package androidx.ui.layout {
     method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
+  }
+
+  public final class LayoutPaddingKt {
+    method public static androidx.ui.layout.LayoutPadding LayoutPadding(androidx.ui.unit.Dp all);
   }
 
   @kotlin.DslMarker public @interface LayoutScopeMarker {
@@ -478,10 +635,6 @@ package androidx.ui.layout {
     enum_constant public static final androidx.ui.layout.MainAxisAlignment Start;
   }
 
-  public final class PaddingKt {
-    method public static androidx.ui.layout.LayoutPadding LayoutPadding(androidx.ui.unit.Dp all);
-  }
-
   public final class RowColumnImplKt {
   }
 
@@ -624,163 +777,6 @@ package androidx.ui.layout {
 
   public final class WrapKt {
     method @Deprecated public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-}
-
-package androidx.ui.layout.constraintlayout {
-
-  public final class ConstraintLayoutKt {
-    method public static void ConstraintLayout(androidx.ui.layout.constraintlayout.ConstraintSet constraintSet, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class ConstraintSet {
-    ctor public ConstraintSet(internal kotlin.jvm.functions.Function1<? super androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope,kotlin.Unit> description);
-    method public androidx.ui.layout.constraintlayout.ConstraintSet copy(kotlin.jvm.functions.Function1<? super androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope,kotlin.Unit> description);
-  }
-
-  public final class ConstraintSetBuilderScope {
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor createBottomBarrier(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromBottom(androidx.ui.unit.Dp offset);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromBottom(float percent);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromLeft(androidx.ui.unit.Dp offset);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromLeft(float percent);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromRight(androidx.ui.unit.Dp offset);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor createGuidelineFromRight(float percent);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromTop(androidx.ui.unit.Dp offset);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor createGuidelineFromTop(float percent);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalChain createHorizontalChain(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference![] elements, androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle chainStyle = ChainStyle.Spread);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor createLeftBarrier(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor createRightBarrier(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor createTopBarrier(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalChain createVerticalChain(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference![] elements, androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle chainStyle = ChainStyle.Spread);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference getParent();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference tag(Object tag);
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference parent;
-  }
-
-  public static final class ConstraintSetBuilderScope.ChainStyle {
-    field public static final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle.Companion! Companion;
-  }
-
-  public static final class ConstraintSetBuilderScope.ChainStyle.Companion {
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle Packed(float bias);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle getPacked();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle getSpread();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle getSpreadInside();
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle Packed;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle Spread;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ChainStyle SpreadInside;
-  }
-
-  public static final class ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor {
-    method public infix void constrainTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor other);
-    method public androidx.constraintlayout.solver.state.State getState();
-    method public Object getTag();
-  }
-
-  public static final class ConstraintSetBuilderScope.ConstrainedLayoutReference {
-    method public void center();
-    method public void centerHorizontally();
-    method public void centerVertically();
-    method public infix void constrainHorizontallyTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
-    method public infix void constrainTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
-    method public infix void constrainVerticallyTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor getBaseline();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getBottom();
-    method public float getHorizontalBias();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getLeft();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getRight();
-    method public androidx.constraintlayout.solver.state.State getState();
-    method public Object getTag();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getTop();
-    method public float getVerticalBias();
-    method public void setBaseline(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor p);
-    method public void setBottom(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor p);
-    method public void setHorizontalBias(float value);
-    method public void setRight(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor p);
-    method public void setVerticalBias(float value);
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor baseline;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor bottom;
-    property public final float horizontalBias;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor left;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor right;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor top;
-    property public final float verticalBias;
-  }
-
-  public abstract static sealed class ConstraintSetBuilderScope.HorizontalAnchor {
-  }
-
-  public static final class ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor extends androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor {
-    method public int getIndex$lintWithKotlin();
-    method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
-    method public Object getTag$lintWithKotlin();
-    method public void setMargin(androidx.ui.unit.Dp value);
-    property public final androidx.ui.unit.Dp margin;
-  }
-
-  public static final class ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor extends androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor {
-    method public infix void constrainTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor other);
-    method public int getIndex$lintWithKotlin();
-    method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
-    method public Object getTag$lintWithKotlin();
-    method public void setMargin(androidx.ui.unit.Dp value);
-    property public final androidx.ui.unit.Dp margin;
-    property public Object tag;
-  }
-
-  public static final class ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor extends androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor {
-    method public int getIndex$lintWithKotlin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
-    method public Object getTag$lintWithKotlin();
-  }
-
-  public static final class ConstraintSetBuilderScope.HorizontalChain {
-    method public infix void constrainTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getLeft();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getRight();
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor left;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor right;
-  }
-
-  public abstract static sealed class ConstraintSetBuilderScope.VerticalAnchor {
-  }
-
-  public static final class ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor extends androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor {
-    method public int getIndex$lintWithKotlin();
-    method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
-    method public Object getTag$lintWithKotlin();
-    method public void setMargin(androidx.ui.unit.Dp value);
-    property public final androidx.ui.unit.Dp margin;
-  }
-
-  public static final class ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor extends androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor {
-    method public infix void constrainTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor other);
-    method public int getIndex$lintWithKotlin();
-    method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
-    method public Object getTag$lintWithKotlin();
-    method public void setMargin(androidx.ui.unit.Dp value);
-    property public final androidx.ui.unit.Dp margin;
-    property public Object tag;
-  }
-
-  public static final class ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor extends androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.VerticalAnchor {
-    method public int getIndex$lintWithKotlin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
-    method public Object getTag$lintWithKotlin();
-  }
-
-  public static final class ConstraintSetBuilderScope.VerticalChain {
-    method public infix void constrainTo(androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getBottom();
-    method public androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getTop();
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor bottom;
-    property public final androidx.ui.layout.constraintlayout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor top;
   }
 
 }

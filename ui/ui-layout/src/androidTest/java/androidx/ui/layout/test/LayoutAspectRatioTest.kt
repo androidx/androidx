@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class AspectRatioModifierTest : LayoutTest() {
+class LayoutAspectRatioTest : LayoutTest() {
     @Test
     fun testAspectRatioModifier_intrinsicDimensions() = with(density) {
         testIntrinsics(@Composable {

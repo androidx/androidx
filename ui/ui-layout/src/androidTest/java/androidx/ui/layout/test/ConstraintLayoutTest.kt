@@ -23,8 +23,8 @@ import androidx.ui.core.Ref
 import androidx.ui.layout.LayoutDirectionModifier
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
-import androidx.ui.layout.constraintlayout.ConstraintLayout
-import androidx.ui.layout.constraintlayout.ConstraintSet
+import androidx.ui.layout.ConstraintLayout
+import androidx.ui.layout.ConstraintSet
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx

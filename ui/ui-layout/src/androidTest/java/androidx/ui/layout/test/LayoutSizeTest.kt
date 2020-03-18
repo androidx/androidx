@@ -16,9 +16,12 @@
 
 package androidx.ui.layout.test
 
+import android.content.res.Resources
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
+import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
@@ -34,6 +37,8 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.min
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -44,7 +49,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class SizeModifiersTest : LayoutTest() {
+class LayoutSizeTest : LayoutTest() {
 
     @Test
     fun testSize_withWidthSizeModifiers() = with(density) {
@@ -623,6 +628,80 @@ class SizeModifiersTest : LayoutTest() {
             assertEquals(50.dp.toIntPx(), maxIntrinsicHeight(35.dp.toIntPx()))
             assertEquals(50.dp.toIntPx(), maxIntrinsicHeight(70.dp.toIntPx()))
             assertEquals(50.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testFillModifier_correctSize() = with(density) {
+        val width = 100.dp
+        val height = 80.dp
+
+        val displayMetrics = Resources.getSystem().displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+
+        assertEquals(IntPxSize(width.toIntPx(), height.toIntPx()), getSize())
+        assertEquals(IntPxSize(screenWidth.ipx, height.toIntPx()), getSize(LayoutWidth.Fill))
+        assertEquals(IntPxSize(width.toIntPx(), screenHeight.ipx), getSize(LayoutHeight.Fill))
+        assertEquals(IntPxSize(screenWidth.ipx, screenHeight.ipx), getSize(LayoutSize.Fill))
+    }
+
+    @Test
+    fun testFillModifier_noChangeIntrinsicMeasurements() = with(density) {
+        verifyIntrinsicMeasurements(LayoutWidth.Fill)
+        verifyIntrinsicMeasurements(LayoutHeight.Fill)
+        verifyIntrinsicMeasurements(LayoutSize.Fill)
+    }
+
+    private fun getSize(modifier: Modifier = Modifier.None): IntPxSize {
+        val width = 100.dp
+        val height = 80.dp
+
+        val positionedLatch = CountDownLatch(1)
+        val size = Ref<IntPxSize>()
+        val position = Ref<PxPosition>()
+        show {
+            Layout(@Composable {
+                Align(alignment = Alignment.TopStart) {
+                    Container(modifier + saveLayoutInfo(size, position, positionedLatch)) {
+                        Container(width = width, height = height) { }
+                    }
+                }
+            }) { measurables, incomingConstraints, _ ->
+                require(measurables.isNotEmpty())
+                val placeable = measurables.first().measure(incomingConstraints)
+                layout(
+                    min(placeable.width, incomingConstraints.maxWidth),
+                    min(placeable.height, incomingConstraints.maxHeight)
+                ) {
+                    placeable.place(IntPx.Zero, IntPx.Zero)
+                }
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+        return size.value!!
+    }
+
+    private fun verifyIntrinsicMeasurements(expandedModifier: Modifier) = with(density) {
+        // intrinsic measurements do not change with the ExpandedModifier
+        testIntrinsics(@Composable {
+            Container(
+                expandedModifier + LayoutAspectRatio(2f),
+                width = 30.dp, height = 40.dp) { }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Width
+            assertEquals(40.ipx, minIntrinsicWidth(20.ipx))
+            assertEquals(30.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+
+            assertEquals(40.ipx, maxIntrinsicWidth(20.ipx))
+            assertEquals(30.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+
+            // Height
+            assertEquals(20.ipx, minIntrinsicHeight(40.ipx))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+
+            assertEquals(20.ipx, maxIntrinsicHeight(40.ipx))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
         }
     }
 }
