@@ -20,7 +20,9 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.test.EmptyFragmentTestActivity
+import androidx.fragment.test.R
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -59,6 +61,19 @@ class DialogFragmentTest {
         assertWithMessage("Dialog was not being shown")
             .that(fragment.dialog?.isShowing)
             .isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentInLayout() {
+        val fragment = TestLayoutDialogFragment()
+        activityTestRule.activity.supportFragmentManager.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .commitNow()
+
+        assertWithMessage("Dialog should be added to the layout")
+            .that(activityTestRule.activity.findViewById<View>(R.id.textA))
+            .isNotNull()
     }
 
     @Test
@@ -213,4 +228,6 @@ class DialogFragmentTest {
             onCancelCalled = true
         }
     }
+
+    class TestLayoutDialogFragment : DialogFragment(R.layout.fragment_a)
 }
