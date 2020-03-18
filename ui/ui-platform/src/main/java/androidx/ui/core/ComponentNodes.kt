@@ -981,6 +981,12 @@ class LayoutNode : ComponentNode(), Measurable {
     internal var layoutNodeWrapper = innerLayoutNodeWrapper
 
     /**
+     * The outermost DrawLayerModifier in the modifier chain or `null` if there are no
+     * DrawLayerModifiers in the modifier chain.
+     */
+    internal var outerLayer: LayerWrapper? = null
+
+    /**
      * The [Modifier] currently applied to this node.
      */
     var modifier: Modifier = Modifier.None
@@ -993,6 +999,7 @@ class LayoutNode : ComponentNode(), Measurable {
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks.clear()
             onChildPositionedCallbacks.clear()
+            outerLayer = null
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
                 if (mod is OnPositionedModifier) {
@@ -1006,6 +1013,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 if (mod is DrawLayerModifier) {
                     wrapper = LayerWrapper(wrapper, mod)
+                    outerLayer = wrapper
                 }
                 if (mod is LayoutModifier) {
                     wrapper = ModifiedLayoutNode(wrapper, mod)
@@ -1714,3 +1722,13 @@ val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
  */
 val OnChildPositionedKey =
     DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
+
+/**
+ * True when there is a DrawLayerModifier in the modifier chain
+ */
+internal val LayoutNode.hasLayer: Boolean get() = outerLayer != null
+
+/**
+ * True if the outermost layer has elevation > 0
+ */
+internal val LayoutNode.hasElevation get() = outerLayer?.layer?.hasElevation ?: false
