@@ -25,6 +25,7 @@ import android.graphics.Picture
 import android.graphics.RenderNode
 import android.os.Build
 import android.util.DisplayMetrics
+import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -108,8 +109,12 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
         recomposer = Recomposer.current()
         composition = activity.setContent { testCase!!.emitContent() }
+        val composeView = findComposeView(activity)!!
+        // AndroidComposeView is postponing the composition till the saved state will be restored.
+        // We will emulate the restoration of the empty state to trigger the real composition.
+        composeView.restoreHierarchyState(SparseArray())
+        view = composeView
         FrameManager.nextFrame()
-        view = findComposeView(activity)!!
         simulationState = SimulationState.EmitContentDone
     }
 

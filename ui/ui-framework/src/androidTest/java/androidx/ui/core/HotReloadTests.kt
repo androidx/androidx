@@ -22,6 +22,7 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.onCommit
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.test.assertLabelEquals
@@ -30,6 +31,7 @@ import org.junit.runners.JUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,11 +71,13 @@ class HotReloadTests {
                     text(text = "World", id = 102)
                     text(text = value, id = 103)
                 }
+                onCommit {
+                    composeLatch.countDown()
+                }
             }
-            composeLatch.countDown()
         }
 
-        assert(composeLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(composeLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(activity.findViewById<TextView>(103).text, value)
         value = "Second value"
@@ -86,7 +90,7 @@ class HotReloadTests {
             hotReloadLatch.countDown()
         }
 
-        assert(hotReloadLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(hotReloadLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(activity.findViewById<TextView>(103).text, value)
     }
@@ -114,11 +118,13 @@ class HotReloadTests {
                 columnNode {
                     textNode(text = value, id = 103)
                 }
+                onCommit {
+                    composeLatch.countDown()
+                }
             }
-            composeLatch.countDown()
         }
 
-        assert(composeLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(composeLatch.await(1, TimeUnit.SECONDS))
 
         fun target() = findByTag("text103")
 
@@ -135,7 +141,7 @@ class HotReloadTests {
             hotReloadLatch.countDown()
         }
 
-        assert(hotReloadLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(hotReloadLatch.await(1, TimeUnit.SECONDS))
 
         // Detect tha tthe node changed
         target().assertLabelEquals(value)

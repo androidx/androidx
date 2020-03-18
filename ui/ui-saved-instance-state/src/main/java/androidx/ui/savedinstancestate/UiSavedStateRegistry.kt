@@ -16,6 +16,8 @@
 
 package androidx.ui.savedinstancestate
 
+import androidx.compose.staticAmbientOf
+
 /**
  * Allows components to save and restore their state using the saved instance state mechanism.
  */
@@ -71,6 +73,11 @@ fun UiSavedStateRegistry(
     restoredValues: Map<String, Any>?,
     canBeSaved: (Any) -> Boolean
 ): UiSavedStateRegistry = UiSavedStateRegistryImpl(restoredValues, canBeSaved)
+
+/**
+ * Ambient with a current [UiSavedStateRegistry] instance.
+ */
+val UiSavedStateRegistryAmbient = staticAmbientOf<UiSavedStateRegistry?> { null }
 
 private class UiSavedStateRegistryImpl(
     restored: Map<String, Any>?,
