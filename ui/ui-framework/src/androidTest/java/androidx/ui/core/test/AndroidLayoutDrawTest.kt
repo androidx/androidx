@@ -33,6 +33,7 @@ import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -2169,6 +2170,7 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
+    @FlakyTest
     @Test
     fun doubleDraw() {
         var outerLatch = CountDownLatch(1)
