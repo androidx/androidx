@@ -1371,13 +1371,11 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 mMediaItem = item;
             }
 
-            // Note: No sanity check whether the item is in the playlist.
-            // It's possible that current media item isn't in the playlist, if it was removed while
-            // playing.
-            if (item != null) {
-                updateCurrentMediaItemMetadataWithDuration(player);
+            boolean notifyingPended = updateCurrentMediaItemMetadataWithDuration(player);
+            if (!notifyingPended) {
+                // Forcefully notify, if updateCurrentMediaItemMetadataWithDuration wouldn't.
+                notifyCurrentMediaItemChanged(item);
             }
-            notifyCurrentMediaItemChanged(item);
         }
 
         @Override
@@ -1614,8 +1612,11 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             }
             SessionPlayer player = session.getPlayer();
             if (player.getCurrentMediaItem() == item) {
-                updateCurrentMediaItemMetadataWithDuration(player);
-                notifyCurrentMediaItemChanged(item);
+                boolean notifyingPended = updateCurrentMediaItemMetadataWithDuration(player);
+                if (!notifyingPended) {
+                    // Forcefully notify, if updateCurrentMediaItemMetadataWithDuration wouldn't.
+                    notifyCurrentMediaItemChanged(item);
+                }
             }
         }
 
@@ -1637,11 +1638,13 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
 
         /**
-         * Update metadata of the player's current media item with duration.
+         * Update metadata of the player's current media item with duration. Update would be
+         * indirectly notified via {@link #onMetadataChanged}.
          *
          * @param player player to get duration
+         * @return {@code true} if updated. {@code false} otherwise.
          */
-        private void updateCurrentMediaItemMetadataWithDuration(SessionPlayer player) {
+        private boolean updateCurrentMediaItemMetadataWithDuration(SessionPlayer player) {
             final long duration = player.getDuration();
             final MediaItem currentMediaItem = player.getCurrentMediaItem();
             // Check if the duration from the player can be the currentMediaItem's duration.
@@ -1687,8 +1690,10 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                     // Note that updated metadata will be notified anyway via later
                     // SessionPlayerCallback#onMetadataChanged().
                     currentMediaItem.setMetadata(metadataWithDurationUpdate);
+                    return true;
                 }
             }
+            return false;
         }
 
         private void notifyCurrentMediaItemChanged(@Nullable MediaItem currentMediaItem) {
