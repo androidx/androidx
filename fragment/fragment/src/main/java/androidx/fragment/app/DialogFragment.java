@@ -410,7 +410,7 @@ public class DialogFragment extends Fragment
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        getViewLifecycleOwnerLiveData().observe(this, mObserver);
+        getViewLifecycleOwnerLiveData().observeForever(mObserver);
         if (!mShownByMe) {
             // If not explicitly shown through our API, take this as an
             // indication that the dialog is no longer dismissed.
