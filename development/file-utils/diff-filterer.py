@@ -678,6 +678,7 @@ class DiffRunner(object):
     # some simple params
     self.workPath = os.path.abspath(workPath)
     self.bestState_path = fileIo.join(self.workPath, "bestResults")
+    self.sampleFailure_path = fileIo.join(self.workPath, "sampleFailure")
     self.testScript_path = fileIo.join(self.workPath, "test.sh")
     fileIo.ensureDirExists(os.path.dirname(self.testScript_path))
     fileIo.writeScript(self.testScript_path, shellCommand)
@@ -774,7 +775,8 @@ class DiffRunner(object):
     self.full_resetTo_state.apply(self.bestState_path)
 
     print("Starting")
-    print("(You can inspect " + self.bestState_path + " while this process runs, to observe the best state discovered so far)")
+    print("You can inspect " + self.bestState_path + " while this process runs, to observe the best state discovered so far")
+    print("You can inspect " + self.sampleFailure_path + " while this process runs, to observe a state for which the test failed. If you delete this filepath, then it will be updated later to contain a new failing state")
     print("")
     # Now we search over groups of inodes (files or dirs) in the tree
     # Every time we encounter a group of inodes, we try replacing them and seeing if the replacement passes our test
@@ -831,6 +833,11 @@ class DiffRunner(object):
                 if i != identifier:
                   invalidatedIds.add(i)
         else:
+          if not os.path.isdir(self.sampleFailure_path):
+            # save sample failure path where user can see it
+            print("Saving sample failed state to " + str(self.sampleFailure_path))
+            fileIo.ensureDirExists(self.sampleFailure_path)
+            self.full_resetTo_state.expandedWithEmptyEntriesFor(box).withConflictsFrom(box, True).apply(self.sampleFailure_path)
           #print("Failed : " + box.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
           # count failures
           numConsecutiveFailures += 1
