@@ -39,7 +39,7 @@ public class WindowInsetsCompatTest {
     public void consumeDisplayCutout_returnsNonNullWindowInsets_pre28() {
         // There is no API create a WindowInsets instance, so we cannot test the 28 code path.
         if (SDK_INT < 28) {
-            WindowInsetsCompat insets = new WindowInsetsCompat(new Object());
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder().build();
             assertThat(insets.consumeDisplayCutout(), notNullValue());
         }
     }

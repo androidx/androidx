@@ -18,7 +18,7 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.core.graphics.Insets.toCompatInsets;
 
 import android.graphics.Rect;
 import android.util.Log;
@@ -28,14 +28,13 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.Insets;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 /**
  * Describes a set of insets for window content.
@@ -46,21 +45,26 @@ import java.lang.reflect.Field;
  */
 public class WindowInsetsCompat {
     private static final String TAG = "WindowInsetsCompat";
-    private final Object mInsets;
 
-    private Insets mSystemWindowInsets;
-    private Insets mStableInsets;
-    private Insets mSystemGestureInsets;
-    private Insets mMandatorySystemGestureInsets;
-    private Insets mTappableElementInsets;
+    static final WindowInsetsCompat EMPTY =
+            new WindowInsetsCompat((WindowInsetsCompat) null);
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    @VisibleForTesting
-    WindowInsetsCompat(@Nullable Object insets) {
-        mInsets = insets;
+    private final Impl mImpl;
+
+    @RequiresApi(20)
+    private WindowInsetsCompat(@Nullable WindowInsets insets) {
+        if (insets == null) {
+            // Ideally insets would be @NonNull, oh well.
+            mImpl = new Impl();
+        } else if (SDK_INT >= 29) {
+            mImpl = new Impl29(insets);
+        } else if (SDK_INT >= 21) {
+            mImpl = new Impl21(insets);
+        } else if (SDK_INT >= 20) {
+            mImpl = new Impl20(insets);
+        } else {
+            mImpl = new Impl();
+        }
     }
 
     /**
@@ -68,12 +72,33 @@ public class WindowInsetsCompat {
      *
      * @param src source from which values are copied
      */
-    public WindowInsetsCompat(@Nullable WindowInsetsCompat src) {
-        if (SDK_INT >= 20) {
-            mInsets = src == null ? null : new WindowInsets((WindowInsets) src.mInsets);
+    public WindowInsetsCompat(@Nullable final WindowInsetsCompat src) {
+        if (src != null) {
+            if (SDK_INT >= 29) {
+                mImpl = new Impl29(src.toWindowInsets());
+            } else if (SDK_INT >= 21) {
+                mImpl = new Impl21(src.toWindowInsets());
+            } else if (SDK_INT >= 20) {
+                mImpl = new Impl20(src.toWindowInsets());
+            } else {
+                mImpl = new Impl();
+            }
         } else {
-            mInsets = null;
+            // Ideally src would be @NonNull, oh well.
+            mImpl = new Impl();
         }
+    }
+
+    /**
+     * Wrap an instance of {@link WindowInsets} into a {@link WindowInsetsCompat}.
+     *
+     * @param insets source insets to wrap
+     * @return the wrapped instance
+     */
+    @NonNull
+    @RequiresApi(20)
+    public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets) {
+        return new WindowInsetsCompat(Preconditions.checkNotNull(insets));
     }
 
     /**
@@ -87,11 +112,7 @@ public class WindowInsetsCompat {
      * @return The left system window inset
      */
     public int getSystemWindowInsetLeft() {
-        if (SDK_INT >= 20) {
-            return ((WindowInsets) mInsets).getSystemWindowInsetLeft();
-        } else {
-            return 0;
-        }
+        return getSystemWindowInsets().left;
     }
 
     /**
@@ -105,11 +126,7 @@ public class WindowInsetsCompat {
      * @return The top system window inset
      */
     public int getSystemWindowInsetTop() {
-        if (SDK_INT >= 20) {
-            return ((WindowInsets) mInsets).getSystemWindowInsetTop();
-        } else {
-            return 0;
-        }
+        return getSystemWindowInsets().top;
     }
 
     /**
@@ -123,11 +140,7 @@ public class WindowInsetsCompat {
      * @return The right system window inset
      */
     public int getSystemWindowInsetRight() {
-        if (SDK_INT >= 20) {
-            return ((WindowInsets) mInsets).getSystemWindowInsetRight();
-        } else {
-            return 0;
-        }
+        return getSystemWindowInsets().right;
     }
 
     /**
@@ -141,11 +154,7 @@ public class WindowInsetsCompat {
      * @return The bottom system window inset
      */
     public int getSystemWindowInsetBottom() {
-        if (SDK_INT >= 20) {
-            return ((WindowInsets) mInsets).getSystemWindowInsetBottom();
-        } else {
-            return 0;
-        }
+        return getSystemWindowInsets().bottom;
     }
 
     /**
@@ -159,11 +168,7 @@ public class WindowInsetsCompat {
      * @return true if any of the system window inset values are nonzero
      */
     public boolean hasSystemWindowInsets() {
-        if (SDK_INT >= 20) {
-            return ((WindowInsets) mInsets).hasSystemWindowInsets();
-        } else {
-            return false;
-        }
+        return !getSystemWindowInsets().equals(Insets.NONE);
     }
 
     /**
@@ -174,11 +179,12 @@ public class WindowInsetsCompat {
      * @return true if any inset values are nonzero
      */
     public boolean hasInsets() {
-        if (SDK_INT >= 20) {
-            return ((WindowInsets) mInsets).hasInsets();
-        } else {
-            return false;
-        }
+        return hasSystemWindowInsets()
+                || hasStableInsets()
+                || getDisplayCutout() != null
+                || !getSystemGestureInsets().equals(Insets.NONE)
+                || !getMandatorySystemGestureInsets().equals(Insets.NONE)
+                || !getTappableElementInsets().equals(Insets.NONE);
     }
 
     /**
@@ -195,11 +201,7 @@ public class WindowInsetsCompat {
      * @return true if the insets have been fully consumed.
      */
     public boolean isConsumed() {
-        if (SDK_INT >= 21) {
-            return ((WindowInsets) mInsets).isConsumed();
-        } else {
-            return false;
-        }
+        return mImpl.isConsumed();
     }
 
     /**
@@ -215,11 +217,7 @@ public class WindowInsetsCompat {
      * @return true if the window is round
      */
     public boolean isRound() {
-        if (SDK_INT >= 20) {
-            return ((WindowInsets) mInsets).isRound();
-        } else {
-            return false;
-        }
+        return mImpl.isRound();
     }
 
     /**
@@ -231,11 +229,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public WindowInsetsCompat consumeSystemWindowInsets() {
-        if (SDK_INT >= 20) {
-            return new WindowInsetsCompat(((WindowInsets) mInsets).consumeSystemWindowInsets());
-        } else {
-            return this;
-        }
+        return mImpl.consumeSystemWindowInsets();
     }
 
     /**
@@ -256,12 +250,9 @@ public class WindowInsetsCompat {
     @Deprecated
     @NonNull
     public WindowInsetsCompat replaceSystemWindowInsets(int left, int top, int right, int bottom) {
-        if (SDK_INT >= 20) {
-            return new WindowInsetsCompat(((WindowInsets) mInsets)
-                    .replaceSystemWindowInsets(left, top, right, bottom));
-        } else {
-            return this;
-        }
+        return new Builder(this)
+                .setSystemWindowInsets(Insets.of(left, top, right, bottom))
+                .build();
     }
 
     /**
@@ -280,12 +271,9 @@ public class WindowInsetsCompat {
     @Deprecated
     @NonNull
     public WindowInsetsCompat replaceSystemWindowInsets(@NonNull Rect systemWindowInsets) {
-        if (SDK_INT >= 20) {
-            return replaceSystemWindowInsets(systemWindowInsets.left, systemWindowInsets.top,
-                    systemWindowInsets.right, systemWindowInsets.bottom);
-        } else {
-            return this;
-        }
+        return new Builder(this)
+                .setSystemWindowInsets(Insets.of(systemWindowInsets))
+                .build();
     }
 
     /**
@@ -302,11 +290,7 @@ public class WindowInsetsCompat {
      * @return The top stable inset
      */
     public int getStableInsetTop() {
-        if (SDK_INT >= 21) {
-            return ((WindowInsets) mInsets).getStableInsetTop();
-        } else {
-            return 0;
-        }
+        return getStableInsets().top;
     }
 
     /**
@@ -323,11 +307,7 @@ public class WindowInsetsCompat {
      * @return The left stable inset
      */
     public int getStableInsetLeft() {
-        if (SDK_INT >= 21) {
-            return ((WindowInsets) mInsets).getStableInsetLeft();
-        } else {
-            return 0;
-        }
+        return getStableInsets().left;
     }
 
     /**
@@ -344,13 +324,8 @@ public class WindowInsetsCompat {
      * @return The right stable inset
      */
     public int getStableInsetRight() {
-        if (SDK_INT >= 21) {
-            return ((WindowInsets) mInsets).getStableInsetRight();
-        } else {
-            return 0;
-        }
+        return getStableInsets().right;
     }
-
 
     /**
      * Returns the bottom stable inset in pixels.
@@ -366,11 +341,7 @@ public class WindowInsetsCompat {
      * @return The bottom stable inset
      */
     public int getStableInsetBottom() {
-        if (SDK_INT >= 21) {
-            return ((WindowInsets) mInsets).getStableInsetBottom();
-        } else {
-            return 0;
-        }
+        return getStableInsets().bottom;
     }
 
     /**
@@ -387,11 +358,7 @@ public class WindowInsetsCompat {
      * @return true if any of the stable inset values are nonzero
      */
     public boolean hasStableInsets() {
-        if (SDK_INT >= 21) {
-            return ((WindowInsets) mInsets).hasStableInsets();
-        } else {
-            return false;
-        }
+        return !getStableInsets().equals(Insets.NONE);
     }
 
     /**
@@ -403,11 +370,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public WindowInsetsCompat consumeStableInsets() {
-        if (SDK_INT >= 21) {
-            return new WindowInsetsCompat(((WindowInsets) mInsets).consumeStableInsets());
-        } else {
-            return this;
-        }
+        return mImpl.consumeStableInsets();
     }
 
     /**
@@ -420,11 +383,7 @@ public class WindowInsetsCompat {
      */
     @Nullable
     public DisplayCutoutCompat getDisplayCutout() {
-        if (SDK_INT >= 28) {
-            return DisplayCutoutCompat.wrap(((WindowInsets) mInsets).getDisplayCutout());
-        } else {
-            return null;
-        }
+        return mImpl.getDisplayCutout();
     }
 
     /**
@@ -436,11 +395,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public WindowInsetsCompat consumeDisplayCutout() {
-        if (SDK_INT >= 28) {
-            return new WindowInsetsCompat(((WindowInsets) mInsets).consumeDisplayCutout());
-        } else {
-            return this;
-        }
+        return mImpl.consumeDisplayCutout();
     }
 
     /**
@@ -458,18 +413,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getSystemWindowInsets() {
-        if (mSystemWindowInsets == null) {
-            if (SDK_INT >= 29) {
-                mSystemWindowInsets = Insets.toCompatInsets(
-                        ((WindowInsets) mInsets).getSystemWindowInsets());
-            } else {
-                // Else we'll create a copy from the getters
-                mSystemWindowInsets = Insets.of(getSystemWindowInsetLeft(),
-                        getSystemWindowInsetTop(), getSystemWindowInsetRight(),
-                        getSystemWindowInsetBottom());
-            }
-        }
-        return mSystemWindowInsets;
+        return mImpl.getSystemWindowInsets();
     }
 
     /**
@@ -489,16 +433,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getStableInsets() {
-        if (mStableInsets == null) {
-            if (SDK_INT >= 29) {
-                mStableInsets = Insets.toCompatInsets(((WindowInsets) mInsets).getStableInsets());
-            } else {
-                // Else we'll create a copy from the getters
-                mStableInsets = Insets.of(getStableInsetLeft(), getStableInsetTop(),
-                        getStableInsetRight(), getStableInsetBottom());
-            }
-        }
-        return mStableInsets;
+        return mImpl.getStableInsets();
     }
 
     /**
@@ -512,16 +447,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getMandatorySystemGestureInsets() {
-        if (mMandatorySystemGestureInsets == null) {
-            if (SDK_INT >= 29) {
-                mMandatorySystemGestureInsets = Insets.toCompatInsets(
-                        ((WindowInsets) mInsets).getMandatorySystemGestureInsets());
-            } else {
-                // Before API 29, the mandatory system gesture insets == system window insets
-                mMandatorySystemGestureInsets = getSystemWindowInsets();
-            }
-        }
-        return mMandatorySystemGestureInsets;
+        return mImpl.getMandatorySystemGestureInsets();
     }
 
     /**
@@ -537,16 +463,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getTappableElementInsets() {
-        if (mTappableElementInsets == null) {
-            if (SDK_INT >= 29) {
-                mTappableElementInsets = Insets.toCompatInsets(
-                        ((WindowInsets) mInsets).getTappableElementInsets());
-            } else {
-                // Before API 29,, the tappable elements insets == system window insets
-                mTappableElementInsets = getSystemWindowInsets();
-            }
-        }
-        return mTappableElementInsets;
+        return mImpl.getTappableElementInsets();
     }
 
     /**
@@ -564,16 +481,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getSystemGestureInsets() {
-        if (mSystemGestureInsets == null) {
-            if (SDK_INT >= 29) {
-                mSystemGestureInsets = Insets.toCompatInsets(
-                        ((WindowInsets) mInsets).getSystemGestureInsets());
-            } else {
-                // Before API 29,, the system gesture insets == system window insets
-                mSystemGestureInsets = getSystemWindowInsets();
-            }
-        }
-        return mSystemGestureInsets;
+        return mImpl.getSystemGestureInsets();
     }
 
     /**
@@ -618,16 +526,7 @@ public class WindowInsetsCompat {
     @NonNull
     public WindowInsetsCompat inset(@IntRange(from = 0) int left, @IntRange(from = 0) int top,
             @IntRange(from = 0) int right, @IntRange(from = 0) int bottom) {
-        if (SDK_INT >= 29) {
-            // On API 29+, we can use the public inset() API
-            return toWindowInsetsCompat(((WindowInsets) mInsets).inset(left, top, right, bottom));
-        }
-
-        // Else, we need to handle this manually
-        Builder b = new Builder(this);
-        b.setSystemWindowInsets(insetInsets(getSystemWindowInsets(), left, top, right, bottom));
-        b.setStableInsets(insetInsets(getStableInsets(), left, top, right, bottom));
-        return b.build();
+        return mImpl.inset(left, top, right, bottom);
     }
 
     @Override
@@ -639,12 +538,12 @@ public class WindowInsetsCompat {
             return false;
         }
         WindowInsetsCompat other = (WindowInsetsCompat) o;
-        return ObjectsCompat.equals(mInsets, other.mInsets);
+        return ObjectsCompat.equals(mImpl, other.mImpl);
     }
 
     @Override
     public int hashCode() {
-        return mInsets == null ? 0 : mInsets.hashCode();
+        return mImpl == null ? 0 : mImpl.hashCode();
     }
 
     /**
@@ -652,27 +551,236 @@ public class WindowInsetsCompat {
      *
      * @return the wrapped WindowInsets instance
      */
-    @Nullable
-    @RequiresApi(20)
-    public WindowInsets toWindowInsets() {
-        return (WindowInsets) mInsets;
-    }
-
-    /**
-     * Wrap an instance of {@link WindowInsets} into a {@link WindowInsetsCompat}.
-     *
-     * @param insets source insets to wrap
-     * @return the wrapped instance
-     */
     @NonNull
     @RequiresApi(20)
-    public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets) {
-        Preconditions.checkNotNull(insets);
-        // WindowInsets are only immutable on API 28+, so we make a copy on older platforms
-        return new WindowInsetsCompat(SDK_INT >= 28 ? insets : new WindowInsets(insets));
+    public WindowInsets toWindowInsets() {
+        return ((Impl20) mImpl).mPlatformInsets;
     }
 
-    private static Insets insetInsets(Insets insets, int left, int top, int right, int bottom) {
+    private static class Impl {
+        Impl() {}
+
+        boolean isRound() {
+            return false;
+        }
+
+        boolean isConsumed() {
+            return false;
+        }
+
+        @NonNull
+        WindowInsetsCompat consumeSystemWindowInsets() {
+            return EMPTY;
+        }
+
+        @NonNull
+        WindowInsetsCompat consumeStableInsets() {
+            return EMPTY;
+        }
+
+        @Nullable
+        DisplayCutoutCompat getDisplayCutout() {
+            return null;
+        }
+
+        @NonNull
+        WindowInsetsCompat consumeDisplayCutout() {
+            return EMPTY;
+        }
+
+        @NonNull
+        Insets getSystemWindowInsets() {
+            return Insets.NONE;
+        }
+
+        @NonNull
+        Insets getStableInsets() {
+            return Insets.NONE;
+        }
+
+        @NonNull
+        Insets getSystemGestureInsets() {
+            // Pre-Q return the system window insets
+            return getSystemWindowInsets();
+        }
+
+        @NonNull
+        Insets getMandatorySystemGestureInsets() {
+            // Pre-Q return the system window insets
+            return getSystemWindowInsets();
+        }
+
+        @NonNull
+        Insets getTappableElementInsets() {
+            // Pre-Q return the system window insets
+            return getSystemWindowInsets();
+        }
+
+        @NonNull
+        WindowInsetsCompat inset(int left, int top, int right, int bottom) {
+            return EMPTY;
+        }
+    }
+
+    @RequiresApi(20)
+    private static class Impl20 extends Impl {
+        @NonNull
+        final WindowInsets mPlatformInsets;
+
+        // Used to cache the wrapped value
+        private Insets mSystemWindowInsets = null;
+
+        Impl20(@NonNull WindowInsets insets) {
+            mPlatformInsets = insets;
+        }
+
+        @Override
+        boolean isRound() {
+            return mPlatformInsets.isRound();
+        }
+
+        @Override
+        @NonNull
+        final Insets getSystemWindowInsets() {
+            if (mSystemWindowInsets == null) {
+                mSystemWindowInsets = Insets.of(
+                        mPlatformInsets.getSystemWindowInsetLeft(),
+                        mPlatformInsets.getSystemWindowInsetTop(),
+                        mPlatformInsets.getSystemWindowInsetRight(),
+                        mPlatformInsets.getSystemWindowInsetBottom());
+            }
+            return mSystemWindowInsets;
+        }
+
+        @NonNull
+        @Override
+        WindowInsetsCompat inset(int left, int top, int right, int bottom) {
+            Builder b = new Builder(toWindowInsetsCompat(mPlatformInsets));
+            b.setSystemWindowInsets(insetInsets(getSystemWindowInsets(), left, top, right, bottom));
+            b.setStableInsets(insetInsets(getStableInsets(), left, top, right, bottom));
+            return b.build();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Impl20)) return false;
+            if (!super.equals(o)) return false;
+            Impl20 impl20 = (Impl20) o;
+            return mPlatformInsets.equals(impl20.mPlatformInsets);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mPlatformInsets);
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Impl21 extends Impl20 {
+        private Insets mStableInsets = null;
+
+        Impl21(@NonNull WindowInsets insets) {
+            super(insets);
+        }
+
+        @Override
+        boolean isConsumed() {
+            return mPlatformInsets.isConsumed();
+        }
+
+        @NonNull
+        @Override
+        WindowInsetsCompat consumeStableInsets() {
+            return toWindowInsetsCompat(mPlatformInsets.consumeStableInsets());
+        }
+
+        @NonNull
+        @Override
+        WindowInsetsCompat consumeSystemWindowInsets() {
+            return toWindowInsetsCompat(mPlatformInsets.consumeSystemWindowInsets());
+        }
+
+        @Override
+        @NonNull
+        final Insets getStableInsets() {
+            if (mStableInsets == null) {
+                mStableInsets = Insets.of(
+                        mPlatformInsets.getStableInsetLeft(),
+                        mPlatformInsets.getStableInsetTop(),
+                        mPlatformInsets.getStableInsetRight(),
+                        mPlatformInsets.getStableInsetBottom());
+            }
+            return mStableInsets;
+        }
+    }
+
+    @RequiresApi(28)
+    private static class Impl28 extends Impl21 {
+        Impl28(@NonNull WindowInsets insets) {
+            super(insets);
+        }
+
+        @Nullable
+        @Override
+        DisplayCutoutCompat getDisplayCutout() {
+            return DisplayCutoutCompat.wrap(mPlatformInsets.getDisplayCutout());
+        }
+
+        @NonNull
+        @Override
+        WindowInsetsCompat consumeDisplayCutout() {
+            return toWindowInsetsCompat(mPlatformInsets.consumeDisplayCutout());
+        }
+    }
+
+    @RequiresApi(29)
+    private static class Impl29 extends Impl28 {
+        // Used to cache the wrapped values
+        private Insets mSystemGestureInsets = null;
+        private Insets mMandatorySystemGestureInsets = null;
+        private Insets mTappableElementInsets = null;
+
+        Impl29(@NonNull WindowInsets insets) {
+            super(insets);
+        }
+
+        @NonNull
+        @Override
+        Insets getSystemGestureInsets() {
+            if (mSystemGestureInsets == null) {
+                mSystemGestureInsets = toCompatInsets(mPlatformInsets.getSystemGestureInsets());
+            }
+            return mSystemGestureInsets;
+        }
+
+        @NonNull
+        @Override
+        Insets getMandatorySystemGestureInsets() {
+            if (mMandatorySystemGestureInsets == null) {
+                mMandatorySystemGestureInsets =
+                        toCompatInsets(mPlatformInsets.getMandatorySystemGestureInsets());
+            }
+            return mMandatorySystemGestureInsets;
+        }
+
+        @NonNull
+        @Override
+        Insets getTappableElementInsets() {
+            if (mTappableElementInsets == null) {
+                mTappableElementInsets = toCompatInsets(mPlatformInsets.getTappableElementInsets());
+            }
+            return mTappableElementInsets;
+        }
+
+        @NonNull
+        @Override
+        WindowInsetsCompat inset(int left, int top, int right, int bottom) {
+            return toWindowInsetsCompat(mPlatformInsets.inset(left, top, right, bottom));
+        }
+    }
+
+    static Insets insetInsets(Insets insets, int left, int top, int right, int bottom) {
         int newLeft = Math.max(0, insets.left - left);
         int newTop = Math.max(0, insets.top - top);
         int newRight = Math.max(0, insets.right - right);
@@ -840,27 +948,27 @@ public class WindowInsetsCompat {
         private WindowInsetsCompat mInsets;
 
         BuilderImpl() {
-            mInsets = new WindowInsetsCompat(null);
+            this(EMPTY);
         }
 
         BuilderImpl(@NonNull WindowInsetsCompat insets) {
             mInsets = insets;
         }
 
-        public void setSystemWindowInsets(@NonNull Insets insets) {}
+        void setSystemWindowInsets(@NonNull Insets insets) {}
 
-        public void setSystemGestureInsets(@NonNull Insets insets) {}
+        void setSystemGestureInsets(@NonNull Insets insets) {}
 
-        public void setMandatorySystemGestureInsets(@NonNull Insets insets) {}
+        void setMandatorySystemGestureInsets(@NonNull Insets insets) {}
 
-        public void setTappableElementInsets(@NonNull Insets insets) {}
+        void setTappableElementInsets(@NonNull Insets insets) {}
 
-        public void setStableInsets(@NonNull Insets insets) {}
+        void setStableInsets(@NonNull Insets insets) {}
 
-        public void setDisplayCutout(@Nullable DisplayCutoutCompat displayCutout) {}
+        void setDisplayCutout(@Nullable DisplayCutoutCompat displayCutout) {}
 
         @NonNull
-        public WindowInsetsCompat build() {
+        WindowInsetsCompat build() {
             return mInsets;
         }
     }
@@ -884,7 +992,7 @@ public class WindowInsetsCompat {
         }
 
         @Override
-        public void setSystemWindowInsets(@NonNull Insets insets) {
+        void setSystemWindowInsets(@NonNull Insets insets) {
             if (mInsets != null) {
                 mInsets = mInsets.replaceSystemWindowInsets(
                         insets.left, insets.top, insets.right, insets.bottom);
@@ -893,7 +1001,7 @@ public class WindowInsetsCompat {
 
         @Override
         @NonNull
-        public WindowInsetsCompat build() {
+        WindowInsetsCompat build() {
             return WindowInsetsCompat.toWindowInsetsCompat(mInsets);
         }
 
@@ -949,7 +1057,7 @@ public class WindowInsetsCompat {
 
     @RequiresApi(api = 29)
     private static class BuilderImpl29 extends BuilderImpl {
-        private final WindowInsets.Builder mPlatBuilder;
+        final WindowInsets.Builder mPlatBuilder;
 
         BuilderImpl29() {
             mPlatBuilder = new WindowInsets.Builder();
@@ -960,38 +1068,38 @@ public class WindowInsetsCompat {
         }
 
         @Override
-        public void setSystemWindowInsets(@NonNull Insets insets) {
+        void setSystemWindowInsets(@NonNull Insets insets) {
             mPlatBuilder.setSystemWindowInsets(insets.toPlatformInsets());
         }
 
         @Override
-        public void setSystemGestureInsets(@NonNull Insets insets) {
+        void setSystemGestureInsets(@NonNull Insets insets) {
             mPlatBuilder.setSystemGestureInsets(insets.toPlatformInsets());
         }
 
         @Override
-        public void setMandatorySystemGestureInsets(@NonNull Insets insets) {
+        void setMandatorySystemGestureInsets(@NonNull Insets insets) {
             mPlatBuilder.setMandatorySystemGestureInsets(insets.toPlatformInsets());
         }
 
         @Override
-        public void setTappableElementInsets(@NonNull Insets insets) {
+        void setTappableElementInsets(@NonNull Insets insets) {
             mPlatBuilder.setTappableElementInsets(insets.toPlatformInsets());
         }
 
         @Override
-        public void setStableInsets(@NonNull Insets insets) {
+        void setStableInsets(@NonNull Insets insets) {
             mPlatBuilder.setStableInsets(insets.toPlatformInsets());
         }
 
         @Override
-        public void setDisplayCutout(@Nullable DisplayCutoutCompat displayCutout) {
+        void setDisplayCutout(@Nullable DisplayCutoutCompat displayCutout) {
             mPlatBuilder.setDisplayCutout(displayCutout != null ? displayCutout.unwrap() : null);
         }
 
         @Override
         @NonNull
-        public WindowInsetsCompat build() {
+        WindowInsetsCompat build() {
             return WindowInsetsCompat.toWindowInsetsCompat(mPlatBuilder.build());
         }
     }
