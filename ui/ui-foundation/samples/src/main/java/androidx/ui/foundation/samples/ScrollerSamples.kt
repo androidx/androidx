@@ -32,7 +32,6 @@ import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
@@ -167,9 +166,9 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
             SquareButton("Scroll: ${scrollable.value}") {
                 scrollable.value = !scrollable.value
             }
-            // empty container to fill table
-            Container { }
-            Container { }
+            // empty dummy boxes to fill the table
+            Box()
+            Box()
         }
     }
 }

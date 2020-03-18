@@ -23,6 +23,7 @@ import androidx.ui.core.LayoutTag
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.core.tag
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
@@ -32,7 +33,6 @@ import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle
@@ -276,7 +276,7 @@ private fun HintEditText(hintText: @Composable() () -> Unit) {
     } else {
         Layout({
             inputField()
-            Container(LayoutTag("hintText"), children = hintText)
+            Box(LayoutTag("hintText"), children = hintText)
         }) { measurable, constraints, _ ->
             val inputFieldPlacable =
                 measurable.first { it.tag == "inputField" }.measure(constraints)

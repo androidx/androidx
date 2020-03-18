@@ -25,11 +25,11 @@ import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.Icon
@@ -37,9 +37,9 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutOffset
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
@@ -325,14 +325,17 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
 
     // Fill up the entire TabRow with this container, and place children at the left so we can use
     // Padding to set the 'offset'
-    Container(expanded = true, alignment = Alignment.BottomStart) {
+    Box(LayoutSize.Fill, gravity = ContentGravity.BottomStart) {
         Transition(transitionDefinition, selectedIndex) { state ->
             val density = DensityAmbient.current
             val offset = with(density) { state[indicatorStart].toDp() }
             val width = with(density) {
                 (state[indicatorEnd] - state[indicatorStart]).toDp()
             }
-            Container(width = width, modifier = LayoutPadding(start = offset)) {
+            Box(
+                LayoutOffset(x = offset, y = 0.dp) + LayoutWidth(width),
+                gravity = ContentGravity.Center
+            ) {
                 // Pass the current color to the indicator
                 FancyIndicator(state[indicatorColor])
             }

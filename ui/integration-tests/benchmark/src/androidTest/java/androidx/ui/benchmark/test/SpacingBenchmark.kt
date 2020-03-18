@@ -32,15 +32,18 @@ import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.offset
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
 import androidx.ui.unit.min
+import androidx.ui.unit.px
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -172,7 +175,7 @@ private sealed class PaddingTestCase : ComposeTestCase,
         val padding = state { 5.dp }
         paddingState = padding
 
-        Container(expanded = true) {
+        FillerContainer {
             emitPaddedContainer(padding.value) {
                 emitPaddedContainer(padding.value) {
                     emitPaddedContainer(padding.value) {
@@ -189,11 +192,30 @@ private sealed class PaddingTestCase : ComposeTestCase,
     abstract fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit)
 }
 
+@Composable
+fun FillerContainer(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+    Layout(children, modifier) { measurable, constraints, _ ->
+        val childConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+        val placeable = measurable.firstOrNull()?.measure(childConstraints)
+        val width =
+            if (constraints.maxWidth.isFinite()) constraints.maxWidth else placeable?.width ?: 0.ipx
+        val height =
+            if (constraints.maxHeight.isFinite()) {
+                constraints.maxHeight
+            } else {
+                placeable?.height ?: 0.ipx
+            }
+        layout(width, height) {
+            placeable?.place(0.px, 0.px)
+        }
+    }
+}
+
 private class ModifierTestCase : PaddingTestCase() {
 
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {
-        Container(expanded = true, modifier = LayoutPadding(padding), children = child)
+        FillerContainer(LayoutPadding(padding), child)
     }
 }
 
@@ -201,7 +223,7 @@ private class NoModifierTestCase : PaddingTestCase() {
 
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {
-        Container(expanded = true) {
+        FillerContainer {
             Padding(all = padding, children = child)
         }
     }

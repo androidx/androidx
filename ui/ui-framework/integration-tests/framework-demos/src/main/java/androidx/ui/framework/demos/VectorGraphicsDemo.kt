@@ -18,6 +18,7 @@ package androidx.ui.framework.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.RadialGradient
@@ -33,7 +34,7 @@ import androidx.ui.graphics.vector.VectorScope
 import androidx.ui.graphics.vector.drawVector
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
@@ -45,30 +46,25 @@ fun VectorGraphicsDemo() {
         val vectorAsset = loadVectorResource(R.drawable.ic_crane)
         vectorAsset.resource.resource?.let {
             Center {
-                Container(width = 200.dp, height = 100.dp, modifier = drawVector(it)) {
-                }
+                Box(LayoutSize(200.dp, 100.dp) + drawVector(it))
             }
         }
 
         Center {
             val width = 120.dp
             val height = 120.dp
-            Container(
-                width = width,
-                height = height,
-                modifier = vectorShape(width, height)) {
-            }
+            Box(LayoutSize(width, height) + vectorShape(width, height))
         }
     }
 }
 
 @Composable
 private fun vectorShape(width: Dp, height: Dp): Modifier = drawVector(
-        name = "vectorShape",
-        defaultWidth = width,
-        defaultHeight = height,
-        scaleFit = ScaleFit.FillMaxDimension
-    ) { viewportWidth, viewportHeight ->
+    name = "vectorShape",
+    defaultWidth = width,
+    defaultHeight = height,
+    scaleFit = ScaleFit.FillMaxDimension
+) { viewportWidth, viewportHeight ->
     Group(
         scaleX = 0.75f,
         scaleY = 0.75f,
