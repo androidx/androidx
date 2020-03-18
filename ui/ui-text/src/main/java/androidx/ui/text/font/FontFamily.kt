@@ -17,6 +17,7 @@
 package androidx.ui.text.font
 
 import androidx.compose.Immutable
+import androidx.ui.text.Typeface
 
 /**
  * The base class of the font families.
@@ -25,7 +26,7 @@ import androidx.compose.Immutable
  * @see GenericFontFamily
  */
 @Immutable
-sealed class FontFamily {
+sealed class FontFamily(val canLoadSynchronously: Boolean) {
     companion object {
         /**
          * The platform default font.
@@ -76,12 +77,12 @@ sealed class FontFamily {
 /**
  * A base class of [FontFamily]s that is created from file sources.
  */
-sealed class FileBasedFontFamily : FontFamily()
+sealed class FileBasedFontFamily : FontFamily(false)
 
 /**
  * A base class of [FontFamily]s installed on the system.
  */
-sealed class SystemFontFamily : FontFamily()
+sealed class SystemFontFamily : FontFamily(true)
 
 /**
  * Defines a font family with list of [Font].
@@ -133,3 +134,17 @@ class GenericFontFamily internal constructor(val name: String) : SystemFontFamil
  */
 @Immutable
 internal class DefaultFontFamily : SystemFontFamily()
+
+/**
+ * Defines a font family that is already loaded Typeface.
+ *
+ * @param typeface A typeface instance.
+ */
+data class LoadedFontFamily(val typeface: Typeface) : FontFamily(true)
+
+/**
+ * Construct a font family that contains loaded font family: Typeface.
+ *
+ * @param typeface A typeface instance.
+ */
+fun fontFamily(typeface: Typeface) = LoadedFontFamily(typeface)

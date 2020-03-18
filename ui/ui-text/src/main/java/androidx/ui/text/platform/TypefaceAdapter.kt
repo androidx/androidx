@@ -28,6 +28,7 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.GenericFontFamily
+import androidx.ui.text.font.LoadedFontFamily
 import androidx.ui.text.font.font
 
 /**
@@ -157,6 +158,10 @@ internal open class TypefaceAdapter(
                     genericFontFamily = null,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle
+                )
+            is LoadedFontFamily ->
+                (fontFamily.typeface as AndroidTypeface).getNativeTypeface(
+                    fontWeight, fontStyle, fontSynthesis
                 )
         }
 

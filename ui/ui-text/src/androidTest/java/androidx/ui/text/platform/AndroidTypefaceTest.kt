@@ -16,6 +16,7 @@
 
 package androidx.ui.text.platform
 
+import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import androidx.test.filters.SdkSuppress
@@ -32,6 +33,7 @@ import androidx.ui.text.font.font
 import androidx.ui.text.font.fontFamily
 import androidx.ui.text.matchers.assertThat
 import androidx.ui.text.test.R
+import androidx.ui.text.typefaceFromFontFamily
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -48,6 +50,13 @@ import org.mockito.junit.MockitoJUnitRunner
 class AndroidTypefaceTest {
 
     val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+    private fun androidTypefaceFromFontFamily(
+        context: Context,
+        fontFamily: FontFamily
+    ): AndroidTypeface {
+        return typefaceFromFontFamily(context, fontFamily) as AndroidTypeface
+    }
 
     @Test
     fun createDefaultTypeface() {
