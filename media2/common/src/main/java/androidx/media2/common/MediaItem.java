@@ -170,7 +170,7 @@ public class MediaItem extends CustomVersionedParcelable {
             pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onMetadataChanged(MediaItem.this);
+                    listener.onMetadataChanged(MediaItem.this, metadata);
                 }
             });
         }
@@ -333,7 +333,8 @@ public class MediaItem extends CustomVersionedParcelable {
         /**
          * Called when a media item's metadata is changed.
          */
-        void onMetadataChanged(@NonNull MediaItem item);
+        void onMetadataChanged(@NonNull MediaItem item,
+                @Nullable MediaMetadata metadata);
     }
 
     /**
