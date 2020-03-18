@@ -190,7 +190,7 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
     ): DurationBasedAnimation<V> {
         val delay = this.delay.toLong()
         val duration = this.duration.toLong()
-        return DurationBasedWrapper(
+        return SimpleDurationBasedAnimation(
             duration, delay,
             Tween(duration, delay, easing).buildMultiDimensAnim()
         )
@@ -228,9 +228,9 @@ class SnapBuilder<T> : AnimationBuilder<T>() {
  * animation on all dimensions.
  */
 internal fun <V : AnimationVector> FloatAnimation.buildMultiDimensAnim(): Animation<V> =
-    FloatAnimWrapper(this)
+    VectorizedAnimation(this)
 
-private class FloatAnimWrapper<V : AnimationVector>(val anim: FloatAnimation) : Animation<V> {
+private class VectorizedAnimation<V : AnimationVector>(val anim: FloatAnimation) : Animation<V> {
     private lateinit var valueVector: V
     private lateinit var velocityVector: V
 
@@ -269,7 +269,7 @@ private class FloatAnimWrapper<V : AnimationVector>(val anim: FloatAnimation) : 
 /**
  * Convenient internal class to set a duration on a multi-dimensional animation.
  */
-private class DurationBasedWrapper<V : AnimationVector>(
+private class SimpleDurationBasedAnimation<V : AnimationVector>(
     override val duration: Long,
     override val delay: Long,
     private val anim: Animation<V>
