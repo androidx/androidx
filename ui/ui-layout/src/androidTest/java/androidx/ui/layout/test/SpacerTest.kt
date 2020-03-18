@@ -18,13 +18,13 @@ package androidx.ui.layout.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.Stack
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -80,7 +80,7 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show {
-            Center {
+            Stack {
                 Container(
                     constraints = DpConstraints(
                         maxWidth = containerWidth,
@@ -135,7 +135,7 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show {
-            Center {
+            Stack {
                 Container(
                     constraints = DpConstraints(
                         maxWidth = containerWidth,
@@ -188,7 +188,7 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show {
-            Center {
+            Stack {
                 Container(
                     constraints = DpConstraints(
                         maxWidth = containerWidth,

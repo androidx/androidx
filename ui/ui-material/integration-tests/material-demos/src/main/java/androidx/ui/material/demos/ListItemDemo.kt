@@ -18,7 +18,6 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.material.samples.OneLineListItems
 import androidx.ui.material.samples.ThreeLineListItems
@@ -30,13 +29,11 @@ fun ListItemDemo() {
     val icon24 = imageResource(R.drawable.ic_bluetooth)
     val icon40 = imageResource(R.drawable.ic_account_box)
     val icon56 = imageResource(R.drawable.ic_android)
-    Center {
-        VerticalScroller {
-            Column {
-                OneLineListItems(icon24, icon40, icon56)
-                TwoLineListItems(icon24, icon40)
-                ThreeLineListItems(icon24, icon40)
-            }
+    VerticalScroller {
+        Column {
+            OneLineListItems(icon24, icon40, icon56)
+            TwoLineListItems(icon24, icon40)
+            ThreeLineListItems(icon24, icon40)
         }
     }
 }

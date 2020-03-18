@@ -2,7 +2,7 @@
 package androidx.ui.layout {
 
   public final class AlignKt {
-    method public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class AlignmentLineKt {

@@ -25,7 +25,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
@@ -63,7 +62,7 @@ class ButtonTest {
     @Test
     fun buttonTest_defaultSemantics() {
         composeTestRule.setMaterialContent {
-            Center {
+            Stack {
                 TestTag(tag = "myButton") {
                     Button(onClick = {}) {
                         Text("myButton")
@@ -79,7 +78,7 @@ class ButtonTest {
     @Test
     fun buttonTest_disabledSemantics() {
         composeTestRule.setMaterialContent {
-            Center {
+            Stack {
                 TestTag(tag = "myButton") {
                     Button(onClick = {}, enabled = false) {
                         Text("myButton")
@@ -103,7 +102,7 @@ class ButtonTest {
         val text = "myButton"
 
         composeTestRule.setMaterialContent {
-            Center {
+            Stack {
                 Button(onClick = onClick) {
                     Text(text)
                 }
@@ -127,7 +126,7 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             var enabled by state { true }
             val onClick = { enabled = false }
-            Center {
+            Stack {
                 TestTag(tag = tag) {
                     Button(onClick = onClick, enabled = enabled) {
                         Text("Hello")
