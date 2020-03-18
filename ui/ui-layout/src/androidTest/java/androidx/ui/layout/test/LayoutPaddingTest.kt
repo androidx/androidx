@@ -42,6 +42,7 @@ import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import org.junit.Assert
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -198,7 +199,7 @@ class LayoutPaddingTest : LayoutTest() {
             }
         }
 
-        latch.await(1, TimeUnit.SECONDS)
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
         error?.let { throw it }
 
         Unit
@@ -254,7 +255,7 @@ class LayoutPaddingTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val root = findAndroidComposeView()
         waitForDraw(root)
 
@@ -303,7 +304,7 @@ class LayoutPaddingTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -347,7 +348,7 @@ class LayoutPaddingTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -396,7 +397,7 @@ class LayoutPaddingTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)

@@ -75,7 +75,7 @@ class OnPositionedTest : LayoutTest() {
             ) {
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(paddingLeftPx).isEqualTo(realLeft)
         assertThat(paddingTopPx).isEqualTo(realTop)
@@ -103,7 +103,7 @@ class OnPositionedTest : LayoutTest() {
                 )
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(realLeft).isEqualTo(paddingLeftPx)
         assertThat(realTop).isEqualTo(paddingTopPx)
@@ -134,7 +134,7 @@ class OnPositionedTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         // global position
         val gPos = childCoordinates!!.localToGlobal(PxPosition.Origin).x
@@ -167,7 +167,7 @@ class OnPositionedTest : LayoutTest() {
                 Container(width = sizeDp, height = sizeDp, children = emptyContent())
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(0.px).isEqualTo(firstCoordinates!!.positionInParent.x)
         assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x)
@@ -201,7 +201,7 @@ class OnPositionedTest : LayoutTest() {
                 }
             }
         })
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(realGlobalPosition).isEqualTo(globalPosition)
         assertThat(realLocalPosition).isEqualTo(localPosition)
@@ -223,7 +223,7 @@ class OnPositionedTest : LayoutTest() {
 
         activityTestRule.runOnUiThread { needCallback.value = true }
 
-        assertThat(positionedLatch.await(1, TimeUnit.SECONDS)).isEqualTo(true)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
     }
 
     @Test
@@ -243,12 +243,12 @@ class OnPositionedTest : LayoutTest() {
                 )
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         positionedLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
             assertThat(realLeft).isEqualTo(40.dp.toPx())
         }
@@ -281,12 +281,12 @@ class OnPositionedTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         positionedLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
             assertThat(realLeft).isEqualTo(40.dp.toPx())
         }

@@ -29,6 +29,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -109,7 +110,7 @@ class AspectRatioModifierTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         return size.value!!
     }
 }

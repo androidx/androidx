@@ -81,7 +81,7 @@ class AlignTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -123,7 +123,7 @@ class AlignTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -164,7 +164,7 @@ class AlignTest : LayoutTest() {
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -217,7 +217,7 @@ class AlignTest : LayoutTest() {
                     }
                 }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -291,7 +291,7 @@ class AlignTest : LayoutTest() {
                 }
             )
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -341,7 +341,7 @@ class AlignTest : LayoutTest() {
                 }
             )
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
@@ -394,7 +394,7 @@ class AlignTest : LayoutTest() {
                 )
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(doubleSize, doubleSize), wrapSize.value)
         assertEquals(IntPxSize(size, size), childSize.value)
@@ -573,7 +573,7 @@ class AlignTest : LayoutTest() {
                 }
             )
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         val root = findAndroidComposeView()
         waitForDraw(root)
