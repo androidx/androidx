@@ -35,12 +35,12 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
-    }
-    testImplementation project(':paging:paging-testutils')
-    testImplementation project(':internal-testutils-common')
-    testImplementation project(':internal-testutils-ktx')
+    testImplementation(MOCKITO_KOTLIN, {
+        exclude group: "org.mockito" // to keep control on the mockito version
+    })
+    testImplementation(project(":paging:paging-testutils"))
+    testImplementation(project(":internal-testutils-common"))
+    testImplementation(project(":internal-testutils-ktx"))
     testImplementation(KOTLIN_TEST)
     testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(TRUTH)

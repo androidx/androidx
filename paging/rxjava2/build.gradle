@@ -35,7 +35,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_RX2)
 
-    testImplementation project(':internal-testutils-common')
+    testImplementation(project(":internal-testutils-common"))
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)
 
@@ -46,11 +46,11 @@ dependencies {
 }
 
 androidx {
-    name = "Android Paging RXJava2"
+    name = "Android Paging-RXJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
-    description = "Android Paging RXJava2"
+    description = "Android Paging-RXJava2"
     url = AndroidXExtension.ARCHITECTURE_URL
 }
 
