@@ -870,7 +870,7 @@ class DiffRunner(object):
       # if we haven't checked everything yet, then try to queue more jobs
       if numConsecutiveFailures < self.resetTo_state.size():
         # if probablyAcceptableStates has become large enough, then retest its contents too
-        if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= self.maxNumJobsAtOnce - 1 or numConsecutiveFailures >= self.maxNumJobsAtOnce or len(activeJobs) < 1):
+        if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= self.maxNumJobsAtOnce + 1 or numConsecutiveFailures >= self.maxNumJobsAtOnce or len(activeJobs) < 1):
           numConsecutiveFailures = 0
           probablyAcceptableState = FilesState()
           for state in probablyAcceptableStates:
