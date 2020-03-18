@@ -91,9 +91,7 @@ import java.util.Iterator;
  * retained until the Activity is destroyed.</p>
  */
 public abstract class AppCompatDelegate {
-    // STOPSHIP turn this off before release
-    static final boolean DEBUG = true;
-
+    static final boolean DEBUG = false;
     static final String TAG = "AppCompatDelegate";
 
     /**
