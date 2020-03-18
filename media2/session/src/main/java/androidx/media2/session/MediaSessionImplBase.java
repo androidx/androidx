@@ -1371,7 +1371,11 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 mMediaItem = item;
             }
 
-            boolean notifyingPended = updateCurrentMediaItemMetadataWithDuration(player);
+            boolean notifyingPended = false;
+            if (item != null) {
+                notifyingPended = updateCurrentMediaItemMetadataWithDuration(
+                        player, item, item.getMetadata());
+            }
             if (!notifyingPended) {
                 // Forcefully notify, if updateCurrentMediaItemMetadataWithDuration wouldn't.
                 notifyCurrentMediaItemChanged(item);
@@ -1604,19 +1608,19 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
         // Called only when current media item's metadata is changed.
         @Override
-        public void onMetadataChanged(@NonNull MediaItem item) {
+        public void onMetadataChanged(@NonNull MediaItem currentMediaItem,
+                @Nullable MediaMetadata currentMediaItemMetadata) {
             // Sanity check, just in case.
             final MediaSessionImplBase session = getSession();
             if (session == null) {
                 return;
             }
             SessionPlayer player = session.getPlayer();
-            if (player.getCurrentMediaItem() == item) {
-                boolean notifyingPended = updateCurrentMediaItemMetadataWithDuration(player);
-                if (!notifyingPended) {
-                    // Forcefully notify, if updateCurrentMediaItemMetadataWithDuration wouldn't.
-                    notifyCurrentMediaItemChanged(item);
-                }
+            boolean notifyingPended = updateCurrentMediaItemMetadataWithDuration(
+                    player, currentMediaItem, currentMediaItemMetadata);
+            if (!notifyingPended) {
+                // Forcefully notify, if updateCurrentMediaItemMetadataWithDuration wouldn't.
+                notifyCurrentMediaItemChanged(currentMediaItem);
             }
         }
 
@@ -1644,15 +1648,34 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
          * @param player player to get duration
          * @return {@code true} if updated. {@code false} otherwise.
          */
-        private boolean updateCurrentMediaItemMetadataWithDuration(SessionPlayer player) {
+        private boolean updateCurrentMediaItemMetadataWithDuration(@NonNull SessionPlayer player) {
+            MediaItem currentMediaItem = player.getCurrentMediaItem();
+            if (currentMediaItem == null) {
+                return false;
+            }
+            return updateCurrentMediaItemMetadataWithDuration(player, currentMediaItem,
+                    currentMediaItem.getMetadata());
+        }
+
+        /**
+         * Update metadata of the player's current media item with duration. Update would be
+         * indirectly notified via {@link #onMetadataChanged}.
+         *
+         * @param player player to get duration
+         * @param currentMediaItem currentMediaItem. May differ with player.getCurrentMediaItem().
+         * @param currentMediaItemMetadata currentMediaItem's metadata. May differ with
+         *                                 currentMediaItem.getMetadata() due to the timing issue.
+         * @return {@code true} if updated. {@code false} otherwise.
+         */
+        private boolean updateCurrentMediaItemMetadataWithDuration(@NonNull SessionPlayer player,
+                @NonNull MediaItem currentMediaItem,
+                @Nullable MediaMetadata currentMediaItemMetadata) {
             final long duration = player.getDuration();
-            final MediaItem currentMediaItem = player.getCurrentMediaItem();
             // Check if the duration from the player can be the currentMediaItem's duration.
-            if (currentMediaItem != null
+            if (currentMediaItem == player.getCurrentMediaItem()
                     && player.getPlayerState() != PLAYER_STATE_IDLE && duration > 0
                     && duration != UNKNOWN_TIME) {
                 MediaMetadata metadataWithDurationUpdate = null;
-                MediaMetadata currentMediaItemMetadata = currentMediaItem.getMetadata();
                 if (currentMediaItemMetadata != null) {
                     if (!currentMediaItemMetadata.containsKey(METADATA_KEY_DURATION)) {
                         metadataWithDurationUpdate =
@@ -1721,7 +1744,8 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
 
         @Override
-        public void onMetadataChanged(@NonNull final MediaItem item) {
+        public void onMetadataChanged(@NonNull final MediaItem item,
+                MediaMetadata metadata) {
             final MediaSessionImplBase session = mSession.get();
             if (session == null || item == null) {
                 return;
