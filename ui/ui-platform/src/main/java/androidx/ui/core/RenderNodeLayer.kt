@@ -41,17 +41,12 @@ internal class RenderNodeLayer(
     private val outlineResolver = OutlineResolver(ownerView.density)
     private var isDestoyed = false
     private var cacheMatrix: Matrix? = null
-    private var elevationRiseListener: (() -> Unit)? = null
 
     private val renderNode = RenderNode(null).apply {
         setHasOverlappingRendering(true)
     }
 
-    override val hasElevation: Boolean
-        get() = renderNode.elevation > 0f
-
     override fun updateLayerProperties() {
-        val hadElevation = hasElevation
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         renderNode.scaleX = drawLayerModifier.scaleX
         renderNode.scaleY = drawLayerModifier.scaleY
@@ -68,9 +63,6 @@ internal class RenderNodeLayer(
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()
-        }
-        if (!hadElevation && hasElevation) {
-            elevationRiseListener?.invoke()
         }
     }
 
@@ -140,16 +132,11 @@ internal class RenderNodeLayer(
     override fun destroy() {
         isDestoyed = true
         ownerView.dirtyLayers -= this
-        elevationRiseListener = null
     }
 
     override fun getMatrix(): Matrix {
         val matrix = cacheMatrix ?: Matrix().also { cacheMatrix = it }
         renderNode.getMatrix(matrix)
         return matrix
-    }
-
-    override fun setElevationRiseListener(block: (() -> Unit)?) {
-        elevationRiseListener = block
     }
 }
