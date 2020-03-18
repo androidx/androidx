@@ -166,6 +166,9 @@ class Commit:
 			self.gitCommit = self.gitCommit[:relnoteIndex] + \
 						self.releaseNoteDelimiter + \
 						self.gitCommit[relnoteIndex + len(self.releaseNoteDelimiter):]
+		# Provide support for other types of quotes around the Relnote message
+		self.gitCommit = self.gitCommit.replace('“','"')
+		self.gitCommit = self.gitCommit.replace('”','"')
 
 	def isExternalAuthorEmail(self, authorEmail):
 		return "@google.com" not in self.authorEmail
