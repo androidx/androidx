@@ -70,11 +70,6 @@ class V3Activity : AppCompatActivity() {
 
     private fun setupLoadStateButtons(adapter: PagingDataAdapter<Item, RecyclerView.ViewHolder>) {
         val button = findViewById<Button>(R.id.button_refresh)
-
-        button.setOnClickListener {
-            adapter.refresh()
-        }
-
         adapter.addLoadStateListener { type: LoadType, state: LoadState ->
             if (type != LoadType.REFRESH) return@addLoadStateListener
 
@@ -82,6 +77,9 @@ class V3Activity : AppCompatActivity() {
                 is LoadState.Idle -> {
                     button.text = "Refresh"
                     button.isEnabled = true
+                    button.setOnClickListener {
+                        adapter.refresh()
+                    }
                 }
                 is Loading -> {
                     button.text = "Loading"
@@ -94,6 +92,9 @@ class V3Activity : AppCompatActivity() {
                 is Error -> {
                     button.text = "Error"
                     button.isEnabled = true
+                    button.setOnClickListener {
+                        adapter.retry()
+                    }
                 }
             }
         }

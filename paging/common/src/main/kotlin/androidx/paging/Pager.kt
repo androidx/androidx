@@ -58,9 +58,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     internal val pagingSource: PagingSource<Key, Value>,
-    private val config: PagingConfig
+    private val config: PagingConfig,
+    private val retryFlow: Flow<Unit>
 ) {
-    private val retryChannel = Channel<Unit>(CONFLATED)
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
     private var lastHint: ViewportHint? = null
@@ -77,21 +78,24 @@ internal class Pager<Key : Any, Value : Any>(
             "cannot collect twice from pager"
         }
 
+        // Start collection on pageEventCh, which the rest of this class uses to send PageEvents
+        // to this flow.
         launch { pageEventCh.consumeAsFlow().collect { send(it) } }
-        doInitialLoad(state)
 
-        if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
-            startConsumingHints()
-        }
+        // Wrap collection behind a RendezvousChannel to prevent the RetryChannel from buffering
+        // retry signals.
+        val retryChannel = Channel<Unit>(Channel.RENDEZVOUS)
+        launch { retryFlow.collect { retryChannel.offer(it) } }
 
+        // Start collection on retry signals.
         launch {
             retryChannel.consumeAsFlow()
                 .collect {
                     // Handle refresh failure. Re-attempt doInitialLoad if the last attempt failed,
-                    val refreshFailure =
-                        stateLock.withLock { state.failedHintsByLoadType[REFRESH] }
+                    val refreshFailure = stateLock.withLock {
+                        state.failedHintsByLoadType.remove(REFRESH)
+                    }
                     refreshFailure?.let {
-                        stateLock.withLock { state.failedHintsByLoadType.remove(REFRESH) }
                         doInitialLoad(state)
 
                         val newRefreshFailure = stateLock.withLock {
@@ -117,16 +121,20 @@ internal class Pager<Key : Any, Value : Any>(
                     }
                 }
         }
+
+        // Setup finished, we can now start the initial load.
+        doInitialLoad(state)
+
+        // Only start collection on ViewportHints if the initial load succeeded.
+        if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
+            startConsumingHints()
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun addHint(hint: ViewportHint) {
         lastHint = hint
         hintChannel.offer(hint)
-    }
-
-    fun retry() {
-        retryChannel.offer(Unit)
     }
 
     fun close() {
