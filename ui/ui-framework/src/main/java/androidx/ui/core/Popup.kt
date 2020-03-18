@@ -35,6 +35,7 @@ import androidx.compose.escapeCompose
 import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -264,6 +265,7 @@ private class PopupLayout(
 
         if (!viewAdded) {
             windowManager.addView(this, params)
+            ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
             viewAdded = true
         } else {
             windowManager.updateViewLayout(this, params)
@@ -284,6 +286,7 @@ private class PopupLayout(
      * Remove the view from the [WindowManager].
      */
     fun dismiss() {
+        ViewTreeLifecycleOwner.set(this, null)
         windowManager.removeViewImmediate(this)
     }
 
