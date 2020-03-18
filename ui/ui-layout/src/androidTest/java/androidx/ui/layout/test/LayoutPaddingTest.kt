@@ -21,7 +21,6 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutDirectionModifier

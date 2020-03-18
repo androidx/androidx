@@ -23,7 +23,6 @@ import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutAspectRatio
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize

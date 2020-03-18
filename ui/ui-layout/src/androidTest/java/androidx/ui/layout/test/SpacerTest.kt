@@ -18,7 +18,6 @@ package androidx.ui.layout.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize

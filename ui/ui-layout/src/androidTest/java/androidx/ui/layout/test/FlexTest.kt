@@ -33,7 +33,6 @@ import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.LayoutAlign
