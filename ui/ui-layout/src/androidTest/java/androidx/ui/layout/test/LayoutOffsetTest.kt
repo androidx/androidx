@@ -16,6 +16,7 @@
 
 package androidx.ui.layout.test
 
+import android.os.Build
 import androidx.test.filters.SmallTest
 import androidx.ui.core.TestTag
 import androidx.ui.core.globalPosition
@@ -30,6 +31,8 @@ import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.round
+import org.junit.Assume
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +43,14 @@ import org.junit.runners.JUnit4
 class LayoutOffsetTest : LayoutTest() {
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Before
+    fun before() {
+        // b/151728444
+        Assume.assumeFalse(
+            Build.MODEL.contains("Nexus 5") && Build.VERSION.SDK_INT == Build.VERSION_CODES.M
+        )
+    }
 
     @Test
     fun positionIsModified() = with(density) {
