@@ -32,17 +32,17 @@ internal open class FontMatcher {
      * best match will be returned. The rules for the best match are defined in
      * [CSS 4 Font Matching](https://www.w3.org/TR/css-fonts-4/#font-style-matching).
      *
-     * @param fontFamily FontFamily to choose the [Font] from
+     * @param fontList iterable of fonts to choose the [Font] from
      * @param fontWeight desired [FontWeight]
      * @param fontStyle desired [FontStyle]
      */
     open fun matchFont(
-        fontFamily: FontListFontFamily,
+        fontList: Iterable<Font>,
         fontWeight: FontWeight,
         fontStyle: FontStyle
     ): Font {
         // check for exact match first
-        fontFamily.fonts.filter { it.weight == fontWeight && it.style == fontStyle }.let {
+        fontList.filter { it.weight == fontWeight && it.style == fontStyle }.let {
             // TODO(b/130797349): IR compiler bug was here
             if (it.isNotEmpty()) {
                 return it[0]
@@ -50,8 +50,8 @@ internal open class FontMatcher {
         }
 
         // if no exact match, filter with style
-        val fonts = fontFamily.fonts.filter { it.style == fontStyle }.let {
-            if (it.isNotEmpty()) it else fontFamily.fonts
+        val fonts = fontList.filter { it.style == fontStyle }.let {
+            if (it.isNotEmpty()) it else fontList
         }
 
         val result = if (fontWeight < FontWeight.W400) {
