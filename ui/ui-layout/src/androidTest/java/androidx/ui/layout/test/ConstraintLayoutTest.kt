@@ -52,7 +52,7 @@ class ConstraintLayoutTest : LayoutTest() {
         }
 
         assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
         val rootWidth = root.width.ipx
         val rootHeight = root.height.ipx
@@ -84,7 +84,7 @@ class ConstraintLayoutTest : LayoutTest() {
         }
 
         assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
         val rootWidth = root.width.ipx
         val rootHeight = root.height.ipx
@@ -133,16 +133,19 @@ class ConstraintLayoutTest : LayoutTest() {
                 }
             }
         ) {
-            Stack(LayoutTag("box1") + LayoutSize(boxSize, boxSize) +
-                saveLayoutInfo(size[0], position[0], countDownLatch)
+            Stack(
+                LayoutTag("box1") + LayoutSize(boxSize, boxSize) +
+                        saveLayoutInfo(size[0], position[0], countDownLatch)
             ) {
             }
-            Stack(LayoutTag("box2") + LayoutSize(boxSize, boxSize) +
-                saveLayoutInfo(size[1], position[1], countDownLatch)
+            Stack(
+                LayoutTag("box2") + LayoutSize(boxSize, boxSize) +
+                        saveLayoutInfo(size[1], position[1], countDownLatch)
             ) {
             }
-            Stack(LayoutTag("box3") + LayoutSize(boxSize, boxSize) +
-                saveLayoutInfo(size[2], position[2], countDownLatch)
+            Stack(
+                LayoutTag("box3") + LayoutSize(boxSize, boxSize) +
+                        saveLayoutInfo(size[2], position[2], countDownLatch)
             ) {
             }
         }

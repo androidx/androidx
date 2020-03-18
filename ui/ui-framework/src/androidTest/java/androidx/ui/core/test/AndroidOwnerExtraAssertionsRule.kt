@@ -16,13 +16,13 @@
 
 package androidx.ui.core.test
 
-import androidx.ui.core.AndroidComposeView
+import androidx.ui.core.Owner
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * Enables extra assertions inside [AndroidComposeView].
+ * Enables extra assertions inside [Owner].
  */
 class AndroidOwnerExtraAssertionsRule : TestRule {
 
@@ -34,11 +34,11 @@ class AndroidOwnerExtraAssertionsRule : TestRule {
         private val base: Statement
     ) : Statement() {
         override fun evaluate() {
-            AndroidComposeView.enableExtraAssertions = true
+            Owner.enableExtraAssertions = true
             try {
                 base.evaluate()
             } finally {
-                AndroidComposeView.enableExtraAssertions = false
+                Owner.enableExtraAssertions = false
             }
         }
     }

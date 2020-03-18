@@ -11,71 +11,13 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.AndroidOwner androidx.ui.core.SemanticsTreeProvider {
-    ctor public AndroidComposeView(android.content.Context context);
-    method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
-    method public androidx.ui.unit.IntPxPosition calculatePosition();
-    method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
-    method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.Density,kotlin.Unit> drawBlock);
-    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticNodes();
-    method public androidx.ui.autofill.Autofill? getAutofill();
-    method public androidx.ui.autofill.AutofillTree getAutofillTree();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();
-    method public androidx.ui.core.Constraints getConstraints();
-    method public androidx.ui.unit.Density getDensity();
-    method public androidx.ui.text.font.Font.ResourceLoader getFontLoader();
-    method public androidx.ui.core.hapticfeedback.HapticFeedback getHapticFeedBack();
-    method public long getMeasureIteration();
-    method public androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? getRef();
-    method public androidx.ui.core.LayoutNode getRoot();
-    method public androidx.ui.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
-    method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
-    method public boolean getShowLayoutBounds();
-    method public androidx.ui.input.TextInputService getTextInputService();
-    method public void measureAndLayout();
-    method public void observeLayerModelReads(androidx.ui.core.OwnedLayer layer, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public void onAttach(androidx.ui.core.ComponentNode node);
-    method public void onDetach(androidx.ui.core.ComponentNode node);
-    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
-    method public void onInvalidate(androidx.ui.core.LayoutNode layoutNode);
-    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
-    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public void removeAndroidView(android.view.View view);
-    method public void sendEvent(android.view.MotionEvent event);
-    method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
-    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? value);
-    property public final androidx.ui.autofill.Autofill? autofill;
-    property public final androidx.ui.autofill.AutofillTree autofillTree;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit> configurationChangeObserver;
-    property public final androidx.ui.core.Constraints constraints;
-    property public androidx.ui.unit.Density density;
-    property public final androidx.ui.text.font.Font.ResourceLoader fontLoader;
-    property public final androidx.ui.core.hapticfeedback.HapticFeedback hapticFeedBack;
-    property public long measureIteration;
-    property public final androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? ref;
-    property public final androidx.ui.core.LayoutNode root;
-    property public final androidx.ui.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
-    property public androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
-    property public boolean showLayoutBounds;
-    property public final androidx.ui.input.TextInputService textInputService;
-    field public static final androidx.ui.core.AndroidComposeView.Companion! Companion;
-  }
-
-  public static final class AndroidComposeView.Companion {
-    method public boolean getEnableExtraAssertions();
-    method public void setEnableExtraAssertions(boolean p);
-    property public final boolean enableExtraAssertions;
-  }
-
   public interface AndroidOwner extends androidx.ui.core.Owner {
     method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
     method public void removeAndroidView(android.view.View view);
+  }
+
+  public final class AndroidOwnerKt {
+    method public static androidx.ui.core.Owner createOwner(android.content.Context context);
   }
 
   public abstract sealed class ComponentNode {
@@ -283,10 +225,18 @@ package androidx.ui.core {
     method public androidx.ui.unit.IntPxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
     method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.Density,kotlin.Unit> drawBlock);
+    method public androidx.ui.autofill.Autofill? getAutofill();
+    method public androidx.ui.autofill.AutofillTree getAutofillTree();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();
     method public androidx.ui.unit.Density getDensity();
+    method public androidx.ui.text.font.Font.ResourceLoader getFontLoader();
+    method public androidx.ui.core.hapticfeedback.HapticFeedback getHapticFeedBack();
     method public long getMeasureIteration();
+    method public androidx.ui.core.LayoutNode getRoot();
+    method public androidx.ui.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
+    method public androidx.ui.input.TextInputService getTextInputService();
     method public void measureAndLayout();
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -299,10 +249,27 @@ package androidx.ui.core {
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
+    method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
+    property public abstract androidx.ui.autofill.Autofill? autofill;
+    property public abstract androidx.ui.autofill.AutofillTree autofillTree;
+    property public abstract kotlin.jvm.functions.Function0<kotlin.Unit> configurationChangeObserver;
     property public abstract androidx.ui.unit.Density density;
+    property public abstract androidx.ui.text.font.Font.ResourceLoader fontLoader;
+    property public abstract androidx.ui.core.hapticfeedback.HapticFeedback hapticFeedBack;
     property public abstract long measureIteration;
+    property public abstract androidx.ui.core.LayoutNode root;
+    property public abstract androidx.ui.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;
     property public abstract androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
     property public abstract boolean showLayoutBounds;
+    property public abstract androidx.ui.input.TextInputService textInputService;
+    field public static final androidx.ui.core.Owner.Companion! Companion;
+  }
+
+  public static final class Owner.Companion {
+    method public boolean getEnableExtraAssertions();
+    method public void setEnableExtraAssertions(boolean p);
+    property public final boolean enableExtraAssertions;
   }
 
   public final class PointerInputNode extends androidx.ui.core.ComponentNode {

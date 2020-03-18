@@ -26,11 +26,11 @@ import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
+import androidx.ui.core.Owner
 import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.enforce
@@ -99,24 +99,24 @@ open class LayoutTest {
         activityTestRule.runOnUiThread(runnable)
     }
 
-    internal fun findAndroidComposeView(): AndroidComposeView {
-        return findAndroidComposeView(activity)
+    internal fun findOwnerView(): View {
+        return findOwner(activity) as View
     }
 
-    internal fun findAndroidComposeView(activity: Activity): AndroidComposeView {
+    internal fun findOwner(activity: Activity): Owner {
         val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findAndroidComposeView(contentViewGroup)!!
+        return findOwner(contentViewGroup)!!
     }
 
-    internal fun findAndroidComposeView(parent: ViewGroup): AndroidComposeView? {
+    internal fun findOwner(parent: ViewGroup): Owner? {
         for (index in 0 until parent.childCount) {
             val child = parent.getChildAt(index)
-            if (child is AndroidComposeView) {
+            if (child is Owner) {
                 return child
             } else if (child is ViewGroup) {
-                val composeView = findAndroidComposeView(child)
-                if (composeView != null) {
-                    return composeView
+                val owner = findOwner(child)
+                if (owner != null) {
+                    return owner
                 }
             }
         }

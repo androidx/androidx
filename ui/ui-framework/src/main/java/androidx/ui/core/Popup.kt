@@ -139,18 +139,20 @@ private fun Popup(
 ) {
     val context = ContextAmbient.current
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
-    val composeView = AndroidComposeViewAmbient.current
+    val owner = OwnerAmbient.current
     val providedTestTag = PopupTestTagAmbient.current
 
     val popupLayout = remember(popupProperties) {
-        escapeCompose { PopupLayout(
-            context = context,
-            composeView = composeView,
-            popupProperties = popupProperties,
-            popupPositionProperties = popupPositionProperties,
-            calculatePopupPosition = calculatePopupPosition,
-            testTag = providedTestTag
-        ) }
+        escapeCompose {
+            PopupLayout(
+                context = context,
+                composeView = owner as View,
+                popupProperties = popupProperties,
+                popupPositionProperties = popupPositionProperties,
+                calculatePopupPosition = calculatePopupPosition,
+                testTag = providedTestTag
+            )
+        }
     }
     popupLayout.calculatePopupPosition = calculatePopupPosition
 
@@ -291,7 +293,8 @@ private class PopupLayout(
      */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if ((event?.action == MotionEvent.ACTION_DOWN) &&
-            ((event.x < 0) || (event.x >= width) || (event.y < 0) || (event.y >= height))) {
+            ((event.x < 0) || (event.x >= width) || (event.y < 0) || (event.y >= height))
+        ) {
             popupProperties.onDismissRequest?.invoke()
 
             return true
@@ -452,7 +455,7 @@ internal fun calculateDropdownPopupPosition(
 fun disposeActivityComposition(activity: Activity) {
     val composeView = activity.window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? AndroidComposeView
+        .getChildAt(0) as? Owner
         ?: error("No root view found")
 
     @Suppress("DEPRECATION")

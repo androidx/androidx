@@ -34,9 +34,9 @@ import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.frames.currentFrame
 import androidx.compose.frames.inFrame
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.DrawNode
+import androidx.ui.core.Owner
 import androidx.ui.core.setContent
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
@@ -109,7 +109,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
         recomposer = Recomposer.current()
         composition = activity.setContent { testCase!!.emitContent() }
-        val composeView = findComposeView(activity)!!
+        val composeView = (findComposeView(activity) as ViewGroup?)!!
         // AndroidComposeView is postponing the composition till the saved state will be restored.
         // We will emulate the restoration of the empty state to trigger the real composition.
         composeView.restoreHierarchyState(SparseArray())
@@ -147,8 +147,10 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     }
 
     override fun drawPrepare() {
-        require(simulationState == SimulationState.LayoutDone ||
-                simulationState == SimulationState.DrawDone) {
+        require(
+            simulationState == SimulationState.LayoutDone ||
+                    simulationState == SimulationState.DrawDone
+        ) {
             "Draw can be only executed after layout or draw, current state is '$simulationState'"
         }
         canvas = capture.beginRecording(getView().width, getView().height)
@@ -278,12 +280,12 @@ private enum class SimulationState {
     RecomposeDone
 }
 
-private fun findComposeView(activity: Activity): AndroidComposeView? {
+private fun findComposeView(activity: Activity): Owner? {
     return findComposeView(activity.findViewById(android.R.id.content) as ViewGroup)
 }
 
-private fun findComposeView(view: View): AndroidComposeView? {
-    if (view is AndroidComposeView) {
+private fun findComposeView(view: View): Owner? {
+    if (view is Owner) {
         return view
     }
 
@@ -306,7 +308,7 @@ private fun invalidateViews(view: View) {
             invalidateViews(child)
         }
     }
-    if (view is AndroidComposeView) {
+    if (view is Owner) {
         invalidateComponentNodes(view.root)
     }
 }
