@@ -31,6 +31,7 @@ import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
@@ -2692,6 +2693,10 @@ class LayoutCoordinatesStub(
     }
 
     override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
+        TODO("not implemented")
+    }
+
+    override fun childBoundingBox(child: LayoutCoordinates): PxBounds {
         TODO("not implemented")
     }
 
