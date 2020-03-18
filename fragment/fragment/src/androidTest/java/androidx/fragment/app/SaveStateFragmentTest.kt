@@ -17,6 +17,7 @@
 package androidx.fragment.app
 
 import android.os.Bundle
+import android.widget.EditText
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
@@ -102,6 +103,45 @@ class SaveStateFragmentTest {
             .that(fragment.savedState).isEqualTo("Saved")
         assertWithMessage("setUserVisibleHint should override setInitialSavedState")
             .that(fragment.userVisibleHint).isEqualTo(false)
+    }
+
+    @Test
+    @UiThreadTest
+    fun testFragmentViewStateSaved() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
+        val fm1 = fc1.supportFragmentManager
+
+        val fragment = SaveViewStateFragment()
+
+        fm1.beginTransaction()
+            .add(fragment, "viewFragment")
+            .commitNow()
+
+        val editText = fragment.requireView().findViewById<EditText>(R.id.editText)
+
+        editText.setText("saved")
+
+        fc1.dispatchPause()
+        val savedState = fc1.saveAllState()
+        fc1.dispatchStop()
+        fc1.dispatchDestroy()
+
+        val fc2 = activityRule.startupFragmentController(viewModelStore, savedState)
+        val fm2 = fc2.supportFragmentManager
+
+        val restoredFragment = fm2.findFragmentByTag("viewFragment") as SaveViewStateFragment
+        assertWithMessage("Fragment was not restored")
+            .that(restoredFragment).isNotNull()
+
+        val restoredEditText = restoredFragment.requireView().findViewById<EditText>(R.id.editText)
+
+        assertWithMessage("Fragment view was not properly restored")
+            .that(restoredEditText.text.toString())
+            .isEqualTo("saved")
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.shutdown(viewModelStore)
     }
 
     @Test
@@ -709,4 +749,6 @@ class SaveStateFragmentTest {
             private const val STATE_KEY = "state"
         }
     }
+
+    class SaveViewStateFragment : StrictViewFragment(R.layout.with_edit_text)
 }
