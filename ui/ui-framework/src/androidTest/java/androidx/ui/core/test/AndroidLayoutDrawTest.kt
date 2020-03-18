@@ -33,7 +33,6 @@ import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -112,14 +111,12 @@ class AndroidLayoutDrawTest {
     val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
-    private lateinit var outerLatch: CountDownLatch
 
     @Before
     fun setup() {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         drawLatch = CountDownLatch(1)
-        outerLatch = CountDownLatch(1)
     }
 
     // Tests that simple drawing works with layered squares
@@ -2176,10 +2173,10 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
-    @FlakyTest
     @Test
     fun doubleDraw() {
         val model = OffsetModel(0.ipx)
+        var outerLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread {
             activity.setContent {
                 FixedSize(30.ipx, draw { _, _ -> outerLatch.countDown() } + drawLayer()) {
