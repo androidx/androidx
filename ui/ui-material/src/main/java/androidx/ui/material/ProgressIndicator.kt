@@ -27,6 +27,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.DeterminateProgressIndicator
@@ -39,7 +40,6 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Stack
 import androidx.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.max
@@ -54,19 +54,18 @@ import kotlin.math.max
 @Composable
 fun LinearProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
+    modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
-        Stack {
-            val paint = paint(color, StrokeCap.butt)
-            val backgroundPaint = paint(
-                color.copy(alpha = BackgroundOpacity),
-                StrokeCap.butt
-            )
-            Canvas(LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
-                drawLinearIndicatorBackground(backgroundPaint)
-                drawLinearIndicator(0f, progress, paint)
-            }
+        val paint = paint(color, StrokeCap.butt)
+        val backgroundPaint = paint(
+            color.copy(alpha = BackgroundOpacity),
+            StrokeCap.butt
+        )
+        Canvas(modifier + LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
+            drawLinearIndicatorBackground(backgroundPaint)
+            drawLinearIndicator(0f, progress, paint)
         }
     }
 }
@@ -78,30 +77,31 @@ fun LinearProgressIndicator(
  * @param color The color of the progress indicator.
  */
 @Composable
-fun LinearProgressIndicator(color: Color = MaterialTheme.colors().primary) {
-    Stack {
-        Transition(
-            definition = LinearIndeterminateTransition,
-            initState = 0,
-            toState = 1
-        ) { state ->
-            val firstLineHead = state[FirstLineHeadProp]
-            val firstLineTail = state[FirstLineTailProp]
-            val secondLineHead = state[SecondLineHeadProp]
-            val secondLineTail = state[SecondLineTailProp]
-            val paint = paint(color, StrokeCap.butt)
-            val backgroundPaint = paint(
-                color.copy(alpha = BackgroundOpacity),
-                StrokeCap.butt
-            )
-            Canvas(LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
-                drawLinearIndicatorBackground(backgroundPaint)
-                if (firstLineHead - firstLineTail > 0) {
-                    drawLinearIndicator(firstLineHead, firstLineTail, paint)
-                }
-                if ((secondLineHead - secondLineTail) > 0) {
-                    drawLinearIndicator(secondLineHead, secondLineTail, paint)
-                }
+fun LinearProgressIndicator(
+    modifier: Modifier = Modifier.None,
+    color: Color = MaterialTheme.colors().primary
+) {
+    Transition(
+        definition = LinearIndeterminateTransition,
+        initState = 0,
+        toState = 1
+    ) { state ->
+        val firstLineHead = state[FirstLineHeadProp]
+        val firstLineTail = state[FirstLineTailProp]
+        val secondLineHead = state[SecondLineHeadProp]
+        val secondLineTail = state[SecondLineTailProp]
+        val paint = paint(color, StrokeCap.butt)
+        val backgroundPaint = paint(
+            color.copy(alpha = BackgroundOpacity),
+            StrokeCap.butt
+        )
+        Canvas(modifier + LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
+            drawLinearIndicatorBackground(backgroundPaint)
+            if (firstLineHead - firstLineTail > 0) {
+                drawLinearIndicator(firstLineHead, firstLineTail, paint)
+            }
+            if ((secondLineHead - secondLineTail) > 0) {
+                drawLinearIndicator(secondLineHead, secondLineTail, paint)
             }
         }
     }
@@ -138,20 +138,18 @@ private fun CanvasScope.drawLinearIndicatorBackground(paint: Paint) =
 @Composable
 fun CircularProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
+    modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().primary
 ) {
-    Stack {
-        DeterminateProgressIndicator(progress = progress) {
-            val paint = paint(color, StrokeCap.butt)
-            Canvas(
-                modifier = LayoutPadding(CircularIndicatorPadding) +
-                        LayoutSize(CircularIndicatorDiameter)
-            ) {
-                // Start at 12 O'clock
-                val startAngle = 270f
-                val sweep = progress * 360f
-                drawDeterminateCircularIndicator(startAngle, sweep, paint)
-            }
+    DeterminateProgressIndicator(progress = progress) {
+        val paint = paint(color, StrokeCap.butt)
+        Canvas(modifier = modifier + LayoutPadding(CircularIndicatorPadding) +
+                LayoutSize(CircularIndicatorDiameter)
+        ) {
+            // Start at 12 O'clock
+            val startAngle = 270f
+            val sweep = progress * 360f
+            drawDeterminateCircularIndicator(startAngle, sweep, paint)
         }
     }
 }
@@ -163,34 +161,34 @@ fun CircularProgressIndicator(
  * @param color The color of the progress indicator.
  */
 @Composable
-fun CircularProgressIndicator(color: Color = MaterialTheme.colors().primary) {
-    Stack {
-        val paint = paint(color, StrokeCap.square)
-        Transition(
-            definition = CircularIndeterminateTransition,
-            initState = 0,
-            toState = 1
-        ) { state ->
-            val currentRotation = state[IterationProp]
-            val baseRotation = state[BaseRotationProp]
+fun CircularProgressIndicator(
+    modifier: Modifier = Modifier.None,
+    color: Color = MaterialTheme.colors().primary
+) {
+    val paint = paint(color, StrokeCap.square)
+    Transition(
+        definition = CircularIndeterminateTransition,
+        initState = 0,
+        toState = 1
+    ) { state ->
+        val currentRotation = state[IterationProp]
+        val baseRotation = state[BaseRotationProp]
 
-            val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
+        val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
 
-            var startAngle = state[TailRotationProp]
-            val endAngle = state[HeadRotationProp]
-            // How long a line to draw using the start angle as a reference point
-            val sweep = abs(endAngle - startAngle)
+        var startAngle = state[TailRotationProp]
+        val endAngle = state[HeadRotationProp]
+        // How long a line to draw using the start angle as a reference point
+        val sweep = abs(endAngle - startAngle)
 
-            // Offset by the constant offset and the per rotation offset
-            startAngle += StartAngleOffset + currentRotationAngleOffset
-            startAngle += baseRotation
+        // Offset by the constant offset and the per rotation offset
+        startAngle += StartAngleOffset + currentRotationAngleOffset
+        startAngle += baseRotation
 
-            Canvas(
-                modifier = LayoutPadding(CircularIndicatorPadding) +
-                        LayoutSize(CircularIndicatorDiameter)
-            ) {
-                drawIndeterminateCircularIndicator(startAngle, sweep, paint)
-            }
+        Canvas(modifier = modifier + LayoutPadding(CircularIndicatorPadding) +
+                LayoutSize(CircularIndicatorDiameter)
+        ) {
+            drawIndeterminateCircularIndicator(startAngle, sweep, paint)
         }
     }
 }
