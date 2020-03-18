@@ -32,10 +32,10 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.unit.IntPx
@@ -78,7 +78,7 @@ enum class DrawerState {
 fun StaticDrawer(
     drawerContent: @Composable() () -> Unit
 ) {
-    Container(width = StaticDrawerWidth, expanded = true, children = drawerContent)
+    Box(LayoutWidth(StaticDrawerWidth) + LayoutHeight.Fill, children = drawerContent)
 }
 
 /**
@@ -110,7 +110,7 @@ fun ModalDrawerLayout(
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
-    Container(expanded = true) {
+    Box(LayoutSize.Fill) {
         WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedWidth) {
@@ -177,7 +177,7 @@ fun BottomDrawerLayout(
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
-    Container(expanded = true) {
+    Box(LayoutSize.Fill) {
         WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedHeight) {
@@ -236,16 +236,18 @@ private fun DrawerContent(
     children: @Composable() () -> Unit
 ) {
     WithOffset(xOffset = xOffset) {
-        Container(
-            constraints = constraints,
-            padding = EdgeInsets(right = VerticalDrawerPadding)
+        Box(
+            LayoutSize.Constrain(
+                constraints.minWidth,
+                constraints.minHeight,
+                constraints.maxWidth,
+                constraints.maxHeight
+            ),
+            paddingEnd = VerticalDrawerPadding
         ) {
             // remove Container when we will support multiply children
             Surface {
-                Container(
-                    expanded = true,
-                    children = children
-                )
+                Box(LayoutSize.Fill, children = children)
             }
         }
     }
@@ -258,13 +260,17 @@ private fun BottomDrawerContent(
     children: @Composable() () -> Unit
 ) {
     WithOffset(yOffset = yOffset) {
-        Container(constraints = constraints) {
+        Box(
+            LayoutSize.Constrain(
+                constraints.minWidth,
+                constraints.minHeight,
+                constraints.maxWidth,
+                constraints.maxHeight
+            )
+        ) {
             // remove Container when we will support multiply children
             Surface {
-                Container(
-                    expanded = true,
-                    children = children
-                )
+                Box(LayoutSize.Fill, children = children)
             }
         }
     }

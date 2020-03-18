@@ -24,15 +24,16 @@ import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.text.TextStyle
@@ -199,32 +200,26 @@ private object OneLine {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(LayoutHeight.Min(minHeight)) {
             if (icon != null) {
-                Container(
-                    modifier = LayoutGravity.Center,
-                    alignment = Alignment.CenterStart,
-                    constraints = DpConstraints(
-                        minWidth = IconLeftPadding + IconMinPaddedWidth
-                    ),
-                    padding = EdgeInsets(
-                        // TODO(popam): remove left padding for wide icons
-                        left = IconLeftPadding,
-                        top = IconVerticalPadding,
-                        bottom = IconVerticalPadding
-                    ),
+                Box(
+                    modifier = LayoutGravity.Center +
+                            LayoutWidth.Min(IconLeftPadding + IconMinPaddedWidth),
+                    gravity = ContentGravity.CenterStart,
+                    paddingStart = IconLeftPadding,
+                    paddingTop = IconVerticalPadding,
+                    paddingBottom = IconVerticalPadding,
                     children = icon
                 )
             }
-            Container(
+            Box(
                 modifier = LayoutWeight(1f) + LayoutGravity.Center +
                         LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding),
-                alignment = Alignment.CenterStart,
+                gravity = ContentGravity.CenterStart,
                 children = text
             )
             if (trailing != null) {
-                Container(
-                    modifier = LayoutGravity.Center,
-                    alignment = Alignment.Center,
-                    padding = EdgeInsets(right = TrailingRightPadding),
+                Box(
+                    LayoutGravity.Center,
+                    paddingEnd = TrailingRightPadding,
                     children = trailing
                 )
             }
@@ -268,18 +263,12 @@ private object TwoLine {
             )
 
             if (icon != null) {
-                Container(
-                    alignment = Alignment.TopStart,
-                    constraints = DpConstraints(
-                        // TODO(popam): remove minHeight with cross axis alignment per child
-                        minHeight = minHeight,
-                        minWidth = IconLeftPadding + IconMinPaddedWidth
-                    ),
-                    padding = EdgeInsets(
-                        left = IconLeftPadding,
-                        top = IconVerticalPadding,
-                        bottom = IconVerticalPadding
-                    ),
+                Box(
+                    LayoutSize.Min(IconLeftPadding + IconMinPaddedWidth, minHeight),
+                    gravity = ContentGravity.TopStart,
+                    paddingStart = IconLeftPadding,
+                    paddingTop = IconVerticalPadding,
+                    paddingBottom = IconVerticalPadding,
                     children = icon
                 )
             }
@@ -320,9 +309,10 @@ private object TwoLine {
                         PrimaryBaselineOffsetNoIcon
                     }
                 ) {
-                    Container(
+                    Box(
                         // TODO(popam): find way to center and wrap content without minHeight
                         LayoutHeight.Min(minHeight) + LayoutPadding(end = TrailingRightPadding),
+                        gravity = ContentGravity.Center,
                         children = trailing
                     )
                 }
@@ -358,16 +348,12 @@ private object ThreeLine {
     ) {
         Row(LayoutHeight.Min(MinHeight)) {
             if (icon != null) {
-                Container(
-                    alignment = Alignment.CenterStart,
-                    constraints = DpConstraints(
-                        minWidth = IconLeftPadding + IconMinPaddedWidth
-                    ),
-                    padding = EdgeInsets(
-                        left = IconLeftPadding,
-                        top = IconThreeLineVerticalPadding,
-                        bottom = IconThreeLineVerticalPadding
-                    ),
+                Box(
+                    LayoutSize.Min(IconLeftPadding + IconMinPaddedWidth),
+                    gravity = ContentGravity.CenterStart,
+                    paddingStart = IconLeftPadding,
+                    paddingTop = IconThreeLineVerticalPadding,
+                    paddingBottom = IconThreeLineVerticalPadding,
                     children = icon
                 )
             }
@@ -435,6 +421,7 @@ private fun BaselinesOffsetColumn(
         }
     }
 }
+
 /**
  * Layout that takes a child and adds the necessary padding such that the first baseline of the
  * child is at a specific offset from the top of the container. If the child does not have

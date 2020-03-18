@@ -27,6 +27,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
 import androidx.ui.geometry.Offset
@@ -39,7 +40,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.material.ripple.Ripple
@@ -101,7 +101,7 @@ fun TriStateCheckbox(
     color: Color = MaterialTheme.colors().secondary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
-        Container(modifier) {
+        Box(modifier, gravity = ContentGravity.Center) {
             Ripple(bounded = false) {
                 TriStateToggleable(value = value, onToggle = onClick) {
                     Box(LayoutPadding(CheckboxDefaultPadding)) {
@@ -178,8 +178,10 @@ private fun CanvasScope.drawBox(
         val clipRect = outer.shrink(strokeWidth / 2 - offset).outerRect()
         save()
         clipRect(clipRect, ClipOp.difference)
-        drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, outerRadius,
-            outerRadius, paint)
+        drawRoundRect(
+            outer.left, outer.top, outer.right, outer.bottom, outerRadius,
+            outerRadius, paint
+        )
         restore()
 
         save()
@@ -189,8 +191,10 @@ private fun CanvasScope.drawBox(
         drawRect(outer.shrink(innerHalfStrokeWidth - offset).outerRect(), paint)
         restore()
     } else {
-        drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, outerRadius,
-            outerRadius, paint)
+        drawRoundRect(
+            outer.left, outer.top, outer.right, outer.bottom, outerRadius,
+            outerRadius, paint
+        )
     }
 }
 

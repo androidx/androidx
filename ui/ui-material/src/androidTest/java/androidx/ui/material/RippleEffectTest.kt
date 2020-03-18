@@ -19,15 +19,15 @@ import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.Providers
-import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.TestTag
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.material.ripple.RippleThemeAmbient
@@ -71,7 +71,7 @@ class RippleEffectTest {
                 latch.countDown()
             }) {
                 Card {
-                    Container(LayoutPadding(padding)) {
+                    Box(LayoutPadding(padding)) {
                         TestTag(tag = "ripple") {
                             RippleButton()
                         }
@@ -268,7 +268,7 @@ class RippleEffectTest {
     private fun RippleButton(size: Dp? = null, color: Color? = null, enabled: Boolean = true) {
         Ripple(bounded = false, color = color, enabled = enabled) {
             Clickable(onClick = {}) {
-                Container(width = size, height = size, children = emptyContent())
+                Box(LayoutSize.Min(size ?: 0.dp))
             }
         }
     }

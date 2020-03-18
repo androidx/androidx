@@ -26,10 +26,10 @@ import androidx.ui.core.currentTextStyle
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
-import androidx.ui.layout.Container
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByText
@@ -85,7 +85,7 @@ class AppBarTest {
         var titleLastBaselineRelativePosition: Px? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Container(onChildPositioned { appBarCoords = it }) {
+            Box(onChildPositioned { appBarCoords = it }) {
                 TopAppBar(
                     navigationIcon = {
                         FakeIcon(onPositioned { navigationIconCoords = it })
@@ -152,7 +152,7 @@ class AppBarTest {
         var titleCoords: LayoutCoordinates? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Container(onChildPositioned { appBarCoords = it }) {
+            Box(onChildPositioned { appBarCoords = it }) {
                 TopAppBar(
                     title = {
                         Text("title", onPositioned { titleCoords = it })
@@ -183,7 +183,7 @@ class AppBarTest {
         var textStyle: TextStyle? = null
         var h6Style: TextStyle? = null
         composeTestRule.setMaterialContent {
-            Container {
+            Box {
                 TopAppBar(
                     title = {
                         Text("App Bar Title")
@@ -213,7 +213,7 @@ class AppBarTest {
         var appBarCoords: LayoutCoordinates? = null
         var childCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Container(onChildPositioned { appBarCoords = it }) {
+            Box(onChildPositioned { appBarCoords = it }) {
                 BottomAppBar {
                     FakeIcon(onPositioned { childCoords = it })
                 }
