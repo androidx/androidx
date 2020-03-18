@@ -15,13 +15,15 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.startup">
 
     <application>
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            android:exported="false" />
+            android:exported="false"
+            tools:node="merge" />
     </application>
 
 </manifest>

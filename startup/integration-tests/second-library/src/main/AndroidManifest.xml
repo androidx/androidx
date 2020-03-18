@@ -15,14 +15,19 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.startup.second_library">
 
     <application>
-
-        <!-- This meta-data entry is useful for ComponentInitializer discovery. -->
-        <meta-data
-            android:name="androidx.startup.second_library.DependentComponentInitializer"
-            android:value="@string/androidx_startup" />
-
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This meta-data entry is useful for ComponentInitializer discovery. -->
+            <meta-data
+                android:name="androidx.startup.second_library.DependentComponentInitializer"
+                android:value="@string/androidx_startup" />
+        </provider>
     </application>
 </manifest>

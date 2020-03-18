@@ -54,9 +54,15 @@ class EnsureComponentInitializerMetadataTest {
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
                   <application>
-                    <meta-data
-                        android:name="com.example.TestComponentInitializer"
-                        android:value="androidx.startup" />
+                    <provider
+                        android:name="androidx.startup.InitializationProvider"
+                        android:authorities="com.example.androidx-startup"
+                        android:exported="false"
+                        tools:node="merge">
+                        <meta-data
+                            android:name="com.example.TestComponentInitializer"
+                            android:value="androidx.startup" />
+                    </provider>
                   </application>
                 </manifest>
         """
@@ -81,9 +87,15 @@ class EnsureComponentInitializerMetadataTest {
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
                   <application>
-                    <meta-data
-                        android:name="com.example.TestComponentInitializer"
-                        android:value="androidx.startup" />
+                    <provider
+                        android:name="androidx.startup.InitializationProvider"
+                        android:authorities="com.example.androidx-startup"
+                        android:exported="false"
+                        tools:node="merge">
+                        <meta-data
+                            android:name="com.example.TestComponentInitializer"
+                            android:value="androidx.startup" />
+                    </provider>
                   </application>
                 </manifest>
         """
@@ -109,9 +121,15 @@ class EnsureComponentInitializerMetadataTest {
                   xmlns:tools="http://schemas.android.com/tools"
                   package="com.example">
                   <application>
-                    <meta-data
-                        android:name="com.example.TestComponentInitializer"
-                        android:value="@string/androidx_startup" />
+                    <provider
+                        android:name="androidx.startup.InitializationProvider"
+                        android:authorities="com.example.androidx-startup"
+                        android:exported="false"
+                        tools:node="merge">
+                        <meta-data
+                            android:name="com.example.TestComponentInitializer"
+                            android:value="@string/androidx_startup" />
+                    </provider>
                   </application>
                 </manifest>
         """

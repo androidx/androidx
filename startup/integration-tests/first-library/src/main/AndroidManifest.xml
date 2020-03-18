@@ -20,10 +20,16 @@
 
     <application>
 
-        <!-- This meta-data entry is useful for ComponentInitializer discovery. -->
-        <meta-data
-            android:name="androidx.startup.first_library.WorkManagerComponentInitializer"
-            android:value="@string/androidx_startup" />
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This meta-data entry is useful for ComponentInitializer discovery. -->
+            <meta-data
+                android:name="androidx.startup.first_library.WorkManagerComponentInitializer"
+                android:value="@string/androidx_startup" />
+        </provider>
 
         <!-- Remove provider for WorkManager on-demand initialization -->
         <provider
