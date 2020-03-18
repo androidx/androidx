@@ -35,7 +35,7 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Dp
@@ -167,9 +167,7 @@ fun ListItem(
 
     if (onClick != null) {
         val rippleColor = MaterialTheme.colors().onSurface.copy(alpha = RippleOpacity)
-        Ripple(bounded = true, color = rippleColor) {
-            Clickable(onClick = onClick, children = item)
-        }
+        Clickable(onClick = onClick, children = item, modifier = ripple(color = rippleColor))
     } else {
         item()
     }

@@ -45,7 +45,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.Dp
@@ -423,12 +423,14 @@ fun DataTable(
                             }
 
                             CurrentTextStyleProvider(TextStyle(fontWeight = fontWeight)) {
-                                Ripple(bounded = true) {
-                                    Clickable(onClick = onSort, enabled = enabled) {
-                                        Row {
-                                            headerDecoration?.invoke()
-                                            header.children(index = j)
-                                        }
+                                Clickable(
+                                    onClick = onSort,
+                                    enabled = enabled,
+                                    modifier = ripple()
+                                ) {
+                                    Row {
+                                        headerDecoration?.invoke()
+                                        header.children(index = j)
                                     }
                                 }
                             }
@@ -473,18 +475,17 @@ fun DataTable(
                     visibleRows.forEachIndexed { index, row ->
                         if (row.onSelectedChange == null) return@forEachIndexed
                         ParentData(data = index) {
-                            Ripple(bounded = true) {
-                                Clickable(
-                                    onClick = { row.onSelectedChange.invoke(!row.selected) }
-                                ) {
-                                    ColoredRect(
-                                        color = if (row.selected) {
-                                            selectedColor
-                                        } else {
-                                            Color.Transparent
-                                        }
-                                    )
-                                }
+                            Clickable(
+                                onClick = { row.onSelectedChange.invoke(!row.selected) },
+                                modifier = ripple()
+                            ) {
+                                ColoredRect(
+                                    color = if (row.selected) {
+                                        selectedColor
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                )
                             }
                         }
                     }
@@ -543,14 +544,15 @@ fun DataTable(
 
                     // TODO(calintat): Replace this with an image button with chevron_left icon.
                     Box(modifier = modifier) {
-                        Ripple(bounded = false) {
-                            Clickable(onClick = {
+                        Clickable(
+                            onClick = {
                                 val newPage = pagination.page - 1
                                 if (newPage >= 0)
                                     pagination.onPageChange.invoke(newPage)
-                            }) {
-                                Text(text = "Prev")
-                            }
+                            },
+                            modifier = ripple()
+                        ) {
+                            Text(text = "Prev")
                         }
                     }
 
@@ -558,14 +560,15 @@ fun DataTable(
 
                     // TODO(calintat): Replace this with an image button with chevron_right icon.
                     Box(modifier = modifier) {
-                        Ripple(bounded = false) {
-                            Clickable(onClick = {
+                        Clickable(
+                            onClick = {
                                 val newPage = pagination.page + 1
                                 if (newPage < pages)
                                     pagination.onPageChange.invoke(newPage)
-                            }) {
-                                Text(text = "Next")
-                            }
+                            },
+                            modifier = ripple()
+                        ) {
+                            Text(text = "Next")
                         }
                     }
                 }

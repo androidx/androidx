@@ -29,7 +29,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutSize
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -87,20 +87,22 @@ fun Button(
             elevation = elevation,
             modifier = modifier
         ) {
-            Ripple(bounded = true, enabled = enabled) {
-                Clickable(onClick = onClick, enabled = enabled) {
-                    Box(
-                        ButtonConstraints,
-                        paddingStart = innerPadding.left,
-                        paddingTop = innerPadding.top,
-                        paddingEnd = innerPadding.right,
-                        paddingBottom = innerPadding.bottom
-                    ) {
-                        CurrentTextStyleProvider(
-                            value = MaterialTheme.typography().button,
-                            children = children
-                        )
-                    }
+            Clickable(
+                onClick = onClick,
+                enabled = enabled,
+                modifier = ripple(enabled = enabled)
+            ) {
+                Box(
+                    ButtonConstraints,
+                    paddingStart = innerPadding.left,
+                    paddingTop = innerPadding.top,
+                    paddingEnd = innerPadding.right,
+                    paddingBottom = innerPadding.bottom
+                ) {
+                    CurrentTextStyleProvider(
+                        value = MaterialTheme.typography().button,
+                        children = children
+                    )
                 }
             }
         }

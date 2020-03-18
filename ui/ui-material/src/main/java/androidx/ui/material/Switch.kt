@@ -20,7 +20,7 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
-import androidx.ui.foundation.Box
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.gestures.DragDirection
@@ -33,7 +33,7 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 import androidx.ui.material.internal.StateDraggable
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
@@ -57,19 +57,24 @@ fun Switch(
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Stack {
-            Ripple(bounded = false) {
-                Toggleable(value = checked, onValueChange = onCheckedChange) {
-                    Box(LayoutPadding(DefaultSwitchPadding)) {
-                        SwitchImpl(checked, onCheckedChange, color)
-                    }
-                }
+            Toggleable(
+                value = checked,
+                onValueChange = onCheckedChange,
+                modifier = ripple(bounded = false)
+            ) {
+                SwitchImpl(checked, onCheckedChange, color, LayoutPadding(DefaultSwitchPadding))
             }
         }
     }
 }
 
 @Composable
-private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, color: Color) {
+private fun SwitchImpl(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    color: Color,
+    modifier: Modifier
+) {
     val minBound = 0f
     val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx().value }
     StateDraggable(
@@ -84,20 +89,26 @@ private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, 
         DrawSwitch(
             checked = checked,
             checkedThumbColor = color,
-            thumbValue = model
+            thumbValue = model,
+            modifier = modifier
         )
     }
 }
 
 @Composable
-private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbValue: AnimatedFloat) {
+private fun DrawSwitch(
+    checked: Boolean,
+    checkedThumbColor: Color,
+    thumbValue: AnimatedFloat,
+    modifier: Modifier
+) {
     val thumbColor = if (checked) checkedThumbColor else MaterialTheme.colors().surface
     val trackColor = if (checked) {
         checkedThumbColor.copy(alpha = CheckedTrackOpacity)
     } else {
         MaterialTheme.colors().onSurface.copy(alpha = UncheckedTrackOpacity)
     }
-    Canvas(LayoutSize(SwitchWidth, SwitchHeight)) {
+    Canvas(modifier + LayoutSize(SwitchWidth, SwitchHeight)) {
         drawTrack(trackColor)
         drawThumb(thumbValue.value, thumbColor)
     }

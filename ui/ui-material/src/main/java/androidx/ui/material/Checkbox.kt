@@ -42,7 +42,7 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.dp
 
@@ -102,26 +102,30 @@ fun TriStateCheckbox(
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Box(modifier, gravity = ContentGravity.Center) {
-            Ripple(bounded = false) {
-                TriStateToggleable(value = value, onToggle = onClick) {
-                    Box(LayoutPadding(CheckboxDefaultPadding)) {
-                        DrawCheckbox(value = value, activeColor = color)
-                    }
-                }
+            TriStateToggleable(
+                value = value,
+                onToggle = onClick,
+                modifier = ripple(bounded = false)
+            ) {
+                DrawCheckbox(
+                    value = value,
+                    activeColor = color,
+                    modifier = LayoutPadding(CheckboxDefaultPadding)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
+private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: Modifier) {
     val unselectedColor = MaterialTheme.colors().onSurface.copy(alpha = UncheckedBoxOpacity)
     val definition = remember(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }
     val checkboxPaint = remember { Paint() }
     Transition(definition = definition, toState = value) { state ->
-        Canvas(modifier = LayoutSize(CheckboxSize)) {
+        Canvas(modifier = modifier + LayoutSize(CheckboxSize)) {
             drawBox(
                 color = state[BoxColorProp],
                 innerRadiusFraction = state[InnerRadiusFractionProp],

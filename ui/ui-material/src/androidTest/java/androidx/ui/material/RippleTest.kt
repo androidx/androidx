@@ -15,37 +15,47 @@
  */
 package androidx.ui.material
 
+import android.os.Build
 import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.Providers
 import androidx.test.filters.MediumTest
-import androidx.ui.core.LayoutCoordinates
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
-import androidx.ui.layout.Stack
 import androidx.ui.material.ripple.RippleThemeAmbient
-import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
+import androidx.ui.material.ripple.ripple
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
+import androidx.ui.unit.px
+import androidx.ui.unit.toPxSize
+import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,109 +65,146 @@ import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
-class RippleEffectTest {
+class RippleTest {
+
+    private val contentTag = "ripple"
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    @Ignore
-    fun rippleEffectMatrixHasOffsetFromSurface() {
-        val latch = CountDownLatch(1)
-
-        val padding = 10.dp
+    fun rippleDrawsCorrectly() {
         composeTestRule.setMaterialContent {
-            RippleCallback(onRippleDrawn = {
-                latch.countDown()
-            }) {
-                Card {
-                    Box(LayoutPadding(padding)) {
-                        TestTag(tag = "ripple") {
-                            RippleButton()
-                        }
+            DrawRectRippleCallback {
+                TestTag(contentTag) {
+                    Box(
+                        modifier = DrawBackground(Color.Blue),
+                        gravity = ContentGravity.Center
+                    ) {
+                        Box(LayoutSize(10.dp) + ripple())
                     }
                 }
             }
         }
 
-        findByTag("ripple")
+        findByTag(contentTag)
             .doClick()
 
-        // wait for drawEffect to be called
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-
-        // TODO(Andrey): Move waitAndScreenShot() method for drawn pixel assertions from
-        // ui-foundation to ui-test to be able to use it here and reimplement this test
-        // by asserting the drawing is happening in the correct position by checking
-        // pixels on the result bitmap
-
-//        // verify matrix contains the expected padding
-//        assertNotNull(matrix)
-//        val paddingFloat = withDensity(composeTestRule.density) {
-//            padding.toIntPx().value.toFloat()
-//        }
-//        val expectedMatrix = Matrix4.translationValues(
-//            paddingFloat,
-//            paddingFloat,
-//            0f
-//        )
-//        assertEquals(expectedMatrix, matrix)
+        val bitmap = findByTag(contentTag).captureToBitmap()
+        with(composeTestRule.density) {
+            bitmap.assertShape(
+                density = composeTestRule.density,
+                backgroundColor = Color.Blue,
+                shape = RectangleShape,
+                shapeSizeX = 10.dp.toPx(),
+                shapeSizeY = 10.dp.toPx(),
+                shapeColor = Color.Red
+            )
+        }
     }
 
-// TODO(b/150706555): This broke when pointer input was moved to modifiers and Ripple was not yet
-//  turned into a modifier.
-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    @Ignore("b/150706555")
-    fun rippleEffectMatrixHasTheClickedChildCoordinates() {
-        val latch = CountDownLatch(1)
-
-        val size = 10.dp
+    fun rippleUsesCorrectSize() {
         composeTestRule.setMaterialContent {
-            RippleCallback(onRippleDrawn = {
-                latch.countDown()
-            }) {
-                Card {
-                    Stack {
-                        Row {
-                            RippleButton(size)
-                            TestTag(tag = "ripple") {
-                                RippleButton(size)
-                            }
-                            RippleButton(size)
-                        }
+            DrawRectRippleCallback {
+                TestTag(contentTag) {
+                    Box(
+                        modifier = DrawBackground(Color.Blue),
+                        gravity = ContentGravity.Center
+                    ) {
+                        Box(
+                            LayoutSize(30.dp) +
+                                    LayoutPadding(5.dp) +
+                                    ripple() +
+                                    // this padding should not affect the size of the ripple
+                                    LayoutPadding(5.dp)
+                        )
                     }
                 }
             }
         }
 
-        findByTag("ripple")
+        findByTag(contentTag)
             .doClick()
 
-        // wait for drawEffect to be called
-        assertTrue(latch.await(1000, TimeUnit.SECONDS))
-
-        // TODO(Andrey): Move waitAndScreenShot() method for drawn pixel assertions from
-        // ui-foundation to ui-test to be able to use it here and reimplement this test
-        // by asserting the drawing is happening in the correct position by checking
-        // pixels on the result bitmap
-
-//        // verify matrix contains the expected padding
-//        assertNotNull(matrix)
-//        val offsetFloat = withDensity(composeTestRule.density) { size.toIntPx().value.toFloat() }
-//        val expectedMatrix = Matrix4.translationValues(
-//            offsetFloat,
-//            0f,
-//            0f
-//        )
-//        assertEquals(expectedMatrix, matrix)
+        val bitmap = findByTag(contentTag).captureToBitmap()
+        with(composeTestRule.density) {
+            bitmap.assertShape(
+                density = composeTestRule.density,
+                backgroundColor = Color.Blue,
+                shape = RectangleShape,
+                shapeSizeX = 20.dp.toPx(),
+                shapeSizeY = 20.dp.toPx(),
+                shapeColor = Color.Red
+            )
+        }
     }
 
-// TODO(b/150706555): This broke when pointer input was moved to modifiers and Ripple was not yet
-//  turned into a modifier.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun unboundedIsNotClipped() {
+        composeTestRule.setMaterialContent {
+            DrawRectRippleCallback {
+                TestTag(contentTag) {
+                    Box(
+                        modifier = DrawBackground(Color.Blue),
+                        gravity = ContentGravity.Center
+                    ) {
+                        Box(LayoutSize(10.dp) + ripple(bounded = false))
+                    }
+                }
+            }
+        }
+
+        findByTag(contentTag)
+            .doClick()
+
+        val bitmap = findByTag(contentTag).captureToBitmap()
+        bitmap.assertShape(
+            density = composeTestRule.density,
+            backgroundColor = Color.Red,
+            shape = RectangleShape,
+            shapeSizeX = 0.px,
+            shapeSizeY = 0.px,
+            shapeColor = Color.Red
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun rippleDrawnAfterContent() {
+        composeTestRule.setMaterialContent {
+            DrawRectRippleCallback {
+                TestTag(contentTag) {
+                    Box(
+                        modifier = DrawBackground(Color.Blue),
+                        gravity = ContentGravity.Center
+                    ) {
+                        Box(LayoutSize(10.dp) + ripple() + DrawBackground(Color.Blue))
+                    }
+                }
+            }
+        }
+
+        findByTag(contentTag)
+            .doClick()
+
+        val bitmap = findByTag(contentTag).captureToBitmap()
+        with(composeTestRule.density) {
+            bitmap.assertShape(
+                density = composeTestRule.density,
+                backgroundColor = Color.Blue,
+                shape = RectangleShape,
+                shapeSizeX = 10.dp.toPx(),
+                shapeSizeY = 10.dp.toPx(),
+                shapeColor = Color.Red
+            )
+        }
+    }
 
     @Test
-    @Ignore("b/150706555")
     fun twoEffectsDrawnAndDisposedCorrectly() {
         val drawLatch = CountDownLatch(2)
         val disposeLatch = CountDownLatch(2)
@@ -165,14 +212,14 @@ class RippleEffectTest {
 
         composeTestRule.setMaterialContent {
             RippleCallback(
-                onRippleDrawn = { drawLatch.countDown() },
+                onDraw = { _, _ -> drawLatch.countDown() },
                 onDispose = { disposeLatch.countDown() }
             ) {
                 Card {
                     if (emit.emit) {
                         Row {
-                            TestTag(tag = "ripple") {
-                                RippleButton(10.dp)
+                            TestTag(tag = contentTag) {
+                                RippleButton()
                             }
                         }
                     }
@@ -181,9 +228,9 @@ class RippleEffectTest {
         }
 
         // create two effects
-        findByTag("ripple")
+        findByTag(contentTag)
             .doClick()
-        findByTag("ripple")
+        findByTag(contentTag)
             .doClick()
 
         // wait for drawEffect to be called
@@ -204,18 +251,18 @@ class RippleEffectTest {
             RippleCallback(
                 defaultColor = { color },
                 opacityCallback = { opacity },
-                onRippleDrawn = { actualColor ->
+                onDraw = { _, actualColor ->
                     assertEquals(color.copy(alpha = opacity), actualColor)
                     drawLatch.countDown()
                 }
             ) {
-                TestTag(tag = "ripple") {
-                    RippleButton(10.dp)
+                TestTag(tag = contentTag) {
+                    RippleButton()
                 }
             }
         }
 
-        findByTag("ripple")
+        findByTag(contentTag)
             .doClick()
 
         // wait for drawEffect to be called
@@ -230,18 +277,18 @@ class RippleEffectTest {
         composeTestRule.setMaterialContent {
             RippleCallback(
                 opacityCallback = { opacity },
-                onRippleDrawn = { actualColor ->
+                onDraw = { _, actualColor ->
                     assertEquals(color.copy(alpha = opacity), actualColor)
                     drawLatch.countDown()
                 }
             ) {
-                TestTag(tag = "ripple") {
-                    RippleButton(10.dp, color)
+                TestTag(tag = contentTag) {
+                    RippleButton(color = color)
                 }
             }
         }
 
-        findByTag("ripple")
+        findByTag(contentTag)
             .doClick()
 
         // wait for drawEffect to be called
@@ -257,7 +304,7 @@ class RippleEffectTest {
                 onEffectCreated = { createdLatch.countDown() }
             ) {
                 Card {
-                    TestTag(tag = "ripple") {
+                    TestTag(tag = contentTag) {
                         RippleButton(enabled = false)
                     }
                 }
@@ -265,7 +312,7 @@ class RippleEffectTest {
         }
 
         // create two effects
-        findByTag("ripple")
+        findByTag(contentTag)
             .doClick()
 
         // assert no effects has been created
@@ -273,17 +320,30 @@ class RippleEffectTest {
     }
 
     @Composable
-    private fun RippleButton(size: Dp? = null, color: Color? = null, enabled: Boolean = true) {
-        Ripple(bounded = false, color = color, enabled = enabled) {
-            Clickable(onClick = {}) {
-                Box(LayoutSize.Min(size ?: 0.dp))
-            }
+    private fun RippleButton(size: Dp = 10.dp, color: Color? = null, enabled: Boolean = true) {
+        Clickable(
+            onClick = {},
+            modifier = ripple(bounded = false, color = color, enabled = enabled)
+        ) {
+            Box(LayoutSize(size))
         }
     }
 
     @Composable
+    fun DrawRectRippleCallback(children: @Composable() () -> Unit) {
+        RippleCallback(
+            onDraw = { canvas, _ ->
+                canvas.drawRect(
+                    Rect(-100000f, -100000f, 100000f, 100000f),
+                    Paint().apply { this.color = Color.Red })
+            },
+            children = children
+        )
+    }
+
+    @Composable
     private fun RippleCallback(
-        onRippleDrawn: (Color) -> Unit = {},
+        onDraw: (Canvas, Color) -> Unit = { _, _ -> },
         onDispose: () -> Unit = {},
         onEffectCreated: () -> Unit = {},
         defaultColor: @Composable() () -> Color = { Color(0) },
@@ -291,7 +351,7 @@ class RippleEffectTest {
         children: @Composable() () -> Unit
     ) {
         val theme = RippleTheme(
-            testRippleEffect(onRippleDrawn, onDispose, onEffectCreated),
+            testRippleEffect(onDraw, onDispose, onEffectCreated),
             defaultColor,
             opacityCallback
         )
@@ -299,13 +359,13 @@ class RippleEffectTest {
     }
 
     private fun testRippleEffect(
-        onDraw: (Color) -> Unit,
+        onDraw: (Canvas, Color) -> Unit,
         onDispose: () -> Unit,
         onEffectCreated: () -> Unit
     ): RippleEffectFactory =
         object : RippleEffectFactory {
             override fun create(
-                coordinates: LayoutCoordinates,
+                size: IntPxSize,
                 startPosition: PxPosition,
                 density: Density,
                 radius: Dp?,
@@ -319,9 +379,16 @@ class RippleEffectTest {
 
                     private var onDrawCalled: Boolean = false
 
-                    override fun draw(canvas: Canvas, color: Color) {
+                    override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {
                         if (!onDrawCalled) {
-                            onDraw(color)
+                            if (clipped) {
+                                canvas.save()
+                                canvas.clipRect(size.toPxSize().toRect())
+                            }
+                            onDraw(canvas, color)
+                            if (clipped) {
+                                canvas.restore()
+                            }
                             onDrawCalled = true
                         }
                     }

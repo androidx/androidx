@@ -33,8 +33,8 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.Surface
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import java.util.Locale
@@ -68,14 +68,16 @@ private fun RallyTab(
 ) {
     TabTransition(selected = selected) { tabTintColor ->
         Box(LayoutPadding(16.dp) + LayoutHeight(TabHeight)) {
-            Ripple(bounded = false) {
-                MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-                    Row() {
-                        Icon(vectorImage = icon, tintColor = tabTintColor)
-                        if (selected) {
-                            Spacer(modifier = LayoutWidth(12.dp))
-                            Text(text, style = TextStyle(color = tabTintColor))
-                        }
+            MutuallyExclusiveSetItem(
+                selected = selected,
+                onClick = onSelected,
+                modifier = ripple(bounded = false)
+            ) {
+                Row {
+                    Icon(vectorImage = icon, tintColor = tabTintColor)
+                    if (selected) {
+                        Spacer(modifier = LayoutWidth(12.dp))
+                        Text(text, style = TextStyle(color = tabTintColor))
                     }
                 }
             }
