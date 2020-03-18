@@ -20,7 +20,7 @@ import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_ACTION;
+import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_ATTRIBUTION;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_END_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_START_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_SUBTITLE;
@@ -78,12 +78,13 @@ public final class InlinePresentationRenderer {
         boolean hasEndIcon = false;
         boolean hasTitle = false;
         boolean hasSubtitle = false;
-        PendingIntent action = null;
+        PendingIntent attribution = null;
         final List<SliceItem> sliceItems = slice.getItems();
         for (int i = 0; i < sliceItems.size(); i++) {
             final SliceItem sliceItem = sliceItems.get(i);
             final List<String> sliceHints = sliceItem.getHints();
-            if (sliceItem.getFormat().equals(FORMAT_IMAGE)) {
+            final String sliceFormat = sliceItem.getFormat();
+            if (sliceFormat.equals(FORMAT_IMAGE)) {
                 final Icon sliceIcon = sliceItem.getIcon();
                 if (sliceHints.contains(HINT_INLINE_START_ICON)) {
                     startIconView.setImageIcon(sliceIcon);
@@ -95,7 +96,7 @@ public final class InlinePresentationRenderer {
                     throw new IllegalStateException("Unrecognized Image SliceItem in Inline "
                             + "Presentation");
                 }
-            } else if (sliceItem.getFormat().equals(FORMAT_TEXT)) {
+            } else if (sliceFormat.equals(FORMAT_TEXT)) {
                 final String sliceText = sliceItem.getText().toString();
                 if (sliceHints.contains(HINT_INLINE_TITLE)) {
                     titleView.setText(sliceText);
@@ -107,9 +108,13 @@ public final class InlinePresentationRenderer {
                     throw new IllegalStateException("Unrecognized Text SliceItem in Inline "
                             + "Presentation");
                 }
-            } else if (sliceItem.getFormat().equals(FORMAT_ACTION) && sliceHints.contains(
-                    HINT_INLINE_ACTION)) {
-                action = sliceItem.getAction();
+            } else if (sliceFormat.equals(FORMAT_ACTION)) {
+                if (sliceHints.contains(HINT_INLINE_ATTRIBUTION)) {
+                    attribution = sliceItem.getAction();
+                } else {
+                    throw new IllegalStateException("Unrecognized Action SliceItem in Inline "
+                            + "Presentation");
+                }
             }
         }
         if (hasStartIcon) {
@@ -124,14 +129,16 @@ public final class InlinePresentationRenderer {
         if (hasSubtitle) {
             subtitleView.setVisibility(View.VISIBLE);
         }
-        if (action != null) {
-            PendingIntent actionCopy = action;
-            suggestionView.setOnClickListener(v -> {
+        if (attribution != null) {
+            final PendingIntent attributionCopy = attribution;
+            suggestionView.setOnLongClickListener(v -> {
                 try {
-                    actionCopy.send();
+                    attributionCopy.send();
+                    return true;
                 } catch (PendingIntent.CanceledException e) {
-                    Log.w(TAG, "Inline action canceled.");
+                    Log.w(TAG, "Attribution intent cancelled");
                 }
+                return false;
             });
         }
         return suggestionView;
