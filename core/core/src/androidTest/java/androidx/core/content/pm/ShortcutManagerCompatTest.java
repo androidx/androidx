@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
@@ -44,7 +45,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -57,6 +57,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.core.app.TestActivity;
@@ -82,8 +84,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestActivity> {
@@ -165,55 +165,51 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     @Test
     @SdkSuppress(maxSdkVersion = 25)
     public void testIsRequestPinShortcutSupported_v4() throws Throwable {
-        setMockPm(mockResolveInfo(null));
+        setMocks(mockResolveInfo(null));
         assertTrue(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
 
         // We do not have the permission
-        setMockPm(mockResolveInfo("com.android.permission.something-we-dont-have"));
+        setMocks(mockResolveInfo("com.android.permission.something-we-dont-have"));
         assertFalse(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
 
         // There are no receivers
-        setMockPm();
+        setMocks();
         assertFalse(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
 
         // At least one receiver is supported
-        setMockPm(mockResolveInfo("com.android.permission.something-we-dont-have"),
+        setMocks(mockResolveInfo("com.android.permission.something-we-dont-have"),
                 mockResolveInfo(null));
         assertTrue(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
 
         // We have the permission
-        setMockPm(mockResolveInfo(ShortcutManagerCompat.INSTALL_SHORTCUT_PERMISSION));
+        setMocks(mockResolveInfo(ShortcutManagerCompat.INSTALL_SHORTCUT_PERMISSION));
         assertTrue(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
     }
 
     @LargeTest
     @Test
     @SdkSuppress(maxSdkVersion = 25)
-    public void testRequestPinShortcut_v4_noCallback()  throws Throwable {
-        setMockPm(mockResolveInfo(null));
-
-        BlockingBroadcastReceiver receiver =
-                new BlockingBroadcastReceiver(ShortcutManagerCompat.ACTION_INSTALL_SHORTCUT);
+    public void testRequestPinShortcut_v4_noCallback() {
+        setMocks(mockResolveInfo(null));
         assertTrue(ShortcutManagerCompat.requestPinShortcut(mContext, mInfoCompat, null));
-        verifyLegacyIntent(receiver.blockingGetIntent());
+        final ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
+        verify(mContext).sendBroadcast(argument.capture());
+        verifyLegacyIntent(argument.getValue());
     }
 
     @LargeTest
     @Test
     @SdkSuppress(maxSdkVersion = 25)
-    public void testRequestPinShortcut_v4_withCallback()  throws Throwable {
-        setMockPm(mockResolveInfo(null));
-
-        BlockingBroadcastReceiver receiver =
-                new BlockingBroadcastReceiver(ShortcutManagerCompat.ACTION_INSTALL_SHORTCUT);
-        BlockingBroadcastReceiver callback =
-                new BlockingBroadcastReceiver("shortcut-callback");
-
+    public void testRequestPinShortcut_v4_withCallback() {
+        setMocks(mockResolveInfo(null));
         assertTrue(ShortcutManagerCompat.requestPinShortcut(mContext, mInfoCompat,
                 PendingIntent.getBroadcast(mContext, 0, new Intent("shortcut-callback"),
                         PendingIntent.FLAG_ONE_SHOT).getIntentSender()));
-        verifyLegacyIntent(receiver.blockingGetIntent());
-        assertNotNull(callback.blockingGetIntent());
+        final ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
+        verify(mContext).sendOrderedBroadcast(argument.capture(), nullable(String.class),
+                any(BroadcastReceiver.class), nullable(Handler.class), anyInt(),
+                nullable(String.class), nullable(Bundle.class));
+        verifyLegacyIntent(argument.getValue());
     }
 
     @MediumTest
@@ -313,12 +309,16 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 .getAction());
     }
 
-    private void setMockPm(ResolveInfo... infos) {
+    private void setMocks(ResolveInfo... infos) {
         PackageManager pm = mock(PackageManager.class);
         when(pm.queryBroadcastReceivers(any(Intent.class), anyInt()))
                 .thenReturn(Arrays.asList(infos));
         reset(mContext);
         doReturn(pm).when(mContext).getPackageManager();
+        doNothing().when(mContext).sendBroadcast(any(Intent.class));
+        doNothing().when(mContext).sendOrderedBroadcast(any(Intent.class), nullable(String.class),
+                any(BroadcastReceiver.class), nullable(Handler.class), anyInt(),
+                nullable(String.class), nullable(Bundle.class));
     }
 
     private ResolveInfo mockResolveInfo(String permission) {
@@ -436,27 +436,5 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     private IconCompat createUriAdaptiveIcon() {
         Uri uri = bitmapToUri(createRawBitmap("AU"), "uri-adaptive-icon");
         return IconCompat.createWithAdaptiveBitmapContentUri(uri);
-    }
-
-    private class BlockingBroadcastReceiver extends BroadcastReceiver {
-
-        private final CountDownLatch mLatch = new CountDownLatch(1);
-        private Intent mIntent;
-
-        BlockingBroadcastReceiver(String action) {
-            mContext.registerReceiver(this, new IntentFilter(action));
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mIntent = intent;
-            mLatch.countDown();
-        }
-
-        public Intent blockingGetIntent() throws InterruptedException {
-            mLatch.await(5, TimeUnit.SECONDS);
-            mContext.unregisterReceiver(this);
-            return mIntent;
-        }
     }
 }
