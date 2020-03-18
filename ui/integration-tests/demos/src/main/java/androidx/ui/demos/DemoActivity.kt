@@ -21,34 +21,22 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.Window
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.frames.modelListOf
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.preference.PreferenceManager
-import androidx.ui.animation.Crossfade
-import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.demos.common.ActivityDemo
-import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.layout.Column
 import androidx.ui.material.ColorPalette
-import androidx.ui.material.IconButton
-import androidx.ui.material.ListItem
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Scaffold
-import androidx.ui.material.TopAppBar
 import androidx.ui.material.darkColorPalette
-import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.ArrowBack
-import androidx.ui.material.icons.filled.Settings
 import androidx.ui.material.lightColorPalette
 
 /**
@@ -62,7 +50,8 @@ class DemoActivity : Activity() {
         startActivity(Intent(this, activityDemo.activityClass.java))
     }
 
-    private var demoColors = DemoColorPalette()
+    private val demoColors = DemoColorPalette()
+    private var isFiltering by mutableStateOf(false)
 
     override fun onResume() {
         super.onResume()
@@ -70,7 +59,9 @@ class DemoActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        if (!navigator.popBackStack()) {
+        if (isFiltering) {
+            isFiltering = false
+        } else if (!navigator.popBackStack()) {
             super.onBackPressed()
         }
     }
@@ -78,12 +69,30 @@ class DemoActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         composition = setContent {
-            DemoTheme {
-                DemoScaffold {
-                    Crossfade(navigator.currentDemo) { demo ->
-                        DisplayDemo(demo)
+            DemoTheme(demoColors, window) {
+                val onStartFiltering = { isFiltering = true }
+                val onEndFiltering = { isFiltering = false }
+                DemoApp(
+                    currentDemo = navigator.currentDemo,
+                    backStackTitle = navigator.backStackTitle,
+                    isFiltering = isFiltering,
+                    onStartFiltering = onStartFiltering,
+                    onEndFiltering = onEndFiltering,
+                    onNavigateToDemo = { demo ->
+                        if (isFiltering) {
+                            onEndFiltering()
+                            navigator.popAll()
+                        }
+                        navigator.navigateTo(demo)
+                    },
+                    canNavigateUp = !navigator.isRoot,
+                    onNavigateUp = {
+                        onBackPressed()
+                    },
+                    launchSettings = {
+                        startActivity(Intent(this, DemoSettingsActivity::class.java))
                     }
-                }
+                )
             }
         }
     }
@@ -92,75 +101,22 @@ class DemoActivity : Activity() {
         super.onDestroy()
         composition.dispose()
     }
+}
 
-    @Composable
-    private fun DemoTheme(children: @Composable() () -> Unit) {
-        MaterialTheme(demoColors.colors) {
-            val statusBarColor = with(MaterialTheme.colors()) {
-                if (isLight) darkenedPrimary else surface.toArgb()
-            }
-            onCommit(statusBarColor) {
-                window.statusBarColor = statusBarColor
-            }
-            children()
+@Composable
+private fun DemoTheme(
+    demoColors: DemoColorPalette,
+    window: Window,
+    children: @Composable() () -> Unit
+) {
+    MaterialTheme(demoColors.colors) {
+        val statusBarColor = with(MaterialTheme.colors()) {
+            if (isLight) darkenedPrimary else surface.toArgb()
         }
-    }
-
-    @Composable
-    private fun DemoScaffold(children: @Composable() () -> Unit) {
-        val navigationIcon = (@Composable {
-            IconButton(onClick = { onBackPressed() }) {
-                Icon(Icons.Filled.ArrowBack)
-            }
-        }).takeUnless { navigator.isRoot }
-
-        val topAppBar = @Composable {
-            TopAppBar(
-                title = { Text(navigator.backStackTitle) },
-                navigationIcon = navigationIcon,
-                actions = { SettingsIcon() }
-            )
+        onCommit(statusBarColor) {
+            window.statusBarColor = statusBarColor
         }
-
-        Scaffold(topAppBar = topAppBar) {
-            children()
-        }
-    }
-
-    @Composable
-    private fun DisplayDemo(demo: Demo) {
-        when (demo) {
-            is ActivityDemo<*> -> {
-                /* should never get here as activity demos are not added to the backstack*/
-            }
-            is ComposableDemo -> demo.content()
-            is DemoCategory -> DisplayDemoCategory(demo)
-        }
-    }
-
-    @Composable
-    private fun DisplayDemoCategory(category: DemoCategory) {
-        VerticalScroller {
-            Column {
-                category.demos.forEach { demo ->
-                    ListItem(
-                        text = { Text(text = demo.title) },
-                        onClick = {
-                            navigator.navigateTo(demo)
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun SettingsIcon() {
-        IconButton(onClick = {
-            startActivity(Intent(this, DemoSettingsActivity::class.java))
-        }) {
-            Icon(Icons.Filled.Settings)
-        }
+        children()
     }
 }
 
@@ -174,7 +130,7 @@ private val ColorPalette.darkenedPrimary: Int
     }.toArgb()
 
 private class Navigator(
-    initialDemo: DemoCategory,
+    private val initialDemo: DemoCategory,
     val launchActivityDemo: (ActivityDemo<*>) -> Unit
 ) {
     private val backStack: MutableList<Demo> = modelListOf()
@@ -194,6 +150,13 @@ private class Navigator(
         } else {
             backStack.add(currentDemo)
             currentDemo = demo
+        }
+    }
+
+    fun popAll() {
+        if (!isRoot) {
+            backStack.clear()
+            currentDemo = initialDemo
         }
     }
 

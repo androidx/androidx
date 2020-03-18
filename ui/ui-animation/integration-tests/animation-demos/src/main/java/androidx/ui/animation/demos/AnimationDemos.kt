@@ -19,7 +19,7 @@ package androidx.ui.animation.demos
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 
-val AnimationDemos = DemoCategory("Animation Demos", listOf(
+val AnimationDemos = DemoCategory("Animation", listOf(
     ComposableDemo("Animate multi-dimensional prop") { MultiDimensionalAnimationDemo() },
     ComposableDemo("Animate") { SingleValueAnimationDemo() },
     ComposableDemo("Animated scrolling") { FancyScrollingDemo() },
