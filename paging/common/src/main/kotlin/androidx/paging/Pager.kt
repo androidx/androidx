@@ -27,6 +27,8 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
@@ -59,6 +61,7 @@ internal class Pager<Key : Any, Value : Any>(
     private val config: PagingConfig
 ) {
     private val retryChannel = Channel<Unit>(CONFLATED)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
     private var lastHint: ViewportHint? = null
 
@@ -68,6 +71,7 @@ internal class Pager<Key : Any, Value : Any>(
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
     private val pageEventChannelFlowJob = Job()
+    @OptIn(ExperimentalCoroutinesApi::class)
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "cannot collect twice from pager"
@@ -115,6 +119,7 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun addHint(hint: ViewportHint) {
         lastHint = hint
         hintChannel.offer(hint)
@@ -160,6 +165,7 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun CoroutineScope.startConsumingHints() {
         launch {
             state.consumePrependGenerationIdAsFlow()
@@ -177,6 +183,7 @@ internal class Pager<Key : Any, Value : Any>(
                         }
                     }
 
+                    @OptIn(FlowPreview::class)
                     val generationalHints = hintChannel.asFlow()
                         // Prevent infinite loop when competing prepend / append cancel each other
                         .drop(if (generationId == 0) 0 else 1)
@@ -207,6 +214,7 @@ internal class Pager<Key : Any, Value : Any>(
                         }
                     }
 
+                    @OptIn(FlowPreview::class)
                     val generationalHints = hintChannel.asFlow()
                         // Prevent infinite loop when competing prepend / append cancel each other
                         .drop(if (generationId == 0) 0 else 1)

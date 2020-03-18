@@ -18,6 +18,7 @@ package androidx.paging.multicast
 import androidx.paging.multicast.ChannelManager.Message.Dispatch.UpstreamFinished
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.ClosedSendChannelException
@@ -46,6 +47,7 @@ internal class SharedFlowProducer<T>(
     /**
      * Starts the collection of the upstream flow.
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
         scope.launch {
             try {

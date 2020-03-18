@@ -36,7 +36,7 @@ import kotlinx.coroutines.rx2.asObservable
 @Suppress("FunctionName", "unused")
 @JvmName("observable")
 @JvmOverloads
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <Key : Any, Value : Any> PagingDataObservable(
     config: PagingConfig,
     initialKey: Key? = null,

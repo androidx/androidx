@@ -209,7 +209,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
                 Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
             }
-            else -> {}
+            else -> {
+            }
         }
 
         maxIterations = OVERRIDE_ITERATIONS ?: computeIterationsFromWarmup()
@@ -231,7 +232,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             ProfilingMode.ConnectedAllocation, ProfilingMode.ConnectedSampled -> {
                 Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
             }
-            else -> {}
+            else -> {
+            }
         }
         ThreadPriority.resetBumpedThread()
         warmupManager.logInfo()
@@ -417,6 +419,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
         warmupIterations = warmupIteration
     )
+
     internal fun getReport() = checkState().run { getReport("", "") }
 
     /**
@@ -511,6 +514,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
         private var firstBenchmark = true
 
+        @Suppress("DEPRECATION")
         @Experimental
         @Retention(AnnotationRetention.BINARY)
         @Target(AnnotationTarget.FUNCTION)

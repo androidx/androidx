@@ -17,6 +17,7 @@
 //./gradlew :r:in:k:clean :r:in:k:cC --no-daemon
 // -Dorg.gradle.debug=true
 // -Dkotlin.compiler.execution.strategy="in-process"
+
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
@@ -46,6 +47,8 @@ dependencies {
 
 android {
     kotlinOptions {
+        // Allow usage of Kotlin's @OptIn.
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
         jvmTarget = '1.8' // necessary to use espresso kotlin extensions
     }
     sourceSets {

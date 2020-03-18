@@ -17,6 +17,7 @@ package androidx.paging.multicast
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import java.util.concurrent.atomic.AtomicBoolean
@@ -33,6 +34,7 @@ internal abstract class StoreRealActor<T>(
     private val didClose = AtomicBoolean(false)
 
     init {
+        @OptIn(ObsoleteCoroutinesApi::class)
         inboundChannel = scope.actor(
             capacity = 0
         ) {

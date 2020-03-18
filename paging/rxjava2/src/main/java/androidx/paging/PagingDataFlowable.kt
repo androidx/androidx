@@ -36,7 +36,7 @@ import kotlinx.coroutines.rx2.asFlowable
 @Suppress("FunctionName", "unused")
 @JvmName("flowable")
 @JvmOverloads
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <Key : Any, Value : Any> PagingDataFlowable(
     config: PagingConfig,
     initialKey: Key? = null,

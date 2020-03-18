@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 import androidx.paging.multicast.Multicaster
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
@@ -38,6 +39,7 @@ import java.util.ArrayDeque
  * An intermediate flow producer that flattens previous page events and gives any new downstream
  * just those events instead of the full history.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class CachedPageEventFlow<T : Any>(
     src: Flow<PageEvent<T>>,
     scope: CoroutineScope
@@ -121,6 +123,7 @@ private class TemporaryDownstream<T : Any> {
      */
     private val historyChannel: Channel<IndexedValue<PageEvent<T>>> = Channel(Channel.UNLIMITED)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumeHistory() = historyChannel.consumeAsFlow()
 
     /**

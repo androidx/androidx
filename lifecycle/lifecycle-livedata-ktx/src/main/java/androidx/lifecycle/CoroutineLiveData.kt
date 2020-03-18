@@ -344,7 +344,7 @@ internal class CoroutineLiveData<T>(
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  * @param block The block to run when the [LiveData] has active observers.
  */
-@UseExperimental(ExperimentalTypeInference::class)
+@OptIn(ExperimentalTypeInference::class)
 fun <T> liveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT,
@@ -450,7 +450,7 @@ fun <T> liveData(
  * @param block The block to run when the [LiveData] has active observers.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-@UseExperimental(ExperimentalTypeInference::class)
+@OptIn(ExperimentalTypeInference::class)
 fun <T> liveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration,
