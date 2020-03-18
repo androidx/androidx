@@ -108,20 +108,22 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
                 TestTag(tag = "$tag$i") {
                     Semantics(container = true) {
                         val pointerInputModifier =
-                            PointerInputModifier(object : PointerInputFilter() {
-                                override val pointerInputHandler: PointerInputHandler =
-                                    { changes, pass, _ ->
-                                        if (pass == PointerEventPass.InitialDown) {
-                                            changes.filter { it.changedToUp() }.forEach {
-                                                recordedClicks.add(
-                                                    ClickData(i, it.current.position!!)
-                                                )
+                            object : PointerInputModifier {
+                                override val pointerInputFilter = object : PointerInputFilter() {
+                                    override val pointerInputHandler: PointerInputHandler =
+                                        { changes, pass, _ ->
+                                            if (pass == PointerEventPass.InitialDown) {
+                                                changes.filter { it.changedToUp() }.forEach {
+                                                    recordedClicks.add(
+                                                        ClickData(i, it.current.position!!)
+                                                    )
+                                                }
                                             }
+                                            changes
                                         }
-                                        changes
-                                    }
-                                override val cancelHandler: () -> Unit = {}
-                            })
+                                    override val cancelHandler: () -> Unit = {}
+                                }
+                            }
                         Box(
                             pointerInputModifier + LayoutSize(squareSize.toDp()),
                             backgroundColor = colors[i]

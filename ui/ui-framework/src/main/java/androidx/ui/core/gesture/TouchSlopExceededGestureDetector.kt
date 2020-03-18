@@ -27,7 +27,6 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
@@ -52,7 +51,7 @@ fun TouchSlopExceededGestureDetector(
     val recognizer = remember { TouchSlopExceededGestureRecognizer(touchSlop) }
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded
-    return PointerInputModifier(recognizer)
+    return PointerInputModifierImpl(recognizer)
 }
 
 // TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the

@@ -831,7 +831,7 @@ class ComponentNodeTest {
         val layoutNode =
             LayoutNode(
                 0, 0, 1, 1,
-                PointerInputModifier(pointerInputFilter)
+                PointerInputModifierImpl(pointerInputFilter)
             ).apply {
                 attach(mockOwner())
             }
@@ -848,7 +848,7 @@ class ComponentNodeTest {
         val layoutNode =
             LayoutNode(
                 0, 0, 1, 1,
-                PointerInputModifier(pointerInputFilter)
+                PointerInputModifierImpl(pointerInputFilter)
             ).apply {
                 attach(mockOwner())
             }
@@ -894,14 +894,14 @@ class ComponentNodeTest {
         val childLayoutNode =
             LayoutNode(
                 100, 100, 200, 200,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     childPointerInputFilter
                 )
             )
         val middleLayoutNode: LayoutNode =
             LayoutNode(
                 100, 100, 400, 400,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     middlePointerInputFilter
                 )
             ).apply {
@@ -910,7 +910,7 @@ class ComponentNodeTest {
         val parentLayoutNode: LayoutNode =
             LayoutNode(
                 0, 0, 500, 500,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     parentPointerInputFilter
                 )
             ).apply {
@@ -988,7 +988,7 @@ class ComponentNodeTest {
         val childLayoutNode1 =
             LayoutNode(
                 0, 0, 50, 50,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     childPointerInputFilter1
                 )
             )
@@ -996,7 +996,7 @@ class ComponentNodeTest {
         val childLayoutNode2 =
             LayoutNode(
                 50, 50, 100, 100,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     childPointerInputFilter2
                 )
             )
@@ -1056,7 +1056,7 @@ class ComponentNodeTest {
         val childLayoutNode1 =
             LayoutNode(
                 0, 0, 100, 100,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     childPointerInputFilter1
                 )
             )
@@ -1064,7 +1064,7 @@ class ComponentNodeTest {
         val childLayoutNode2 =
             LayoutNode(
                 50, 50, 150, 150,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     childPointerInputFilter2
                 )
             )
@@ -1072,7 +1072,7 @@ class ComponentNodeTest {
         val childLayoutNode3 =
             LayoutNode(
                 100, 100, 200, 200,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     childPointerInputFilter3
                 )
             )
@@ -1129,13 +1129,13 @@ class ComponentNodeTest {
 
         val childLayoutNode1 = LayoutNode(
             0, 0, 100, 150,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 childPointerInputFilter1
             )
         )
         val childLayoutNode2 = LayoutNode(
             25, 50, 75, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 childPointerInputFilter2
             )
         )
@@ -1191,13 +1191,13 @@ class ComponentNodeTest {
 
         val childLayoutNode1 = LayoutNode(
             0, 0, 150, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 childPointerInputFilter1
             )
         )
         val childLayoutNode2 = LayoutNode(
             50, 25, 100, 75,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 childPointerInputFilter2
             )
         )
@@ -1263,25 +1263,25 @@ class ComponentNodeTest {
 
         val layoutNode1 = LayoutNode(
             -1, -1, 1, 1,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter1
             )
         )
         val layoutNode2 = LayoutNode(
             2, -1, 4, 1,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter2
             )
         )
         val layoutNode3 = LayoutNode(
             -1, 2, 1, 4,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter3
             )
         )
         val layoutNode4 = LayoutNode(
             2, 2, 4, 4,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter4
             )
         )
@@ -1367,7 +1367,7 @@ class ComponentNodeTest {
 
         val layoutNode = LayoutNode(
             0, 0, 2, 2,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter
             )
         ).apply {
@@ -1418,11 +1418,11 @@ class ComponentNodeTest {
         val pointerInputFilter3: PointerInputFilter = spy()
 
         val modifier =
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter1
-            ) + PointerInputModifier(
+            ) + PointerInputModifierImpl(
                 pointerInputFilter2
-            ) + PointerInputModifier(
+            ) + PointerInputModifierImpl(
                 pointerInputFilter3
             )
 
@@ -1462,7 +1462,7 @@ class ComponentNodeTest {
         val layoutNode1 =
             LayoutNode(
                 1, 5, 500, 500,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     pointerInputFilter
                 )
             )
@@ -1502,9 +1502,9 @@ class ComponentNodeTest {
 
         val layoutNode1 = LayoutNode(
             1, 6, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter1
-            ) + PointerInputModifier(
+            ) + PointerInputModifierImpl(
                 pointerInputFilter2
             )
         )
@@ -1514,9 +1514,9 @@ class ComponentNodeTest {
         val layoutNode3 =
             LayoutNode(
                 3, 8, 500, 500,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     pointerInputFilter3
-                ) + PointerInputModifier(
+                ) + PointerInputModifierImpl(
                     pointerInputFilter4
                 )
             ).apply {
@@ -1560,13 +1560,13 @@ class ComponentNodeTest {
 
         val layoutNode1 = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter1
             )
         )
         val layoutNode2 = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter2
             )
         )
@@ -1597,7 +1597,7 @@ class ComponentNodeTest {
 
         val layoutNode = LayoutNode(
             0, 0, 0, 0,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 pointerInputFilter
             )
         ).apply {
@@ -1667,4 +1667,7 @@ class ComponentNodeTest {
             resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
             place(x.ipx, y.ipx)
         }
+
+    private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
+        PointerInputModifier
 }

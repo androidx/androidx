@@ -25,9 +25,7 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -61,7 +59,7 @@ fun PressIndicatorGestureDetector(
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel
     recognizer.setEnabled(enabled)
-    return PointerInputModifier(recognizer)
+    return PointerInputModifierImpl(recognizer)
 }
 
 internal class PressIndicatorGestureRecognizer : PointerInputFilter() {

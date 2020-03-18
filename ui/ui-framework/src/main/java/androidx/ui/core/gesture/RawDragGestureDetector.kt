@@ -30,7 +30,6 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -130,7 +129,7 @@ fun RawDragGestureDetector(
     val recognizer = remember { RawDragGestureRecognizer() }
     recognizer.dragObserver = dragObserver
     recognizer.canStartDragging = canStartDragging
-    return PointerInputModifier(recognizer)
+    return PointerInputModifierImpl(recognizer)
 }
 
 internal class RawDragGestureRecognizer : PointerInputFilter() {

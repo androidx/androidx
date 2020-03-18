@@ -30,6 +30,13 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.round
 
 /**
+ * A [Modifier.Element] that can interact with pointer input.
+ */
+interface PointerInputModifier : Modifier.Element {
+    val pointerInputFilter: PointerInputFilter
+}
+
+/**
  * A PointerInputFilter represents a single entity that receives [PointerInputChange]s),
  * interprets them, and consumes the aspects of the changes that it is react to such that other
  * PointerInputFilters don't also react to them.
@@ -78,13 +85,4 @@ abstract class PointerInputFilter {
         get() = layoutCoordinates.isAttached
 
     internal lateinit var layoutCoordinates: LayoutCoordinates
-
-    fun setLayoutCoordinates(layoutCoordinates: LayoutCoordinates) {
-        this.layoutCoordinates = layoutCoordinates
-    }
 }
-
-/**
- * A [Modifier.Element] that can interact with pointer input.
- */
-class PointerInputModifier(val pointerInputFilter: PointerInputFilter) : Modifier.Element
