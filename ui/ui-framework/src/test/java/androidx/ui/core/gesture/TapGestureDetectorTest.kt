@@ -38,14 +38,14 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class PressReleasedGestureDetectorTest {
+class TapGestureDetectorTest {
 
-    private lateinit var recognizer: PressReleaseGestureRecognizer
+    private lateinit var recognizer: TapGestureRecognizer
 
     @Before
     fun setup() {
-        recognizer = PressReleaseGestureRecognizer()
-        recognizer.onRelease = mock()
+        recognizer = TapGestureRecognizer()
+        recognizer.onTap = mock()
     }
 
     // Verification for when onReleased should not be called.
@@ -53,7 +53,7 @@ class PressReleasedGestureDetectorTest {
     @Test
     fun pointerInputHandler_down_onReleaseNotCalled() {
         recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -63,7 +63,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -75,7 +75,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(200.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -85,7 +85,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds).consumeDownChange()
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -97,7 +97,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -109,7 +109,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -121,7 +121,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -133,7 +133,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -144,7 +144,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -156,7 +156,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     @Test
@@ -167,7 +167,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 
     // Verification for when onReleased should be called.
@@ -179,7 +179,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!).invoke()
+        verify(recognizer.onTap!!).invoke()
     }
 
     @Test
@@ -191,7 +191,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(200.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!).invoke()
+        verify(recognizer.onTap!!).invoke()
     }
 
     @Test
@@ -207,7 +207,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(200.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onRelease!!).invoke()
+        verify(recognizer.onTap!!).invoke()
     }
 
     @Test
@@ -218,7 +218,7 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!).invoke()
+        verify(recognizer.onTap!!).invoke()
     }
 
     // Verification for when the down change should not be consumed.
@@ -400,6 +400,6 @@ class PressReleasedGestureDetectorTest {
         pointer = pointer.up(100.milliseconds)
         recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onRelease!!, never()).invoke()
+        verify(recognizer.onTap!!, never()).invoke()
     }
 }

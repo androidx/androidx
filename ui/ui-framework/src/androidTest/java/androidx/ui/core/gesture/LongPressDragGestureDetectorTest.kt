@@ -66,15 +66,14 @@ class LongPressDragGestureDetectorTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                LongPressDragGestureDetector(longPressDragObserver) {
-                    Layout(
-                        measureBlock = { _, _, _ ->
-                            layout(100.ipx, 100.ipx) {
-                                setupLatch.countDown()
-                            }
-                        }, children = emptyContent()
-                    )
-                }
+                Layout(
+                    modifier = LongPressDragGestureDetector(longPressDragObserver),
+                    measureBlock = { _, _, _ ->
+                        layout(100.ipx, 100.ipx) {
+                            setupLatch.countDown()
+                        }
+                    }, children = emptyContent()
+                )
             }
 
             view = activity.findViewById<ViewGroup>(android.R.id.content)

@@ -17,13 +17,14 @@
 package androidx.ui.foundation.selection
 
 import androidx.compose.Composable
-import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Strings
-import androidx.ui.semantics.Semantics
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
-import androidx.ui.semantics.onClick
+import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
+import androidx.ui.semantics.onClick
 
 /**
 * Component for representing one option out of many
@@ -50,10 +51,9 @@ fun MutuallyExclusiveSetItem(
             this.accessibilityValue = if (selected) Strings.Selected else Strings.NotSelected
             onClick(action = onClick)
         }) {
-        PressReleasedGestureDetector(
-            onRelease = onClick,
-            consumeDownOnStart = false,
-            children = children
-        )
+        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+        //  is implemented with modifiers.
+        @Suppress("DEPRECATION")
+        PassThroughLayout(TapGestureDetector(onClick), children)
     }
 }

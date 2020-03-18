@@ -18,13 +18,17 @@ package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Direction
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutOffset
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 /**
  * Simple demo that shows off TouchSlopDragGestureDetector.
@@ -35,15 +39,15 @@ fun TouchSlopDragGestureDetectorDemo() {
     val verticalColor = Color(0xfff44336)
     val horizontalColor = Color(0xff2196f3)
 
-    val xOffset = state { 0.px }
-    val yOffset = state { 0.px }
+    val offset = state { PxPosition.Origin }
     val canStartVertically = state { true }
 
     val dragObserver =
         if (canStartVertically.value) {
             object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
-                    yOffset.value += dragDistance.y
+                    offset.value =
+                        PxPosition(x = offset.value.x, y = offset.value.y + dragDistance.y)
                     return dragDistance
                 }
 
@@ -55,7 +59,8 @@ fun TouchSlopDragGestureDetectorDemo() {
         } else {
             object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
-                    xOffset.value += dragDistance.x
+                    offset.value =
+                        PxPosition(x = offset.value.x + dragDistance.x, y = offset.value.y)
                     return dragDistance
                 }
 
@@ -92,7 +97,14 @@ fun TouchSlopDragGestureDetectorDemo() {
             horizontalColor
         }
 
-    TouchSlopDragGestureDetector(dragObserver, canDrag) {
-        DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color)
-    }
+    val (offsetX, offsetY) =
+        with(DensityAmbient.current) { offset.value.x.toDp() to offset.value.y.toDp() }
+
+    Box(
+        LayoutOffset(offsetX, offsetY) +
+                LayoutSize.Fill + LayoutAlign.Center +
+                DragGestureDetector(dragObserver, canDrag) +
+                LayoutSize(96.dp),
+        backgroundColor = color
+    )
 }

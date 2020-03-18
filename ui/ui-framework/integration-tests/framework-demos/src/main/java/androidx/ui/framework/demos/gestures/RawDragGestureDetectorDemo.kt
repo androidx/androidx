@@ -18,29 +18,39 @@ package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
+import androidx.ui.foundation.Box
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutOffset
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 /**
  * Simple DragGestureDetector demo.
  */
 @Composable
 fun RawDragGestureDetectorDemo() {
-    val xOffset = state { 0.px }
-    val yOffset = state { 0.px }
+    val offset = state { PxPosition.Origin }
 
     val dragObserver = object : DragObserver {
         override fun onDrag(dragDistance: PxPosition): PxPosition {
-            xOffset.value += dragDistance.x
-            yOffset.value += dragDistance.y
+            offset.value += dragDistance
             return dragDistance
         }
     }
 
-    RawDragGestureDetector(dragObserver = dragObserver) {
-        DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, Grey)
-    }
+    val (offsetX, offsetY) =
+        with(DensityAmbient.current) { offset.value.x.toDp() to offset.value.y.toDp() }
+
+    Box(
+        LayoutOffset(offsetX, offsetY) +
+                LayoutSize.Fill +
+                LayoutAlign.Center +
+                RawDragGestureDetector(dragObserver) +
+                LayoutSize(96.dp),
+        backgroundColor = Grey
+    )
 }

@@ -18,14 +18,16 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.util.anyPointersInBounds
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -52,23 +54,17 @@ fun PressIndicatorGestureDetector(
     onStart: ((PxPosition) -> Unit)? = null,
     onStop: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
-    enabled: Boolean = true,
-    children: @Composable() () -> Unit
-) {
+    enabled: Boolean = true
+): Modifier {
     val recognizer = remember { PressIndicatorGestureRecognizer() }
     recognizer.onStart = onStart
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel
     recognizer.setEnabled(enabled)
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    return PointerInputModifier(recognizer)
 }
 
-internal class PressIndicatorGestureRecognizer {
+internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
     /**
      * Called if the first pointer's down change was not consumed by the time this gesture
      * recognizer receives it in the [PointerEventPass.PostUp] pass.
@@ -138,7 +134,7 @@ internal class PressIndicatorGestureRecognizer {
         }
     }
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var internalChanges = changes
@@ -193,7 +189,7 @@ internal class PressIndicatorGestureRecognizer {
             internalChanges
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         if (state == State.Started) {
             state = State.Idle
             onCancel?.invoke()

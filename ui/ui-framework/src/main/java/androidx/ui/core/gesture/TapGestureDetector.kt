@@ -18,21 +18,23 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.util.anyPointersInBounds
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 
 /**
  * This gesture detector fires a callback when a traditional press is being released.  This is
  * generally the same thing as "onTap" or "onClick".
  *
- * More specifically, it will call [onRelease] if:
+ * More specifically, it will call [onTap] if:
  * - All of the first [PointerInputChange]s it receives during the [PointerEventPass.PostUp] pass
  *   have unconsumed down changes, thus representing new set of pointers, none of which have had
  *   their down events consumed.
@@ -41,46 +43,34 @@ import androidx.ui.unit.IntPxSize
  * - While it has at least one pointer touching it, no [PointerInputChange] has had any
  *   movement consumed (as that would indicate that something in the heirarchy moved and this a
  *   press should be cancelled.
- *
- * By default, this gesture detector also consumes the down change during the
- * [PointerEventPass.PostUp] pass if it has not already been consumed. That behavior can be changed
- * via [consumeDownOnStart].
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
-// TODO(b/145238703): consumeDownOnStart should very likely go away.
 @Composable
-fun PressReleasedGestureDetector(
-    onRelease: (() -> Unit)? = null,
-    consumeDownOnStart: Boolean = true,
-    enabled: Boolean = true,
-    children: @Composable() () -> Unit
-) {
-    val recognizer = remember { PressReleaseGestureRecognizer() }
-    recognizer.onRelease = onRelease
-    recognizer.consumeDownOnStart = consumeDownOnStart
+fun TapGestureDetector(
+    onTap: (() -> Unit)? = null,
+    enabled: Boolean = true
+): Modifier {
+    val recognizer = remember { TapGestureRecognizer() }
+    recognizer.onTap = onTap
+    recognizer.consumeDownOnStart = false
     recognizer.setEnabled(enabled)
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    return PointerInputModifier(recognizer)
 }
 
-internal class PressReleaseGestureRecognizer {
+internal class TapGestureRecognizer : PointerInputFilter() {
     /**
      * Called to indicate that a press gesture has successfully completed.
      *
      * This should be used to fire a state changing event as if a button was pressed.
      */
-    var onRelease: (() -> Unit)? = null
+    var onTap: (() -> Unit)? = null
     /**
      * True if down change should be consumed when start is called.  The default is true.
      */
     var consumeDownOnStart = true
 
     /**
-     * True when we are primed to call [onRelease] and may be consuming all down changes.
+     * True when we are primed to call [onTap] and may be consuming all down changes.
      */
     private var active = false
 
@@ -93,7 +83,7 @@ internal class PressReleaseGestureRecognizer {
         }
     }
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var internalChanges = changes
@@ -108,7 +98,7 @@ internal class PressReleaseGestureRecognizer {
                     // If we have started and all of the changes changed to up, we are stopping.
                     active = false
                     internalChanges = internalChanges.map { it.consumeDownChange() }
-                    onRelease?.invoke()
+                    onTap?.invoke()
                 } else if (!internalChanges.anyPointersInBounds(bounds)) {
                     // If none of the pointers are in bounds of our bounds, we should reset and wait
                     // till all pointers are changing to down.
@@ -132,7 +122,7 @@ internal class PressReleaseGestureRecognizer {
             internalChanges
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         active = false
     }
 }

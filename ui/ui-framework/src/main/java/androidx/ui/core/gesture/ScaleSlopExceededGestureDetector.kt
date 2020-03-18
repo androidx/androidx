@@ -19,10 +19,12 @@ package androidx.ui.core.gesture
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import kotlin.math.absoluteValue
@@ -48,19 +50,13 @@ import kotlin.math.absoluteValue
  */
 @Composable
 fun ScaleSlopExceededGestureDetector(
-    onScaleSlopExceeded: () -> Unit,
-    children: @Composable() () -> Unit
-) {
+    onScaleSlopExceeded: () -> Unit
+): Modifier {
     val scaleSlop = with(DensityAmbient.current) { ScaleSlop.toPx() }
     val recognizer = remember { ScaleSlopExceededGestureRecognizer(scaleSlop) }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    return PointerInputModifier(recognizer)
 }
 
 /**
@@ -69,13 +65,14 @@ fun ScaleSlopExceededGestureDetector(
  *
  * @see ScaleSlopExceededGestureDetector
  */
-internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) {
+internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) : PointerInputFilter
+    () {
     lateinit var onScaleSlopExceeded: () -> Unit
 
     var passedSlop = false
     var scaleDiffTotal = 0f
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             if (pass == PointerEventPass.PostUp) {
@@ -111,7 +108,7 @@ internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) {
             changes
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         passedSlop = false
         scaleDiffTotal = 0f
     }

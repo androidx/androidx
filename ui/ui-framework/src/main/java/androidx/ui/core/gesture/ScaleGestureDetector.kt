@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 
 /**
  * Observes various events sent by [ScaleGestureDetector].  Implement and pass into
@@ -102,15 +103,13 @@ interface ScaleObserver {
  */
 @Composable
 fun ScaleGestureDetector(
-    scaleObserver: ScaleObserver,
-    children: @Composable() () -> Unit
-) {
+    scaleObserver: ScaleObserver
+): Modifier {
     val glue = remember { TouchSlopScaleGestureDetectorGlue() }
     glue.scaleObserver = scaleObserver
 
-    RawScaleGestureDetector(glue.rawScaleObserver, glue::scaleEnabled) {
-        ScaleSlopExceededGestureDetector(glue::enableScale, children)
-    }
+    return RawScaleGestureDetector(glue.rawScaleObserver, glue::scaleEnabled) +
+            ScaleSlopExceededGestureDetector(glue::enableScale)
 }
 
 /**

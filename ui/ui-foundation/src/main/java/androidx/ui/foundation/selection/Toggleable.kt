@@ -17,16 +17,20 @@
 package androidx.ui.foundation.selection
 
 import androidx.compose.Composable
-import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Strings
+import androidx.ui.foundation.selection.ToggleableState.Indeterminate
+import androidx.ui.foundation.selection.ToggleableState.Off
+import androidx.ui.foundation.selection.ToggleableState.On
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
-import androidx.ui.semantics.accessibilityValue
 
 /**
- * Combines [PressReleasedGestureDetector] and [Semantics] for the components that need to be
+ * Combines [TapGestureDetector] and [Semantics] for the components that need to be
  * toggleable, like Switch.
  *
  * @sample androidx.ui.foundation.samples.ToggleableSample
@@ -52,7 +56,7 @@ fun Toggleable(
 }
 
 /**
- * Combines [PressReleasedGestureDetector] and [Semantics] for the components with three states
+ * Combines [TapGestureDetector] and [Semantics] for the components with three states
  * like TriStateCheckbox.
  *
  * It supports three states: On, Off and Indeterminate.
@@ -74,10 +78,6 @@ fun TriStateToggleable(
     onToggle: (() -> Unit)? = null,
     children: @Composable() () -> Unit
 ) {
-    PressReleasedGestureDetector(
-        onRelease = onToggle,
-        consumeDownOnStart = false
-    ) {
         // TODO(pavlis): Handle multiple states for Semantics
         Semantics(container = true, properties = {
             this.accessibilityValue = when (value) {
@@ -92,8 +92,12 @@ fun TriStateToggleable(
             if (onToggle != null) {
                 onClick(action = onToggle, label = "Toggle")
             }
-        }, children = children)
-    }
+        }) {
+            // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+            //  is implemented with modifiers.
+            @Suppress("DEPRECATION")
+            PassThroughLayout(TapGestureDetector(onToggle), children)
+        }
 }
 
 /**

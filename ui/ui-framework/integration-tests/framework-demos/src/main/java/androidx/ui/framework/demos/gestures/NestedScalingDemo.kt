@@ -70,31 +70,31 @@ private fun Scalable(
         }
     }
 
-    RawScaleGestureDetector(outerScaleObserver) {
-        Layout(
-            children = children,
-            modifier = LayoutAlign.Center + DrawBackground(color = color),
-            measureBlock = { measurables, constraints, _ ->
-                val newConstraints =
-                    constraints.copy(
-                        maxWidth = constraints.maxWidth * currentPercent.value,
-                        maxHeight = constraints.maxHeight * currentPercent.value,
-                        minWidth = IntPx.Zero,
-                        minHeight = IntPx.Zero
-                    )
+    Layout(
+        children = children,
+        modifier = LayoutAlign.Center +
+                RawScaleGestureDetector(outerScaleObserver) +
+                DrawBackground(color = color),
+        measureBlock = { measurables, constraints, _ ->
+            val newConstraints =
+                constraints.copy(
+                    maxWidth = constraints.maxWidth * currentPercent.value,
+                    maxHeight = constraints.maxHeight * currentPercent.value,
+                    minWidth = IntPx.Zero,
+                    minHeight = IntPx.Zero
+                )
 
-                val placeable = if (measurables.isNotEmpty()) {
-                    measurables.first().measure(newConstraints)
-                } else {
-                    null
-                }
+            val placeable = if (measurables.isNotEmpty()) {
+                measurables.first().measure(newConstraints)
+            } else {
+                null
+            }
 
-                layout(newConstraints.maxWidth, newConstraints.maxHeight) {
-                    placeable?.place(
-                        (newConstraints.maxWidth - placeable.width) / 2,
-                        (newConstraints.maxHeight - placeable.height) / 2
-                    )
-                }
-            })
-    }
+            layout(newConstraints.maxWidth, newConstraints.maxHeight) {
+                placeable?.place(
+                    (newConstraints.maxWidth - placeable.width) / 2,
+                    (newConstraints.maxHeight - placeable.height) / 2
+                )
+            }
+        })
 }

@@ -18,9 +18,10 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUp
@@ -28,8 +29,9 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.positionChange
-import androidx.ui.core.PointerId
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
@@ -97,7 +99,7 @@ interface DragObserver {
  * Note: By default, this gesture detector only waits for a single pointer to have moved to start
  * dragging.  It is extremely likely that you don't want to use this gesture detector directly, but
  * instead use a drag gesture detector that does wait for some other condition to have occurred
- * (such as [TouchSlopDragGestureDetector] which waits for a single pointer to have passed touch
+ * (such as [DragGestureDetector] which waits for a single pointer to have passed touch
  * slop before dragging starts).
  *
  * Dragging begins when the a single pointer has moved and either [canStartDragging] is null or
@@ -123,31 +125,22 @@ interface DragObserver {
 @Composable
 fun RawDragGestureDetector(
     dragObserver: DragObserver,
-    canStartDragging: (() -> Boolean)? = null,
-    children: @Composable() () -> Unit
-) {
-    val recognizer = remember {
-        RawDragGestureRecognizer()
-    }
-
+    canStartDragging: (() -> Boolean)? = null
+): Modifier {
+    val recognizer = remember { RawDragGestureRecognizer() }
     recognizer.dragObserver = dragObserver
     recognizer.canStartDragging = canStartDragging
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children
-    )
+    return PointerInputModifier(recognizer)
 }
 
-internal class RawDragGestureRecognizer {
+internal class RawDragGestureRecognizer : PointerInputFilter() {
     private val velocityTrackers: MutableMap<PointerId, VelocityTracker> = mutableMapOf()
     private val downPositions: MutableMap<PointerId, PxPosition> = mutableMapOf()
     private var started = false
     var canStartDragging: (() -> Boolean)? = null
     lateinit var dragObserver: DragObserver
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             var changesToReturn = changes
@@ -306,7 +299,7 @@ internal class RawDragGestureRecognizer {
             changesToReturn
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         downPositions.clear()
         velocityTrackers.clear()
         if (started) {

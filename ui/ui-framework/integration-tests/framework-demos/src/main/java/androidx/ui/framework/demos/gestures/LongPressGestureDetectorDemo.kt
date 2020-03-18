@@ -37,11 +37,12 @@ fun LongPressGestureDetectorDemo() {
         color.value = color.value.anotherRandomColor()
     }
 
-    LongPressGestureDetector(onLongPress = onLongPress) {
-        Box(
-            LayoutAlign.Center + LayoutSize(192.dp),
-            backgroundColor = color.value,
-            border = Border(2.dp, BorderColor)
-        )
-    }
+    Box(
+        LayoutSize.Fill +
+                LayoutAlign.Center +
+                LongPressGestureDetector(onLongPress) +
+                LayoutSize(192.dp),
+        backgroundColor = color.value,
+        border = Border(2.dp, BorderColor)
+    )
 }

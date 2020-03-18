@@ -18,12 +18,14 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInput
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 
@@ -49,24 +51,19 @@ import androidx.ui.unit.PxPosition
  * react to and consume down changes.  Defaults to [PointerEventPass.PostUp].
  */
 @Composable
-internal fun RawPressStartGestureDetector(
+fun RawPressStartStartGestureDetector(
     onPressStart: (PxPosition) -> Unit,
     enabled: Boolean = false,
-    executionPass: PointerEventPass = PointerEventPass.PostUp,
-    children: @Composable() () -> Unit
-) {
+    executionPass: PointerEventPass = PointerEventPass.PostUp
+): Modifier {
     val recognizer = remember { RawPressStartGestureRecognizer() }
     recognizer.onPressStart = onPressStart
     recognizer.setEnabled(enabled = enabled)
     recognizer.setExecutionPass(executionPass)
-
-    PointerInput(
-        pointerInputHandler = recognizer.pointerInputHandler,
-        cancelHandler = recognizer.cancelHandler,
-        children = children)
+    return PointerInputModifier(recognizer)
 }
 
-internal class RawPressStartGestureRecognizer {
+internal class RawPressStartGestureRecognizer : PointerInputFilter() {
 
     lateinit var onPressStart: (PxPosition) -> Unit
     private var enabled: Boolean = true
@@ -74,7 +71,7 @@ internal class RawPressStartGestureRecognizer {
 
     private var active = false
 
-    val pointerInputHandler =
+    override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             var internalChanges = changes
@@ -99,7 +96,7 @@ internal class RawPressStartGestureRecognizer {
             internalChanges
         }
 
-    val cancelHandler = {
+    override val cancelHandler = {
         active = false
     }
 

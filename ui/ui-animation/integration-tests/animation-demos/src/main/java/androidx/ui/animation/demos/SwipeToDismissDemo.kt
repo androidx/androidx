@@ -68,7 +68,7 @@ private fun SwipeToDismiss() {
     val index = state { 0 }
     val itemWidth = state { 0f }
     val isFlinging = state { false }
-    RawDragGestureDetector(dragObserver = object : DragObserver {
+    val modifier = RawDragGestureDetector(dragObserver = object : DragObserver {
         override fun onStart(downPosition: PxPosition) {
             itemBottom.setBounds(0f, height)
             if (isFlinging.value && itemBottom.targetValue < 100f) {
@@ -118,27 +118,27 @@ private fun SwipeToDismiss() {
                     }
                 })
         }
-    }) {
+    })
 
-        val heightDp = with(DensityAmbient.current) { height.toDp() }
-        val paint = remember { Paint() }
-        Canvas(LayoutWidth.Fill + LayoutHeight(heightDp) +
-                onPositioned { coordinates ->
-                    itemWidth.value = coordinates.size.width.value * 2 / 3f
-                }) {
-            val progress = 1 - itemBottom.value / height
-            // TODO: this progress can be used to drive state transitions
-            val alpha = 1f - FastOutSlowInEasing(progress)
-            val horizontalOffset = progress * itemWidth.value
-            drawLeftItems(
-                paint, horizontalOffset, itemWidth.value, itemHeight, index.value
-            )
-            drawDismissingItem(
-                paint,
-                itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
-                alpha
-            )
-        }
+    val heightDp = with(DensityAmbient.current) { height.toDp() }
+    val paint = remember { Paint() }
+
+    Canvas(modifier + LayoutWidth.Fill + LayoutHeight(heightDp) +
+            onPositioned { coordinates ->
+                itemWidth.value = coordinates.size.width.value * 2 / 3f
+            }) {
+        val progress = 1 - itemBottom.value / height
+        // TODO: this progress can be used to drive state transitions
+        val alpha = 1f - FastOutSlowInEasing(progress)
+        val horizontalOffset = progress * itemWidth.value
+        drawLeftItems(
+            paint, horizontalOffset, itemWidth.value, itemHeight, index.value
+        )
+        drawDismissingItem(
+            paint,
+            itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
+            alpha
+        )
     }
 }
 

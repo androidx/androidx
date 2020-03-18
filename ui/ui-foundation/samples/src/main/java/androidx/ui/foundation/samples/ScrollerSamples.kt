@@ -202,7 +202,8 @@ private fun Text(text: String, textStyle: TextStyle) {
         color.value = releasedColor
     }
 
-    PressIndicatorGestureDetector(onStart = onPress, onStop = onRelease, onCancel = onRelease) {
-        Text(text, modifier = DrawBackground(color = color.value), style = textStyle)
-    }
+    val gestureModifier =
+        PressIndicatorGestureDetector(onStart = onPress, onStop = onRelease, onCancel = onRelease)
+
+    Text(text, modifier = gestureModifier + DrawBackground(color = color.value), style = textStyle)
 }

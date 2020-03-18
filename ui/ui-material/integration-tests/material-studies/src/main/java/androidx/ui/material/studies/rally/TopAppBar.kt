@@ -23,6 +23,7 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorAsset
@@ -66,13 +67,15 @@ private fun RallyTab(
     selected: Boolean
 ) {
     TabTransition(selected = selected) { tabTintColor ->
-        Row(LayoutPadding(16.dp) + LayoutHeight(TabHeight)) {
+        Box(LayoutPadding(16.dp) + LayoutHeight(TabHeight)) {
             Ripple(bounded = false) {
                 MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-                    Icon(vectorImage = icon, tintColor = tabTintColor)
-                    if (selected) {
-                        Spacer(modifier = LayoutWidth(12.dp))
-                        Text(text, style = TextStyle(color = tabTintColor))
+                    Row() {
+                        Icon(vectorImage = icon, tintColor = tabTintColor)
+                        if (selected) {
+                            Spacer(modifier = LayoutWidth(12.dp))
+                            Text(text, style = TextStyle(color = tabTintColor))
+                        }
                     }
                 }
             }

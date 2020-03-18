@@ -21,9 +21,9 @@ import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.ImeAction
@@ -545,7 +545,7 @@ private fun TextInputEventObserver(
             onClick(action = doFocusIn)
         }
     ) {
-        DragPositionGestureDetector(
+        val drag = DragPositionGestureDetector(
             onPress = {
                 if (focused.value) {
                     onPress(it)
@@ -553,9 +553,13 @@ private fun TextInputEventObserver(
                     doFocusIn()
                 }
             },
-            onRelease = onRelease,
-            children = children
+            onRelease = onRelease
         )
+
+        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+        //  is implemented with modifiers.
+        @Suppress("DEPRECATION")
+        PassThroughLayout(drag, children)
     }
 }
 
@@ -600,23 +604,30 @@ internal class DragEventTracker {
 @Composable
 private fun DragPositionGestureDetector(
     onPress: (PxPosition) -> Unit,
-    onRelease: (PxPosition) -> Unit,
-    children: @Composable() () -> Unit
-) {
+    onRelease: (PxPosition) -> Unit
+): Modifier {
     val tracker = state { DragEventTracker() }
-    PressGestureDetector(
-        onPress = {
-            tracker.value.init(it)
-            onPress(it)
-        },
-        onRelease = { onRelease(tracker.value.getPosition()) }
-    ) {
-        TouchSlopDragGestureDetector(
-            dragObserver = object : DragObserver {
-                override fun onDrag(dragDistance: PxPosition): PxPosition {
-                    tracker.value.onDrag(dragDistance)
-                    return tracker.value.getPosition()
-                }
-            }, children = children)
-    }
+    // TODO(shepshapard): PressIndicator doesn't seem to be the right thing to use here.  It
+    //  actually may be functionally correct, but might mostly suggest that it should not
+    //  actually be called PressIndicator, but instead something else.
+
+    val pressIndicator =
+        PressIndicatorGestureDetector(
+            onStart = {
+                tracker.value.init(it)
+                onPress(it)
+            }, onStop = {
+                onRelease(tracker.value.getPosition())
+            })
+
+    val drag =
+        DragGestureDetector(dragObserver = object :
+            DragObserver {
+            override fun onDrag(dragDistance: PxPosition): PxPosition {
+                tracker.value.onDrag(dragDistance)
+                return tracker.value.getPosition()
+            }
+        })
+
+    return pressIndicator + drag
 }

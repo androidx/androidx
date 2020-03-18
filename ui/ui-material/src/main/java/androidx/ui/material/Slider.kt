@@ -29,8 +29,9 @@ import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.animation.FlingConfig
@@ -209,26 +210,29 @@ fun Slider(
                     }
                 }
                 val pressed = state { false }
-                PressGestureDetector(
-                    onPress = { pos ->
+                val press = PressIndicatorGestureDetector(
+                    onStart = { pos ->
                         onValueChange(pos.x.value.toSliderPosition())
                         pressed.value = true
                     },
-                    onRelease = {
+                    onStop = {
                         pressed.value = false
                         gestureEndAction(0f)
-                    }) {
-                    Draggable(
-                        dragDirection = DragDirection.Horizontal,
-                        dragValue = position.holder,
-                        onDragStarted = { pressed.value = true },
-                        onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
-                        onDragStopped = { velocity ->
-                            pressed.value = false
-                            gestureEndAction(velocity)
-                        },
-                        children = { SliderImpl(position, color, maxPx, pressed.value) }
-                    )
+                    })
+                Draggable(
+                    dragDirection = DragDirection.Horizontal,
+                    dragValue = position.holder,
+                    onDragStarted = { pressed.value = true },
+                    onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
+                    onDragStopped = { velocity ->
+                        pressed.value = false
+                        gestureEndAction(velocity)
+                    }
+                ) {
+                    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+                    //  is implemented with modifiers.
+                    @Suppress("DEPRECATION")
+                    PassThroughLayout(press, { SliderImpl(position, color, maxPx, pressed.value) })
                 }
             }
         }

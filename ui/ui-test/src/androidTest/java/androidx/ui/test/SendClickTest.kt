@@ -25,9 +25,11 @@ import androidx.compose.Composition
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInput
+import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.TestTag
 import androidx.ui.core.changedToUp
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
@@ -105,19 +107,25 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
             for (i in first..last) {
                 TestTag(tag = "$tag$i") {
                     Semantics(container = true) {
-                        PointerInput(
-                            pointerInputHandler = { changes, pass, _ ->
-                                if (pass == PointerEventPass.InitialDown) {
-                                    changes.filter { it.changedToUp() }.forEach {
-                                        recordedClicks.add(ClickData(i, it.current.position!!))
+                        val pointerInputModifier =
+                            PointerInputModifier(object : PointerInputFilter() {
+                                override val pointerInputHandler: PointerInputHandler =
+                                    { changes, pass, _ ->
+                                        if (pass == PointerEventPass.InitialDown) {
+                                            changes.filter { it.changedToUp() }.forEach {
+                                                recordedClicks.add(
+                                                    ClickData(i, it.current.position!!)
+                                                )
+                                            }
+                                        }
+                                        changes
                                     }
-                                }
-                                changes
-                            },
-                            cancelHandler = {}
-                        ) {
-                            Box(LayoutSize(squareSize.toDp()), backgroundColor = colors[i])
-                        }
+                                override val cancelHandler: () -> Unit = {}
+                            })
+                        Box(
+                            pointerInputModifier + LayoutSize(squareSize.toDp()),
+                            backgroundColor = colors[i]
+                        )
                     }
                 }
             }

@@ -25,12 +25,13 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
 import androidx.ui.core.enforce
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.LongPressDragGestureDetector
-import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.onPositioned
@@ -78,13 +79,14 @@ fun SelectionContainer(
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
+    val gestureModifiers = TapGestureDetector({ manager.onRelease() }) +
+            LongPressDragGestureDetector(manager.longPressDragObserver)
+
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
         // Get the layout coordinates of the selection container. This is for hit test of
         // cross-composable selection.
-        Wrap(onPositioned { manager.containerLayoutCoordinates = it }) {
-            PressReleasedGestureDetector(onRelease = { manager.onRelease() }) {
-                LongPressDragGestureDetector(manager.longPressDragObserver, children = children)
-            }
+        Wrap(gestureModifiers + onPositioned { manager.containerLayoutCoordinates = it }) {
+            children()
             addHandles(
                 manager = manager,
                 selection = selection,
@@ -131,10 +133,13 @@ private fun addHandles(
                 },
                 offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
             ) {
-                TouchSlopDragGestureDetector(
-                    dragObserver = manager.handleDragObserver(isStartHandle = true),
-                    children = startHandle
+                val drag = DragGestureDetector(
+                    dragObserver = manager.handleDragObserver(isStartHandle = true)
                 )
+                // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+                //  is implemented with modifiers.
+                @Suppress("DEPRECATION")
+                PassThroughLayout(drag, startHandle)
             }
         }
 
@@ -148,10 +153,13 @@ private fun addHandles(
                 },
                 offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
             ) {
-                TouchSlopDragGestureDetector(
-                    dragObserver = manager.handleDragObserver(isStartHandle = false),
-                    children = endHandle
+                val drag = DragGestureDetector(
+                    dragObserver = manager.handleDragObserver(isStartHandle = false)
                 )
+                // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+                //  is implemented with modifiers.
+                @Suppress("DEPRECATION")
+                PassThroughLayout(drag, endHandle)
             }
         }
     }
