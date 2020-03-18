@@ -45,6 +45,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
 
 /**
  * Base class for activities that wish to use some of the newer platform features on older
@@ -167,21 +168,33 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
+        // Set the VTLO before setting the content view so that attach listeners
+        // will see it already present
+        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         getDelegate().setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(View view) {
+        // Set the VTLO before setting the content view so that attach listeners
+        // will see it already present
+        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         getDelegate().setContentView(view);
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
+        // Set the VTLO before setting the content view so that attach listeners
+        // will see it already present
+        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         getDelegate().setContentView(view, params);
     }
 
     @Override
     public void addContentView(View view, ViewGroup.LayoutParams params) {
+        // Set the VTLO before setting the content view so that attach listeners
+        // will see it already present
+        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         getDelegate().addContentView(view, params);
     }
 
