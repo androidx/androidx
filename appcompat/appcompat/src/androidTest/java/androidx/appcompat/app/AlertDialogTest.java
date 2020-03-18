@@ -125,11 +125,11 @@ public class AlertDialogTest {
 
     @After
     public void tearDown() throws Throwable {
-        if ((mAlertDialog != null) && mAlertDialog.isShowing()) {
+        if (mAlertDialog != null && mAlertDialog.isShowing()) {
             mActivityTestRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mAlertDialog.hide();
+                    mAlertDialog.dismiss();
                 }
             });
         }

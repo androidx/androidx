@@ -49,6 +49,9 @@ public class DialogTestCase {
 
         assertNotNull("Dialog was null", fragment.getDialog());
         assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
+
+        // And make sure we dismiss the dialog
+        fragment.dismissAllowingStateLoss();
     }
 
     public static class TestDialogFragment extends AppCompatDialogFragment {
