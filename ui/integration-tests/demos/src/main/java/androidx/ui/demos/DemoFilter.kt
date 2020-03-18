@@ -1,0 +1,152 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.ui.demos
+
+import androidx.compose.Composable
+import androidx.compose.key
+import androidx.compose.onCommit
+import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.Modifier
+import androidx.ui.core.Text
+import androidx.ui.core.TextField
+import androidx.ui.demos.common.Demo
+import androidx.ui.foundation.Icon
+import androidx.ui.foundation.VerticalScroller
+import androidx.ui.graphics.compositeOver
+import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
+import androidx.ui.material.IconButton
+import androidx.ui.material.ListItem
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.TopAppBar
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Close
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.SpanStyle
+import androidx.ui.text.withStyle
+import androidx.ui.unit.dp
+
+/**
+ * A scrollable list of [launchableDemos], filtered by [filterText].
+ */
+@Composable
+fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Demo) -> Unit) {
+    val filteredDemos = launchableDemos
+        .filter { it.title.contains(filterText, ignoreCase = true) }
+        .sortedBy { it.title }
+    VerticalScroller {
+        Column {
+            filteredDemos.forEach { demo ->
+                FilteredDemoListItem(demo,
+                    filterText = filterText,
+                    onNavigate = {
+                        onNavigate(it)
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * [TopAppBar] with a text field allowing filtering all the demos.
+ */
+@Composable
+fun FilterAppBar(filterText: String, onFilter: (String) -> Unit, onClose: () -> Unit) {
+    with(MaterialTheme.colors()) {
+        val appBarColor = if (isLight) {
+            surface
+        } else {
+            // Blending primary over surface according to Material design guidance for brand
+            // surfaces in dark theme
+            primary.copy(alpha = 0.08f).compositeOver(surface)
+        }
+        TopAppBar(color = appBarColor, contentColor = onSurface) {
+            IconButton(modifier = LayoutGravity.Center, onClick = onClose) {
+                Icon(Icons.Filled.Close)
+            }
+            FilterField(filterText, onFilter, LayoutGravity.Center)
+        }
+    }
+}
+
+/**
+ * [TextField] that edits the current [filterText], providing [onFilter] when edited.
+ */
+@Composable
+private fun FilterField(
+    filterText: String,
+    onFilter: (String) -> Unit,
+    modifier: Modifier = Modifier.None
+) {
+    val identifier = "filter"
+    val manager = FocusManagerAmbient.current
+    onCommit(manager) {
+        manager.requestFocusById(identifier)
+    }
+    // TODO: replace with Material text field when available
+    TextField(
+        modifier = modifier,
+        value = filterText,
+        focusIdentifier = identifier,
+        onValueChange = onFilter
+    )
+}
+
+/**
+ * [ListItem] that displays a [demo] and highlights any matches for [filterText] inside [Demo.title]
+ */
+@Composable
+private fun FilteredDemoListItem(
+    demo: Demo,
+    filterText: String,
+    onNavigate: (Demo) -> Unit
+) {
+    val primary = MaterialTheme.colors().primary
+    val annotatedString = AnnotatedString {
+        val title = demo.title
+        var currentIndex = 0
+        val pattern = filterText.toRegex(option = RegexOption.IGNORE_CASE)
+        pattern.findAll(title).forEach { result ->
+            val index = result.range.first
+            if (index > currentIndex) {
+                append(title.substring(currentIndex, index))
+                currentIndex = index
+            }
+            withStyle(SpanStyle(color = primary)) {
+                append(result.value)
+            }
+            currentIndex = result.range.last + 1
+        }
+        if (currentIndex <= title.lastIndex) {
+            append(title.substring(currentIndex, title.length))
+        }
+    }
+    key(demo.title) {
+        ListItem(
+            text = {
+                Text(
+                    modifier = LayoutHeight(56.dp) + LayoutAlign.Center,
+                    text = annotatedString
+                )
+            },
+            onClick = { onNavigate(demo) }
+        )
+    }
+}

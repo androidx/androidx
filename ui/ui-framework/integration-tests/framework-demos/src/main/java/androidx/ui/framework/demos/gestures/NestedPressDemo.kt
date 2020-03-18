@@ -26,6 +26,7 @@ import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
@@ -76,7 +77,7 @@ private fun PressableContainer(
     }
 
     val color = if (pressed.value) {
-        pressedColor.over(currentColor.value)
+        pressedColor.compositeOver(currentColor.value)
     } else {
         currentColor.value
     }

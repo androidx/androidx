@@ -45,3 +45,17 @@ class ComposableDemo(title: String, val content: @Composable() () -> Unit) : Dem
  * A category of [Demo]s, that will display a list of [demos] when selected.
  */
 class DemoCategory(title: String, val demos: List<Demo>) : Demo(title)
+
+/**
+ * Flattened recursive [List] of every launchable demo in [this].
+ */
+fun DemoCategory.allLaunchableDemos(): List<Demo> {
+    val demos = mutableListOf<Demo>()
+    fun DemoCategory.addAllDemos() {
+        val (categories, launchableDemos) = this.demos.partition { it is DemoCategory }
+        categories.forEach { (it as DemoCategory).addAllDemos() }
+        demos.addAll(launchableDemos)
+    }
+    addAllDemos()
+    return demos
+}

@@ -21,6 +21,7 @@ import androidx.compose.state
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
@@ -43,7 +44,7 @@ fun PressIndicatorGestureDetectorDemo() {
 
     val color =
         if (pressed.value) {
-            PressedColor.over(Grey)
+            PressedColor.compositeOver(Grey)
         } else {
             Grey
         }

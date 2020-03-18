@@ -27,7 +27,7 @@ import androidx.ui.material.samples.SideBySideAlertDialogSample
 import androidx.ui.material.samples.SimpleDataTable
 import androidx.ui.material.samples.StaticDrawerSample
 
-val MaterialDemos = DemoCategory("Material Demos", listOf(
+val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("AlertDialog") { SideBySideAlertDialogSample() },
     ComposableDemo("App Bars") { AppBarDemo() },
     ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },

@@ -23,7 +23,7 @@ import androidx.ui.foundation.samples.DialogSample
 import androidx.ui.foundation.samples.TableWithBorders
 import androidx.ui.foundation.samples.VerticalScrollerSample
 
-val FoundationDemos = DemoCategory("Foundation Demos", listOf(
+val FoundationDemos = DemoCategory("Foundation", listOf(
     ComposableDemo("Draggable and Scrollable") { HighLevelGesturesDemo() },
     ComposableDemo("VerticalScroller") { VerticalScrollerSample() },
     ComposableDemo("HorizontalScroller") { ControlledHorizontalScrollerSample() },
