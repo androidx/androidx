@@ -27,6 +27,11 @@ import androidx.ui.unit.IntPxSize
  */
 interface OwnedLayer {
     /**
+     * `true` if the elevation of this layer is greater than 0.
+     */
+    val hasElevation: Boolean
+
+    /**
      * Reads the [DrawLayerModifier] and dirties the layer so that it will be redrawn.
      */
     fun updateLayerProperties()
@@ -66,4 +71,10 @@ interface OwnedLayer {
      * The caller must not modify the returned Matrix.
      */
     fun getMatrix(): Matrix
+
+    /**
+     * Sets the listener that is called when the elevation changes from 0 to non-zero.
+     * The listener should continue to be notified until [block] returns true.
+     */
+    fun setElevationRiseListener(block: (() -> Unit)?)
 }
