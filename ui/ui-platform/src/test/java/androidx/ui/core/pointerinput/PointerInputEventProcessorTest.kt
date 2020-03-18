@@ -74,17 +74,17 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class PointerInputEventProcessor2Test {
+class PointerInputEventProcessorTest {
 
     private lateinit var root: LayoutNode
-    private lateinit var pointerInputEventProcessor: PointerInputEventProcessor2
+    private lateinit var pointerInputEventProcessor: PointerInputEventProcessor
     private val testOwner: TestOwner = spy()
 
     @Before
     fun setup() {
         root = LayoutNode(0, 0, 500, 500)
         root.attach(testOwner)
-        pointerInputEventProcessor = PointerInputEventProcessor2(root)
+        pointerInputEventProcessor = PointerInputEventProcessor(root)
     }
 
     @Test

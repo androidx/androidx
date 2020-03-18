@@ -42,7 +42,7 @@ import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
-import androidx.ui.core.pointerinput.PointerInputEventProcessor2
+import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
@@ -97,7 +97,7 @@ class AndroidComposeView constructor(context: Context) :
         }
 
     private val motionEventAdapter = MotionEventAdapter()
-    private val pointerInputEventProcessor = PointerInputEventProcessor2(root)
+    private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
     var constraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
