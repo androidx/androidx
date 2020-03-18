@@ -43,7 +43,6 @@ internal class ViewLayer(
     private val manualClipPath: Path? get() =
         if (!clipToOutline) null else outlineResolver.clipPath
     private var isInvalidated = false
-    private var elevationRiseListener: (() -> Unit)? = null
 
     init {
         setWillNotDraw(false) // we WILL draw
@@ -51,11 +50,7 @@ internal class ViewLayer(
         ownerView.addView(this)
     }
 
-    override val hasElevation: Boolean
-        get() = elevation > 0f
-
     override fun updateLayerProperties() {
-        val hadElevation = hasElevation
         this.scaleX = drawLayerModifier.scaleX
         this.scaleY = drawLayerModifier.scaleY
         this.alpha = drawLayerModifier.alpha
@@ -72,9 +67,6 @@ internal class ViewLayer(
         val isClippingManually = manualClipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate() // have to redraw the content
-        }
-        if (!hadElevation && hasElevation) {
-            elevationRiseListener?.invoke()
         }
     }
 
@@ -159,7 +151,6 @@ internal class ViewLayer(
     override fun destroy() {
         ownerView.removeView(this)
         ownerView.dirtyLayers -= this
-        elevationRiseListener = null
     }
 
     override fun updateDisplayList() {
@@ -172,10 +163,6 @@ internal class ViewLayer(
     override fun forceLayout() {
         // Don't do anything. These Views are treated as RenderNodes, so a forced layout
         // should not do anything. If we keep this, we get more redrawing than is necessary.
-    }
-
-    override fun setElevationRiseListener(block: (() -> Unit)?) {
-        elevationRiseListener = block
     }
 
     companion object {
