@@ -21,7 +21,6 @@ import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.max
-import kotlin.math.sign
 
 /**
  * This animation interface is intended to be stateless, just like Animation<T>. But unlike
@@ -132,38 +131,6 @@ class ExponentialDecay(
         return start - startVelocity / friction +
                 startVelocity / friction * exp((friction * duration / 1000f)).toFloat()
     }
-}
-
-/**
- * Decay animation wrapper contains a decay animation as well as the animations values that remain
- * the same throughout the animation: start value/velocity.
- */
-internal class DecayAnimationWrapper(
-    private val startValue: Float,
-    private val startVelocity: Float = 0f,
-    private val anim: DecayAnimation
-) : AnimationWrapper<Float, AnimationVector1D> {
-    private val target: Float = anim.getTarget(startValue, startVelocity)
-    private val velocityVector: AnimationVector1D = AnimationVector1D(0f)
-
-    override fun getValue(playTime: Long): Float {
-        if (!isFinished(playTime)) {
-            return anim.getValue(playTime, startValue, startVelocity)
-        } else {
-            return target
-        }
-    }
-
-    override fun getVelocity(playTime: Long): AnimationVector1D {
-        if (!isFinished(playTime)) {
-            velocityVector.value = anim.getVelocity(playTime, startValue, startVelocity)
-        } else {
-            velocityVector.value = anim.absVelocityThreshold * sign(startVelocity)
-        }
-        return velocityVector
-    }
-
-    override val durationMillis: Long = anim.getDurationMillis(startValue, startVelocity)
 }
 
 internal fun DecayAnimation.createWrapper(
