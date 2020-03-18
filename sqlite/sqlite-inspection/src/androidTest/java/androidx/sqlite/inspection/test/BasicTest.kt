@@ -20,7 +20,6 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +27,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 class BasicTest {
     @get:Rule
     val testEnvironment = SqliteInspectorTestEnvironment()

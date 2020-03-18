@@ -19,7 +19,6 @@ package androidx.lifecycle
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -36,7 +35,6 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
 
-@ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class FlowAsLiveDataTest {
     @get:Rule

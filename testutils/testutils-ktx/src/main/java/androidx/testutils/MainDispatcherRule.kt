@@ -18,7 +18,6 @@ package androidx.testutils
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestRule
@@ -26,7 +25,6 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 class MainDispatcherRule(private val dispatcher: CoroutineDispatcher) : TestRule {
-    @UseExperimental(ExperimentalCoroutinesApi::class)
     override fun apply(base: Statement?, description: Description?) = object : Statement() {
         override fun evaluate() {
             Dispatchers.setMain(dispatcher)

@@ -19,12 +19,10 @@ package androidx.lifecycle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class TransformationsTest {
 
     @get:Rule

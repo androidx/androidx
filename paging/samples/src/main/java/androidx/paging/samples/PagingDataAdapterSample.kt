@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -82,7 +81,6 @@ fun pagingDataAdapterSample() {
 internal class UserPagingAdapter : BasePagingAdapter<User>()
 internal class UserListViewModel : BaseViewModel<User>()
 
-@ExperimentalCoroutinesApi
 @Sampled
 fun presentDataSample() {
     class MyFlowActivity : AppCompatActivity() {
@@ -104,7 +102,6 @@ fun presentDataSample() {
     }
 }
 
-@ExperimentalCoroutinesApi
 @Sampled
 fun submitDataLiveDataSample() {
     class MyLiveDataActivity : AppCompatActivity() {
@@ -127,7 +124,6 @@ fun <T> Flowable<T>.autoDispose(
     throw NotImplementedError()
 }
 
-@ExperimentalCoroutinesApi
 @Sampled
 fun submitDataRxSample() {
     class MyRxJava2Activity : AppCompatActivity() {

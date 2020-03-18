@@ -27,7 +27,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.fail
 import org.junit.ComparisonFailure
@@ -38,7 +37,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 @SdkSuppress(minSdkVersion = 26)
 // TODO: add tests for invalid queries: union of unequal number of columns, syntax error, etc.
 class QueryTest {

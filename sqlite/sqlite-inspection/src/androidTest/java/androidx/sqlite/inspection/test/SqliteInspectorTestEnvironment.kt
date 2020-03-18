@@ -24,7 +24,6 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
 
@@ -43,7 +42,6 @@ class SqliteInspectorTestEnvironment : ExternalResource() {
         inspectorTester.dispose()
     }
 
-    @ExperimentalCoroutinesApi
     fun assertNoQueuedEvents() {
         assertThat(inspectorTester.channel.isEmpty).isTrue()
     }

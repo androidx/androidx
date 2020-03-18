@@ -24,7 +24,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -71,7 +70,6 @@ class PausingDispatcherTest {
     private val expectations = Expectations()
     private lateinit var mainThread: Thread
 
-    @ExperimentalCoroutinesApi
     @Before
     fun updateMainHandlerAndDispatcher() {
         Dispatchers.setMain(mainExecutor.asCoroutineDispatcher())
@@ -81,7 +79,6 @@ class PausingDispatcherTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @After
     fun clearHandlerAndDispatcher() {
         waitTestingScopeChildren()

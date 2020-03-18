@@ -18,8 +18,6 @@ package androidx.paging
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ClosedSendChannelException
@@ -39,8 +37,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 @InternalCoroutinesApi
 @RunWith(JUnit4::class)
 class PageFetcherTest {
@@ -220,8 +216,6 @@ internal class FetcherState<T : Any>(
     val job: Job
 )
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>): FetcherState<Int> {
     val pagingDataList: ArrayList<PagingData<Int>> = ArrayList()
     val pageEventLists: ArrayList<ArrayList<PageEvent<Int>>> = ArrayList()

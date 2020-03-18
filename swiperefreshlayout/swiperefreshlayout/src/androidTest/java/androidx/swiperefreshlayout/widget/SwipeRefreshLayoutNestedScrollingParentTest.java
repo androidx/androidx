@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
  * This test is not complete, and has only been added to as changes have been made that may have
  * affected NestedScrollingChild implementation behavior.
  */
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SwipeRefreshLayoutNestedScrollingParentTest {

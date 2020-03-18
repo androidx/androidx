@@ -30,7 +30,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingDataFlow
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -40,7 +39,6 @@ private class MyPagingAdapter : BasePagingAdapter<UiModel>()
 private class MyViewModel : BaseViewModel<UiModel>()
 private lateinit var pagingSourceFactory: () -> PagingSource<String, String>
 
-@ExperimentalCoroutinesApi
 @Sampled
 @SuppressLint("SyntheticAccessor")
 fun cachedInSample() {
