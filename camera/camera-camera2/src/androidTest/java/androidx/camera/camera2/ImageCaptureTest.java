@@ -42,6 +42,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Rational;
@@ -368,7 +369,16 @@ public final class ImageCaptureTest {
         useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         // Assert: Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(any());
+        ArgumentCaptor<ImageCapture.OutputFileResults> outputFileResultsArgumentCaptor =
+                ArgumentCaptor.forClass(ImageCapture.OutputFileResults.class);
+        verify(callback, timeout(3000)).onImageSaved(outputFileResultsArgumentCaptor.capture());
+
+        // Verify save location Uri is available.
+        Uri saveLocationUri = outputFileResultsArgumentCaptor.getValue().getSavedUri();
+        assertThat(saveLocationUri).isNotNull();
+
+        // Clean up.
+        mContentResolver.delete(saveLocationUri, null, null);
     }
 
     @Test
