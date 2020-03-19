@@ -119,7 +119,7 @@ class SwitchUiTest {
         composeTestRule.setMaterialContent {
             val (checked, _) = state { false }
             TestTag(tag = defaultSwitchTag) {
-                Switch(checked = checked, onCheckedChange = null)
+                Switch(checked = checked, onCheckedChange = {}, enabled = false)
             }
         }
         findByTag(defaultSwitchTag)
@@ -139,7 +139,7 @@ class SwitchUiTest {
     private fun materialSizesTestForValue(checked: Boolean) {
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Switch(checked = checked, onCheckedChange = null)
+                Switch(checked = checked, onCheckedChange = {}, enabled = false)
             }
             .assertWidthEqualsTo { 34.dp.toIntPx() + 2.dp.toIntPx() * 2 }
             .assertHeightEqualsTo { 20.dp.toIntPx() + 2.dp.toIntPx() * 2 }

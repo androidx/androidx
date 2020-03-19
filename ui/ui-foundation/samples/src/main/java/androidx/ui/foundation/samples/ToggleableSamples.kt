@@ -39,8 +39,8 @@ fun ToggleableSample() {
 fun TriStateToggleableSample() {
     var checked by state { ToggleableState.Indeterminate }
     TriStateToggleable(
-        value = checked,
-        onToggle = {
+        state = checked,
+        onClick = {
             checked =
                 if (checked == ToggleableState.On) {
                     ToggleableState.Off
