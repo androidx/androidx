@@ -329,6 +329,21 @@ package androidx.ui.focus {
 
 }
 
+package androidx.ui.platform {
+
+  public final class PlatformHandler {
+    ctor public PlatformHandler(androidx.ui.platform.UriHandler uriHandler);
+    method public androidx.ui.platform.UriHandler component1();
+    method public androidx.ui.platform.PlatformHandler copy(androidx.ui.platform.UriHandler uriHandler);
+    method public androidx.ui.platform.UriHandler getUriHandler();
+  }
+
+  public interface UriHandler {
+    method public void openLink(String uri);
+  }
+
+}
+
 package androidx.ui.semantics {
 
   public final class AccessibilityAction<T extends kotlin.Function<? extends kotlin.Unit>> {

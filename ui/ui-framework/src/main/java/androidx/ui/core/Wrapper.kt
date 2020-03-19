@@ -25,8 +25,6 @@ import android.widget.FrameLayout
 import androidx.animation.AnimationClockObservable
 import androidx.animation.rootAnimationClockFactory
 import androidx.annotation.MainThread
-import androidx.ui.core.input.FocusManager
-import androidx.ui.input.TextInputService
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
@@ -42,8 +40,12 @@ import androidx.compose.compositionFor
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.input.FocusManager
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.input.TextInputService
 import androidx.ui.node.UiComposer
+import androidx.ui.platform.AndroidUriHandler
+import androidx.ui.platform.UriHandler
 import androidx.ui.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
@@ -236,6 +238,8 @@ private fun WrapWithAmbients(
     val rootAnimationClock = remember { rootAnimationClockFactory() }
     val savedStateRegistry = requireNotNull(owner.savedStateRegistry)
 
+    val uriHandler = remember { AndroidUriHandler(context) }
+
     Providers(
         ContextAmbient provides context,
         CoroutineContextAmbient provides coroutineContext,
@@ -250,6 +254,7 @@ private fun WrapWithAmbients(
         LayoutDirectionAmbient provides layoutDirection,
         AnimationClockAmbient provides rootAnimationClock,
         UiSavedStateRegistryAmbient provides savedStateRegistry,
+        UriHandlerAmbient provides uriHandler,
         children = content
     )
 }
@@ -279,6 +284,8 @@ val TextInputServiceAmbient = staticAmbientOf<TextInputService?>()
 val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 
 val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
+
+val UriHandlerAmbient = staticAmbientOf<UriHandler>()
 
 /**
  * The ambient to provide haptic feedback to the user.
