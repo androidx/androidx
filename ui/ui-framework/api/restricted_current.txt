@@ -264,8 +264,17 @@ package androidx.ui.core.gesture.util {
 
 package androidx.ui.core.input {
 
-  public class FocusManager {
-    method public final void requestFocusById(String identifier);
+  public interface FocusManager {
+    method public void blur(androidx.ui.core.input.FocusManager.FocusNode client);
+    method public void registerFocusNode(String identifier, androidx.ui.core.input.FocusManager.FocusNode node);
+    method public void requestFocus(androidx.ui.core.input.FocusManager.FocusNode client);
+    method public void requestFocusById(String identifier);
+    method public void unregisterFocusNode(String identifier);
+  }
+
+  public static interface FocusManager.FocusNode {
+    method public void onBlur(boolean hasNextClient);
+    method public void onFocus();
   }
 
 }
