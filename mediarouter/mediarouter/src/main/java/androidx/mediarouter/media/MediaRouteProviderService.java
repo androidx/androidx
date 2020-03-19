@@ -23,48 +23,40 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_UNSELECT_REASON;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_ADD_MEMBER_ROUTE;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .CLIENT_MSG_CREATE_DYNAMIC_GROUP_ROUTE_CONTROLLER;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .CLIENT_MSG_CREATE_ROUTE_CONTROLLER;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_CREATE_DYNAMIC_GROUP_ROUTE_CONTROLLER;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_CREATE_ROUTE_CONTROLLER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_REGISTER;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .CLIENT_MSG_RELEASE_ROUTE_CONTROLLER;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_RELEASE_ROUTE_CONTROLLER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_REMOVE_MEMBER_ROUTE;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .CLIENT_MSG_ROUTE_CONTROL_REQUEST;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_ROUTE_CONTROL_REQUEST;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_SELECT_ROUTE;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .CLIENT_MSG_SET_DISCOVERY_REQUEST;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_SET_DISCOVERY_REQUEST;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_SET_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UNREGISTER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UNSELECT_ROUTE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_MEMBER_ROUTES;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_1;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECION_TITLE;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .DATA_KEY_TRANSFERABLE_SECTION_TITLE;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_TRANSFERABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .SERVICE_MSG_CONTROL_REQUEST_FAILED;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_FAILED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .SERVICE_MSG_DYNAMIC_ROUTE_CREATED;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol
-        .SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_CREATED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_CURRENT;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.Handler;
@@ -77,8 +69,10 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 
@@ -121,10 +115,11 @@ public abstract class MediaRouteProviderService extends Service {
     private final ReceiveHandler mReceiveHandler;
     private final Messenger mReceiveMessenger;
     final PrivateHandler mPrivateHandler;
-    private final ProviderCallback mProviderCallback;
+    private final MediaRouteProvider.Callback mProviderCallback;
 
     MediaRouteProvider mProvider;
     private MediaRouteDiscoveryRequest mCompositeDiscoveryRequest;
+    final MediaRouteProviderServiceImpl mImpl;
 
     /**
      * The {@link Intent} that must be declared as handled by the service.
@@ -138,14 +133,30 @@ public abstract class MediaRouteProviderService extends Service {
 
     static final int PRIVATE_MSG_CLIENT_DIED = 1;
 
+    //TODO: move implementations to the impl class (WIP).
+    interface MediaRouteProviderServiceImpl {
+        IBinder onBind(Intent intent);
+        void attachBaseContext(Context context);
+        MediaRouteProvider.Callback getProviderCallback();
+    }
+
     /**
      * Creates a media route provider service.
      */
+    //TODO: Remove SuppressLint when R version is finalized.
+    @SuppressLint("NewApi")
     public MediaRouteProviderService() {
         mReceiveHandler = new ReceiveHandler(this);
         mReceiveMessenger = new Messenger(mReceiveHandler);
         mPrivateHandler = new PrivateHandler();
-        mProviderCallback = new ProviderCallback();
+
+        if (BuildCompat.isAtLeastR()) {
+            mImpl = new MediaRouteProviderServiceImplApi30(this);
+        } else {
+            mImpl = new MediaRouteProviderServiceImplBase(this);
+        }
+        mProviderCallback = mImpl.getProviderCallback();
+
     }
 
     /**
@@ -155,6 +166,17 @@ public abstract class MediaRouteProviderService extends Service {
      * this service has decided not to offer a media route provider.
      */
     public abstract MediaRouteProvider onCreateMediaRouteProvider();
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mImpl.onBind(intent);
+    }
+
+    @Override
+    protected void attachBaseContext(@NonNull Context context) {
+        super.attachBaseContext(context);
+        mImpl.attachBaseContext(context);
+    }
 
     /**
      * Gets the media route provider offered by this service.
@@ -168,30 +190,23 @@ public abstract class MediaRouteProviderService extends Service {
         return mProvider;
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        if (intent.getAction().equals(SERVICE_INTERFACE)) {
-            if (mProvider == null) {
-                MediaRouteProvider provider = onCreateMediaRouteProvider();
-                if (provider != null) {
-                    String providerPackage = provider.getMetadata().getPackageName();
-                    if (!providerPackage.equals(getPackageName())) {
-                        throw new IllegalStateException("onCreateMediaRouteProvider() returned "
-                                + "a provider whose package name does not match the package "
-                                + "name of the service.  A media route provider service can "
-                                + "only export its own media route providers.  "
-                                + "Provider package name: " + providerPackage
-                                + ".  Service package name: " + getPackageName() + ".");
-                    }
-                    mProvider = provider;
-                    mProvider.setCallback(mProviderCallback);
+    void ensureProvider() {
+        if (mProvider == null) {
+            MediaRouteProvider provider = onCreateMediaRouteProvider();
+            if (provider != null) {
+                String providerPackage = provider.getMetadata().getPackageName();
+                if (!providerPackage.equals(getPackageName())) {
+                    throw new IllegalStateException("onCreateMediaRouteProvider() returned "
+                            + "a provider whose package name does not match the package "
+                            + "name of the service.  A media route provider service can "
+                            + "only export its own media route providers.  "
+                            + "Provider package name: " + providerPackage
+                            + ".  Service package name: " + getPackageName() + ".");
                 }
-            }
-            if (mProvider != null) {
-                return mReceiveMessenger.getBinder();
+                mProvider = provider;
+                mProvider.setCallback(mProviderCallback);
             }
         }
-        return null;
     }
 
     @Override
@@ -307,7 +322,7 @@ public abstract class MediaRouteProviderService extends Service {
     }
 
     boolean onRemoveMemberRoute(Messenger messenger, int requestId, int controllerId,
-                             String memberId) {
+            String memberId) {
         ClientRecord client = getClient(messenger);
         if (client != null) {
             MediaRouteProvider.RouteController controller = client.getRouteController(controllerId);
@@ -326,7 +341,7 @@ public abstract class MediaRouteProviderService extends Service {
     }
 
     boolean onUpdateMemberRoutes(Messenger messenger, int requestId, int controllerId,
-                                List<String> memberIds) {
+            List<String> memberIds) {
         ClientRecord client = getClient(messenger);
         if (client != null) {
             MediaRouteProvider.RouteController controller = client.getRouteController(controllerId);
@@ -634,16 +649,6 @@ public abstract class MediaRouteProviderService extends Service {
         }
     }
 
-    private final class ProviderCallback extends MediaRouteProvider.Callback {
-        ProviderCallback() {
-        }
-
-        @Override
-        public void onDescriptorChanged(@NonNull MediaRouteProvider provider,
-                MediaRouteProviderDescriptor descriptor) {
-            sendDescriptorChanged(descriptor);
-        }
-    }
 
     private final class ClientRecord implements DeathRecipient {
         public final Messenger mMessenger;
@@ -935,6 +940,92 @@ public abstract class MediaRouteProviderService extends Service {
                 }
             }
             return false;
+        }
+    }
+
+    static class MediaRouteProviderServiceImplBase implements MediaRouteProviderServiceImpl {
+        final MediaRouteProviderService mInstance;
+
+        MediaRouteProviderServiceImplBase(MediaRouteProviderService instance) {
+            mInstance = instance;
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            if (intent.getAction().equals(SERVICE_INTERFACE)) {
+                mInstance.ensureProvider();
+                if (mInstance.getMediaRouteProvider() != null) {
+                    return mInstance.mReceiveMessenger.getBinder();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public void attachBaseContext(Context context) {}
+
+        @Override
+        public MediaRouteProvider.Callback getProviderCallback() {
+            return new ProviderCallbackBase();
+        }
+
+        class ProviderCallbackBase extends MediaRouteProvider.Callback {
+            @Override
+            public void onDescriptorChanged(@NonNull MediaRouteProvider provider,
+                    MediaRouteProviderDescriptor descriptor) {
+                mInstance.sendDescriptorChanged(descriptor);
+            }
+        }
+
+    }
+
+    //TODO: We may need to change version number
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    static class MediaRouteProviderServiceImplApi30 extends MediaRouteProviderServiceImplBase {
+        MediaRoute2ProviderServiceStub mMR2Stub;
+
+        MediaRouteProviderServiceImplApi30(MediaRouteProviderService instance) {
+            super(instance);
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            if (MediaRoute2ProviderServiceStub.SERVICE_INTERFACE.equals(intent.getAction())) {
+                mInstance.ensureProvider();
+                if (mInstance.getMediaRouteProvider() != null) {
+                    if (mMR2Stub == null) {
+                        mMR2Stub = new MediaRoute2ProviderServiceStub();
+                        if (mInstance.getBaseContext() != null) {
+                            mMR2Stub.attachBaseContext(mInstance);
+                        }
+                    }
+                    return mMR2Stub.onBind(intent);
+                }
+            }
+            return super.onBind(intent);
+        }
+
+        @Override
+        public void attachBaseContext(Context context) {
+            if (mMR2Stub != null) {
+                mMR2Stub.attachBaseContext(context);
+            }
+        }
+
+        @Override
+        public MediaRouteProvider.Callback getProviderCallback() {
+            return new ProviderCallbackApi30();
+        }
+
+        class ProviderCallbackApi30 extends ProviderCallbackBase {
+            @Override
+            public void onDescriptorChanged(@NonNull MediaRouteProvider provider,
+                    MediaRouteProviderDescriptor descriptor) {
+                super.onDescriptorChanged(provider, descriptor);
+                if (mMR2Stub != null) {
+                    mMR2Stub.publishRoutes(descriptor);
+                }
+            }
         }
     }
 }
