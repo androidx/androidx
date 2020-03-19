@@ -30,10 +30,10 @@ import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Even
 import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Inserted
 import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Moved
 import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Removed
-import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.StateRestorationStrategy
-import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.ALLOW
-import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT
-import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT_WHEN_EMPTY
+import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.StateRestorationPolicy
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.ALLOW
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 import androidx.recyclerview.widget.RecyclerView.LayoutParams
 import androidx.recyclerview.widget.RecyclerView.LayoutParams.MATCH_PARENT
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
@@ -809,16 +809,16 @@ class MergeAdapterTest {
     @Test(expected = java.lang.UnsupportedOperationException::class)
     fun stateRestorationTest_callingOnTheMergeAdapterIsNotAllowed() {
         val merge = MergeAdapter()
-        merge.stateRestorationStrategy = PREVENT
+        merge.stateRestorationPolicy = PREVENT
     }
 
     @Test
     fun stateRestoration_subAdapterAllowsNonEmpty() {
         val adapter1 = NestedTestAdapter(1).also {
-            it.stateRestorationStrategy = ALLOW
+            it.stateRestorationPolicy = ALLOW
         }
         val adapter2 = NestedTestAdapter(0).also {
-            it.stateRestorationStrategy = PREVENT_WHEN_EMPTY
+            it.stateRestorationPolicy = PREVENT_WHEN_EMPTY
         }
         val merge = MergeAdapter(adapter1, adapter2)
         assertThat(merge).cannotRestoreState()
@@ -831,10 +831,10 @@ class MergeAdapterTest {
     @Test
     fun stateRestoration_subAdapterAllowsNonEmpty_viaNotifyChange() {
         val adapter1 = NestedTestAdapter(1).also {
-            it.stateRestorationStrategy = ALLOW
+            it.stateRestorationPolicy = ALLOW
         }
         val adapter2 = NestedTestAdapter(0).also {
-            it.stateRestorationStrategy = PREVENT_WHEN_EMPTY
+            it.stateRestorationPolicy = PREVENT_WHEN_EMPTY
         }
         val merge = MergeAdapter(adapter1, adapter2)
         assertThat(merge).cannotRestoreState()
@@ -850,30 +850,30 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(5)
         val adapter3 = NestedTestAdapter(20)
         val merge = MergeAdapter(adapter1, adapter2, adapter3)
-        assertThat(merge).hasStateRestorationStrategy(ALLOW)
-        adapter2.stateRestorationStrategy = PREVENT
-        assertThat(merge).hasStateRestorationStrategy(PREVENT)
+        assertThat(merge).hasStateRestorationPolicy(ALLOW)
+        adapter2.stateRestorationPolicy = PREVENT
+        assertThat(merge).hasStateRestorationPolicy(PREVENT)
 
-        adapter3.stateRestorationStrategy = PREVENT_WHEN_EMPTY
-        assertThat(merge).hasStateRestorationStrategy(PREVENT)
+        adapter3.stateRestorationPolicy = PREVENT_WHEN_EMPTY
+        assertThat(merge).hasStateRestorationPolicy(PREVENT)
 
-        adapter2.stateRestorationStrategy = ALLOW
-        assertThat(merge).hasStateRestorationStrategy(ALLOW)
+        adapter2.stateRestorationPolicy = ALLOW
+        assertThat(merge).hasStateRestorationPolicy(ALLOW)
 
         merge.removeAdapter(adapter3)
-        assertThat(merge).hasStateRestorationStrategy(ALLOW)
+        assertThat(merge).hasStateRestorationPolicy(ALLOW)
 
         val adapter4 = NestedTestAdapter(3).also {
-            it.stateRestorationStrategy = PREVENT
+            it.stateRestorationPolicy = PREVENT
             merge.addAdapter(it)
         }
-        assertThat(merge).hasStateRestorationStrategy(PREVENT)
-        adapter4.stateRestorationStrategy = PREVENT_WHEN_EMPTY
-        assertThat(merge).hasStateRestorationStrategy(ALLOW)
+        assertThat(merge).hasStateRestorationPolicy(PREVENT)
+        adapter4.stateRestorationPolicy = PREVENT_WHEN_EMPTY
+        assertThat(merge).hasStateRestorationPolicy(ALLOW)
         merge.removeAdapter(adapter1)
-        assertThat(merge).hasStateRestorationStrategy(ALLOW)
-        adapter4.stateRestorationStrategy = ALLOW
-        assertThat(merge).hasStateRestorationStrategy(ALLOW)
+        assertThat(merge).hasStateRestorationPolicy(ALLOW)
+        adapter4.stateRestorationPolicy = ALLOW
+        assertThat(merge).hasStateRestorationPolicy(ALLOW)
     }
 
     @Test
@@ -1372,10 +1372,10 @@ class MergeAdapterTest {
             )
         }
 
-        override fun onStateRestorationStrategyChanged() {
+        override fun onStateRestorationPolicyChanged() {
             events.add(
-                StateRestorationStrategy(
-                    newValue = src.stateRestorationStrategy
+                StateRestorationPolicy(
+                    newValue = src.stateRestorationPolicy
                 )
             )
         }
@@ -1403,8 +1403,8 @@ class MergeAdapterTest {
                 val toPosition: Int
             ) : Event()
 
-            data class StateRestorationStrategy(
-                val newValue: RecyclerView.Adapter.StateRestorationStrategy
+            data class StateRestorationPolicy(
+                val newValue: RecyclerView.Adapter.StateRestorationPolicy
             ) : Event()
         }
     }

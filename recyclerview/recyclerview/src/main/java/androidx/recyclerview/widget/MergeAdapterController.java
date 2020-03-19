@@ -19,9 +19,9 @@ package androidx.recyclerview.widget;
 import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS;
 import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS;
 import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.SHARED_STABLE_IDS;
-import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.ALLOW;
-import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT;
-import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT_WHEN_EMPTY;
+import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.ALLOW;
+import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT;
+import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY;
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 import android.util.Log;
@@ -31,7 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
-import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy;
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import java.lang.ref.WeakReference;
@@ -175,7 +175,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
             );
         }
         // reset state restoration strategy
-        calculateAndUpdateStateRestorationStrategy();
+        calculateAndUpdateStateRestorationPolicy();
         return true;
     }
 
@@ -196,7 +196,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
             }
         }
         wrapper.dispose();
-        calculateAndUpdateStateRestorationStrategy();
+        calculateAndUpdateStateRestorationPolicy();
         return true;
     }
 
@@ -223,7 +223,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     public void onChanged(@NonNull NestedAdapterWrapper wrapper) {
         // TODO should we notify more cleverly, maybe in v2
         mMergeAdapter.notifyDataSetChanged();
-        calculateAndUpdateStateRestorationStrategy();
+        calculateAndUpdateStateRestorationPolicy();
     }
 
     @Override
@@ -278,21 +278,21 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     }
 
     @Override
-    public void onStateRestorationStrategyChanged(NestedAdapterWrapper nestedAdapterWrapper) {
-        calculateAndUpdateStateRestorationStrategy();
+    public void onStateRestorationPolicyChanged(NestedAdapterWrapper nestedAdapterWrapper) {
+        calculateAndUpdateStateRestorationPolicy();
     }
 
-    private void calculateAndUpdateStateRestorationStrategy() {
-        StateRestorationStrategy newStrategy = computeStateRestorationStrategy();
-        if (newStrategy != mMergeAdapter.getStateRestorationStrategy()) {
-            mMergeAdapter.internalSetStateRestorationStrategy(newStrategy);
+    private void calculateAndUpdateStateRestorationPolicy() {
+        StateRestorationPolicy newPolicy = computeStateRestorationPolicy();
+        if (newPolicy != mMergeAdapter.getStateRestorationPolicy()) {
+            mMergeAdapter.internalSetStateRestorationPolicy(newPolicy);
         }
     }
 
-    private StateRestorationStrategy computeStateRestorationStrategy() {
+    private StateRestorationPolicy computeStateRestorationPolicy() {
         for (NestedAdapterWrapper wrapper : mWrappers) {
-            StateRestorationStrategy strategy =
-                    wrapper.adapter.getStateRestorationStrategy();
+            StateRestorationPolicy strategy =
+                    wrapper.adapter.getStateRestorationPolicy();
             if (strategy == PREVENT) {
                 // one adapter can block all
                 return PREVENT;
