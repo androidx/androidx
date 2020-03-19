@@ -118,7 +118,7 @@ fun TextField(
         )
     }
 
-    BaseTextField(
+    CoreTextField(
         value = fullModel.value,
         modifier = modifier,
         onValueChange = {
@@ -214,7 +214,7 @@ fun TextField(
         )
     }
 
-    BaseTextField(
+    CoreTextField(
         value = fullModel.value,
         modifier = modifier,
         onValueChange = {
@@ -304,7 +304,7 @@ fun TextField(
     visualTransformation: VisualTransformation? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
-    BaseTextField(
+    CoreTextField(
         value = InputState(model.text, model.selection, compositionRange),
         modifier = modifier,
         onValueChange = { onValueChange(TextFieldValue(it.text, it.selection), it.composition) },
@@ -324,7 +324,7 @@ fun TextField(
  * The common TextField implementation.
  */
 @Composable
-internal fun BaseTextField(
+fun CoreTextField(
     value: InputState,
     modifier: Modifier,
     onValueChange: (InputState) -> Unit = { },
