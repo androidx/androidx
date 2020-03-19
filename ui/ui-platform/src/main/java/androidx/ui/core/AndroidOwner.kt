@@ -203,13 +203,12 @@ internal class AndroidComposeView constructor(context: Context) :
     }
 
     private fun invalidate(node: ComponentNode) {
-        // This is going to be slow temporarily until we remove DrawNode
-        val layerWrapper = findContainingLayer(node)
-        if (layerWrapper != null) {
-            layerWrapper.layer.invalidate()
-            return
+        val layer = node.containingLayoutNode?.innerLayoutNodeWrapper?.findLayer()
+        if (layer == null) {
+            invalidate()
+        } else {
+            layer.invalidate()
         }
-        invalidate()
     }
 
     override fun onSizeChange(layoutNode: LayoutNode) {
@@ -217,15 +216,6 @@ internal class AndroidComposeView constructor(context: Context) :
         // ownerScope.launch {
         onInvalidate(layoutNode)
         // }
-    }
-
-    private fun findContainingLayer(node: ComponentNode): LayerWrapper? {
-        val layoutNode = if (node is LayoutNode) node else node.parentLayoutNode ?: return null
-        var wrapper: LayoutNodeWrapper? = layoutNode.innerLayoutNodeWrapper
-        while (wrapper != null && wrapper !is LayerWrapper) {
-            wrapper = wrapper.wrappedBy
-        }
-        return wrapper as LayerWrapper?
     }
 
     override fun onPositionChange(layoutNode: LayoutNode) {

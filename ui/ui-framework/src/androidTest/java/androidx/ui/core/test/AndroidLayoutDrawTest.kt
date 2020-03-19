@@ -2402,6 +2402,30 @@ class AndroidLayoutDrawTest {
             totalSize = 40)
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testInvalidateIntroducedLayer() {
+        val color = mutableStateOf(Color.Red)
+        activityTestRule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(size = 30.ipx) {
+                    FixedSize(
+                        10.ipx,
+                        PaddingModifier(10.ipx) + drawLayer(elevation = 1f) +
+                                background(Color.White)
+                    )
+                    FixedSize(30.ipx, background(color.value) + drawLatchModifier())
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            color.value = Color.Blue
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
+    }
+
     private val AlignTopLeft = object : LayoutModifier {
         override fun Density.modifyConstraints(
             constraints: Constraints,

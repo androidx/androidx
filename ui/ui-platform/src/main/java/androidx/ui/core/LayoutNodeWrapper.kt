@@ -245,6 +245,11 @@ internal sealed class LayoutNodeWrapper(
         )
     }
 
+    /**
+     * Returns the layer that this wrapper will draw into.
+     */
+    abstract fun findLayer(): OwnedLayer?
+
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
                 "when isAttached is true"
@@ -308,6 +313,10 @@ internal sealed class DelegatingLayoutNodeWrapper(
         return this
     }
 
+    override fun findLayer(): OwnedLayer? {
+        return wrappedBy?.findLayer()
+    }
+
     override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
     override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
     override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
@@ -351,6 +360,10 @@ internal class InnerPlaceable(
                 ?: layoutNode.layoutChildren
                     .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
         }
+
+    override fun findLayer(): OwnedLayer? {
+        return introducedLayer ?: wrappedBy?.findLayer()
+    }
 
     override fun minIntrinsicWidth(height: IntPx): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(
@@ -696,7 +709,7 @@ internal class LayerWrapper(
                 wrapped::draw
             ).also {
                 _layer = it
-                findContainingLayer()?.invalidate()
+                wrappedBy?.findLayer()?.invalidate()
             }
         }
 
@@ -723,12 +736,8 @@ internal class LayerWrapper(
         _layer?.destroy()
     }
 
-    fun findContainingLayer(): OwnedLayer? {
-        var wrapper = wrappedBy
-        while (wrapper != null && wrapper !is LayerWrapper) {
-            wrapper = wrapper.wrappedBy
-        }
-        return (wrapper as? LayerWrapper)?.layer
+    override fun findLayer(): OwnedLayer? {
+        return layer
     }
 
     override fun toParentPosition(position: PxPosition): PxPosition {

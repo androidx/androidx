@@ -24,7 +24,6 @@ package androidx.ui.core {
     method public void attach(androidx.ui.core.Owner owner);
     method public void detach();
     method public final operator androidx.ui.core.ComponentNode get(int index);
-    method protected androidx.ui.core.LayoutNode? getContainingLayoutNode();
     method public final int getCount();
     method public final int getDepth();
     method public final androidx.ui.core.Owner? getOwner();
@@ -38,7 +37,6 @@ package androidx.ui.core {
     method public final void setOwnerData(Object? p);
     method public final inline void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
     method public final inline void visitChildrenReverse(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
-    property protected androidx.ui.core.LayoutNode? containingLayoutNode;
     property public final int count;
     property public final int depth;
     property public final androidx.ui.core.Owner? owner;
@@ -113,6 +111,7 @@ package androidx.ui.core {
     method public boolean getAffectsParentSize();
     method public androidx.ui.unit.IntPx? getAlignmentLine(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.Constraints getConstraints();
+    method public androidx.ui.core.LayoutNode? getContainingLayoutNode$lintWithKotlin();
     method public androidx.ui.core.LayoutCoordinates getCoordinates();
     method @Deprecated public boolean getHandlesParentData();
     method public androidx.ui.unit.IntPx getHeight();
@@ -154,7 +153,7 @@ package androidx.ui.core {
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     property public final boolean affectsParentSize;
     property public final androidx.ui.core.Constraints constraints;
-    property protected androidx.ui.core.LayoutNode? containingLayoutNode;
+    property public androidx.ui.core.LayoutNode? containingLayoutNode;
     property public final androidx.ui.core.LayoutCoordinates coordinates;
     property @Deprecated public final boolean handlesParentData;
     property public final androidx.ui.unit.IntPx height;

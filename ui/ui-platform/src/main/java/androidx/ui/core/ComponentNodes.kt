@@ -92,10 +92,10 @@ sealed class ComponentNode {
         get() = containingLayoutNode
 
     /**
-     * Protected method to find the parent's layout node. LayoutNode returns itself, but
+     * Method to find the layout node. LayoutNode returns itself, but
      * all other ComponentNodes return the parent's `containingLayoutNode`.
      */
-    protected open val containingLayoutNode: LayoutNode?
+    internal open val containingLayoutNode: LayoutNode?
         get() = parent?.containingLayoutNode
 
     /**
