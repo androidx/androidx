@@ -39,14 +39,22 @@ internal class RenderNodeLayer(
      */
     private var isDirty = false
     private val outlineResolver = OutlineResolver(ownerView.density)
-    private var isDestoyed = false
+    private var isDestroyed = false
     private var cacheMatrix: Matrix? = null
+
+    /**
+     * Local copy of the transform origin as DrawLayerModifier can be implemented
+     * as a model object. Update this field within [updateLayerProperties] and use it
+     * in [resize] or other methods
+     */
+    private var transformOrigin: TransformOrigin = TransformOrigin.Center
 
     private val renderNode = RenderNode(null).apply {
         setHasOverlappingRendering(true)
     }
 
     override fun updateLayerProperties() {
+        transformOrigin = drawLayerModifier.transformOrigin
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         renderNode.scaleX = drawLayerModifier.scaleX
         renderNode.scaleY = drawLayerModifier.scaleY
@@ -55,6 +63,8 @@ internal class RenderNodeLayer(
         renderNode.rotationZ = drawLayerModifier.rotationZ
         renderNode.rotationX = drawLayerModifier.rotationX
         renderNode.rotationY = drawLayerModifier.rotationY
+        renderNode.pivotX = transformOrigin.pivotFractionX * renderNode.width
+        renderNode.pivotY = transformOrigin.pivotFractionY * renderNode.height
         renderNode.clipToOutline =
             drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null
         renderNode.clipToBounds = drawLayerModifier.clipToBounds
@@ -69,6 +79,8 @@ internal class RenderNodeLayer(
     override fun resize(size: IntPxSize) {
         val width = size.width.value
         val height = size.height.value
+        renderNode.pivotX = transformOrigin.pivotFractionX * width
+        renderNode.pivotY = transformOrigin.pivotFractionY * height
         if (renderNode.setPosition(
             renderNode.left,
             renderNode.top,
@@ -87,7 +99,7 @@ internal class RenderNodeLayer(
     }
 
     override fun invalidate() {
-        if (!isDirty && !isDestoyed) {
+        if (!isDirty && !isDestroyed) {
             ownerView.invalidate()
             ownerView.dirtyLayers += this
             isDirty = true
@@ -130,7 +142,7 @@ internal class RenderNodeLayer(
     }
 
     override fun destroy() {
-        isDestoyed = true
+        isDestroyed = true
         ownerView.dirtyLayers -= this
     }
 

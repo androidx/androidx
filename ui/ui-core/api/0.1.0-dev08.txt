@@ -125,6 +125,7 @@ package androidx.ui.core {
     method @FloatRange(from=0.0, to=360.0) public default float getRotationZ();
     method public default float getScaleX();
     method public default float getScaleY();
+    method public default androidx.ui.core.TransformOrigin getTransformOrigin();
     property @FloatRange(from=0.0, to=1.0) public default float alpha;
     property public default boolean clipToBounds;
     property public default boolean clipToOutline;
@@ -135,10 +136,12 @@ package androidx.ui.core {
     property @FloatRange(from=0.0, to=360.0) public default float rotationZ;
     property public default float scaleX;
     property public default float scaleY;
+    property public default androidx.ui.core.TransformOrigin transformOrigin;
   }
 
   public final class DrawLayerModifierKt {
-    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
+    method public static inline androidx.ui.core.TransformOrigin TransformOrigin(float pivotFractionX, float pivotFractionY);
+    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
   }
 
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {
@@ -346,6 +349,20 @@ package androidx.ui.core {
     method public static androidx.ui.unit.PxPosition positionChangeIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean positionChanged(androidx.ui.core.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
+  }
+
+  public final class TransformOrigin {
+    ctor public TransformOrigin(internal long value);
+    method public float getPivotFractionX();
+    method public float getPivotFractionY();
+    property public final float pivotFractionX;
+    property public final float pivotFractionY;
+    field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
+  }
+
+  public static final class TransformOrigin.Companion {
+    method public androidx.ui.core.TransformOrigin getCenter();
+    property public final androidx.ui.core.TransformOrigin Center;
   }
 
   public final class VerticalAlignmentLine extends androidx.ui.core.AlignmentLine {
