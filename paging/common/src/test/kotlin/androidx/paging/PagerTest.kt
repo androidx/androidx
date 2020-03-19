@@ -31,7 +31,8 @@ import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import androidx.paging.TestPagingSource.Companion.items
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -48,7 +49,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-@InternalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @RunWith(JUnit4::class)
 class PagerTest {
     private val testScope = TestCoroutineScope()
