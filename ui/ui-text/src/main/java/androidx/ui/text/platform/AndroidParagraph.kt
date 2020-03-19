@@ -34,6 +34,7 @@ import androidx.text.style.PlaceholderSpan
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.asComposePath
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
@@ -223,7 +224,7 @@ internal class AndroidParagraph constructor(
         }
         val path = android.graphics.Path()
         layout.getSelectionPath(start, end, path)
-        return Path(path)
+        return path.asComposePath()
     }
 
     override fun getCursorRect(offset: Int): Rect {
