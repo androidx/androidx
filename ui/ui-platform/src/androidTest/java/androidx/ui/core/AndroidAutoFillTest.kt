@@ -41,7 +41,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class AndroidComposeViewTest {
+class AndroidAutoFillTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 

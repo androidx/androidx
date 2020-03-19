@@ -51,10 +51,11 @@ import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
+import androidx.ui.core.pointerinput.ProcessResult
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
-import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.focus.FocusDetailedState.Active
+import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
@@ -641,17 +642,25 @@ internal class AndroidComposeView constructor(
     }
 
     // TODO(shepshapard): Test this method.
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        trace("AndroidOwner:onTouch") {
-            val pointerInputEvent = motionEventAdapter.processMotionEvent(event)
+    override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
+        val processResult = trace("AndroidOwner:onTouch") {
+            val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
             if (pointerInputEvent != null) {
                 pointerInputEventProcessor.process(pointerInputEvent)
             } else {
                 pointerInputEventProcessor.processCancel()
+                ProcessResult(
+                    dispatchedToAPointerInputModifier = false,
+                    anyMovementConsumed = false
+                )
             }
         }
-        // TODO(shepshapard): Only return if some aspect of the change was consumed.
-        return true
+
+        if (processResult.anyMovementConsumed) {
+            parent.requestDisallowInterceptTouchEvent(true)
+        }
+
+        return processResult.dispatchedToAPointerInputModifier
     }
 
     private fun getMaxSize(measureSpec: Int): IntPx {
