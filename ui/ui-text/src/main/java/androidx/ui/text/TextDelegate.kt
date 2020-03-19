@@ -70,7 +70,7 @@ import androidx.ui.unit.px
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextDelegate(
     val text: AnnotatedString,
     style: TextStyle,
