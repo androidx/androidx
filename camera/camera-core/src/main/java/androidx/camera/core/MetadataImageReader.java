@@ -110,8 +110,18 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param maxImages Maximum Image number the ImageReader can hold.
      */
     MetadataImageReader(int width, int height, int format, int maxImages) {
-        this(new AndroidImageReaderProxy(
-                ImageReader.newInstance(width, height, format, maxImages)));
+        this(createImageReaderProxy(width, height, format, maxImages));
+    }
+
+    /**
+     * To workaround the robolectric issue b/151870335. The line breaks is not allowed in the
+     * 'this (...)' keyword in the constructor. This workaround is extracted the operation out of
+     * 'this (...)' to avoid the issue happen.
+     */
+    private static ImageReaderProxy createImageReaderProxy(int width, int height, int format,
+            int maxImages) {
+        return new AndroidImageReaderProxy(
+                ImageReader.newInstance(width, height, format, maxImages));
     }
 
     /**
