@@ -1327,11 +1327,11 @@ class PojoProcessorTest {
     @Test
     fun dataClass_primaryConstructor() {
         listOf(
-                TestData.AllDefaultVals::class.java.canonicalName,
-                TestData.AllDefaultVars::class.java.canonicalName,
-                TestData.SomeDefaultVals::class.java.canonicalName,
-                TestData.SomeDefaultVars::class.java.canonicalName,
-                TestData.WithJvmOverloads::class.java.canonicalName
+                TestData.AllDefaultVals::class.java.canonicalName!!,
+                TestData.AllDefaultVars::class.java.canonicalName!!,
+                TestData.SomeDefaultVals::class.java.canonicalName!!,
+                TestData.SomeDefaultVars::class.java.canonicalName!!,
+                TestData.WithJvmOverloads::class.java.canonicalName!!
         ).forEach {
             simpleRun { invocation ->
                 PojoProcessor.createFor(
@@ -1350,7 +1350,7 @@ class PojoProcessorTest {
             PojoProcessor.createFor(
                     context = invocation.context,
                     element = invocation.typeElement(
-                            TestData.WithJvmOverloads::class.java.canonicalName
+                            TestData.WithJvmOverloads::class.java.canonicalName!!
                     ),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null

@@ -81,7 +81,7 @@ class KotlinMetadataElementTest {
     }
 
     private fun getMetadataElement(invocation: TestInvocation) =
-        invocation.typeElement(TestData::class.java.canonicalName).let {
+        invocation.typeElement(TestData::class.java.canonicalName!!).let {
             it to KotlinMetadataElement.createFor(Context(invocation.processingEnv), it)!!
         }
 

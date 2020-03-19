@@ -258,26 +258,36 @@ class TableEntityProcessor internal constructor(
         // don't force the @NonNull annotation since SQLite will automatically generate IDs.
         // 2. If a key is autogenerate, we generate NOT NULL in table spec, but we don't require
         // @NonNull annotation on the field itself.
-        candidates.filter { candidate -> !candidate.autoGenerateId }
-                .map { candidate ->
-                    candidate.fields.map { field ->
-                        if (candidate.fields.size > 1 ||
-                                (candidate.fields.size == 1 &&
-                                        field.affinity != SQLTypeAffinity.INTEGER)) {
-                            context.checker.check(field.nonNull, field.element,
-                                    ProcessorErrors.primaryKeyNull(field.getPath()))
-                            // Validate parents for nullability
-                            var parent = field.parent
-                            while (parent != null) {
-                                val parentField = parent.field
-                                context.checker.check(parentField.nonNull,
-                                        parentField.element,
-                                        ProcessorErrors.primaryKeyNull(parentField.getPath()))
-                                parent = parentField.parent
-                            }
+        val verifiedFields = mutableSetOf<Field>() // track verified fields to not over report
+        candidates.filterNot { it.autoGenerateId }.forEach { candidate ->
+            candidate.fields.forEach { field ->
+                if (candidate.fields.size > 1 ||
+                    (candidate.fields.size == 1 && field.affinity != SQLTypeAffinity.INTEGER)) {
+                    if (!verifiedFields.contains(field)) {
+                        context.checker.check(
+                            field.nonNull,
+                            field.element,
+                            ProcessorErrors.primaryKeyNull(field.getPath())
+                        )
+                        verifiedFields.add(field)
+                    }
+                    // Validate parents for nullability
+                    var parent = field.parent
+                    while (parent != null) {
+                        val parentField = parent.field
+                        if (!verifiedFields.contains(parentField)) {
+                            context.checker.check(
+                                parentField.nonNull,
+                                parentField.element,
+                                ProcessorErrors.primaryKeyNull(parentField.getPath())
+                            )
+                            verifiedFields.add(parentField)
                         }
+                        parent = parentField.parent
                     }
                 }
+            }
+        }
 
         if (candidates.size == 1) {
             // easy :)
