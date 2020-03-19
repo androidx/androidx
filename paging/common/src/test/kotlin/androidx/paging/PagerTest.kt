@@ -31,7 +31,8 @@ import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import androidx.paging.TestPagingSource.Companion.items
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -48,7 +49,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-@InternalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @RunWith(JUnit4::class)
 class PagerTest {
     private val testScope = TestCoroutineScope()
@@ -312,6 +313,39 @@ class PagerTest {
     }
 
     @Test
+    fun prependAndSkipDrop_prefetchWindow() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageFetcher = PageFetcher(
+                pagingSourceFactory = pagingSourceFactory,
+                initialKey = 50,
+                config = PagingConfig(
+                    pageSize = 1,
+                    prefetchDistance = 2,
+                    enablePlaceholders = true,
+                    initialLoadSize = 5,
+                    maxSize = 5
+                )
+            )
+            val fetcherState = collectFetcherState(pageFetcher)
+
+            advanceUntilIdle()
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+
+            val expected: List<PageEvent<Int>> = listOf(
+                LoadStateUpdate(REFRESH, Loading),
+                createRefresh(range = 50..54),
+                LoadStateUpdate(START, Loading),
+                createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
+                createPrepend(pageOffset = -2, range = 48..48)
+            )
+
+            assertEvents(expected, fetcherState.pageEventLists[0])
+            fetcherState.job.cancel()
+        }
+    }
+
+    @Test
     fun prependAndDropWithCancellation() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
@@ -441,6 +475,39 @@ class PagerTest {
 
         assertEvents(expected, fetcherState.pageEventLists[0])
         fetcherState.job.cancel()
+    }
+
+    @Test
+    fun appendAndSkipDrop_prefetchWindow() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pageFetcher = PageFetcher(
+                pagingSourceFactory = pagingSourceFactory,
+                initialKey = 50,
+                config = PagingConfig(
+                    pageSize = 1,
+                    prefetchDistance = 2,
+                    enablePlaceholders = true,
+                    initialLoadSize = 5,
+                    maxSize = 5
+                )
+            )
+            val fetcherState = collectFetcherState(pageFetcher)
+
+            advanceUntilIdle()
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 4))
+            advanceUntilIdle()
+
+            val expected: List<PageEvent<Int>> = listOf(
+                LoadStateUpdate(REFRESH, Loading),
+                createRefresh(range = 50..54),
+                LoadStateUpdate(END, Loading),
+                createAppend(pageOffset = 1, range = 55..55, endState = Loading),
+                createAppend(pageOffset = 2, range = 56..56)
+            )
+
+            assertEvents(expected, fetcherState.pageEventLists[0])
+            fetcherState.job.cancel()
+        }
     }
 
     @Test

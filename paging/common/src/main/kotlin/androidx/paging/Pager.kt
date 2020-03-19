@@ -72,6 +72,7 @@ internal class Pager<Key : Any, Value : Any>(
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
     private val pageEventChannelFlowJob = Job()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
@@ -333,10 +334,11 @@ internal class Pager<Key : Any, Value : Any>(
                     else -> START
                 }
 
-                state.dropInfo(dropType)?.let { info ->
-                    state.drop(dropType, info.pageCount, info.placeholdersRemaining)
-                    pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
-                }
+                state.dropInfo(dropType, generationalHint.hint, config.prefetchDistance)
+                    ?.let { info ->
+                        state.drop(dropType, info.pageCount, info.placeholdersRemaining)
+                        pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
+                    }
 
                 with(state) {
                     loadKey = generationalHint.hint
