@@ -123,6 +123,7 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.Owner> getOwnerAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.platform.UriHandler> getUriHandlerAmbient();
     method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setViewContent(android.view.ViewGroup, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);

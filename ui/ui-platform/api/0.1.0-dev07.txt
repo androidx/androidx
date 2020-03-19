@@ -468,6 +468,19 @@ package androidx.ui.input {
 
 }
 
+package androidx.ui.platform {
+
+  public final class AndroidUriHandler implements androidx.ui.platform.UriHandler {
+    ctor public AndroidUriHandler(android.content.Context context);
+    method public void openUri(String uri);
+  }
+
+  public interface UriHandler {
+    method public void openUri(String uri);
+  }
+
+}
+
 package androidx.ui.temputils {
 
   public final class CoroutineUtilsKt {
