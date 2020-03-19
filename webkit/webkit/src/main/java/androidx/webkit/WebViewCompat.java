@@ -464,38 +464,66 @@ public class WebViewCompat {
      * available immediately when the page begins to load.
      *
      * <p>
-     * Each {@code allowedOriginRules} entry must follow the format below:
+     * Each {@code allowedOriginRules} entry must follow the format {@code SCHEME "://" [
+     * HOSTNAME_PATTERN [ ":" PORT ] ]}, each part is explained in the below table:
+     *
      * <table>
+     * <col width="25%">
      * <tr><th>Rule</th><th>Description</th><th>Example</th></tr>
-     * <tr><td>{@code [ URL_SCHEME "://" ] HOSTNAME_PATTERN [ ":" PORT ]}</td>
-     * <td>Matches a hostname using a wildcard pattern, and an optional scheme and port
-     * restriction.</td>
+     *
+     * <tr>
+     * <td>http/https with hostname</td>
+     * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a regular hostname; {@code
+     * PORT} is optional, when not present, the rule will match port {@code 80} for http and port
+     * {@code 443} for https.</td>
      * <td><ul>
-     * <li>{@code https://*.example.com} - Matches https://calendar.example.com and
-     * https://foo.bar.example.com but not https://example.com</li>
      * <li>{@code https://foobar.com:8080} - Matches https:// URL on port 8080, whose normalized
      * host is foobar.com.</li>
-     * <li>{@code *} - Matches URL of any scheme, port and domain.</li>
+     * <li>{@code https://www.example.com} - Matches https:// URL on port 443, whose normalized host
+     * is www.example.com.</li>
      * </ul></td>
      * </tr>
-     * <tr><td>{@code [ SCHEME "://" ] IP_LITERAL [ ":" PORT ]}</td>
-     * <td>Matches URLs that are IP address literals, and optional scheme and port restrictions.
-     * </td>
+     *
+     * <tr>
+     * <td>http/https with pattern matching</td>
+     * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a sub-domain matching
+     * pattern with a leading {@code *.}; {@code PORT} is optional, when not present, the rule will
+     * match port {@code 80} for http and port {@code 443} for https.</td>
+     *
      * <td><ul>
-     * <li>{@code https://127.0.0.1}</li>
+     * <li>{@code https://*.example.com} - Matches https://calendar.example.com and
+     * https://foo.bar.example.com but not https://example.com.</li>
+     * <li>{@code https://*.example.com:8080} - Matches https://calendar.example.com:8080</li>
+     * </ul></td>
+     * </tr>
+     *
+     * <tr>
+     * <td>http/https with IP literal</td>
+     * <td>{@code SCHEME} is https or https; {@code HOSTNAME_PATTERN} is IP literal; {@code PORT} is
+     * optional, when not present, the rule will match port {@code 80} for http and port {@code 443}
+     * for https.</td>
+     *
+     * <td><ul>
+     * <li>{@code https://127.0.0.1} - Matches https:// URL on port 443, whose IPv4 address is
+     * 127.0.0.1</li>
      * <li>{@code https://[::1]} or {@code https://[0:0::1]}- Matches any URL to the IPv6 loopback
-     * address.</li>
+     * address with port 443.</li>
      * <li>{@code https://[::1]:99} - Matches any https:// URL to the IPv6 loopback on port 99.</li>
      * </ul></td>
      * </tr>
-     * <tr><td>{@code IP_LITERAL "/" PREFIX_LENGTH_IN_BITS}</td><td>
-     * Matches any URL whose hostname is an IP literal, and falls between the given address
-     * range.</td>
+     *
+     * <tr>
+     * <td>Custom scheme</td>
+     * <td>{@code SCHEME} is a custom scheme; {@code HOSTNAME_PATTERN} and {@code PORT} must not be
+     * present.</td>
      * <td><ul>
-     * <li>{@code 192.168.0.0/16}</li>
-     * <li>{@code fefe:13::abc/33} - Note that there are no brackets on the IPv6 literal.</li>
+     * <li>{@code my-app-scheme://} - Matches any my-app-scheme:// URL.</li>
      * </ul></td>
      * </tr>
+     *
+     * <tr><td>{@code *}</td>
+     * <td>Wildcard rule, matches any origin.</td>
+     * <td><ul><li>{@code *}</li></ul></td>
      * </table>
      *
      * <p>
