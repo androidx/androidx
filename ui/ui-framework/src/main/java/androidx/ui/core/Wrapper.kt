@@ -38,6 +38,7 @@ import androidx.compose.ambientOf
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.compose.staticAmbientOf
+import androidx.compose.compositionFor
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.hapticfeedback.HapticFeedback
@@ -47,122 +48,7 @@ import androidx.ui.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.annotations.TestOnly
-import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
-
-private val TAG_COMPOSITION = "androidx.compose.Composition".hashCode()
-private val ROOT_COMPONENTNODES = WeakHashMap<ComponentNode, Composition>()
-private val ROOT_VIEWGROUPS = WeakHashMap<ViewGroup, Composition>()
-
-/**
- * Apply Code Changes will invoke the two functions before and after a code swap.
- *
- * This forces the whole view hierarchy to be redrawn to invoke any code change that was
- * introduce in the code swap.
- *
- * All these are private as within JVMTI / JNI accessibility is mostly a formality.
- */
-// NOTE(lmr): right now, this class only takes into account Emittables and Views composed using
-// compose. In reality, there might be more (ie, Vectors), and we should figure out a more
-// holistic way to capture those as well.
-private class HotReloader {
-    companion object {
-        private var compositions = mutableListOf<Pair<Composition, @Composable() () -> Unit>>()
-
-        @TestOnly
-        fun clearRoots() {
-            ROOT_COMPONENTNODES.clear()
-            ROOT_VIEWGROUPS.clear()
-        }
-
-        // Called before Dex Code Swap
-        @Suppress("UNUSED_PARAMETER")
-        private fun saveStateAndDispose(context: Any) {
-            compositions.clear()
-
-            val componentNodes = ROOT_COMPONENTNODES.entries.toSet()
-
-            for ((_, composition) in componentNodes) {
-                compositions.add(composition to composition.composable)
-            }
-            for ((_, composition) in componentNodes) {
-                if (composition.isRoot) {
-                    composition.dispose()
-                }
-            }
-
-            val viewRoots = ROOT_VIEWGROUPS.entries.toSet()
-
-            for ((_, composition) in viewRoots) {
-                compositions.add(composition to composition.composable)
-            }
-            for ((_, composition) in viewRoots) {
-                if (composition.isRoot) {
-                    composition.dispose()
-                }
-            }
-        }
-
-        // Called after Dex Code Swap
-        @Suppress("UNUSED_PARAMETER")
-        private fun loadStateAndCompose(context: Any) {
-            for ((composition, composable) in compositions) {
-                composition.composable = composable
-            }
-
-            for ((composition, composable) in compositions) {
-                if (composition.isRoot) {
-                    composition.compose(composable)
-                }
-            }
-
-            compositions.clear()
-        }
-
-        @TestOnly
-        internal fun simulateHotReload(context: Any) {
-            saveStateAndDispose(context)
-            loadStateAndCompose(context)
-        }
-    }
-}
-
-/**
- * @suppress
- */
-@TestOnly
-fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)
-
-/**
- * @suppress
- */
-@TestOnly
-fun clearRoots() = HotReloader.clearRoots()
-
-internal fun findComposition(view: View): Composition? {
-    return view.getTag(TAG_COMPOSITION) as? Composition
-}
-
-internal fun storeComposition(view: View, composition: Composition) {
-    view.setTag(TAG_COMPOSITION, composition)
-    if (view is ViewGroup)
-        ROOT_VIEWGROUPS[view] = composition
-}
-
-internal fun removeRoot(view: View) {
-    view.setTag(TAG_COMPOSITION, null)
-    if (view is ViewGroup)
-        ROOT_VIEWGROUPS.remove(view)
-}
-
-internal fun findComposition(node: ComponentNode): Composition? {
-    return ROOT_COMPONENTNODES[node]
-}
-
-private fun storeComposition(node: ComponentNode, composition: Composition) {
-    ROOT_COMPONENTNODES[node] = composition
-}
 
 /**
  * Composes the children of the view with the passed in [composable].
@@ -174,13 +60,15 @@ private fun storeComposition(node: ComponentNode, composition: Composition) {
 fun ViewGroup.setViewContent(
     parent: CompositionReference? = null,
     composable: @Composable() () -> Unit
-): Composition {
-    val composition = findComposition(this)
-        ?: UiComposition(this, context, parent).also {
-            removeAllViews()
-        }
-    composition.compose(composable)
-    return composition
+): Composition = compositionFor(
+    container = this,
+    context = context,
+    parent = parent,
+    onBeforeFirstComposition = {
+        removeAllViews()
+    }
+).apply {
+    setContent(composable)
 }
 
 /**
@@ -204,73 +92,6 @@ fun Activity.setViewContent(composable: @Composable() () -> Unit): Composition {
     return root.setViewContent(null, composable)
 }
 
-/**
- * @suppress
- */
-@TestOnly
-fun makeCompositionForTesting(
-    root: Any,
-    context: Context,
-    parent: CompositionReference? = null
-): Composition = UiComposition(
-    root,
-    context,
-    parent
-)
-
-internal class UiComposition(
-    private val root: Any,
-    private val context: Context,
-    parent: CompositionReference? = null
-) : Composition(
-    { slots, recomposer ->
-        UiComposer(
-            context,
-            root,
-            slots,
-            recomposer
-        )
-    },
-    parent
-) {
-    var enabled: Boolean = true
-        set(value) {
-            if (value != field) {
-                field = value
-                if (value && disabledComposition != null) {
-                    compose(disabledComposition!!)
-                    disabledComposition = null
-                }
-            }
-        }
-
-    private var disabledComposition: (@Composable() () -> Unit)? = null
-
-    override fun compose(content: @Composable() () -> Unit) {
-        if (!enabled) {
-            disabledComposition = content
-        } else {
-            super.compose(content)
-        }
-    }
-
-    init {
-        when (root) {
-            is ViewGroup -> storeComposition(root, this)
-            is ComponentNode -> storeComposition(root, this)
-        }
-    }
-
-    override fun dispose() {
-        super.dispose()
-        disabledComposition = null
-        when (root) {
-            is ViewGroup -> removeRoot(root)
-            is ComponentNode -> ROOT_COMPONENTNODES.remove(root)
-        }
-    }
-}
-
 // TODO(chuckj): This is a temporary work-around until subframes exist so that
 // nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
 // instead.
@@ -280,17 +101,16 @@ fun subcomposeInto(
     context: Context,
     parent: CompositionReference? = null,
     composable: @Composable() () -> Unit
-): Composition {
-    val composition = findComposition(container)
-        ?: UiComposition(container, context, parent)
-    composition.compose(composable)
-    return composition
+): Composition = compositionFor(container, context, parent).apply {
+    setContent(composable)
 }
 
 /**
  * Composes the given composable into the given activity. The composable will become the root view
  * of the given activity.
  *
+ * Note: the returned [Composition] object is not guaranteed to stay the same between the
+ * invocations so it is not safe to use it as a key.
  * @param content Composable that will be the content of the activity.
  */
 fun Activity.setContent(
@@ -312,42 +132,6 @@ fun Activity.setContent(
 }
 
 /**
- * Disposes of a composition of the children of this view. This is a convenience method around
- * [Composition.dispose].
- *
- * @see Composition.dispose
- * @see setContent
- */
-@Deprecated(
-    "disposing should be done with the Composition object returned by setContent",
-    replaceWith = ReplaceWith("Composition#dispose()")
-)
-fun ViewGroup.disposeComposition() {
-    findComposition(this)?.dispose()
-}
-
-/**
- * Disposes of a composition that was started using [setContent]. This is a convenience method
- * around [Composition.dispose].
- *
- * @see setContent
- * @see Composition.dispose
- */
-@Deprecated(
-    "disposing should be done with the Composition object returned by setContent",
-    replaceWith = ReplaceWith("Composition#dispose()")
-)
-fun Activity.disposeComposition() {
-    val view = window
-        .decorView
-        .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? ViewGroup
-        ?: error("No root view found")
-    val composition = findComposition(view) ?: error("No composition found")
-    composition.dispose()
-}
-
-/**
  * We want text/image selection to be enabled by default and disabled per widget. Therefore a root
  * level [SelectionContainer] is installed at the root.
  */
@@ -359,8 +143,10 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
 /**
  * Composes the given composable into the given view.
  *
- * Note that this [ViewGroup] should have an unique id for the saved instance state mechanism to
+ * Note 1: this [ViewGroup] should have an unique id for the saved instance state mechanism to
  * be able to save and restore the values used within the composition. See [View.setId].
+ * Note 2: the returned [Composition] object is not guaranteed to stay the same between the
+ * invocations so it is not safe to use it as a key.
  * @param content Composable that will be the content of the view.
  */
 fun ViewGroup.setContent(
@@ -376,31 +162,39 @@ fun ViewGroup.setContent(
     return doSetContent(composeView, context, content)
 }
 
-private fun createComposeViewComposition(owner: Owner, context: Context): Composition {
-    val composition = UiComposition(owner.root, context, null)
-    // we will postpone (disable) the composition until [Owner] restores the state
-    if (owner.savedStateRegistry == null) {
-        composition.enabled = false
-        owner.setOnSavedStateRegistryAvailable {
-            composition.enabled = true
-        }
-    }
-    return composition
-}
-
 private fun doSetContent(
     owner: Owner,
     context: Context,
     content: @Composable() () -> Unit
 ): Composition {
-    val composition = findComposition(owner.root)
-        ?: createComposeViewComposition(owner, context)
-    composition.compose {
-        WrapWithAmbients(owner, context, Dispatchers.Main) {
-            WrapWithSelectionContainer(content)
+    val originalComposition = compositionFor(owner.root, context)
+    val compositionWrapper = object : Composition {
+        private var disposed = false
+
+        override fun setContent(content: @Composable() () -> Unit) {
+            if (owner.savedStateRegistry != null) {
+                originalComposition.setContent {
+                    WrapWithAmbients(owner, context, Dispatchers.Main) {
+                        WrapWithSelectionContainer(content)
+                    }
+                }
+            } else {
+                // we will postpone the real composition until composeView restores the state.
+                owner.setOnSavedStateRegistryAvailable {
+                    if (!disposed) {
+                        setContent(content)
+                    }
+                }
+            }
+        }
+
+        override fun dispose() {
+            disposed = true
+            originalComposition.dispose()
         }
     }
-    return composition
+    compositionWrapper.setContent(content)
+    return compositionWrapper
 }
 
 @SuppressLint("UnnecessaryLambdaCreation")
@@ -490,3 +284,17 @@ val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
  * The ambient to provide haptic feedback to the user.
  */
 val HapticFeedBackAmbient = staticAmbientOf<HapticFeedback>()
+
+private fun compositionFor(
+    container: Any,
+    context: Context,
+    parent: CompositionReference? = null,
+    onBeforeFirstComposition: (() -> Unit)? = null
+) = compositionFor(
+    container = container,
+    parent = parent,
+    composerFactory = { slotTable, recomposer ->
+        onBeforeFirstComposition?.invoke()
+        UiComposer(context, container, slotTable, recomposer)
+    }
+)
