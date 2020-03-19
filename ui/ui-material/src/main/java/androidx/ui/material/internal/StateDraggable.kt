@@ -24,17 +24,18 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
+import androidx.ui.core.PassThroughLayout
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Draggable
+import androidx.ui.foundation.gestures.draggable
 
 /**
- * Higher-level [Draggable] component that has anchored positions bindid to different states
+ * Higher-level component that allows dragging around anchored positions binded to different states
  *
  * Example might be a Switch which you can drag between two states (true or false).
  *
- * Additional features compared to regular [Draggable]
+ * Additional features compared to regular [draggable] modifier:
  * 1. The AnimatedFloat hosted inside and its value will be in sync with call site state
  * 2. When the anchor is reached, [onStateChange] will be called with state mapped to this anchor
  * 3. When the anchor is reached and [onStateChange] with corresponding state is called, but
@@ -91,13 +92,21 @@ internal fun <T> StateDraggable(
     onCommit(currentValue, forceAnimationCheck.value) {
         position.animateTo(currentValue, animationBuilder)
     }
-    Draggable(
-        dragValue = position,
-        onDragValueChangeRequested = { position.snapTo(it) },
-        onDragStopped = { position.fling(flingConfig, it) },
+    val draggable = draggable(
         dragDirection = dragDirection,
-        enabled = enabled
-    ) {
+        onDragDeltaConsumptionRequested = { delta ->
+            val old = position.value
+            position.snapTo(position.value + delta)
+            position.value - old
+        },
+        onDragStopped = { position.fling(flingConfig, it) },
+        enabled = enabled,
+        startDragImmediately = position.isRunning
+    )
+    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+    //  is implemented with modifiers.
+    @Suppress("DEPRECATION")
+    PassThroughLayout(draggable) {
         children(position)
     }
 }

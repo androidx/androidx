@@ -29,7 +29,6 @@ import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Box
@@ -37,7 +36,7 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Draggable
+import androidx.ui.foundation.gestures.draggable
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -219,33 +218,40 @@ fun Slider(
                         pressed.value = false
                         gestureEndAction(0f)
                     })
-                Draggable(
+
+                val drag = draggable(
                     dragDirection = DragDirection.Horizontal,
-                    dragValue = position.holder,
+                    onDragDeltaConsumptionRequested = { delta ->
+                        val old = position.holder.value
+                        onValueChange((position.holder.value + delta).toSliderPosition())
+                        position.holder.value - old
+                    },
                     onDragStarted = { pressed.value = true },
-                    onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
                     onDragStopped = { velocity ->
                         pressed.value = false
                         gestureEndAction(velocity)
-                    }
-                ) {
-                    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-                    //  is implemented with modifiers.
-                    @Suppress("DEPRECATION")
-                    PassThroughLayout(press, { SliderImpl(position, color, maxPx, pressed.value) })
-                }
+                    },
+                    startDragImmediately = position.holder.isRunning
+                )
+                SliderImpl(position, color, maxPx, pressed.value, modifier = press + drag)
             }
         }
     }
 }
 
 @Composable
-private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pressed: Boolean) {
+private fun SliderImpl(
+    position: SliderPosition,
+    color: Color,
+    width: Float,
+    pressed: Boolean,
+    modifier: Modifier
+) {
     val widthDp = with(DensityAmbient.current) {
         width.px.toDp()
     }
     Semantics(container = true, properties = { accessibilityValue = "${position.value}" }) {
-        Stack(DefaultSliderConstraints) {
+        Stack(modifier + DefaultSliderConstraints) {
             val thumbSize = ThumbRadius * 2
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
