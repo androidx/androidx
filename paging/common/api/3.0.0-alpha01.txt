@@ -37,9 +37,6 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-  public final class HeaderFooterKt {
-  }
-
   @Deprecated public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor @Deprecated public ItemKeyedDataSource();
     method @Deprecated public abstract Key getKey(Value item);
