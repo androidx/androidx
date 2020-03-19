@@ -29,7 +29,3 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
 }
-
-androidx {
-    toolingProject = true
-}

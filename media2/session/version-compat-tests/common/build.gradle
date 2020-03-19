@@ -26,7 +26,3 @@ dependencies {
     api(project(":versionedparcelable:versionedparcelable"))
     implementation(JUNIT)
 }
-
-androidx {
-    toolingProject = true
-}

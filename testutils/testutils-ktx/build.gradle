@@ -31,10 +31,6 @@ dependencies {
     api(JUNIT)
 }
 
-androidx {
-    toolingProject = true
-}
-
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
