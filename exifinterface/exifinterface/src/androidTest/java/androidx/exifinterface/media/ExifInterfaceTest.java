@@ -93,17 +93,18 @@ public class ExifInterfaceTest {
     private static final String WEBP_WITHOUT_EXIF = "webp_without_exif.webp";
     private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING =
             "webp_lossless_without_exif.webp";
+    private static final String JPEG_WITH_DATETIME_TAG = "jpeg_with_datetime_tag.jpg";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.jpeg_with_exif_byte_order_ii, R.raw.jpeg_with_exif_byte_order_mm,
             R.raw.dng_with_exif_with_xmp, R.raw.jpeg_with_exif_with_xmp,
             R.raw.png_with_exif_byte_order_ii, R.raw.png_without_exif, R.raw.webp_with_exif,
             R.raw.webp_with_anim_without_exif, R.raw.webp_without_exif,
-            R.raw.webp_lossless_without_exif};
+            R.raw.webp_lossless_without_exif, R.raw.jpeg_with_datetime_tag};
     private static final String[] IMAGE_FILENAMES = new String[] {
             JPEG_WITH_EXIF_BYTE_ORDER_II, JPEG_WITH_EXIF_BYTE_ORDER_MM, DNG_WITH_EXIF_WITH_XMP,
             JPEG_WITH_EXIF_WITH_XMP, PNG_WITH_EXIF_BYTE_ORDER_II, PNG_WITHOUT_EXIF,
             WEBP_WITH_EXIF, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA, WEBP_WITHOUT_EXIF,
-            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING};
+            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING, JPEG_WITH_DATETIME_TAG};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -624,12 +625,26 @@ public class ExifInterfaceTest {
 
     @Test
     @SmallTest
-    public void testSetDateTime() throws IOException {
+    public void testGetSetDateTime() throws IOException {
+        final long expectedDatetimeValue = 1454059947000L;
+        final long expectedDatetimeOffsetLongValue = 32400000L; /* +09:00 converted to msec */
+        final String expectedDatetimeOffsetStringValue = "+09:00";
         final String dateTimeValue = "2017:02:02 22:22:22";
         final String dateTimeOriginalValue = "2017:01:01 11:11:11";
 
-        File imageFile = getFileFromExternalDir(JPEG_WITH_EXIF_BYTE_ORDER_II);
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(expectedDatetimeValue, exif.getDateTime());
+        assertEquals(expectedDatetimeValue, exif.getDateTimeOriginal());
+        assertEquals(expectedDatetimeValue, exif.getDateTimeDigitized());
+        // getDateTime() = TAG_DATETIME + TAG_OFFSET_TIME
+        assertEquals(expectedDatetimeOffsetStringValue,
+                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME));
+        assertEquals(expectedDatetimeOffsetStringValue,
+                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL));
+        assertEquals(expectedDatetimeOffsetStringValue,
+                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_DIGITIZED));
+
         exif.setAttribute(ExifInterface.TAG_DATETIME, dateTimeValue);
         exif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, dateTimeOriginalValue);
         exif.saveAttributes();
@@ -651,7 +666,7 @@ public class ExifInterfaceTest {
         exif.setDateTime(currentTimeStamp);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(currentTimeStamp, exif.getDateTime());
+        assertEquals(currentTimeStamp - expectedDatetimeOffsetLongValue, exif.getDateTime());
     }
 
     @Test
