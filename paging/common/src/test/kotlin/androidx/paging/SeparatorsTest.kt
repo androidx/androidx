@@ -47,11 +47,6 @@ private fun <T : Any> assertEvents(expected: List<PageEvent<T>>, actual: List<Pa
         )
     }
 }
-/*
-private fun <T : Any> List<PageEvent.Insert<T>>.getItems() = map { event ->
-    event.pages.map { it.data }
-}
-*/
 
 private fun <T : Any> List<PageEvent<T>>.getItems() = mapNotNull { event ->
     when (event) {

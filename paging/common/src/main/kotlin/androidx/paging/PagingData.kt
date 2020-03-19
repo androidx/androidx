@@ -80,7 +80,9 @@ class PagingData<T : Any> internal constructor(
      * @see [insertFooterItem]
      */
     @CheckResult
-    fun insertHeaderItem(item: T) = PagingData(flow.insertHeaderItem(item), receiver)
+    fun insertHeaderItem(item: T) = insertSeparators { before, _ ->
+        if (before == null) item else null
+    }
 
     /**
      * Returns a [PagingData] containing each original element, with the passed footer [item] added
@@ -98,9 +100,19 @@ class PagingData<T : Any> internal constructor(
      * @see [insertHeaderItem]
      */
     @CheckResult
-    fun insertFooterItem(item: T) = PagingData(flow.insertFooterItem(item), receiver)
+    fun insertFooterItem(item: T) = insertSeparators { _, after ->
+        if (after == null) item else null
+    }
 
     companion object {
+        internal val NOOP_RECEIVER = object : UiReceiver {
+            override fun addHint(hint: ViewportHint) {}
+
+            override fun retry() {}
+
+            override fun refresh() {}
+        }
+
         private val EMPTY = PagingData<Any>(
             flow = flowOf(
                 Refresh(
@@ -110,13 +122,7 @@ class PagingData<T : Any> internal constructor(
                     loadStates = mapOf(REFRESH to Idle, START to Done, END to Done)
                 )
             ),
-            receiver = object : UiReceiver {
-                override fun addHint(hint: ViewportHint) {}
-
-                override fun retry() {}
-
-                override fun refresh() {}
-            }
+            receiver = NOOP_RECEIVER
         )
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
