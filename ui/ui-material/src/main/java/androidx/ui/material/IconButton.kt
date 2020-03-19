@@ -68,6 +68,8 @@ fun IconButton(
  *
  * @param checked whether this IconToggleButton is currently checked
  * @param onCheckedChange callback to be invoked when this icon is selected
+ * @param enabled enabled whether or not this [IconToggleButton] will handle input events and appear
+ * enabled for semantics purposes
  * @param modifier optional [Modifier] for this IconToggleButton
  * @param children the content (icon) to be drawn inside the IconToggleButton. This is typically an
  * [androidx.ui.foundation.Icon].
@@ -75,14 +77,16 @@ fun IconButton(
 @Composable
 fun IconToggleButton(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
     Toggleable(
         value = checked,
         onValueChange = onCheckedChange,
-        modifier = ripple(bounded = false, radius = RippleRadius)
+        enabled = enabled,
+        modifier = ripple(bounded = false, radius = RippleRadius, enabled = enabled)
     ) {
         Box(
             modifier = modifier + IconButtonSizeModifier,

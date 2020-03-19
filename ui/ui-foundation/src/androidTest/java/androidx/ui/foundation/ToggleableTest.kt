@@ -49,17 +49,17 @@ class ToggleableTest {
         composeTestRule.setContent {
             Column {
                 TestTag(tag = "checkedToggleable") {
-                    TriStateToggleable(ToggleableState.On, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.On, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }
                 TestTag(tag = "unCheckedToggleable") {
-                    TriStateToggleable(ToggleableState.Off, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.Off, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }
                 TestTag(tag = "indeterminateToggleable") {
-                    TriStateToggleable(ToggleableState.Indeterminate, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.Indeterminate, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }
@@ -132,7 +132,7 @@ class ToggleableTest {
         composeTestRule.setContent {
             Stack {
                 TestTag(tag = "myToggleable") {
-                    TriStateToggleable(value = ToggleableState.On) {
+                    TriStateToggleable(state = ToggleableState.On, enabled = false, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }

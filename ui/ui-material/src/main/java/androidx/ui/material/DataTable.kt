@@ -379,7 +379,7 @@ fun DataTable(
                                 0 -> ToggleableState.Off
                                 else -> ToggleableState.Indeterminate
                             }
-                            TriStateCheckbox(value = parentState, onClick = {
+                            TriStateCheckbox(state = parentState, onClick = {
                                 val newValue = parentState != ToggleableState.On
                                 if (header.onSelectAll != null) {
                                     header.onSelectAll.invoke(newValue)
@@ -451,7 +451,7 @@ fun DataTable(
                             paddingBottom = cellSpacing.bottom,
                             gravity = ContentGravity.Center
                         ) {
-                            Checkbox(row.selected, row.onSelectedChange)
+                            Checkbox(row.selected, row.onSelectedChange ?: {})
                         }
                     }
                     for (j in 0 until columns) {
