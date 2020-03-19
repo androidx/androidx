@@ -28,10 +28,12 @@ import androidx.compose.Composable
  * during measurement (though that is achieved using the Inflexible and Flexible modifiers,
  * rather than using this widget).
  *
- * Example usage:
- * @sample androidx.ui.framework.samples.ParentDataSample
- *
  */
+@Deprecated(
+    "ParentData composable is deprecated. You should either create a modifier which implements " +
+            "ParentDataModifier interface, or use LayoutTag modifier if you simply need to tag " +
+            "layout children to recognize them inside the measure block."
+)
 @Composable
 inline fun ParentData(data: Any, crossinline children: @Composable() () -> Unit) {
     DataNode(key = ParentDataKey, value = data) {
