@@ -28,6 +28,7 @@ import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.text.TextLayoutResult
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -232,6 +233,79 @@ class TextFieldTest {
             // Don't care about the intermediate state update. It should eventually be "123" since
             // the rejects if the incoming model contains alphabets.
             assertThat(stateCaptor.lastValue.text).isEqualTo("123")
+        }
+    }
+
+    @Test
+    fun textField_onTextLayoutCallback() {
+        val focusManager = mock<FocusManager>()
+        val textInputService = mock<TextInputService>()
+        val inputSessionToken = 10 // any positive number is fine.
+
+        // Always give focus to the passed node.
+        whenever(focusManager.requestFocus(any())).thenAnswer {
+            (it.arguments[0] as FocusManager.FocusNode).onFocus()
+        }
+        whenever(textInputService.startInput(any(), any(), any(), any(), any()))
+            .thenReturn(inputSessionToken)
+
+        val onTextLayout: (TextLayoutResult) -> Unit = mock()
+        composeTestRule.setContent {
+            Providers(
+                FocusManagerAmbient provides focusManager,
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag(tag = "textField") {
+                    val state = state { "" }
+                    TextField(
+                        value = state.value,
+                        onValueChange = {
+                            state.value = it
+                        },
+                        onTextLayout = onTextLayout
+                    )
+                }
+            }
+        }
+
+        // Perform click to focus in.
+        findByTag("textField")
+            .doClick()
+
+        var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
+        composeTestRule.runOnIdleCompose {
+            // Verify startInput is called and capture the callback.
+            val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
+            verify(textInputService, times(1)).startInput(
+                initModel = any(),
+                keyboardType = any(),
+                imeAction = any(),
+                onEditCommand = onEditCommandCaptor.capture(),
+                onImeActionPerformed = any()
+            )
+            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
+            onEditCommandCallback = onEditCommandCaptor.firstValue
+            assertThat(onEditCommandCallback).isNotNull()
+        }
+
+        // Performs input events "1", "2", "3".
+        arrayOf(
+            listOf(CommitTextEditOp("1", 1)),
+            listOf(CommitTextEditOp("2", 1)),
+            listOf(CommitTextEditOp("3", 1))
+        ).forEach {
+            // TODO: This should work only with runOnUiThread. But it seems that these events are
+            // not buffered and chaining multiple of them before composition happens makes them to
+            // get lost.
+            composeTestRule.runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
+        }
+
+        composeTestRule.runOnIdleCompose {
+            val layoutCaptor = argumentCaptor<TextLayoutResult>()
+            verify(onTextLayout, atLeastOnce()).invoke(layoutCaptor.capture())
+
+            // Don't care about the intermediate state update. It should eventually be "123"
+            assertThat(layoutCaptor.lastValue.layoutInput.text.text).isEqualTo("123")
         }
     }
 }

@@ -83,6 +83,7 @@ import androidx.ui.unit.PxPosition
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
  *
  * @see PasswordTextField
  * @see TextFieldValue
@@ -102,7 +103,8 @@ fun TextField(
     onBlur: () -> Unit = {},
     focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null
+    visualTransformation: VisualTransformation? = null,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     val fullModel = state { InputState() }
     if (fullModel.value.text != value) {
@@ -133,7 +135,8 @@ fun TextField(
         onBlur = onBlur,
         focusIdentifier = focusIdentifier,
         onImeActionPerformed = onImeActionPerformed,
-        visualTransformation = visualTransformation
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout
     )
 }
 
@@ -177,6 +180,7 @@ fun TextField(
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
  *
  * @see TextFieldValue
  * @see ImeAction
@@ -195,7 +199,8 @@ fun TextField(
     onBlur: () -> Unit = {},
     focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null
+    visualTransformation: VisualTransformation? = null,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     val fullModel = state { InputState() }
     if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
@@ -226,7 +231,8 @@ fun TextField(
         onBlur = onBlur,
         focusIdentifier = focusIdentifier,
         onImeActionPerformed = onImeActionPerformed,
-        visualTransformation = visualTransformation
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout
     )
 }
 
@@ -275,6 +281,7 @@ fun TextField(
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
  *
  * @see TextFieldValue
  * @see ImeAction
@@ -294,7 +301,8 @@ fun TextField(
     onBlur: () -> Unit = {},
     focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null
+    visualTransformation: VisualTransformation? = null,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     BaseTextField(
         value = InputState(model.text, model.selection, compositionRange),
@@ -307,7 +315,8 @@ fun TextField(
         onBlur = onBlur,
         focusIdentifier = focusIdentifier,
         onImeActionPerformed = onImeActionPerformed,
-        visualTransformation = visualTransformation
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout
     )
 }
 
@@ -326,7 +335,8 @@ internal fun BaseTextField(
     onBlur: () -> Unit = {},
     focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null
+    visualTransformation: VisualTransformation? = null,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     // If developer doesn't pass new value to TextField, recompose won't happen but internal state
     // and IME may think it is updated. To fix this inconsistent state, enforce recompose by
@@ -467,7 +477,10 @@ internal fun BaseTextField(
                         constraints,
                         state.layoutResult
                     ).let { (width, height, result) ->
-                        state.layoutResult = result
+                        if (state.layoutResult != result) {
+                            state.layoutResult = result
+                            onTextLayout(result)
+                        }
                         layout(width, height) {}
                     }
                 }
