@@ -22,7 +22,9 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.clearRoots
 import androidx.compose.onCommit
+import androidx.compose.simulateHotReload
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.test.assertLabelEquals
