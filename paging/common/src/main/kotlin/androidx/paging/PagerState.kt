@@ -244,6 +244,8 @@ internal class PagerState<Key : Any, Value : Any>(
      * be decremented.
      * * pageIndex - See the description for indexInPage, index in [pages] coerced from
      * [ViewportHint.sourcePageIndex]
+     * * hintOffset - The numbers of items the hint was snapped by when coercing within the
+     * bounds of loaded pages.
      *
      * Note: If an invalid / out-of-date sourcePageIndex is passed, it will be coerced to the
      * closest pageIndex within the range of [pages]
