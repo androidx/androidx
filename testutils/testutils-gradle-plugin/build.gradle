@@ -27,7 +27,3 @@ dependencies {
     implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_RULES)
 }
-
-androidx {
-    toolingProject = true
-}

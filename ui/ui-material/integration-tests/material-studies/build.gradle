@@ -52,7 +52,3 @@ android {
         }
     }
 }
-
-androidx {
-    toolingProject = true
-}
