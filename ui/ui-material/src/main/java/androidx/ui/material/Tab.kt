@@ -116,6 +116,7 @@ import androidx.ui.unit.toPx
  * @param T the type of the item provided that will map to a [Tab]
  * @param items the list containing the items used to build this TabRow
  * @param selectedIndex the index of the currently selected tab
+ * @param modifier optional [Modifier] for this TabRow
  * @param color The background color for the TabRow. Use [Color.Transparent] to have no color.
  * @param contentColor The preferred content color provided by this TabRow to its children.
  * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
@@ -134,6 +135,7 @@ import androidx.ui.unit.toPx
 fun <T> TabRow(
     items: List<T>,
     selectedIndex: Int,
+    modifier: Modifier = Modifier.None,
     color: Color = MaterialTheme.colors().primarySurface,
     contentColor: Color = contentColorFor(color),
     scrollable: Boolean = false,
@@ -147,7 +149,7 @@ fun <T> TabRow(
     },
     tab: @Composable() (Int, T) -> Unit
 ) {
-    Surface(color = color, contentColor = contentColor) {
+    Surface(modifier = modifier, color = color, contentColor = contentColor) {
         WithConstraints { constraints, _ ->
             val width = constraints.maxWidth
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
@@ -192,7 +194,7 @@ private fun FixedTabRow(
     }
 
     Stack(LayoutWidth.Fill) {
-        Row(LayoutGravity.Center) {
+        Row {
             tabs(LayoutWeight(1f))
         }
         Box(LayoutGravity.BottomCenter + LayoutWidth.Fill, children = divider)
@@ -466,6 +468,7 @@ object TabRow {
  * @param icon the icon displayed in this tab
  * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
+ * @param modifier optional [Modifier] for this tab
  * @param activeColor the color for the content of this tab when selected
  * @param inactiveColor the color for the content of this tab when not selected
  */
@@ -475,6 +478,7 @@ fun Tab(
     icon: @Composable() () -> Unit = emptyContent(),
     selected: Boolean,
     onSelected: () -> Unit,
+    modifier: Modifier = Modifier.None,
     activeColor: Color = contentColor(),
     inactiveColor: Color = MaterialTheme.emphasisLevels().medium.emphasize(activeColor)
 ) {
@@ -482,7 +486,7 @@ fun Tab(
         val style = MaterialTheme.typography().button.copy(textAlign = TextAlign.Center)
         CurrentTextStyleProvider(style, children = text)
     }
-    Tab(selected, onSelected) {
+    Tab(selected, onSelected, modifier) {
         TabTransition(activeColor, inactiveColor, selected) {
             TabBaselineLayout(icon = icon, text = styledText)
         }
@@ -500,16 +504,18 @@ fun Tab(
  *
  * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
+ * @param modifier optional [Modifier] for this tab
  * @param children the content of this tab
  */
 @Composable
 fun Tab(
     selected: Boolean,
     onSelected: () -> Unit,
+    modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
     MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
-        Box(LayoutWidth.Fill, gravity = ContentGravity.Center, children = children)
+        Box(modifier + LayoutWidth.Fill, gravity = ContentGravity.Center, children = children)
     }
 }
 
