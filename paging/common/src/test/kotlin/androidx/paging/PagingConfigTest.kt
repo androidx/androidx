@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +32,7 @@ class PagingConfigTest {
         assertEquals(30, config.initialLoadSize)
         assertEquals(true, config.enablePlaceholders)
         assertEquals(10, config.prefetchDistance)
-        assertEquals(PagedList.Config.MAX_SIZE_UNBOUNDED, config.maxSize)
+        assertEquals(MAX_SIZE_UNBOUNDED, config.maxSize)
     }
 
     @Test
