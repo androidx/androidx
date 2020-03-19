@@ -2165,8 +2165,9 @@ public final class MediaRouter {
             if (BuildCompat.isAtLeastR()) {
                 mMediaRouter2Fwk = MediaRouter2.getInstance(mApplicationContext);
                 mMr2RouteCallbackFwk = new MediaRouter2.RouteCallback() {};
-                mMr2CbExecutor = command -> {
-                    // Do nothing, since the callback from MediaRouter2 won't be used.
+                mMr2CbExecutor = new Executor() {
+                    @Override
+                    public void execute(@NonNull Runnable command) { }
                 };
             } else {
                 mMediaRouter2Fwk = null;
