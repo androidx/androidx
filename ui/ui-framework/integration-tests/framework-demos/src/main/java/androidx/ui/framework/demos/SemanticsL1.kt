@@ -16,24 +16,24 @@
 
 package androidx.ui.framework.demos
 
-import androidx.ui.layout.Row
-import androidx.ui.unit.PxPosition
-import androidx.ui.core.Text
-import androidx.ui.unit.dp
-import androidx.ui.unit.px
-import androidx.ui.layout.Column
-import androidx.ui.material.Button
-import androidx.ui.material.MaterialTheme
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
+import androidx.ui.material.Button
+import androidx.ui.material.MaterialTheme
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
 /** A [SemanticProperty] is used to store semantic information about a component.
  *

@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
@@ -27,6 +26,7 @@ import androidx.ui.core.enforce
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -80,7 +80,7 @@ fun FloatingActionButton(
         elevation = elevation
     ) {
         Clickable(onClick, modifier = ripple()) {
-            CurrentTextStyleProvider(MaterialTheme.typography().button) {
+            ProvideTextStyle(MaterialTheme.typography().button) {
                 Box(
                     modifier = MinimumFabSizeModifier,
                     gravity = ContentGravity.Center,

@@ -17,7 +17,7 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString

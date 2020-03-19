@@ -17,16 +17,16 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
 import androidx.ui.core.drawClip
 import androidx.ui.core.drawShadow
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.ProvideContentColor
+import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -60,7 +60,7 @@ import kotlin.math.ln
  * [ColorPalette.onSurface]. If [color] is not part of the theme palette, [contentColor] will keep
  * the same value set above this Surface.
  *
- * To modify these default style values used by text, use [CurrentTextStyleProvider] or explicitly
+ * To modify these default style values used by text, use [ProvideTextStyle] or explicitly
  * pass a new [TextStyle] to your text.
  *
  * To manually retrieve the content color inside a surface, use [contentColor].

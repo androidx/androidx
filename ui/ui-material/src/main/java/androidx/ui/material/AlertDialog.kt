@@ -17,10 +17,10 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Dialog
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -123,7 +123,7 @@ fun AlertDialog(
                         Box(modifier = TitlePadding + LayoutGravity.Start) {
                             ProvideEmphasis(emphasisLevels.high) {
                                 val textStyle = MaterialTheme.typography().h6
-                                CurrentTextStyleProvider(textStyle, title)
+                                ProvideTextStyle(textStyle, title)
                             }
                         }
                     } else {
@@ -135,7 +135,7 @@ fun AlertDialog(
                     Box(modifier = TextPadding + LayoutGravity.Start) {
                         ProvideEmphasis(emphasisLevels.medium) {
                             val textStyle = MaterialTheme.typography().body1
-                            CurrentTextStyleProvider(textStyle, text)
+                            ProvideTextStyle(textStyle, text)
                         }
                     }
                     Spacer(LayoutHeight(TextToButtonsHeight))

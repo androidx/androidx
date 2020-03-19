@@ -27,7 +27,6 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Constraints
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
@@ -44,6 +43,7 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ProvideContentColor
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
@@ -484,7 +484,7 @@ fun Tab(
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography().button.copy(textAlign = TextAlign.Center)
-        CurrentTextStyleProvider(style, children = text)
+        ProvideTextStyle(style, children = text)
     }
     Tab(selected, onSelected, modifier) {
         TabTransition(activeColor, inactiveColor, selected) {

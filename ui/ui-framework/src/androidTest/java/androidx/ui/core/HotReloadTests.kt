@@ -18,18 +18,20 @@
 
 package androidx.ui.core
 
-import androidx.compose.Composable
-import androidx.test.filters.MediumTest
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.clearRoots
+import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.compose.onCommit
 import androidx.compose.simulateHotReload
+import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.test.assertLabelEquals
 import androidx.ui.test.findByTag
-import org.junit.runners.JUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -37,6 +39,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -102,9 +105,9 @@ class HotReloadTests {
         val activity = rule.activity
         var value = "First value"
 
-        @Composable fun textNode(text: String, id: Int) {
+        @Composable fun semanticsNode(text: String, id: Int) {
             TestTag(tag = "text$id") {
-                Text(text)
+                Semantics(properties = { accessibilityLabel = text }, children = emptyContent())
             }
         }
 
@@ -118,7 +121,7 @@ class HotReloadTests {
         rule.runOnUiThread {
             activity.setContent {
                 columnNode {
-                    textNode(text = value, id = 103)
+                    semanticsNode(text = value, id = 103)
                 }
                 onCommit {
                     composeLatch.countDown()
@@ -145,7 +148,7 @@ class HotReloadTests {
 
         assertTrue(hotReloadLatch.await(1, TimeUnit.SECONDS))
 
-        // Detect tha tthe node changed
+        // Detect that the node changed
         target().assertLabelEquals(value)
     }
 }

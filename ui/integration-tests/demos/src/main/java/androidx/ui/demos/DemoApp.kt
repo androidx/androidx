@@ -19,7 +19,7 @@ package androidx.ui.demos
 import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.ui.animation.Crossfade
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo

@@ -18,10 +18,10 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
 import androidx.ui.material.icons.Icons

@@ -18,7 +18,7 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.material.Button
 import androidx.ui.material.OutlinedButton
 import androidx.ui.material.TextButton

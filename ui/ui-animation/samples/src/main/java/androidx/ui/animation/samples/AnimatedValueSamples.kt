@@ -22,12 +22,12 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.animate
-import androidx.ui.core.Text
-import androidx.ui.core.currentTextStyle
 import androidx.ui.core.drawOpacity
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.Dp

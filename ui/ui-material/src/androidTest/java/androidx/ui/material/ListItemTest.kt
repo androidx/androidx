@@ -20,10 +20,10 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.core.Text
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Image
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.Dp

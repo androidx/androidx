@@ -18,8 +18,8 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Text
 import androidx.ui.foundation.Image
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Column
 import androidx.ui.material.Divider

@@ -24,7 +24,6 @@ import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column

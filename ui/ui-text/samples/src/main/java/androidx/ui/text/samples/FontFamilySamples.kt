@@ -18,14 +18,14 @@ package androidx.ui.text.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.font
 import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.font
+import androidx.ui.text.font.fontFamily
 
 @Sampled
 @Composable

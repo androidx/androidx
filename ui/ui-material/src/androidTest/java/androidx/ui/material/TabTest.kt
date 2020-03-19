@@ -20,12 +20,12 @@ import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Text
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
