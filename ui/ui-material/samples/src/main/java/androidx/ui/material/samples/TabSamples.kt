@@ -26,13 +26,13 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement

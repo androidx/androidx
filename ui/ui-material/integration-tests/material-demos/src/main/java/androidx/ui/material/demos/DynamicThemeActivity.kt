@@ -22,11 +22,11 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
-import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape

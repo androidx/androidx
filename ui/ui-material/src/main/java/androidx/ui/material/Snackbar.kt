@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
@@ -25,6 +24,7 @@ import androidx.ui.core.LayoutTag
 import androidx.ui.core.Modifier
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
@@ -79,7 +79,7 @@ fun Snackbar(
     ) {
         ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
             val textStyle = MaterialTheme.typography().body2
-            CurrentTextStyleProvider(value = textStyle) {
+            ProvideTextStyle(value = textStyle) {
                 when {
                     action == null -> TextOnlySnackbar(text)
                     actionOnNewLine -> NewLineButtonSnackbar(text, action)

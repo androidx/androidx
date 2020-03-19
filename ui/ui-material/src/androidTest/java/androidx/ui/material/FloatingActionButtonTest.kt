@@ -17,8 +17,8 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Text
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.test.createComposeRule

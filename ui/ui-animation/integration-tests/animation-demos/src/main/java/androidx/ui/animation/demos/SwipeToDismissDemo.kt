@@ -27,12 +27,12 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Text
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
+import androidx.ui.foundation.Text
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint

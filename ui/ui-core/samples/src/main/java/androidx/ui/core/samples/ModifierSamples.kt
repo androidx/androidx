@@ -21,7 +21,7 @@ package androidx.ui.core.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row

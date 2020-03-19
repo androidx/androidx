@@ -17,7 +17,7 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets

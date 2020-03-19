@@ -17,7 +17,7 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -33,7 +33,6 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.fontFamily
 import androidx.ui.text.samples.BaselineShiftSample
 import androidx.ui.text.samples.FontFamilyCursiveSample
 import androidx.ui.text.samples.FontFamilyMonospaceSample

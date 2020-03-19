@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.framework.samples
+package androidx.ui.foundation.samples
 
 import android.util.Log
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.ClickableText
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
 import androidx.ui.core.gesture.LongPressGestureDetector
+import androidx.ui.foundation.ClickableText
+import androidx.ui.foundation.Text
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle

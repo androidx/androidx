@@ -19,7 +19,7 @@ import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByText
 import org.junit.Rule

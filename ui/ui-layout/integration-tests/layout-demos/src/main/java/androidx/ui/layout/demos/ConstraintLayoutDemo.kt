@@ -18,7 +18,7 @@ package androidx.ui.layout.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.LayoutTag
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet
 import androidx.ui.layout.ConstraintSetBuilderScope

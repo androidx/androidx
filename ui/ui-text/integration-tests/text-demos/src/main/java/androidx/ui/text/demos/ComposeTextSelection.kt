@@ -18,9 +18,9 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Text
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column

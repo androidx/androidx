@@ -21,10 +21,10 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
-import androidx.ui.core.currentTextStyle
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction

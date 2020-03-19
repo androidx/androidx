@@ -17,12 +17,12 @@
 package androidx.ui.framework.demos.focus
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.focus.FocusState.Focused
 import androidx.ui.focus.FocusState.NotFocusable
 import androidx.ui.focus.FocusState.NotFocused
 import androidx.ui.focus.Focusable
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column

@@ -17,11 +17,11 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
@@ -30,8 +30,8 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
-import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Card
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp

@@ -18,7 +18,7 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.semantics.Semantics

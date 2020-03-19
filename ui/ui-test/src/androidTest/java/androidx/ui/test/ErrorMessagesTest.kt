@@ -20,9 +20,9 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface

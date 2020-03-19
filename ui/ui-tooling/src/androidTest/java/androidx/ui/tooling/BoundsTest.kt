@@ -17,8 +17,8 @@
 package androidx.ui.tooling
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Text
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.unit.Density

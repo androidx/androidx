@@ -17,10 +17,10 @@
 package androidx.ui.foundation.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.samples.SimpleCircleBox
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape

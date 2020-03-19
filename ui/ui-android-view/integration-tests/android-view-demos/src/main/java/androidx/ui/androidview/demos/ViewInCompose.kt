@@ -33,7 +33,7 @@ import androidx.ui.androidview.AndroidView
 import androidx.ui.androidview.adapters.Ref
 import androidx.ui.androidview.adapters.setRef
 import androidx.ui.core.ContextAmbient
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column

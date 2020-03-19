@@ -17,16 +17,19 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.R
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.font.font
+import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -52,11 +55,6 @@ import java.util.concurrent.TimeUnit
 class TextLayoutTest {
     @get:Rule
     internal val activityTestRule = ActivityTestRule(TestActivity::class.java)
-    private val fontFamily = font(
-        resId = R.font.sample_font,
-        weight = FontWeight.Normal,
-        style = FontStyle.Normal
-    ).asFontFamily()
     private lateinit var activity: TestActivity
     private lateinit var density: Density
 
@@ -72,13 +70,14 @@ class TextLayoutTest {
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
         show {
-            Text("aa", style = TextStyle(fontFamily = fontFamily),
+            TestingText(
+                "aa",
                 modifier = onPositioned { coordinates ->
                     textSize.value = coordinates.size
                     layoutLatch.countDown()
                 }
             )
-            Text("aaaa", style = TextStyle(fontFamily = fontFamily),
+            TestingText("aaaa",
                 modifier = onPositioned { coordinates ->
                     doubleTextSize.value = coordinates.size
                     layoutLatch.countDown()
@@ -100,13 +99,13 @@ class TextLayoutTest {
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
         show {
-            Text("aa ", style = TextStyle(fontFamily = fontFamily),
+            TestingText("aa ",
                 modifier = onPositioned { coordinates ->
                     textSize.value = coordinates.size
                     layoutLatch.countDown()
                 }
             )
-            Text("aa aa ", style = TextStyle(fontFamily = fontFamily),
+            TestingText("aa aa ",
                 modifier = onPositioned { coordinates ->
                     doubleTextSize.value = coordinates.size
                     layoutLatch.countDown()
@@ -121,7 +120,7 @@ class TextLayoutTest {
         val intrinsicsLatch = CountDownLatch(1)
         show {
             val text = @Composable {
-                Text("aa aa ", style = TextStyle(fontFamily = fontFamily))
+                TestingText("aa aa ")
             }
             Layout(
                 text,
@@ -157,7 +156,7 @@ class TextLayoutTest {
         val layoutLatch = CountDownLatch(2)
         show {
             val text = @Composable {
-                Text("aa", style = TextStyle(fontFamily = fontFamily))
+                TestingText("aa")
             }
             Layout(text) { measurables, _, _ ->
                 val placeable = measurables.first().measure(Constraints())
@@ -185,7 +184,7 @@ class TextLayoutTest {
         val callback = mock<(TextLayoutResult) -> Unit>()
         show {
             val text = @Composable {
-                Text("aa", onTextLayout = callback)
+                TestingText("aa", onTextLayout = callback)
             }
             Layout(text) { measurables, _, _ ->
                 measurables.first().measure(Constraints())
@@ -218,4 +217,30 @@ class TextLayoutTest {
         }
         activityTestRule.runOnUiThread(runnable)
     }
+}
+
+@Composable
+private fun TestingText(
+    text: String,
+    modifier: Modifier = Modifier.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
+) {
+    val textStyle = remember {
+        TextStyle(
+            fontFamily = font(
+                resId = R.font.sample_font,
+                weight = FontWeight.Normal,
+                style = FontStyle.Normal
+            ).asFontFamily()
+        )
+    }
+    CoreText(
+        AnnotatedString(text),
+        style = textStyle,
+        modifier = modifier,
+        softWrap = true,
+        maxLines = Int.MAX_VALUE,
+        overflow = TextOverflow.Clip,
+        onTextLayout = onTextLayout
+    )
 }

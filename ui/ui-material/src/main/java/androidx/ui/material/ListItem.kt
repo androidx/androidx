@@ -18,16 +18,16 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
+import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
@@ -460,7 +460,7 @@ private fun applyTextStyle(
     if (children == null) return null
     return {
         ProvideEmphasis(emphasis) {
-            CurrentTextStyleProvider(textStyle, children)
+            ProvideTextStyle(textStyle, children)
         }
     }
 }

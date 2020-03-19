@@ -19,7 +19,7 @@ package androidx.ui.material.studies.rally
 import android.annotation.SuppressLint
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -30,12 +30,12 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.material.Card
 import androidx.ui.material.Divider
+import androidx.ui.material.IconButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.Card
-import androidx.ui.material.IconButton
 import androidx.ui.unit.dp
 import java.util.Locale
 
