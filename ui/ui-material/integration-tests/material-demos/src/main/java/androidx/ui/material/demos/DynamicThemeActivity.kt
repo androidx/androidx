@@ -39,7 +39,7 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.ColorPalette
-import androidx.ui.material.FloatingActionButton
+import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
@@ -111,10 +111,9 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
 private fun Fab(scrollFraction: ScrollFraction) {
     val secondary = MaterialTheme.colors().secondary
     val fabText = emojiForScrollFraction(scrollFraction.fraction)
-    FloatingActionButton(
-        text = fabText,
-        textStyle = MaterialTheme.typography().h5,
-        color = secondary,
+    ExtendedFloatingActionButton(
+        text = { Text(fabText, style = MaterialTheme.typography().h5) },
+        backgroundColor = secondary,
         onClick = {}
     )
 }

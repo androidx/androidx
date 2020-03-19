@@ -30,10 +30,9 @@ import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.DrawerState
-import androidx.ui.material.FloatingActionButton
+import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.IconButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
@@ -74,9 +73,10 @@ fun SimpleScaffoldWithTopBar() {
         },
         floatingActionButtonPosition = Scaffold.FabPosition.End,
         floatingActionButton = {
-            FloatingActionButton(onClick = { /* fab click handler */ }) {
-                Text("Inc")
-            }
+            ExtendedFloatingActionButton(
+                text = { Text("Inc") },
+                onClick = { /* fab click handler */ }
+            )
         },
         bodyContent = { modifier ->
             VerticalScroller {
@@ -136,13 +136,12 @@ fun ScaffoldWithBottomBarAndCutout() {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
+                text = { Text("Change shape") },
                 onClick = changeShape,
                 shape = fabShape,
-                color = MaterialTheme.colors().secondary
-            ) {
-                Text("Change shape", modifier = LayoutPadding(12.dp))
-            }
+                backgroundColor = MaterialTheme.colors().secondary
+            )
         },
         floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
         bodyContent = { modifier ->

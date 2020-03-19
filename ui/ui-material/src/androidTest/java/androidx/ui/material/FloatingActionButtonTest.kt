@@ -17,8 +17,10 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.ImageAssetConfig
+import androidx.ui.core.Text
+import androidx.ui.foundation.Icon
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.dp
 import androidx.ui.unit.round
@@ -30,7 +32,7 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class FloatingActionButtonUiTest {
+class FloatingActionButtonTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -39,25 +41,41 @@ class FloatingActionButtonUiTest {
     fun defaultFabHasSizeFromSpec() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                FloatingActionButton(icon = createImage(), onClick = {})
+                FloatingActionButton(onClick = {}) {
+                    Icon(Icons.Filled.Favorite)
+                }
             }
             .assertIsSquareWithSize(56.dp)
     }
 
     @Test
-    fun extendedFabHasHeightFromSpec() {
+    fun extendedFab_longText_HasHeightFromSpec() {
         val size = composeTestRule
             .setMaterialContentAndGetPixelSize {
-                FloatingActionButton(icon = createImage(), text = "Extended", onClick = {})
+                ExtendedFloatingActionButton(
+                    text = { Text("Extended FAB Text") },
+                    icon = { Icon(Icons.Filled.Favorite) },
+                    onClick = {}
+                )
             }
         with(composeTestRule.density) {
-            assertThat(size.width.round().value).isAtLeast(48.dp.toIntPx().value)
             assertThat(size.height.round()).isEqualTo(48.dp.toIntPx())
+            assertThat(size.width.round().value).isAtLeast(48.dp.toIntPx().value)
         }
     }
 
-    private fun createImage() = with(composeTestRule.density) {
-        val size = 24.dp.toIntPx().value
-        ImageAsset(size, size, ImageAssetConfig.Argb8888)
+    @Test
+    fun extendedFab_shortText_HasMinimumSizeFromSpec() {
+        val size = composeTestRule
+            .setMaterialContentAndGetPixelSize {
+                ExtendedFloatingActionButton(
+                    text = { Text(".") },
+                    onClick = {}
+                )
+            }
+        with(composeTestRule.density) {
+            assertThat(size.width.round()).isEqualTo(48.dp.toIntPx())
+            assertThat(size.height.round()).isEqualTo(48.dp.toIntPx())
+        }
     }
 }
