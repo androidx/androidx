@@ -112,6 +112,7 @@ internal fun ExecutableType.descriptor(typeUtils: Types): String {
  *
  * For reference, see the [JVM specification, section 4.3](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3).
  */
+@Suppress("DEPRECATION")
 internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor6<String, Types>() {
     override fun visitNoType(t: NoType, typeUtils: Types): String = t.descriptor
 

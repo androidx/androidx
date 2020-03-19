@@ -197,7 +197,7 @@ class RawQueryMethodProcessorTest {
     fun suspendUnit() {
         simpleRun { invocation ->
             val daoElement =
-                invocation.typeElement(RawQuerySuspendUnitDao::class.java.canonicalName)
+                invocation.typeElement(RawQuerySuspendUnitDao::class.java.canonicalName!!)
             val daoFunctionElement = ElementFilter.methodsIn(daoElement.enclosedElements).first()
             RawQueryMethodProcessor(
                 baseContext = invocation.context,
