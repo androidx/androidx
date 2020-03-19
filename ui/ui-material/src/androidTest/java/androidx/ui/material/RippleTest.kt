@@ -20,6 +20,7 @@ import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.Providers
+import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.TestTag
@@ -319,6 +320,40 @@ class RippleTest {
         assertFalse(createdLatch.await(500, TimeUnit.MILLISECONDS))
     }
 
+    @Test
+    fun rippleColorChangeWhileAnimatingAppliedCorrectly() {
+        var drawLatch = CountDownLatch(1)
+        var actualColor = Color.Transparent
+        var colorState by mutableStateOf(Color.Yellow)
+        composeTestRule.setMaterialContent {
+            RippleCallback(
+                defaultColor = { colorState },
+                onDraw = { _, color ->
+                    actualColor = color
+                    drawLatch.countDown()
+                }
+            ) {
+                TestTag(tag = contentTag) {
+                    RippleButton()
+                }
+            }
+        }
+
+        findByTag(contentTag)
+            .doClick()
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(Color.Yellow, actualColor)
+
+        drawLatch = CountDownLatch(1)
+        composeTestRule.runOnUiThread {
+            colorState = Color.Green
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(Color.Green, actualColor)
+    }
+
     @Composable
     private fun RippleButton(size: Dp = 10.dp, color: Color? = null, enabled: Boolean = true) {
         Clickable(
@@ -377,19 +412,14 @@ class RippleTest {
                 onEffectCreated()
                 return object : RippleEffect {
 
-                    private var onDrawCalled: Boolean = false
-
                     override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {
-                        if (!onDrawCalled) {
-                            if (clipped) {
-                                canvas.save()
-                                canvas.clipRect(size.toPxSize().toRect())
-                            }
-                            onDraw(canvas, color)
-                            if (clipped) {
-                                canvas.restore()
-                            }
-                            onDrawCalled = true
+                        if (clipped) {
+                            canvas.save()
+                            canvas.clipRect(size.toPxSize().toRect())
+                        }
+                        onDraw(canvas, color)
+                        if (clipped) {
+                            canvas.restore()
                         }
                     }
 
