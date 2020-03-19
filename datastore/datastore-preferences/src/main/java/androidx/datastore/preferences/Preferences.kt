@@ -165,6 +165,7 @@ class Preferences internal constructor(
          *
          * @return Returns a new Preferences instance with no preferences set.
          */
+        @JvmStatic
         fun empty(): Preferences {
             return Preferences()
         }
