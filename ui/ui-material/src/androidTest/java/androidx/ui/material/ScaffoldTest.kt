@@ -21,8 +21,11 @@ import androidx.ui.core.TestTag
 import androidx.ui.core.Text
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Icon
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -48,7 +51,7 @@ class ScaffoldTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    val scaffoldTag = "Scaffold"
+    private val scaffoldTag = "Scaffold"
 
     @Test
     fun scaffold_onlyContent_takesWholeScreen() {
@@ -228,7 +231,9 @@ class ScaffoldTest {
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
-                    FloatingActionButton("text", onClick = {})
+                    FloatingActionButton(onClick = {}) {
+                        Icon(Icons.Filled.Favorite)
+                    }
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked
             ) {
@@ -242,7 +247,9 @@ class ScaffoldTest {
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
-                    FloatingActionButton("text", onClick = {})
+                    FloatingActionButton(onClick = {}) {
+                        Icon(Icons.Filled.Favorite)
+                    }
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
             ) {
@@ -260,12 +267,13 @@ class ScaffoldTest {
             Scaffold(
                 floatingActionButton = {
                     FloatingActionButton(
-                        "text",
                         modifier = onPositioned { positioned ->
                             fabSize = positioned.size
                             fabPosition = positioned.localToGlobal(positioned.positionInParent)
                         },
-                        onClick = {})
+                        onClick = {}) {
+                        Icon(Icons.Filled.Favorite)
+                    }
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
                 bottomAppBar = {
@@ -295,13 +303,14 @@ class ScaffoldTest {
             Scaffold(
                 floatingActionButton = {
                     FloatingActionButton(
-                        "text",
                         modifier = onPositioned { positioned ->
                             fabSize = positioned.size
                             fabPosition = positioned.localToGlobal(positioned.positionInParent)
                         },
                         onClick = {}
-                    )
+                    ) {
+                        Icon(Icons.Filled.Favorite)
+                    }
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.EndDocked,
                 bottomAppBar = {

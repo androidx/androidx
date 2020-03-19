@@ -21,7 +21,6 @@ import androidx.ui.core.Text
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutHeight
@@ -31,27 +30,26 @@ import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.Button
-import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedButton
 import androidx.ui.material.samples.ButtonSample
 import androidx.ui.material.samples.IconButtonSample
 import androidx.ui.material.samples.IconToggleButtonSample
 import androidx.ui.material.samples.OutlinedButtonSample
+import androidx.ui.material.samples.SimpleExtendedFabNoIcon
+import androidx.ui.material.samples.SimpleExtendedFabWithIcon
+import androidx.ui.material.samples.SimpleFab
 import androidx.ui.material.samples.TextButtonSample
-import androidx.ui.res.imageResource
 import androidx.ui.unit.dp
 
 private val DefaultSpace = 20.dp
 
 @Composable
 fun ButtonDemo() {
-    val icon = imageResource(R.drawable.ic_favorite)
-
     Column(LayoutPadding(10.dp)) {
         Buttons()
         Spacer(LayoutHeight(DefaultSpace))
-        Fabs(icon)
+        Fabs()
         Spacer(LayoutHeight(DefaultSpace))
         IconButtons()
         Spacer(LayoutHeight(DefaultSpace))
@@ -85,19 +83,14 @@ private fun Buttons() {
 }
 
 @Composable
-private fun Fabs(icon: ImageAsset) {
+private fun Fabs() {
     Text("Floating action buttons")
     Spacer(LayoutHeight(DefaultSpace))
 
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-        FloatingActionButton(onClick = {}, icon = icon)
-        FloatingActionButton(onClick = {}, text = "EXTENDED")
-        FloatingActionButton(
-            onClick = {},
-            icon = icon,
-            text = "ADD TO FAVS",
-            color = MaterialTheme.colors().error
-        )
+        SimpleFab()
+        SimpleExtendedFabNoIcon()
+        SimpleExtendedFabWithIcon()
     }
 }
 
