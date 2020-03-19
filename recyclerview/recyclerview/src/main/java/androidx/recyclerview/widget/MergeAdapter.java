@@ -209,10 +209,10 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
      *                 there are no adapters.
      */
     @Override
-    public void setStateRestorationStrategy(@NonNull StateRestorationStrategy strategy) {
+    public void setStateRestorationPolicy(@NonNull StateRestorationPolicy strategy) {
         // do nothing
         throw new UnsupportedOperationException(
-                "Calling setStateRestorationStrategy is not allowed on the MergeAdapter."
+                "Calling setStateRestorationPolicy is not allowed on the MergeAdapter."
                 + " This value is inferred from added adapters");
     }
 
@@ -224,8 +224,8 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     /**
      * Internal method called by the MergeAdapterController.
      */
-    void internalSetStateRestorationStrategy(@NonNull StateRestorationStrategy strategy) {
-        super.setStateRestorationStrategy(strategy);
+    void internalSetStateRestorationPolicy(@NonNull StateRestorationPolicy strategy) {
+        super.setStateRestorationPolicy(strategy);
     }
 
     @Override

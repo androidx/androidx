@@ -37,8 +37,8 @@ internal class MergeAdapterSubject(
         assertThat(adapter.itemCount).isEqualTo(itemCount)
     }
 
-    fun hasStateRestorationStrategy(strategy: RecyclerView.Adapter.StateRestorationStrategy) {
-        assertThat(adapter.stateRestorationStrategy).isEqualTo(strategy)
+    fun hasStateRestorationPolicy(policy: RecyclerView.Adapter.StateRestorationPolicy) {
+        assertThat(adapter.stateRestorationPolicy).isEqualTo(policy)
     }
 
     fun bindView(
