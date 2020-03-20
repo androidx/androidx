@@ -100,8 +100,6 @@ fun BottomNavigation(
     }
 }
 
-// TODO: b/150138067 remove RowScope receiver here when we can access LayoutWeight from a
-// global scope
 /**
  * A BottomNavigationItem represents a singular primary destination in your application.
  *
@@ -128,7 +126,7 @@ fun BottomNavigation(
  * @param inactiveColor the color of the text and icon when this item is not selected
  */
 @Composable
-fun RowScope.BottomNavigationItem(
+fun BottomNavigationItem(
     icon: @Composable() () -> Unit,
     text: @Composable() () -> Unit = emptyContent(),
     selected: Boolean,
@@ -143,7 +141,7 @@ fun RowScope.BottomNavigationItem(
         ProvideTextStyle(style, children = text)
     }
     MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
-        Box(modifier + LayoutWeight(1f), gravity = ContentGravity.Center) {
+        Box(modifier + RowScope.LayoutWeight(1f), gravity = ContentGravity.Center) {
             BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
                 val animationProgress = if (alwaysShowLabels) 1f else progress
 
