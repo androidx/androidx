@@ -18,6 +18,7 @@ package androidx.ui.core
 import android.view.View
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -477,6 +478,27 @@ class PopupTest {
         )
 
         Truth.assertThat(positionCenter).isEqualTo(expectedPositionCenter)
+    }
+
+    @Test
+    fun popup_hasViewTreeLifecycleOwner() {
+        composeTestRule.setContent {
+            PopupTestTag(testTag) {
+                Popup {}
+            }
+        }
+
+        Espresso.onView(instanceOf(Owner::class.java))
+            .inRoot(PopupLayoutMatcher())
+            .check(matches(object : TypeSafeMatcher<View>() {
+                override fun describeTo(description: Description?) {
+                    description?.appendText("ViewTreeLifecycleOwner.get(view) != null")
+                }
+
+                override fun matchesSafely(item: View): Boolean {
+                    return ViewTreeLifecycleOwner.get(item) != null
+                }
+            }))
     }
 
     @Test

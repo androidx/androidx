@@ -35,6 +35,7 @@ dependencies {
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
     implementation "androidx.core:core:1.0.2"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
 
     implementation project(":compose:compose-runtime")
     api project(":ui:ui-core")
@@ -66,6 +67,7 @@ dependencies {
     androidTestImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
+    androidTestImplementation "androidx.activity:activity:1.2.0-alpha01"
     androidTestImplementation project(":ui:ui-layout")
 }
 
