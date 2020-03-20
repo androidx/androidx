@@ -925,7 +925,7 @@ class LayoutNode : ComponentNode(), Measurable {
      * Identifies when [layoutChildren] needs to be recalculated or if it can use
      * the cached value.
      */
-    internal var layoutChildrenDirty = false
+    internal var layoutChildrenDirty = true
 
     /**
      * The cached value of [layoutChildren]

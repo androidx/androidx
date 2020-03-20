@@ -15,126 +15,51 @@
  */
 package androidx.ui.core.focus
 
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Ref
-import androidx.ui.focus.FocusDetailedState
+import androidx.ui.core.DelegatingLayoutNodeWrapper
+import androidx.ui.core.LayoutNodeWrapper
 import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.ActiveParent
 import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 
-/**
- * Backing node that implements focus.
- */
-internal class ModifiedFocusNode {
-    /**
-     * Implementation oddity around composition; used to capture a reference to this
-     * [ModifiedFocusNode] when composed. This is a reverse property that mutates its right-hand
-     * side.
-     *
-     * TODO: Once we finalize the API consider removing this and replace this with an
-     *  interface that sets the value as a property on the object that needs it.
-     */
-    var ref: Ref<ModifiedFocusNode>?
-        get() = null
-        set(value) {
-            value?.value = this
-        }
+internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
+    DelegatingLayoutNodeWrapper(wrapped) {
+    var focusState = Inactive
 
-    /**
-     * The recompose function of the Recompose component this [ModifiedFocusNode] is hosted in.
-     *
-     * We need to trigger re-composition manually because we determine focus during composition, and
-     * editing an @Model object during composition does not trigger a re-composition.
-     *
-     * TODO (b/144897112): Remove manual recomposition.
-     */
-    private lateinit var _recompose: () -> Unit
-    var recompose: () -> Unit
-        get() = _recompose
-        set(value) {
-            _recompose = value
-        }
-
-    /**
-     * The focus state for the current component. When the component is in the [Active] state, it
-     * receives key events and other actions. We use [FocusDetailedState]s internally and
-     * developers have the option to build their components using [FocusDetailedState], or a
-     * subset of states defined in [FocusState][androidx.ui.focus.FocusState].
-     */
-    var focusState: FocusDetailedState = Inactive
-        internal set
-
-    /**
-     * The [LayoutCoordinates] of the [OnChildPositioned][androidx.ui.core.OnChildPositioned]
-     * component that hosts the child components of this [FocusNode].
-     */
-    @Suppress("KDocUnresolvedReference")
-    var layoutCoordinates: LayoutCoordinates? = null
-
-    /**
-     * The list of focusable children of this [ModifiedFocusNode]. The [ComponentNode][androidx
-     * .ui.core.ComponentNode]
-     * base
-     * class defines children of this node, but the [focusableChildren] set includes all the
-     * [ModifiedFocusNode]s
-     * that are directly reachable from this [ModifiedFocusNode].
-     */
-    private val focusableChildren = mutableSetOf<ModifiedFocusNode>()
-
-    /**
-     * The [ModifiedFocusNode] from the set of [focusableChildren] that is currently [Active].
-     */
-    private var focusedChild: ModifiedFocusNode? = null
-
-    /**
-     * Add this focusable child to the parent's focusable children list.
-     */
-    fun attach() {
-        findParentFocusNode()?.focusableChildren?.add(this)
-    }
-
-    /**
-     * Remove this focusable child from the parent's focusable children list.
-     */
-    fun detach() {
-        // TODO (b/144119129): If this node is focused, let the parent know that it needs to
-        //  grant focus to another focus node.
-        findParentFocusNode()?.focusableChildren?.remove(this)
-    }
+    // Internal for access by tests.
+    internal var focusedChild: ModifiedFocusNode? = null
 
     /**
      * Request focus for this node.
      *
      * @param propagateFocus Whether the focus should be propagated to the node's children.
      *
-     * In Compose, the parent [ModifiedFocusNode] controls focus for its focusable children.Calling
-     * this function will send a focus request to this [ModifiedFocusNode]'s parent
-     * [ModifiedFocusNode].
+     * In Compose, the parent [FocusNode][ModifiedFocusNode] controls focus for its focusable
+     * children. Calling this function will send a focus request to this
+     * [FocusNode][ModifiedFocusNode]'s parent [FocusNode][ModifiedFocusNode].
      */
     fun requestFocus(propagateFocus: Boolean = true) {
-
         when (focusState) {
             Active, Captured, Disabled -> return
             ActiveParent -> {
+                val focusedChild = focusedChild
+                requireNotNull(focusedChild)
+
                 /** We don't need to do anything if [propagateFocus] is true,
                 since this subtree already has focus.*/
-                if (!propagateFocus && focusedChild?.clearFocus() ?: true) {
+                if (propagateFocus) return
+
+                if (focusedChild.clearFocus()) {
                     grantFocus(propagateFocus)
                 }
             }
             Inactive -> {
                 val focusParent = findParentFocusNode()
                 if (focusParent == null) {
-                    // TODO(b/144116848): Find out if the view hosting this composable is in focus.
-                    //  The top most focusable is [Active] only if the view hosting this composable
-                    //  is in focus. For now, we are making the assumption that our activity has
-                    //  only one view, and it is always in focus.
-                    //  Also, if the host AndroidComposeView does not have focus, request focus.
-                    //  Proceed to grant focus to this node only if the host view gains focus.
-                    grantFocus(propagateFocus)
-                    recompose()
+                    if (requestFocusForOwner()) {
+                        grantFocus(propagateFocus)
+                    }
                 } else {
                     focusParent.requestFocusForChild(this, propagateFocus)
                 }
@@ -150,13 +75,12 @@ internal class ModifiedFocusNode {
      *
      * @return true if the focus was successfully captured. False otherwise.
      */
-    fun captureFocus(): Boolean {
-        if (focusState == Active) {
+    fun captureFocus() = when (focusState) {
+        Active, Captured -> {
             focusState = Captured
-            return true
-        } else {
-            return false
+            true
         }
+        else -> false
     }
 
     /**
@@ -167,13 +91,11 @@ internal class ModifiedFocusNode {
      * @return true if the captured focus was released. If the node is not in the [Captured]
      * state. this function returns false to indicate that this operation was a no-op.
      */
-    fun freeFocus(): Boolean {
-        if (focusState == Captured) {
-            focusState = Active
-            return true
-        } else {
-            return false
-        }
+    fun freeFocus() = if (focusState == Captured) {
+        focusState = Active
+        true
+    } else {
+        false
     }
 
     /**
@@ -191,7 +113,7 @@ internal class ModifiedFocusNode {
 
         // TODO (b/144126759): Design a system to decide which child get's focus.
         //  for now we grant focus to the first child.
-        val focusedCandidate = focusableChildren.firstOrNull()
+        val focusedCandidate = focusableChildren().firstOrNull()
 
         if (focusedCandidate == null || !propagateFocus) {
             // No Focused Children, or we don't want to propagate focus to children.
@@ -200,7 +122,6 @@ internal class ModifiedFocusNode {
             focusState = ActiveParent
             focusedChild = focusedCandidate
             focusedCandidate.grantFocus(propagateFocus)
-            focusedCandidate.recompose()
         }
     }
 
@@ -212,16 +133,23 @@ internal class ModifiedFocusNode {
      */
     private fun clearFocus(): Boolean {
         return when (focusState) {
-
             Active -> {
                 focusState = Inactive
+                findParentFocusNode()?.focusedChild = null
                 true
             }
             /**
              * If the node is [ActiveParent], we need to clear focus from the [Active] descendant
              * first, before clearing focus of this node.
              */
-            ActiveParent -> focusedChild?.clearFocus() ?: error("No Focused Child")
+            ActiveParent -> {
+                if (clearFocusFromChildren()) {
+                    focusState = Active
+                    clearFocus()
+                } else {
+                    false
+                }
+            }
             /**
              * If the node is [Captured], deny requests to clear focus.
              */
@@ -234,6 +162,15 @@ internal class ModifiedFocusNode {
              */
             Inactive, Disabled -> false
         }
+    }
+
+    private fun clearFocusFromChildren(): Boolean {
+        require(focusState == ActiveParent)
+
+        val focusedChild = focusedChild
+        requireNotNull(focusedChild)
+
+        return focusedChild.clearFocus()
     }
 
     /**
@@ -249,7 +186,7 @@ internal class ModifiedFocusNode {
     ): Boolean {
 
         // Only this node's children can ask for focus.
-        if (!focusableChildren.contains(childNode)) {
+        if (!focusableChildren().contains(childNode)) {
             error("Non child node cannot request focus.")
         }
 
@@ -261,7 +198,6 @@ internal class ModifiedFocusNode {
                 focusState = ActiveParent
                 focusedChild = childNode
                 childNode.grantFocus(propagateFocus)
-                recompose()
                 true
             }
             /**
@@ -273,8 +209,6 @@ internal class ModifiedFocusNode {
                 if (previouslyFocusedNode.clearFocus()) {
                     focusedChild = childNode
                     childNode.grantFocus(propagateFocus)
-                    previouslyFocusedNode.recompose()
-                    childNode.recompose()
                     true
                 } else {
                     // Currently focused component does not want to give up focus.
@@ -288,9 +222,8 @@ internal class ModifiedFocusNode {
             Inactive -> {
                 val focusParent = findParentFocusNode()
                 if (focusParent == null) {
-                    requestFocusForOwner()
                     // If the owner successfully gains focus, proceed otherwise return false.
-                    if (ownerHasFocus()) {
+                    if (requestFocusForOwner()) {
                         focusState = Active
                         requestFocusForChild(childNode, propagateFocus)
                     } else {
@@ -312,5 +245,34 @@ internal class ModifiedFocusNode {
              */
             Disabled -> error("non root FocusNode needs a focusable parent")
         }
+    }
+
+    private fun requestFocusForOwner(): Boolean {
+        val owner = layoutNode.owner
+        requireNotNull(owner, { "Owner not initialized." })
+        return owner.requestFocus()
+    }
+
+    override fun findFocusWrapperWrappingThisWrapper() = this
+
+    override fun findFocusWrapperWrappedByThisWrapper() = this
+
+    // TODO(b/152051577): Measure the performance of focusableChildren.
+    //  Consider caching the children.
+    internal fun focusableChildren(): List<ModifiedFocusNode> {
+        // Check the modifier chain that this focus node is part of. If it has a focus modifier,
+        // that means you have found the only focusable child for this node.
+        val focusableChild = wrapped.findFocusWrapperWrappedByThisWrapper()
+        // findChildFocusNodeInWrapperChain()
+        if (focusableChild != null) {
+            return listOf(focusableChild)
+        }
+
+        // Go through all your children and find the first focusable node from each child.
+        val focusableChildren = mutableListOf<ModifiedFocusNode>()
+        for (node in layoutNode.layoutChildren) {
+            focusableChildren.addAll(node.focusableChildren())
+        }
+        return focusableChildren
     }
 }

@@ -19,6 +19,7 @@
 package androidx.ui.core
 
 import android.graphics.RectF
+import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Rect
@@ -250,6 +251,47 @@ internal sealed class LayoutNodeWrapper(
      */
     abstract fun findLayer(): OwnedLayer?
 
+    /**
+     * Returns the first [ModifiedFocusNode] in the wrapper list that wraps this
+     * [LayoutNodeWrapper].
+     */
+    abstract fun findFocusWrapperWrappingThisWrapper(): ModifiedFocusNode?
+
+    /**
+     * Returns the next [ModifiedFocusNode] in the wrapper list that is wrapped by this
+     * [LayoutNodeWrapper].
+     */
+    abstract fun findFocusWrapperWrappedByThisWrapper(): ModifiedFocusNode?
+
+    /**
+     * Returns the last [ModifiedFocusNode] found following this [LayoutNodeWrapper]. It searches
+     * the wrapper list associated with this [LayoutNodeWrapper]
+     */
+    abstract fun findLastFocusWrapper(): ModifiedFocusNode?
+
+    /**
+     * Find the first ancestor that is a [ModifiedFocusNode].
+     */
+    internal fun findParentFocusNode(): ModifiedFocusNode? {
+        // TODO(b/152066829): We shouldn't need to search through the parentLayoutNode, as the
+        // wrappedBy property should automatically point to the last layoutWrapper of the parent.
+        // Find out why this doesn't work.
+        var focusParent = wrappedBy?.findFocusWrapperWrappingThisWrapper()
+        if (focusParent != null) {
+            return focusParent
+        }
+
+        var parentLayoutNode = layoutNode.parentLayoutNode
+        while (parentLayoutNode != null) {
+            focusParent = parentLayoutNode.layoutNodeWrapper.findLastFocusWrapper()
+            if (focusParent != null) {
+                return focusParent
+            }
+            parentLayoutNode = parentLayoutNode.parentLayoutNode
+        }
+        return null
+    }
+
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
                 "when isAttached is true"
@@ -259,7 +301,7 @@ internal sealed class LayoutNodeWrapper(
 /**
  * [LayoutNodeWrapper] with default implementations for methods.
  */
-internal sealed class DelegatingLayoutNodeWrapper(
+internal open class DelegatingLayoutNodeWrapper(
     override val wrapped: LayoutNodeWrapper
 ) : LayoutNodeWrapper(wrapped.layoutNode) {
     override val providedAlignmentLines: Set<AlignmentLine>
@@ -317,6 +359,24 @@ internal sealed class DelegatingLayoutNodeWrapper(
         return wrappedBy?.findLayer()
     }
 
+    override fun findFocusWrapperWrappingThisWrapper() =
+        wrappedBy?.findFocusWrapperWrappingThisWrapper()
+
+    override fun findFocusWrapperWrappedByThisWrapper() =
+        wrapped.findFocusWrapperWrappedByThisWrapper()
+
+    override fun findLastFocusWrapper(): ModifiedFocusNode? {
+        var lastFocusWrapper: ModifiedFocusNode? = null
+
+        // Find last focus wrapper for the current layout node.
+        var next: ModifiedFocusNode? = findFocusWrapperWrappedByThisWrapper()
+        while (next != null) {
+            lastFocusWrapper = next
+            next = next.wrapped.findFocusWrapperWrappedByThisWrapper()
+        }
+        return lastFocusWrapper
+    }
+
     override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
     override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
     override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
@@ -342,11 +402,11 @@ internal class InnerPlaceable(
 
     override fun measure(constraints: Constraints): Placeable {
         val layoutResult = layoutNode.measureBlocks.measure(
-                layoutNode.measureScope,
-                layoutNode.layoutChildren,
-                constraints,
-                layoutNode.layoutDirection!!
-            )
+            layoutNode.measureScope,
+            layoutNode.layoutChildren,
+            constraints,
+            layoutNode.layoutDirection!!
+        )
         layoutNode.handleLayoutResult(layoutResult)
         return this
     }
@@ -364,6 +424,13 @@ internal class InnerPlaceable(
     override fun findLayer(): OwnedLayer? {
         return introducedLayer ?: wrappedBy?.findLayer()
     }
+
+    override fun findFocusWrapperWrappingThisWrapper() =
+        wrappedBy?.findFocusWrapperWrappingThisWrapper()
+
+    override fun findFocusWrapperWrappedByThisWrapper() = null
+
+    override fun findLastFocusWrapper(): ModifiedFocusNode? = findFocusWrapperWrappingThisWrapper()
 
     override fun minIntrinsicWidth(height: IntPx): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(
@@ -758,7 +825,8 @@ internal class LayerWrapper(
 
     override fun rectInParent(bounds: RectF) {
         if (drawLayerModifier.clipToBounds ||
-            (drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null)) {
+            (drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null)
+        ) {
             bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
         }
         val matrix = layer.getMatrix()

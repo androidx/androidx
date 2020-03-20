@@ -17,7 +17,8 @@
 package androidx.ui.core.focus
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.FocusNode
+import androidx.ui.core.InnerPlaceable
+import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
 import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.ActiveParent
@@ -26,6 +27,7 @@ import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,11 +37,11 @@ import org.mockito.Mockito.mock
 @SmallTest
 @RunWith(Parameterized::class)
 class RequestFocusTest(val propagateFocus: Boolean) {
-    lateinit var host: Owner
+    lateinit var owner: Owner
 
     @Before
     fun setup() {
-        host = mock(Owner::class.java)
+        owner = mock(Owner::class.java)
     }
 
     companion object {
@@ -49,11 +51,10 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     }
 
     @Test
-    fun activeComponent() {
+    fun active_isUnchanged() {
         // Arrange.
-        val focusNode = FocusNode().apply {
+        val focusNode = createFocusNode().apply {
             focusState = Active
-            recompose = {}
         }
 
         // Act.
@@ -64,11 +65,10 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     }
 
     @Test
-    fun capturedComponent() {
+    fun captured_isUnchanged() {
         // Arrange.
-        val focusNode = FocusNode().apply {
+        val focusNode = createFocusNode().apply {
             focusState = Captured
-            recompose = {}
         }
 
         // Act.
@@ -79,11 +79,10 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     }
 
     @Test
-    fun disabledComponent() {
+    fun disabled_isUnchanged() {
         // Arrange.
-        val focusNode = FocusNode().apply {
+        val focusNode = createFocusNode().apply {
             focusState = Disabled
-            recompose = {}
         }
 
         // Act.
@@ -93,10 +92,159 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         assertThat(focusNode.focusState).isEqualTo(Disabled)
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun activeParent_withNoFocusedChild_throwsException() {
+        // Arrange.
+        val focusNode = createFocusNode().apply {
+            focusState = ActiveParent
+        }
+
+        // Act.
+        focusNode.requestFocus(propagateFocus)
+    }
+
+    @Test
+    fun activeParent_propagateFocus() {
+        // Arrange.
+        val child = createFocusNode().apply {
+            focusState = Active
+        }
+        val focusNode = createFocusNode().apply {
+            focusState = ActiveParent
+            layoutNode.insertAt(0, child.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            focusedChild = child
+        }
+
+        // Act.
+        focusNode.requestFocus(propagateFocus)
+
+        // Assert.
+        when (propagateFocus) {
+            true -> {
+                // Unchanged.
+                assertThat(focusNode.focusState).isEqualTo(ActiveParent)
+                assertThat(child.focusState).isEqualTo(Active)
+            }
+            false -> {
+                assertThat(focusNode.focusState).isEqualTo(Active)
+                assertThat(focusNode.focusedChild).isNull()
+                assertThat(child.focusState).isEqualTo(Inactive)
+            }
+        }
+    }
+
+    @Test
+    fun inactive_root_propagateFocusSendsRequestToOwner_systemCannotGrantFocus() {
+        // Arrange.
+        whenever(owner.requestFocus()).thenReturn(false)
+        val rootFocusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
+            focusState = Inactive
+        }
+
+        // Act.
+        rootFocusNode.requestFocus(propagateFocus)
+
+        // Assert.
+        assertThat(rootFocusNode.focusState).isEqualTo(Inactive)
+    }
+
+    @Test
+    fun inactiveRoot_propagateFocusSendsRequestToOwner_systemCanGrantFocus() {
+        // Arrange.
+        whenever(owner.requestFocus()).thenReturn(true)
+        val rootFocusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
+            focusState = Inactive
+        }
+
+        // Act.
+        rootFocusNode.requestFocus(propagateFocus)
+
+        // Assert.
+        assertThat(rootFocusNode.focusState).isEqualTo(Active)
+    }
+
+    @Test
+    fun inactiveRootWithChildren_propagateFocusSendsRequestToOwner_systemCanGrantFocus() {
+        // Arrange.
+        whenever(owner.requestFocus()).thenReturn(true)
+        val child = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
+        }
+        val rootFocusNode = createFocusNode().apply {
+            layoutNode.insertAt(0, child.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
+            focusState = Inactive
+        }
+
+        // Act.
+        rootFocusNode.requestFocus(propagateFocus)
+
+        // Assert.
+        when (propagateFocus) {
+            true -> {
+                // Unchanged.
+                assertThat(rootFocusNode.focusState).isEqualTo(ActiveParent)
+                assertThat(child.focusState).isEqualTo(Active)
+            }
+            false -> {
+                assertThat(rootFocusNode.focusState).isEqualTo(Active)
+                assertThat(child.focusState).isEqualTo(Inactive)
+            }
+        }
+    }
+
+    @Test
+    fun inactiveNonRootWithChilcren() {
+        // Arrange.
+        whenever(owner.requestFocus()).thenReturn(true)
+        val child = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
+        }
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, child.layoutNode)
+            focusState = Inactive
+        }
+        val parent = createFocusNode().apply {
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
+            focusState = Active
+        }
+
+        // Act.
+        focusNode.requestFocus(propagateFocus)
+
+        // Assert.
+        when (propagateFocus) {
+            true -> {
+                assertThat(parent.focusState).isEqualTo(ActiveParent)
+                assertThat(focusNode.focusState).isEqualTo(ActiveParent)
+                assertThat(child.focusState).isEqualTo(Active)
+            }
+            false -> {
+                assertThat(parent.focusState).isEqualTo(ActiveParent)
+                assertThat(focusNode.focusState).isEqualTo(Active)
+                assertThat(child.focusState).isEqualTo(Inactive)
+            }
+        }
+    }
+
     @Test
     fun rootNode() {
         // Arrange.
-        val rootNode = FocusNode().apply { recompose = {} }
+        whenever(owner.requestFocus()).thenReturn(true)
+        val rootNode = createFocusNode().apply {
+            layoutNode.attach(owner)
+        }
 
         // Act.
         rootNode.requestFocus(propagateFocus)
@@ -108,11 +256,15 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun rootNodeWithChildren() {
         // Arrange.
-        val childNode = FocusNode().apply { recompose = {} }
-        val rootNode = FocusNode().apply {
-            recompose = {}
-            attach(host)
-            insertAt(0, childNode)
+        whenever(owner.requestFocus()).thenReturn(true)
+        val childNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
+        }
+        val rootNode = createFocusNode().apply {
+            layoutNode.insertAt(0, childNode.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
         }
 
         // Act.
@@ -128,14 +280,22 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun parentNodeWithNoFocusedAncestor() {
         // Arrange.
-        val childNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply { recompose = {} }
-        val grandparentNode = FocusNode().apply {
-            recompose = {}
-            attach(host)
-            insertAt(0, parentNode)
+        whenever(owner.requestFocus()).thenReturn(true)
+        val childNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
         }
-        parentNode.insertAt(0, childNode)
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, childNode.layoutNode)
+            focusState = Inactive
+        }
+        val grandparentNode = createFocusNode().apply {
+            layoutNode.insertAt(0, parentNode.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
+            focusState = Inactive
+        }
 
         // Act.
         parentNode.requestFocus(propagateFocus)
@@ -150,14 +310,22 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun parentNodeWithNoFocusedAncestor_childRequestsFocus() {
         // Arrange.
-        val childNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply { recompose = {} }
-        val grandparentNode = FocusNode().apply {
-            recompose = {}
-            attach(host)
-            insertAt(0, parentNode)
+        whenever(owner.requestFocus()).thenReturn(true)
+        val childNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
         }
-        parentNode.insertAt(0, childNode)
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, childNode.layoutNode)
+            focusState = Inactive
+        }
+        val grandparentNode = createFocusNode().apply {
+            layoutNode.insertAt(0, parentNode.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
+            focusState = Inactive
+        }
 
         // Act.
         childNode.requestFocus(propagateFocus)
@@ -169,14 +337,22 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun childNodeWithNoFocusedAncestor() {
         // Arrange.
-        val childNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply { recompose = {} }
-        val grandparentNode = FocusNode().apply {
-            recompose = {}
-            attach(host)
-            insertAt(0, parentNode)
+        whenever(owner.requestFocus()).thenReturn(true)
+        val childNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
         }
-        parentNode.insertAt(0, childNode)
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, childNode.layoutNode)
+            focusState = Inactive
+        }
+        val grandparentNode = createFocusNode().apply {
+            layoutNode.insertAt(0, parentNode.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
+            focusState = Inactive
+        }
 
         // Act.
         childNode.requestFocus(propagateFocus)
@@ -188,12 +364,15 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_parentIsFocused() {
         // Arrange.
-        val focusNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply {
-            attach(host)
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
+        }
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            layoutNode.attach(owner)
             focusState = Active
-            recompose = {}
-            insertAt(0, focusNode)
         }
 
         // Verify Setup.
@@ -211,13 +390,16 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_childIsFocused() {
         // Arrange.
-        val focusNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply {
-            attach(host)
-            recompose = {}
-            insertAt(0, focusNode)
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Active
         }
-        focusNode.requestFocus(propagateFocus)
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            focusedChild = focusNode
+            focusState = ActiveParent
+        }
 
         // Verify Setup.
         assertThat(parentNode.focusState).isEqualTo(ActiveParent)
@@ -242,15 +424,15 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_childHasCapturedFocus() {
         // Arrange.
-        val focusNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply {
-            attach(host)
-            recompose = {}
-            insertAt(0, focusNode)
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Captured
         }
-        focusNode.apply {
-            requestFocus(propagateFocus)
-            captureFocus()
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            focusedChild = focusNode
+            focusState = ActiveParent
         }
 
         // Verify Setup.
@@ -268,17 +450,22 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_siblingIsFocused() {
         // Arrange.
-        val focusNode = FocusNode().apply { recompose = {} }
-        val siblingNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply {
-            recompose = {}
-            focusState = Active
-            attach(host)
-            insertAt(0, focusNode)
-            insertAt(1, siblingNode)
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
         }
-        // After executing requestFocus, siblingNode will be 'Active'.
-        siblingNode.requestFocus(propagateFocus)
+        val siblingNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Active
+        }
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            layoutNode.insertAt(1, siblingNode.layoutNode)
+            layoutNode.attach(owner)
+            focusedChild = siblingNode
+            focusState = ActiveParent
+        }
 
         // Verify Setup.
         assertThat(parentNode.focusState).isEqualTo(ActiveParent)
@@ -297,19 +484,21 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_siblingHasCapturedFocused() {
         // Arrange.
-        val focusNode = FocusNode().apply { recompose = {} }
-        val siblingNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply {
-            recompose = {}
-            focusState = Active
-            attach(host)
-            insertAt(0, focusNode)
-            insertAt(1, siblingNode)
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
         }
-        // After executing requestFocus, siblingNode will be 'Active'.
-        siblingNode.apply {
-            requestFocus(propagateFocus)
-            captureFocus()
+        val siblingNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Captured
+        }
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            layoutNode.insertAt(1, siblingNode.layoutNode)
+            layoutNode.attach(owner)
+            focusedChild = siblingNode
+            focusState = ActiveParent
         }
 
         // Verify Setup.
@@ -329,39 +518,36 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_cousinIsFocused() {
         // Arrange.
-        val focusNode = FocusNode().apply {
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
             focusState = Inactive
-            recompose = {}
         }
 
-        val cousinNode = FocusNode().apply {
-            focusState = Inactive
-            recompose = {}
-        }
-
-        val parentNode = FocusNode().apply {
-            focusState = Inactive
-            recompose = {}
-        }
-        val auntNode = FocusNode().apply {
-            focusState = Inactive
-            recompose = {}
-        }
-
-        val grandparentNode = FocusNode().apply {
+        val cousinNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
             focusState = Active
-            recompose = {}
         }
 
-        grandparentNode.apply {
-            attach(host)
-            insertAt(0, parentNode)
-            insertAt(1, auntNode)
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            focusState = Inactive
+        }
+        val auntNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, cousinNode.layoutNode)
+            focusedChild = cousinNode
+            focusState = ActiveParent
         }
 
-        parentNode.insertAt(0, focusNode)
-        auntNode.insertAt(0, cousinNode)
-        cousinNode.requestFocus(propagateFocus)
+        val grandparentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, parentNode.layoutNode)
+            layoutNode.insertAt(1, auntNode.layoutNode)
+            layoutNode.attach(owner)
+            focusedChild = auntNode
+            focusState = ActiveParent
+        }
 
         // Verify Setup.
         assertThat(cousinNode.focusState).isEqualTo(Active)
@@ -378,16 +564,22 @@ class RequestFocusTest(val propagateFocus: Boolean) {
     @Test
     fun requestFocus_grandParentIsFocused() {
         // Arrange.
-        val focusNode = FocusNode().apply { recompose = {} }
-        val parentNode = FocusNode().apply { recompose = {} }
-        val grandparentNode = FocusNode().apply { recompose = {} }
-
-        grandparentNode.apply {
-            attach(host)
-            insertAt(0, parentNode)
+        whenever(owner.requestFocus()).thenReturn(true)
+        val focusNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            focusState = Inactive
+        }
+        val parentNode = createFocusNode().apply {
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.insertAt(0, focusNode.layoutNode)
+            focusState = Inactive
+        }
+        val grandparentNode = createFocusNode().apply {
+            layoutNode.insertAt(0, parentNode.layoutNode)
+            layoutNode.layoutNodeWrapper = this
+            layoutNode.attach(owner)
             focusState = Active
         }
-        parentNode.insertAt(0, focusNode)
 
         // Verify Setup.
         assertThat(grandparentNode.focusState).isEqualTo(Active)
@@ -402,4 +594,6 @@ class RequestFocusTest(val propagateFocus: Boolean) {
         assertThat(parentNode.focusState).isEqualTo(ActiveParent)
         assertThat(focusNode.focusState).isEqualTo(Active)
     }
+
+    private fun createFocusNode() = ModifiedFocusNode(InnerPlaceable(LayoutNode()))
 }
