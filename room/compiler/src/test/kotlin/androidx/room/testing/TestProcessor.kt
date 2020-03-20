@@ -24,7 +24,7 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import kotlin.reflect.KClass
 
-@SupportedSourceVersion(SourceVersion.RELEASE_11) // test are compiled w/ J_11
+@SupportedSourceVersion(SourceVersion.RELEASE_8) // test are compiled w/ J_8
 class TestProcessor(
     val handlers: List<(TestInvocation) -> Boolean>,
     val annotations: MutableSet<String>
@@ -55,7 +55,7 @@ class TestProcessor(
         }
 
         fun forAnnotations(vararg klasses: KClass<*>): Builder {
-            annotations.addAll(klasses.map { it.java.canonicalName!! })
+            annotations.addAll(klasses.map { it.java.canonicalName })
             return this
         }
 

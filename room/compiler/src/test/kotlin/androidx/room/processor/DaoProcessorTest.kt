@@ -313,9 +313,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                     }
                 }
                 .processedWith(TestProcessor.builder()
-                        .forAnnotations(
-                                java.lang.SuppressWarnings::class,
-                                androidx.room.Dao::class,
+                        .forAnnotations(androidx.room.Dao::class,
                                 androidx.room.Entity::class,
                                 androidx.room.Relation::class,
                                 androidx.room.Transaction::class,

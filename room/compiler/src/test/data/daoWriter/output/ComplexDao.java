@@ -19,7 +19,7 @@ import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import javax.annotation.processing.Generated;
+import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})

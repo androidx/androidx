@@ -21,7 +21,6 @@ import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 
 /** Get an annotation value by Java property name. */
-@Suppress("DEPRECATION")
 internal operator fun AnnotationMirror.get(name: String): AnnotationValue {
     return AnnotationMirrors.getAnnotationValue(this, name)
 }
