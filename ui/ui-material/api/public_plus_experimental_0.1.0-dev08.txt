@@ -33,7 +33,7 @@ package androidx.ui.material {
 
   public final class BottomNavigationKt {
     method public static void BottomNavigation(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.BottomNavigationKt.BottomNavigationElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
-    method public static void BottomNavigationItem(androidx.ui.layout.RowScope, kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, boolean alwaysShowLabels = true, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels().medium.emphasize(activeColor));
+    method public static void BottomNavigationItem(kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, boolean alwaysShowLabels = true, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels().medium.emphasize(activeColor));
   }
 
   public final class Button {
