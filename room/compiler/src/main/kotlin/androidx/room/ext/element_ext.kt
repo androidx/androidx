@@ -166,7 +166,6 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
 fun <T : Annotation> Element.toAnnotationBox(cl: KClass<T>) =
         MoreElements.getAnnotationMirror(this, cl.java).orNull()?.box(cl.java)
 
-@Suppress("DEPRECATION")
 private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>) :
     SimpleAnnotationValueVisitor6<Array<AnnotationBox<T>>, Void?>() {
     override fun visitArray(
@@ -178,7 +177,6 @@ private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>)
     }
 }
 
-@Suppress("DEPRECATION")
 private class AnnotationClassVisitor<T : Annotation>(private val annotationClass: Class<T>) :
     SimpleAnnotationValueVisitor6<AnnotationBox<T>?, Void?>() {
     override fun visitAnnotation(a: AnnotationMirror?, v: Void?) = a?.box(annotationClass)
@@ -186,7 +184,6 @@ private class AnnotationClassVisitor<T : Annotation>(private val annotationClass
 
 // code below taken from dagger2
 // compiler/src/main/java/dagger/internal/codegen/ConfigurationAnnotations.java
-@Suppress("DEPRECATION")
 private val TO_LIST_OF_TYPES = object :
     SimpleAnnotationValueVisitor6<List<TypeMirror>, Void?>() {
     override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?): List<TypeMirror> {
@@ -201,7 +198,6 @@ private val TO_LIST_OF_TYPES = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val TO_TYPE = object : SimpleAnnotationValueVisitor6<TypeMirror, Void>() {
 
     override fun visitType(t: TypeMirror, p: Void?): TypeMirror {
@@ -227,14 +223,12 @@ fun TypeMirror.isCollection(): Boolean {
                     MoreTypes.isTypeOf(java.util.Set::class.java, this))
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_INT_VISITOR = object : SimpleAnnotationValueVisitor6<Int?, Void>() {
     override fun visitInt(i: Int, p: Void?): Int? {
         return i
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR = object :
     SimpleAnnotationValueVisitor6<Boolean?, Void>() {
     override fun visitBoolean(b: Boolean, p: Void?): Boolean? {
@@ -242,7 +236,6 @@ private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_TO_STRING_VISITOR = object :
     SimpleAnnotationValueVisitor6<String?, Void>() {
     override fun visitString(s: String?, p: Void?): String? {
@@ -250,7 +243,6 @@ private val ANNOTATION_VALUE_TO_STRING_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object :
     SimpleAnnotationValueVisitor6<List<String>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<String> {
@@ -260,7 +252,6 @@ private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object :
     }
 }
 
-@Suppress("DEPRECATION")
 private val ANNOTATION_VALUE_INT_ARR_VISITOR = object :
     SimpleAnnotationValueVisitor6<List<Int>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Int> {
@@ -290,7 +281,7 @@ private fun AnnotationValue.getAsStringList(): List<String> {
     return ANNOTATION_VALUE_STRING_ARR_VISITOR.visit(this)
 }
 
-@Suppress("UNCHECKED_CAST", "DEPRECATION")
+@Suppress("UNCHECKED_CAST")
 private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
     return object : SimpleAnnotationValueVisitor6<T, Void>() {
         override fun visitEnumConstant(value: VariableElement?, p: Void?): T {

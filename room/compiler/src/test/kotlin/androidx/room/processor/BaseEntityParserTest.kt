@@ -75,9 +75,7 @@ abstract class BaseEntityParserTest {
                     }
                 }
                 .processedWith(TestProcessor.builder()
-                        .forAnnotations(
-                                java.lang.SuppressWarnings::class,
-                                androidx.room.Entity::class,
+                        .forAnnotations(androidx.room.Entity::class,
                                 androidx.room.PrimaryKey::class,
                                 androidx.room.Ignore::class,
                                 Embedded::class,

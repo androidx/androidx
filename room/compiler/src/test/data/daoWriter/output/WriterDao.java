@@ -23,7 +23,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.List;
-import javax.annotation.processing.Generated;
+import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
