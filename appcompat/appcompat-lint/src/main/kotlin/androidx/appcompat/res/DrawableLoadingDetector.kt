@@ -16,6 +16,7 @@
 
 package androidx.appcompat.res
 
+import androidx.appcompat.BaseMethodDeprecationDetector
 import com.android.tools.lint.client.api.TYPE_INT
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Implementation

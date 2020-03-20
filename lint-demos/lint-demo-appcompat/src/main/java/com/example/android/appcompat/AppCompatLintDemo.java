@@ -17,7 +17,9 @@
 package com.example.android.appcompat;
 
 import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -53,5 +55,11 @@ public class AppCompatLintDemo extends AppCompatActivity {
 
         Drawable dr = getResources().getDrawable(R.drawable.app_sample_code);
         dummy.setCompoundDrawables(dr, null, null, null);
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            // These should be flagged to use TextViewCompat
+            dummy.setCompoundDrawableTintList(csl);
+            dummy.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
+        }
     }
 }
