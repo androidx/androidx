@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 /**
  * Span used to adjust the letter spacing, in the unit of Em.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class LetterSpacingSpanEm(val letterSpacing: Float) : MetricAffectingSpan() {

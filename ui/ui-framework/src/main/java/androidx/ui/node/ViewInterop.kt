@@ -31,7 +31,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 
 /**
- * @hide
+ * @suppress
  */
 // TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is needed
 //  for convenient LayoutParams usage in compose with views.
@@ -44,7 +44,7 @@ interface ViewAdapter {
 }
 
 /**
- * @hide
+ * @suppress
  */
 // TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is needed
 //  for convenient LayoutParams usage in compose with views.

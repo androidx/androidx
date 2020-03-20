@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo
  * Span which shear text in x direction. A pixel at (x, y) will be transfer to (x + y * skewX, y),
  * where y is the distant above baseline.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 open class SkewXSpan(val skewX: Float) : MetricAffectingSpan() {

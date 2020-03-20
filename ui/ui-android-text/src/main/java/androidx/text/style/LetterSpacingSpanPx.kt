@@ -8,7 +8,7 @@ import androidx.annotation.RestrictTo
 /**
  * Span that sets the letter spacing as [letterSpacing], in the unit of pixel.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class LetterSpacingSpanPx(@Px val letterSpacing: Float) : MetricAffectingSpan() {

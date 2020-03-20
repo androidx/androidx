@@ -23,7 +23,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
 import java.util.concurrent.CountDownLatch
 
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 var rootAnimationClockFactory: () -> AnimationClockObservable = { DefaultAnimationClock() }
 

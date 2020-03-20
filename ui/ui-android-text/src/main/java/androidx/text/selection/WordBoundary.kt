@@ -34,7 +34,7 @@ import java.util.Locale
  * [Editor.java](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/widget/Editor.java)
  * @param locale Locale of the input text.
  * @param text The input text to be analyzed.
- * @hide
+ * @suppress
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 class WordBoundary(

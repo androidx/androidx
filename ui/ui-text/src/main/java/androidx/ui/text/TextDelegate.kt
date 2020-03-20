@@ -68,7 +68,7 @@ import androidx.ui.unit.px
  *
  * @param layoutDirection The composable layout direction.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextDelegate(

@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo
  * @param lineHeight The specified line height in pixel unit, which is the space between the
  * baseline of adjacent lines.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class LineHeightSpan(val lineHeight: Int) : android.text.style.LineHeightSpan {
