@@ -17,6 +17,7 @@
 package androidx.fragment.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.fragment.app.FragmentManager.TAG;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -26,6 +27,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -142,6 +144,10 @@ public class DialogFragment extends Fragment
                             "DialogFragment can not be attached to a container view");
                 }
                 if (mDialog != null) {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(TAG, "DialogFragment " + this + " setting the content view on "
+                                + mDialog);
+                    }
                     mDialog.setContentView(view);
                 }
             }
@@ -201,6 +207,10 @@ public class DialogFragment extends Fragment
      * on the style) will be selected for you.
      */
     public void setStyle(@DialogStyle int style, @StyleRes int theme) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.d(TAG, "Setting style and theme for DialogFragment " + this + " to " + style
+                    + ", " + theme);
+        }
         mStyle = style;
         if (mStyle == STYLE_NO_FRAME || mStyle == STYLE_NO_INPUT) {
             mTheme = android.R.style.Theme_Panel;
@@ -461,11 +471,22 @@ public class DialogFragment extends Fragment
     public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         LayoutInflater layoutInflater = super.onGetLayoutInflater(savedInstanceState);
         if (!mShowsDialog || mCreatingDialog) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                String message = "getting layout inflater for DialogFragment " + this;
+                if (!mShowsDialog) {
+                    Log.d(TAG, "mShowsDialog = false: " + message);
+                } else {
+                    Log.d(TAG, "mCreatingDialog = true: " + message);
+                }
+            }
             return layoutInflater;
         }
 
         prepareDialog(savedInstanceState);
 
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.d(TAG, "get layout inflater for DialogFragment " + this + " from dialog context");
+        }
         return layoutInflater.cloneInContext(requireDialog().getContext());
     }
 
@@ -511,6 +532,9 @@ public class DialogFragment extends Fragment
     @MainThread
     @NonNull
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "onCreateDialog called for DialogFragment " + this);
+        }
         return new Dialog(requireContext(), getTheme());
     }
 
@@ -525,6 +549,9 @@ public class DialogFragment extends Fragment
             // dispatches this asynchronously so we can receive the call
             // after the activity is paused.  Worst case, when the user comes
             // back to the activity they see the dialog again.
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "onDismiss called for DialogFragment " + this);
+            }
             dismissInternal(true, true);
         }
     }
