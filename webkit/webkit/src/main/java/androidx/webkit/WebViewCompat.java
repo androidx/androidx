@@ -84,6 +84,11 @@ public class WebViewCompat {
         /**
          * Receives a message sent by a {@code postMessage()} on the injected JavaScript object.
          *
+         * <p> Note that when the frame is {@code file:} or {@code content:} origin, the value of
+         * {@code sourceOrigin} is a string {@code "null"}. However we highly recommend to not use
+         * {@code file:} or {@code content:} URLs, see {@link WebViewAssetLoader} for serving local
+         * content under {@code http:} or {@code https:} domain.
+         *
          * @param view The {@link WebView} containing the frame which sent this message.
          * @param message The message from JavaScript.
          * @param sourceOrigin The origin of the frame that the message is from.
