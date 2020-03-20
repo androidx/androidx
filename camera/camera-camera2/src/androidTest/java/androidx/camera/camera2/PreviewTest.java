@@ -274,6 +274,50 @@ public final class PreviewTest {
         }
     }
 
+
+    @Test
+    public void setMultipleNonNullSurfaceProviders_getsFrame() throws InterruptedException {
+        final Preview preview = mDefaultBuilder.build();
+
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
+            mLifecycleOwner.startAndResume();
+        });
+
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Set a different SurfaceProvider which will provide a different surface to be used
+            // for preview.
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+        });
+
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void setMultipleNullableSurfaceProviders_getsFrame() throws InterruptedException {
+        final Preview preview = mDefaultBuilder.build();
+
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+            CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, preview);
+            mLifecycleOwner.startAndResume();
+        });
+
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Set the SurfaceProvider to null in order to force the Preview into an inactive
+            // state before setting a different SurfaceProvider for preview.
+            preview.setSurfaceProvider(null);
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+        });
+
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
     private Executor getWorkExecutorWithNamedThread() {
         final ThreadFactory threadFactory = runnable -> new Thread(runnable, ANY_THREAD_NAME);
         return Executors.newSingleThreadExecutor(threadFactory);

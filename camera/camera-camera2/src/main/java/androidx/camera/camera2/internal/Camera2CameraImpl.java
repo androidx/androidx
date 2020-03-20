@@ -586,7 +586,13 @@ final class Camera2CameraImpl implements CameraInternal {
 
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
-            openCaptureSession();
+
+            // If the use case is reset while the camera is open, a new capture session should be
+            // opened. Otherwise, once the camera eventually becomes in an open state, it will
+            // open a new capture session using the latest session config.
+            if (mState == InternalState.OPENED) {
+                openCaptureSession();
+            }
         });
     }
 
