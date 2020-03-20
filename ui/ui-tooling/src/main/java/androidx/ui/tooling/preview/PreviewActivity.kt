@@ -30,7 +30,7 @@ import androidx.ui.core.setContent
  * Activity through intent parameters, using `composable` as the key and the `@Composable` fully
  * qualified name as the value.
  *
- * @hide
+ * @suppress
  */
 class PreviewActivity : Activity() {
     var composition: Composition? = null

@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 /**
  * A span which applies a shadow effect to the covered text.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ShadowSpan(

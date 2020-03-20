@@ -52,7 +52,7 @@ const val TOOLS_NS_URI = "http://schemas.android.com/tools"
  * Class containing the minimum information needed by the Preview to map components to the
  * source code and render boundaries.
  *
- * @hide
+ * @suppress
  */
 data class ViewInfo(
     val fileName: String,
@@ -92,7 +92,7 @@ private val KEY_INFO_REGEX =
  * View adapter that renders a `@Composable`. The `@Composable` is found by
  * reading the `tools:composableName` attribute that contains the FQN.
  *
- * @hide
+ * @suppress
  */
 @Suppress("unused")
 internal class ComposeViewAdapter : FrameLayout {

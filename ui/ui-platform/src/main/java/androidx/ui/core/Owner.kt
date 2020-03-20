@@ -89,7 +89,7 @@ interface Owner {
      * `true` when layout should draw debug bounds.
      */
     var showLayoutBounds: Boolean
-        /** @hide */
+        /** @suppress */
         @TestOnly
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set

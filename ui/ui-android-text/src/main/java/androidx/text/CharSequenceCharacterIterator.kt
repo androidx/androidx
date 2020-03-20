@@ -28,7 +28,7 @@ import java.text.CharacterIterator
  * @param charSequence The given char sequence.
  * @param start The index of the beginning of the range.
  * @param end The index of the end of the range.
- * {@hide}
+ * @suppress
  */
 class CharSequenceCharacterIterator(
     private val charSequence: CharSequence,

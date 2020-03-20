@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo.Scope
  * LayoutCompat class which provides all supported attributes by framework, and also defines
  * default value of those attributes for Compose.
  *
- * @hide
+ * @suppress
  */
 object LayoutCompat {
     const val ALIGN_NORMAL = 0
@@ -38,7 +38,7 @@ object LayoutCompat {
     const val ALIGN_LEFT = 3
     const val ALIGN_RIGHT = 4
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
@@ -54,7 +54,7 @@ object LayoutCompat {
     const val JUSTIFICATION_MODE_NONE = LineBreaker.JUSTIFICATION_MODE_NONE
     const val JUSTIFICATION_MODE_INTER_WORD = LineBreaker.JUSTIFICATION_MODE_INTER_WORD
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
@@ -65,7 +65,7 @@ object LayoutCompat {
     const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
     const val HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
@@ -80,7 +80,7 @@ object LayoutCompat {
     const val BREAK_STRATEGY_HIGH_QUALITY = LineBreaker.BREAK_STRATEGY_HIGH_QUALITY
     const val BREAK_STRATEGY_BALANCED = LineBreaker.BREAK_STRATEGY_BALANCED
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
@@ -98,7 +98,7 @@ object LayoutCompat {
     const val TEXT_DIRECTION_ANY_RTL_LTR = 4
     const val TEXT_DIRECTION_LOCALE = 5
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)

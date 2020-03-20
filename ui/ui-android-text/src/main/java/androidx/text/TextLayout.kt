@@ -84,7 +84,7 @@ import kotlin.math.min
  * @param layoutIntrinsics previously calculated [LayoutIntrinsics] for this text
  * @see StaticLayoutFactory
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextLayout constructor(
