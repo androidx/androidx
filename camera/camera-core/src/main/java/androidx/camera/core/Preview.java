@@ -309,6 +309,16 @@ public final class Preview extends UseCase {
             mSurfaceProviderExecutor = executor;
             notifyActive();
             onSurfaceProviderAvailable();
+
+            // This method may be updating the current SurfaceProvider, in which case a
+            // DeferrableSurface will have already been provided to the camera. If that's the
+            // case, it is invalidated.
+            if (mSessionDeferrableSurface != null) {
+                mSessionDeferrableSurface.close();
+            }
+
+            // Notify that the use case needs to be reset since the preview surface will change.
+            notifyReset();
         }
     }
 
