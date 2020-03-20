@@ -32,9 +32,7 @@ import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
-import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
-import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.tag
@@ -235,17 +233,11 @@ private fun ScrollableTabRow(
         scrollerPosition = scrollableTabData.position,
         modifier = LayoutWidth.Fill
     ) {
-        val tabTag = "tab"
         val indicatorTag = "indicator"
         val dividerTag = "divider"
         Layout(
             {
-                ParentData(
-                    object : LayoutTagParentData {
-                        override val tag = tabTag
-                    },
-                    children = tabs
-                )
+                tabs()
                 Box(LayoutTag(indicatorTag), children = indicator)
                 Box(LayoutTag(dividerTag), children = divider)
             }
@@ -260,7 +252,8 @@ private fun ScrollableTabRow(
             val newTabPositions = mutableListOf<TabPosition>()
 
             val layoutWidth = measurables
-                .filter { it.tag == tabTag }
+                // to avoid wrapping each tab with the Box only to pass the LayoutTag
+                .filter { it.tag == null }
                 .fold(edgeOffset) { sum, measurable ->
                     val placeable = measurable.measure(tabConstraints)
 

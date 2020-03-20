@@ -21,7 +21,8 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
-import androidx.ui.core.ParentData
+import androidx.ui.core.LayoutTag
+import androidx.ui.core.tag
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
@@ -474,26 +475,24 @@ fun DataTable(
                 val children = @Composable {
                     visibleRows.forEachIndexed { index, row ->
                         if (row.onSelectedChange == null) return@forEachIndexed
-                        ParentData(data = index) {
-                            Clickable(
-                                onClick = { row.onSelectedChange.invoke(!row.selected) },
-                                modifier = ripple()
-                            ) {
-                                ColoredRect(
-                                    color = if (row.selected) {
-                                        selectedColor
-                                    } else {
-                                        Color.Transparent
-                                    }
-                                )
-                            }
+                        Clickable(
+                            onClick = { row.onSelectedChange.invoke(!row.selected) },
+                            modifier = LayoutTag(index) + ripple()
+                        ) {
+                            ColoredRect(
+                                color = if (row.selected) {
+                                    selectedColor
+                                } else {
+                                    Color.Transparent
+                                }
+                            )
                         }
                     }
                 }
                 Layout(children) { measurables, constraints, _ ->
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         measurables.forEach { measurable ->
-                            val i = measurable.parentData as Int
+                            val i = measurable.tag as Int
                             val placeable = measurable.measure(
                                 Constraints.fixed(
                                     width = constraints.maxWidth,

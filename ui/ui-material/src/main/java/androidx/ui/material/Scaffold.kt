@@ -22,9 +22,7 @@ import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
-import androidx.ui.core.ParentData
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
@@ -218,18 +216,8 @@ private fun DockedBottomBar(
     Layout(
         modifier = modifier,
         children = {
-            ParentData(
-                object : LayoutTagParentData {
-                    override val tag: Any = "bottomBar"
-                },
-                bottomBar
-            )
-            ParentData(
-                object : LayoutTagParentData {
-                    override val tag: Any = "fab"
-                },
-                fab
-            )
+            bottomBar()
+            fab()
         }) { measurables, constraints, _ ->
         val (appBarPlaceable, fabPlaceable) = measurables.map { it.measure(constraints) }
 

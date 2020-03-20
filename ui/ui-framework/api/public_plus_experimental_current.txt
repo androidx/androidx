@@ -69,7 +69,7 @@ package androidx.ui.core {
   }
 
   public final class ParentDataKt {
-    method public static inline void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static inline void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PasswordTextFieldKt {

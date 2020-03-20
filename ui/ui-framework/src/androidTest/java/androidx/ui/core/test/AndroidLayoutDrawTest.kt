@@ -447,30 +447,6 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    @Test
-    fun multiChildLayoutTest_doesNotOverrideChildrenParentData() {
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                val header = @Composable {
-                    ParentData(data = 0) {
-                        Layout(children = emptyContent()) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
-                    }
-                }
-                val footer = @Composable {
-                    ParentData(data = 1) {
-                        Layout(children = emptyContent()) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
-                    }
-                }
-
-                Layout({ header(); footer() }) { measurables, _, _ ->
-                    assertEquals(0, measurables[0].parentData)
-                    assertEquals(1, measurables[1].parentData)
-                    layout(0.ipx, 0.ipx) { }
-                }
-            }
-        }
-    }
-
     // When a child's measure() is done within the layout, it should not affect the parent's
     // size. The parent's layout shouldn't be called when the child's size changes
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1620,42 +1596,6 @@ class AndroidLayoutDrawTest {
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-    }
-
-    @Test
-    fun testParentData_noModifier() {
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                Layout({
-                    ParentData(data = 123) {
-                        Layout(children = { }) { _, _, _ ->
-                            layout(0.ipx, 0.ipx) { }
-                        }
-                    }
-                }) { measurables, _, _ ->
-                    assertEquals(123, measurables.first().parentData)
-                    layout(0.ipx, 0.ipx) { }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testParentData_withModifier() {
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                Layout({
-                    ParentData(data = 456) {
-                        Layout(children = { }, modifier = PaddingModifier(10.ipx)) { _, _, _ ->
-                            layout(0.ipx, 0.ipx) { }
-                        }
-                    }
-                }) { measurables, _, _ ->
-                    assertEquals(456, measurables.first().parentData)
-                    layout(0.ipx, 0.ipx) { }
-                }
-            }
-        }
     }
 
     @Test
