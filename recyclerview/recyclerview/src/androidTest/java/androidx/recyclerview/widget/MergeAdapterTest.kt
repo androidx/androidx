@@ -890,7 +890,7 @@ class MergeAdapterTest {
         val adapter3 = NestedTestAdapter(2)
         merge.addAdapter(adapter3)
         assertThat(adapter3.observerCount()).isEqualTo(1)
-        merge.copyOfAdapters.forEach {
+        merge.adapters.forEach {
             merge.removeAdapter(it)
         }
         listOf(adapter1, adapter2, adapter3).forEachIndexed { index, adapter ->
@@ -947,9 +947,9 @@ class MergeAdapterTest {
         val adapter1 = NestedTestAdapter(1)
         val adapter2 = NestedTestAdapter(2)
         val merge = MergeAdapter(adapter1, adapter2)
-        assertThat(merge.copyOfAdapters).isEqualTo(listOf(adapter1, adapter2))
+        assertThat(merge.adapters).isEqualTo(listOf(adapter1, adapter2))
         merge.removeAdapter(adapter1)
-        assertThat(merge.copyOfAdapters).isEqualTo(listOf(adapter2))
+        assertThat(merge.adapters).isEqualTo(listOf(adapter2))
     }
 
     @Test
