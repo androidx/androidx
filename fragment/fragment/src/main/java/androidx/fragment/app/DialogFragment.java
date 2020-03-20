@@ -546,6 +546,12 @@ public class DialogFragment extends Fragment
                 mDialog.setCancelable(mCancelable);
                 mDialog.setOnCancelListener(mOnCancelListener);
                 mDialog.setOnDismissListener(mOnDismissListener);
+                if (savedInstanceState != null) {
+                    Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
+                    if (dialogState != null) {
+                        mDialog.onRestoreInstanceState(dialogState);
+                    }
+                }
             } finally {
                 mCreatingDialog = false;
             }

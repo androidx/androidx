@@ -22,6 +22,8 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.ViewModelStore
@@ -143,6 +145,47 @@ class DialogFragmentTest {
 
     @Test
     @UiThreadTest
+    fun testSavedInstanceStateAlertDialog() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityTestRule.startupFragmentController(viewModelStore)
+        val fm1 = fc1.supportFragmentManager
+
+        val dialogFragment = TestDialogFragment()
+
+        fm1.beginTransaction()
+            .add(dialogFragment, "dialog")
+            .commitNow()
+
+        dialogFragment.requireDialog().findViewById<EditText>(R.id.editText).apply {
+            setText("saved", TextView.BufferType.EDITABLE)
+        }
+
+        fc1.dispatchPause()
+        val savedState = fc1.saveAllState()
+        fc1.dispatchStop()
+        fc1.dispatchDestroy()
+
+        val fc2 = activityTestRule.startupFragmentController(viewModelStore, savedState)
+        val fm2 = fc2.supportFragmentManager
+
+        val restoredDialogFragment = fm2.findFragmentByTag("dialog") as TestDialogFragment
+        assertWithMessage("Dialog fragment was not restored")
+            .that(restoredDialogFragment).isNotNull()
+
+        val restoredDialog = restoredDialogFragment.requireDialog()
+
+        val restoredText = restoredDialog.findViewById<EditText>(R.id.editText).text.toString()
+
+        assertWithMessage("onRestoreInstanceState called before setContent")
+            .that(restoredText)
+            .isEqualTo("saved")
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.shutdown(viewModelStore)
+    }
+
+    @Test
+    @UiThreadTest
     fun testSavedInstanceState() {
         val viewModelStore = ViewModelStore()
         val fc1 = activityTestRule.startupFragmentController(viewModelStore)
@@ -217,9 +260,11 @@ class DialogFragmentTest {
         var onCancelCalled = false
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val view = layoutInflater.inflate(R.layout.with_edit_text, null, false)
             return AlertDialog.Builder(context)
                 .setTitle("Test")
                 .setMessage("Message")
+                .setView(view)
                 .setPositiveButton("Button", null)
                 .create()
         }
