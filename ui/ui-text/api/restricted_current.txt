@@ -40,6 +40,11 @@ package androidx.ui.input {
     method public void process(androidx.ui.input.EditingBuffer buffer);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EditProcessor {
+    method public androidx.ui.input.InputState onEditCommands(java.util.List<? extends androidx.ui.input.EditOperation> ops);
+    method public void onNewState(androidx.ui.input.InputState model, androidx.ui.input.TextInputService? textInputService, int token);
+  }
+
   public final class EditingBuffer {
     ctor public EditingBuffer(String initialText, androidx.ui.text.TextRange initialSelection);
     field public static final int NOWHERE = -1; // 0xffffffff
@@ -489,6 +494,27 @@ package androidx.ui.text {
     method public static String toLowerCase(String, androidx.ui.text.LocaleList localeList);
     method public static String toUpperCase(String, androidx.ui.text.Locale locale);
     method public static String toUpperCase(String, androidx.ui.text.LocaleList localeList);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextDelegate {
+    ctor public TextDelegate(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public androidx.ui.unit.Density getDensity();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
+    method public androidx.ui.unit.IntPx getMaxIntrinsicWidth();
+    method public int getMaxLines();
+    method public androidx.ui.unit.IntPx getMinIntrinsicWidth();
+    method public androidx.ui.text.style.TextOverflow getOverflow();
+    method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
+    method public boolean getSoftWrap();
+    method public androidx.ui.text.TextStyle getStyle();
+    method public androidx.ui.text.AnnotatedString getText();
+    method public androidx.ui.text.TextLayoutResult layout(androidx.ui.core.Constraints constraints, androidx.ui.text.TextLayoutResult? prevResult = null);
+    method public void layoutIntrinsics();
+    method public void paint(androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
+    method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
+    property public final androidx.ui.unit.IntPx maxIntrinsicWidth;
+    property public final androidx.ui.unit.IntPx minIntrinsicWidth;
+    property public final androidx.ui.text.TextStyle style;
   }
 
   public final class TextFieldValue {

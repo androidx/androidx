@@ -86,7 +86,7 @@ import kotlin.math.min
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextLayout constructor(
     charSequence: CharSequence,
     width: Float = 0.0f,

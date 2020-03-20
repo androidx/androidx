@@ -27,7 +27,7 @@ import androidx.ui.text.TextRange
  * IME.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EditProcessor {
 
     // The previous editor state we passed back to the user of this class.

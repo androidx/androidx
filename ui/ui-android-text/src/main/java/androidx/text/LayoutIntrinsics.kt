@@ -28,7 +28,7 @@ import java.util.PriorityQueue
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class LayoutIntrinsics(
     charSequence: CharSequence,
     textPaint: TextPaint,
