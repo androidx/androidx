@@ -110,7 +110,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
      * Test-only access to the internal commit listener. This is used for benchmarking
      * the commit notification callback.
      *
-     * @hide
+     * @suppress
      */
     val frameCommitObserver: FrameCommitObserver
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
