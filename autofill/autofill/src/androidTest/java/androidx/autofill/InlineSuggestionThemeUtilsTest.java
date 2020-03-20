@@ -106,10 +106,10 @@ public class InlineSuggestionThemeUtilsTest {
                 R.drawable.autofill_inline_suggestion_chip_background);
         verifyIntValue(context, android.R.attr.textColor,
                 R.attr.autofillInlineSuggestionTitle,
-                Color.parseColor("#FF424242"));
+                Color.parseColor("#FF202124"));
         verifyIntValue(context, android.R.attr.textColor,
                 R.attr.autofillInlineSuggestionSubtitle,
-                Color.parseColor("#66FFFFFF"));
+                Color.parseColor("#FF5F6368"));
         verifyIntValue(context, android.R.attr.scaleType,
                 R.attr.autofillInlineSuggestionStartIconStyle,
                 ImageView.ScaleType.FIT_CENTER.ordinal());
