@@ -50,7 +50,6 @@ internal fun Element.isVisibleToPackage(): Boolean {
     return accept(IsVisibleToPackageVisitor, null)
 }
 
-@Suppress("DEPRECATION")
 private object IsVisibleToPackageVisitor : SimpleElementVisitor6<Boolean, Nothing?>() {
     override fun visitPackage(e: PackageElement, p: Nothing?): Boolean {
         return true

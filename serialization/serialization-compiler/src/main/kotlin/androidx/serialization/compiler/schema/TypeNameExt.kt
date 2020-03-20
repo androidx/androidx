@@ -26,7 +26,6 @@ internal fun TypeElement.toTypeName(): TypeName {
     return this.accept(TypeNameVisitor, mutableListOf())
 }
 
-@Suppress("DEPRECATION")
 private object TypeNameVisitor : SimpleElementVisitor6<TypeName, MutableList<String>>() {
     override fun visitType(e: TypeElement, p: MutableList<String>): TypeName {
         p += e.simpleName.toString()

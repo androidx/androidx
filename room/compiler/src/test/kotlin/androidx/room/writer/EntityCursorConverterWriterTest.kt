@@ -33,7 +33,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             package foo.bar;
             import android.database.Cursor;
             import java.lang.SuppressWarnings;
-            import javax.annotation.processing.Generated;
+            import javax.annotation.Generated;
             @Generated("androidx.room.RoomProcessor")
             @SuppressWarnings({"unchecked", "deprecation"})
             public class MyContainerClass {
