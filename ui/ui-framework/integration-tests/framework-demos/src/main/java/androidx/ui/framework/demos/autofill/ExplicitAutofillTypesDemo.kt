@@ -25,7 +25,7 @@ import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.TextField
+import androidx.ui.foundation.TextField
 import androidx.ui.foundation.Text
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType

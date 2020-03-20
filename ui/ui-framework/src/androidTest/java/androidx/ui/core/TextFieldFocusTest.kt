@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.input.FocusManagerImpl
+import androidx.ui.input.InputState
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -43,9 +44,10 @@ class TextFieldFocusTest {
     @Composable
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
-            val editor = state { "" }
-            TextField(
+            val editor = state { InputState() }
+            CoreTextField(
                 value = editor.value,
+                modifier = Modifier.None,
                 onValueChange = {
                     editor.value = it
                 },

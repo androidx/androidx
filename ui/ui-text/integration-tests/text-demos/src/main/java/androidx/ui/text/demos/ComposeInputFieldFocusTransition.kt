@@ -19,7 +19,7 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.FocusManagerAmbient
-import androidx.ui.core.TextField
+import androidx.ui.foundation.TextField
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction

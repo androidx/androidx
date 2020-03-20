@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
+import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.TestTag
+import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
