@@ -1066,7 +1066,7 @@ class LayoutNode : ComponentNode(), Measurable {
         val owner = owner!!
         val parentLayoutNode = parentLayoutNode
         if (parentLayoutNode != null) {
-            owner.onInvalidate(parentLayoutNode)
+            parentLayoutNode.onInvalidate()
             parentLayoutNode.layoutChildrenDirty = true
             parentLayoutNode.requestRemeasure()
         }
