@@ -51,6 +51,9 @@ class TableChildren internal constructor() {
     fun tableRow(children: @Composable() () -> Unit) {
         val rowIndex = tableChildren.size
         tableChildren += {
+            // TODO(b/150139220) ParentData composable will be removed as soon as Table's API is
+            //  migrated
+            @Suppress("DEPRECATION")
             ParentData(data = TableChildData(rowIndex), children = children)
         }
     }

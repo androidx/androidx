@@ -16,10 +16,12 @@
 package androidx.ui.core.test
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
-import androidx.ui.core.ParentData
+import androidx.ui.core.LayoutTag
+import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.draw
 import androidx.ui.core.setContent
@@ -41,7 +43,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ParentDataTest {
+class ParentDataModifierTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(
         TestActivity::class.java
@@ -79,31 +81,6 @@ class ParentDataTest {
         assertNull(parentData.value)
     }
 
-    // Test that parent data can be set to something non-null
-    @Test
-    fun nonNullParentData() {
-        val parentData = Ref<Any?>()
-        runOnUiThread {
-            activity.setContent {
-                Layout(children = {
-                    ParentData(data = "Hello") {
-                        SimpleDrawChild(drawLatch = drawLatch)
-                    }
-                }, measureBlock = { measurables, constraints, _ ->
-                    assertEquals(1, measurables.size)
-                    parentData.value = measurables[0].parentData
-
-                    val placeable = measurables[0].measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0.ipx, 0.ipx)
-                    }
-                })
-            }
-        }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertEquals("Hello", parentData.value)
-    }
-
     // Test that parent data doesn't flow to grandchild measurables. They must be
     // reset on every Layout level
     @Test
@@ -111,10 +88,12 @@ class ParentDataTest {
         val parentData = Ref<Any?>()
         runOnUiThread {
             activity.setContent {
-                ParentData(data = "Hello") {
-                    Layout(children = {
+                Layout(
+                    modifier = LayoutTag("Hello"),
+                    children = {
                         SimpleDrawChild(drawLatch = drawLatch)
-                    }, measureBlock = { measurables, constraints, _ ->
+                    },
+                    measureBlock = { measurables, constraints, _ ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -122,12 +101,38 @@ class ParentDataTest {
                         layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
-                    })
-                }
+                    }
+                )
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertNull(parentData.value)
+    }
+
+    @Test
+    fun multiChildLayoutTest_doesNotOverrideChildrenParentData() {
+        runOnUiThread {
+            activity.setContent {
+                val header = @Composable {
+                    Layout(
+                        modifier = LayoutTag(0),
+                        children = emptyContent()
+                    ) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
+                }
+                val footer = @Composable {
+                    Layout(
+                        modifier = LayoutTag(1),
+                        children = emptyContent()
+                    ) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
+                }
+
+                Layout({ header(); footer() }) { measurables, _, _ ->
+                    assertEquals(0, ((measurables[0]).parentData as? LayoutTagParentData)?.tag)
+                    assertEquals(1, ((measurables[1]).parentData as? LayoutTagParentData)?.tag)
+                    layout(0.ipx, 0.ipx) { }
+                }
+            }
+        }
     }
 
     // We only need this because IR compiler doesn't like converting lambdas to Runnables
