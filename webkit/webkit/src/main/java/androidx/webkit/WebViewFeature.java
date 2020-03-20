@@ -431,11 +431,7 @@ public class WebViewFeature {
      * This feature covers {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
      * String, List, WebViewCompat.WebMessageListener)} and {@link
      * WebViewCompat#removeWebMessageListener(android.webkit.WebView, String)}.
-     *
-     * TODO(ctzsm): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
 
     /**
