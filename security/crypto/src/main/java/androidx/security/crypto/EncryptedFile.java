@@ -29,7 +29,6 @@ import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.config.TinkConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.proto.KeyTemplate;
-import com.google.crypto.tink.streamingaead.StreamingAeadFactory;
 import com.google.crypto.tink.streamingaead.StreamingAeadKeyTemplates;
 
 import java.io.File;
@@ -171,12 +170,10 @@ public final class EncryptedFile {
                     .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias)
                     .build().getKeysetHandle();
 
-            StreamingAead streamingAead = StreamingAeadFactory.getPrimitive(
-                    streadmingAeadKeysetHandle);
+            StreamingAead streamingAead =
+                    streadmingAeadKeysetHandle.getPrimitive(StreamingAead.class);
 
-            EncryptedFile file = new EncryptedFile(mFile, mKeysetAlias, streamingAead,
-                    mContext);
-            return file;
+            return new EncryptedFile(mFile, mKeysetAlias, streamingAead, mContext);
         }
     }
 
