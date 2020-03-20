@@ -330,7 +330,7 @@ package androidx.recyclerview.widget {
     ctor public MergeAdapter(androidx.recyclerview.widget.MergeAdapter.Config, java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!>);
     method public boolean addAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
     method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
-    method public java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!> getCopyOfAdapters();
+    method public java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!> getAdapters();
     method public int getItemCount();
     method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);

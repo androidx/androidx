@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -264,15 +265,15 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     }
 
     /**
-     * Returns a copy of the list of adapters in this {@link MergeAdapter}.
+     * Returns an unmodifiable copy of the list of adapters in this {@link MergeAdapter}.
      * Note that this is a copy hence future changes in the MergeAdapter are not reflected in
      * this list.
      *
      * @return A copy of the list of adapters in this MergeAdapter.
      */
     @NonNull
-    public List<Adapter<? extends ViewHolder>> getCopyOfAdapters() {
-        return mController.getCopyOfAdapters();
+    public List<Adapter<? extends ViewHolder>> getAdapters() {
+        return Collections.unmodifiableList(mController.getCopyOfAdapters());
     }
 
     /**
