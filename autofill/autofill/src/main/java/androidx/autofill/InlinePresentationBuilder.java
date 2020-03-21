@@ -151,9 +151,9 @@ public class InlinePresentationBuilder {
             throw new IllegalStateException("Cannot set the subtitle without setting the title.");
         }
 
-        if (mAttribution == null) {
-            throw new IllegalStateException("Slice must have attribution set");
-        }
+        // TODO(b/150321630): Do not enforce the non-nullness of mAttribution for now to avoid
+        //  crashing the existing code at runtime. Add the check once the google3 clients have
+        //  migrated with the new API.
 
         Slice.Builder builder = new Slice.Builder(Uri.parse(INLINE_PRESENTATION_SLICE_URI),
                 new SliceSpec(INLINE_PRESENTATION_SPEC_TYPE, INLINE_PRESENTATION_SPEC_VERSION));
@@ -169,8 +169,10 @@ public class InlinePresentationBuilder {
         if (mEndIcon != null) {
             builder.addIcon(mEndIcon, null, Collections.singletonList(HINT_INLINE_END_ICON));
         }
-        builder.addAction(mAttribution, new Slice.Builder(builder).addHints(
-                Collections.singletonList(HINT_INLINE_ATTRIBUTION)).build(), null);
+        if (mAttribution != null) {
+            builder.addAction(mAttribution, new Slice.Builder(builder).addHints(
+                    Collections.singletonList(HINT_INLINE_ATTRIBUTION)).build(), null);
+        }
         return builder.build();
     }
 
