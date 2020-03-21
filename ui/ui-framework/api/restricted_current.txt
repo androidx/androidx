@@ -232,7 +232,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class TapGestureDetectorKt {
-    method public static androidx.ui.core.Modifier TapGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onTap = null, boolean enabled = true);
+    method public static androidx.ui.core.Modifier TapGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onTap);
   }
 
   public final class TouchSlopExceededGestureDetectorKt {

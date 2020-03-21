@@ -56,7 +56,12 @@ fun Clickable(
     ) {
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
+        val tap = if (enabled) {
+            TapGestureDetector(onClick)
+        } else {
+            Modifier.None
+        }
         @Suppress("DEPRECATION")
-        PassThroughLayout(modifier + TapGestureDetector(onClick, enabled = enabled), children)
+        PassThroughLayout(modifier + tap, children)
     }
 }
