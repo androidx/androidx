@@ -27,43 +27,34 @@
         style="?attr/autofillInlineSuggestionStartIconStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
         android:contentDescription="autofill_inline_suggestion_start_icon"
         android:visibility="gone"/>
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
+    <TextView
+        android:id="@+id/autofill_inline_suggestion_title"
+        style="?attr/autofillInlineSuggestionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/autofill_inline_suggestion_title"
-            style="?attr/autofillInlineSuggestionTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:visibility="gone"/>
-
-        <TextView
-            android:id="@+id/autofill_inline_suggestion_subtitle"
-            style="?attr/autofillInlineSuggestionSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:visibility="gone"/>
-    </LinearLayout>
+    <TextView
+        android:id="@+id/autofill_inline_suggestion_subtitle"
+        style="?attr/autofillInlineSuggestionSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/autofill_inline_suggestion_end_icon"
         style="?attr/autofillInlineSuggestionEndIconStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
         android:contentDescription="autofill_inline_suggestion_end_icon"
         android:visibility="gone"/>
 </LinearLayout>

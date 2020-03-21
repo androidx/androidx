@@ -45,6 +45,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -155,6 +156,8 @@ public class InlinePresentationBuilderTest {
         fail();
     }
 
+    // Ignore the test until we add the check back to the {@link InlinePresentationBuilder}.
+    @Ignore
     @Test
     public void buildSlice_sliceWithoutAttribution_exception() {
         try {
