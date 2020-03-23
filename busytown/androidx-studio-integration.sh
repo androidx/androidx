@@ -19,6 +19,7 @@ JAVA_HOME="$(pwd)/prebuilts/studio/jdk/linux" tools/gradlew -p tools/ publishLoc
 export GRADLE_PLUGIN_VERSION=`grep -oP "(?<=buildVersion = ).*" tools/buildSrc/base/version.properties`
 export GRADLE_PLUGIN_REPO="$(pwd)/out/repo"
 export JAVA_HOME="$PWD/prebuilts/jdk/jdk11/linux-x86/"
+export JAVA_TOOLS_JAR="$PWD/prebuilts/jdk/jdk11/linux-x86/lib/tools.jar"
 
 tools/gradlew -p frameworks/support --no-daemon bOS
 DIST_SUBDIR="/ui" tools/gradlew -p frameworks/support/ui --no-daemon bOS
