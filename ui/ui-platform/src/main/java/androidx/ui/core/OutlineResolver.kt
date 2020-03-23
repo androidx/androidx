@@ -186,7 +186,7 @@ internal class OutlineResolver(private val density: Density) {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @Suppress("deprecation")
     private fun updateCacheWithPath(composePath: Path) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P || composePath.isConvex) {
             // TODO(mount): Use setPath() for R+ when available.
