@@ -19,6 +19,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
+import android.util.SparseArray
 import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
@@ -2185,6 +2186,22 @@ class AndroidLayoutDrawTest {
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    // When a child with a layer is removed with its children, it shouldn't crash.
+    @Test
+    fun detachChildWithLayer() {
+        activityTestRule.runOnUiThread {
+            val composition = activity.setContent {
+                FixedSize(10.ipx, drawLayer()) {
+                    FixedSize(8.ipx)
+                }
+            }
+
+            val composeView = activityTestRule.findAndroidComposeView()
+            composeView.restoreHierarchyState(SparseArray())
+            composition.dispose()
+        }
     }
 
     private val AlignTopLeft = object : LayoutModifier {
