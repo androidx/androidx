@@ -134,7 +134,7 @@ fun <T> TabRow(
     items: List<T>,
     selectedIndex: Int,
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().primarySurface,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     scrollable: Boolean = false,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
@@ -473,10 +473,10 @@ fun Tab(
     onSelected: () -> Unit,
     modifier: Modifier = Modifier.None,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = MaterialTheme.emphasisLevels().medium.emphasize(activeColor)
+    inactiveColor: Color = MaterialTheme.emphasisLevels.medium.emphasize(activeColor)
 ) {
     val styledText = @Composable {
-        val style = MaterialTheme.typography().button.copy(textAlign = TextAlign.Center)
+        val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)
         ProvideTextStyle(style, children = text)
     }
     Tab(selected, onSelected, modifier) {

@@ -50,12 +50,12 @@ fun AccountsBody() {
                 Column(modifier = LayoutGravity.Center) {
                     Text(
                         text = "Total",
-                        style = MaterialTheme.typography().body1,
+                        style = MaterialTheme.typography.body1,
                         modifier = LayoutGravity.Center
                     )
                     Text(
                         text = "$12,132.49",
-                        style = MaterialTheme.typography().h2,
+                        style = MaterialTheme.typography.h2,
                         modifier = LayoutGravity.Center
                     )
                 }

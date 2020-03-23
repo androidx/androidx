@@ -110,7 +110,7 @@ private fun DemoTheme(
     children: @Composable() () -> Unit
 ) {
     MaterialTheme(demoColors.colors) {
-        val statusBarColor = with(MaterialTheme.colors()) {
+        val statusBarColor = with(MaterialTheme.colors) {
             if (isLight) darkenedPrimary else surface.toArgb()
         }
         onCommit(statusBarColor) {

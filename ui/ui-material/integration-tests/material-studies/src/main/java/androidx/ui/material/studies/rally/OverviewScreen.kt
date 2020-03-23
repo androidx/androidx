@@ -88,7 +88,7 @@ private fun AlertHeader(onClickSeeAll: () -> Unit) {
     ) {
         Text(
             text = "Alerts",
-            style = MaterialTheme.typography().subtitle2,
+            style = MaterialTheme.typography.subtitle2,
             modifier = LayoutGravity.Center
         )
         TextButton(
@@ -109,7 +109,7 @@ private fun AlertItem(message: String) {
         arrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            style = MaterialTheme.typography().h3,
+            style = MaterialTheme.typography.h3,
             modifier = LayoutWeight(1f),
             text = message
         )
@@ -137,9 +137,9 @@ private fun <T> OverviewScreenCard(
     Card {
         Column {
             Column(modifier = LayoutPadding(RallyDefaultPadding)) {
-                Text(text = title, style = MaterialTheme.typography().subtitle2)
+                Text(text = title, style = MaterialTheme.typography.subtitle2)
                 val amountText = "$" + formatAmount(amount)
-                Text(text = amountText, style = MaterialTheme.typography().h2)
+                Text(text = amountText, style = MaterialTheme.typography.h2)
             }
             Divider(color = rallyGreen, height = 1.dp)
             Column(LayoutPadding(start = 16.dp, top = 4.dp, end = 8.dp)) {

@@ -67,7 +67,7 @@ fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
     shape: Shape = CircleShape,
-    backgroundColor: Color = MaterialTheme.colors().primary,
+    backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
@@ -80,7 +80,7 @@ fun FloatingActionButton(
         elevation = elevation
     ) {
         Clickable(onClick, modifier = ripple()) {
-            ProvideTextStyle(MaterialTheme.typography().button) {
+            ProvideTextStyle(MaterialTheme.typography.button) {
                 Box(
                     modifier = MinimumFabSizeModifier,
                     gravity = ContentGravity.Center,
@@ -119,7 +119,7 @@ fun ExtendedFloatingActionButton(
     modifier: Modifier = Modifier.None,
     icon: @Composable() (() -> Unit)? = null,
     shape: Shape = CircleShape,
-    backgroundColor: Color = MaterialTheme.colors().primary,
+    backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp
 ) {

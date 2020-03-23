@@ -38,7 +38,7 @@ fun SnackbarDemo() {
             text = { Text("This song already exists in the current playlist") },
             action = {
                 TextButton(
-                    contentColor = snackbarPrimaryColorFor(MaterialTheme.colors()),
+                    contentColor = snackbarPrimaryColorFor(MaterialTheme.colors),
                     onClick = { /* perform undo */ }
                 ) {
                     Text("ADD THIS SONG ANYWAY")

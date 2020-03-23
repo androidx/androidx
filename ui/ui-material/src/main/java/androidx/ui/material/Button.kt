@@ -69,9 +69,9 @@ fun Button(
     modifier: Modifier = Modifier.None,
     enabled: Boolean = true,
     elevation: Dp = 2.dp,
-    shape: Shape = MaterialTheme.shapes().button,
+    shape: Shape = MaterialTheme.shapes.button,
     border: Border? = null,
-    backgroundColor: Color = MaterialTheme.colors().primary,
+    backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     innerPadding: EdgeInsets = Button.DefaultInnerPadding,
     children: @Composable() () -> Unit
@@ -100,7 +100,7 @@ fun Button(
                     paddingBottom = innerPadding.bottom
                 ) {
                     ProvideTextStyle(
-                        value = MaterialTheme.typography().button,
+                        value = MaterialTheme.typography.button,
                         children = children
                     )
                 }
@@ -147,12 +147,12 @@ inline fun OutlinedButton(
     modifier: Modifier = Modifier.None,
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
-    shape: Shape = MaterialTheme.shapes().button,
+    shape: Shape = MaterialTheme.shapes.button,
     border: Border? = Border(
-        1.dp, MaterialTheme.colors().onSurface.copy(alpha = OutlinedStrokeOpacity)
+        1.dp, MaterialTheme.colors.onSurface.copy(alpha = OutlinedStrokeOpacity)
     ),
-    backgroundColor: Color = MaterialTheme.colors().surface,
-    contentColor: Color = MaterialTheme.colors().primary,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = MaterialTheme.colors.primary,
     innerPadding: EdgeInsets = Button.DefaultInnerPadding,
     noinline children: @Composable() () -> Unit
 ) = Button(
@@ -203,10 +203,10 @@ inline fun TextButton(
     modifier: Modifier = Modifier.None,
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
-    shape: Shape = MaterialTheme.shapes().button,
+    shape: Shape = MaterialTheme.shapes.button,
     border: Border? = null,
     backgroundColor: Color = Color.Transparent,
-    contentColor: Color = MaterialTheme.colors().primary,
+    contentColor: Color = MaterialTheme.colors.primary,
     innerPadding: EdgeInsets = TextButton.DefaultInnerPadding,
     noinline children: @Composable() () -> Unit
 ) = Button(

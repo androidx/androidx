@@ -56,7 +56,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    val onSurface = MaterialTheme.colors().onSurface
+                    val onSurface = MaterialTheme.colors.onSurface
 
                     assertThat(contentColor()).isEqualTo(onSurface)
                     assertThat(currentTextStyle().color).isEqualTo(onSurface)
@@ -70,8 +70,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
-                        val onSurface = MaterialTheme.colors().onSurface
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.high) {
+                        val onSurface = MaterialTheme.colors.onSurface
                         val modifiedOnSurface = onSurface.copy(
                             alpha = ReducedContrastHighEmphasisAlpha
                         )
@@ -89,8 +89,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
-                        val onSurface = MaterialTheme.colors().onSurface
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.medium) {
+                        val onSurface = MaterialTheme.colors.onSurface
                         val modifiedOnSurface = onSurface.copy(
                             alpha = ReducedContrastMediumEmphasisAlpha
                         )
@@ -108,8 +108,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
-                        val onSurface = MaterialTheme.colors().onSurface
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.disabled) {
+                        val onSurface = MaterialTheme.colors.onSurface
                         val modifiedOnSurface = onSurface.copy(
                             alpha = ReducedContrastDisabledEmphasisAlpha
                         )
@@ -127,7 +127,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface(color = colors.primary) {
-                    val onPrimary = MaterialTheme.colors().onPrimary
+                    val onPrimary = MaterialTheme.colors.onPrimary
 
                     assertThat(contentColor()).isEqualTo(onPrimary)
                     assertThat(currentTextStyle().color).isEqualTo(onPrimary)
@@ -141,8 +141,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface(color = colors.primary) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
-                        val onPrimary = MaterialTheme.colors().onPrimary
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.high) {
+                        val onPrimary = MaterialTheme.colors.onPrimary
                         val modifiedOnPrimary = onPrimary.copy(
                             alpha = HighContrastHighEmphasisAlpha
                         )
@@ -160,8 +160,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface(color = colors.primary) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
-                        val onPrimary = MaterialTheme.colors().onPrimary
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.medium) {
+                        val onPrimary = MaterialTheme.colors.onPrimary
                         val modifiedOnPrimary = onPrimary.copy(
                             alpha = HighContrastMediumEmphasisAlpha
                         )
@@ -179,8 +179,8 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
         composeTestRule.setContent {
             MaterialTheme(colors) {
                 Surface(color = colors.primary) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
-                        val onPrimary = MaterialTheme.colors().onPrimary
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.disabled) {
+                        val onPrimary = MaterialTheme.colors.onPrimary
                         val modifiedOnPrimary = onPrimary.copy(
                             alpha = HighContrastDisabledEmphasisAlpha
                         )
@@ -211,7 +211,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 val contentColor = Color(0.9f, 0.9f, 0.9f)
                 Surface(contentColor = contentColor) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.high) {
                         val expectedAlpha = if (colors.isLight) {
                             HighContrastHighEmphasisAlpha
                         } else {
@@ -233,7 +233,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 val contentColor = Color(0.9f, 0.9f, 0.9f)
                 Surface(contentColor = contentColor) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.medium) {
                         val expectedAlpha = if (colors.isLight) {
                             HighContrastMediumEmphasisAlpha
                         } else {
@@ -255,7 +255,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 val contentColor = Color(0.9f, 0.9f, 0.9f)
                 Surface(contentColor = contentColor) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.disabled) {
                         val expectedAlpha = if (colors.isLight) {
                             HighContrastDisabledEmphasisAlpha
                         } else {
@@ -277,7 +277,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 val contentColor = Color(0.1f, 0.1f, 0.1f)
                 Surface(contentColor = contentColor) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.high) {
                         val expectedAlpha = if (colors.isLight) {
                             ReducedContrastHighEmphasisAlpha
                         } else {
@@ -299,7 +299,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 val contentColor = Color(0.1f, 0.1f, 0.1f)
                 Surface(contentColor = contentColor) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().medium) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.medium) {
                         val expectedAlpha = if (colors.isLight) {
                             ReducedContrastMediumEmphasisAlpha
                         } else {
@@ -321,7 +321,7 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 val contentColor = Color(0.1f, 0.1f, 0.1f)
                 Surface(contentColor = contentColor) {
-                    ProvideEmphasis(MaterialTheme.emphasisLevels().disabled) {
+                    ProvideEmphasis(MaterialTheme.emphasisLevels.disabled) {
                         val expectedAlpha = if (colors.isLight) {
                             ReducedContrastDisabledEmphasisAlpha
                         } else {

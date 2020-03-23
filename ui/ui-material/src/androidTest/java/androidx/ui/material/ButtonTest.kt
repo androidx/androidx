@@ -233,8 +233,8 @@ class ButtonTest {
     fun buttonTest_ContainedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}) {
-                val style = MaterialTheme.typography().button
-                    .copy(color = MaterialTheme.colors().onPrimary)
+                val style = MaterialTheme.typography.button
+                    .copy(color = MaterialTheme.colors.onPrimary)
                 assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
@@ -244,8 +244,8 @@ class ButtonTest {
     fun buttonTest_OutlinedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             OutlinedButton(onClick = {}) {
-                val style = MaterialTheme.typography().button
-                    .copy(color = MaterialTheme.colors().primary)
+                val style = MaterialTheme.typography.button
+                    .copy(color = MaterialTheme.colors.primary)
                 assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
@@ -255,8 +255,8 @@ class ButtonTest {
     fun buttonTest_TextButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             TextButton(onClick = {}) {
-                val style = MaterialTheme.typography().button
-                    .copy(color = MaterialTheme.colors().primary)
+                val style = MaterialTheme.typography.button
+                    .copy(color = MaterialTheme.colors.primary)
                 assertThat(currentTextStyle()).isEqualTo(style)
             }
         }

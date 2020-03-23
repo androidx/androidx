@@ -80,7 +80,7 @@ import kotlin.math.ln
 fun Surface(
     modifier: Modifier = Modifier.None,
     shape: Shape = RectangleShape,
-    color: Color = MaterialTheme.colors().surface,
+    color: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(color),
     border: Border? = null,
     elevation: Dp = 0.dp,
@@ -136,7 +136,7 @@ private fun SurfaceLayout(modifier: Modifier = Modifier.None, children: @Composa
  */
 @Composable
 private fun getBackgroundColorForElevation(color: Color, elevation: Dp): Color {
-    val colors = MaterialTheme.colors()
+    val colors = MaterialTheme.colors
     return if (elevation > 0.dp && color == colors.surface && !colors.isLight) {
         color.withElevation(elevation)
     } else {

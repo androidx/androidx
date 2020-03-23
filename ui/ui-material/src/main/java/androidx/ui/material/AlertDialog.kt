@@ -109,20 +109,20 @@ fun AlertDialog(
     buttons: @Composable() () -> Unit
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
-    val currentColors = MaterialTheme.colors()
-    val currentTypography = MaterialTheme.typography()
+    val currentColors = MaterialTheme.colors
+    val currentTypography = MaterialTheme.typography
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(
                 modifier = LayoutWidth(AlertDialogWidth),
                 shape = AlertDialogShape
             ) {
-                val emphasisLevels = MaterialTheme.emphasisLevels()
+                val emphasisLevels = MaterialTheme.emphasisLevels
                 Column {
                     if (title != null) {
                         Box(modifier = TitlePadding + LayoutGravity.Start) {
                             ProvideEmphasis(emphasisLevels.high) {
-                                val textStyle = MaterialTheme.typography().h6
+                                val textStyle = MaterialTheme.typography.h6
                                 ProvideTextStyle(textStyle, title)
                             }
                         }
@@ -134,7 +134,7 @@ fun AlertDialog(
 
                     Box(modifier = TextPadding + LayoutGravity.Start) {
                         ProvideEmphasis(emphasisLevels.medium) {
-                            val textStyle = MaterialTheme.typography().body1
+                            val textStyle = MaterialTheme.typography.body1
                             ProvideTextStyle(textStyle, text)
                         }
                     }

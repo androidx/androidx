@@ -134,7 +134,7 @@ private object DefaultEmphasisLevels : EmphasisLevels {
     @Composable
     override val high: Emphasis
         get() = AlphaEmphasis(
-            lightTheme = MaterialTheme.colors().isLight,
+            lightTheme = MaterialTheme.colors.isLight,
             highContrastAlpha = HighContrastAlphaLevels.high,
             reducedContrastAlpha = ReducedContrastAlphaLevels.high
         )
@@ -142,7 +142,7 @@ private object DefaultEmphasisLevels : EmphasisLevels {
     @Composable
     override val medium: Emphasis
         get() = AlphaEmphasis(
-            lightTheme = MaterialTheme.colors().isLight,
+            lightTheme = MaterialTheme.colors.isLight,
             highContrastAlpha = HighContrastAlphaLevels.medium,
             reducedContrastAlpha = ReducedContrastAlphaLevels.medium
         )
@@ -150,7 +150,7 @@ private object DefaultEmphasisLevels : EmphasisLevels {
     @Composable
     override val disabled: Emphasis
         get() = AlphaEmphasis(
-            lightTheme = MaterialTheme.colors().isLight,
+            lightTheme = MaterialTheme.colors.isLight,
             highContrastAlpha = HighContrastAlphaLevels.disabled,
             reducedContrastAlpha = ReducedContrastAlphaLevels.disabled
         )

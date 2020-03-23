@@ -206,7 +206,7 @@ fun ColorPalette.contentColorFor(color: Color): Color? {
  */
 @Composable
 fun contentColorFor(color: Color) =
-    MaterialTheme.colors().contentColorFor(color) ?: contentColor()
+    MaterialTheme.colors.contentColorFor(color) ?: contentColor()
 
 /**
  * Default observable backing implementation for [ColorPalette].

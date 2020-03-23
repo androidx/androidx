@@ -130,7 +130,7 @@ fun Scaffold(
     bodyContent: @Composable() (Modifier) -> Unit
 ) {
     val child = @Composable {
-        Surface(color = MaterialTheme.colors().background) {
+        Surface(color = MaterialTheme.colors.background) {
             Column(LayoutSize.Fill) {
                 if (topAppBar != null) ScaffoldSlot(children = topAppBar)
                 Stack(modifier = LayoutWeight(1f, fill = true)) {

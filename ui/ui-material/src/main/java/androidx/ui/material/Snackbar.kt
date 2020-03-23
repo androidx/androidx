@@ -66,7 +66,7 @@ fun Snackbar(
     modifier: Modifier = Modifier.None,
     actionOnNewLine: Boolean = false
 ) {
-    val colors = MaterialTheme.colors()
+    val colors = MaterialTheme.colors
     // Snackbar has a background color of onSurface with an alpha applied blended on top of surface
     val snackbarOverlayColor = colors.onSurface.copy(alpha = SnackbarOverlayAlpha)
     val snackbarColor = snackbarOverlayColor.compositeOver(colors.surface)
@@ -77,8 +77,8 @@ fun Snackbar(
         color = snackbarColor,
         contentColor = colors.surface
     ) {
-        ProvideEmphasis(MaterialTheme.emphasisLevels().high) {
-            val textStyle = MaterialTheme.typography().body2
+        ProvideEmphasis(MaterialTheme.emphasisLevels.high) {
+            val textStyle = MaterialTheme.typography.body2
             ProvideTextStyle(value = textStyle) {
                 when {
                     action == null -> TextOnlySnackbar(text)
