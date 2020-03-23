@@ -41,6 +41,7 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.input.FocusManager
+import androidx.ui.core.input.FocusManagerImpl
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.input.TextInputService
 import androidx.ui.node.UiComposer
@@ -209,7 +210,7 @@ private fun WrapWithAmbients(
 ) {
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidComposeView case
-    val focusManager = remember { FocusManager() }
+    val focusManager = remember { FocusManagerImpl() }
     var configuration by state(NeverEqual) {
         context.applicationContext.resources.configuration
     }
