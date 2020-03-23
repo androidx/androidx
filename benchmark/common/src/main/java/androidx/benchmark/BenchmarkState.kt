@@ -430,8 +430,11 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     internal fun getFullStatusReport(key: String): Bundle {
         Log.i(TAG, key + stats.map { it.getSummary() } + "count=$maxIterations")
         val status = Bundle()
-        stats.map { it.putInBundle(status, PREFIX) }
-        status.putLong("${PREFIX}count", maxIterations.toLong())
+        if (Arguments.outputEnable) {
+            // these 'legacy' CI output stats are considered output
+            stats.forEach { it.putInBundle(status, PREFIX) }
+            status.putLong("${PREFIX}count", maxIterations.toLong())
+        }
         status.putIdeSummaryLine(key, getMinTimeNanos())
         return status
     }
