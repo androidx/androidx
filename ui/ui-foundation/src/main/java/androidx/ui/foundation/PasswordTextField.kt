@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.core
+package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
@@ -32,7 +32,7 @@ import androidx.ui.text.TextStyle
  * set this new text so that this component renders up-to-date text from input service.
  *
  * Example usage:
- * @sample androidx.ui.framework.samples.PasswordTextFieldSample
+ * @sample androidx.ui.foundation.samples.PasswordTextFieldSample
  *
  * @param value The text to be shown in the [TextField]. If you want to specify cursor location or
  * selection range, use [TextField] with [TextFieldValue] instead.

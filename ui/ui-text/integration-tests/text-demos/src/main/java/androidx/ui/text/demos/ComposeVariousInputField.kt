@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
-import androidx.ui.core.TextField
+import androidx.ui.foundation.TextField
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
