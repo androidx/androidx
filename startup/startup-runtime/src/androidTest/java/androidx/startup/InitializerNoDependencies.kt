@@ -22,12 +22,12 @@ import android.util.Log
 /**
  * Initializer with no dependencies.
  */
-class InitializerNoDependencies : ComponentInitializer<Unit> {
+class InitializerNoDependencies : Initializer<Unit> {
     override fun create(context: Context) {
         Log.i(TAG, "Initialized")
     }
 
-    override fun dependencies(): List<Class<out ComponentInitializer<*>>> = emptyList()
+    override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
 
     companion object {
         const val TAG = "NoDependencies"

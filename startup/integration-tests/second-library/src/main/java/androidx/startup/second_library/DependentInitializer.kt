@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.startup.first_library
+package androidx.startup.second_library
 
 import android.content.Context
 import android.util.Log
-import androidx.startup.ComponentInitializer
-import androidx.work.Configuration
-import androidx.work.WorkManager
+import androidx.startup.Initializer
+import androidx.startup.first_library.WorkManagerInitializer
 
 /**
- * A [ComponentInitializer] which initializes [WorkManager].
+ * A [Initializer] that depends on [WorkManagerInitializer].
  */
-class WorkManagerComponentInitializer : ComponentInitializer<WorkManager> {
-    override fun create(context: Context): WorkManager {
-        val configuration = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .build()
-
-        WorkManager.initialize(context, configuration)
-        return WorkManager.getInstance(context)
+class DependentInitializer : Initializer<Unit> {
+    override fun create(context: Context) {
+        Log.i(TAG, "Created.")
     }
 
-    override fun dependencies(): List<Class<out ComponentInitializer<*>>> = emptyList()
+    override fun dependencies(): List<Class<out Initializer<*>>> =
+        listOf(WorkManagerInitializer::class.java)
+
+    companion object {
+        private const val TAG = "DepComponentInit"
+    }
 }

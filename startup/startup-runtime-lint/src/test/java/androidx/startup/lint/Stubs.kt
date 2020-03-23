@@ -21,72 +21,72 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 
 object Stubs {
-    val TEST_COMPONENT: TestFile = kotlin(
-        "com/example/TestComponentInitializer.kt",
+    val TEST_INITIALIZER: TestFile = kotlin(
+        "com/example/TestInitializer.kt",
         """
             package com.example
 
-            import androidx.startup.ComponentInitializer
+            import androidx.startup.Initializer
 
-            class TestComponentInitializer: ComponentInitializer<Unit> {
-                override fun dependencies(): List<Class<out ComponentInitializer<*>>> = emptyList()
+            class TestInitializer: Initializer<Unit> {
+                override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
             }
         """
     ).indented().within("src")
 
-    val TEST_COMPONENT_WITH_DEPENDENCIES: TestFile = kotlin(
-        "com/example/TestComponentInitializer.kt",
+    val TEST_INITIALIZER_WITH_DEPENDENCIES: TestFile = kotlin(
+        "com/example/TestInitializer.kt",
         """
             package com.example
 
-            import androidx.startup.ComponentInitializer
+            import androidx.startup.Initializer
 
-            class TestComponentInitializer: ComponentInitializer<Unit> {
-                override fun dependencies(): List<Class<out ComponentInitializer<*>>> = listOf(
-                    SecondComponentInitializer::class.java
+            class TestInitializer: Initializer<Unit> {
+                override fun dependencies(): List<Class<out Initializer<*>>> = listOf(
+                    SecondInitializer::class.java
                 )
             }
         """
     ).indented().within("src")
 
-    val TEST_COMPONENT_2: TestFile = kotlin(
-        "com/example/SecondComponentInitializer.kt",
+    val TEST_INITIALIZER_2: TestFile = kotlin(
+        "com/example/SecondInitializer.kt",
         """
             package com.example
 
-            import androidx.startup.ComponentInitializer
+            import androidx.startup.Initializer
 
-            class SecondComponentInitializer: ComponentInitializer<Unit> {
-                override fun dependencies(): List<Class<out ComponentInitializer<*>>> = emptyList()
+            class SecondInitializer: Initializer<Unit> {
+                override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
             }
         """
     ).indented().within("src")
 
     /**
-     * The Test component in Java.
+     * The Test Initializer in Java.
      */
-    val TEST_COMPONENT_JAVA: TestFile = java(
-        "com/example/TestComponentInitializer.java",
+    val TEST_INITIALIZER_JAVA: TestFile = java(
+        "com/example/TestInitializer.java",
         """
             package com.example;
 
-            import androidx.startup.ComponentInitializer;
+            import androidx.startup.Initializer;
 
-            class TestComponentInitializer extends ComponentInitializer<Void> {
+            class TestInitializer extends Initializer<Void> {
 
             }
         """
     ).indented().within("src")
 
     /**
-     * The ComponentInitializer.
+     * The Initializer.
      */
-    val COMPONENT_INITIALIZER: TestFile = kotlin(
-        "androidx/startup/ComponentInitializer.kt",
+    val INITIALIZER: TestFile = kotlin(
+        "androidx/startup/Initializer.kt",
         """
             package androidx.startup
-            interface ComponentInitializer<out T : Any> {
-                fun dependencies(): List<Class<out ComponentInitializer<*>>>
+            interface Initializer<out T : Any> {
+                fun dependencies(): List<Class<out Initializer<*>>>
             }
         """
     ).indented().within("src")

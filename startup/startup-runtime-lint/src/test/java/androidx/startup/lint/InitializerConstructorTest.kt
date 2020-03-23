@@ -16,24 +16,24 @@
 
 package androidx.startup.lint
 
-import androidx.startup.lint.Stubs.COMPONENT_INITIALIZER
-import androidx.startup.lint.Stubs.TEST_COMPONENT
-import androidx.startup.lint.Stubs.TEST_COMPONENT_JAVA
+import androidx.startup.lint.Stubs.INITIALIZER
+import androidx.startup.lint.Stubs.TEST_INITIALIZER
+import androidx.startup.lint.Stubs.TEST_INITIALIZER_JAVA
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
-class ComponentInitializerConstructorTest {
+class InitializerConstructorTest {
 
     @Test
     fun testSuccessWhenNoArgumentConstructorIsPresent() {
         lint()
             .files(
-                COMPONENT_INITIALIZER,
-                TEST_COMPONENT
+                INITIALIZER,
+                TEST_INITIALIZER
             )
-            .issues(ComponentInitializerConstructorDetector.ISSUE)
+            .issues(InitializerConstructorDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -42,10 +42,10 @@ class ComponentInitializerConstructorTest {
     fun testSuccessWhenNoArgumentConstructorIsPresentJava() {
         lint()
             .files(
-                COMPONENT_INITIALIZER,
-                TEST_COMPONENT_JAVA
+                INITIALIZER,
+                TEST_INITIALIZER_JAVA
             )
-            .issues(ComponentInitializerConstructorDetector.ISSUE)
+            .issues(InitializerConstructorDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -53,13 +53,13 @@ class ComponentInitializerConstructorTest {
     @Test
     fun testFailureWhenZeroNoArgumentConstructorsArePresent() {
         val component: TestFile = kotlin(
-            "com/example/TestComponentInitializer.kt",
+            "com/example/TestInitializer.kt",
             """
             package com.example
 
-            import androidx.startup.ComponentInitializer
+            import androidx.startup.Initializer
 
-            class TestComponentInitializer(val int: Int): ComponentInitializer<Unit> {
+            class TestInitializer(val int: Int): Initializer<Unit> {
 
             }
         """
@@ -67,17 +67,17 @@ class ComponentInitializerConstructorTest {
 
         lint()
             .files(
-                COMPONENT_INITIALIZER,
-                TEST_COMPONENT,
+                INITIALIZER,
+                TEST_INITIALIZER,
                 component
             )
-            .issues(ComponentInitializerConstructorDetector.ISSUE)
+            .issues(InitializerConstructorDetector.ISSUE)
             .run()
             /* ktlint-disable max-line-length */
             .expect(
                 """
-                src/com/example/TestComponentInitializer.kt:5: Error: Missing ComponentInitializer no-arg constructor [EnsureComponentInitializerNoArgConstr]
-                class TestComponentInitializer(val int: Int): ComponentInitializer<Unit> {
+                src/com/example/TestInitializer.kt:5: Error: Missing Initializer no-arg constructor [EnsureInitializerNoArgConstr]
+                class TestInitializer(val int: Int): Initializer<Unit> {
                 ^
                 1 errors, 0 warnings
             """.trimIndent()

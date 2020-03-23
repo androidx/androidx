@@ -22,12 +22,12 @@ import android.util.Log
 /**
  * Initializer with cyclic dependencies.
  */
-class CyclicDependencyInitializer : ComponentInitializer<Unit> {
+class CyclicDependencyInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         Log.i(TAG, "Initialized")
     }
 
-    override fun dependencies(): List<Class<out ComponentInitializer<*>>> {
+    override fun dependencies(): List<Class<out Initializer<*>>> {
         return listOf(CyclicDependencyInitializer::class.java)
     }
 
