@@ -98,16 +98,10 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     private final Rect mLastInnerInsetsRect = new Rect();
 
     // Used on API 21+
-    @NonNull private WindowInsetsCompat mBaseInnerInsets = CONSUMED;
-    @NonNull private WindowInsetsCompat mLastBaseInnerInsets = CONSUMED;
-    @NonNull private WindowInsetsCompat mInnerInsets = CONSUMED;
-    @NonNull private WindowInsetsCompat mLastInnerInsets = CONSUMED;
-
-    private static final WindowInsetsCompat CONSUMED = new WindowInsetsCompat.Builder()
-            .build()
-            .consumeSystemWindowInsets()
-            .consumeStableInsets()
-            .consumeDisplayCutout();
+    @NonNull private WindowInsetsCompat mBaseInnerInsets = WindowInsetsCompat.CONSUMED;
+    @NonNull private WindowInsetsCompat mLastBaseInnerInsets = WindowInsetsCompat.CONSUMED;
+    @NonNull private WindowInsetsCompat mInnerInsets = WindowInsetsCompat.CONSUMED;
+    @NonNull private WindowInsetsCompat mLastInnerInsets = WindowInsetsCompat.CONSUMED;
 
     private ActionBarVisibilityCallback mActionBarVisibilityCallback;
 
@@ -378,9 +372,12 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
         // We don't do any more at this point.  To correctly compute the content/inner
         // insets in all cases, we need to know the measured size of the various action
-        // bar elements.  onApplyWindowInsets() happens before the measure pass, so we can't
-        // do that here.  Instead we will take this up in onMeasure().
-        return CONSUMED.toWindowInsets();
+        // bar elements. onApplyWindowInsets() happens before the measure pass, so we can't
+        // do that here. Instead we will take this up in onMeasure().
+        return insets.consumeDisplayCutout()
+                .consumeSystemWindowInsets()
+                .consumeStableInsets()
+                .toWindowInsets();
     }
 
     @Override
