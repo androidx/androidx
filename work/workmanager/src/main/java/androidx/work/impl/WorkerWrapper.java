@@ -234,7 +234,7 @@ public class WorkerWrapper implements Runnable {
                 mWorkTaskExecutor,
                 mConfiguration.getWorkerFactory(),
                 new WorkProgressUpdater(mWorkDatabase, mWorkTaskExecutor),
-                new WorkForegroundUpdater(mForegroundProcessor, mWorkTaskExecutor));
+                new WorkForegroundUpdater(mWorkDatabase, mForegroundProcessor, mWorkTaskExecutor));
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
