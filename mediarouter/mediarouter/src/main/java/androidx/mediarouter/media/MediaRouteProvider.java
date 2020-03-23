@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ComponentName;
@@ -255,6 +256,13 @@ public abstract class MediaRouteProvider {
 
         if (mCallback != null) {
             mCallback.onDescriptorChanged(this, mDescriptor);
+        }
+    }
+
+    void deliverDynamicGroupRouteControllerCreatedWithoutRequest(
+            DynamicGroupRouteController controller, String routeId) {
+        if (mCallback != null) {
+            mCallback.onDynamicGroupRouteControllerCreatedWithoutRequest(this, controller, routeId);
         }
     }
 
@@ -824,6 +832,21 @@ public abstract class MediaRouteProvider {
          */
         public void onDescriptorChanged(@NonNull MediaRouteProvider provider,
                 @Nullable MediaRouteProviderDescriptor descriptor) {
+        }
+
+        /**
+         * Called when a dynamic route controller is created without any request.
+         *
+         * @param provider The media route provider that created this controller, never null.
+         * @param controller the newly created controller
+         * @param routeId the non-unique ID of the route which is sent from the provider.
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public void onDynamicGroupRouteControllerCreatedWithoutRequest(
+                @NonNull MediaRouteProvider provider,
+                @NonNull DynamicGroupRouteController controller,
+                @NonNull String routeId) {
         }
     }
 
