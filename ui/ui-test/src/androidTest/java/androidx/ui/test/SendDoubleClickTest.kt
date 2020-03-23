@@ -21,7 +21,6 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.DoubleTapGestureDetector
-import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
@@ -49,14 +48,14 @@ private val expectedDelay = 145.milliseconds
 private const val tag = "widget"
 
 @Composable
-private fun Ui(onDoubleTap: (PxPosition) -> Unit, pointerInputRecorder: PointerInputFilter) {
+private fun Ui(onDoubleTap: (PxPosition) -> Unit, pointerInputRecorder: PointerInputModifier) {
     Stack {
         TestTag(tag) {
             Semantics(container = true) {
                 with(DensityAmbient.current) {
                     Box(
                         DoubleTapGestureDetector(onDoubleTap) +
-                                PointerInputModifier(pointerInputRecorder) +
+                                pointerInputRecorder +
                                 LayoutSize(width.toDp(), height.toDp()),
                         backgroundColor = Color.Yellow
                     )

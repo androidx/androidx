@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.gesture.util
+package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 
 /**
@@ -35,3 +37,6 @@ fun List<PointerInputChange>.anyPointersInBounds(bounds: IntPxSize) =
                 it.current.position!!.y.value >= 0 &&
                 it.current.position!!.y < bounds.height
     }
+
+internal class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
+    PointerInputModifier

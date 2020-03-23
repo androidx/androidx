@@ -26,9 +26,7 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -56,9 +54,9 @@ fun DoubleTapGestureDetector(
 ): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     // TODO(shepshapard): coroutineContext should be a field
-    val modifier = remember { DoubleTapGestureRecognizer(coroutineContext) }
-    modifier.onDoubleTap = onDoubleTap
-    return PointerInputModifier(modifier)
+    val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
+    recognizer.onDoubleTap = onDoubleTap
+    return PointerInputModifierImpl(recognizer)
 }
 
 internal class DoubleTapGestureRecognizer(

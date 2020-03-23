@@ -25,7 +25,6 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 
@@ -60,7 +59,7 @@ fun RawPressStartStartGestureDetector(
     recognizer.onPressStart = onPressStart
     recognizer.setEnabled(enabled = enabled)
     recognizer.setExecutionPass(executionPass)
-    return PointerInputModifier(recognizer)
+    return PointerInputModifierImpl(recognizer)
 }
 
 internal class RawPressStartGestureRecognizer : PointerInputFilter() {

@@ -22,12 +22,13 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.test.util.PointerInputRecorder.DataPoint
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 
-class PointerInputRecorder : PointerInputFilter() {
+class PointerInputRecorder : PointerInputModifier {
 
     data class DataPoint(val id: PointerId, val data: PointerInputData) {
         val timestamp get() = data.uptime!!
@@ -43,17 +44,20 @@ class PointerInputRecorder : PointerInputFilter() {
     private val velocityTracker = VelocityTracker()
     val recordedVelocity get() = velocityTracker.calculateVelocity()
 
-    override val pointerInputHandler: PointerInputHandler =
-        { changes, pass, _ ->
-            if (pass == PointerEventPass.InitialDown) {
-                changes.forEach {
-                    _events.add(DataPoint(it.id, it.current))
-                    velocityTracker.addPosition(it.current.uptime!!, it.current.position!!)
+    override val pointerInputFilter: PointerInputFilter =
+        object : PointerInputFilter() {
+            override val pointerInputHandler: PointerInputHandler =
+                { changes, pass, _ ->
+                    if (pass == PointerEventPass.InitialDown) {
+                        changes.forEach {
+                            _events.add(DataPoint(it.id, it.current))
+                            velocityTracker.addPosition(it.current.uptime!!, it.current.position!!)
+                        }
+                    }
+                    changes
                 }
-            }
-            changes
+            override val cancelHandler: () -> Unit = {}
         }
-    override val cancelHandler: () -> Unit = {}
 }
 
 val PointerInputRecorder.downEvents get() = events.filter { it.down }

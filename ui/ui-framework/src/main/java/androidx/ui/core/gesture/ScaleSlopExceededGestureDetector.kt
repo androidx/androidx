@@ -24,7 +24,6 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import kotlin.math.absoluteValue
@@ -56,7 +55,7 @@ fun ScaleSlopExceededGestureDetector(
     val recognizer = remember { ScaleSlopExceededGestureRecognizer(scaleSlop) }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded
-    return PointerInputModifier(recognizer)
+    return PointerInputModifierImpl(recognizer)
 }
 
 /**

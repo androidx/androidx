@@ -995,6 +995,10 @@ class LayoutNode : ComponentNode(), Measurable {
             onChildPositionedCallbacks.clear()
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
+                // The order in which the following blocks occur matters.  For example, the
+                // DrawModifier block should be before the LayoutModifier block so that a Modifier
+                // that implements both DrawModifier and LayoutModifier will have it's draw bounds
+                // reflect the dimensions defined by the LayoutModifier.
                 if (mod is OnPositionedModifier) {
                     onPositionedCallbacks += mod.onPositioned
                 }
@@ -1007,14 +1011,14 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is DrawLayerModifier) {
                     wrapper = LayerWrapper(wrapper, mod)
                 }
+                if (mod is PointerInputModifier) {
+                    wrapper = PointerInputDelegatingWrapper(wrapper, mod)
+                }
                 if (mod is LayoutModifier) {
                     wrapper = ModifiedLayoutNode(wrapper, mod)
                 }
                 if (mod is ParentDataModifier) {
                     wrapper = ModifiedParentDataNode(wrapper, mod)
-                }
-                if (mod is PointerInputModifier) {
-                    wrapper = PointerInputDelegatingWrapper(wrapper, mod)
                 }
                 wrapper
             }

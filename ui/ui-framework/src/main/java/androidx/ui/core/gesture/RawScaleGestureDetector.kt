@@ -25,7 +25,6 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.testutils.consume
 import androidx.ui.unit.IntPxSize
 
@@ -127,7 +126,7 @@ fun RawScaleGestureDetector(
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.scaleObserver = scaleObserver
     recognizer.canStartScaling = canStartScaling
-    return PointerInputModifier(recognizer)
+    return PointerInputModifierImpl(recognizer)
 }
 
 internal class RawScaleGestureRecognizer : PointerInputFilter() {
