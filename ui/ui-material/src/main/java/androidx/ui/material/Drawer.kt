@@ -288,7 +288,7 @@ private fun Scrim(
     // TODO: use enabled = false here when it will be available
     val scrimContent = @Composable {
         val paint = remember { Paint().apply { style = PaintingStyle.fill } }
-        val color = MaterialTheme.colors().onSurface
+        val color = MaterialTheme.colors.onSurface
         Canvas(LayoutSize.Fill) {
             val scrimAlpha = fraction() * ScrimDefaultOpacity
             paint.color = color.copy(alpha = scrimAlpha)

@@ -181,7 +181,7 @@ fun Slider(
     onValueChange: (Float) -> Unit = { position.value = it },
     modifier: Modifier = Modifier.None,
     onValueChangeEnd: () -> Unit = {},
-    color: Color = MaterialTheme.colors().primary
+    color: Color = MaterialTheme.colors.primary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Box(modifier = modifier) {
@@ -270,7 +270,7 @@ private fun Track(
     color: Color,
     position: SliderPosition
 ) {
-    val activeTickColor = MaterialTheme.colors().onPrimary.copy(alpha = TickColorAlpha)
+    val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
     val paint = remember {
         Paint().apply {

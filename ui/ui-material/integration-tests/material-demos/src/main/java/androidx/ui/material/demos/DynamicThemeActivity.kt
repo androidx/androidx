@@ -109,10 +109,10 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
 
 @Composable
 private fun Fab(scrollFraction: ScrollFraction) {
-    val secondary = MaterialTheme.colors().secondary
+    val secondary = MaterialTheme.colors.secondary
     val fabText = emojiForScrollFraction(scrollFraction.fraction)
     ExtendedFloatingActionButton(
-        text = { Text(fabText, style = MaterialTheme.typography().h5) },
+        text = { Text(fabText, style = MaterialTheme.typography.h5) },
         backgroundColor = secondary,
         onClick = {}
     )

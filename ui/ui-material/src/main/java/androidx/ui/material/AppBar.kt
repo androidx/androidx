@@ -80,12 +80,12 @@ fun TopAppBar(
     modifier: Modifier = Modifier.None,
     navigationIcon: @Composable() (() -> Unit)? = null,
     actions: @Composable() RowScope.() -> Unit = {},
-    color: Color = MaterialTheme.colors().primarySurface,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = TopAppBarElevation
 ) {
     AppBar(color, contentColor, elevation, RectangleShape, modifier) {
-        val emphasisLevels = MaterialTheme.emphasisLevels()
+        val emphasisLevels = MaterialTheme.emphasisLevels
         if (navigationIcon == null) {
             Spacer(LayoutWidth(TitleInsetWithoutIcon))
         } else {
@@ -103,7 +103,7 @@ fun TopAppBar(
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {
-                    ProvideTextStyle(value = MaterialTheme.typography().h6) {
+                    ProvideTextStyle(value = MaterialTheme.typography.h6) {
                         Row {
                             ProvideEmphasis(emphasisLevels.high, title)
                         }
@@ -141,7 +141,7 @@ fun TopAppBar(
 @Composable
 fun TopAppBar(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().primarySurface,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = TopAppBarElevation,
     children: @Composable() RowScope.() -> Unit
@@ -226,7 +226,7 @@ object BottomAppBar {
 @Composable
 fun BottomAppBar(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().primarySurface,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,

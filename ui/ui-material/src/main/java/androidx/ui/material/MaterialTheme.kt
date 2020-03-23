@@ -63,7 +63,8 @@ object MaterialTheme {
      * @sample androidx.ui.material.samples.ThemeColorSample
      */
     @Composable
-    fun colors() = ColorAmbient.current
+    val colors: ColorPalette
+        get() = ColorAmbient.current
 
     /**
      * Retrieves the current [Typography] at the call site's position in the hierarchy.
@@ -71,17 +72,20 @@ object MaterialTheme {
      * @sample androidx.ui.material.samples.ThemeTextStyleSample
      */
     @Composable
-    fun typography() = TypographyAmbient.current
+    val typography: Typography
+        get() = TypographyAmbient.current
 
     /**
      * Retrieves the current [Shapes] at the call site's position in the hierarchy.
      */
     @Composable
-    fun shapes() = ShapeAmbient.current
+    val shapes: Shapes
+        get() = ShapeAmbient.current
 
     /**
      * Retrieves the current [EmphasisLevels] at the call site's position in the hierarchy.
      */
     @Composable
-    fun emphasisLevels() = EmphasisAmbient.current
+    val emphasisLevels: EmphasisLevels
+        get() = EmphasisAmbient.current
 }

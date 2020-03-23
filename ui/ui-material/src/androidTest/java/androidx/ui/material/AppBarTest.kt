@@ -188,7 +188,7 @@ class AppBarTest {
                     title = {
                         Text("App Bar Title")
                         textStyle = currentTextStyle()
-                        h6Style = MaterialTheme.typography().h6
+                        h6Style = MaterialTheme.typography.h6
                     }
                 )
             }

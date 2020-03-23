@@ -90,7 +90,7 @@ private fun TabTransition(
     selected: Boolean,
     children: @Composable() (color: Color) -> Unit
 ) {
-    val color = MaterialTheme.colors().onSurface
+    val color = MaterialTheme.colors.onSurface
     val transitionDefinition = remember {
         transitionDefinition {
             state(true) {

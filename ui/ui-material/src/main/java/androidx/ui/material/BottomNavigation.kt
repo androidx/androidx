@@ -81,7 +81,7 @@ import androidx.ui.unit.max
 @Composable
 fun BottomNavigation(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().primarySurface,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = BottomNavigationElevation,
     children: @Composable() RowScope.() -> Unit
@@ -134,10 +134,10 @@ fun BottomNavigationItem(
     modifier: Modifier = Modifier.None,
     alwaysShowLabels: Boolean = true,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = MaterialTheme.emphasisLevels().medium.emphasize(activeColor)
+    inactiveColor: Color = MaterialTheme.emphasisLevels.medium.emphasize(activeColor)
 ) {
     val styledText = @Composable {
-        val style = MaterialTheme.typography().caption.copy(textAlign = TextAlign.Center)
+        val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
         ProvideTextStyle(style, children = text)
     }
     MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {

@@ -43,7 +43,7 @@ fun RallyAlertDialog(
                 Column {
                     Divider(
                         LayoutPadding(start = 12.dp, end = 12.dp),
-                        color = MaterialTheme.colors().onSurface.copy(alpha = 0.2f)
+                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)
                     )
                     TextButton(
                         onClick = onDismiss,

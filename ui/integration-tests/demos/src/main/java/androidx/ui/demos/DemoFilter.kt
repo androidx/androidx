@@ -69,7 +69,7 @@ fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Dem
  */
 @Composable
 fun FilterAppBar(filterText: String, onFilter: (String) -> Unit, onClose: () -> Unit) {
-    with(MaterialTheme.colors()) {
+    with(MaterialTheme.colors) {
         val appBarColor = if (isLight) {
             surface
         } else {
@@ -118,7 +118,7 @@ private fun FilteredDemoListItem(
     filterText: String,
     onNavigate: (Demo) -> Unit
 ) {
-    val primary = MaterialTheme.colors().primary
+    val primary = MaterialTheme.colors.primary
     val annotatedString = AnnotatedString {
         val title = demo.title
         var currentIndex = 0

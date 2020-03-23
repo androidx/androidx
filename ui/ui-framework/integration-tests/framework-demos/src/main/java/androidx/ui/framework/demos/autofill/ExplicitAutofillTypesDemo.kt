@@ -42,8 +42,8 @@ fun ExplicitAutofillTypesDemo() {
         val nameState = state { "Enter name here" }
         val emailState = state { "Enter email here" }
         val autofill = AutofillAmbient.current
-        val labelStyle = MaterialTheme.typography().subtitle1
-        val textStyle = MaterialTheme.typography().h6
+        val labelStyle = MaterialTheme.typography.subtitle1
+        val textStyle = MaterialTheme.typography.h6
 
         Text("Name", style = labelStyle)
         Autofill(

@@ -70,7 +70,7 @@ private fun Buttons() {
     Spacer(LayoutHeight(DefaultSpace))
 
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
-        Button(onClick = {}, backgroundColor = MaterialTheme.colors().secondary) {
+        Button(onClick = {}, backgroundColor = MaterialTheme.colors.secondary) {
             Text("Secondary Color")
         }
         // TODO(Andrey): Disabled button has wrong bg and text color for now.

@@ -53,7 +53,7 @@ private val DefaultRippleTheme = RippleTheme(
     factory = DefaultRippleEffectFactory,
     defaultColor = { contentColor() },
     opacity = {
-        if (MaterialTheme.colors().isLight) LightRippleOpacity else DarkRippleOpacity
+        if (MaterialTheme.colors.isLight) LightRippleOpacity else DarkRippleOpacity
     }
 )
 

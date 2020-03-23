@@ -56,7 +56,7 @@ fun MaterialThemeSample() {
     )
 
     MaterialTheme(colors = colors, typography = typography) {
-        val currentTheme = if (MaterialTheme.colors().isLight) "light" else "dark"
+        val currentTheme = if (MaterialTheme.colors.isLight) "light" else "dark"
         ExtendedFloatingActionButton(
             text = { Text("FAB with text style and color from $currentTheme theme") },
             onClick = {}
@@ -67,13 +67,13 @@ fun MaterialThemeSample() {
 @Sampled
 @Composable
 fun ThemeColorSample() {
-    val colors = MaterialTheme.colors()
+    val colors = MaterialTheme.colors
     ColoredRect(color = colors.primary, modifier = LayoutAspectRatio(1f))
 }
 
 @Sampled
 @Composable
 fun ThemeTextStyleSample() {
-    val typography = MaterialTheme.typography()
+    val typography = MaterialTheme.typography
     Text(text = "H4 styled text", style = typography.h4)
 }

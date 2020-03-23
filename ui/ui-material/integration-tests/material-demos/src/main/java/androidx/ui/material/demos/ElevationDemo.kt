@@ -40,7 +40,7 @@ import androidx.ui.unit.dp
 fun ElevationDemo() {
     Column {
         Box(LayoutPadding(20.dp) + LayoutWidth.Fill, gravity = ContentGravity.Center) {
-            val text = getMessage(MaterialTheme.colors().isLight)
+            val text = getMessage(MaterialTheme.colors.isLight)
             Text(text)
         }
         VerticalScroller {
@@ -63,7 +63,7 @@ private fun ElevatedCard(elevation: Dp) {
     ) {
         Clickable(onClick = {}, modifier = ripple()) {
             Box(LayoutWidth.Fill + LayoutHeight(150.dp), gravity = ContentGravity.Center) {
-                Text("$elevation", style = MaterialTheme.typography().h4)
+                Text("$elevation", style = MaterialTheme.typography.h4)
             }
         }
     }

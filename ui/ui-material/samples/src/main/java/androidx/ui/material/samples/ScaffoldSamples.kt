@@ -140,7 +140,7 @@ fun ScaffoldWithBottomBarAndCutout() {
                 text = { Text("Change shape") },
                 onClick = changeShape,
                 shape = fabShape,
-                backgroundColor = MaterialTheme.colors().secondary
+                backgroundColor = MaterialTheme.colors.secondary
             )
         },
         floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
