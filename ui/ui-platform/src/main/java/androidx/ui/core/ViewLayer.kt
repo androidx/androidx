@@ -44,6 +44,13 @@ internal class ViewLayer(
         if (!clipToOutline) null else outlineResolver.clipPath
     private var isInvalidated = false
 
+    /**
+     * Local copy of the transform origin as DrawLayerModifier can be implemented
+     * as a model object. Update this field within [updateLayerProperties] and use it
+     * in [resize] or other methods
+     */
+    private var mTransformOrigin: TransformOrigin = TransformOrigin.Center
+
     init {
         setWillNotDraw(false) // we WILL draw
         id = generateViewId()
@@ -51,6 +58,7 @@ internal class ViewLayer(
     }
 
     override fun updateLayerProperties() {
+        this.mTransformOrigin = drawLayerModifier.transformOrigin
         this.scaleX = drawLayerModifier.scaleX
         this.scaleY = drawLayerModifier.scaleY
         this.alpha = drawLayerModifier.alpha
@@ -59,6 +67,8 @@ internal class ViewLayer(
         this.rotationX = drawLayerModifier.rotationX
         this.rotationY = drawLayerModifier.rotationY
         this.clipToBounds = drawLayerModifier.clipToBounds
+        this.pivotX = mTransformOrigin.pivotFractionX * width
+        this.pivotY = mTransformOrigin.pivotFractionY * height
         resetClipBounds()
         val wasClippingManually = manualClipPath != null
         this.clipToOutline = drawLayerModifier.clipToOutline
@@ -95,6 +105,8 @@ internal class ViewLayer(
         val width = size.width.value
         val height = size.height.value
         if (width != this.width || height != this.height) {
+            pivotX = mTransformOrigin.pivotFractionX * width
+            pivotY = mTransformOrigin.pivotFractionY * height
             outlineResolver.update(size.toPxSize())
             updateOutlineResolver()
             layout(left, top, left + width, top + height)
