@@ -122,6 +122,21 @@ public final class DeviceState {
         return "DeviceState{ posture=" + postureToString(mPosture) + " }";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeviceState that = (DeviceState) o;
+
+        return mPosture == that.mPosture;
+    }
+
+    @Override
+    public int hashCode() {
+        return mPosture;
+    }
+
     /**
      * Builder for {@link DeviceState} objects.
      */

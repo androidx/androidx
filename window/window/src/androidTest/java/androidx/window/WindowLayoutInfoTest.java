@@ -19,6 +19,7 @@ package androidx.window;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.graphics.Rect;
 
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Tests for {@link WindowLayoutInfo} class. */
@@ -64,5 +66,58 @@ public final class WindowLayoutInfoTest {
         WindowLayoutInfo windowLayoutInfo = builder.build();
 
         assertEquals(displayFeatures, windowLayoutInfo.getDisplayFeatures());
+    }
+
+    @Test
+    public void testEquals_sameFeatures() {
+        List<DisplayFeature> features = new ArrayList<>();
+
+        WindowLayoutInfo original = new WindowLayoutInfo(features);
+        WindowLayoutInfo copy = new WindowLayoutInfo(features);
+
+        assertEquals(original, copy);
+    }
+
+    @Test
+    public void testEquals_differentFeatures() {
+        List<DisplayFeature> originalFeatures = new ArrayList<>();
+        List<DisplayFeature> differentFeatures = new ArrayList<>();
+        Rect rect = new Rect(-1, 1, 1, -1);
+        differentFeatures.add(new DisplayFeature(rect, 1));
+
+        WindowLayoutInfo original = new WindowLayoutInfo(originalFeatures);
+        WindowLayoutInfo different = new WindowLayoutInfo(differentFeatures);
+
+        assertNotEquals(original, different);
+    }
+
+    @Test
+    public void testHashCode_matchesIfEqual() {
+        List<DisplayFeature> firstFeatures = new ArrayList<>();
+        List<DisplayFeature> secondFeatures = new ArrayList<>();
+        WindowLayoutInfo first = new WindowLayoutInfo(firstFeatures);
+        WindowLayoutInfo second = new WindowLayoutInfo(secondFeatures);
+
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
+    }
+
+    @Test
+    public void testHashCode_matchesIfEqualFeatures() {
+        DisplayFeature originalFeature = new DisplayFeature(
+                new Rect(-1, 1, 1, -1),
+                0
+        );
+        DisplayFeature matchingFeature = new DisplayFeature(
+                new Rect(-1, 1, 1, -1),
+                0
+        );
+        List<DisplayFeature> firstFeatures = Collections.singletonList(originalFeature);
+        List<DisplayFeature> secondFeatures = Collections.singletonList(matchingFeature);
+        WindowLayoutInfo first = new WindowLayoutInfo(firstFeatures);
+        WindowLayoutInfo second = new WindowLayoutInfo(secondFeatures);
+
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
     }
 }
