@@ -106,7 +106,7 @@ function checkout() {
   done
 }
 function doBuild() {
-  echoAndDo ./gradlew createArchive generateDocs
+  echoAndDo ./gradlew createArchive generateDocs --no-daemon --rerun-tasks --offline
   archiveName="top-of-tree-m2repository-all-0.zip"
   echoAndDo unzip -q "${tempOutPath}/dist/${archiveName}" -d "${tempOutPath}/dist/${archiveName}.unzipped"
 }
