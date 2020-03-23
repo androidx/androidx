@@ -202,6 +202,22 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         verifyPopTransition(1, fragment2, fragment1)
     }
 
+    // Test that shared elements transition from one fragment to the next
+    // and back during pop.
+    @Test
+    fun sharedElementWithTargetFragment() {
+        val fragment1 = setupInitialFragment()
+
+        // Now do a transition to scene2
+        val fragment2 = TransitionFragment(R.layout.scene2)
+        fragment2.setTargetFragment(fragment1, 13)
+
+        verifyTransition(fragment1, fragment2, "blueSquare")
+
+        // Now pop the back stack
+        verifyPopTransition(1, fragment2, fragment1)
+    }
+
     // Test that shared element transitions through multiple fragments work together
     @Test
     fun intermediateFragment() {
