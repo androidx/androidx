@@ -125,10 +125,7 @@ package androidx.animation {
   }
 
   public abstract sealed class BaseAnimatedValue<T, V extends androidx.animation.AnimationVector> {
-    method public final void animateTo(T? targetValue);
-    method public final void animateTo(T? targetValue, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
-    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
-    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim);
+    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit>? onEnd = null);
     method protected void checkFinished(long playtime);
     method public final T! getTargetValue();
     method public abstract T! getValue();
