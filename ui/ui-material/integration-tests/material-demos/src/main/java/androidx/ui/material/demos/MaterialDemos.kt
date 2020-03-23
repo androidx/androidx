@@ -38,11 +38,14 @@ val MaterialDemos = DemoCategory("Material", listOf(
         ComposableDemo("Bottom") { BottomDrawerSample() },
         ComposableDemo("Static") { StaticDrawerSample() }
     )),
-    ActivityDemo("Dynamic Theme", DynamicThemeActivity::class),
     ComposableDemo("Elevation") { ElevationDemo() },
     ComposableDemo("Emphasis") { EmphasisSample() },
     ComposableDemo("ListItems") { ListItemDemo() },
     ComposableDemo("Material Theme") { MaterialThemeDemo() },
+    DemoCategory("Playground", listOf(
+        ComposableDemo("Color Picker") { ColorPickerDemo() },
+        ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)
+    )),
     ComposableDemo("Progress Indicators") { ProgressIndicatorDemo() },
     ComposableDemo("Scaffold") { ScaffoldWithBottomBarAndCutout() },
     ComposableDemo("Selection Controls") { SelectionControlsDemo() },
