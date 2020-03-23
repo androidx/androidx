@@ -147,6 +147,7 @@ private class RecursiveMethodVisitor(
         val argMap = context.evaluator.computeArgumentMapping(call, psiMethod)
         argMap.forEach { (arg, param) ->
             if (arg.getExpressionType().extends(context, FRAGMENT_CLASS) &&
+                !arg.getExpressionType().extends(context, DIALOG_FRAGMENT_CLASS) &&
                 param.type.extends(context, "androidx.lifecycle.LifecycleOwner")) {
                 val argType = PsiTypesUtil.getPsiClass(arg.getExpressionType())
                 if (argType == call.getContainingUClass()?.javaPsi) {
@@ -204,3 +205,4 @@ internal val UNSAFE_METHODS = mapOf(
 )
 
 private const val FRAGMENT_CLASS = "androidx.fragment.app.Fragment"
+private const val DIALOG_FRAGMENT_CLASS = "androidx.fragment.app.DialogFragment"

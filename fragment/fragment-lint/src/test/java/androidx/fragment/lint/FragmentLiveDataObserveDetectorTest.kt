@@ -132,6 +132,26 @@ class TestFragment extends Fragment {
     }
 
     @Test
+    fun dialogJavaTestPass() {
+        check(
+            java("""
+package com.example;
+
+import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.MutableLiveData;
+
+class TestFragment extends DialogFragment {
+
+    @Override
+    void onCreateView() {
+        MutableLiveData<String> liveData = new MutableLiveData<String>();
+        liveData.observe(this, new Observer<String>() {});
+    }
+}
+            """)).expectClean()
+    }
+
+    @Test
     fun inMethodFails() {
         check(
             kotlin("""
@@ -170,6 +190,28 @@ class TestFragment : Fragment {
     }
 }
             """))
+    }
+
+    @Test
+    fun inMethodDialogPass() {
+        check(
+            kotlin(
+                """
+package com.example
+
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.MutableLiveData
+
+class TestFragment : DialogFragment {
+
+    override fun onCreateView() {
+        val liveData = MutableLiveData<String>()
+        liveData.observe(this, Observer<String> {})
+    }
+}
+            """
+            )
+        ).expectClean()
     }
 
     @Test
