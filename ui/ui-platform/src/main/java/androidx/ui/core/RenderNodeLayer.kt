@@ -41,6 +41,7 @@ internal class RenderNodeLayer(
     private val outlineResolver = OutlineResolver(ownerView.density)
     private var isDestroyed = false
     private var cacheMatrix: Matrix? = null
+    private var elevationRiseListener: (() -> Unit)? = null
 
     /**
      * Local copy of the transform origin as DrawLayerModifier can be implemented
@@ -53,8 +54,12 @@ internal class RenderNodeLayer(
         setHasOverlappingRendering(true)
     }
 
+    override val hasElevation: Boolean
+        get() = renderNode.elevation > 0f
+
     override fun updateLayerProperties() {
         transformOrigin = drawLayerModifier.transformOrigin
+        val hadElevation = hasElevation
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         renderNode.scaleX = drawLayerModifier.scaleX
         renderNode.scaleY = drawLayerModifier.scaleY
@@ -73,6 +78,9 @@ internal class RenderNodeLayer(
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()
+        }
+        if (!hadElevation && hasElevation) {
+            elevationRiseListener?.invoke()
         }
     }
 
@@ -144,11 +152,16 @@ internal class RenderNodeLayer(
     override fun destroy() {
         isDestroyed = true
         ownerView.dirtyLayers -= this
+        elevationRiseListener = null
     }
 
     override fun getMatrix(): Matrix {
         val matrix = cacheMatrix ?: Matrix().also { cacheMatrix = it }
         renderNode.getMatrix(matrix)
         return matrix
+    }
+
+    override fun setElevationRiseListener(block: (() -> Unit)?) {
+        elevationRiseListener = block
     }
 }

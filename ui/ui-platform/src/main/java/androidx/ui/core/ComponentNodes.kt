@@ -92,10 +92,10 @@ sealed class ComponentNode {
         get() = containingLayoutNode
 
     /**
-     * Protected method to find the parent's layout node. LayoutNode returns itself, but
+     * Method to find the layout node. LayoutNode returns itself, but
      * all other ComponentNodes return the parent's `containingLayoutNode`.
      */
-    protected open val containingLayoutNode: LayoutNode?
+    internal open val containingLayoutNode: LayoutNode?
         get() = parent?.containingLayoutNode
 
     /**
@@ -981,6 +981,12 @@ class LayoutNode : ComponentNode(), Measurable {
     internal var layoutNodeWrapper = innerLayoutNodeWrapper
 
     /**
+     * The outermost DrawLayerModifier in the modifier chain or `null` if there are no
+     * DrawLayerModifiers in the modifier chain.
+     */
+    internal var outerLayer: LayerWrapper? = null
+
+    /**
      * The [Modifier] currently applied to this node.
      */
     var modifier: Modifier = Modifier.None
@@ -993,6 +999,7 @@ class LayoutNode : ComponentNode(), Measurable {
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks.clear()
             onChildPositionedCallbacks.clear()
+            outerLayer = null
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
                 // The order in which the following blocks occur matters.  For example, the
@@ -1010,6 +1017,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 if (mod is DrawLayerModifier) {
                     wrapper = LayerWrapper(wrapper, mod)
+                    outerLayer = wrapper
                 }
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)
@@ -1718,3 +1726,13 @@ val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
  */
 val OnChildPositionedKey =
     DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
+
+/**
+ * True when there is a DrawLayerModifier in the modifier chain
+ */
+internal val LayoutNode.hasLayer: Boolean get() = outerLayer != null
+
+/**
+ * True if the outermost layer has elevation > 0
+ */
+internal val LayoutNode.hasElevation get() = outerLayer?.layer?.hasElevation ?: false
