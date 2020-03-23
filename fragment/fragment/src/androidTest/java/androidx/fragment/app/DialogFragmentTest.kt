@@ -186,6 +186,47 @@ class DialogFragmentTest {
 
     @Test
     @UiThreadTest
+    fun testSavedViewInstanceState() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityTestRule.startupFragmentController(viewModelStore)
+        val fm1 = fc1.supportFragmentManager
+
+        val dialogFragment = RestoreViewDialogFragment()
+        val expectedText = "saved"
+
+        fm1.beginTransaction()
+            .add(dialogFragment, "dialog")
+            .commitNow()
+
+        dialogFragment.requireView().findViewById<EditText>(R.id.editText).apply {
+            setText(expectedText, TextView.BufferType.EDITABLE)
+        }
+
+        fc1.dispatchPause()
+        val savedState = fc1.saveAllState()
+        fc1.dispatchStop()
+        fc1.dispatchDestroy()
+
+        val fc2 = activityTestRule.startupFragmentController(viewModelStore, savedState)
+        val fm2 = fc2.supportFragmentManager
+
+        val restoredDialogFragment = fm2.findFragmentByTag("dialog") as RestoreViewDialogFragment
+        assertWithMessage("Dialog fragment was not restored")
+            .that(restoredDialogFragment).isNotNull()
+
+        val restoredText = restoredDialogFragment.requireView()
+            .findViewById<EditText>(R.id.editText).text.toString()
+
+        assertWithMessage("State of EditText was not restored")
+            .that(restoredText)
+            .isEqualTo(expectedText)
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.shutdown(viewModelStore)
+    }
+
+    @Test
+    @UiThreadTest
     fun testSavedInstanceState() {
         val viewModelStore = ViewModelStore()
         val fc1 = activityTestRule.startupFragmentController(viewModelStore)
@@ -287,6 +328,8 @@ class DialogFragmentTest {
             super.onStart()
         }
     }
+
+    class RestoreViewDialogFragment : DialogFragment(R.layout.with_edit_text)
 
     class RestoreDialog(context: Context) : Dialog(context) {
         var setContentCalled = false
