@@ -37,6 +37,7 @@ import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
+import androidx.ui.util.fastForEach
 
 private val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
 
@@ -244,6 +245,11 @@ internal sealed class LayoutNodeWrapper(
         )
     }
 
+    /**
+     * Returns the layer that this wrapper will draw into.
+     */
+    abstract fun findLayer(): OwnedLayer?
+
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
                 "when isAttached is true"
@@ -307,6 +313,10 @@ internal sealed class DelegatingLayoutNodeWrapper(
         return this
     }
 
+    override fun findLayer(): OwnedLayer? {
+        return wrappedBy?.findLayer()
+    }
+
     override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
     override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
     override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
@@ -322,6 +332,9 @@ internal sealed class DelegatingLayoutNodeWrapper(
 internal class InnerPlaceable(
     layoutNode: LayoutNode
 ) : LayoutNodeWrapper(layoutNode), Density by layoutNode.measureScope {
+    private var introducedLayer: OwnedLayer? = null
+    private var layoutNodeInvalidate: (() -> Unit)? = null
+
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = layoutNode.providedAlignmentLines.keys
     override val isAttached: Boolean
@@ -347,6 +360,10 @@ internal class InnerPlaceable(
                 ?: layoutNode.layoutChildren
                     .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
         }
+
+    override fun findLayer(): OwnedLayer? {
+        return introducedLayer ?: wrappedBy?.findLayer()
+    }
 
     override fun minIntrinsicWidth(height: IntPx): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(
@@ -404,6 +421,41 @@ internal class InnerPlaceable(
     }
 
     override fun draw(canvas: Canvas, density: Density) {
+        if (introducedLayer != null ||
+            (!layoutNode.hasLayer && layoutNode.layoutChildren.any { it.hasElevation })
+        ) {
+            layoutNodeInvalidate = null
+            // we need to introduce a layer
+            val layer = introducedLayer ?: layoutNode.owner!!.createLayer(
+                introducedDrawLayerModifier,
+                ::executeDraw
+            ).also {
+                layoutNode.layoutChildren.fastForEach {
+                    it.outerLayer?.layer?.setElevationRiseListener(null)
+                }
+                introducedLayer = it
+            }
+            layer.drawLayer(canvas)
+        } else {
+            if (!layoutNode.hasLayer && layoutNode.layoutChildren.isNotEmpty()) {
+                // We don't want to use layoutNode::onInvalidate because that will allocate
+                // a new lambda every time. This will reuse the lambda after the first allocation
+                // so we save allocations and won't allocate on each draw.
+                val invalidate = layoutNodeInvalidate ?: {
+                    if (introducedLayer == null) {
+                        layoutNode.onInvalidate()
+                    }
+                }.also { layoutNodeInvalidate = it }
+                layoutNode.layoutChildren.fastForEach {
+                    it.outerLayer?.layer?.setElevationRiseListener(invalidate)
+                }
+            }
+            executeDraw(canvas, density)
+        }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun executeDraw(canvas: Canvas, density: Density) {
         withPositionTranslation(canvas) {
             val owner = layoutNode.requireOwner()
             val sizePx = size.toPxSize()
@@ -440,6 +492,10 @@ internal class InnerPlaceable(
             paint.strokeWidth = 1f
             paint.style = PaintingStyle.stroke
         }
+        val introducedDrawLayerModifier = drawLayer(
+            clipToBounds = false,
+            clipToOutline = false
+        ) as DrawLayerModifier
     }
 }
 
@@ -653,7 +709,7 @@ internal class LayerWrapper(
                 wrapped::draw
             ).also {
                 _layer = it
-                findContainingLayer()?.invalidate()
+                wrappedBy?.findLayer()?.invalidate()
             }
         }
 
@@ -680,12 +736,8 @@ internal class LayerWrapper(
         _layer?.destroy()
     }
 
-    fun findContainingLayer(): OwnedLayer? {
-        var wrapper = wrappedBy
-        while (wrapper != null && wrapper !is LayerWrapper) {
-            wrapper = wrapper.wrappedBy
-        }
-        return (wrapper as? LayerWrapper)?.layer
+    override fun findLayer(): OwnedLayer? {
+        return layer
     }
 
     override fun toParentPosition(position: PxPosition): PxPosition {
